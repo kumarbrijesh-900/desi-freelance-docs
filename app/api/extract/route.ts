@@ -21,21 +21,20 @@ export async function POST(request: Request) {
     : "";
 
   const clientNameMatch =
-    rawBrief.match(/client named\s+([A-Za-z0-9&\-\s]+?)(?=\s+the|\s+for|\s*,|\.|$)/i) ||
-    rawBrief.match(/client is\s+([A-Za-z0-9&\-\s]+?)(?=\s+the|\s+for|\s*,|\.|$)/i) ||
-    rawBrief.match(/called\s+([A-Za-z0-9&\-\s]+?)(?=\s+the|\s+for|\s*,|\.|$)/i);
+    rawBrief.match(/client named\s+([A-Za-z0-9&\-\s]+?)(?=\s+for|\s+with|\s*,|\.|$)/i) ||
+    rawBrief.match(/client is\s+([A-Za-z0-9&\-\s]+?)(?=\s+for|\s+with|\s*,|\.|$)/i) ||
+    rawBrief.match(/called\s+([A-Za-z0-9&\-\s]+?)(?=\s+for|\s+with|\s*,|\.|$)/i);
 
-  const timelineMatch = rawBrief.match(
-    /(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i
-  );
+  const timelineMatch =
+    rawBrief.match(/within\s+(a\s+week|a\s+month|a\s+day)/i) ||
+    rawBrief.match(/(\d+\s*(?:day|days|week|weeks|month|months|year|years))/i);
 
   const revisionsMatch = rawBrief.match(
     /(\d+\s*(?:revision|revisions|round|rounds))/i
   );
 
-  const feeMatch = rawBrief.match(
-    /(₹\s?\d[\d,]*|\d[\d,]*\s?(?:rupees|inr))/i
-  );
+  const feeMatch =
+    rawBrief.match(/(₹\s?\d[\d,]*|\d[\d,]*\/-|\d[\d,]*\s?(?:rupees|inr))/i);
 
   return NextResponse.json({
     clientName: clientNameMatch ? clientNameMatch[1].trim() : "",
