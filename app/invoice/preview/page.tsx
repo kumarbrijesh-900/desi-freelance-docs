@@ -140,6 +140,9 @@ export default function InvoicePreviewPage() {
   );
   const hasLicense = Boolean(data?.payment?.license?.isLicenseIncluded);
   const hasQr = Boolean(data?.payment?.qrCodeUrl);
+  const detailCardClass = "rounded-2xl border border-gray-200 bg-gray-50/70 p-5";
+  const sectionLabelClass =
+    "text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-500";
 
   const handlePrint = () => {
     window.print();
@@ -192,8 +195,8 @@ export default function InvoicePreviewPage() {
         }
       `}</style>
 
-      <main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 sm:py-10 print:bg-white print:p-0">
-        <div className="mx-auto mb-6 flex max-w-5xl items-center justify-between print:hidden">
+      <main className="min-h-screen bg-[linear-gradient(180deg,#f5f5f5_0%,#ececec_100%)] px-4 py-6 sm:px-6 sm:py-10 print:bg-white print:p-0">
+        <div className="mx-auto mb-6 flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <Link
             href="/invoice/new"
             className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
@@ -220,93 +223,148 @@ export default function InvoicePreviewPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-5xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none">
-          <header className="flex flex-col gap-6 border-b border-gray-200 pb-6 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              {data.agency?.logoUrl ? (
-                <img
-                  src={data.agency.logoUrl}
-                  alt="Agency logo"
-                  className="mb-4 max-h-16 w-auto object-contain"
-                />
-              ) : null}
+        <div className="mx-auto max-w-5xl rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] sm:p-8 print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none">
+          <header className="border-b border-gray-200 pb-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 max-w-2xl">
+                <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-500">
+                  Client Review Copy
+                </div>
 
-              <h1 className="text-2xl font-bold text-black">
-                {data.agency?.agencyName || "Your Agency Name"}
-              </h1>
+                <div className="mt-5">
+                  <p className={sectionLabelClass}>Issued By</p>
+                </div>
 
-              <div className="mt-3 space-y-1 text-sm text-gray-600">
-                <p>{data.agency?.address || "—"}</p>
-                {hasAgencyTax && (
-                  <div className="pt-1">
-                    {data.agency?.gstin ? <p>GSTIN: {data.agency.gstin}</p> : null}
-                    {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
-                  </div>
-                )}
+                <div className="mt-3">
+                  {data.agency?.logoUrl ? (
+                    <div className="mb-5 inline-flex rounded-2xl border border-gray-200 bg-white px-4 py-3">
+                      <img
+                        src={data.agency.logoUrl}
+                        alt="Agency logo"
+                        className="max-h-16 w-auto object-contain"
+                      />
+                    </div>
+                  ) : null}
+
+                  <h1 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
+                    {data.agency?.agencyName || "Your Agency Name"}
+                  </h1>
+                </div>
+
+                <div className="mt-4 max-w-xl space-y-2 text-sm leading-6 text-gray-600">
+                  <p>{data.agency?.address || "—"}</p>
+                  {hasAgencyTax && (
+                    <div className="flex flex-wrap gap-x-6 gap-y-1">
+                      {data.agency?.gstin ? <p>GSTIN: {data.agency.gstin}</p> : null}
+                      {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="sm:text-right">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Invoice
-              </p>
-              <p className="mt-2 text-2xl font-bold text-black">
-                {data.meta?.invoiceNumber || "—"}
-              </p>
+              <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-gray-50 p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className={sectionLabelClass}>Invoice</p>
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-black">
+                      {data.meta?.invoiceNumber || "—"}
+                    </p>
+                  </div>
 
-              <div className="mt-4 space-y-1 text-sm text-gray-600">
-                <p>Invoice Date: {formatDate(data.meta?.invoiceDate)}</p>
-                <p>Due Date: {formatDate(data.meta?.dueDate)}</p>
-                <p>Payment Terms: {data.meta?.paymentTerms || "—"}</p>
+                  <div className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
+                    Preview
+                  </div>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                      Invoice Date
+                    </p>
+                    <p className="mt-2 text-base font-semibold text-black">
+                      {formatDate(data.meta?.invoiceDate)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-200 bg-white p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                      Due Date
+                    </p>
+                    <p className="mt-2 text-base font-semibold text-black">
+                      {formatDate(data.meta?.dueDate)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 rounded-2xl border border-gray-200 bg-white p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                    Payment Terms
+                  </p>
+                  <p className="mt-2 text-base font-semibold text-black">
+                    {data.meta?.paymentTerms || "—"}
+                  </p>
+                </div>
               </div>
             </div>
           </header>
 
-          <section className="grid grid-cols-1 gap-6 border-b border-gray-200 py-6 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                From
-              </p>
-              <p className="mt-2 text-base font-semibold text-black">
+          <section className="grid grid-cols-1 gap-4 border-b border-gray-200 py-6 md:grid-cols-2">
+            <div className={detailCardClass}>
+              <p className={sectionLabelClass}>From</p>
+              <p className="mt-3 text-lg font-semibold text-black">
                 {data.agency?.agencyName || "—"}
               </p>
-              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
+              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-600">
                 {data.agency?.address || "—"}
               </p>
             </div>
 
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                Bill To
-              </p>
-              <p className="mt-2 text-base font-semibold text-black">
+            <div className={detailCardClass}>
+              <p className={sectionLabelClass}>Bill To</p>
+              <p className="mt-3 text-lg font-semibold text-black">
                 {data.client?.clientName || "—"}
               </p>
-              <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
+              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-600">
                 {data.client?.clientAddress || "—"}
               </p>
               {hasClientGstin ? (
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-3 text-sm text-gray-600">
                   GSTIN: {data.client?.clientGstin}
                 </p>
               ) : null}
             </div>
           </section>
 
-          <section className="py-6">
-            <div className="overflow-hidden rounded-2xl border border-gray-200">
-              <table className="w-full border-collapse text-left">
-                <thead className="bg-gray-50">
-                  <tr className="text-sm text-gray-700">
-                    <th className="px-4 py-3 font-semibold">Description</th>
-                    <th className="px-4 py-3 font-semibold">Qty</th>
-                    <th className="px-4 py-3 font-semibold">Rate</th>
-                    <th className="px-4 py-3 font-semibold">Unit</th>
-                    <th className="px-4 py-3 text-right font-semibold">Amount</th>
+          <section className="border-b border-gray-200 py-6">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className={sectionLabelClass}>Line Items</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-black">
+                  Services & Deliverables
+                </h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Review the billed services, units, and total line amounts.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600">
+                {computed.lineItems.length} item{computed.lineItems.length === 1 ? "" : "s"}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-gray-200">
+              <table className="min-w-full border-collapse text-left">
+                <thead className="bg-gray-50/90">
+                  <tr className="text-xs uppercase tracking-[0.16em] text-gray-500">
+                    <th className="px-4 py-4 font-semibold">Description</th>
+                    <th className="px-4 py-4 font-semibold">Qty</th>
+                    <th className="px-4 py-4 font-semibold">Rate</th>
+                    <th className="px-4 py-4 font-semibold">Unit</th>
+                    <th className="px-4 py-4 text-right font-semibold">Amount</th>
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="bg-white">
                   {computed.lineItems.length > 0 ? (
                     computed.lineItems.map((item) => {
                       const amount = item.qty * item.rate;
@@ -317,21 +375,21 @@ export default function InvoicePreviewPage() {
                           className="border-t border-gray-200 text-sm text-gray-700"
                         >
                           <td className="px-4 py-4">
-                            <div className="font-medium text-black">
+                            <div className="font-semibold text-black">
                               {item.description || item.type}
                             </div>
-                            <div className="mt-1 text-xs text-gray-500">
+                            <div className="mt-1 text-xs uppercase tracking-[0.12em] text-gray-500">
                               {item.type}
                             </div>
                           </td>
-                          <td className="px-4 py-4">{item.qty}</td>
-                          <td className="px-4 py-4">
+                          <td className="px-4 py-4 font-medium text-black">{item.qty}</td>
+                          <td className="px-4 py-4 font-medium text-black">
                             {formatCurrency(item.rate)}
                           </td>
                           <td className="px-4 py-4">
                             {getUnitLabel(item.rateUnit)}
                           </td>
-                          <td className="px-4 py-4 text-right font-medium text-black">
+                          <td className="px-4 py-4 text-right font-semibold text-black">
                             {formatCurrency(amount)}
                           </td>
                         </tr>
@@ -349,11 +407,11 @@ export default function InvoicePreviewPage() {
             </div>
           </section>
 
-          <section className="grid grid-cols-1 gap-8 border-t border-gray-200 pt-6 sm:grid-cols-[1fr_320px]">
-            <div className="space-y-6">
+          <section className="grid grid-cols-1 gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="space-y-4">
               {hasNotes ? (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                <div className={detailCardClass}>
+                  <p className={sectionLabelClass}>
                     Notes
                   </p>
                   <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
@@ -363,45 +421,47 @@ export default function InvoicePreviewPage() {
               ) : null}
 
               {hasLicense ? (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                <div className={detailCardClass}>
+                  <p className={sectionLabelClass}>
                     License
                   </p>
-                  <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    <p>Included: Yes</p>
-                    <p>
-                      Type: {getLicenseLabel(data.payment?.license?.licenseType)}
-                    </p>
-                    {data.payment?.license?.licenseDuration ? (
-                      <p>Duration: {data.payment.license.licenseDuration}</p>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-gray-200 bg-white p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        Included
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-black">Yes</p>
+                    </div>
 
-              {hasBankDetails ? (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                    Bank Details
-                  </p>
-                  <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    {data.payment?.accountName ? (
-                      <p>Account Name: {data.payment.accountName}</p>
-                    ) : null}
-                    {data.payment?.accountNumber ? (
-                      <p>Account Number: {data.payment.accountNumber}</p>
-                    ) : null}
-                    {data.payment?.ifscCode ? (
-                      <p>IFSC Code: {data.payment.ifscCode}</p>
+                    <div className="rounded-xl border border-gray-200 bg-white p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        Type
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-black">
+                        {getLicenseLabel(data.payment?.license?.licenseType)}
+                      </p>
+                    </div>
+
+                    {data.payment?.license?.licenseDuration ? (
+                      <div className="rounded-xl border border-gray-200 bg-white p-3 sm:col-span-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Duration
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-black">
+                          {data.payment.license.licenseDuration}
+                        </p>
+                      </div>
                     ) : null}
                   </div>
                 </div>
               ) : null}
             </div>
 
-            <div>
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-                <div className="space-y-3 text-sm text-gray-700">
+            <div className="space-y-4">
+              <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
+                <p className={sectionLabelClass}>Amount Summary</p>
+
+                <div className="mt-4 space-y-3 text-sm text-gray-700">
                   <div className="flex items-center justify-between">
                     <span>Subtotal</span>
                     <span className="font-medium text-black">
@@ -425,20 +485,69 @@ export default function InvoicePreviewPage() {
                     </div>
                   </div>
                 </div>
-
-                {hasQr ? (
-                  <div className="mt-6 border-t border-gray-200 pt-5">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                      Scan to Pay
-                    </p>
-                    <img
-                      src={data.payment?.qrCodeUrl}
-                      alt="Payment QR"
-                      className="max-h-40 w-auto object-contain"
-                    />
-                  </div>
-                ) : null}
               </div>
+
+              {(hasBankDetails || hasQr) && (
+                <div className="rounded-3xl border border-gray-200 bg-white p-5">
+                  <p className={sectionLabelClass}>Payment Details</p>
+
+                  {hasBankDetails ? (
+                    <div className="mt-4 space-y-3">
+                      {data.payment?.accountName ? (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            Account Name
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-black">
+                            {data.payment.accountName}
+                          </p>
+                        </div>
+                      ) : null}
+
+                      {data.payment?.accountNumber ? (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            Account Number
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-black">
+                            {data.payment.accountNumber}
+                          </p>
+                        </div>
+                      ) : null}
+
+                      {data.payment?.ifscCode ? (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                            IFSC Code
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-black">
+                            {data.payment.ifscCode}
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {hasQr ? (
+                    <div
+                      className={`rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-5 ${
+                        hasBankDetails ? "mt-5" : "mt-4"
+                      }`}
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+                        Scan to Pay
+                      </p>
+                      <div className="mt-4 flex justify-center rounded-2xl border border-gray-200 bg-white p-4">
+                        <img
+                          src={data.payment?.qrCodeUrl}
+                          alt="Payment QR"
+                          className="max-h-44 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
           </section>
         </div>
