@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 type PreviewInvoiceData = {
@@ -49,6 +49,7 @@ type PreviewInvoiceData = {
 };
 
 const STORAGE_KEY = "invoice-preview-data";
+const DRAFT_STORAGE_KEY = "invoice-editor-draft";
 
 function formatDate(dateString?: string) {
   if (!dateString) return "—";
@@ -94,9 +95,21 @@ function getLicenseLabel(type?: string) {
   return type ? map[type] ?? type : "—";
 }
 
+function getInvoiceTitle(invoiceNumber?: string) {
+  return invoiceNumber?.trim()
+    ? `${invoiceNumber.trim()} - Invoice Preview`
+    : "Invoice Preview";
+}
+
+function getPdfTitle(invoiceNumber?: string) {
+  return invoiceNumber?.trim() ? `${invoiceNumber.trim()}.pdf` : "invoice.pdf";
+}
+
 export default function InvoicePreviewPage() {
   const [data, setData] = useState<PreviewInvoiceData | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const defaultTitleRef = useRef<string>("");
+  const exportTitleRef = useRef<string | null>(null);
 
   useEffect(() => {
     try {
@@ -140,12 +153,74 @@ export default function InvoicePreviewPage() {
   );
   const hasLicense = Boolean(data?.payment?.license?.isLicenseIncluded);
   const hasQr = Boolean(data?.payment?.qrCodeUrl);
-  const detailCardClass = "rounded-2xl border border-gray-200 bg-gray-50/70 p-5";
   const sectionLabelClass =
-    "text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-500";
+    "text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500";
+  const metaLabelClass = "text-[10px] uppercase tracking-[0.16em] text-gray-500";
+  const documentBlockClass = "avoid-break border border-gray-200 px-4 py-3";
+  const compactTextClass = "text-[13px] leading-5 text-gray-700";
+  const invoiceNumber = data?.meta?.invoiceNumber;
+  const previewTitle = getInvoiceTitle(invoiceNumber);
+  const pdfTitle = getPdfTitle(invoiceNumber);
+  const hasSupportingDetails = hasNotes || hasLicense;
+  const hasPaymentDetails = hasBankDetails || hasQr;
+
+  useEffect(() => {
+    defaultTitleRef.current = previewTitle;
+    document.title = previewTitle;
+
+    return () => {
+      if (exportTitleRef.current === null) {
+        document.title = previewTitle;
+      }
+    };
+  }, [previewTitle]);
+
+  useEffect(() => {
+    const resetTitleAfterPrint = () => {
+      exportTitleRef.current = null;
+      document.title = defaultTitleRef.current || previewTitle;
+    };
+
+    window.addEventListener("afterprint", resetTitleAfterPrint);
+
+    return () => {
+      window.removeEventListener("afterprint", resetTitleAfterPrint);
+    };
+  }, [previewTitle]);
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleBackToEdit = () => {
+    if (!data) return;
+
+    try {
+      window.localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          formData: data,
+          currentStep: "totals",
+          savedAt: new Date().toISOString(),
+        })
+      );
+    } catch (error) {
+      console.error("Failed to store editor draft from preview:", error);
+    }
+  };
+
+  const handleDownloadPdf = () => {
+    exportTitleRef.current = pdfTitle;
+    document.title = pdfTitle;
+    window.print();
+
+    // Fallback for environments where `afterprint` is unreliable.
+    window.setTimeout(() => {
+      if (exportTitleRef.current !== null) {
+        exportTitleRef.current = null;
+        document.title = defaultTitleRef.current || previewTitle;
+      }
+    }, 0);
   };
 
   if (!isReady) {
@@ -187,18 +262,42 @@ export default function InvoicePreviewPage() {
         @media print {
           @page {
             size: A4;
-            margin: 14mm;
+            margin: 10mm;
           }
           html, body {
             background: white !important;
           }
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+
+        .invoice-sheet {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .avoid-break {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .invoice-table thead {
+          display: table-header-group;
+        }
+
+        .invoice-table tr {
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
       `}</style>
 
-      <main className="min-h-screen bg-[linear-gradient(180deg,#f5f5f5_0%,#ececec_100%)] px-4 py-6 sm:px-6 sm:py-10 print:bg-white print:p-0">
+      <main className="min-h-screen bg-stone-100 px-4 py-5 sm:px-6 sm:py-8 print:bg-white print:p-0">
         <div className="mx-auto mb-6 flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <Link
             href="/invoice/new"
+            onClick={handleBackToEdit}
             className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
           >
             ← Back to Edit
@@ -215,152 +314,123 @@ export default function InvoicePreviewPage() {
 
             <button
               type="button"
-              onClick={handlePrint}
+              onClick={handleDownloadPdf}
               className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white"
             >
-              Download / Save PDF
+              Export PDF
             </button>
           </div>
         </div>
 
-        <div className="mx-auto max-w-5xl rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] sm:p-8 print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none">
-          <header className="border-b border-gray-200 pb-8">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0 max-w-2xl">
-                <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-500">
-                  Client Review Copy
+        <div className="invoice-sheet mx-auto w-full max-w-[210mm] border border-stone-300 bg-white px-5 py-5 shadow-[0_16px_42px_rgba(15,23,42,0.08)] sm:px-7 sm:py-6 print:max-w-none print:border-0 print:px-0 print:py-0 print:shadow-none">
+          <header className="grid gap-5 border-b border-gray-300 pb-4 lg:grid-cols-[minmax(0,1fr)_270px] print:gap-4">
+            <div className="min-w-0">
+              {data.agency?.logoUrl ? (
+                <img
+                  src={data.agency.logoUrl}
+                  alt="Agency logo"
+                  className="mb-3 max-h-12 w-auto object-contain"
+                />
+              ) : null}
+
+              <p className={sectionLabelClass}>Issued By</p>
+              <h1 className="mt-2 text-[28px] font-bold leading-none tracking-tight text-black sm:text-[32px]">
+                {data.agency?.agencyName || "Your Agency Name"}
+              </h1>
+
+              <p className={`mt-3 max-w-xl whitespace-pre-line ${compactTextClass}`}>
+                {data.agency?.address || "—"}
+              </p>
+
+              {hasAgencyTax ? (
+                <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px] leading-5 text-gray-600">
+                  {data.agency?.gstin ? <p>GSTIN: {data.agency.gstin}</p> : null}
+                  {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
+                </div>
+              ) : null}
+            </div>
+
+            <div className={`${documentBlockClass} self-start`}>
+              <p className={sectionLabelClass}>Invoice</p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-black">
+                {data.meta?.invoiceNumber || "—"}
+              </p>
+
+              <div className="mt-3 space-y-2 text-[13px] leading-5 text-gray-700">
+                <div className="flex items-start justify-between gap-4 border-b border-gray-100 pb-2">
+                  <span className={metaLabelClass}>Invoice Date</span>
+                  <span className="text-right font-medium text-black">
+                    {formatDate(data.meta?.invoiceDate)}
+                  </span>
                 </div>
 
-                <div className="mt-5">
-                  <p className={sectionLabelClass}>Issued By</p>
+                <div className="flex items-start justify-between gap-4 border-b border-gray-100 pb-2">
+                  <span className={metaLabelClass}>Due Date</span>
+                  <span className="text-right font-medium text-black">
+                    {formatDate(data.meta?.dueDate)}
+                  </span>
                 </div>
 
-                <div className="mt-3">
-                  {data.agency?.logoUrl ? (
-                    <div className="mb-5 inline-flex rounded-2xl border border-gray-200 bg-white px-4 py-3">
-                      <img
-                        src={data.agency.logoUrl}
-                        alt="Agency logo"
-                        className="max-h-16 w-auto object-contain"
-                      />
-                    </div>
-                  ) : null}
-
-                  <h1 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
-                    {data.agency?.agencyName || "Your Agency Name"}
-                  </h1>
-                </div>
-
-                <div className="mt-4 max-w-xl space-y-2 text-sm leading-6 text-gray-600">
-                  <p>{data.agency?.address || "—"}</p>
-                  {hasAgencyTax && (
-                    <div className="flex flex-wrap gap-x-6 gap-y-1">
-                      {data.agency?.gstin ? <p>GSTIN: {data.agency.gstin}</p> : null}
-                      {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-gray-50 p-5">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className={sectionLabelClass}>Invoice</p>
-                    <p className="mt-3 text-3xl font-bold tracking-tight text-black">
-                      {data.meta?.invoiceNumber || "—"}
-                    </p>
-                  </div>
-
-                  <div className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600">
-                    Preview
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
-                      Invoice Date
-                    </p>
-                    <p className="mt-2 text-base font-semibold text-black">
-                      {formatDate(data.meta?.invoiceDate)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
-                      Due Date
-                    </p>
-                    <p className="mt-2 text-base font-semibold text-black">
-                      {formatDate(data.meta?.dueDate)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-3 rounded-2xl border border-gray-200 bg-white p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
-                    Payment Terms
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-black">
+                  <span className={metaLabelClass}>Payment Terms</span>
+                  <span className="text-right font-medium text-black">
                     {data.meta?.paymentTerms || "—"}
-                  </p>
+                  </span>
                 </div>
               </div>
             </div>
           </header>
 
-          <section className="grid grid-cols-1 gap-4 border-b border-gray-200 py-6 md:grid-cols-2">
-            <div className={detailCardClass}>
+          <section className="grid gap-4 border-b border-gray-300 py-4 md:grid-cols-2">
+            <div className={documentBlockClass}>
               <p className={sectionLabelClass}>From</p>
-              <p className="mt-3 text-lg font-semibold text-black">
+              <p className="mt-2 text-[15px] font-semibold text-black">
                 {data.agency?.agencyName || "—"}
               </p>
-              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-600">
+              <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
                 {data.agency?.address || "—"}
               </p>
             </div>
 
-            <div className={detailCardClass}>
+            <div className={documentBlockClass}>
               <p className={sectionLabelClass}>Bill To</p>
-              <p className="mt-3 text-lg font-semibold text-black">
+              <p className="mt-2 text-[15px] font-semibold text-black">
                 {data.client?.clientName || "—"}
               </p>
-              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-600">
+              <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
                 {data.client?.clientAddress || "—"}
               </p>
               {hasClientGstin ? (
-                <p className="mt-3 text-sm text-gray-600">
+                <p className="mt-2 text-[12px] leading-5 text-gray-600">
                   GSTIN: {data.client?.clientGstin}
                 </p>
               ) : null}
             </div>
           </section>
 
-          <section className="border-b border-gray-200 py-6">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <section className="border-b border-gray-300 py-4">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className={sectionLabelClass}>Line Items</p>
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-black">
+                <h2 className="mt-1 text-[20px] font-bold tracking-tight text-black">
                   Services & Deliverables
                 </h2>
-                <p className="mt-2 text-sm text-gray-600">
-                  Review the billed services, units, and total line amounts.
-                </p>
               </div>
 
-              <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600">
+              <p className="text-[12px] text-gray-500">
                 {computed.lineItems.length} item{computed.lineItems.length === 1 ? "" : "s"}
-              </div>
+              </p>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-gray-200">
-              <table className="min-w-full border-collapse text-left">
-                <thead className="bg-gray-50/90">
-                  <tr className="text-xs uppercase tracking-[0.16em] text-gray-500">
-                    <th className="px-4 py-4 font-semibold">Description</th>
-                    <th className="px-4 py-4 font-semibold">Qty</th>
-                    <th className="px-4 py-4 font-semibold">Rate</th>
-                    <th className="px-4 py-4 font-semibold">Unit</th>
-                    <th className="px-4 py-4 text-right font-semibold">Amount</th>
+            <div className="overflow-hidden border border-gray-200">
+              <table className="invoice-table min-w-full border-collapse text-left">
+                <thead className="bg-gray-50">
+                  <tr className="text-[10px] uppercase tracking-[0.16em] text-gray-500">
+                    <th className="px-3 py-2.5 font-semibold sm:px-4">Description</th>
+                    <th className="px-3 py-2.5 font-semibold sm:px-4">Qty</th>
+                    <th className="px-3 py-2.5 font-semibold sm:px-4">Rate</th>
+                    <th className="px-3 py-2.5 font-semibold sm:px-4">Unit</th>
+                    <th className="px-3 py-2.5 text-right font-semibold sm:px-4">Amount</th>
                   </tr>
                 </thead>
 
@@ -372,32 +442,34 @@ export default function InvoicePreviewPage() {
                       return (
                         <tr
                           key={item.id}
-                          className="border-t border-gray-200 text-sm text-gray-700"
+                          className="border-t border-gray-200 text-[13px] leading-5 text-gray-700"
                         >
-                          <td className="px-4 py-4">
+                          <td className="px-3 py-2.5 align-top sm:px-4">
                             <div className="font-semibold text-black">
                               {item.description || item.type}
                             </div>
-                            <div className="mt-1 text-xs uppercase tracking-[0.12em] text-gray-500">
+                            <div className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-gray-500">
                               {item.type}
                             </div>
                           </td>
-                          <td className="px-4 py-4 font-medium text-black">{item.qty}</td>
-                          <td className="px-4 py-4 font-medium text-black">
+                          <td className="px-3 py-2.5 align-top font-medium text-black sm:px-4">
+                            {item.qty}
+                          </td>
+                          <td className="px-3 py-2.5 align-top font-medium text-black sm:px-4">
                             {formatCurrency(item.rate)}
                           </td>
-                          <td className="px-4 py-4">
+                          <td className="px-3 py-2.5 align-top sm:px-4">
                             {getUnitLabel(item.rateUnit)}
                           </td>
-                          <td className="px-4 py-4 text-right font-semibold text-black">
+                          <td className="px-3 py-2.5 text-right align-top font-semibold text-black sm:px-4">
                             {formatCurrency(amount)}
                           </td>
                         </tr>
                       );
                     })
                   ) : (
-                    <tr className="border-t border-gray-200 text-sm text-gray-500">
-                      <td colSpan={5} className="px-4 py-6 text-center">
+                    <tr className="border-t border-gray-200 text-[13px] text-gray-500">
+                      <td colSpan={5} className="px-4 py-5 text-center">
                         No line items available.
                       </td>
                     </tr>
@@ -407,148 +479,167 @@ export default function InvoicePreviewPage() {
             </div>
           </section>
 
-          <section className="grid grid-cols-1 gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="space-y-4">
-              {hasNotes ? (
-                <div className={detailCardClass}>
-                  <p className={sectionLabelClass}>
-                    Notes
-                  </p>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-gray-600">
-                    {data.payment?.notes}
-                  </p>
-                </div>
-              ) : null}
-
-              {hasLicense ? (
-                <div className={detailCardClass}>
-                  <p className={sectionLabelClass}>
-                    License
-                  </p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Included
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-black">Yes</p>
-                    </div>
-
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                        Type
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-black">
-                        {getLicenseLabel(data.payment?.license?.licenseType)}
+          <section
+            className={`pt-4 ${
+              hasSupportingDetails && hasPaymentDetails
+                ? "grid gap-3 lg:grid-cols-[minmax(0,1fr)_270px] lg:items-start"
+                : ""
+            }`}
+          >
+            {hasSupportingDetails ? (
+              <div className="space-y-3">
+                <div className={documentBlockClass}>
+                  {hasNotes ? (
+                    <div className={hasLicense ? "border-b border-gray-100 pb-3" : ""}>
+                      <p className={sectionLabelClass}>Notes</p>
+                      <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
+                        {data.payment?.notes}
                       </p>
                     </div>
+                  ) : null}
 
-                    {data.payment?.license?.licenseDuration ? (
-                      <div className="rounded-xl border border-gray-200 bg-white p-3 sm:col-span-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                          Duration
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-black">
-                          {data.payment.license.licenseDuration}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
+                  {hasLicense ? (
+                    <div className={hasNotes ? "pt-3" : ""}>
+                      <p className={sectionLabelClass}>License</p>
+                      <dl className="mt-2 grid grid-cols-[96px_1fr] gap-x-3 gap-y-1 text-[13px] leading-5 text-gray-700">
+                        <dt className="text-gray-500">Included</dt>
+                        <dd className="font-medium text-black">Yes</dd>
+
+                        <dt className="text-gray-500">Type</dt>
+                        <dd className="font-medium text-black">
+                          {getLicenseLabel(data.payment?.license?.licenseType)}
+                        </dd>
+
+                        {data.payment?.license?.licenseDuration ? (
+                          <>
+                            <dt className="text-gray-500">Duration</dt>
+                            <dd className="font-medium text-black">
+                              {data.payment.license.licenseDuration}
+                            </dd>
+                          </>
+                        ) : null}
+                      </dl>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
 
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-                <p className={sectionLabelClass}>Amount Summary</p>
+                <div className={`${documentBlockClass} bg-gray-50/50`}>
+                  <p className={sectionLabelClass}>Amount Due</p>
 
-                <div className="mt-4 space-y-3 text-sm text-gray-700">
-                  <div className="flex items-center justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-medium text-black">
-                      {formatCurrency(computed.subtotal)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span>Tax ({computed.taxRate}%)</span>
-                    <span className="font-medium text-black">
-                      {formatCurrency(computed.taxAmount)}
-                    </span>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-black">Grand Total</span>
-                      <span className="text-lg font-bold text-black">
-                        {formatCurrency(computed.grandTotal)}
+                  <div className="mt-3 space-y-2 text-[13px] leading-5 text-gray-700">
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-black">
+                        {formatCurrency(computed.subtotal)}
                       </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Tax ({computed.taxRate}%)</span>
+                      <span className="font-medium text-black">
+                        {formatCurrency(computed.taxAmount)}
+                      </span>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-2">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="font-semibold text-black">Grand Total</span>
+                        <span className="text-[16px] font-bold text-black">
+                          {formatCurrency(computed.grandTotal)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            ) : null}
 
-              {(hasBankDetails || hasQr) && (
-                <div className="rounded-3xl border border-gray-200 bg-white p-5">
+            <aside
+              className={`space-y-4 ${
+                hasSupportingDetails ? "" : "mx-auto w-full max-w-[270px] lg:ml-auto"
+              }`}
+            >
+              {!hasSupportingDetails ? (
+                <div className={`${documentBlockClass} bg-gray-50/50`}>
+                  <p className={sectionLabelClass}>Amount Due</p>
+
+                  <div className="mt-3 space-y-2 text-[13px] leading-5 text-gray-700">
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-black">
+                        {formatCurrency(computed.subtotal)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Tax ({computed.taxRate}%)</span>
+                      <span className="font-medium text-black">
+                        {formatCurrency(computed.taxAmount)}
+                      </span>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-2">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="font-semibold text-black">Grand Total</span>
+                        <span className="text-[16px] font-bold text-black">
+                          {formatCurrency(computed.grandTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {hasPaymentDetails ? (
+                <div className={documentBlockClass}>
                   <p className={sectionLabelClass}>Payment Details</p>
 
                   {hasBankDetails ? (
-                    <div className="mt-4 space-y-3">
+                    <dl className="mt-2 grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[13px] leading-5 text-gray-700">
                       {data.payment?.accountName ? (
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                            Account Name
-                          </p>
-                          <p className="mt-1 text-sm font-medium text-black">
+                        <>
+                          <dt className="text-gray-500">Account</dt>
+                          <dd className="font-medium text-black">
                             {data.payment.accountName}
-                          </p>
-                        </div>
+                          </dd>
+                        </>
                       ) : null}
 
                       {data.payment?.accountNumber ? (
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                            Account Number
-                          </p>
-                          <p className="mt-1 text-sm font-medium text-black">
+                        <>
+                          <dt className="text-gray-500">Number</dt>
+                          <dd className="font-medium text-black">
                             {data.payment.accountNumber}
-                          </p>
-                        </div>
+                          </dd>
+                        </>
                       ) : null}
 
                       {data.payment?.ifscCode ? (
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
-                            IFSC Code
-                          </p>
-                          <p className="mt-1 text-sm font-medium text-black">
+                        <>
+                          <dt className="text-gray-500">IFSC</dt>
+                          <dd className="font-medium text-black">
                             {data.payment.ifscCode}
-                          </p>
-                        </div>
+                          </dd>
+                        </>
                       ) : null}
-                    </div>
+                    </dl>
                   ) : null}
 
                   {hasQr ? (
-                    <div
-                      className={`rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-5 ${
-                        hasBankDetails ? "mt-5" : "mt-4"
-                      }`}
-                    >
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
-                        Scan to Pay
-                      </p>
-                      <div className="mt-4 flex justify-center rounded-2xl border border-gray-200 bg-white p-4">
+                    <div className={hasBankDetails ? "mt-3 border-t border-gray-100 pt-3" : "mt-2"}>
+                      <p className={sectionLabelClass}>Scan to Pay</p>
+                      <div className="mt-2 flex justify-start">
                         <img
                           src={data.payment?.qrCodeUrl}
                           alt="Payment QR"
-                          className="max-h-44 w-auto object-contain"
+                          className="max-h-32 w-auto object-contain"
                         />
                       </div>
                     </div>
                   ) : null}
                 </div>
-              )}
-            </div>
+              ) : null}
+            </aside>
           </section>
         </div>
       </main>
