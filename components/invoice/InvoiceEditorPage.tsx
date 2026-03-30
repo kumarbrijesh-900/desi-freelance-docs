@@ -300,74 +300,86 @@ function CompactJourneyStepper({
   currentStep: InvoiceStepperStep;
 }) {
   const currentIndex = steps.indexOf(currentStep);
+  const progressPercent = ((currentIndex + 1) / steps.length) * 100;
 
   return (
     <div className="mt-3">
       <div className="overflow-x-auto pb-1">
-        <div className="flex min-w-[620px] items-start">
-          {steps.map((step, index) => {
-            const isCompleted = index < currentIndex;
-            const isActive = index === currentIndex;
-            const isLast = index === steps.length - 1;
+        <div className="flex min-w-[700px] items-start gap-4">
+          <div className="flex min-w-0 flex-1 items-start">
+            {steps.map((step, index) => {
+              const isCompleted = index < currentIndex;
+              const isActive = index === currentIndex;
+              const isLast = index === steps.length - 1;
 
-            return (
-              <div
-                key={step}
-                className="flex min-w-0 flex-1"
-                aria-current={isActive ? "step" : undefined}
-              >
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <div className="flex items-center">
-                    <span
-                      className={`relative z-10 flex shrink-0 items-center justify-center rounded-full transition-all ${
-                        isCompleted
-                          ? "h-4 w-4 border border-black bg-black text-white"
-                          : isActive
-                          ? "h-4.5 w-4.5 border border-black bg-white"
-                          : "h-3.5 w-3.5 border border-gray-300 bg-white"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <span className="text-[8px] font-semibold leading-none">✓</span>
-                      ) : isActive ? (
-                        <span className="h-1.5 w-1.5 rounded-full bg-black" />
-                      ) : (
-                        <span className="h-1 w-1 rounded-full bg-gray-300" />
-                      )}
-                    </span>
+              return (
+                <div
+                  key={step}
+                  className="flex min-w-0 flex-1"
+                  aria-current={isActive ? "step" : undefined}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-center">
+                      <span
+                        className={`relative z-10 flex shrink-0 items-center justify-center rounded-full transition-all ${
+                          isCompleted
+                            ? "h-4 w-4 border border-black bg-black text-white"
+                            : isActive
+                            ? "h-4.5 w-4.5 border border-black bg-white"
+                            : "h-3.5 w-3.5 border border-gray-300 bg-white"
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <span className="text-[8px] font-semibold leading-none">✓</span>
+                        ) : isActive ? (
+                          <span className="h-1.5 w-1.5 rounded-full bg-black" />
+                        ) : (
+                          <span className="h-1 w-1 rounded-full bg-gray-300" />
+                        )}
+                      </span>
 
-                    {!isLast ? (
-                      <div className="relative ml-2 h-px flex-1 bg-gray-200">
-                        <div
-                          className={`absolute left-0 top-0 h-px bg-black transition-all duration-300 ${
-                            isCompleted
-                              ? "w-full"
-                              : isActive
-                              ? "w-1/2"
-                              : "w-0"
-                          }`}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
+                      {!isLast ? (
+                        <div className="relative ml-2 h-px flex-1 bg-gray-200">
+                          <div
+                            className={`absolute left-0 top-0 h-px bg-black transition-all duration-300 ${
+                              isCompleted
+                                ? "w-full"
+                                : isActive
+                                ? "w-1/2"
+                                : "w-0"
+                            }`}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
 
-                  <div className="mt-2 pr-3">
-                    <span
-                      className={`block truncate text-[11px] font-medium leading-4 transition ${
-                        isCompleted
-                          ? "text-black"
-                          : isActive
-                          ? "text-black"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {getStepShortLabel(step)}
-                    </span>
+                    <div className="mt-2 pr-3">
+                      <span
+                        className={`block truncate text-[11px] font-medium leading-4 transition ${
+                          isCompleted
+                            ? "text-black"
+                            : isActive
+                            ? "text-black"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {getStepShortLabel(step)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          <div className="shrink-0 text-right">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400">
+              Progress
+            </p>
+            <p className="mt-1 text-sm font-semibold tracking-tight text-black">
+              {Math.round(progressPercent)}%
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -722,9 +734,6 @@ export default function InvoiceEditorPage() {
     }));
   };
 
-  const progressPercent =
-    ((currentStepIndex + 1) / orderedSteps.length) * 100;
-
   return (
     <main className="min-h-screen bg-gray-50">
       <UploadToast message={toastMessage} visible={showToast} />
@@ -768,18 +777,6 @@ export default function InvoiceEditorPage() {
             </div>
 
             <div className="mt-4">
-              <div className="mb-2 flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.14em] text-gray-500">
-                <span>Progress</span>
-                <span>{Math.round(progressPercent)}%</span>
-              </div>
-
-              <div className="h-1.5 w-full rounded-full bg-gray-100">
-                <div
-                  className="h-1.5 rounded-full bg-black transition-all duration-300"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-
               <CompactJourneyStepper
                 steps={orderedSteps}
                 currentStep={currentStep}
