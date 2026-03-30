@@ -52,6 +52,8 @@ export default function TotalsTaxesSection({
 
   const isNoTax = value.taxMode === "none";
   const effectiveRate = isNoTax ? 0 : value.taxRate ?? 0;
+  const panelClass =
+    "flex h-full flex-col justify-between rounded-2xl border border-gray-200 p-4";
 
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-5">
@@ -66,13 +68,13 @@ export default function TotalsTaxesSection({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.92fr)_minmax(240px,1fr)_minmax(0,1.2fr)] lg:items-stretch">
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1.05fr)_minmax(210px,0.9fr)_minmax(210px,0.9fr)_minmax(0,0.95fr)_minmax(0,1.15fr)] xl:items-stretch">
+        <div className={`${panelClass} bg-gray-50`}>
+          <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               Subtotal
             </p>
-            <p className="mt-3 text-3xl font-bold text-black">
+            <p className="text-3xl font-bold text-black">
               {formatCurrency(subtotal)}
             </p>
           </div>
@@ -82,9 +84,9 @@ export default function TotalsTaxesSection({
           </p>
         </div>
 
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-white p-4">
-          <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+        <div className={`${panelClass} bg-white`}>
+          <div className="space-y-3">
+            <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               GST Type
             </label>
 
@@ -117,9 +119,9 @@ export default function TotalsTaxesSection({
           </p>
         </div>
 
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+        <div className={`${panelClass} bg-white`}>
+          <div className="space-y-3">
+            <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               GST %
             </label>
 
@@ -147,22 +149,32 @@ export default function TotalsTaxesSection({
             />
           </div>
 
-          <div className="mt-4 rounded-xl border border-gray-200 bg-white px-3 py-2">
-            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500">
-              Tax amount
+          <p className="mt-4 text-xs leading-5 text-gray-500">
+            Set the exact GST percentage applied to the subtotal.
+          </p>
+        </div>
+
+        <div className={`${panelClass} bg-gray-50`}>
+          <div className="space-y-3">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+              Tax Amount
             </p>
-            <p className="mt-1 text-lg font-semibold text-black">
+            <p className="text-2xl font-bold text-black">
               {formatCurrency(taxAmount)}
             </p>
           </div>
+
+          <p className="mt-4 text-xs leading-5 text-gray-500">
+            Calculated from the current subtotal and GST percentage.
+          </p>
         </div>
 
         <div className="flex h-full flex-col justify-between rounded-2xl border border-black bg-black p-4">
-          <div>
+          <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/70">
               Grand Total
             </p>
-            <p className="mt-3 text-3xl font-bold text-white">
+            <p className="text-3xl font-bold text-white">
               {formatCurrency(grandTotal)}
             </p>
           </div>
