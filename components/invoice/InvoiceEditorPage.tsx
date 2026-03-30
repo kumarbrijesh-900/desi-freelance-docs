@@ -302,55 +302,73 @@ function CompactJourneyStepper({
   const currentIndex = steps.indexOf(currentStep);
 
   return (
-    <div className="mt-4">
-      <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1">
-        {steps.map((step, index) => {
-          const isCompleted = index < currentIndex;
-          const isActive = index === currentIndex;
-          const isLast = index === steps.length - 1;
+    <div className="mt-3">
+      <div className="overflow-x-auto pb-1">
+        <div className="flex min-w-[620px] items-start">
+          {steps.map((step, index) => {
+            const isCompleted = index < currentIndex;
+            const isActive = index === currentIndex;
+            const isLast = index === steps.length - 1;
 
-          return (
-            <div
-              key={step}
-              className="flex min-w-0 flex-1 items-center gap-3"
-              aria-current={isActive ? "step" : undefined}
-            >
-              <div className="flex min-w-0 items-center gap-2">
-                <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition ${
-                    isCompleted
-                      ? "bg-black text-white"
-                      : isActive
-                      ? "border border-black bg-white text-black"
-                      : "border border-gray-300 bg-white text-gray-400"
-                  }`}
-                >
-                  {isCompleted ? "✓" : index + 1}
-                </span>
-
-                <span
-                  className={`whitespace-nowrap text-xs font-medium ${
-                    isCompleted || isActive ? "text-black" : "text-gray-400"
-                  }`}
-                >
-                  {getStepShortLabel(step)}
-                </span>
-              </div>
-
-              {!isLast ? (
-                <div className="min-w-[24px] flex-1">
-                  <div className="h-px w-full bg-gray-200">
-                    <div
-                      className={`h-px transition-all ${
-                        isCompleted ? "w-full bg-black" : "w-0 bg-black"
+            return (
+              <div
+                key={step}
+                className="flex min-w-0 flex-1"
+                aria-current={isActive ? "step" : undefined}
+              >
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <div className="flex items-center">
+                    <span
+                      className={`relative z-10 flex shrink-0 items-center justify-center rounded-full transition-all ${
+                        isCompleted
+                          ? "h-4 w-4 border border-black bg-black text-white"
+                          : isActive
+                          ? "h-4.5 w-4.5 border border-black bg-white"
+                          : "h-3.5 w-3.5 border border-gray-300 bg-white"
                       }`}
-                    />
+                    >
+                      {isCompleted ? (
+                        <span className="text-[8px] font-semibold leading-none">✓</span>
+                      ) : isActive ? (
+                        <span className="h-1.5 w-1.5 rounded-full bg-black" />
+                      ) : (
+                        <span className="h-1 w-1 rounded-full bg-gray-300" />
+                      )}
+                    </span>
+
+                    {!isLast ? (
+                      <div className="relative ml-2 h-px flex-1 bg-gray-200">
+                        <div
+                          className={`absolute left-0 top-0 h-px bg-black transition-all duration-300 ${
+                            isCompleted
+                              ? "w-full"
+                              : isActive
+                              ? "w-1/2"
+                              : "w-0"
+                          }`}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-2 pr-3">
+                    <span
+                      className={`block truncate text-[11px] font-medium leading-4 transition ${
+                        isCompleted
+                          ? "text-black"
+                          : isActive
+                          ? "text-black"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {getStepShortLabel(step)}
+                    </span>
                   </div>
                 </div>
-              ) : null}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
