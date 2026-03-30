@@ -66,81 +66,88 @@ export default function TotalsTaxesSection({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-            Subtotal
-          </p>
-          <p className="mt-3 text-3xl font-bold text-black">
-            {formatCurrency(subtotal)}
-          </p>
-          <p className="mt-2 text-xs leading-5 text-gray-500">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.92fr)_minmax(240px,1fr)_minmax(0,1.2fr)] lg:items-stretch">
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+              Subtotal
+            </p>
+            <p className="mt-3 text-3xl font-bold text-black">
+              {formatCurrency(subtotal)}
+            </p>
+          </div>
+
+          <p className="mt-4 text-xs leading-5 text-gray-500">
             Sum of all deliverable line items before tax.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-            Tax type
-          </label>
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-white p-4">
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+              GST Type
+            </label>
 
-          <div className="relative">
-            <select
-              value={value.taxMode}
-              onChange={(e) => {
-                const nextMode = e.target.value as TaxConfig["taxMode"];
-                updateField("taxMode", nextMode);
-                if (nextMode === "none") {
-                  updateField("taxRate", 0);
-                } else if ((value.taxRate ?? 0) === 0) {
-                  updateField("taxRate", 18);
-                }
-              }}
-              className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-3 pr-10 text-base text-black outline-none focus:border-black"
-            >
-              <option value="gst">GST</option>
-              <option value="none">No Tax</option>
-            </select>
+            <div className="relative">
+              <select
+                value={value.taxMode}
+                onChange={(e) => {
+                  const nextMode = e.target.value as TaxConfig["taxMode"];
+                  updateField("taxMode", nextMode);
+                  if (nextMode === "none") {
+                    updateField("taxRate", 0);
+                  } else if ((value.taxRate ?? 0) === 0) {
+                    updateField("taxRate", 18);
+                  }
+                }}
+                className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-3 pr-10 text-base text-black outline-none focus:border-black"
+              >
+                <option value="gst">GST</option>
+                <option value="none">No Tax</option>
+              </select>
 
-            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-              <ChevronDownIcon />
-            </span>
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                <ChevronDownIcon />
+              </span>
+            </div>
           </div>
 
-          <p className="mt-2 text-xs leading-5 text-gray-500">
+          <p className="mt-4 text-xs leading-5 text-gray-500">
             Choose GST when tax should be added to the invoice total.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-          <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-            GST %
-          </label>
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
+              GST %
+            </label>
 
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            inputMode="decimal"
-            value={effectiveRate}
-            disabled={isNoTax}
-            onChange={(e) =>
-              updateField("taxRate", Math.max(0, Number(e.target.value) || 0))
-            }
-            onWheel={(e) => e.currentTarget.blur()}
-            onKeyDown={(e) => {
-              if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
-                e.preventDefault();
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              inputMode="decimal"
+              value={effectiveRate}
+              disabled={isNoTax}
+              onChange={(e) =>
+                updateField("taxRate", Math.max(0, Number(e.target.value) || 0))
               }
-            }}
-            className={`w-full rounded-xl border bg-white px-3 py-3 text-base text-black outline-none focus:border-black ${
-              isNoTax
-                ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
-                : "border-gray-300"
-            }`}
-          />
+              onWheel={(e) => e.currentTarget.blur()}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+                  e.preventDefault();
+                }
+              }}
+              className={`w-full rounded-xl border bg-white px-3 py-3 text-base text-black outline-none focus:border-black ${
+                isNoTax
+                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                  : "border-gray-300"
+              }`}
+            />
+          </div>
 
-          <div className="mt-3 rounded-xl border border-gray-200 bg-white px-3 py-2">
+          <div className="mt-4 rounded-xl border border-gray-200 bg-white px-3 py-2">
             <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500">
               Tax amount
             </p>
@@ -150,14 +157,17 @@ export default function TotalsTaxesSection({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-black bg-black p-4">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/70">
-            Grand Total
-          </p>
-          <p className="mt-3 text-3xl font-bold text-white">
-            {formatCurrency(grandTotal)}
-          </p>
-          <p className="mt-2 text-xs leading-5 text-white/70">
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-black bg-black p-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/70">
+              Grand Total
+            </p>
+            <p className="mt-3 text-3xl font-bold text-white">
+              {formatCurrency(grandTotal)}
+            </p>
+          </div>
+
+          <p className="mt-4 text-xs leading-5 text-white/70">
             Final invoice amount payable by the client.
           </p>
         </div>
