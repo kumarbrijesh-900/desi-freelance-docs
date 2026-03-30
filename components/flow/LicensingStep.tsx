@@ -1,5 +1,6 @@
 "use client";
 
+import { getLicensingSummary } from "@/lib/licensing-summary";
 import type { LicensingData, LicenseType, YesNo } from "@/types/document";
 
 interface LicensingStepProps {
@@ -32,6 +33,8 @@ export default function LicensingStep({
     });
   };
 
+  const licensingSummary = getLicensingSummary(value);
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <h3 className="text-xl font-semibold text-black">Licensing</h3>
@@ -44,20 +47,32 @@ export default function LicensingStep({
           <label className="mb-2 block text-sm font-medium text-black">
             License type
           </label>
-          <select
-            value={value.licenseType}
-            onChange={(e) =>
-              updateField("licenseType", e.target.value as LicenseType)
-            }
-            className="w-full rounded-xl border border-gray-300 px-3 py-3 pr-10 text-sm text-black outline-none focus:border-black"
-          >
-            <option value="">Select license type</option>
-            {licenseOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+
+          <div className="flex flex-wrap gap-3">
+            {licenseOptions.map((option) => {
+              const isSelected = value.licenseType === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => updateField("licenseType", option.value)}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                    isSelected
+                      ? "border-black bg-black text-white"
+                      : "border-gray-300 bg-white text-black hover:border-black"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 rounded-xl bg-gray-50 p-4">
+            <p className="text-sm font-medium text-black">Licensing summary</p>
+            <p className="mt-2 text-sm text-gray-600">{licensingSummary}</p>
+          </div>
         </div>
 
         <div>

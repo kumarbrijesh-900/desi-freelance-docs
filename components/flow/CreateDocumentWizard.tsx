@@ -44,7 +44,8 @@ const FREE_GENERATION_LIMIT = 2;
 export default function CreateDocumentWizard() {
   const [projectPreset, setProjectPreset] = useState<ProjectPreset | "">("");
   const [rawBrief, setRawBrief] = useState("");
-  const [licensing, setLicensing] = useState<LicensingData>(initialLicensingState);
+  const [licensing, setLicensing] =
+    useState<LicensingData>(initialLicensingState);
   const [extractedData, setExtractedData] =
     useState<ExtractedDocumentData>(initialExtractedData);
   const [isExtracting, setIsExtracting] = useState(false);
@@ -161,7 +162,9 @@ export default function CreateDocumentWizard() {
       )}
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-semibold text-black">Create Document Wizard</h2>
+        <h2 className="text-2xl font-semibold text-black">
+          Create Document Wizard
+        </h2>
         <p className="mt-2 text-sm text-gray-600">
           Selected project type: {projectPreset || "None"}
         </p>
@@ -174,13 +177,6 @@ export default function CreateDocumentWizard() {
         <p className="mt-2 text-sm text-gray-600">
           Free generations used: {generationCount}/{FREE_GENERATION_LIMIT}
         </p>
-
-        <div className="mt-4 rounded-xl bg-gray-50 p-4">
-          <p className="text-sm font-medium text-black">Licensing summary</p>
-          <p className="mt-2 text-sm text-gray-600">
-            {licensingSummary}
-          </p>
-        </div>
       </div>
     </div>
   );
