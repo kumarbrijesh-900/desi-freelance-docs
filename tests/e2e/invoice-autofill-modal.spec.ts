@@ -1,7 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-async function openAutofillModal(page: import("@playwright/test").Page, brief: string) {
+async function openInvoicePage(page: import("@playwright/test").Page) {
   await page.goto("/invoice/new");
+  await expect(
+    page.getByRole("heading", { name: /Screenshot, text, or audio brief/i })
+  ).toBeVisible();
+}
+
+async function openAutofillModal(page: import("@playwright/test").Page, brief: string) {
+  await openInvoicePage(page);
   await page
     .getByPlaceholder(/Example: Agency name:/i)
     .fill(brief);
@@ -12,6 +19,44 @@ async function openAutofillModal(page: import("@playwright/test").Page, brief: s
 
   return dialog;
 }
+
+test("brief intake is expanded on a fresh invoice and shows the main controls", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  await expect(
+    page.getByRole("button", { name: /^Extract & Autofill$/i })
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: /^Speak Brief$/i })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Drop a screenshot here/i)
+  ).toBeVisible();
+});
+
+test("brief intake can collapse and expand without losing typed text", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  const briefField = page.getByPlaceholder(/Example: Agency name:/i);
+  await briefField.fill("Agency name: DesiFreelanceDocs Studio");
+
+  await page.getByRole("button", { name: /^Collapse$/i }).click();
+  await expect(
+    page.getByText(/^Ready to extract$/)
+  ).toBeVisible();
+  await expect(briefField).toHaveCount(0);
+
+  await page.getByRole("button", { name: /^Expand$/i }).click();
+  await expect(briefField).toHaveValue("Agency name: DesiFreelanceDocs Studio");
+  await expect(
+    page.getByRole("button", { name: /^Speak Brief$/i })
+  ).toBeVisible();
+  await expect(page.getByText(/Drop a screenshot here/i)).toBeVisible();
+});
 
 test("autofill modal appears and Fill Missing Details opens completion mode", async ({
   page,
@@ -36,6 +81,9 @@ test("autofill modal appears and Fill Missing Details opens completion mode", as
   await expect(
     dialog.getByRole("button", { name: /Preview & Download/i })
   ).toHaveCount(0);
+  await expect(dialog.getByText(/^Needs confirmation$/)).toHaveCount(0);
+  await expect(dialog.getByText(/^Confidently filled$/)).toHaveCount(0);
+  await expect(dialog.getByText(/^Missing required fields$/)).toHaveCount(0);
 });
 
 test("agency name is autofilled from conversational brief language", async ({
@@ -111,6 +159,41 @@ test("Typing into Agency Address does not auto-advance while the textarea is sti
   await expect(dialog.getByText(/^Agency Details$/).first()).toBeVisible();
 });
 
+test("multiline address fields keep normal Enter behavior instead of submitting or advancing", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "Agency name: DesiFreelanceDocs Studio",
+      "Agency state: Karnataka",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Payment terms: Net 15",
+      "Invoice number: INV-2026-001",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+
+  const agencyAddressTextarea = dialog
+    .locator('textarea[placeholder="Business address"]')
+    .first();
+  await agencyAddressTextarea.fill("14 Residency Road");
+  await agencyAddressTextarea.press("Enter");
+  await page.keyboard.type("Bengaluru");
+
+  await expect(agencyAddressTextarea).toHaveValue(
+    "14 Residency Road\nBengaluru"
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.activeElement?.getAttribute("placeholder") ?? ""
+      )
+    )
+    .toBe("Business address");
+});
+
 test("Domestic and International toggle states are obvious and switch the step content", async ({
   page,
 }) => {
@@ -146,6 +229,25 @@ test("Domestic and International toggle states are obvious and switch the step c
   await expect(dialog.getByText(/^Country \*$/)).toBeVisible();
 });
 
+test("GST registration toggle is visually and functionally obvious on the main form", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  const registered = page.getByRole("radio", {
+    name: "Registered under GST",
+  });
+  const notRegistered = page.getByRole("radio", {
+    name: "Not registered",
+  });
+
+  await expect(notRegistered).toBeChecked();
+  await page.getByText(/^Registered under GST$/).click();
+
+  await expect(registered).toBeChecked();
+  await expect(page.getByText(/^GSTIN$/)).toBeVisible();
+});
+
 test("Preview stays gated until the required modal fields are completed", async ({
   page,
 }) => {
@@ -162,4 +264,69 @@ test("Preview stays gated until the required modal fields are completed", async 
   await expect(
     dialog.getByText(/required fields still need attention/i).first()
   ).toBeVisible();
+});
+
+test("Preview & Download appears once the last missing mandatory field is completed", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "Agency name: DesiFreelanceDocs Studio",
+      "Agency address: 14 Residency Road, Bengaluru, Karnataka 560025",
+      "Agency state: Karnataka",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Client state: Karnataka",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+      "Bank name: HDFC Bank",
+      "Account number: 50200044321098",
+      "IFSC: HDFC0001122",
+      "Invoice number: INV-2026-001",
+      "Invoice date: 2026-04-01",
+      "Due date: 2026-04-15",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await dialog
+    .locator('textarea[placeholder="Client billing address"]')
+    .first()
+    .fill("Phoenix Marketcity, Bengaluru, Karnataka");
+
+  await expect(
+    dialog.getByRole("button", { name: /Preview & Download/i })
+  ).toBeVisible();
+});
+
+test("Bengaluru in the brief infers Karnataka so agency state is not left missing", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "We are DesiFreelanceDocs Studio in Bengaluru.",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Client address: Whitefield, Bengaluru, Karnataka",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+      "Bank name: HDFC Bank",
+      "Account number: 50200044321098",
+      "IFSC: HDFC0001122",
+      "Invoice number: INV-2026-001",
+      "Invoice date: 2026-04-01",
+      "Due date: 2026-04-15",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+
+  await expect(
+    dialog.locator('textarea[placeholder="Business address"]').first()
+  ).toBeVisible();
+  await expect(dialog.getByText(/^Agency State \*$/)).toHaveCount(0);
 });

@@ -569,6 +569,7 @@ export default function InvoiceEditorPage() {
   const [autofillSummary, setAutofillSummary] =
     useState<AutofillSummaryState | null>(null);
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
+  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -673,6 +674,20 @@ export default function InvoiceEditorPage() {
 
     return () => window.cancelAnimationFrame(frameId);
   }, []);
+
+  useEffect(() => {
+    if (currentStep === "agency") {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setIsBriefIntakeCollapsed(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [currentStep]);
 
   useEffect(() => {
     if (!hasInitializedRef.current) return;
@@ -1077,6 +1092,7 @@ export default function InvoiceEditorPage() {
       tax: demo.tax,
       payment: demo.payment,
     }));
+    setIsBriefIntakeCollapsed(true);
 
     triggerToast("Demo data loaded");
   };
@@ -1102,6 +1118,7 @@ export default function InvoiceEditorPage() {
     setCurrentStep("agency");
     setAutofillSummary(null);
     setShowExitModal(false);
+    setIsBriefIntakeCollapsed(false);
     setBriefIntakeResetKey((prev) => prev + 1);
     triggerToast("Demo data cleared");
   };
@@ -1173,7 +1190,7 @@ export default function InvoiceEditorPage() {
           ? "Could not extract text clearly. Try uploading a clearer image or paste text."
           : "Add a text brief first to extract invoice details."
       );
-      return;
+      return false;
     }
 
     const nextSuggestedDueDate = getSuggestedDueDate(
@@ -1225,6 +1242,9 @@ export default function InvoiceEditorPage() {
         ? "No high-confidence matches were autofilled. Review the low-confidence suggestions first."
         : "No confident matches found. Review the summary and continue manually."
     );
+
+    setIsBriefIntakeCollapsed(true);
+    return true;
   };
 
   const handleClarificationAnswer = (
@@ -1387,6 +1407,8 @@ export default function InvoiceEditorPage() {
             key={briefIntakeResetKey}
             onExtract={handleBriefAutofill}
             onPlaceholderAction={triggerToast}
+            isCollapsed={isBriefIntakeCollapsed}
+            onCollapsedChange={setIsBriefIntakeCollapsed}
           />
 
           <div className="overflow-visible">

@@ -91,3 +91,19 @@ export function DownloadIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M6 9L12 15L18 9" />
+    </svg>
+  );
+}
+
+export function ChevronUpIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M6 15L12 9L18 15" />
+    </svg>
+  );
+}
