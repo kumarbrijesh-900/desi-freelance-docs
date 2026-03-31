@@ -18,6 +18,7 @@ import {
   getEffectiveExportTaxHandling,
   getLutDeclarationText,
 } from "@/lib/invoice-compliance";
+import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
   runBriefAutofill,
   type BriefIntakeInput,
@@ -936,16 +937,45 @@ export default function InvoiceEditorPage() {
     triggerToast("Demo data loaded");
   };
 
-  const handleBriefAutofill = (input: BriefIntakeInput) => {
+  const handleBriefAutofill = async (input: BriefIntakeInput) => {
+    let ocrText = "";
+
+    if (input.imageFiles?.length) {
+      const extractedChunks: string[] = [];
+
+      for (const file of input.imageFiles) {
+        try {
+          const extractedText = await extractTextFromImage(file);
+
+          if (extractedText.trim()) {
+            console.log(
+              `[Brief Intake OCR] Extracted text from ${file.name}:`,
+              extractedText
+            );
+            extractedChunks.push(extractedText.trim());
+          }
+        } catch (error) {
+          console.error(`Failed OCR for ${file.name}:`, error);
+        }
+      }
+
+      ocrText = extractedChunks.join("\n\n");
+    }
+
+    const normalizedInput = {
+      ...input,
+      text: [input.text.trim(), ocrText].filter(Boolean).join("\n\n"),
+    };
+
     const result = runBriefAutofill({
       currentFormData: formData,
-      input,
+      input: normalizedInput,
     });
 
     if (!result.normalizedText.trim()) {
       triggerToast(
         input.imageFiles?.length
-          ? "Text brief parsing is active in this MVP. Add the key brief details in text and try again."
+          ? "Could not extract text clearly. Try uploading a clearer image or paste text."
           : "Add a text brief first to extract invoice details."
       );
       return;

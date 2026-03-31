@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { BriefIntakeInput } from "@/lib/invoice-brief-intake";
 
 interface BriefIntakeCardProps {
-  onExtract: (input: BriefIntakeInput) => void;
+  onExtract: (input: BriefIntakeInput) => Promise<void> | void;
   onPlaceholderAction: (message: string) => void;
 }
 
@@ -15,23 +15,35 @@ export default function BriefIntakeCard({
   const [briefText, setBriefText] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
 
     const nextFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/")
+      ["image/png", "image/jpeg"].includes(file.type)
     );
 
     if (!nextFiles.length) {
-      onPlaceholderAction("Please upload an image file for the OCR placeholder.");
+      onPlaceholderAction("Please upload a PNG or JPG image.");
       return;
     }
 
     setImageFiles(nextFiles);
-    onPlaceholderAction(
-      "Image upload is wired as a placeholder. Add the key details into the text brief for this MVP."
-    );
+  };
+
+  const handleExtract = async () => {
+    setIsExtracting(true);
+
+    try {
+      await onExtract({
+        text: briefText,
+        imageFiles,
+        voiceTranscript: "",
+      });
+    } finally {
+      setIsExtracting(false);
+    }
   };
 
   return (
@@ -100,7 +112,7 @@ export default function BriefIntakeCard({
           >
             <input
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg"
               multiple
               onChange={(event) => {
                 handleFiles(event.target.files);
@@ -115,14 +127,14 @@ export default function BriefIntakeCard({
               or click to upload
               <br />
               <span className="text-xs text-gray-400">
-                OCR extraction is a placeholder hook in this MVP
+                PNG, JPG, JPEG
               </span>
             </div>
           </label>
 
           {imageFiles.length > 0 ? (
             <div className="rounded-xl border border-gray-200 bg-white px-3 py-3 text-xs leading-5 text-gray-600">
-              <p className="font-medium text-black">Attached image placeholders</p>
+              <p className="font-medium text-black">Attached images</p>
               <ul className="mt-2 space-y-1">
                 {imageFiles.map((file) => (
                   <li key={`${file.name}-${file.lastModified}`}>{file.name}</li>
@@ -134,23 +146,25 @@ export default function BriefIntakeCard({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs leading-5 text-gray-500">
-          Text parsing is live in this MVP. Image OCR and speech transcription
-          are wired as extension points for the same autofill pipeline.
-        </p>
+        <div className="text-xs leading-5 text-gray-500">
+          <p>
+            Text parsing and image OCR now feed the same autofill pipeline.
+            Voice transcription is still an extension hook for a later phase.
+          </p>
+          {isExtracting && imageFiles.length > 0 ? (
+            <p className="mt-1 font-medium text-black">
+              Extracting text from image...
+            </p>
+          ) : null}
+        </div>
 
         <button
           type="button"
-          onClick={() =>
-            onExtract({
-              text: briefText,
-              imageFiles,
-              voiceTranscript: "",
-            })
-          }
-          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
+          onClick={handleExtract}
+          disabled={isExtracting}
+          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Extract & Autofill
+          {isExtracting ? "Extracting..." : "Extract & Autofill"}
         </button>
       </div>
     </section>

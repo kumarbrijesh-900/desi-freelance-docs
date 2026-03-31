@@ -62,7 +62,7 @@ export type BriefAutofillMappingResult = {
 
 export type BriefIntakeInput = {
   text: string;
-  imageFiles?: Array<{ name: string }>;
+  imageFiles?: File[];
   voiceTranscript?: string;
 };
 
