@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
+import { MotionReveal } from "@/components/ui/motion-primitives";
 import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
@@ -49,6 +50,7 @@ import {
   type InvoiceFormData,
   type InvoiceStepperStep,
 } from "@/types/invoice";
+import { getAppButtonClass } from "@/lib/ui-foundation";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -1323,7 +1325,10 @@ export default function InvoiceEditorPage() {
       />
 
       <section className="mx-auto max-w-6xl px-6 py-8">
-        <div className="overflow-visible rounded-2xl border-2 border-gray-300 bg-white p-6 shadow-sm">
+        <MotionReveal
+          preset="fade-up"
+          className="overflow-visible rounded-2xl border-2 border-gray-300 bg-white p-6 shadow-sm"
+        >
           <header className="mb-6 border-b border-gray-200 pb-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
@@ -1342,7 +1347,7 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handleLoadDemoData}
-                  className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
                 >
                   Load Demo Data
                 </button>
@@ -1350,7 +1355,10 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handleClearDemoData}
-                  className="rounded-xl border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:border-black hover:text-black"
+                  className={getAppButtonClass({
+                    variant: "destructive-lite",
+                    size: "sm",
+                  })}
                 >
                   Clear Demo Data
                 </button>
@@ -1495,7 +1503,7 @@ export default function InvoiceEditorPage() {
                 type="button"
                 onClick={goBack}
                 disabled={isFirstStep}
-                className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-black disabled:cursor-not-allowed disabled:opacity-40"
+                className={getAppButtonClass({ variant: "secondary", size: "lg" })}
               >
                 Back
               </button>
@@ -1505,7 +1513,7 @@ export default function InvoiceEditorPage() {
                   type="button"
                   onClick={goNext}
                   disabled={!currentStepValid}
-                  className="rounded-xl bg-black px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
                 >
                   Continue
                 </button>
@@ -1518,7 +1526,7 @@ export default function InvoiceEditorPage() {
                   type="button"
                   onClick={handlePreviewInvoice}
                   disabled={!currentStepValid}
-                  className="rounded-xl bg-black px-6 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
                 >
                   PREVIEW INVOICE
                 </button>
@@ -1527,7 +1535,7 @@ export default function InvoiceEditorPage() {
                   type="button"
                   onClick={handleDownloadPdf}
                   disabled={!currentStepValid}
-                  className="rounded-xl border border-black px-6 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40"
+                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
                 >
                   DOWNLOAD PDF
                 </button>
@@ -1535,7 +1543,7 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-bold text-black"
+                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
                 >
                   SAVE DRAFT
                 </button>
@@ -1543,14 +1551,14 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="text-sm font-medium text-gray-500 hover:text-black"
+                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                 >
                   Cancel
                 </button>
               </div>
             )}
           </footer>
-        </div>
+        </MotionReveal>
       </section>
 
       {showExitModal && (

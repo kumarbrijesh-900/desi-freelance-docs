@@ -8,6 +8,15 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from "react";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ChevronLeftIcon,
+  ClipboardCheckIcon,
+  DownloadIcon,
+  SparklesIcon,
+} from "@/components/ui/app-icons";
+import { MotionReveal, MotionStagger } from "@/components/ui/motion-primitives";
 import type { InvoiceFieldErrors } from "@/lib/invoice-validation";
 import {
   hasExplicitExportTaxChoice,
@@ -23,6 +32,14 @@ import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
+import {
+  appMotionClasses,
+  cn,
+  getAppButtonClass,
+  getAppFieldClass as getFieldClass,
+  getAppPanelClass,
+  getAppStatusPillClass,
+} from "@/lib/ui-foundation";
 import type {
   InvoiceFormData,
   InvoiceStepperStep,
@@ -65,10 +82,6 @@ type ModalSectionKey =
   | "totals";
 
 type MissingFieldIdsBySection = Record<ModalSectionKey, string[]>;
-
-function cn(...values: Array<string | false | null | undefined>) {
-  return values.filter(Boolean).join(" ");
-}
 
 const MODAL_SECTION_KEYS: ModalSectionKey[] = [
   "agency",
@@ -197,31 +210,6 @@ function getOriginLabel(origin: BriefAutofillFieldSummary["origin"]) {
   return origin === "ai" ? "AI" : "Parser";
 }
 
-function getFieldClass(params?: {
-  hasError?: string;
-  hasValue?: boolean;
-  multiline?: boolean;
-  isSelect?: boolean;
-}) {
-  const { hasError, hasValue, multiline, isSelect } = params ?? {};
-
-  return cn(
-    "w-full rounded-2xl border text-[15px] font-medium leading-6 text-slate-950 outline-none transition-all duration-150",
-    multiline ? "min-h-[120px] px-4 py-3.5" : "h-12 px-4",
-    isSelect ? "appearance-none pr-11" : "",
-    "placeholder:text-slate-400/95",
-    "hover:border-slate-400 hover:bg-white",
-    "focus:border-slate-950 focus:bg-white focus:ring-[3px] focus:ring-slate-950/12",
-    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
-    "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
-    hasError
-      ? "border-red-400 bg-red-50/60 focus:border-red-500 focus:ring-red-500/12"
-      : hasValue
-      ? "border-slate-400 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
-      : "border-slate-300 bg-slate-50/70"
-  );
-}
-
 function ErrorText({ message }: { message?: string }) {
   if (!message) return null;
 
@@ -248,26 +236,22 @@ function ModalButton({
   variant = "secondary",
   onClick,
   disabled,
+  icon,
 }: {
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost";
   onClick?: () => void;
   disabled?: boolean;
+  icon?: ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        "inline-flex h-11 items-center justify-center rounded-2xl px-4 text-sm font-semibold tracking-tight transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/12 disabled:pointer-events-none disabled:opacity-55",
-        variant === "primary"
-          ? "bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] hover:bg-slate-800"
-          : variant === "ghost"
-          ? "bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950"
-          : "border border-slate-300 bg-white text-slate-950 hover:border-slate-950 hover:bg-slate-50"
-      )}
+      className={getAppButtonClass({ variant })}
     >
+      {icon}
       {children}
     </button>
   );
@@ -282,22 +266,8 @@ function SummaryCard({
   tone?: "default" | "success" | "warning" | "muted";
   children: ReactNode;
 }) {
-  const toneClasses =
-    tone === "success"
-      ? "border-emerald-200 bg-emerald-50"
-      : tone === "warning"
-      ? "border-amber-200 bg-amber-50"
-      : tone === "muted"
-      ? "border-slate-200 bg-slate-50"
-      : "border-slate-200 bg-white";
-
   return (
-    <div
-      className={cn(
-        "rounded-[26px] border p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-150",
-        toneClasses
-      )}
-    >
+    <div className={getAppPanelClass(tone)}>
       <p className="text-sm font-semibold tracking-tight text-slate-950">{title}</p>
       {children}
     </div>
@@ -477,7 +447,7 @@ function SummaryFieldList({
           className="flex items-start justify-between gap-3"
         >
           <span>{field.label}</span>
-          <span className="shrink-0 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-600">
+          <span className={cn(getAppStatusPillClass("muted"), "px-2 py-0.5")}>
             {getOriginLabel(field.origin)}
           </span>
         </li>
@@ -1479,7 +1449,10 @@ function MiniForm({
         const isLast = index === stepSections.length - 1;
 
         return (
-          <div key={section.key} className="relative pl-14">
+          <div
+            key={section.key}
+            className={cn("relative pl-14", appMotionClasses.soft)}
+          >
             {!isLast ? (
               <div
                 className={cn(
@@ -1493,7 +1466,7 @@ function MiniForm({
               type="button"
               onClick={() => setPreferredActiveStepKey(section.key)}
               className={cn(
-                "absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
+                "app-focus-ring absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200 focus:outline-none",
                 isComplete
                   ? "border-emerald-300 bg-emerald-100 text-emerald-900"
                   : isActive
@@ -1502,13 +1475,16 @@ function MiniForm({
               )}
               aria-pressed={isActive}
             >
-              {isComplete ? "✓" : index + 1}
+              {isComplete ? <CheckIcon className="h-4 w-4" /> : index + 1}
             </button>
 
             {isActive ? (
               <div
                 ref={activePanelRef}
-                className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.07)] transition-all duration-200"
+                className={cn(
+                  "rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_12px_34px_rgba(15,23,42,0.07)] transition-all duration-200",
+                  appMotionClasses.scaleIn
+                )}
               >
                 <div className="mb-5">
                   <div className="flex items-start justify-between gap-4">
@@ -1520,7 +1496,7 @@ function MiniForm({
                         {section.subtitle}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+                    <span className={getAppStatusPillClass("default")}>
                       {section.missingCount} remaining
                     </span>
                   </div>
@@ -1532,9 +1508,12 @@ function MiniForm({
                 type="button"
                 onClick={() => setPreferredActiveStepKey(section.key)}
                 className={cn(
-                  "w-full rounded-[24px] border px-5 py-4 text-left transition-all duration-200 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
+                  "app-focus-ring app-interactive-surface w-full rounded-[24px] border px-5 py-4 text-left transition-all duration-200 focus:outline-none",
                   isComplete
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-300"
+                    ? cn(
+                        "border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-300",
+                        appMotionClasses.success
+                      )
                     : "border-slate-200 bg-white text-slate-950 hover:border-slate-300 hover:bg-slate-50"
                 )}
               >
@@ -1557,11 +1536,8 @@ function MiniForm({
                     </p>
                   </div>
                   <span
-                    className={cn(
-                      "shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
-                      isComplete
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-slate-100 text-slate-600"
+                    className={getAppStatusPillClass(
+                      isComplete ? "success" : "default"
                     )}
                   >
                     {isComplete ? "Done" : "Next"}
@@ -1678,11 +1654,17 @@ export default function AutofillSummaryModal({
 
   return (
     <div className="fixed inset-0 z-[320] flex items-center justify-center bg-slate-950/35 px-4 py-4 backdrop-blur-[2px]">
-      <div className="flex max-h-[min(92vh,960px)] w-full max-w-[1080px] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
+      <div
+        className={cn(
+          "flex max-h-[min(92vh,960px)] w-full max-w-[1080px] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]",
+          appMotionClasses.modal
+        )}
+      >
         <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              <p className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                <SparklesIcon className="h-4 w-4" />
                 Autofill Summary
               </p>
               <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
@@ -1720,14 +1702,14 @@ export default function AutofillSummaryModal({
           className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-5 py-5 sm:px-6"
         >
           {isSummaryMode ? (
-            <div className="space-y-4 transition-opacity duration-150">
+            <MotionStagger className="space-y-4 transition-opacity duration-150">
               <SummaryCard title="Needs confirmation">
                 {clarificationSuggestions.length > 0 ? (
-                  <div className="mt-3 space-y-3">
+                  <MotionStagger className="mt-3 space-y-3">
                     {clarificationSuggestions.map((suggestion) => (
                       <div
                         key={suggestion.id}
-                        className="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+                        className="app-interactive-surface rounded-[22px] border border-slate-200 bg-slate-50/90 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
                       >
                         <p className="text-sm font-semibold text-slate-950">
                           {suggestion.title}
@@ -1747,7 +1729,14 @@ export default function AutofillSummaryModal({
                               onClick={() =>
                                 onClarificationAnswer(suggestion.id, option.action)
                               }
-                              className="flex min-h-[72px] items-start rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-medium text-slate-950 transition-all duration-150 hover:border-slate-950 hover:bg-slate-50 hover:shadow-[0_4px_14px_rgba(15,23,42,0.05)] focus:outline-none focus:ring-[3px] focus:ring-slate-950/10"
+                              className={cn(
+                                getAppButtonClass({
+                                  variant: "secondary",
+                                  size: "lg",
+                                  fullWidth: true,
+                                }),
+                                "min-h-[72px] items-start justify-start px-4 py-3 text-left"
+                              )}
                             >
                               <span>
                                 <span>{option.label}</span>
@@ -1762,7 +1751,7 @@ export default function AutofillSummaryModal({
                         </div>
                       </div>
                     ))}
-                  </div>
+                  </MotionStagger>
                 ) : (
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     No high-value confirmation questions are blocking the current
@@ -1826,9 +1815,9 @@ export default function AutofillSummaryModal({
                   )}
                 </SummaryCard>
               </div>
-            </div>
+            </MotionStagger>
           ) : (
-            <div className="space-y-5 transition-opacity duration-150">
+            <MotionStagger className="space-y-5 transition-opacity duration-150">
               <SummaryCard title="Fill Missing Details">
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   Finish the required invoice fields here. This form updates the
@@ -1854,7 +1843,7 @@ export default function AutofillSummaryModal({
                   more pass in the full editor.
                 </div>
               )}
-            </div>
+            </MotionStagger>
           )}
         </div>
 
@@ -1874,25 +1863,43 @@ export default function AutofillSummaryModal({
 
             <div className="flex flex-wrap justify-end gap-3">
               {missingFieldsCount > 0 && isSummaryMode ? (
-                <ModalButton variant="secondary" onClick={handleOpenFillMissing}>
+                <ModalButton
+                  variant="secondary"
+                  onClick={handleOpenFillMissing}
+                  icon={<ClipboardCheckIcon className="h-4 w-4" />}
+                >
                   Fill Missing Details
                 </ModalButton>
               ) : null}
 
               {!isSummaryMode ? (
-                <ModalButton variant="ghost" onClick={handleBackToSummary}>
+                <ModalButton
+                  variant="ghost"
+                  onClick={handleBackToSummary}
+                  icon={<ChevronLeftIcon className="h-4 w-4" />}
+                >
                   Back to Summary
                 </ModalButton>
               ) : null}
 
-              <ModalButton variant="secondary" onClick={handleManualCheck}>
+              <ModalButton
+                variant="secondary"
+                onClick={handleManualCheck}
+                icon={<ArrowRightIcon className="h-4 w-4" />}
+              >
                 Manual Check
               </ModalButton>
 
               {isPreviewReady ? (
-                <ModalButton variant="primary" onClick={handlePreview}>
+                <MotionReveal preset="scale-in">
+                  <ModalButton
+                    variant="primary"
+                    onClick={handlePreview}
+                    icon={<DownloadIcon className="h-4 w-4" />}
+                  >
                   Preview & Download
-                </ModalButton>
+                  </ModalButton>
+                </MotionReveal>
               ) : null}
             </div>
           </div>

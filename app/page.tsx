@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
+import { ArrowRightIcon } from "@/components/ui/app-icons";
+import { MotionReveal } from "@/components/ui/motion-primitives";
+import { getAppButtonClass } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 
 export default function Home() {
@@ -33,7 +36,7 @@ export default function Home() {
       <AppHeader rightSlot={isLoggedIn ? <LogoutButton /> : null} />
 
       <section className="mx-auto flex max-w-6xl flex-col items-center px-6 py-20 text-center">
-        <div className="max-w-3xl">
+        <MotionReveal preset="fade-up" className="max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
             Freelance document workflow
           </p>
@@ -50,12 +53,15 @@ export default function Home() {
           <div className="mt-10 flex justify-center">
             <Link
               href={isLoggedIn ? "/invoice/new" : "/login"}
-              className="rounded-2xl bg-black px-8 py-4 text-base font-medium text-white"
+              className={getAppButtonClass({ variant: "primary", size: "lg" })}
             >
-              Create Invoice
+              <span className="inline-flex items-center gap-2">
+                Create Invoice
+                <ArrowRightIcon className="h-4 w-4" />
+              </span>
             </Link>
           </div>
-        </div>
+        </MotionReveal>
       </section>
     </main>
   );
