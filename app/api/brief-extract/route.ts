@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { extractInvoiceBriefWithAi } from "@/lib/ai-brief-extractor";
+import { normalizeBriefText } from "@/lib/invoice-brief-intake";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +14,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const extraction = await extractInvoiceBriefWithAi(text);
+    const extraction = await extractInvoiceBriefWithAi(
+      normalizeBriefText(text)
+    );
 
     return NextResponse.json({
       extraction,

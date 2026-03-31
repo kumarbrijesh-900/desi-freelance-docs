@@ -341,10 +341,47 @@ Rules:
 - Prefer "high" only when the value is explicit.
 - Use "medium" for reasonable but not explicit interpretation.
 - Use "low" when uncertain or inferred.
+- Normalize casual money shorthand before extracting:
+  - 15k => 15000
+  - 30k => 30000
+  - 5k per screen => rate 5000 and likely per-screen
+  - $500 / 500 usd => rate 500 and likely currency USD
+  - €300 => rate 300 and likely currency EUR
+  - £250 => rate 250 and likely currency GBP
+- Prefer regex-like precision for strict IDs and codes:
+  - GSTIN
+  - PAN
+  - IFSC
+  - SWIFT / BIC
+  - LUT number / ARN
+- Infer client entity names carefully from phrases such as:
+  - client acme
+  - bill to acme
+  - for nike usa
+  - metro shoes
+  Only fill the client name when the entity itself is reasonably clear.
+- Infer likely deliverables carefully from shorthand such as:
+  - ui ux
+  - landing page
+  - homepage design
+  - logo
+  - illustration
+  - 3 screens
+  - 2 banners
+  Map these into deliverable type, description, quantity, and rate unit only when the wording supports it.
+- Recognize compliance phrasing such as:
+  - gst registered
+  - not gst registered
+  - registered under gst
+  - lut yes
+  - lut available
+  - no lut
+  - lut number / arn
 - For client location, use "domestic" only when India/domestic is explicit or clearly implied; otherwise "international" only when explicit or clearly implied; otherwise empty string.
-- For GST registration and LUT status, only fill when explicitly stated.
+- For GST registration and LUT status, prefer explicit statements. Use "medium" only for very strong phrasing like "gst registered" or "no lut".
 - For currency, use one of: USD, EUR, GBP, AED, AUD, CAD, SGD, or empty string.
 - For line items, extract all likely billable deliverables mentioned. If none are clear, return an empty array.
+- OCR text may contain broken line wraps, merged labels, or spacing noise. Recover likely labels and entities where reasonable, but never invent missing values.
 `.trim();
 
 function extractOutputText(payload: unknown) {

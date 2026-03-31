@@ -116,6 +116,9 @@ const lineItemTypeMatchers: Array<{
       /\bux\b/i,
       /\bwireframes?\b/i,
       /\blanding page\b/i,
+      /\bhomepage\b/i,
+      /\bhome page\b/i,
+      /\bpage design\b/i,
       /\bdesign system\b/i,
       /\bdashboard\b/i,
       /\bscreens?\b/i,
@@ -137,6 +140,7 @@ const lineItemTypeMatchers: Array<{
     type: "Social Media",
     patterns: [
       /\bsocial media\b/i,
+      /\bbanners?\b/i,
       /\bcarousel\b/i,
       /\bstory set\b/i,
       /\bposts?\b/i,
@@ -155,6 +159,10 @@ const rateUnitMatchers: Array<{
   {
     unit: "per-item",
     patterns: [/\bper\s+item\b/i, /\beach\s+item\b/i],
+  },
+  {
+    unit: "per-item",
+    patterns: [/\bper\s+banner\b/i, /\beach\s+banner\b/i],
   },
   {
     unit: "per-screen",
@@ -195,6 +203,9 @@ const quantityUnitHints: Array<{
   pattern: RegExp;
 }> = [
   { unit: "per-screen", pattern: /\b(\d+)\s+screens?\b/i },
+  { unit: "per-item", pattern: /\b(\d+)\s+banners?\b/i },
+  { unit: "per-item", pattern: /\b(\d+)\s+illustrations?\b/i },
+  { unit: "per-deliverable", pattern: /\b(\d+)\s+logos?\b/i },
   { unit: "per-post", pattern: /\b(\d+)\s+posts?\b/i },
   { unit: "per-video", pattern: /\b(\d+)\s+videos?\b/i },
   { unit: "per-image", pattern: /\b(\d+)\s+images?\b/i },
@@ -250,6 +261,34 @@ const currencyMatchers: Array<{
 const GSTIN_REGEX = /\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/i;
 const PAN_REGEX = /\b[A-Z]{5}\d{4}[A-Z]\b/i;
 
+const INDIA_STATE_ALIASES: Array<{
+  state: InvoiceFormData["agency"]["agencyState"];
+  patterns: RegExp[];
+}> = [
+  { state: "Karnataka", patterns: [/\bbengaluru\b/i, /\bbangalore\b/i] },
+  { state: "Maharashtra", patterns: [/\bmumbai\b/i, /\bpune\b/i] },
+  { state: "Delhi", patterns: [/\bnew delhi\b/i, /\bdelhi\b/i] },
+  { state: "Telangana", patterns: [/\bhyderabad\b/i] },
+  { state: "Tamil Nadu", patterns: [/\bchennai\b/i] },
+  { state: "West Bengal", patterns: [/\bkolkata\b/i, /\bcalcutta\b/i] },
+  { state: "Gujarat", patterns: [/\bahmedabad\b/i] },
+  { state: "Kerala", patterns: [/\bkochi\b/i, /\bcochin\b/i] },
+  { state: "Haryana", patterns: [/\bgurugram\b/i, /\bgurgaon\b/i] },
+  { state: "Uttar Pradesh", patterns: [/\bnoida\b/i] },
+];
+
+const INTERNATIONAL_COUNTRY_ALIASES: Array<{
+  country: InvoiceFormData["client"]["clientCountry"];
+  patterns: RegExp[];
+}> = [
+  { country: "United States", patterns: [/\busa\b/i, /\bu\.s\.a\b/i, /\bus client\b/i] },
+  { country: "United Kingdom", patterns: [/\buk\b/i, /\bu\.k\b/i, /\blondon\b/i] },
+  {
+    country: "United Arab Emirates",
+    patterns: [/\buae\b/i, /\bdubai\b/i, /\bab[uú] dhabi\b/i],
+  },
+];
+
 function makeCandidate<T>(
   value: T,
   confidence: BriefExtractionConfidence,
@@ -268,6 +307,69 @@ function cleanValue(value?: string) {
     .replace(/\s+/g, " ")
     .replace(/[.,;:]+$/, "")
     .trim();
+}
+
+function cleanSentenceValue(value?: string) {
+  return cleanValue(value)
+    .replace(/\s+(?:and|with)\s+(?:bank|payment|terms?)\b.*$/i, "")
+    .replace(/\s+(?:net\s*\d+|due on receipt)\b.*$/i, "")
+    .trim();
+}
+
+function cleanAddressValue(value?: string) {
+  return cleanValue(value)
+    .replace(
+      /\s+(?:\d+\s+(?:screens?|banners?|items?|illustrations?)|landing page|homepage|logo|illustration|ui\/?\s*ux|terms?|payment|bank|account|ifsc|swift)\b.*$/i,
+      ""
+    )
+    .trim();
+}
+
+function normalizeCommonOcrLabels(text: string) {
+  return text
+    .replace(/\baddre55\b/gi, "address")
+    .replace(/\bn4me\b/gi, "name")
+    .replace(/\bbill t0\b/gi, "bill to")
+    .replace(/\bclient n4me\b/gi, "client name")
+    .replace(/\bagency n4me\b/gi, "agency name")
+    .replace(/\breg15tered\b/gi, "registered")
+    .replace(/\bterm5\b/gi, "terms");
+}
+
+function normalizeWordLevelOcrNoise(text: string) {
+  return text.replace(/\b[a-zA-Z][a-zA-Z0-9]{2,}\b/g, (token) => {
+    const digitCount = (token.match(/[0-9]/g) ?? []).length;
+
+    if (
+      !/[A-Za-z]/.test(token) ||
+      !/[05]/.test(token) ||
+      digitCount > 1 ||
+      token === token.toUpperCase()
+    ) {
+      return token;
+    }
+
+    return token.replace(/0/g, "o").replace(/5/g, "s");
+  });
+}
+
+export function normalizeBriefText(text: string) {
+  return normalizeWordLevelOcrNoise(
+    normalizeCommonOcrLabels(
+      text
+      .replace(/\r\n?/g, "\n")
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/([A-Za-z])-\s*\n\s*([A-Za-z])/g, "$1$2")
+      .replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 ")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ ]+\n/g, "\n")
+      .replace(/\n[ ]+/g, "\n")
+      .trim()
+    )
+  );
 }
 
 function findFirstMatch(text: string, patterns: RegExp[]) {
@@ -290,9 +392,29 @@ function extractLabeledValue(text: string, labels: string[]) {
 }
 
 function parseAmount(value: string) {
-  const cleaned = value.replace(/[^0-9.]/g, "");
-  const parsed = Number(cleaned);
-  return Number.isFinite(parsed) ? parsed : 0;
+  const normalized = value.toLowerCase().replace(/,/g, " ").trim();
+  const amountMatch = normalized.match(/(\d+(?:\.\d+)?)\s*(k|m|lakh|lac)?\b/i);
+
+  if (!amountMatch) {
+    return 0;
+  }
+
+  const parsed = Number(amountMatch[1]);
+  if (!Number.isFinite(parsed)) {
+    return 0;
+  }
+
+  switch ((amountMatch[2] ?? "").toLowerCase()) {
+    case "k":
+      return parsed * 1_000;
+    case "m":
+      return parsed * 1_000_000;
+    case "lakh":
+    case "lac":
+      return parsed * 100_000;
+    default:
+      return parsed;
+  }
 }
 
 function findUniquePatternMatch(text: string, pattern: RegExp) {
@@ -306,6 +428,22 @@ function findUniquePatternMatch(text: string, pattern: RegExp) {
   const uniqueMatches = Array.from(new Set(matches));
 
   return uniqueMatches.length === 1 ? uniqueMatches[0] : "";
+}
+
+function extractPatternValue(text: string, patterns: RegExp[]) {
+  return findFirstMatch(text, patterns);
+}
+
+function looksLikeEntityName(value: string) {
+  const cleaned = cleanValue(value);
+
+  if (!cleaned || cleaned.length < 3) {
+    return false;
+  }
+
+  return !/\b(?:invoice|brief|work|project|design|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(
+    cleaned
+  );
 }
 
 function getConfidenceScore(confidence: BriefExtractionConfidence) {
@@ -748,11 +886,19 @@ function getStateFromText(
   text: string
 ): InvoiceFormData["agency"]["agencyState"] {
   const normalized = text.toLowerCase();
-
-  return (
+  const directMatch =
     INDIA_STATE_OPTIONS.find((stateName) =>
       normalized.includes(stateName.toLowerCase())
-    ) ?? ""
+    ) ?? "";
+
+  if (directMatch) {
+    return directMatch;
+  }
+
+  return (
+    INDIA_STATE_ALIASES.find((entry) =>
+      entry.patterns.some((pattern) => pattern.test(text))
+    )?.state ?? ""
   );
 }
 
@@ -760,11 +906,19 @@ function getCountryFromText(
   text: string
 ): InvoiceFormData["client"]["clientCountry"] {
   const normalized = text.toLowerCase();
-
-  return (
+  const directMatch =
     INTERNATIONAL_COUNTRY_OPTIONS.find((countryName) =>
       normalized.includes(countryName.toLowerCase())
-    ) ?? ""
+    ) ?? "";
+
+  if (directMatch) {
+    return directMatch;
+  }
+
+  return (
+    INTERNATIONAL_COUNTRY_ALIASES.find((entry) =>
+      entry.patterns.some((pattern) => pattern.test(text))
+    )?.country ?? ""
   );
 }
 
@@ -803,6 +957,10 @@ function getCurrencyFromText(
     return makeCandidate("SGD", "medium", "regex");
   }
 
+  if (/\$(?=\s*\d)/.test(text)) {
+    return makeCandidate("USD", "medium", "regex");
+  }
+
   if (/€/.test(text)) {
     return makeCandidate("EUR", "medium", "regex");
   }
@@ -823,7 +981,18 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
     "from",
   ]);
 
-  return value ? makeCandidate(value, "high", "label") : undefined;
+  if (value) {
+    return makeCandidate(cleanAddressValue(value), "high", "label");
+  }
+
+  const inferred = extractPatternValue(text, [
+    /\bwe(?:'re| are)\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b|need\b|invoice\b|did\b|made\b)|$)/i,
+    /\bour (?:studio|agency)(?: is)?\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b)|$)/i,
+  ]);
+
+  return inferred && looksLikeEntityName(inferred)
+    ? makeCandidate(inferred, "medium", "inference")
+    : undefined;
 }
 
 function extractAgencyAddress(text: string): Candidate<string> | undefined {
@@ -833,7 +1002,18 @@ function extractAgencyAddress(text: string): Candidate<string> | undefined {
     "from address",
   ]);
 
-  return value ? makeCandidate(value, "high", "label") : undefined;
+  if (value) {
+    return makeCandidate(value, "high", "label");
+  }
+
+  const inferred = extractPatternValue(text, [
+    /\b(?:based in|from)\s+([a-z0-9,.' -]{8,120}?(?:india|road|street|nagar|layout|bengaluru|bangalore|mumbai|delhi|hyderabad|chennai|kolkata|pune))(?=,|\.|\n|$)/i,
+    /\bwe(?:'re| are)\s+[a-z0-9&.' -]{3,80},\s*([a-z0-9,.' -]{8,120}?(?:india|road|street|nagar|layout|bengaluru|bangalore|mumbai|delhi|hyderabad|chennai|kolkata|pune))(?=,|\.|\n|$)/i,
+  ]);
+
+  return inferred
+    ? makeCandidate(cleanAddressValue(inferred), "medium", "inference")
+    : undefined;
 }
 
 function extractAgencyGstin(text: string): Candidate<string> | undefined {
@@ -877,7 +1057,19 @@ function extractClientName(text: string): Candidate<string> | undefined {
     "customer name",
   ]);
 
-  return value ? makeCandidate(value, "high", "label") : undefined;
+  if (value) {
+    return makeCandidate(value, "high", "label");
+  }
+
+  const inferred = extractPatternValue(text, [
+    /\bbill to\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b|bank\b)|$)/i,
+    /\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:invoice\b|project\b|work\b|landing\b|homepage\b|logo\b|illustration\b|screens?\b|banners?\b|rate\b|at\b|@|qty\b|quantity\b|net\b|currency\b)|$)/i,
+    /\bclient(?:\s+name)?\s+(?:is\s+)?([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b|bank\b)|$)/i,
+  ]);
+
+  return inferred && looksLikeEntityName(inferred)
+    ? makeCandidate(inferred, "medium", "inference")
+    : undefined;
 }
 
 function extractClientAddress(text: string): Candidate<string> | undefined {
@@ -888,7 +1080,9 @@ function extractClientAddress(text: string): Candidate<string> | undefined {
     "customer address",
   ]);
 
-  return value ? makeCandidate(value, "high", "label") : undefined;
+  return value
+    ? makeCandidate(cleanAddressValue(value), "high", "label")
+    : undefined;
 }
 
 function extractClientTaxId(text: string): Candidate<string> | undefined {
@@ -935,6 +1129,79 @@ function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | und
   return undefined;
 }
 
+function extractAgencyGstRegistrationStatus(
+  text: string
+): Candidate<AgencyDetails["gstRegistrationStatus"]> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "gst registration",
+    "gst registration status",
+    "registered under gst",
+    "gst status",
+  ]);
+
+  if (labeled) {
+    if (/not\s+registered|unregistered|not gst registered/i.test(labeled)) {
+      return makeCandidate("not-registered", "high", "label");
+    }
+
+    if (/registered/i.test(labeled)) {
+      return makeCandidate("registered", "high", "label");
+    }
+  }
+
+  if (/\b(?:not gst registered|not registered under gst|unregistered under gst|gst unregistered)\b/i.test(text)) {
+    return makeCandidate("not-registered", "medium", "pattern");
+  }
+
+  if (/\b(?:gst registered|registered under gst|registered for gst)\b/i.test(text)) {
+    return makeCandidate("registered", "medium", "pattern");
+  }
+
+  return undefined;
+}
+
+function extractAgencyLutAvailability(
+  text: string
+): Candidate<AgencyDetails["lutAvailability"]> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "valid lut for current financial year",
+    "lut availability",
+    "lut available",
+    "lut",
+  ]);
+
+  if (labeled) {
+    if (/\b(?:yes|available|valid)\b/i.test(labeled)) {
+      return makeCandidate("yes", "high", "label");
+    }
+
+    if (/\b(?:no|not available|without)\b/i.test(labeled)) {
+      return makeCandidate("no", "high", "label");
+    }
+  }
+
+  if (/\b(?:lut yes|valid lut|lut available)\b/i.test(text)) {
+    return makeCandidate("yes", "medium", "pattern");
+  }
+
+  if (/\b(?:no lut|without lut|lut not available)\b/i.test(text)) {
+    return makeCandidate("no", "medium", "pattern");
+  }
+
+  return undefined;
+}
+
+function extractAgencyLutNumber(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "lut number / arn",
+    "lut number",
+    "lut arn",
+    "arn",
+  ]);
+
+  return labeled ? makeCandidate(labeled, "high", "label") : undefined;
+}
+
 function extractDeliverableDescription(text: string): Candidate<string> | undefined {
   const labeled = extractLabeledValue(text, [
     "deliverable description",
@@ -948,12 +1215,13 @@ function extractDeliverableDescription(text: string): Candidate<string> | undefi
     return makeCandidate(labeled, "high", "label");
   }
 
-  const sentenceMatch = text.match(
-    /\bfor\s+(.+?)\s+(?:at|@)\s*(?:₹|rs\.?|inr|\d)/i
-  );
+  const inferred = extractPatternValue(text, [
+    /\b(?:did|made|created|worked on)\s+(.+?)(?=,|\.\s|(?:\s+(?:at|@|for\b|net\b|bank\b|terms\b))|$)/i,
+    /\b((?:landing page|homepage design|home page design|logo(?: design)?|editorial illustration(?: set)?|illustration(?: set)?|ui\/?\s*ux(?: design)?|banner design|banners?))\b/i,
+  ]);
 
-  if (sentenceMatch?.[1]) {
-    return makeCandidate(cleanValue(sentenceMatch[1]), "low", "inference");
+  if (inferred) {
+    return makeCandidate(cleanSentenceValue(inferred), "medium", "inference");
   }
 
   return undefined;
@@ -998,12 +1266,20 @@ function extractRate(text: string): Candidate<number> | undefined {
     }
   }
 
-  const fallbackMatch = text.match(
-    /\b(?:at|@)\s*((?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s?\d[\d,]*(?:\.\d{1,2})?|\d[\d,]*(?:\.\d{1,2})?\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))/i
-  );
+  const fallbackPatterns = [
+    /\b(?:rate|fee|budget|quote(?:d)?|charge(?:d|s|ing)?|cost)\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
+    /\b(?:at|@)\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
+    /(?:^|[\s(])((?:US\$|A\$|C\$|S\$|\$|€|£)\s*\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m)?|\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)\b|\d[\d,.]*(?:\.\d{1,2})?\s*(?:usd|eur|gbp|aed|aud|cad|sgd|inr|rupees?)\b)/i,
+  ];
 
-  if (fallbackMatch?.[1]) {
-    const rate = parseAmount(fallbackMatch[1]);
+  for (const pattern of fallbackPatterns) {
+    const match = text.match(pattern);
+
+    if (!match?.[1]) {
+      continue;
+    }
+
+    const rate = parseAmount(match[1]);
     if (rate > 0) {
       return makeCandidate(rate, "medium", "regex");
     }
@@ -1144,8 +1420,11 @@ export function extractInvoiceBriefSchema(
     agencyName: extractAgencyName(text),
     agencyAddress,
     agencyState,
+    agencyGstRegistrationStatus: extractAgencyGstRegistrationStatus(text),
     agencyGstin,
     agencyPan,
+    agencyLutAvailability: extractAgencyLutAvailability(text),
+    agencyLutNumber: extractAgencyLutNumber(text),
     clientName: extractClientName(text),
     clientAddress,
     clientState,
@@ -1280,9 +1559,11 @@ function applyCandidate<T>({
 }
 
 export function normalizeBriefIntake(input: BriefIntakeInput) {
-  return [input.text.trim(), input.voiceTranscript?.trim() ?? ""]
-    .filter(Boolean)
-    .join("\n\n");
+  return normalizeBriefText(
+    [input.text.trim(), input.voiceTranscript?.trim() ?? ""]
+      .filter(Boolean)
+      .join("\n\n")
+  );
 }
 
 export function mapBriefExtractionToInvoiceForm(params: {
