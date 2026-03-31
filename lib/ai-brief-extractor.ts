@@ -5,32 +5,28 @@ export type AiBriefField<T> = {
   confidence: AiBriefConfidence;
 };
 
-export type AiBriefTaxType = "CGST_SGST" | "IGST" | "ZERO_RATED";
+export type AiBriefTaxType = "CGST_SGST" | "IGST" | "ZERO";
+export type AiBriefLocationType = "domestic" | "international";
 
 export type AiBriefExtraction = {
-  agency: {
-    agencyName: AiBriefField<string>;
-    agencyAddress: AiBriefField<string>;
-    agencyState: AiBriefField<string>;
-    gstRegistered: AiBriefField<boolean>;
+  agencyName: AiBriefField<string>;
+  agencyAddress: AiBriefField<string>;
+  agencyState: AiBriefField<string>;
+  clientName: AiBriefField<string>;
+  clientAddress: AiBriefField<string>;
+  clientCountry: AiBriefField<string>;
+  clientState: AiBriefField<string>;
+  clientTaxId: AiBriefField<string>;
+  totalAmount: AiBriefField<number>;
+  currency: AiBriefField<string>;
+  gst: {
+    type: AiBriefField<AiBriefTaxType>;
+    rate: AiBriefField<number>;
     gstin: AiBriefField<string>;
-    pan: AiBriefField<string>;
+    isRegistered: AiBriefField<boolean>;
     lutAvailable: AiBriefField<boolean>;
     lutNumber: AiBriefField<string>;
-  };
-  client: {
-    clientName: AiBriefField<string>;
-    clientAddress: AiBriefField<string>;
-    clientCountry: AiBriefField<string>;
-    clientState: AiBriefField<string>;
-    taxId: AiBriefField<string>;
-    gstin: AiBriefField<string>;
-  };
-  invoice: {
-    currency: AiBriefField<string>;
-    isInternational: AiBriefField<boolean>;
-    totalAmount: AiBriefField<number>;
-    taxType: AiBriefField<AiBriefTaxType>;
+    pan: AiBriefField<string>;
   };
   deliverables: Array<{
     type: AiBriefField<string>;
@@ -39,9 +35,14 @@ export type AiBriefExtraction = {
     rate: AiBriefField<number>;
     unit: AiBriefField<string>;
   }>;
+  paymentTerms: AiBriefField<string>;
+  paymentMode: AiBriefField<string>;
+  paymentSchedule: Array<{
+    milestone: AiBriefField<string>;
+    percentage: AiBriefField<number>;
+    dueWhen: AiBriefField<string>;
+  }>;
   payment: {
-    paymentTerms: AiBriefField<string>;
-    paymentMode: AiBriefField<string>;
     bankName: AiBriefField<string>;
     accountName: AiBriefField<string>;
     accountNumber: AiBriefField<string>;
@@ -50,10 +51,17 @@ export type AiBriefExtraction = {
     ibanOrRouting: AiBriefField<string>;
     bankAddress: AiBriefField<string>;
   };
-  dates: {
+  timeline: {
+    invoiceDate: AiBriefField<string>;
     dueDate: AiBriefField<string>;
-    timeline: AiBriefField<string>;
+    deliveryTimeline: AiBriefField<string>;
   };
+  locations: {
+    agency: AiBriefField<string>;
+    client: AiBriefField<string>;
+    inferredType: AiBriefField<AiBriefLocationType>;
+  };
+  confidenceScore: AiBriefConfidence;
 };
 
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
@@ -138,84 +146,65 @@ const AI_EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    agency: {
+    agencyName: createNullableStringFieldSchema(
+      "Agency or freelancer business name."
+    ),
+    agencyAddress: createNullableStringFieldSchema(
+      "Agency business address."
+    ),
+    agencyState: createNullableStringFieldSchema(
+      "Agency state when known or strongly inferred."
+    ),
+    clientName: createNullableStringFieldSchema("Client entity name."),
+    clientAddress: createNullableStringFieldSchema(
+      "Client billing address or location."
+    ),
+    clientCountry: createNullableStringFieldSchema(
+      "Client country when international."
+    ),
+    clientState: createNullableStringFieldSchema(
+      "Client state when domestic."
+    ),
+    clientTaxId: createNullableStringFieldSchema(
+      "Client GSTIN, tax ID, or VAT number."
+    ),
+    totalAmount: createNullableNumberFieldSchema(
+      "Best overall project amount if the brief suggests a total budget or fee."
+    ),
+    currency: createNullableStringFieldSchema(
+      "Invoice currency such as INR, USD, EUR, GBP, AED, AUD, CAD, SGD."
+    ),
+    gst: {
       type: "object",
       additionalProperties: false,
       properties: {
-        agencyName: createNullableStringFieldSchema(
-          "Agency or freelancer business name."
-        ),
-        agencyAddress: createNullableStringFieldSchema(
-          "Agency business address."
-        ),
-        agencyState: createNullableStringFieldSchema(
-          "Indian state for the agency if known."
-        ),
-        gstRegistered: createNullableBooleanFieldSchema(
-          "True when the brief clearly indicates the agency is GST registered."
-        ),
-        gstin: createNullableStringFieldSchema("Agency GSTIN."),
-        pan: createNullableStringFieldSchema("Agency PAN."),
-        lutAvailable: createNullableBooleanFieldSchema(
-          "True when a valid LUT is clearly available."
-        ),
-        lutNumber: createNullableStringFieldSchema("LUT number or ARN."),
-      },
-      required: [
-        "agencyName",
-        "agencyAddress",
-        "agencyState",
-        "gstRegistered",
-        "gstin",
-        "pan",
-        "lutAvailable",
-        "lutNumber",
-      ],
-    },
-    client: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        clientName: createNullableStringFieldSchema("Client entity name."),
-        clientAddress: createNullableStringFieldSchema("Client billing address."),
-        clientCountry: createNullableStringFieldSchema(
-          "Client country if international."
-        ),
-        clientState: createNullableStringFieldSchema(
-          "Client state if domestic."
-        ),
-        taxId: createNullableStringFieldSchema("Client tax ID or VAT number."),
-        gstin: createNullableStringFieldSchema("Client GSTIN."),
-      },
-      required: [
-        "clientName",
-        "clientAddress",
-        "clientCountry",
-        "clientState",
-        "taxId",
-        "gstin",
-      ],
-    },
-    invoice: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        currency: createNullableStringFieldSchema(
-          "Invoice currency such as INR, USD, EUR, GBP, AED, AUD, CAD, SGD."
-        ),
-        isInternational: createNullableBooleanFieldSchema(
-          "True when the invoice is for a client outside India."
-        ),
-        totalAmount: createNullableNumberFieldSchema(
-          "Total project amount if clearly stated."
-        ),
-        taxType: createNullableEnumFieldSchema("Likely tax type.", [
+        type: createNullableEnumFieldSchema("GST treatment for the invoice.", [
           "CGST_SGST",
           "IGST",
-          "ZERO_RATED",
+          "ZERO",
         ] as const),
+        rate: createNullableNumberFieldSchema(
+          "GST rate percentage such as 18, 9, or 0."
+        ),
+        gstin: createNullableStringFieldSchema("Agency GSTIN."),
+        isRegistered: createNullableBooleanFieldSchema(
+          "True when the agency should likely be treated as GST registered."
+        ),
+        lutAvailable: createNullableBooleanFieldSchema(
+          "True when the brief suggests a valid LUT is available."
+        ),
+        lutNumber: createNullableStringFieldSchema("LUT number or ARN."),
+        pan: createNullableStringFieldSchema("Agency PAN."),
       },
-      required: ["currency", "isInternational", "totalAmount", "taxType"],
+      required: [
+        "type",
+        "rate",
+        "gstin",
+        "isRegistered",
+        "lutAvailable",
+        "lutNumber",
+        "pan",
+      ],
     },
     deliverables: {
       type: "array",
@@ -223,33 +212,54 @@ const AI_EXTRACTION_SCHEMA = {
         type: "object",
         additionalProperties: false,
         properties: {
-          type: createNullableStringFieldSchema("Deliverable type."),
+          type: createNullableStringFieldSchema(
+            "Deliverable type such as UI/UX, illustration, reel, image, logo."
+          ),
           description: createNullableStringFieldSchema(
-            "Deliverable description."
+            "Short human-readable description for this deliverable."
           ),
           quantity: createNullableNumberFieldSchema(
-            "Quantity for this deliverable."
+            "Quantity for this deliverable when known."
           ),
           rate: createNullableNumberFieldSchema(
-            "Rate for this deliverable."
+            "Rate for this deliverable when clearly item-level."
           ),
           unit: createNullableStringFieldSchema(
-            "Billing unit such as per screen, per item, per image, per reel."
+            "Billing unit such as per screen, per image, per reel, per item."
           ),
         },
         required: ["type", "description", "quantity", "rate", "unit"],
+      },
+    },
+    paymentTerms: createNullableStringFieldSchema(
+      "Invoice payment terms such as Net 15, Due on receipt, 50% advance."
+    ),
+    paymentMode: createNullableStringFieldSchema(
+      "Payment mode such as bank, wire, wise, payoneer, upi."
+    ),
+    paymentSchedule: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          milestone: createNullableStringFieldSchema(
+            "Schedule milestone such as advance, booking, balance."
+          ),
+          percentage: createNullableNumberFieldSchema(
+            "Percentage for this milestone if stated."
+          ),
+          dueWhen: createNullableStringFieldSchema(
+            "When this milestone is due, such as on booking or on delivery."
+          ),
+        },
+        required: ["milestone", "percentage", "dueWhen"],
       },
     },
     payment: {
       type: "object",
       additionalProperties: false,
       properties: {
-        paymentTerms: createNullableStringFieldSchema(
-          "Payment terms such as Net 15 or Due on receipt."
-        ),
-        paymentMode: createNullableStringFieldSchema(
-          "Payment mode such as bank, wise, payoneer, upi."
-        ),
         bankName: createNullableStringFieldSchema("Bank name."),
         accountName: createNullableStringFieldSchema(
           "Beneficiary or account name."
@@ -263,8 +273,6 @@ const AI_EXTRACTION_SCHEMA = {
         bankAddress: createNullableStringFieldSchema("Full bank address."),
       },
       required: [
-        "paymentTerms",
-        "paymentMode",
         "bankName",
         "accountName",
         "accountNumber",
@@ -274,90 +282,116 @@ const AI_EXTRACTION_SCHEMA = {
         "bankAddress",
       ],
     },
-    dates: {
+    timeline: {
       type: "object",
       additionalProperties: false,
       properties: {
-        dueDate: createNullableStringFieldSchema(
-          "Invoice due date if explicitly mentioned."
+        invoiceDate: createNullableStringFieldSchema(
+          "Invoice date if clearly mentioned."
         ),
-        timeline: createNullableStringFieldSchema(
-          "Project timeline or delivery timeline if mentioned."
+        dueDate: createNullableStringFieldSchema(
+          "Due date if clearly mentioned."
+        ),
+        deliveryTimeline: createNullableStringFieldSchema(
+          "Delivery timeline, ETA, deadline, or duration."
         ),
       },
-      required: ["dueDate", "timeline"],
+      required: ["invoiceDate", "dueDate", "deliveryTimeline"],
+    },
+    locations: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        agency: createNullableStringFieldSchema(
+          "Agency city, state, or location snippet."
+        ),
+        client: createNullableStringFieldSchema(
+          "Client city, state, country, or location snippet."
+        ),
+        inferredType: createNullableEnumFieldSchema(
+          "Whether the invoice should be treated as domestic or international.",
+          ["domestic", "international"] as const
+        ),
+      },
+      required: ["agency", "client", "inferredType"],
+    },
+    confidenceScore: {
+      type: "string",
+      enum: ["high", "medium", "low"],
     },
   },
   required: [
-    "agency",
-    "client",
-    "invoice",
+    "agencyName",
+    "agencyAddress",
+    "agencyState",
+    "clientName",
+    "clientAddress",
+    "clientCountry",
+    "clientState",
+    "clientTaxId",
+    "totalAmount",
+    "currency",
+    "gst",
     "deliverables",
+    "paymentTerms",
+    "paymentMode",
+    "paymentSchedule",
     "payment",
-    "dates",
+    "timeline",
+    "locations",
+    "confidenceScore",
   ],
 } as const;
 
 const SYSTEM_PROMPT = `
-You are an expert invoice assistant.
+You are an expert freelance invoice assistant.
 
-Extract structured invoice data from the following unstructured brief.
+Given a messy brief (chat, email, OCR text), your job is to:
+1. Understand the intent
+2. Infer missing structure
+3. Extract invoice-ready structured data
 
-Rules:
-- Understand meaning, not just keywords
-- Infer missing information when obvious
-- Do NOT hallucinate
-- If unsure -> return null
-- Group related data properly
+IMPORTANT RULES:
+- Do NOT wait for perfect labels
+- Infer meaning from context
+- Convert conversational language into structured fields
+- Prefer the best grounded guess with a confidence score instead of skipping fields
+- Do NOT hallucinate details that are unsupported by the brief
+- If a guess would be too speculative, still return the closest grounded interpretation with low confidence
+- Separate agency details from client details from payment details
+- Treat AI output as an intelligent assistant interpretation, not a literal regex dump
 
-Extract:
+INTERPRETATION RULES:
+- Amount detection:
+  - Detect project budgets, fees, costs, quoted amounts, and currency symbols like ₹, $, €, £
+  - Use totalAmount for overall project fee when that seems most likely
+  - If a single amount might be a line-item rate instead of the full project fee, still return the best guess and lower confidence
+- GST logic:
+  - If the brief suggests same-state billing, prefer CGST_SGST
+  - If the brief suggests interstate billing, prefer IGST
+  - If the brief suggests export or international services, prefer ZERO with 0% rate
+  - If GSTIN is present, treat the agency as likely GST registered
+- Location inference:
+  - Infer domestic vs international from city names, country names, or payment context
+  - Map Indian cities like Bangalore/Bengaluru -> Karnataka, Mumbai -> Maharashtra, Delhi -> Delhi
+  - Map foreign cities like London, New York, San Francisco, Dubai, Singapore as international clues
+- Deliverables:
+  - Split multiple deliverables into separate array items when the brief says things like "40 images + 5 reels"
+  - Preserve quantity, type, description, rate, and unit when possible
+- Payment terms:
+  - Detect Net 15 / Net 30 / Due on receipt
+  - Detect milestone schedules like 50% advance, 40% booking, balance on delivery
+- Timeline:
+  - Extract invoice dates, due dates, explicit deadlines, and delivery durations
+- Mixed language and OCR:
+  - Be resilient to shorthand, broken spacing, OCR noise, and conversational phrasing
 
-AGENCY:
-- agencyName
-- agencyAddress
-- agencyState
-- gstRegistered (true/false)
-- gstin
-- lutAvailable (true/false)
-
-CLIENT:
-- clientName
-- clientAddress
-- clientCountry
-- clientState
-
-INVOICE:
-- currency (INR, USD, etc.)
-- isInternational (true if outside India)
-- totalAmount
-- taxType (CGST_SGST / IGST / ZERO_RATED)
-
-DELIVERABLES (array):
-- type
-- description
-- quantity
-- rate
-- unit
-
-PAYMENT:
-- paymentTerms
-- paymentMode (bank / wise / payoneer / etc.)
-
-DATES:
-- dueDate
-- timeline
-
-Compatibility extras:
-- If PAN, LUT number / ARN, client tax ID, GSTIN, bank name, account number, IFSC, SWIFT/BIC, IBAN/routing, or bank address are clearly present, include them too.
-- Return confidence for every field:
-  - high = explicit mention
-  - medium = clear inference
-  - low = weak guess
-- Resolve entities by role: agency vs client vs payment recipient.
-- For multiple deliverables like "40 images + 5 reels", return separate array items.
-- If one total amount covers multiple deliverables, keep invoice.totalAmount and leave item-level rate null unless the brief clearly gives per-item pricing.
-- Normalize shorthand amounts such as 15k => 15000, $500 => 500 with USD, and ₹15000 => 15000 with INR.
-- Use null instead of guessing when country, LUT state, or payment mode is not reasonably clear.
+STRICT OUTPUT RULES:
+- Return JSON only
+- Follow the schema exactly
+- Every field object must include value and confidence
+- confidenceScore should summarize the overall extraction quality
+- Use null only when there is no grounded guess at all
 `.trim();
 
 function extractOutputText(payload: unknown) {
@@ -439,7 +473,7 @@ export async function extractInvoiceBriefWithAi(
       text: {
         format: {
           type: "json_schema",
-          name: "invoice_brief_extraction_v2",
+          name: "invoice_brief_interpretation_v3",
           strict: true,
           schema: AI_EXTRACTION_SCHEMA,
         },

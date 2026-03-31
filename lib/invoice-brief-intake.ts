@@ -36,6 +36,7 @@ export type BriefExtractedField<T> = {
 };
 
 type Candidate<T> = BriefExtractedField<T>;
+type NormalizedInvoiceTaxType = "CGST_SGST" | "IGST" | "ZERO_RATED";
 
 export type InvoiceBriefLineItemExtraction = {
   type?: BriefExtractedField<InvoiceLineItemType>;
@@ -64,7 +65,7 @@ export type InvoiceBriefExtractionSchema = {
   invoiceIsInternational?: BriefExtractedField<boolean>;
   invoiceCurrencyCode?: BriefExtractedField<string>;
   invoiceTotalAmount?: BriefExtractedField<number>;
-  invoiceTaxType?: BriefExtractedField<AiBriefTaxType>;
+  invoiceTaxType?: BriefExtractedField<NormalizedInvoiceTaxType>;
   lineItems?: InvoiceBriefLineItemExtraction[];
   deliverableType?: BriefExtractedField<InvoiceLineItemType>;
   deliverableDescription?: BriefExtractedField<string>;
@@ -82,6 +83,7 @@ export type InvoiceBriefExtractionSchema = {
   paymentIfscCode?: BriefExtractedField<string>;
   paymentSwiftBicCode?: BriefExtractedField<string>;
   paymentIbanRoutingCode?: BriefExtractedField<string>;
+  invoiceDate?: BriefExtractedField<string>;
   dueDate?: BriefExtractedField<string>;
   timeline?: BriefExtractedField<string>;
 };
@@ -666,7 +668,11 @@ function normalizeLineItemTypeValue(
   }
 
   if (/\blogos?\b/i.test(normalized)) return "Logo Design";
-  if (/\b(ui|ux|landing page|homepage|screen|wireframe|dashboard)\b/i.test(normalized)) {
+  if (
+    /\b(ui|ux|landing page|homepage|screens?|wireframes?|dashboard)\b/i.test(
+      normalized
+    )
+  ) {
     return "UI/UX";
   }
   if (/\billustrations?\b/i.test(normalized)) return "Illustration";
@@ -752,7 +758,7 @@ function formatDateCandidate(value: string | null | undefined) {
 }
 
 function deriveTaxTypeCandidate(params: {
-  explicitTaxType?: Candidate<AiBriefTaxType>;
+  explicitTaxType?: Candidate<NormalizedInvoiceTaxType>;
   rawText: string;
   agencyState?: string;
   clientState?: string;
@@ -765,14 +771,18 @@ function deriveTaxTypeCandidate(params: {
   }
 
   if (/igst/i.test(params.rawText)) {
-    return makeCandidate<AiBriefTaxType>("IGST", "medium", "inference");
+    return makeCandidate<NormalizedInvoiceTaxType>(
+      "IGST",
+      "medium",
+      "inference"
+    );
   }
 
   if (
     /export of services/i.test(params.rawText) ||
     params.lutAvailability === "yes"
   ) {
-    return makeCandidate<AiBriefTaxType>(
+    return makeCandidate<NormalizedInvoiceTaxType>(
       "ZERO_RATED",
       "medium",
       "inference"
@@ -785,7 +795,7 @@ function deriveTaxTypeCandidate(params: {
     params.agencyState &&
     params.clientState
   ) {
-    return makeCandidate<AiBriefTaxType>(
+    return makeCandidate<NormalizedInvoiceTaxType>(
       params.agencyState === params.clientState ? "CGST_SGST" : "IGST",
       "medium",
       "inference"
@@ -889,28 +899,70 @@ function normalizeAiDeliverables(
   return normalized.length > 0 ? normalized : deriveFallbackDeliverables(rawText);
 }
 
+function normalizeAiTaxType(
+  field: AiBriefField<AiBriefTaxType>
+): Candidate<NormalizedInvoiceTaxType> | undefined {
+  if (!field.value) {
+    return undefined;
+  }
+
+  return makeCandidate(
+    field.value === "ZERO" ? "ZERO_RATED" : field.value,
+    field.confidence,
+    "ai"
+  );
+}
+
+function formatAiPaymentSchedule(extraction: AiBriefExtraction) {
+  const scheduleParts = extraction.paymentSchedule
+    .map((item) => {
+      const milestone = cleanValue(item.milestone.value ?? "");
+      const percentage = item.percentage.value;
+      const dueWhen = cleanValue(item.dueWhen.value ?? "");
+
+      if (!milestone && !percentage && !dueWhen) {
+        return "";
+      }
+
+      const pieces = [
+        percentage ? `${percentage}%` : "",
+        milestone,
+        dueWhen ? `(${dueWhen})` : "",
+      ].filter(Boolean);
+
+      return pieces.join(" ").trim();
+    })
+    .filter(Boolean);
+
+  return scheduleParts.join(", ");
+}
+
 export function normalizeExtractedData(
   extraction: AiBriefExtraction,
   rawText: string
 ): InvoiceBriefExtractionSchema {
-  const agencyAddressValue = extraction.agency.agencyAddress.value ?? "";
-  const clientAddressValue = extraction.client.clientAddress.value ?? "";
+  const agencyAddressValue =
+    extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
+  const clientAddressValue =
+    extraction.clientAddress.value ?? extraction.locations.client.value ?? "";
   const agencyStateValue =
-    getStateFromText(extraction.agency.agencyState.value ?? agencyAddressValue) ||
-    "";
+    getStateFromText(extraction.agencyState.value ?? agencyAddressValue) || "";
   const clientStateValue =
-    getStateFromText(extraction.client.clientState.value ?? clientAddressValue) ||
-    "";
+    getStateFromText(extraction.clientState.value ?? clientAddressValue) || "";
   const clientCountryValue =
-    getCountryFromText(
-      extraction.client.clientCountry.value || clientAddressValue || rawText
-    ) || "";
+    getCountryFromText(extraction.clientCountry.value || clientAddressValue || rawText) ||
+    "";
   const currencyCandidate =
-    createAiCandidate(extraction.invoice.currency.value, extraction.invoice.currency.confidence) ??
+    createAiCandidate(extraction.currency.value, extraction.currency.confidence) ??
     getCurrencyFromText(rawText);
-  const explicitInternational = extraction.invoice.isInternational.value;
+  const explicitInternational =
+    extraction.locations.inferredType.value === "international"
+      ? true
+      : extraction.locations.inferredType.value === "domestic"
+      ? false
+      : null;
   const paymentModeValue =
-    normalizePaymentModeValue(extraction.payment.paymentMode.value) ||
+    normalizePaymentModeValue(extraction.paymentMode.value) ||
     normalizePaymentModeValue(
       /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0]
     );
@@ -918,7 +970,7 @@ export function normalizeExtractedData(
     explicitInternational !== null
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           explicitInternational ? "international" : "domestic",
-          extraction.invoice.isInternational.confidence,
+          extraction.locations.inferredType.confidence,
           "ai"
         )
       : clientCountryValue
@@ -942,11 +994,28 @@ export function normalizeExtractedData(
       : undefined;
   const agencyGstStatus =
     createAiBooleanCandidate(
-      extraction.agency.gstRegistered,
+      extraction.gst.isRegistered,
       "registered" as AgencyDetails["gstRegistrationStatus"],
       "not-registered" as AgencyDetails["gstRegistrationStatus"]
     ) ??
-    (extraction.agency.gstin.value
+    (extraction.gst.lutAvailable.value === true
+      ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
+          "registered",
+          "medium",
+          "inference"
+        )
+      : undefined) ??
+    ((extraction.gst.type.value === "CGST_SGST" ||
+      extraction.gst.type.value === "IGST") &&
+    extraction.gst.rate.value &&
+    extraction.gst.rate.value > 0
+      ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
+          "registered",
+          "medium",
+          "inference"
+        )
+      : undefined) ??
+    (extraction.gst.gstin.value
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "medium",
@@ -955,7 +1024,7 @@ export function normalizeExtractedData(
       : undefined);
   const agencyLutAvailability =
     createAiBooleanCandidate(
-      extraction.agency.lutAvailable,
+      extraction.gst.lutAvailable,
       "yes" as AgencyDetails["lutAvailability"],
       "no" as AgencyDetails["lutAvailability"]
     ) ??
@@ -967,13 +1036,7 @@ export function normalizeExtractedData(
         )
       : undefined);
   const taxTypeCandidate = deriveTaxTypeCandidate({
-    explicitTaxType: extraction.invoice.taxType.value
-      ? makeCandidate<AiBriefTaxType>(
-          extraction.invoice.taxType.value,
-          extraction.invoice.taxType.confidence,
-          "ai"
-        )
-      : undefined,
+    explicitTaxType: normalizeAiTaxType(extraction.gst.type),
     rawText,
     agencyState: agencyStateValue,
     clientState: clientStateValue,
@@ -981,69 +1044,80 @@ export function normalizeExtractedData(
     gstRegistrationStatus: agencyGstStatus?.value,
     lutAvailability: agencyLutAvailability?.value,
   });
+  const paymentScheduleText = formatAiPaymentSchedule(extraction);
+  const paymentTermsCandidate =
+    createAiCandidate(
+      cleanValue(extraction.paymentTerms.value),
+      extraction.paymentTerms.confidence
+    ) ??
+    (paymentScheduleText
+      ? makeCandidate(paymentScheduleText, "medium", "ai")
+      : undefined);
+  const invoiceDateValue = formatDateCandidate(extraction.timeline.invoiceDate.value);
+  const dueDateValue = formatDateCandidate(extraction.timeline.dueDate.value);
 
   const normalized: InvoiceBriefExtractionSchema = {
     agencyName: createAiCandidate(
-      cleanValue(extraction.agency.agencyName.value),
-      extraction.agency.agencyName.confidence
+      cleanValue(extraction.agencyName.value),
+      extraction.agencyName.confidence
     ),
     agencyAddress: createAiCandidate(
       cleanAddressValue(agencyAddressValue),
-      extraction.agency.agencyAddress.confidence
+      extraction.agencyAddress.value
+        ? extraction.agencyAddress.confidence
+        : extraction.locations.agency.confidence
     ),
     agencyState: agencyStateValue
       ? makeCandidate(
           agencyStateValue,
-          extraction.agency.agencyState.value
-            ? extraction.agency.agencyState.confidence
+          extraction.agencyState.value
+            ? extraction.agencyState.confidence
             : "medium",
-          extraction.agency.agencyState.value ? "ai" : "inference"
+          extraction.agencyState.value ? "ai" : "inference"
         )
       : undefined,
     agencyGstRegistrationStatus: agencyGstStatus,
     agencyGstin: createAiCandidate(
-      extraction.agency.gstin.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.agency.gstin.confidence
+      extraction.gst.gstin.value?.toUpperCase()?.replace(/\s+/g, ""),
+      extraction.gst.gstin.confidence
     ),
     agencyPan: createAiCandidate(
-      extraction.agency.pan.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.agency.pan.confidence
+      extraction.gst.pan.value?.toUpperCase()?.replace(/\s+/g, ""),
+      extraction.gst.pan.confidence
     ),
     agencyLutAvailability,
     agencyLutNumber: createAiCandidate(
-      cleanValue(extraction.agency.lutNumber.value),
-      extraction.agency.lutNumber.confidence
+      cleanValue(extraction.gst.lutNumber.value),
+      extraction.gst.lutNumber.confidence
     ),
     clientName: createAiCandidate(
-      cleanValue(extraction.client.clientName.value),
-      extraction.client.clientName.confidence
+      cleanValue(extraction.clientName.value),
+      extraction.clientName.confidence
     ),
     clientAddress: createAiCandidate(
       cleanAddressValue(clientAddressValue),
-      extraction.client.clientAddress.confidence
+      extraction.clientAddress.value
+        ? extraction.clientAddress.confidence
+        : extraction.locations.client.confidence
     ),
     clientState: clientStateValue
       ? makeCandidate(
           clientStateValue,
-          extraction.client.clientState.value ? extraction.client.clientState.confidence : "medium",
-          extraction.client.clientState.value ? "ai" : "inference"
+          extraction.clientState.value ? extraction.clientState.confidence : "medium",
+          extraction.clientState.value ? "ai" : "inference"
         )
       : undefined,
     clientCountry: clientCountryValue
       ? makeCandidate(
           clientCountryValue,
-          extraction.client.clientCountry.value ? extraction.client.clientCountry.confidence : "medium",
-          extraction.client.clientCountry.value ? "ai" : "inference"
+          extraction.clientCountry.value ? extraction.clientCountry.confidence : "medium",
+          extraction.clientCountry.value ? "ai" : "inference"
         )
       : undefined,
     clientLocation: clientLocationCandidate,
     clientGstin: createAiCandidate(
-      cleanValue(
-        extraction.client.gstin.value || extraction.client.taxId.value || ""
-      ),
-      extraction.client.gstin.value
-        ? extraction.client.gstin.confidence
-        : extraction.client.taxId.confidence
+      cleanValue(extraction.clientTaxId.value || ""),
+      extraction.clientTaxId.confidence
     ),
     clientCurrency:
       currencyCandidate?.value &&
@@ -1061,12 +1135,12 @@ export function normalizeExtractedData(
       clientLocationCandidate?.value === "international"
         ? makeCandidate(true, clientLocationCandidate.confidence, clientLocationCandidate.source)
         : explicitInternational === false
-        ? makeCandidate(false, extraction.invoice.isInternational.confidence, "ai")
+        ? makeCandidate(false, extraction.locations.inferredType.confidence, "ai")
         : undefined,
     invoiceCurrencyCode: currencyCandidate,
     invoiceTotalAmount: createAiCandidate(
-      extraction.invoice.totalAmount.value,
-      extraction.invoice.totalAmount.confidence
+      extraction.totalAmount.value,
+      extraction.totalAmount.confidence
     ),
     invoiceTaxType: taxTypeCandidate,
     lineItems: normalizeAiDeliverables(extraction, rawText),
@@ -1075,17 +1149,14 @@ export function normalizeExtractedData(
     qty: undefined,
     rate: undefined,
     rateUnit: undefined,
-    paymentTerms: createAiCandidate(
-      cleanValue(extraction.payment.paymentTerms.value),
-      extraction.payment.paymentTerms.confidence
-    ),
+    paymentTerms: paymentTermsCandidate,
     paymentMode: paymentModeValue
       ? makeCandidate(
           paymentModeValue,
-          extraction.payment.paymentMode.value
-            ? extraction.payment.paymentMode.confidence
+          extraction.paymentMode.value
+            ? extraction.paymentMode.confidence
             : "medium",
-          extraction.payment.paymentMode.value ? "ai" : "inference"
+          extraction.paymentMode.value ? "ai" : "inference"
         )
       : undefined,
     paymentAccountName: createAiCandidate(
@@ -1116,15 +1187,23 @@ export function normalizeExtractedData(
       cleanValue(extraction.payment.ibanOrRouting.value),
       extraction.payment.ibanOrRouting.confidence
     ),
-    dueDate: (() => {
-      const formattedDate = formatDateCandidate(extraction.dates.dueDate.value);
-      return formattedDate
-        ? makeCandidate(formattedDate, extraction.dates.dueDate.confidence, "ai")
-        : undefined;
-    })(),
+    invoiceDate: invoiceDateValue
+      ? makeCandidate(
+          invoiceDateValue,
+          extraction.timeline.invoiceDate.confidence,
+          "ai"
+        )
+      : undefined,
+    dueDate: dueDateValue
+      ? makeCandidate(
+          dueDateValue,
+          extraction.timeline.dueDate.confidence,
+          "ai"
+        )
+      : undefined,
     timeline: createAiCandidate(
-      cleanValue(extraction.dates.timeline.value),
-      extraction.dates.timeline.confidence
+      cleanValue(extraction.timeline.deliveryTimeline.value),
+      extraction.timeline.deliveryTimeline.confidence
     ),
   } satisfies InvoiceBriefExtractionSchema;
 
@@ -1176,7 +1255,7 @@ function chooseMergedCandidate<T>(
     const aiScore = getConfidenceScore(aiCandidate.confidence);
     const heuristicScore = getConfidenceScore(heuristicCandidate.confidence);
 
-    return heuristicScore >= aiScore ? heuristicCandidate : aiCandidate;
+    return heuristicScore > aiScore ? heuristicCandidate : aiCandidate;
   }
 
   const aiScore = getConfidenceScore(aiCandidate.confidence);
@@ -1948,7 +2027,9 @@ function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined 
   return undefined;
 }
 
-function extractInvoiceTaxType(text: string): Candidate<AiBriefTaxType> | undefined {
+function extractInvoiceTaxType(
+  text: string
+): Candidate<NormalizedInvoiceTaxType> | undefined {
   if (/\bcgst\b.*\bsgst\b|\bsgst\b.*\bcgst\b/i.test(text)) {
     return makeCandidate("CGST_SGST", "high", "pattern");
   }
@@ -2831,6 +2912,20 @@ export function mapBriefExtractionToInvoiceForm(params: {
     candidate: extraction.paymentTerms,
     assign: (value) => {
       nextFormData.meta.paymentTerms = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Invoice date",
+    currentValue: nextFormData.meta.invoiceDate,
+    defaultValue: defaultInvoiceFormData.meta.invoiceDate,
+    candidate: extraction.invoiceDate,
+    assign: (value) => {
+      nextFormData.meta.invoiceDate = value;
     },
     filledFields,
     aiFilledFields,
