@@ -576,7 +576,76 @@ export default function InvoiceEditorPage() {
     [formData]
   );
 
-  const computedTotals = calculateInvoiceTotals(formData.lineItems, formData.tax);
+  const clientIsInternational = formData.client.clientLocation === "international";
+
+  const computedTotals = useMemo(
+    () =>
+      calculateInvoiceTotals({
+        lineItems: formData.lineItems,
+        agencyState: formData.agency.agencyState,
+        clientState: formData.client.clientState,
+        isInternational: clientIsInternational,
+        gstRegistered:
+          formData.agency.gstRegistrationStatus === "registered",
+      }),
+    [
+      formData.lineItems,
+      formData.agency.agencyState,
+      formData.client.clientState,
+      clientIsInternational,
+      formData.agency.gstRegistrationStatus,
+    ]
+  );
+
+  const derivedTaxConfig = useMemo(() => {
+    switch (computedTotals.taxType) {
+      case "CGST_SGST":
+        return {
+          taxMode: "gst" as const,
+          taxRate: 18,
+        };
+      case "IGST":
+        return {
+          taxMode: "igst" as const,
+          taxRate: 18,
+        };
+      default:
+        return {
+          taxMode: "none" as const,
+          taxRate: 0,
+        };
+    }
+  }, [computedTotals.taxType]);
+
+  const totalsComplianceMessage = useMemo(() => {
+    if (computedTotals.taxType === "CGST_SGST") {
+      return "Domestic same-state billing: tax is split into CGST 9% and SGST 9%.";
+    }
+
+    if (computedTotals.taxType === "IGST") {
+      return "Domestic interstate billing: IGST 18% applies to this invoice.";
+    }
+
+    if (clientIsInternational) {
+      return "International invoices are currently kept at 0% tax in this step. Export tax handling is managed separately in compliance flow.";
+    }
+
+    if (formData.agency.gstRegistrationStatus !== "registered") {
+      return "Tax is set to 0% because the agency is marked as not registered under GST.";
+    }
+
+    if (!formData.agency.agencyState || !formData.client.clientState) {
+      return "Select both agency and client state to determine whether GST should be split as CGST + SGST or applied as IGST.";
+    }
+
+    return "";
+  }, [
+    computedTotals.taxType,
+    clientIsInternational,
+    formData.agency.gstRegistrationStatus,
+    formData.agency.agencyState,
+    formData.client.clientState,
+  ]);
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -650,9 +719,14 @@ export default function InvoiceEditorPage() {
 
   const handlePreviewInvoice = () => {
     try {
+      const previewFormData = {
+        ...formData,
+        tax: derivedTaxConfig,
+      };
+
       window.localStorage.setItem(
         PREVIEW_STORAGE_KEY,
-        JSON.stringify(formData)
+        JSON.stringify(previewFormData)
       );
       triggerToast("Preview ready");
       window.open("/invoice/preview", "_blank", "noopener,noreferrer");
@@ -871,8 +945,13 @@ export default function InvoiceEditorPage() {
 
             {currentStep === "totals" && (
               <TotalsTaxesSection
-                value={formData.tax}
+                value={derivedTaxConfig}
                 computed={computedTotals}
+                isLocked
+                modeLabel="Tax Type"
+                rateLabel="Total Tax %"
+                gstOptionLabel="CGST + SGST"
+                complianceMessage={totalsComplianceMessage}
                 onChange={(tax) =>
                   setFormData((prev) => ({
                     ...prev,

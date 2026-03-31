@@ -63,6 +63,16 @@ export interface TaxConfig {
   taxRate: number;
 }
 
+export type InvoiceTaxType = "CGST_SGST" | "IGST" | "NONE";
+
+export interface InvoiceTaxBreakdown {
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
+  totalTax: number;
+  taxType: InvoiceTaxType;
+}
+
 export type LicenseType =
   | "full-assignment"
   | "exclusive-license"
@@ -92,7 +102,7 @@ export interface InvoiceFormData {
   payment: PaymentDetails;
 }
 
-export interface InvoiceComputedValues {
+export interface InvoiceComputedValues extends InvoiceTaxBreakdown {
   subtotal: number;
   taxAmount: number;
   grandTotal: number;

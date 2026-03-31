@@ -10,6 +10,7 @@ type TotalsTaxesSectionProps = {
   allowIgstOption?: boolean;
   modeLabel?: string;
   rateLabel?: string;
+  gstOptionLabel?: string;
   complianceMessage?: string;
   onChange: (value: TaxConfig) => void;
 };
@@ -54,6 +55,7 @@ export default function TotalsTaxesSection({
   allowIgstOption = false,
   modeLabel = "GST Type",
   rateLabel = "GST %",
+  gstOptionLabel = "GST",
   complianceMessage = "",
   onChange,
 }: TotalsTaxesSectionProps) {
@@ -76,6 +78,20 @@ export default function TotalsTaxesSection({
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const panelClass =
     "flex h-full flex-col justify-between rounded-2xl border border-gray-200 p-4";
+  const taxAmountHelperText =
+    computed.taxType === "CGST_SGST"
+      ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
+          computed.sgst ?? 0,
+          currency
+        )}`
+      : computed.taxType === "IGST"
+      ? `IGST ${formatCurrency(computed.igst ?? 0, currency)}`
+      : isLocked
+      ? "No tax is currently applied to this invoice."
+      : "Calculated from the current subtotal and GST percentage.";
+  const rateHelperText = isLocked
+    ? "This total tax rate is calculated automatically from client location, GST registration, and billing state."
+    : "Set the exact GST percentage applied to the subtotal.";
 
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-5">
@@ -136,7 +152,7 @@ export default function TotalsTaxesSection({
                     : "border-gray-300"
                 }`}
               >
-                <option value="gst">GST</option>
+                <option value="gst">{gstOptionLabel}</option>
                 {showIgstOption ? <option value="igst">IGST</option> : null}
                 <option value="none">No Tax</option>
               </select>
@@ -185,7 +201,7 @@ export default function TotalsTaxesSection({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-gray-500">
-            Set the exact GST percentage applied to the subtotal.
+            {rateHelperText}
           </p>
         </div>
 
@@ -200,7 +216,7 @@ export default function TotalsTaxesSection({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-gray-500">
-            Calculated from the current subtotal and GST percentage.
+            {taxAmountHelperText}
           </p>
         </div>
 
