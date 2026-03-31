@@ -40,9 +40,14 @@ interface AutofillSummaryModalProps {
     updater: (prev: InvoiceFormData) => InvoiceFormData
   ) => void;
   onClose: () => void;
+  onBackToSummary: () => void;
   onManualCheck: () => void;
   onOpenFillMissing: () => void;
   onPreview: () => void;
+}
+
+function cn(...values: Array<string | false | null | undefined>) {
+  return values.filter(Boolean).join(" ");
 }
 
 function getStepLabel(step: InvoiceStepperStep) {
@@ -76,27 +81,103 @@ function getFieldClass(params?: {
 }) {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
-  return [
-    "w-full rounded-2xl border text-[15px] leading-6 text-slate-950 outline-none transition-all duration-150",
-    multiline ? "min-h-[118px] px-4 py-3.5" : "h-12 px-4",
+  return cn(
+    "w-full rounded-2xl border text-[15px] font-medium leading-6 text-slate-950 outline-none transition-all duration-150",
+    multiline ? "min-h-[120px] px-4 py-3.5" : "h-12 px-4",
     isSelect ? "appearance-none pr-11" : "",
-    "placeholder:text-slate-400",
+    "placeholder:text-slate-400/95",
     "hover:border-slate-400 hover:bg-white",
-    "focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-950/10",
+    "focus:border-slate-950 focus:bg-white focus:ring-[3px] focus:ring-slate-950/12",
     "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
-      ? "border-red-400 bg-red-50/60 focus:border-red-500 focus:ring-red-500/10"
+      ? "border-red-400 bg-red-50/60 focus:border-red-500 focus:ring-red-500/12"
       : hasValue
-      ? "border-slate-400 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
-      : "border-slate-300 bg-white/95",
-  ].join(" ");
+      ? "border-slate-400 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+      : "border-slate-300 bg-slate-50/70"
+  );
 }
 
 function ErrorText({ message }: { message?: string }) {
   if (!message) return null;
 
   return <p className="mt-2 text-xs font-medium leading-5 text-red-600">{message}</p>;
+}
+
+function FieldLabel({
+  children,
+  required,
+}: {
+  children: ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <label className="mb-2.5 block text-sm font-medium tracking-tight text-slate-900">
+      {children}
+      {required ? <span className="text-red-500"> *</span> : null}
+    </label>
+  );
+}
+
+function ModalButton({
+  children,
+  variant = "secondary",
+  onClick,
+  disabled,
+}: {
+  children: ReactNode;
+  variant?: "primary" | "secondary" | "ghost";
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "inline-flex h-11 items-center justify-center rounded-2xl px-4 text-sm font-semibold tracking-tight transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/12 disabled:pointer-events-none disabled:opacity-55",
+        variant === "primary"
+          ? "bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] hover:bg-slate-800"
+          : variant === "ghost"
+          ? "bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+          : "border border-slate-300 bg-white text-slate-950 hover:border-slate-950 hover:bg-slate-50"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function SummaryCard({
+  title,
+  tone = "default",
+  children,
+}: {
+  title: string;
+  tone?: "default" | "success" | "warning" | "muted";
+  children: ReactNode;
+}) {
+  const toneClasses =
+    tone === "success"
+      ? "border-emerald-200 bg-emerald-50"
+      : tone === "warning"
+      ? "border-amber-200 bg-amber-50"
+      : tone === "muted"
+      ? "border-slate-200 bg-slate-50"
+      : "border-slate-200 bg-white";
+
+  return (
+    <div
+      className={cn(
+        "rounded-[26px] border p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-150",
+        toneClasses
+      )}
+    >
+      <p className="text-sm font-semibold tracking-tight text-slate-950">{title}</p>
+      {children}
+    </div>
+  );
 }
 
 function SelectChevron() {
@@ -160,7 +241,7 @@ function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <div className="rounded-[26px] border border-slate-200 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-150">
       <div className="mb-5">
         <p className="text-sm font-semibold tracking-tight text-slate-950">{title}</p>
         {subtitle ? (
@@ -193,9 +274,10 @@ function ModalSegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={name}
-      className={`grid gap-2 rounded-[20px] border border-slate-200 bg-slate-100/80 p-1 ${
+      className={cn(
+        "grid gap-2 rounded-[20px] border border-slate-200 bg-slate-100/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]",
         columns === 2 ? "sm:grid-cols-2" : ""
-      }`}
+      )}
     >
       {options.map((option) => {
         const selected = value === option.value;
@@ -207,11 +289,12 @@ function ModalSegmentedControl<T extends string>({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.value)}
-            className={`min-h-[46px] rounded-2xl border px-4 py-2.5 text-left text-sm transition ${
+            className={cn(
+              "min-h-[46px] rounded-2xl border px-4 py-2.5 text-left text-sm transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
               selected
                 ? "border-slate-900/15 bg-white text-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
                 : "border-transparent bg-transparent text-slate-600 hover:bg-white/80 hover:text-slate-900"
-            }`}
+            )}
           >
             <span className="block font-medium">{option.label}</span>
             {option.description ? (
@@ -253,11 +336,12 @@ function ModalChoiceCardGroup<T extends string>({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.value)}
-            className={`rounded-[22px] border px-4 py-4 text-left transition ${
+            className={cn(
+              "min-h-[108px] rounded-[22px] border px-4 py-4 text-left transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
               selected
-                ? "border-slate-950 bg-slate-950 text-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
-                : "border-slate-200 bg-white text-slate-950 hover:border-slate-300 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)]"
-            }`}
+                ? "border-slate-950 bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
+                : "border-slate-200 bg-white text-slate-950 hover:border-slate-300 hover:shadow-[0_6px_16px_rgba(15,23,42,0.05)]"
+            )}
           >
             <span className="block text-sm font-semibold tracking-tight">
               {option.label}
@@ -386,9 +470,7 @@ function MiniForm({
         >
           {fieldErrors.agency.agencyName ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Agency Name *
-              </label>
+              <FieldLabel required>Agency Name</FieldLabel>
               <input
                 type="text"
                 value={formData.agency.agencyName}
@@ -413,9 +495,7 @@ function MiniForm({
 
           {fieldErrors.agency.address ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Address *
-              </label>
+              <FieldLabel required>Address</FieldLabel>
               <textarea
                 rows={4}
                 value={formData.agency.address}
@@ -441,9 +521,7 @@ function MiniForm({
 
           {fieldErrors.agency.agencyState ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Agency State *
-              </label>
+              <FieldLabel required>Agency State</FieldLabel>
               <ModalSelect
                 value={formData.agency.agencyState}
                 onChange={(value) =>
@@ -478,9 +556,7 @@ function MiniForm({
           subtitle="These controls affect GST, LUT, and export-tax readiness for the current invoice."
         >
           <div>
-            <label className="mb-2.5 block text-sm font-medium text-slate-900">
-              GST Registration
-            </label>
+            <FieldLabel>GST Registration</FieldLabel>
             <ModalSegmentedControl
               name="modal-gst-registration"
               columns={2}
@@ -504,9 +580,7 @@ function MiniForm({
           {formData.agency.gstRegistrationStatus === "registered" &&
           fieldErrors.agency.gstin ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                GSTIN *
-              </label>
+              <FieldLabel required>GSTIN</FieldLabel>
               <input
                 type="text"
                 value={formData.agency.gstin}
@@ -535,9 +609,7 @@ function MiniForm({
           formData.client.clientLocation === "international" ? (
             <>
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Valid LUT for current financial year?
-                </label>
+                <FieldLabel>Valid LUT for current financial year?</FieldLabel>
                 <ModalSegmentedControl
                   name="modal-lut-availability"
                   columns={2}
@@ -560,9 +632,7 @@ function MiniForm({
 
               {formData.agency.lutAvailability === "yes" ? (
                 <div>
-                  <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                    LUT Number / ARN
-                  </label>
+                  <FieldLabel>LUT Number / ARN</FieldLabel>
                   <input
                     type="text"
                     value={formData.agency.lutNumber}
@@ -587,9 +657,7 @@ function MiniForm({
 
           {needsExportChoice ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Export tax handling *
-              </label>
+              <FieldLabel required>Export tax handling</FieldLabel>
               <ModalChoiceCardGroup
                 name="modal-export-tax-choice"
                 value={formData.agency.noLutTaxHandling}
@@ -628,9 +696,7 @@ function MiniForm({
         >
           {fieldErrors.client.clientName ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Client Name *
-              </label>
+              <FieldLabel required>Client Name</FieldLabel>
               <input
                 type="text"
                 value={formData.client.clientName}
@@ -655,9 +721,7 @@ function MiniForm({
 
           {fieldErrors.client.clientAddress ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Client Address *
-              </label>
+              <FieldLabel required>Client Address</FieldLabel>
               <textarea
                 rows={4}
                 value={formData.client.clientAddress}
@@ -683,9 +747,7 @@ function MiniForm({
 
           {(fieldErrors.client.clientState || fieldErrors.client.clientCountry) ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Client Location
-              </label>
+              <FieldLabel>Client Location</FieldLabel>
               <ModalSegmentedControl
                 name="modal-client-location"
                 columns={2}
@@ -714,9 +776,7 @@ function MiniForm({
           {showInternationalClientFields && fieldErrors.client.clientCountry ? (
             <>
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Country *
-                </label>
+                <FieldLabel required>Country</FieldLabel>
                 <ModalSelect
                   value={formData.client.clientCountry}
                   onChange={(value) =>
@@ -743,9 +803,7 @@ function MiniForm({
               </div>
 
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Currency
-                </label>
+                <FieldLabel>Currency</FieldLabel>
                 <ModalSelect
                   value={formData.client.clientCurrency}
                   onChange={(value) =>
@@ -773,9 +831,7 @@ function MiniForm({
 
           {!showInternationalClientFields && fieldErrors.client.clientState ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Client State *
-              </label>
+              <FieldLabel required>Client State</FieldLabel>
               <ModalSelect
                 value={formData.client.clientState}
                 onChange={(value) =>
@@ -828,9 +884,7 @@ function MiniForm({
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   {itemErrors.description ? (
                     <div className="md:col-span-2">
-                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                        Description *
-                      </label>
+                      <FieldLabel required>Description</FieldLabel>
                       <input
                         type="text"
                         value={item.description}
@@ -852,9 +906,7 @@ function MiniForm({
 
                   {itemErrors.qty ? (
                     <div>
-                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                        Quantity *
-                      </label>
+                      <FieldLabel required>Quantity</FieldLabel>
                       <input
                         type="number"
                         min={1}
@@ -876,9 +928,7 @@ function MiniForm({
 
                   {itemErrors.rate ? (
                     <div>
-                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                        Rate *
-                      </label>
+                      <FieldLabel required>Rate</FieldLabel>
                       <input
                         type="number"
                         min={0}
@@ -911,9 +961,7 @@ function MiniForm({
         >
           {fieldErrors.meta.paymentTerms ? (
             <div>
-              <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                Payment Terms *
-              </label>
+              <FieldLabel required>Payment Terms</FieldLabel>
               <input
                 type="text"
                 value={formData.meta.paymentTerms}
@@ -939,9 +987,7 @@ function MiniForm({
           <div className="grid gap-4 md:grid-cols-2">
             {showInternationalClientFields && fieldErrors.payment.accountName ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Beneficiary / Account Name *
-                </label>
+                <FieldLabel required>Beneficiary / Account Name</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.accountName}
@@ -965,9 +1011,7 @@ function MiniForm({
 
             {fieldErrors.payment.bankName ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Bank Name *
-                </label>
+                <FieldLabel required>Bank Name</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.bankName}
@@ -991,9 +1035,7 @@ function MiniForm({
 
             {fieldErrors.payment.accountNumber ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Account Number *
-                </label>
+                <FieldLabel required>Account Number</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.accountNumber}
@@ -1017,9 +1059,7 @@ function MiniForm({
 
             {!showInternationalClientFields && fieldErrors.payment.ifscCode ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  IFSC Code *
-                </label>
+                <FieldLabel required>IFSC Code</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.ifscCode}
@@ -1045,9 +1085,7 @@ function MiniForm({
 
             {showInternationalClientFields && fieldErrors.payment.swiftBicCode ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  SWIFT / BIC Code *
-                </label>
+                <FieldLabel required>SWIFT / BIC Code</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.swiftBicCode}
@@ -1073,9 +1111,7 @@ function MiniForm({
 
             {showInternationalClientFields && fieldErrors.payment.bankAddress ? (
               <div className="md:col-span-2">
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Bank Full Address *
-                </label>
+                <FieldLabel required>Bank Full Address</FieldLabel>
                 <textarea
                   rows={4}
                   value={formData.payment.bankAddress}
@@ -1100,9 +1136,7 @@ function MiniForm({
 
             {showLicenseDuration ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  License Duration *
-                </label>
+                <FieldLabel required>License Duration</FieldLabel>
                 <input
                   type="text"
                   value={formData.payment.license.licenseDuration}
@@ -1138,9 +1172,7 @@ function MiniForm({
           <div className="grid gap-4 md:grid-cols-2">
             {fieldErrors.meta.invoiceNumber ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Invoice Number *
-                </label>
+                <FieldLabel required>Invoice Number</FieldLabel>
                 <input
                   type="text"
                   value={formData.meta.invoiceNumber}
@@ -1165,9 +1197,7 @@ function MiniForm({
 
             {fieldErrors.meta.invoiceDate ? (
               <div>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Invoice Date *
-                </label>
+                <FieldLabel required>Invoice Date</FieldLabel>
                 <input
                   type="date"
                   value={formData.meta.invoiceDate}
@@ -1191,9 +1221,7 @@ function MiniForm({
 
             {fieldErrors.meta.dueDate ? (
               <div className={fieldErrors.meta.invoiceNumber || fieldErrors.meta.invoiceDate ? "" : "md:col-span-2 md:max-w-xs"}>
-                <label className="mb-2.5 block text-sm font-medium text-slate-900">
-                  Due Date *
-                </label>
+                <FieldLabel required>Due Date</FieldLabel>
                 <input
                   type="date"
                   value={formData.meta.dueDate}
@@ -1235,6 +1263,7 @@ export default function AutofillSummaryModal({
   onClarificationAnswer,
   onFormDataChange,
   onClose,
+  onBackToSummary,
   onManualCheck,
   onOpenFillMissing,
   onPreview,
@@ -1258,9 +1287,9 @@ export default function AutofillSummaryModal({
   }, [isInlineFormOpen]);
 
   return (
-    <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/35 px-4 py-4">
-      <div className="flex max-h-[min(92vh,960px)] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
-        <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-5">
+    <div className="fixed inset-0 z-[320] flex items-center justify-center bg-slate-950/35 px-4 py-4 backdrop-blur-[2px]">
+      <div className="flex max-h-[min(92vh,960px)] w-full max-w-[1080px] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
+        <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
@@ -1290,32 +1319,25 @@ export default function AutofillSummaryModal({
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-950 transition hover:border-slate-950"
-            >
+            <ModalButton variant="secondary" onClick={onClose}>
               Close
-            </button>
+            </ModalButton>
           </div>
         </div>
 
         <div
           ref={bodyRef}
-          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-6 py-5"
+          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-5 py-5 sm:px-6"
         >
           {isSummaryMode ? (
-            <div className="space-y-4">
-              <div className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                <p className="text-sm font-semibold text-slate-950">
-                  Needs confirmation
-                </p>
+            <div className="space-y-4 transition-opacity duration-150">
+              <SummaryCard title="Needs confirmation">
                 {clarificationSuggestions.length > 0 ? (
                   <div className="mt-3 space-y-3">
                     {clarificationSuggestions.map((suggestion) => (
                       <div
                         key={suggestion.id}
-                        className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
+                        className="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
                       >
                         <p className="text-sm font-semibold text-slate-950">
                           {suggestion.title}
@@ -1335,14 +1357,16 @@ export default function AutofillSummaryModal({
                               onClick={() =>
                                 onClarificationAnswer(suggestion.id, option.action)
                               }
-                              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-medium text-slate-950 transition hover:border-slate-950 hover:shadow-[0_4px_14px_rgba(15,23,42,0.06)]"
+                              className="flex min-h-[72px] items-start rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-medium text-slate-950 transition-all duration-150 hover:border-slate-950 hover:bg-slate-50 hover:shadow-[0_4px_14px_rgba(15,23,42,0.05)] focus:outline-none focus:ring-[3px] focus:ring-slate-950/10"
                             >
-                              <span>{option.label}</span>
-                              {option.helper ? (
-                                <span className="mt-1 block text-xs font-normal leading-5 text-slate-600">
-                                  {option.helper}
-                                </span>
-                              ) : null}
+                              <span>
+                                <span>{option.label}</span>
+                                {option.helper ? (
+                                  <span className="mt-1 block text-xs font-normal leading-5 text-slate-600">
+                                    {option.helper}
+                                  </span>
+                                ) : null}
+                              </span>
                             </button>
                           ))}
                         </div>
@@ -1355,13 +1379,10 @@ export default function AutofillSummaryModal({
                     autofill result.
                   </p>
                 )}
-              </div>
+              </SummaryCard>
 
               <div className="grid gap-4 xl:grid-cols-2">
-                <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 p-5">
-                  <p className="text-sm font-semibold text-emerald-950">
-                    Confidently filled
-                  </p>
+                <SummaryCard title="Confidently filled" tone="success">
                   {confidentFields.length > 0 ? (
                     <SummaryFieldList fields={confidentFields} />
                   ) : (
@@ -1369,12 +1390,9 @@ export default function AutofillSummaryModal({
                       No high-confidence fields were autofilled yet.
                     </p>
                   )}
-                </div>
+                </SummaryCard>
 
-                <div className="rounded-[26px] border border-amber-200 bg-amber-50 p-5">
-                  <p className="text-sm font-semibold text-amber-950">
-                    Inferred and autofilled
-                  </p>
+                <SummaryCard title="Inferred and autofilled" tone="warning">
                   {inferredFields.length > 0 ? (
                     <SummaryFieldList fields={inferredFields} />
                   ) : (
@@ -1382,12 +1400,9 @@ export default function AutofillSummaryModal({
                       No medium-confidence inferred fields were applied.
                     </p>
                   )}
-                </div>
+                </SummaryCard>
 
-                <div className="rounded-[26px] border border-slate-200 bg-white p-5">
-                  <p className="text-sm font-semibold text-slate-950">
-                    Needs review
-                  </p>
+                <SummaryCard title="Needs review">
                   {lowConfidenceFields.length > 0 ? (
                     <SummaryFieldList fields={lowConfidenceFields} />
                   ) : (
@@ -1395,12 +1410,9 @@ export default function AutofillSummaryModal({
                       No low-confidence fields were held back.
                     </p>
                   )}
-                </div>
+                </SummaryCard>
 
-                <div className="rounded-[26px] border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-sm font-semibold text-slate-950">
-                    Missing required fields
-                  </p>
+                <SummaryCard title="Missing required fields" tone="muted">
                   {missingFieldGroups.length > 0 ? (
                     <div className="mt-3 space-y-4">
                       {missingFieldGroups.map((group) => (
@@ -1422,21 +1434,18 @@ export default function AutofillSummaryModal({
                       logic.
                     </p>
                   )}
-                </div>
+                </SummaryCard>
               </div>
             </div>
           ) : (
-            <div className="space-y-5">
-              <div className="rounded-[26px] border border-slate-200 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                <p className="text-sm font-semibold tracking-tight text-slate-950">
-                  Fill Missing Details
-                </p>
+            <div className="space-y-5 transition-opacity duration-150">
+              <SummaryCard title="Fill Missing Details">
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   Finish the required invoice fields here. This form updates the
                   same invoice state live, and the preview action will appear as
                   soon as everything validates cleanly.
                 </p>
-              </div>
+              </SummaryCard>
 
               {visibleSteps.size > 0 ? (
                 <MiniForm
@@ -1446,7 +1455,7 @@ export default function AutofillSummaryModal({
                   onFormDataChange={onFormDataChange}
                 />
               ) : (
-                <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
+                <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                   All currently required fields are complete. You can preview
                   the invoice now or switch to a manual check if you want one
                   more pass in the full editor.
@@ -1456,7 +1465,7 @@ export default function AutofillSummaryModal({
           )}
         </div>
 
-        <div className="shrink-0 border-t border-slate-200 bg-white px-6 py-4">
+        <div className="shrink-0 border-t border-slate-200 bg-white px-5 py-4 sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
               {isPreviewReady
@@ -1472,31 +1481,25 @@ export default function AutofillSummaryModal({
 
             <div className="flex flex-wrap justify-end gap-3">
               {missingFieldsCount > 0 && isSummaryMode ? (
-                <button
-                  type="button"
-                  onClick={onOpenFillMissing}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:border-slate-950"
-                >
+                <ModalButton variant="secondary" onClick={onOpenFillMissing}>
                   Fill Missing Details
-                </button>
+                </ModalButton>
               ) : null}
 
-              <button
-                type="button"
-                onClick={onManualCheck}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:border-slate-950"
-              >
+              {!isSummaryMode ? (
+                <ModalButton variant="ghost" onClick={onBackToSummary}>
+                  Back to Summary
+                </ModalButton>
+              ) : null}
+
+              <ModalButton variant="secondary" onClick={onManualCheck}>
                 Manual Check
-              </button>
+              </ModalButton>
 
               {isPreviewReady ? (
-                <button
-                  type="button"
-                  onClick={onPreview}
-                  className="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white"
-                >
+                <ModalButton variant="primary" onClick={onPreview}>
                   Preview & Download
-                </button>
+                </ModalButton>
               ) : null}
             </div>
           </div>

@@ -1254,6 +1254,18 @@ export default function InvoiceEditorPage() {
     );
   };
 
+  const handleAutofillBackToSummary = () => {
+    if (!autofillSummary) return;
+    setAutofillSummary((prev) =>
+      prev
+        ? {
+            ...prev,
+            isInlineCompletionOpen: false,
+          }
+        : prev
+    );
+  };
+
   const handleAutofillPreview = () => {
     if (!invoiceReadyForPreview) return;
     handlePreviewInvoice();
@@ -1564,6 +1576,7 @@ export default function InvoiceEditorPage() {
           onClarificationAnswer={handleClarificationAnswer}
           onFormDataChange={applyAutofillFormUpdate}
           onClose={() => setAutofillSummary(null)}
+          onBackToSummary={handleAutofillBackToSummary}
           onManualCheck={handleAutofillManualCheck}
           onOpenFillMissing={handleAutofillOpenMissingForm}
           onPreview={handleAutofillPreview}
