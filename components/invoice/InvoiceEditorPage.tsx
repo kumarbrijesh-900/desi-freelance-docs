@@ -6,16 +6,22 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
+import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
 import ClientDetailsSection from "@/components/invoice/ClientDetailsSection";
 import InvoiceMetaSection from "@/components/invoice/InvoiceMetaSection";
 import DeliverablesSection from "@/components/invoice/DeliverablesSection";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
+import AutofillSummaryModal from "@/components/invoice/AutofillSummaryModal";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
   getLutDeclarationText,
 } from "@/lib/invoice-compliance";
+import {
+  runBriefAutofill,
+  type BriefIntakeInput,
+} from "@/lib/invoice-brief-intake";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -49,6 +55,14 @@ type StoredDraft = {
   formData: InvoiceFormData;
   currentStep: InvoiceStepperStep;
   savedAt: string;
+};
+
+type AutofillSummaryState = {
+  filledFields: string[];
+  missingFields: string[];
+  uncertainFields: string[];
+  recommendedStep: InvoiceStepperStep;
+  missingStep: InvoiceStepperStep | null;
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -327,6 +341,54 @@ function getStepShortLabel(step: InvoiceStepperStep) {
   }
 }
 
+function getFirstInvalidStep(formData: InvoiceFormData) {
+  return (
+    orderedSteps.find((step) => !isInvoiceStepValid(formData, step)) ?? null
+  );
+}
+
+function getMissingFieldLabels(formData: InvoiceFormData) {
+  const errors = getInvoiceFieldErrors(formData);
+  const labels = new Set<string>();
+
+  if (errors.agency.agencyName) labels.add("Agency name");
+  if (errors.agency.address) labels.add("Agency address");
+  if (errors.agency.agencyState) labels.add("Agency state");
+  if (errors.agency.gstin) labels.add("Agency GSTIN");
+
+  if (errors.client.clientName) labels.add("Client name");
+  if (errors.client.clientAddress) labels.add("Client address");
+  if (errors.client.clientState) labels.add("Client state");
+  if (errors.client.clientCountry) labels.add("Client country");
+
+  if (errors.meta.paymentTerms) labels.add("Payment terms");
+  if (errors.meta.invoiceNumber) labels.add("Invoice number");
+  if (errors.meta.invoiceDate) labels.add("Invoice date");
+  if (errors.meta.dueDate) labels.add("Due date");
+
+  if (errors.payment.accountName) {
+    labels.add(
+      formData.client.clientLocation === "international"
+        ? "Beneficiary / Account Name"
+        : "Account name"
+    );
+  }
+  if (errors.payment.bankName) labels.add("Bank name");
+  if (errors.payment.accountNumber) labels.add("Account number");
+  if (errors.payment.ifscCode) labels.add("IFSC code");
+  if (errors.payment.bankAddress) labels.add("Bank full address");
+  if (errors.payment.swiftBicCode) labels.add("SWIFT / BIC code");
+  if (errors.payment.licenseDuration) labels.add("License duration");
+
+  Object.values(errors.lineItems).forEach((lineItemErrors) => {
+    if (lineItemErrors.description) labels.add("Deliverable description");
+    if (lineItemErrors.qty) labels.add("Deliverable quantity");
+    if (lineItemErrors.rate) labels.add("Deliverable rate");
+  });
+
+  return Array.from(labels);
+}
+
 function CompactJourneyStepper({
   steps,
   currentStep,
@@ -431,6 +493,8 @@ export default function InvoiceEditorPage() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [autofillSummary, setAutofillSummary] =
+    useState<AutofillSummaryState | null>(null);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -871,6 +935,78 @@ export default function InvoiceEditorPage() {
     triggerToast("Demo data loaded");
   };
 
+  const handleBriefAutofill = (input: BriefIntakeInput) => {
+    const result = runBriefAutofill({
+      currentFormData: formData,
+      input,
+    });
+
+    if (!result.normalizedText.trim()) {
+      triggerToast(
+        input.imageFiles?.length
+          ? "Text brief parsing is active in this MVP. Add the key brief details in text and try again."
+          : "Add a text brief first to extract invoice details."
+      );
+      return;
+    }
+
+    const nextSuggestedDueDate = getSuggestedDueDate(
+      result.nextFormData.meta.paymentTerms,
+      result.nextFormData.meta.invoiceDate
+    );
+
+    const nextFormData =
+      !result.nextFormData.meta.dueDate && nextSuggestedDueDate
+        ? {
+            ...result.nextFormData,
+            meta: {
+              ...result.nextFormData.meta,
+              dueDate: nextSuggestedDueDate,
+            },
+          }
+        : result.nextFormData;
+
+    lastAutoDueDateRef.current = nextSuggestedDueDate;
+    dueDateAutoManagedRef.current =
+      !nextFormData.meta.dueDate ||
+      nextFormData.meta.dueDate === nextSuggestedDueDate;
+
+    const missingStep = getFirstInvalidStep(nextFormData);
+    const missingFields = getMissingFieldLabels(nextFormData);
+    const recommendedStep = missingStep ?? "totals";
+
+    setFormData(nextFormData);
+    setAutofillSummary({
+      filledFields: result.filledFields,
+      missingFields,
+      uncertainFields: result.uncertainFields,
+      recommendedStep,
+      missingStep,
+    });
+
+    triggerToast(
+      result.filledFields.length > 0
+        ? `Autofilled ${result.filledFields.length} field${
+            result.filledFields.length === 1 ? "" : "s"
+          }`
+        : "No confident matches found. Review the summary and continue manually."
+    );
+  };
+
+  const handleAutofillContinue = () => {
+    if (!autofillSummary) return;
+    setCurrentStep(autofillSummary.recommendedStep);
+    setAutofillSummary(null);
+  };
+
+  const handleAutofillJumpToMissing = () => {
+    if (!autofillSummary) return;
+    setCurrentStep(
+      autofillSummary.missingStep ?? autofillSummary.recommendedStep
+    );
+    setAutofillSummary(null);
+  };
+
   const handleBackToHome = () => {
     if (shouldConfirmExit) {
       setShowExitModal(true);
@@ -953,6 +1089,11 @@ export default function InvoiceEditorPage() {
               />
             </div>
           </header>
+
+          <BriefIntakeCard
+            onExtract={handleBriefAutofill}
+            onPlaceholderAction={triggerToast}
+          />
 
           <div className="overflow-visible">
             {currentStep === "agency" && (
@@ -1141,6 +1282,18 @@ export default function InvoiceEditorPage() {
           onClose={() => setShowExitModal(false)}
           onSkip={() => router.push("/")}
           onSaveDraft={handleSaveDraft}
+        />
+      )}
+
+      {autofillSummary && (
+        <AutofillSummaryModal
+          filledFields={autofillSummary.filledFields}
+          missingFields={autofillSummary.missingFields}
+          uncertainFields={autofillSummary.uncertainFields}
+          recommendedStep={autofillSummary.recommendedStep}
+          onClose={() => setAutofillSummary(null)}
+          onContinue={handleAutofillContinue}
+          onJumpToMissing={handleAutofillJumpToMissing}
         />
       )}
     </main>

@@ -1,0 +1,148 @@
+"use client";
+
+import type { InvoiceStepperStep } from "@/types/invoice";
+
+interface AutofillSummaryModalProps {
+  filledFields: string[];
+  missingFields: string[];
+  uncertainFields: string[];
+  recommendedStep: InvoiceStepperStep;
+  onClose: () => void;
+  onContinue: () => void;
+  onJumpToMissing: () => void;
+}
+
+function getStepLabel(step: InvoiceStepperStep) {
+  switch (step) {
+    case "agency":
+      return "Agency Details";
+    case "client":
+      return "Client Details";
+    case "deliverables":
+      return "Deliverables";
+    case "payment":
+      return "Payment & Terms";
+    case "meta":
+      return "Invoice Meta";
+    case "totals":
+      return "Totals & Taxes";
+    default:
+      return "Invoice";
+  }
+}
+
+export default function AutofillSummaryModal({
+  filledFields,
+  missingFields,
+  uncertainFields,
+  recommendedStep,
+  onClose,
+  onContinue,
+  onJumpToMissing,
+}: AutofillSummaryModalProps) {
+  return (
+    <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/35 px-4">
+      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
+              Autofill Summary
+            </p>
+            <h2 className="mt-1 text-2xl font-bold text-black">
+              Review extracted invoice details
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              We filled what looked reliable and kept uncertain or missing
+              fields for review. Recommended next stop:{" "}
+              <span className="font-medium text-black">
+                {getStepLabel(recommendedStep)}
+              </span>
+              .
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-gray-300 px-3 py-2 text-sm font-medium text-black hover:border-black"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="text-sm font-semibold text-emerald-950">
+              Filled fields
+            </p>
+            {filledFields.length > 0 ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-950">
+                {filledFields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-emerald-900/80">
+                No confident matches were autofilled from this brief yet.
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-semibold text-amber-950">
+              Still missing
+            </p>
+            {missingFields.length > 0 ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-amber-950">
+                {missingFields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-amber-900/80">
+                No required fields are currently missing from validation.
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-semibold text-black">
+              Review closely
+            </p>
+            {uncertainFields.length > 0 ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-700">
+                {uncertainFields.map((field) => (
+                  <li key={field}>{field}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                No medium-confidence fields need extra attention right now.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
+          {missingFields.length > 0 ? (
+            <button
+              type="button"
+              onClick={onJumpToMissing}
+              className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-black hover:border-black"
+            >
+              Jump to Missing Fields
+            </button>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={onContinue}
+            className="rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white"
+          >
+            Review & Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
