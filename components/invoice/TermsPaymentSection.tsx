@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import type {
+  ClientDetails,
+  InvoiceCurrency,
   PaymentDetails,
   InvoiceMeta,
   LicenseType,
 } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
+import { isInternationalClient } from "@/lib/invoice-compliance";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
+  client: ClientDetails;
   meta: InvoiceMeta;
   onChange: (value: PaymentDetails) => void;
   onMetaChange: (value: InvoiceMeta) => void;
@@ -18,6 +22,20 @@ interface TermsPaymentSectionProps {
     licenseDuration?: string;
   };
 }
+
+const currencyOptions: Array<{
+  value: InvoiceCurrency;
+  label: string;
+}> = [
+  { value: "INR", label: "INR - Indian Rupee" },
+  { value: "USD", label: "USD - US Dollar" },
+  { value: "EUR", label: "EUR - Euro" },
+  { value: "GBP", label: "GBP - British Pound" },
+  { value: "AED", label: "AED - UAE Dirham" },
+  { value: "AUD", label: "AUD - Australian Dollar" },
+  { value: "CAD", label: "CAD - Canadian Dollar" },
+  { value: "SGD", label: "SGD - Singapore Dollar" },
+];
 
 function getLicenseExplanation(
   licenseType: LicenseType | ""
@@ -56,6 +74,7 @@ function InfoTooltip({ text }: { text: string }) {
 
 export default function TermsPaymentSection({
   value,
+  client,
   meta,
   onChange,
   onMetaChange,
@@ -157,6 +176,7 @@ export default function TermsPaymentSection({
   const showLicenseDuration =
     value.license.licenseType === "exclusive-license" ||
     value.license.licenseType === "non-exclusive-license";
+  const isInternational = isInternationalClient(client);
 
   const inputClass = (hasError?: string) =>
     `w-full rounded-xl border p-3 text-sm text-black outline-none focus:border-black ${
@@ -333,106 +353,224 @@ export default function TermsPaymentSection({
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_320px]">
-            <div className="space-y-3">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Account Name
-                </label>
-                <input
-                  type="text"
-                  value={value.accountName}
-                  onChange={(e) => updateField("accountName", e.target.value)}
-                  placeholder="Name on bank account"
-                  className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  Account Number
-                </label>
-                <input
-                  type="text"
-                  value={value.accountNumber}
-                  onChange={(e) => updateField("accountNumber", e.target.value)}
-                  placeholder="Bank account number"
-                  className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  IFSC Code
-                </label>
-                <input
-                  type="text"
-                  value={value.ifscCode}
-                  onChange={(e) => updateField("ifscCode", e.target.value)}
-                  placeholder="Bank IFSC code"
-                  className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
-                />
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-black">Payment QR</p>
-
-                {value.qrCodeUrl ? (
-                  <button
-                    type="button"
-                    onClick={removeQr}
-                    className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-400 hover:bg-red-50"
-                  >
-                    Remove
-                  </button>
-                ) : null}
-              </div>
-
-              <label
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsQrDragOver(true);
-                }}
-                onDragLeave={() => setIsQrDragOver(false)}
-                onDrop={handleQrDrop}
-                className={`flex min-h-[180px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed bg-white p-4 text-center text-sm transition ${
-                  isQrDragOver
-                    ? "border-black text-black"
-                    : "border-gray-300 text-gray-500 hover:border-black"
-                }`}
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleQrUpload}
-                  className="hidden"
-                />
-
-                {value.qrCodeUrl ? (
-                  <img
-                    src={value.qrCodeUrl}
-                    alt="Payment QR preview"
-                    className="max-h-[150px] w-auto object-contain"
-                  />
-                ) : (
-                  <div>
-                    Drag & drop QR here
-                    <br />
-                    or click to upload
-                    <br />
-                    <span className="text-xs text-gray-400">PNG, JPG, SVG</span>
+          {isInternational ? (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Invoice Currency
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={value.currency}
+                      onChange={(e) =>
+                        updateField(
+                          "currency",
+                          e.target.value as PaymentDetails["currency"]
+                        )
+                      }
+                      className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-3 pr-10 text-sm text-black outline-none focus:border-black"
+                    >
+                      {currencyOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-              </label>
+                </div>
 
-              <p className="mt-3 text-xs leading-5 text-gray-500">
-                Upload or drop a payment QR image to show it in invoice preview
-                and export.
-              </p>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Beneficiary Name
+                  </label>
+                  <input
+                    type="text"
+                    value={value.accountName}
+                    onChange={(e) => updateField("accountName", e.target.value)}
+                    placeholder="Name on receiving account"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Account Number / IBAN
+                  </label>
+                  <input
+                    type="text"
+                    value={value.accountNumber}
+                    onChange={(e) =>
+                      updateField("accountNumber", e.target.value)
+                    }
+                    placeholder="Receiving account number or IBAN"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-black">
+                      Bank Name
+                    </label>
+                    <input
+                      type="text"
+                      value={value.bankName}
+                      onChange={(e) => updateField("bankName", e.target.value)}
+                      placeholder="Receiving bank name"
+                      className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-black">
+                      SWIFT / BIC Code
+                    </label>
+                    <input
+                      type="text"
+                      value={value.swiftCode}
+                      onChange={(e) =>
+                        updateField(
+                          "swiftCode",
+                          e.target.value.toUpperCase().replace(/\s+/g, "")
+                        )
+                      }
+                      placeholder="Bank SWIFT or BIC code"
+                      className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Bank Address
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={value.bankAddress}
+                    onChange={(e) => updateField("bankAddress", e.target.value)}
+                    placeholder="Receiving bank address"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                <p className="text-sm font-medium text-black">
+                  International Payment Flow
+                </p>
+                <p className="mt-2 text-sm leading-6 text-gray-600">
+                  Foreign-client invoices use currency selection plus wire
+                  transfer details instead of the domestic IFSC and UPI QR flow.
+                  These details will appear in the client preview and exported
+                  PDF.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_320px]">
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Account Name
+                  </label>
+                  <input
+                    type="text"
+                    value={value.accountName}
+                    onChange={(e) => updateField("accountName", e.target.value)}
+                    placeholder="Name on bank account"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={value.accountNumber}
+                    onChange={(e) => updateField("accountNumber", e.target.value)}
+                    placeholder="Bank account number"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    IFSC Code
+                  </label>
+                  <input
+                    type="text"
+                    value={value.ifscCode}
+                    onChange={(e) => updateField("ifscCode", e.target.value)}
+                    placeholder="Bank IFSC code"
+                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-black">Payment QR</p>
+
+                  {value.qrCodeUrl ? (
+                    <button
+                      type="button"
+                      onClick={removeQr}
+                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-400 hover:bg-red-50"
+                    >
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
+
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsQrDragOver(true);
+                  }}
+                  onDragLeave={() => setIsQrDragOver(false)}
+                  onDrop={handleQrDrop}
+                  className={`flex min-h-[180px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed bg-white p-4 text-center text-sm transition ${
+                    isQrDragOver
+                      ? "border-black text-black"
+                      : "border-gray-300 text-gray-500 hover:border-black"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleQrUpload}
+                    className="hidden"
+                  />
+
+                  {value.qrCodeUrl ? (
+                    <img
+                      src={value.qrCodeUrl}
+                      alt="Payment QR preview"
+                      className="max-h-[150px] w-auto object-contain"
+                    />
+                  ) : (
+                    <div>
+                      Drag & drop QR here
+                      <br />
+                      or click to upload
+                      <br />
+                      <span className="text-xs text-gray-400">
+                        PNG, JPG, SVG
+                      </span>
+                    </div>
+                  )}
+                </label>
+
+                <p className="mt-3 text-xs leading-5 text-gray-500">
+                  Upload or drop a payment QR image to show it in invoice preview
+                  and export.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </>

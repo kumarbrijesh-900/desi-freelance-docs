@@ -5,11 +5,26 @@ import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 type TotalsTaxesSectionProps = {
   value: TaxConfig;
   computed: InvoiceComputedValues;
+  currency?: string;
+  isLocked?: boolean;
+  allowIgstOption?: boolean;
+  modeLabel?: string;
+  rateLabel?: string;
+  complianceMessage?: string;
   onChange: (value: TaxConfig) => void;
 };
 
-function formatCurrency(amount?: number) {
-  return `₹${(amount ?? 0).toLocaleString("en-IN")}`;
+function formatCurrency(amount = 0, currency = "INR") {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `₹${amount.toLocaleString("en-IN")}`;
+  }
 }
 
 function ChevronDownIcon() {
@@ -34,6 +49,12 @@ function ChevronDownIcon() {
 export default function TotalsTaxesSection({
   value,
   computed,
+  currency = "INR",
+  isLocked = false,
+  allowIgstOption = false,
+  modeLabel = "GST Type",
+  rateLabel = "GST %",
+  complianceMessage = "",
   onChange,
 }: TotalsTaxesSectionProps) {
   const subtotal = computed.subtotal;
@@ -52,6 +73,7 @@ export default function TotalsTaxesSection({
 
   const isNoTax = value.taxMode === "none";
   const effectiveRate = isNoTax ? 0 : value.taxRate ?? 0;
+  const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const panelClass =
     "flex h-full flex-col justify-between rounded-2xl border border-gray-200 p-4";
 
@@ -66,6 +88,11 @@ export default function TotalsTaxesSection({
           and grand total are read-only so users always see the final financial
           impact clearly.
         </p>
+        {complianceMessage ? (
+          <div className="mt-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-600">
+            {complianceMessage}
+          </div>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1.05fr)_minmax(210px,0.9fr)_minmax(210px,0.9fr)_minmax(0,0.95fr)_minmax(0,1.15fr)] xl:items-stretch">
@@ -75,7 +102,7 @@ export default function TotalsTaxesSection({
               Subtotal
             </p>
             <p className="text-3xl font-bold text-black">
-              {formatCurrency(subtotal)}
+              {formatCurrency(subtotal, currency)}
             </p>
           </div>
 
@@ -87,12 +114,13 @@ export default function TotalsTaxesSection({
         <div className={`${panelClass} bg-white`}>
           <div className="space-y-3">
             <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              GST Type
+              {modeLabel}
             </label>
 
             <div className="relative">
               <select
                 value={value.taxMode}
+                disabled={isLocked}
                 onChange={(e) => {
                   const nextMode = e.target.value as TaxConfig["taxMode"];
                   updateField("taxMode", nextMode);
@@ -102,9 +130,14 @@ export default function TotalsTaxesSection({
                     updateField("taxRate", 18);
                   }
                 }}
-                className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-3 pr-10 text-base text-black outline-none focus:border-black"
+                className={`w-full appearance-none rounded-xl border bg-white px-3 py-3 pr-10 text-base text-black outline-none focus:border-black ${
+                  isLocked
+                    ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
+                    : "border-gray-300"
+                }`}
               >
                 <option value="gst">GST</option>
+                {showIgstOption ? <option value="igst">IGST</option> : null}
                 <option value="none">No Tax</option>
               </select>
 
@@ -115,14 +148,16 @@ export default function TotalsTaxesSection({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-gray-500">
-            Choose GST when tax should be added to the invoice total.
+            {isLocked
+              ? "This tax setting is controlled by your billing compliance selection."
+              : "Choose GST when tax should be added to the invoice total."}
           </p>
         </div>
 
         <div className={`${panelClass} bg-white`}>
           <div className="space-y-3">
             <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              GST %
+              {rateLabel}
             </label>
 
             <input
@@ -131,7 +166,7 @@ export default function TotalsTaxesSection({
               step="0.01"
               inputMode="decimal"
               value={effectiveRate}
-              disabled={isNoTax}
+              disabled={isNoTax || isLocked}
               onChange={(e) =>
                 updateField("taxRate", Math.max(0, Number(e.target.value) || 0))
               }
@@ -142,7 +177,7 @@ export default function TotalsTaxesSection({
                 }
               }}
               className={`w-full rounded-xl border bg-white px-3 py-3 text-base text-black outline-none focus:border-black ${
-                isNoTax
+                isNoTax || isLocked
                   ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
                   : "border-gray-300"
               }`}
@@ -160,7 +195,7 @@ export default function TotalsTaxesSection({
               Tax Amount
             </p>
             <p className="text-2xl font-bold text-black">
-              {formatCurrency(taxAmount)}
+              {formatCurrency(taxAmount, currency)}
             </p>
           </div>
 
@@ -175,7 +210,7 @@ export default function TotalsTaxesSection({
               Grand Total
             </p>
             <p className="text-3xl font-bold text-white">
-              {formatCurrency(grandTotal)}
+              {formatCurrency(grandTotal, currency)}
             </p>
           </div>
 

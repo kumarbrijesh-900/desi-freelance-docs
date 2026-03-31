@@ -40,6 +40,12 @@ export interface ClientDetails {
   clientName: string;
   clientAddress: string;
   clientGstin: string;
+  clientTaxId: string;
+  clientLocation: "domestic" | "international";
+  gstRegistrationStatus: "" | "registered" | "not-registered";
+  hasValidLut: "" | "yes" | "no";
+  lutNumber: string;
+  exportTaxHandling: "" | "add-igst" | "handle-separately";
 }
 
 export interface InvoiceMeta {
@@ -65,13 +71,27 @@ export interface LicenseDetails {
   licenseDuration: string;
 }
 
+export type InvoiceCurrency =
+  | "INR"
+  | "USD"
+  | "EUR"
+  | "GBP"
+  | "AED"
+  | "AUD"
+  | "CAD"
+  | "SGD";
+
 export interface PaymentDetails {
   license: LicenseDetails;
   notes: string;
+  currency: InvoiceCurrency;
   accountName: string;
   accountNumber: string;
   ifscCode: string;
   qrCodeUrl: string;
+  bankName: string;
+  swiftCode: string;
+  bankAddress: string;
 }
 
 export interface InvoiceFormData {
@@ -109,6 +129,12 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     clientName: "",
     clientAddress: "",
     clientGstin: "",
+    clientTaxId: "",
+    clientLocation: "domestic",
+    gstRegistrationStatus: "",
+    hasValidLut: "",
+    lutNumber: "",
+    exportTaxHandling: "",
   },
   meta: {
     invoiceNumber: "",
@@ -137,9 +163,52 @@ export const defaultInvoiceFormData: InvoiceFormData = {
       licenseDuration: "",
     },
     notes: "1.5% monthly late fee applies. Final files delivered after full payment.",
+    currency: "INR",
     accountName: "",
     accountNumber: "",
     ifscCode: "",
     qrCodeUrl: "",
+    bankName: "",
+    swiftCode: "",
+    bankAddress: "",
   },
 };
+
+export function mergeInvoiceFormData(
+  value?: Partial<InvoiceFormData> | null
+): InvoiceFormData {
+  const defaultLineItem = defaultInvoiceFormData.lineItems[0];
+
+  return {
+    agency: {
+      ...defaultInvoiceFormData.agency,
+      ...value?.agency,
+    },
+    client: {
+      ...defaultInvoiceFormData.client,
+      ...value?.client,
+    },
+    meta: {
+      ...defaultInvoiceFormData.meta,
+      ...value?.meta,
+    },
+    lineItems: Array.isArray(value?.lineItems)
+      ? value.lineItems.map((item) => ({
+          ...defaultLineItem,
+          ...item,
+        }))
+      : defaultInvoiceFormData.lineItems.map((item) => ({ ...item })),
+    tax: {
+      ...defaultInvoiceFormData.tax,
+      ...value?.tax,
+    },
+    payment: {
+      ...defaultInvoiceFormData.payment,
+      ...value?.payment,
+      license: {
+        ...defaultInvoiceFormData.payment.license,
+        ...value?.payment?.license,
+      },
+    },
+  };
+}
