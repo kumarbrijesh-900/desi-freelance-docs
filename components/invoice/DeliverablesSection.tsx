@@ -6,9 +6,14 @@ import type {
   InvoiceLineItemType,
   InvoiceRateUnit,
 } from "@/types/invoice";
+import {
+  getCurrencySymbol,
+  type InvoiceDisplayCurrency,
+} from "@/lib/international-billing-options";
 
 interface DeliverablesSectionProps {
   value: InvoiceLineItem[];
+  currency?: InvoiceDisplayCurrency;
   onChange: (value: InvoiceLineItem[]) => void;
   errors?: Record<
     string,
@@ -217,7 +222,26 @@ function ChevronDownIcon() {
   );
 }
 
-function RateTooltip() {
+function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${getCurrencySymbol(currency)}${amount.toLocaleString("en-IN")}`;
+  }
+}
+
+function RateTooltip({
+  currency = "INR",
+}: {
+  currency?: InvoiceDisplayCurrency;
+}) {
+  const currencySymbol = getCurrencySymbol(currency);
+
   return (
     <span className="group relative ml-1 inline-flex items-center">
       <span
@@ -228,7 +252,8 @@ function RateTooltip() {
       </span>
       <span className="pointer-events-none absolute left-1/2 top-6 z-[100] hidden w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-3 text-xs font-normal leading-5 text-gray-600 shadow-lg group-hover:block">
         Rate is the amount charged for one billing unit. For example, if Qty is
-        3 and Rate is ₹5,000, the line total becomes ₹15,000.
+        3 and Rate is {currencySymbol}5,000, the line total becomes{" "}
+        {currencySymbol}15,000.
       </span>
     </span>
   );
@@ -253,6 +278,7 @@ function UnitTooltip() {
 
 export default function DeliverablesSection({
   value,
+  currency = "INR",
   onChange,
   errors,
 }: DeliverablesSectionProps) {
@@ -409,6 +435,11 @@ export default function DeliverablesSection({
     `w-full rounded-xl border bg-white p-2 text-sm text-black outline-none focus:border-black ${
       hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
     }`;
+  const rateInputClass = (hasError?: string) =>
+    `w-full rounded-xl border bg-white py-2 pl-9 pr-2 text-sm text-black outline-none focus:border-black ${
+      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
+    }`;
+  const currencySymbol = getCurrencySymbol(currency);
 
   const numberInputProps = {
     onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
@@ -446,8 +477,8 @@ export default function DeliverablesSection({
               <th className="pb-3 px-3">Qty *</th>
               <th className="pb-3 px-3">
                 <span className="inline-flex items-center">
-                  Rate (₹)
-                  <RateTooltip />
+                  Rate ({currency})
+                  <RateTooltip currency={currency} />
                 </span>
               </th>
               <th className="pb-3 px-3">
@@ -548,21 +579,26 @@ export default function DeliverablesSection({
                   </td>
 
                   <td className="py-3 px-3">
-                    <input
-                      type="number"
-                      min={0}
-                      inputMode="decimal"
-                      value={item.rate}
-                      onChange={(e) =>
-                        updateItem(
-                          item.id,
-                          "rate",
-                          Math.max(0, Number(e.target.value) || 0)
-                        )
-                      }
-                      className={inputClass(rowErrors?.rate)}
-                      {...numberInputProps}
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-gray-500">
+                        {currencySymbol}
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        inputMode="decimal"
+                        value={item.rate}
+                        onChange={(e) =>
+                          updateItem(
+                            item.id,
+                            "rate",
+                            Math.max(0, Number(e.target.value) || 0)
+                          )
+                        }
+                        className={rateInputClass(rowErrors?.rate)}
+                        {...numberInputProps}
+                      />
+                    </div>
                     {rowErrors?.rate ? (
                       <p className="mt-2 text-xs font-medium text-red-600">
                         {rowErrors.rate}
@@ -597,7 +633,7 @@ export default function DeliverablesSection({
                   </td>
 
                   <td className="py-3 pl-3 font-medium text-black">
-                    ₹{lineTotal.toLocaleString("en-IN")}
+                    {formatCurrency(lineTotal, currency)}
                   </td>
 
                   <td className="py-3 pl-0 text-right">

@@ -1,13 +1,14 @@
 "use client";
 
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
+import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
 
 type InternationalTaxHandling = "" | "add-igst" | "keep-zero-tax";
 
 type TotalsTaxesSectionProps = {
   value: TaxConfig;
   computed: InvoiceComputedValues;
-  currency?: string;
+  currency?: InvoiceDisplayCurrency;
   isLocked?: boolean;
   allowIgstOption?: boolean;
   modeLabel?: string;
@@ -17,11 +18,16 @@ type TotalsTaxesSectionProps = {
   complianceVariant?: "neutral" | "info" | "warning";
   exportTaxDecision?: InternationalTaxHandling;
   exportTaxHelperNote?: string;
+  grandTotalReferenceLabel?: string;
+  grandTotalReferenceAmount?: number;
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
   onChange: (value: TaxConfig) => void;
 };
 
-function formatCurrency(amount = 0, currency = "INR") {
+function formatCurrency(
+  amount = 0,
+  currency: InvoiceDisplayCurrency = "INR"
+) {
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
@@ -66,6 +72,8 @@ export default function TotalsTaxesSection({
   complianceVariant = "neutral",
   exportTaxDecision = "",
   exportTaxHelperNote = "",
+  grandTotalReferenceLabel = "",
+  grandTotalReferenceAmount,
   onExportTaxDecisionChange,
   onChange,
 }: TotalsTaxesSectionProps) {
@@ -307,6 +315,13 @@ export default function TotalsTaxesSection({
             <p className="text-3xl font-bold text-white">
               {formatCurrency(grandTotal, currency)}
             </p>
+            {grandTotalReferenceLabel &&
+            typeof grandTotalReferenceAmount === "number" ? (
+              <p className="text-sm font-medium leading-6 text-white/80">
+                {grandTotalReferenceLabel}:{" "}
+                {formatCurrency(grandTotalReferenceAmount, "USD")}
+              </p>
+            ) : null}
           </div>
 
           <p className="mt-4 text-xs leading-5 text-white/70">

@@ -16,6 +16,7 @@ export type InvoiceFieldErrors = {
     clientName?: string;
     clientAddress?: string;
     clientState?: string;
+    clientCountry?: string;
     clientGstin?: string;
   };
   meta: {
@@ -99,6 +100,14 @@ export function getInvoiceFieldErrors(
     isBlank(formData.client.clientState)
   ) {
     errors.client.clientState = "Client state is required for domestic invoices.";
+  }
+
+  if (
+    isInternationalClient(formData.client) &&
+    isBlank(formData.client.clientCountry)
+  ) {
+    errors.client.clientCountry =
+      "Country is required for international invoices.";
   }
 
   if (

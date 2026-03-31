@@ -2,6 +2,10 @@
 
 import type { ClientDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import {
+  INTERNATIONAL_COUNTRY_OPTIONS,
+  INTERNATIONAL_CURRENCY_OPTIONS,
+} from "@/lib/international-billing-options";
 
 interface ClientDetailsSectionProps {
   value: ClientDetails;
@@ -10,6 +14,7 @@ interface ClientDetailsSectionProps {
     clientName?: string;
     clientAddress?: string;
     clientState?: string;
+    clientCountry?: string;
     clientGstin?: string;
   };
 }
@@ -140,6 +145,68 @@ export default function ClientDetailsSection({
                 {errors.clientState}
               </p>
             ) : null}
+          </div>
+        ) : null}
+
+        {isInternational ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black">
+                Country *
+              </label>
+              <select
+                value={value.clientCountry}
+                onChange={(e) =>
+                  updateField(
+                    "clientCountry",
+                    e.target.value as ClientDetails["clientCountry"]
+                  )
+                }
+                className={inputClass(errors?.clientCountry)}
+              >
+                <option value="">Select country</option>
+                {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
+                  <option key={countryName} value={countryName}>
+                    {countryName}
+                  </option>
+                ))}
+              </select>
+              {errors?.clientCountry ? (
+                <p className="mt-2 text-xs font-medium text-red-600">
+                  {errors.clientCountry}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black">
+                Currency
+              </label>
+              <select
+                value={value.clientCurrency}
+                onChange={(e) =>
+                  updateField(
+                    "clientCurrency",
+                    e.target.value as ClientDetails["clientCurrency"]
+                  )
+                }
+                className={inputClass()}
+              >
+                <option value="">Keep INR as primary (default)</option>
+                {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
+                  <option
+                    key={currencyOption.code}
+                    value={currencyOption.code}
+                  >
+                    {currencyOption.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-2 text-xs leading-5 text-gray-500">
+                Leave this blank to keep INR as the working invoice currency
+                and show a USD reference total later.
+              </p>
+            </div>
           </div>
         ) : null}
 

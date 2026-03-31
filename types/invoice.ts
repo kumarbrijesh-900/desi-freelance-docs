@@ -1,4 +1,8 @@
 import type { IndiaStateOption } from "@/lib/india-state-options";
+import type {
+  InternationalCountryOption,
+  InternationalCurrencyCode,
+} from "@/lib/international-billing-options";
 
 export type InvoiceLineItemType =
   | "Logo Design"
@@ -47,6 +51,8 @@ export interface ClientDetails {
   clientName: string;
   clientAddress: string;
   clientState: IndiaStateOption | "";
+  clientCountry: InternationalCountryOption | "";
+  clientCurrency: InternationalCurrencyCode | "";
   clientGstin: string;
   clientLocation: "domestic" | "international";
 }
@@ -133,6 +139,8 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     clientName: "",
     clientAddress: "",
     clientState: "",
+    clientCountry: "",
+    clientCurrency: "",
     clientGstin: "",
     clientLocation: "domestic",
   },

@@ -13,6 +13,10 @@ import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
+  convertInrToApproximateUsd,
+  getInvoiceDisplayCurrency,
+} from "@/lib/international-billing-options";
+import {
   getInvoiceFieldErrors,
   getInvoiceStepError,
   isInvoiceStepValid,
@@ -137,6 +141,8 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       clientAddress:
         "Phoenix Marketcity, Whitefield Main Road, Bengaluru 560048",
       clientState: "Karnataka",
+      clientCountry: "",
+      clientCurrency: "",
       clientGstin: "29AAACM8899L1Z2",
       clientLocation: "domestic" as const,
     },
@@ -202,6 +208,8 @@ function isFormTouched(formData: InvoiceFormData) {
     formData.client.clientName ||
       formData.client.clientAddress ||
       formData.client.clientState ||
+      formData.client.clientCountry ||
+      formData.client.clientCurrency ||
       formData.client.clientGstin ||
       formData.client.clientLocation === "international"
   );
@@ -579,6 +587,14 @@ export default function InvoiceEditorPage() {
   const clientIsInternational = formData.client.clientLocation === "international";
   const agencyIsGstRegistered =
     formData.agency.gstRegistrationStatus === "registered";
+  const displayCurrency = useMemo(
+    () =>
+      getInvoiceDisplayCurrency({
+        clientLocation: formData.client.clientLocation,
+        clientCurrency: formData.client.clientCurrency,
+      }),
+    [formData.client.clientLocation, formData.client.clientCurrency]
+  );
 
   const computedTotals = useMemo(
     () =>
@@ -687,6 +703,11 @@ export default function InvoiceEditorPage() {
     formData.agency.noLutTaxHandling === "keep-zero-tax"
       ? "Internal note: this invoice is being kept tax-clean for the client, and IGST will be handled separately outside the client-facing invoice."
       : "";
+  const showApproximateUsdReference =
+    clientIsInternational && !formData.client.clientCurrency;
+  const approximateUsdGrandTotal = showApproximateUsdReference
+    ? convertInrToApproximateUsd(computedTotals.grandTotal)
+    : undefined;
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -945,6 +966,7 @@ export default function InvoiceEditorPage() {
             {currentStep === "deliverables" && (
               <DeliverablesSection
                 value={formData.lineItems}
+                currency={displayCurrency}
                 onChange={(lineItems) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -987,6 +1009,7 @@ export default function InvoiceEditorPage() {
               <TotalsTaxesSection
                 value={derivedTaxConfig}
                 computed={computedTotals}
+                currency={displayCurrency}
                 isLocked
                 modeLabel="Tax Type"
                 rateLabel="Total Tax %"
@@ -995,6 +1018,12 @@ export default function InvoiceEditorPage() {
                 complianceVariant={totalsComplianceVariant}
                 exportTaxDecision={formData.agency.noLutTaxHandling}
                 exportTaxHelperNote={exportTaxHelperNote}
+                grandTotalReferenceLabel={
+                  showApproximateUsdReference
+                    ? "Approx. USD total (reference only)"
+                    : ""
+                }
+                grandTotalReferenceAmount={approximateUsdGrandTotal}
                 onExportTaxDecisionChange={
                   showInternationalExportDecision
                     ? (noLutTaxHandling) =>
