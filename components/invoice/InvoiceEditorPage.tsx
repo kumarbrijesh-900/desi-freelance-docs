@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
+import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
 import ClientDetailsSection from "@/components/invoice/ClientDetailsSection";
@@ -60,6 +61,7 @@ type StoredDraft = {
 
 type AutofillSummaryState = {
   filledFields: string[];
+  aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
   missingFields: string[];
@@ -210,6 +212,21 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       swiftBicCode: "",
       ibanRoutingCode: "",
       qrCodeUrl: "/dummy-qr.svg",
+    },
+  };
+}
+
+function getFreshInvoiceData(): InvoiceFormData {
+  const today = getTodayDateString();
+  const fresh = mergeInvoiceFormData();
+
+  return {
+    ...fresh,
+    meta: {
+      ...fresh.meta,
+      invoiceNumber: getNextInvoiceNumber(),
+      invoiceDate: today,
+      dueDate: "",
     },
   };
 }
@@ -497,6 +514,7 @@ export default function InvoiceEditorPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [autofillSummary, setAutofillSummary] =
     useState<AutofillSummaryState | null>(null);
+  const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -937,6 +955,31 @@ export default function InvoiceEditorPage() {
     triggerToast("Demo data loaded");
   };
 
+  const handleClearDemoData = () => {
+    const freshInvoiceData = getFreshInvoiceData();
+    const suggestedDueDate = getSuggestedDueDate(
+      freshInvoiceData.meta.paymentTerms,
+      freshInvoiceData.meta.invoiceDate
+    );
+
+    dueDateAutoManagedRef.current = true;
+    lastAutoDueDateRef.current = suggestedDueDate;
+
+    try {
+      window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch (error) {
+      console.error("Failed to clear local invoice state:", error);
+    }
+
+    setFormData(freshInvoiceData);
+    setCurrentStep("agency");
+    setAutofillSummary(null);
+    setShowExitModal(false);
+    setBriefIntakeResetKey((prev) => prev + 1);
+    triggerToast("Demo data cleared");
+  };
+
   const handleBriefAutofill = async (input: BriefIntakeInput) => {
     let ocrText = "";
 
@@ -967,9 +1010,35 @@ export default function InvoiceEditorPage() {
       text: [input.text.trim(), ocrText].filter(Boolean).join("\n\n"),
     };
 
+    let aiExtraction: AiBriefExtraction | null = null;
+
+    if (normalizedInput.text.trim()) {
+      try {
+        const response = await fetch("/api/brief-extract", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: normalizedInput.text,
+          }),
+        });
+
+        if (response.ok) {
+          const payload = (await response.json()) as {
+            extraction?: AiBriefExtraction | null;
+          };
+          aiExtraction = payload.extraction ?? null;
+        }
+      } catch (error) {
+        console.error("AI brief extraction request failed:", error);
+      }
+    }
+
     const result = runBriefAutofill({
       currentFormData: formData,
       input: normalizedInput,
+      aiExtraction,
     });
 
     if (!result.normalizedText.trim()) {
@@ -1009,6 +1078,7 @@ export default function InvoiceEditorPage() {
     setFormData(nextFormData);
     setAutofillSummary({
       filledFields: result.filledFields,
+      aiFilledFields: result.aiFilledFields,
       reviewFields: result.reviewFields,
       lowConfidenceFields: result.lowConfidenceFields,
       missingFields,
@@ -1107,13 +1177,23 @@ export default function InvoiceEditorPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={handleLoadDemoData}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
-              >
-                Load Demo Data
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleLoadDemoData}
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+                >
+                  Load Demo Data
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleClearDemoData}
+                  className="rounded-xl border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:border-black hover:text-black"
+                >
+                  Clear Demo Data
+                </button>
+              </div>
             </div>
 
             <div className="mt-4">
@@ -1125,6 +1205,7 @@ export default function InvoiceEditorPage() {
           </header>
 
           <BriefIntakeCard
+            key={briefIntakeResetKey}
             onExtract={handleBriefAutofill}
             onPlaceholderAction={triggerToast}
           />
@@ -1322,6 +1403,7 @@ export default function InvoiceEditorPage() {
       {autofillSummary && (
         <AutofillSummaryModal
           filledFields={autofillSummary.filledFields}
+          aiFilledFields={autofillSummary.aiFilledFields}
           reviewFields={autofillSummary.reviewFields}
           lowConfidenceFields={autofillSummary.lowConfidenceFields}
           missingFields={autofillSummary.missingFields}

@@ -1,9 +1,11 @@
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import {
+  type AgencyDetails,
   defaultInvoiceFormData,
   mergeInvoiceFormData,
   type InvoiceFormData,
@@ -14,7 +16,12 @@ import {
 
 export type BriefExtractionConfidence = "high" | "medium" | "low";
 
-export type BriefExtractionSource = "label" | "regex" | "pattern" | "inference";
+export type BriefExtractionSource =
+  | "label"
+  | "regex"
+  | "pattern"
+  | "inference"
+  | "ai";
 
 export type BriefExtractedField<T> = {
   value: T;
@@ -24,12 +31,23 @@ export type BriefExtractedField<T> = {
 
 type Candidate<T> = BriefExtractedField<T>;
 
+export type InvoiceBriefLineItemExtraction = {
+  type?: BriefExtractedField<InvoiceLineItemType>;
+  description?: BriefExtractedField<string>;
+  qty?: BriefExtractedField<number>;
+  rate?: BriefExtractedField<number>;
+  rateUnit?: BriefExtractedField<InvoiceRateUnit>;
+};
+
 export type InvoiceBriefExtractionSchema = {
   agencyName?: BriefExtractedField<string>;
   agencyAddress?: BriefExtractedField<string>;
   agencyState?: BriefExtractedField<InvoiceFormData["agency"]["agencyState"]>;
+  agencyGstRegistrationStatus?: BriefExtractedField<AgencyDetails["gstRegistrationStatus"]>;
   agencyGstin?: BriefExtractedField<string>;
   agencyPan?: BriefExtractedField<string>;
+  agencyLutAvailability?: BriefExtractedField<AgencyDetails["lutAvailability"]>;
+  agencyLutNumber?: BriefExtractedField<string>;
   clientName?: BriefExtractedField<string>;
   clientAddress?: BriefExtractedField<string>;
   clientState?: BriefExtractedField<InvoiceFormData["client"]["clientState"]>;
@@ -37,12 +55,14 @@ export type InvoiceBriefExtractionSchema = {
   clientLocation?: BriefExtractedField<InvoiceFormData["client"]["clientLocation"]>;
   clientCurrency?: BriefExtractedField<InternationalCurrencyCode>;
   clientGstin?: BriefExtractedField<string>;
+  lineItems?: InvoiceBriefLineItemExtraction[];
   deliverableType?: BriefExtractedField<InvoiceLineItemType>;
   deliverableDescription?: BriefExtractedField<string>;
   qty?: BriefExtractedField<number>;
   rate?: BriefExtractedField<number>;
   rateUnit?: BriefExtractedField<InvoiceRateUnit>;
   licenseType?: BriefExtractedField<LicenseType>;
+  licenseDuration?: BriefExtractedField<string>;
   paymentTerms?: BriefExtractedField<string>;
   paymentAccountName?: BriefExtractedField<string>;
   paymentBankName?: BriefExtractedField<string>;
@@ -56,6 +76,7 @@ export type InvoiceBriefExtractionSchema = {
 export type BriefAutofillMappingResult = {
   nextFormData: InvoiceFormData;
   filledFields: string[];
+  aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
 };
@@ -71,6 +92,7 @@ export type BriefAutofillResult = {
   extraction: InvoiceBriefExtractionSchema;
   nextFormData: InvoiceFormData;
   filledFields: string[];
+  aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
   hasImageAttachments: boolean;
@@ -284,6 +306,442 @@ function findUniquePatternMatch(text: string, pattern: RegExp) {
   const uniqueMatches = Array.from(new Set(matches));
 
   return uniqueMatches.length === 1 ? uniqueMatches[0] : "";
+}
+
+function getConfidenceScore(confidence: BriefExtractionConfidence) {
+  switch (confidence) {
+    case "high":
+      return 3;
+    case "medium":
+      return 2;
+    default:
+      return 1;
+  }
+}
+
+function normalizeEnumValue<T extends string>(
+  value: T | "" | undefined | null
+): T | undefined {
+  return value ? value : undefined;
+}
+
+function createAiCandidate<T>(
+  value: T | "" | 0 | undefined | null,
+  confidence: BriefExtractionConfidence | undefined
+): Candidate<T> | undefined {
+  if (
+    value === undefined ||
+    value === null ||
+    value === "" ||
+    (typeof value === "number" && value === 0)
+  ) {
+    return undefined;
+  }
+
+  return makeCandidate(value as T, confidence ?? "low", "ai");
+}
+
+function convertAiExtractionToSchema(
+  extraction: AiBriefExtraction
+): InvoiceBriefExtractionSchema {
+  return {
+    agencyName: createAiCandidate(extraction.agency.name.value, extraction.agency.name.confidence),
+    agencyAddress: createAiCandidate(
+      extraction.agency.address.value,
+      extraction.agency.address.confidence
+    ),
+    agencyState: createAiCandidate(
+      getStateFromText(extraction.agency.state.value),
+      extraction.agency.state.confidence
+    ),
+    agencyGstRegistrationStatus: createAiCandidate(
+      normalizeEnumValue(extraction.agency.gstRegistrationStatus.value),
+      extraction.agency.gstRegistrationStatus.confidence
+    ),
+    agencyGstin: createAiCandidate(
+      extraction.agency.gstin.value,
+      extraction.agency.gstin.confidence
+    ),
+    agencyPan: createAiCandidate(
+      extraction.agency.pan.value,
+      extraction.agency.pan.confidence
+    ),
+    agencyLutAvailability: createAiCandidate(
+      normalizeEnumValue(extraction.agency.lutAvailable.value),
+      extraction.agency.lutAvailable.confidence
+    ),
+    agencyLutNumber: createAiCandidate(
+      extraction.agency.lutNumber.value,
+      extraction.agency.lutNumber.confidence
+    ),
+    clientLocation: createAiCandidate(
+      normalizeEnumValue(extraction.client.location.value),
+      extraction.client.location.confidence
+    ),
+    clientName: createAiCandidate(
+      extraction.client.name.value,
+      extraction.client.name.confidence
+    ),
+    clientAddress: createAiCandidate(
+      extraction.client.address.value,
+      extraction.client.address.confidence
+    ),
+    clientState: createAiCandidate(
+      getStateFromText(extraction.client.state.value),
+      extraction.client.state.confidence
+    ),
+    clientCountry: createAiCandidate(
+      getCountryFromText(extraction.client.country.value),
+      extraction.client.country.confidence
+    ),
+    clientGstin: createAiCandidate(
+      extraction.client.gstin.value || extraction.client.taxId.value,
+      extraction.client.gstin.value
+        ? extraction.client.gstin.confidence
+        : extraction.client.taxId.confidence
+    ),
+    clientCurrency: createAiCandidate(
+      normalizeEnumValue(extraction.invoice.currency.value),
+      extraction.invoice.currency.confidence
+    ),
+    paymentTerms: createAiCandidate(
+      extraction.invoice.paymentTerms.value,
+      extraction.invoice.paymentTerms.confidence
+    ),
+    lineItems: extraction.lineItems
+      .map((item) => ({
+        type: createAiCandidate(normalizeEnumValue(item.type.value), item.type.confidence),
+        description: createAiCandidate(
+          item.description.value,
+          item.description.confidence
+        ),
+        qty: createAiCandidate(item.qty.value, item.qty.confidence),
+        rate: createAiCandidate(item.rate.value, item.rate.confidence),
+        rateUnit: createAiCandidate(
+          normalizeEnumValue(item.rateUnit.value),
+          item.rateUnit.confidence
+        ),
+      }))
+      .filter(
+        (item) =>
+          item.type ||
+          item.description ||
+          item.qty ||
+          item.rate ||
+          item.rateUnit
+      ),
+    deliverableType: createAiCandidate(
+      normalizeEnumValue(extraction.lineItems[0]?.type.value),
+      extraction.lineItems[0]?.type.confidence
+    ),
+    deliverableDescription: createAiCandidate(
+      extraction.lineItems[0]?.description.value,
+      extraction.lineItems[0]?.description.confidence
+    ),
+    qty: createAiCandidate(
+      extraction.lineItems[0]?.qty.value,
+      extraction.lineItems[0]?.qty.confidence
+    ),
+    rate: createAiCandidate(
+      extraction.lineItems[0]?.rate.value,
+      extraction.lineItems[0]?.rate.confidence
+    ),
+    rateUnit: createAiCandidate(
+      normalizeEnumValue(extraction.lineItems[0]?.rateUnit.value),
+      extraction.lineItems[0]?.rateUnit.confidence
+    ),
+    licenseType: createAiCandidate(
+      normalizeEnumValue(extraction.license.type.value),
+      extraction.license.type.confidence
+    ),
+    licenseDuration: createAiCandidate(
+      extraction.license.duration.value,
+      extraction.license.duration.confidence
+    ),
+    paymentAccountName: createAiCandidate(
+      extraction.payment.accountName.value,
+      extraction.payment.accountName.confidence
+    ),
+    paymentBankName: createAiCandidate(
+      extraction.payment.bankName.value,
+      extraction.payment.bankName.confidence
+    ),
+    paymentBankAddress: createAiCandidate(
+      extraction.payment.bankAddress.value,
+      extraction.payment.bankAddress.confidence
+    ),
+    paymentAccountNumber: createAiCandidate(
+      extraction.payment.accountNumber.value,
+      extraction.payment.accountNumber.confidence
+    ),
+    paymentIfscCode: createAiCandidate(
+      extraction.payment.ifscCode.value,
+      extraction.payment.ifscCode.confidence
+    ),
+    paymentSwiftBicCode: createAiCandidate(
+      extraction.payment.swiftCode.value,
+      extraction.payment.swiftCode.confidence
+    ),
+    paymentIbanRoutingCode: createAiCandidate(
+      extraction.payment.ibanOrRouting.value,
+      extraction.payment.ibanOrRouting.confidence
+    ),
+  };
+}
+
+function chooseMergedCandidate<T>(
+  fieldKey: string,
+  aiCandidate?: Candidate<T>,
+  heuristicCandidate?: Candidate<T>
+) {
+  const strictFallbackFields = new Set([
+    "agencyGstin",
+    "agencyPan",
+    "clientGstin",
+    "clientCurrency",
+    "qty",
+    "rate",
+    "rateUnit",
+    "paymentIfscCode",
+    "paymentSwiftBicCode",
+  ]);
+
+  if (!aiCandidate) return heuristicCandidate;
+  if (!heuristicCandidate) return aiCandidate;
+
+  if (strictFallbackFields.has(fieldKey)) {
+    return heuristicCandidate;
+  }
+
+  const aiScore = getConfidenceScore(aiCandidate.confidence);
+  const heuristicScore = getConfidenceScore(heuristicCandidate.confidence);
+
+  if (aiScore > heuristicScore) return aiCandidate;
+  if (heuristicScore > aiScore) return heuristicCandidate;
+
+  return aiCandidate;
+}
+
+function mergeLineItemExtractions(
+  aiLineItems: InvoiceBriefLineItemExtraction[] = [],
+  heuristic: InvoiceBriefExtractionSchema
+) {
+  const fallbackFirst: InvoiceBriefLineItemExtraction = {
+    type: heuristic.deliverableType,
+    description: heuristic.deliverableDescription,
+    qty: heuristic.qty,
+    rate: heuristic.rate,
+    rateUnit: heuristic.rateUnit,
+  };
+
+  const fallbackItems =
+    fallbackFirst.type ||
+    fallbackFirst.description ||
+    fallbackFirst.qty ||
+    fallbackFirst.rate ||
+    fallbackFirst.rateUnit
+      ? [fallbackFirst]
+      : [];
+
+  const totalItems = Math.max(aiLineItems.length, fallbackItems.length);
+  const mergedItems: InvoiceBriefLineItemExtraction[] = [];
+
+  for (let index = 0; index < totalItems; index += 1) {
+    const aiItem = aiLineItems[index];
+    const fallbackItem = fallbackItems[index];
+
+    const mergedItem: InvoiceBriefLineItemExtraction = {
+      type: chooseMergedCandidate(`lineItems.${index}.type`, aiItem?.type, fallbackItem?.type),
+      description: chooseMergedCandidate(
+        `lineItems.${index}.description`,
+        aiItem?.description,
+        fallbackItem?.description
+      ),
+      qty: chooseMergedCandidate(`qty`, aiItem?.qty, fallbackItem?.qty),
+      rate: chooseMergedCandidate(`rate`, aiItem?.rate, fallbackItem?.rate),
+      rateUnit: chooseMergedCandidate(
+        `rateUnit`,
+        aiItem?.rateUnit,
+        fallbackItem?.rateUnit
+      ),
+    };
+
+    if (
+      mergedItem.type ||
+      mergedItem.description ||
+      mergedItem.qty ||
+      mergedItem.rate ||
+      mergedItem.rateUnit
+    ) {
+      mergedItems.push(mergedItem);
+    }
+  }
+
+  return mergedItems;
+}
+
+export function mergeBriefExtractions(params: {
+  aiExtraction?: InvoiceBriefExtractionSchema | null;
+  heuristicExtraction: InvoiceBriefExtractionSchema;
+}): InvoiceBriefExtractionSchema {
+  const { aiExtraction, heuristicExtraction } = params;
+
+  if (!aiExtraction) {
+    return heuristicExtraction;
+  }
+
+  return {
+    agencyName: chooseMergedCandidate(
+      "agencyName",
+      aiExtraction.agencyName,
+      heuristicExtraction.agencyName
+    ),
+    agencyAddress: chooseMergedCandidate(
+      "agencyAddress",
+      aiExtraction.agencyAddress,
+      heuristicExtraction.agencyAddress
+    ),
+    agencyState: chooseMergedCandidate(
+      "agencyState",
+      aiExtraction.agencyState,
+      heuristicExtraction.agencyState
+    ),
+    agencyGstRegistrationStatus: chooseMergedCandidate(
+      "agencyGstRegistrationStatus",
+      aiExtraction.agencyGstRegistrationStatus,
+      heuristicExtraction.agencyGstRegistrationStatus
+    ),
+    agencyGstin: chooseMergedCandidate(
+      "agencyGstin",
+      aiExtraction.agencyGstin,
+      heuristicExtraction.agencyGstin
+    ),
+    agencyPan: chooseMergedCandidate(
+      "agencyPan",
+      aiExtraction.agencyPan,
+      heuristicExtraction.agencyPan
+    ),
+    agencyLutAvailability: chooseMergedCandidate(
+      "agencyLutAvailability",
+      aiExtraction.agencyLutAvailability,
+      heuristicExtraction.agencyLutAvailability
+    ),
+    agencyLutNumber: chooseMergedCandidate(
+      "agencyLutNumber",
+      aiExtraction.agencyLutNumber,
+      heuristicExtraction.agencyLutNumber
+    ),
+    clientName: chooseMergedCandidate(
+      "clientName",
+      aiExtraction.clientName,
+      heuristicExtraction.clientName
+    ),
+    clientAddress: chooseMergedCandidate(
+      "clientAddress",
+      aiExtraction.clientAddress,
+      heuristicExtraction.clientAddress
+    ),
+    clientState: chooseMergedCandidate(
+      "clientState",
+      aiExtraction.clientState,
+      heuristicExtraction.clientState
+    ),
+    clientCountry: chooseMergedCandidate(
+      "clientCountry",
+      aiExtraction.clientCountry,
+      heuristicExtraction.clientCountry
+    ),
+    clientLocation: chooseMergedCandidate(
+      "clientLocation",
+      aiExtraction.clientLocation,
+      heuristicExtraction.clientLocation
+    ),
+    clientCurrency: chooseMergedCandidate(
+      "clientCurrency",
+      aiExtraction.clientCurrency,
+      heuristicExtraction.clientCurrency
+    ),
+    clientGstin: chooseMergedCandidate(
+      "clientGstin",
+      aiExtraction.clientGstin,
+      heuristicExtraction.clientGstin
+    ),
+    lineItems: mergeLineItemExtractions(
+      aiExtraction.lineItems,
+      heuristicExtraction
+    ),
+    deliverableType: chooseMergedCandidate(
+      "deliverableType",
+      aiExtraction.deliverableType,
+      heuristicExtraction.deliverableType
+    ),
+    deliverableDescription: chooseMergedCandidate(
+      "deliverableDescription",
+      aiExtraction.deliverableDescription,
+      heuristicExtraction.deliverableDescription
+    ),
+    qty: chooseMergedCandidate("qty", aiExtraction.qty, heuristicExtraction.qty),
+    rate: chooseMergedCandidate(
+      "rate",
+      aiExtraction.rate,
+      heuristicExtraction.rate
+    ),
+    rateUnit: chooseMergedCandidate(
+      "rateUnit",
+      aiExtraction.rateUnit,
+      heuristicExtraction.rateUnit
+    ),
+    licenseType: chooseMergedCandidate(
+      "licenseType",
+      aiExtraction.licenseType,
+      heuristicExtraction.licenseType
+    ),
+    licenseDuration: chooseMergedCandidate(
+      "licenseDuration",
+      aiExtraction.licenseDuration,
+      heuristicExtraction.licenseDuration
+    ),
+    paymentTerms: chooseMergedCandidate(
+      "paymentTerms",
+      aiExtraction.paymentTerms,
+      heuristicExtraction.paymentTerms
+    ),
+    paymentAccountName: chooseMergedCandidate(
+      "paymentAccountName",
+      aiExtraction.paymentAccountName,
+      heuristicExtraction.paymentAccountName
+    ),
+    paymentBankName: chooseMergedCandidate(
+      "paymentBankName",
+      aiExtraction.paymentBankName,
+      heuristicExtraction.paymentBankName
+    ),
+    paymentBankAddress: chooseMergedCandidate(
+      "paymentBankAddress",
+      aiExtraction.paymentBankAddress,
+      heuristicExtraction.paymentBankAddress
+    ),
+    paymentAccountNumber: chooseMergedCandidate(
+      "paymentAccountNumber",
+      aiExtraction.paymentAccountNumber,
+      heuristicExtraction.paymentAccountNumber
+    ),
+    paymentIfscCode: chooseMergedCandidate(
+      "paymentIfscCode",
+      aiExtraction.paymentIfscCode,
+      heuristicExtraction.paymentIfscCode
+    ),
+    paymentSwiftBicCode: chooseMergedCandidate(
+      "paymentSwiftBicCode",
+      aiExtraction.paymentSwiftBicCode,
+      heuristicExtraction.paymentSwiftBicCode
+    ),
+    paymentIbanRoutingCode: chooseMergedCandidate(
+      "paymentIbanRoutingCode",
+      aiExtraction.paymentIbanRoutingCode,
+      heuristicExtraction.paymentIbanRoutingCode
+    ),
+  };
 }
 
 function getStateFromText(
@@ -749,19 +1207,28 @@ function shouldApplyCandidate<T>(
   if (candidate.confidence === "low") return false;
 
   if (typeof currentValue === "string") {
-    return !currentValue.trim() || currentValue === defaultValue;
+    return (
+      !currentValue.trim() ||
+      currentValue === defaultValue ||
+      candidate.confidence === "high"
+    );
   }
 
-  return currentValue === defaultValue;
+  return currentValue === defaultValue || candidate.confidence === "high";
 }
 
 function recordField(
   label: string,
   confidence: BriefExtractionConfidence,
+  source: BriefExtractionSource,
   filledFields: string[],
+  aiFilledFields: string[],
   reviewFields: string[]
 ) {
   filledFields.push(label);
+  if (source === "ai") {
+    aiFilledFields.push(label);
+  }
   if (confidence === "medium") {
     reviewFields.push(label);
   }
@@ -774,6 +1241,7 @@ function applyCandidate<T>({
   candidate,
   assign,
   filledFields,
+  aiFilledFields,
   reviewFields,
   lowConfidenceFields,
 }: {
@@ -783,6 +1251,7 @@ function applyCandidate<T>({
   candidate?: Candidate<T>;
   assign: (value: T) => void;
   filledFields: string[];
+  aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
 }) {
@@ -800,7 +1269,14 @@ function applyCandidate<T>({
   }
 
   assign(candidate.value);
-  recordField(label, candidate.confidence, filledFields, reviewFields);
+  recordField(
+    label,
+    candidate.confidence,
+    candidate.source,
+    filledFields,
+    aiFilledFields,
+    reviewFields
+  );
 }
 
 export function normalizeBriefIntake(input: BriefIntakeInput) {
@@ -815,6 +1291,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
 }): BriefAutofillMappingResult {
   const nextFormData = mergeInvoiceFormData(params.currentFormData);
   const filledFields: string[] = [];
+  const aiFilledFields: string[] = [];
   const reviewFields: string[] = [];
   const lowConfidenceFields: string[] = [];
   const { extraction } = params;
@@ -828,6 +1305,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.agency.agencyName = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -841,6 +1319,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.agency.address = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -854,6 +1333,21 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.agency.agencyState = value;
     },
     filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "GST registration status",
+    currentValue: nextFormData.agency.gstRegistrationStatus,
+    defaultValue: defaultInvoiceFormData.agency.gstRegistrationStatus,
+    candidate: extraction.agencyGstRegistrationStatus,
+    assign: (value) => {
+      nextFormData.agency.gstRegistrationStatus = value;
+    },
+    filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -867,6 +1361,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.agency.gstin = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -880,6 +1375,35 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.agency.pan = value;
     },
     filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "LUT availability",
+    currentValue: nextFormData.agency.lutAvailability,
+    defaultValue: defaultInvoiceFormData.agency.lutAvailability,
+    candidate: extraction.agencyLutAvailability,
+    assign: (value) => {
+      nextFormData.agency.lutAvailability = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "LUT number",
+    currentValue: nextFormData.agency.lutNumber,
+    defaultValue: defaultInvoiceFormData.agency.lutNumber,
+    candidate: extraction.agencyLutNumber,
+    assign: (value) => {
+      nextFormData.agency.lutNumber = value;
+    },
+    filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -893,6 +1417,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientName = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -906,6 +1431,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientAddress = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -919,6 +1445,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientLocation = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -932,6 +1459,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientState = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -946,6 +1474,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientLocation = "international";
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -960,6 +1489,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientLocation = "international";
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -973,80 +1503,120 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.client.clientGstin = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
 
-  const firstLineItem = nextFormData.lineItems[0] ?? {
-    ...defaultLineItem,
-  };
+  const extractedLineItems =
+    extraction.lineItems && extraction.lineItems.length > 0
+      ? extraction.lineItems
+      : [
+          {
+            type: extraction.deliverableType,
+            description: extraction.deliverableDescription,
+            qty: extraction.qty,
+            rate: extraction.rate,
+            rateUnit: extraction.rateUnit,
+          },
+        ].filter(
+          (item) =>
+            item.type ||
+            item.description ||
+            item.qty ||
+            item.rate ||
+            item.rateUnit
+        );
 
-  applyCandidate({
-    label: "Deliverable type",
-    currentValue: firstLineItem.type,
-    defaultValue: defaultLineItem.type,
-    candidate: extraction.deliverableType,
-    assign: (value) => {
-      firstLineItem.type = value;
-    },
-    filledFields,
-    reviewFields,
-    lowConfidenceFields,
-  });
+  if (extractedLineItems.length > 0) {
+    const mergedLineItems = [
+      ...nextFormData.lineItems.map((item) => ({ ...item })),
+    ];
 
-  applyCandidate({
-    label: "Deliverable description",
-    currentValue: firstLineItem.description,
-    defaultValue: defaultLineItem.description,
-    candidate: extraction.deliverableDescription,
-    assign: (value) => {
-      firstLineItem.description = value;
-    },
-    filledFields,
-    reviewFields,
-    lowConfidenceFields,
-  });
+    extractedLineItems.forEach((candidateItem, index) => {
+      const existingItem = mergedLineItems[index] ?? {
+        ...defaultLineItem,
+        id: `brief-line-${index + 1}`,
+      };
 
-  applyCandidate({
-    label: "Quantity",
-    currentValue: firstLineItem.qty,
-    defaultValue: defaultLineItem.qty,
-    candidate: extraction.qty,
-    assign: (value) => {
-      firstLineItem.qty = value;
-    },
-    filledFields,
-    reviewFields,
-    lowConfidenceFields,
-  });
+      applyCandidate({
+        label: index === 0 ? "Deliverable type" : `Deliverable ${index + 1} type`,
+        currentValue: existingItem.type,
+        defaultValue: defaultLineItem.type,
+        candidate: candidateItem.type,
+        assign: (value) => {
+          existingItem.type = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
 
-  applyCandidate({
-    label: "Rate",
-    currentValue: firstLineItem.rate,
-    defaultValue: defaultLineItem.rate,
-    candidate: extraction.rate,
-    assign: (value) => {
-      firstLineItem.rate = value;
-    },
-    filledFields,
-    reviewFields,
-    lowConfidenceFields,
-  });
+      applyCandidate({
+        label:
+          index === 0
+            ? "Deliverable description"
+            : `Deliverable ${index + 1} description`,
+        currentValue: existingItem.description,
+        defaultValue: defaultLineItem.description,
+        candidate: candidateItem.description,
+        assign: (value) => {
+          existingItem.description = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
 
-  applyCandidate({
-    label: "Rate unit",
-    currentValue: firstLineItem.rateUnit,
-    defaultValue: defaultLineItem.rateUnit,
-    candidate: extraction.rateUnit,
-    assign: (value) => {
-      firstLineItem.rateUnit = value;
-    },
-    filledFields,
-    reviewFields,
-    lowConfidenceFields,
-  });
+      applyCandidate({
+        label: index === 0 ? "Quantity" : `Deliverable ${index + 1} quantity`,
+        currentValue: existingItem.qty,
+        defaultValue: defaultLineItem.qty,
+        candidate: candidateItem.qty,
+        assign: (value) => {
+          existingItem.qty = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
 
-  nextFormData.lineItems[0] = firstLineItem;
+      applyCandidate({
+        label: index === 0 ? "Rate" : `Deliverable ${index + 1} rate`,
+        currentValue: existingItem.rate,
+        defaultValue: defaultLineItem.rate,
+        candidate: candidateItem.rate,
+        assign: (value) => {
+          existingItem.rate = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
+
+      applyCandidate({
+        label: index === 0 ? "Rate unit" : `Deliverable ${index + 1} rate unit`,
+        currentValue: existingItem.rateUnit,
+        defaultValue: defaultLineItem.rateUnit,
+        candidate: candidateItem.rateUnit,
+        assign: (value) => {
+          existingItem.rateUnit = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
+
+      mergedLineItems[index] = existingItem;
+    });
+
+    nextFormData.lineItems = mergedLineItems;
+  }
 
   applyCandidate({
     label: "License type",
@@ -1058,6 +1628,21 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.license.licenseType = value;
     },
     filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "License duration",
+    currentValue: nextFormData.payment.license.licenseDuration,
+    defaultValue: defaultInvoiceFormData.payment.license.licenseDuration,
+    candidate: extraction.licenseDuration,
+    assign: (value) => {
+      nextFormData.payment.license.licenseDuration = value;
+    },
+    filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1071,6 +1656,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.meta.paymentTerms = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1084,6 +1670,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.accountName = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1097,6 +1684,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.bankName = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1110,6 +1698,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.bankAddress = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1123,6 +1712,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.accountNumber = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1136,6 +1726,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.ifscCode = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1149,6 +1740,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.swiftBicCode = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1162,6 +1754,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
       nextFormData.payment.ibanRoutingCode = value;
     },
     filledFields,
+    aiFilledFields,
     reviewFields,
     lowConfidenceFields,
   });
@@ -1169,6 +1762,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
   return {
     nextFormData,
     filledFields: [...new Set(filledFields)],
+    aiFilledFields: [...new Set(aiFilledFields)],
     reviewFields: [...new Set(reviewFields)],
     lowConfidenceFields: [...new Set(lowConfidenceFields)],
   };
@@ -1177,9 +1771,17 @@ export function mapBriefExtractionToInvoiceForm(params: {
 export function runBriefAutofill(params: {
   currentFormData: InvoiceFormData;
   input: BriefIntakeInput;
+  aiExtraction?: AiBriefExtraction | null;
 }): BriefAutofillResult {
   const normalizedText = normalizeBriefIntake(params.input);
-  const extraction = extractInvoiceBriefSchema(normalizedText);
+  const heuristicExtraction = extractInvoiceBriefSchema(normalizedText);
+  const aiExtraction = params.aiExtraction
+    ? convertAiExtractionToSchema(params.aiExtraction)
+    : null;
+  const extraction = mergeBriefExtractions({
+    aiExtraction,
+    heuristicExtraction,
+  });
   const mapping = mapBriefExtractionToInvoiceForm({
     currentFormData: params.currentFormData,
     extraction,
@@ -1190,6 +1792,7 @@ export function runBriefAutofill(params: {
     extraction,
     nextFormData: mapping.nextFormData,
     filledFields: mapping.filledFields,
+    aiFilledFields: mapping.aiFilledFields,
     reviewFields: mapping.reviewFields,
     lowConfidenceFields: mapping.lowConfidenceFields,
     hasImageAttachments: Boolean(params.input.imageFiles?.length),
