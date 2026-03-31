@@ -1,7 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
-import ChoiceCards from "@/components/ui/ChoiceCards";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import type { InvoiceFieldErrors } from "@/lib/invoice-validation";
 import { requiresExplicitExportTaxChoice } from "@/lib/invoice-compliance";
 import type {
@@ -16,8 +15,6 @@ import {
 } from "@/lib/international-billing-options";
 import type {
   InvoiceFormData,
-  InvoiceLineItemType,
-  InvoiceRateUnit,
   InvoiceStepperStep,
 } from "@/types/invoice";
 
@@ -48,32 +45,6 @@ interface AutofillSummaryModalProps {
   onPreview: () => void;
 }
 
-const lineItemTypeOptions: InvoiceLineItemType[] = [
-  "Logo Design",
-  "UI/UX",
-  "Illustration",
-  "Photography",
-  "Video Editing",
-  "Social Media",
-  "Other",
-];
-
-const rateUnitOptions: Array<{
-  value: InvoiceRateUnit;
-  label: string;
-}> = [
-  { value: "per-deliverable", label: "Per deliverable" },
-  { value: "per-item", label: "Per item" },
-  { value: "per-screen", label: "Per screen" },
-  { value: "per-hour", label: "Per hour" },
-  { value: "per-day", label: "Per day" },
-  { value: "per-revision", label: "Per revision" },
-  { value: "per-concept", label: "Per concept" },
-  { value: "per-post", label: "Per post" },
-  { value: "per-video", label: "Per video" },
-  { value: "per-image", label: "Per image" },
-];
-
 function getStepLabel(step: InvoiceStepperStep) {
   switch (step) {
     case "agency":
@@ -97,16 +68,86 @@ function getOriginLabel(origin: BriefAutofillFieldSummary["origin"]) {
   return origin === "ai" ? "AI" : "Parser";
 }
 
-function getInputClass(hasError?: string) {
-  return `w-full rounded-xl border px-3 py-2.5 text-sm text-black outline-none transition focus:border-black ${
-    hasError ? "border-red-400 bg-red-50/30" : "border-gray-300 bg-white"
-  }`;
+function getFieldClass(params?: {
+  hasError?: string;
+  hasValue?: boolean;
+  multiline?: boolean;
+  isSelect?: boolean;
+}) {
+  const { hasError, hasValue, multiline, isSelect } = params ?? {};
+
+  return [
+    "w-full rounded-2xl border text-[15px] leading-6 text-slate-950 outline-none transition-all duration-150",
+    multiline ? "min-h-[118px] px-4 py-3.5" : "h-12 px-4",
+    isSelect ? "appearance-none pr-11" : "",
+    "placeholder:text-slate-400",
+    "hover:border-slate-400 hover:bg-white",
+    "focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-950/10",
+    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
+    "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
+    hasError
+      ? "border-red-400 bg-red-50/60 focus:border-red-500 focus:ring-red-500/10"
+      : hasValue
+      ? "border-slate-400 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+      : "border-slate-300 bg-white/95",
+  ].join(" ");
 }
 
 function ErrorText({ message }: { message?: string }) {
   if (!message) return null;
 
-  return <p className="mt-2 text-xs font-medium text-red-600">{message}</p>;
+  return <p className="mt-2 text-xs font-medium leading-5 text-red-600">{message}</p>;
+}
+
+function SelectChevron() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-slate-600"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5 7.5L10 12.5L15 7.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ModalSelect({
+  value,
+  hasError,
+  hasValue,
+  onChange,
+  children,
+}: {
+  value: string;
+  hasError?: string;
+  hasValue?: boolean;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="group relative">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={getFieldClass({
+          hasError,
+          hasValue,
+          isSelect: true,
+        })}
+      >
+        {children}
+      </select>
+      <SelectChevron />
+    </div>
+  );
 }
 
 function SectionCard({
@@ -119,14 +160,120 @@ function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4">
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-black">{title}</p>
+    <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <div className="mb-5">
+        <p className="text-sm font-semibold tracking-tight text-slate-950">{title}</p>
         {subtitle ? (
-          <p className="mt-1 text-xs leading-5 text-gray-500">{subtitle}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p>
         ) : null}
       </div>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-5">{children}</div>
+    </div>
+  );
+}
+
+function ModalSegmentedControl<T extends string>({
+  name,
+  value,
+  options,
+  columns = 2,
+  onChange,
+}: {
+  name: string;
+  value: T | "";
+  options: Array<{
+    value: T;
+    label: string;
+    description?: string;
+  }>;
+  columns?: 1 | 2;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label={name}
+      className={`grid gap-2 rounded-[20px] border border-slate-200 bg-slate-100/80 p-1 ${
+        columns === 2 ? "sm:grid-cols-2" : ""
+      }`}
+    >
+      {options.map((option) => {
+        const selected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(option.value)}
+            className={`min-h-[46px] rounded-2xl border px-4 py-2.5 text-left text-sm transition ${
+              selected
+                ? "border-slate-900/15 bg-white text-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
+                : "border-transparent bg-transparent text-slate-600 hover:bg-white/80 hover:text-slate-900"
+            }`}
+          >
+            <span className="block font-medium">{option.label}</span>
+            {option.description ? (
+              <span className="mt-1 block text-xs leading-5 text-slate-500">
+                {option.description}
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ModalChoiceCardGroup<T extends string>({
+  name,
+  value,
+  options,
+  onChange,
+}: {
+  name: string;
+  value: T | "";
+  options: Array<{
+    value: T;
+    label: string;
+    description?: string;
+  }>;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div role="radiogroup" aria-label={name} className="grid gap-3 md:grid-cols-2">
+      {options.map((option) => {
+        const selected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onChange(option.value)}
+            className={`rounded-[22px] border px-4 py-4 text-left transition ${
+              selected
+                ? "border-slate-950 bg-slate-950 text-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+                : "border-slate-200 bg-white text-slate-950 hover:border-slate-300 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)]"
+            }`}
+          >
+            <span className="block text-sm font-semibold tracking-tight">
+              {option.label}
+            </span>
+            {option.description ? (
+              <span
+                className={`mt-2 block text-xs leading-5 ${
+                  selected ? "text-white/80" : "text-slate-500"
+                }`}
+              >
+                {option.description}
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -166,20 +313,57 @@ function MiniForm({
     updater: (prev: InvoiceFormData) => InvoiceFormData
   ) => void;
 }) {
-  const showComplianceSection =
-    visibleSteps.has("agency") ||
-    visibleSteps.has("totals") ||
-    formData.agency.gstRegistrationStatus === "registered";
   const showInternationalClientFields =
     formData.client.clientLocation === "international";
-  const showLicenseDuration =
-    formData.payment.license.isLicenseIncluded &&
-    (formData.payment.license.licenseType === "exclusive-license" ||
-      formData.payment.license.licenseType === "non-exclusive-license");
   const needsExportChoice = requiresExplicitExportTaxChoice(
     formData.agency,
     formData.client
   );
+  const showComplianceSection =
+    Boolean(fieldErrors.agency.gstin) ||
+    (visibleSteps.has("totals") && needsExportChoice);
+  const showLicenseDuration =
+    Boolean(fieldErrors.payment.licenseDuration) &&
+    formData.payment.license.isLicenseIncluded &&
+    (formData.payment.license.licenseType === "exclusive-license" ||
+      formData.payment.license.licenseType === "non-exclusive-license");
+  const showAgencyBasics =
+    visibleSteps.has("agency") &&
+    Boolean(
+      fieldErrors.agency.agencyName ||
+        fieldErrors.agency.address ||
+        fieldErrors.agency.agencyState
+    );
+  const showClientSection =
+    visibleSteps.has("client") &&
+    Boolean(
+      fieldErrors.client.clientName ||
+        fieldErrors.client.clientAddress ||
+        fieldErrors.client.clientState ||
+        fieldErrors.client.clientCountry
+    );
+  const showDeliverablesSection =
+    visibleSteps.has("deliverables") &&
+    formData.lineItems.some((item) => Boolean(fieldErrors.lineItems[item.id]));
+  const showPaymentSection =
+    visibleSteps.has("payment") &&
+    Boolean(
+      fieldErrors.meta.paymentTerms ||
+        fieldErrors.payment.accountName ||
+        fieldErrors.payment.bankName ||
+        fieldErrors.payment.accountNumber ||
+        fieldErrors.payment.ifscCode ||
+        fieldErrors.payment.bankAddress ||
+        fieldErrors.payment.swiftBicCode ||
+        fieldErrors.payment.licenseDuration
+    );
+  const showMetaSection =
+    visibleSteps.has("meta") &&
+    Boolean(
+      fieldErrors.meta.invoiceNumber ||
+        fieldErrors.meta.invoiceDate ||
+        fieldErrors.meta.dueDate
+    );
 
   const updateLineItem = (
     lineItemId: string,
@@ -194,106 +378,116 @@ function MiniForm({
   };
 
   return (
-    <div className="space-y-4">
-      {visibleSteps.has("agency") ? (
+    <div className="space-y-5">
+      {showAgencyBasics ? (
         <SectionCard
           title="Agency Details"
-          subtitle="Complete the core agency fields needed for a valid invoice."
+          subtitle="Only the agency fields still blocking validation are shown here."
         >
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Agency Name *
-            </label>
-            <input
-              type="text"
-              value={formData.agency.agencyName}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  agency: {
-                    ...prev.agency,
-                    agencyName: event.target.value,
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.agency.agencyName)}
-            />
-            <ErrorText message={fieldErrors.agency.agencyName} />
-          </div>
+          {fieldErrors.agency.agencyName ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Agency Name *
+              </label>
+              <input
+                type="text"
+                value={formData.agency.agencyName}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    agency: {
+                      ...prev.agency,
+                      agencyName: event.target.value,
+                    },
+                  }))
+                }
+                className={getFieldClass({
+                  hasError: fieldErrors.agency.agencyName,
+                  hasValue: Boolean(formData.agency.agencyName),
+                })}
+                placeholder="Your agency or freelance brand name"
+              />
+              <ErrorText message={fieldErrors.agency.agencyName} />
+            </div>
+          ) : null}
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Address *
-            </label>
-            <textarea
-              rows={3}
-              value={formData.agency.address}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  agency: {
-                    ...prev.agency,
-                    address: event.target.value,
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.agency.address)}
-            />
-            <ErrorText message={fieldErrors.agency.address} />
-          </div>
+          {fieldErrors.agency.address ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Address *
+              </label>
+              <textarea
+                rows={4}
+                value={formData.agency.address}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    agency: {
+                      ...prev.agency,
+                      address: event.target.value,
+                    },
+                  }))
+                }
+                className={getFieldClass({
+                  hasError: fieldErrors.agency.address,
+                  hasValue: Boolean(formData.agency.address),
+                  multiline: true,
+                })}
+                placeholder="Business address"
+              />
+              <ErrorText message={fieldErrors.agency.address} />
+            </div>
+          ) : null}
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Agency State *
-            </label>
-            <select
-              value={formData.agency.agencyState}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  agency: {
-                    ...prev.agency,
-                    agencyState: event.target.value as InvoiceFormData["agency"]["agencyState"],
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.agency.agencyState)}
-            >
-              <option value="">Select state or union territory</option>
-              {INDIA_STATE_OPTIONS.map((stateName) => (
-                <option key={stateName} value={stateName}>
-                  {stateName}
-                </option>
-              ))}
-            </select>
-            <ErrorText message={fieldErrors.agency.agencyState} />
-          </div>
+          {fieldErrors.agency.agencyState ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Agency State *
+              </label>
+              <ModalSelect
+                value={formData.agency.agencyState}
+                onChange={(value) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    agency: {
+                      ...prev.agency,
+                      agencyState:
+                        value as InvoiceFormData["agency"]["agencyState"],
+                    },
+                  }))
+                }
+                hasError={fieldErrors.agency.agencyState}
+                hasValue={Boolean(formData.agency.agencyState)}
+              >
+                <option value="">Select state or union territory</option>
+                {INDIA_STATE_OPTIONS.map((stateName) => (
+                  <option key={stateName} value={stateName}>
+                    {stateName}
+                  </option>
+                ))}
+              </ModalSelect>
+              <ErrorText message={fieldErrors.agency.agencyState} />
+            </div>
+          ) : null}
         </SectionCard>
       ) : null}
 
       {showComplianceSection ? (
         <SectionCard
           title="Compliance"
-          subtitle="Finish the GST and export-compliance choices required by the current invoice logic."
+          subtitle="These controls affect GST, LUT, and export-tax readiness for the current invoice."
         >
           <div>
-            <label className="mb-2 block text-sm font-medium text-black">
+            <label className="mb-2.5 block text-sm font-medium text-slate-900">
               GST Registration
             </label>
-            <ChoiceCards
+            <ModalSegmentedControl
               name="modal-gst-registration"
-              variant="segmented"
               columns={2}
               value={formData.agency.gstRegistrationStatus}
               options={[
-                {
-                  value: "registered",
-                  label: "Registered",
-                },
-                {
-                  value: "not-registered",
-                  label: "Not Registered",
-                },
+                { value: "registered", label: "Registered" },
+                { value: "not-registered", label: "Not Registered" },
               ]}
               onChange={(value) =>
                 onFormDataChange((prev) => ({
@@ -307,9 +501,10 @@ function MiniForm({
             />
           </div>
 
-          {formData.agency.gstRegistrationStatus === "registered" ? (
+          {formData.agency.gstRegistrationStatus === "registered" &&
+          fieldErrors.agency.gstin ? (
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
                 GSTIN *
               </label>
               <input
@@ -326,7 +521,11 @@ function MiniForm({
                     },
                   }))
                 }
-                className={getInputClass(fieldErrors.agency.gstin)}
+                className={getFieldClass({
+                  hasError: fieldErrors.agency.gstin,
+                  hasValue: Boolean(formData.agency.gstin),
+                })}
+                placeholder="Agency GSTIN"
               />
               <ErrorText message={fieldErrors.agency.gstin} />
             </div>
@@ -336,12 +535,11 @@ function MiniForm({
           formData.client.clientLocation === "international" ? (
             <>
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   Valid LUT for current financial year?
                 </label>
-                <ChoiceCards
+                <ModalSegmentedControl
                   name="modal-lut-availability"
-                  variant="segmented"
                   columns={2}
                   value={formData.agency.lutAvailability}
                   options={[
@@ -362,7 +560,7 @@ function MiniForm({
 
               {formData.agency.lutAvailability === "yes" ? (
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className="mb-2.5 block text-sm font-medium text-slate-900">
                     LUT Number / ARN
                   </label>
                   <input
@@ -377,7 +575,9 @@ function MiniForm({
                         },
                       }))
                     }
-                    className={getInputClass()}
+                    className={getFieldClass({
+                      hasValue: Boolean(formData.agency.lutNumber),
+                    })}
                     placeholder="Optional but recommended"
                   />
                 </div>
@@ -387,10 +587,10 @@ function MiniForm({
 
           {needsExportChoice ? (
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
                 Export tax handling *
               </label>
-              <ChoiceCards
+              <ModalChoiceCardGroup
                 name="modal-export-tax-choice"
                 value={formData.agency.noLutTaxHandling}
                 options={[
@@ -421,101 +621,116 @@ function MiniForm({
         </SectionCard>
       ) : null}
 
-      {visibleSteps.has("client") ? (
+      {showClientSection ? (
         <SectionCard
           title="Client Details"
-          subtitle="Complete the billing identity and location needed for the invoice."
+          subtitle="Only the client fields still required for billing are shown."
         >
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Client Name *
-            </label>
-            <input
-              type="text"
-              value={formData.client.clientName}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  client: {
-                    ...prev.client,
-                    clientName: event.target.value,
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.client.clientName)}
-            />
-            <ErrorText message={fieldErrors.client.clientName} />
-          </div>
+          {fieldErrors.client.clientName ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Client Name *
+              </label>
+              <input
+                type="text"
+                value={formData.client.clientName}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    client: {
+                      ...prev.client,
+                      clientName: event.target.value,
+                    },
+                  }))
+                }
+                className={getFieldClass({
+                  hasError: fieldErrors.client.clientName,
+                  hasValue: Boolean(formData.client.clientName),
+                })}
+                placeholder="Client or company name"
+              />
+              <ErrorText message={fieldErrors.client.clientName} />
+            </div>
+          ) : null}
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Client Address *
-            </label>
-            <textarea
-              rows={3}
-              value={formData.client.clientAddress}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  client: {
-                    ...prev.client,
-                    clientAddress: event.target.value,
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.client.clientAddress)}
-            />
-            <ErrorText message={fieldErrors.client.clientAddress} />
-          </div>
+          {fieldErrors.client.clientAddress ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Client Address *
+              </label>
+              <textarea
+                rows={4}
+                value={formData.client.clientAddress}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    client: {
+                      ...prev.client,
+                      clientAddress: event.target.value,
+                    },
+                  }))
+                }
+                className={getFieldClass({
+                  hasError: fieldErrors.client.clientAddress,
+                  hasValue: Boolean(formData.client.clientAddress),
+                  multiline: true,
+                })}
+                placeholder="Client billing address"
+              />
+              <ErrorText message={fieldErrors.client.clientAddress} />
+            </div>
+          ) : null}
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Client Location
-            </label>
-            <ChoiceCards
-              name="modal-client-location"
-              variant="segmented"
-              columns={2}
-              value={formData.client.clientLocation}
-              options={[
-                { value: "domestic", label: "Domestic (India)" },
-                { value: "international", label: "International" },
-              ]}
-              onChange={(value) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  client: {
-                    ...prev.client,
-                    clientLocation: value,
-                    clientCountry:
-                      value === "domestic" ? "" : prev.client.clientCountry,
-                    clientState:
-                      value === "international" ? "" : prev.client.clientState,
-                  },
-                }))
-              }
-            />
-          </div>
+          {(fieldErrors.client.clientState || fieldErrors.client.clientCountry) ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Client Location
+              </label>
+              <ModalSegmentedControl
+                name="modal-client-location"
+                columns={2}
+                value={formData.client.clientLocation}
+                options={[
+                  { value: "domestic", label: "Domestic (India)" },
+                  { value: "international", label: "International" },
+                ]}
+                onChange={(value) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    client: {
+                      ...prev.client,
+                      clientLocation: value,
+                      clientCountry:
+                        value === "domestic" ? "" : prev.client.clientCountry,
+                      clientState:
+                        value === "international" ? "" : prev.client.clientState,
+                    },
+                  }))
+                }
+              />
+            </div>
+          ) : null}
 
-          {showInternationalClientFields ? (
+          {showInternationalClientFields && fieldErrors.client.clientCountry ? (
             <>
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   Country *
                 </label>
-                <select
+                <ModalSelect
                   value={formData.client.clientCountry}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     onFormDataChange((prev) => ({
                       ...prev,
                       client: {
                         ...prev.client,
                         clientCountry:
-                          event.target.value as InvoiceFormData["client"]["clientCountry"],
+                          value as InvoiceFormData["client"]["clientCountry"],
                       },
                     }))
                   }
-                  className={getInputClass(fieldErrors.client.clientCountry)}
+                  hasError={fieldErrors.client.clientCountry}
+                  hasValue={Boolean(formData.client.clientCountry)}
                 >
                   <option value="">Select country</option>
                   {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
@@ -523,27 +738,27 @@ function MiniForm({
                       {countryName}
                     </option>
                   ))}
-                </select>
+                </ModalSelect>
                 <ErrorText message={fieldErrors.client.clientCountry} />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   Currency
                 </label>
-                <select
+                <ModalSelect
                   value={formData.client.clientCurrency}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     onFormDataChange((prev) => ({
                       ...prev,
                       client: {
                         ...prev.client,
                         clientCurrency:
-                          event.target.value as InvoiceFormData["client"]["clientCurrency"],
+                          value as InvoiceFormData["client"]["clientCurrency"],
                       },
                     }))
                   }
-                  className={getInputClass()}
+                  hasValue={Boolean(formData.client.clientCurrency)}
                 >
                   <option value="">Keep INR as primary</option>
                   {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
@@ -551,27 +766,30 @@ function MiniForm({
                       {currencyOption.label}
                     </option>
                   ))}
-                </select>
+                </ModalSelect>
               </div>
             </>
-          ) : (
+          ) : null}
+
+          {!showInternationalClientFields && fieldErrors.client.clientState ? (
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
                 Client State *
               </label>
-              <select
+              <ModalSelect
                 value={formData.client.clientState}
-                onChange={(event) =>
+                onChange={(value) =>
                   onFormDataChange((prev) => ({
                     ...prev,
                     client: {
                       ...prev.client,
                       clientState:
-                        event.target.value as InvoiceFormData["client"]["clientState"],
+                        value as InvoiceFormData["client"]["clientState"],
                     },
                   }))
                 }
-                className={getInputClass(fieldErrors.client.clientState)}
+                hasError={fieldErrors.client.clientState}
+                hasValue={Boolean(formData.client.clientState)}
               >
                 <option value="">Select state or union territory</option>
                 {INDIA_STATE_OPTIONS.map((stateName) => (
@@ -579,163 +797,149 @@ function MiniForm({
                     {stateName}
                   </option>
                 ))}
-              </select>
+              </ModalSelect>
               <ErrorText message={fieldErrors.client.clientState} />
             </div>
-          )}
+          ) : null}
         </SectionCard>
       ) : null}
 
-      {visibleSteps.has("deliverables") ? (
+      {showDeliverablesSection ? (
         <SectionCard
           title="Deliverables"
-          subtitle="Complete the required line-item details for the invoice."
+          subtitle="Only the line-item fields still failing validation are shown."
         >
-          {formData.lineItems.map((item, index) => (
-            <div
-              key={item.id}
-              className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
-            >
-              <p className="text-sm font-semibold text-black">
-                Line Item {index + 1}
-              </p>
+          {formData.lineItems.map((item, index) => {
+            const itemErrors = fieldErrors.lineItems[item.id];
 
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Type
-                  </label>
-                  <select
-                    value={item.type}
-                    onChange={(event) =>
-                      updateLineItem(item.id, (current) => ({
-                        ...current,
-                        type: event.target.value as InvoiceLineItemType,
-                      }))
-                    }
-                    className={getInputClass()}
-                  >
-                    {lineItemTypeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            if (!itemErrors) {
+              return null;
+            }
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Rate Unit
-                  </label>
-                  <select
-                    value={item.rateUnit}
-                    onChange={(event) =>
-                      updateLineItem(item.id, (current) => ({
-                        ...current,
-                        rateUnit: event.target.value as InvoiceRateUnit,
-                      }))
-                    }
-                    className={getInputClass()}
-                  >
-                    {rateUnitOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            return (
+              <div
+                key={item.id}
+                className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
+              >
+                <p className="text-sm font-semibold text-slate-950">
+                  Line Item {index + 1}
+                </p>
 
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Description *
-                  </label>
-                  <input
-                    type="text"
-                    value={item.description}
-                    onChange={(event) =>
-                      updateLineItem(item.id, (current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    className={getInputClass(fieldErrors.lineItems[item.id]?.description)}
-                  />
-                  <ErrorText message={fieldErrors.lineItems[item.id]?.description} />
-                </div>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  {itemErrors.description ? (
+                    <div className="md:col-span-2">
+                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                        Description *
+                      </label>
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(event) =>
+                          updateLineItem(item.id, (current) => ({
+                            ...current,
+                            description: event.target.value,
+                          }))
+                        }
+                        className={getFieldClass({
+                          hasError: itemErrors.description,
+                          hasValue: Boolean(item.description),
+                        })}
+                        placeholder="Describe the deliverable"
+                      />
+                      <ErrorText message={itemErrors.description} />
+                    </div>
+                  ) : null}
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={item.qty}
-                    onChange={(event) =>
-                      updateLineItem(item.id, (current) => ({
-                        ...current,
-                        qty: Number(event.target.value),
-                      }))
-                    }
-                    className={getInputClass(fieldErrors.lineItems[item.id]?.qty)}
-                  />
-                  <ErrorText message={fieldErrors.lineItems[item.id]?.qty} />
-                </div>
+                  {itemErrors.qty ? (
+                    <div>
+                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                        Quantity *
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.qty}
+                        onChange={(event) =>
+                          updateLineItem(item.id, (current) => ({
+                            ...current,
+                            qty: Number(event.target.value),
+                          }))
+                        }
+                        className={getFieldClass({
+                          hasError: itemErrors.qty,
+                          hasValue: item.qty > 0,
+                        })}
+                      />
+                      <ErrorText message={itemErrors.qty} />
+                    </div>
+                  ) : null}
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Rate *
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={item.rate}
-                    onChange={(event) =>
-                      updateLineItem(item.id, (current) => ({
-                        ...current,
-                        rate: Number(event.target.value),
-                      }))
-                    }
-                    className={getInputClass(fieldErrors.lineItems[item.id]?.rate)}
-                  />
-                  <ErrorText message={fieldErrors.lineItems[item.id]?.rate} />
+                  {itemErrors.rate ? (
+                    <div>
+                      <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                        Rate *
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={item.rate}
+                        onChange={(event) =>
+                          updateLineItem(item.id, (current) => ({
+                            ...current,
+                            rate: Number(event.target.value),
+                          }))
+                        }
+                        className={getFieldClass({
+                          hasError: itemErrors.rate,
+                          hasValue: item.rate > 0,
+                        })}
+                      />
+                      <ErrorText message={itemErrors.rate} />
+                    </div>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </SectionCard>
       ) : null}
 
-      {visibleSteps.has("payment") ? (
+      {showPaymentSection ? (
         <SectionCard
           title="Payment & Terms"
-          subtitle="Complete the active payment-mode requirements for this invoice."
+          subtitle="Only the payment fields still needed for the active payment mode are shown."
         >
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              Payment Terms *
-            </label>
-            <input
-              type="text"
-              value={formData.meta.paymentTerms}
-              onChange={(event) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  meta: {
-                    ...prev.meta,
-                    paymentTerms: event.target.value,
-                  },
-                }))
-              }
-              className={getInputClass(fieldErrors.meta.paymentTerms)}
-            />
-            <ErrorText message={fieldErrors.meta.paymentTerms} />
-          </div>
+          {fieldErrors.meta.paymentTerms ? (
+            <div>
+              <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                Payment Terms *
+              </label>
+              <input
+                type="text"
+                value={formData.meta.paymentTerms}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    meta: {
+                      ...prev.meta,
+                      paymentTerms: event.target.value,
+                    },
+                  }))
+                }
+                className={getFieldClass({
+                  hasError: fieldErrors.meta.paymentTerms,
+                  hasValue: Boolean(formData.meta.paymentTerms),
+                })}
+                placeholder="Net 15, Due on receipt, or similar"
+              />
+              <ErrorText message={fieldErrors.meta.paymentTerms} />
+            </div>
+          ) : null}
 
           <div className="grid gap-4 md:grid-cols-2">
-            {showInternationalClientFields ? (
+            {showInternationalClientFields && fieldErrors.payment.accountName ? (
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   Beneficiary / Account Name *
                 </label>
                 <input
@@ -750,103 +954,70 @@ function MiniForm({
                       },
                     }))
                   }
-                  className={getInputClass(fieldErrors.payment.accountName)}
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.accountName,
+                    hasValue: Boolean(formData.payment.accountName),
+                  })}
                 />
                 <ErrorText message={fieldErrors.payment.accountName} />
               </div>
             ) : null}
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Bank Name *
-              </label>
-              <input
-                type="text"
-                value={formData.payment.bankName}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    payment: {
-                      ...prev.payment,
-                      bankName: event.target.value,
-                    },
-                  }))
-                }
-                className={getInputClass(fieldErrors.payment.bankName)}
-              />
-              <ErrorText message={fieldErrors.payment.bankName} />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Account Number *
-              </label>
-              <input
-                type="text"
-                value={formData.payment.accountNumber}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    payment: {
-                      ...prev.payment,
-                      accountNumber: event.target.value,
-                    },
-                  }))
-                }
-                className={getInputClass(fieldErrors.payment.accountNumber)}
-              />
-              <ErrorText message={fieldErrors.payment.accountNumber} />
-            </div>
-
-            {showInternationalClientFields ? (
-              <>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    SWIFT / BIC Code *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.payment.swiftBicCode}
-                    onChange={(event) =>
-                      onFormDataChange((prev) => ({
-                        ...prev,
-                        payment: {
-                          ...prev.payment,
-                          swiftBicCode: event.target.value
-                            .toUpperCase()
-                            .replace(/\s+/g, ""),
-                        },
-                      }))
-                    }
-                    className={getInputClass(fieldErrors.payment.swiftBicCode)}
-                  />
-                  <ErrorText message={fieldErrors.payment.swiftBicCode} />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    Bank Full Address *
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.payment.bankAddress}
-                    onChange={(event) =>
-                      onFormDataChange((prev) => ({
-                        ...prev,
-                        payment: {
-                          ...prev.payment,
-                          bankAddress: event.target.value,
-                        },
-                      }))
-                    }
-                    className={getInputClass(fieldErrors.payment.bankAddress)}
-                  />
-                  <ErrorText message={fieldErrors.payment.bankAddress} />
-                </div>
-              </>
-            ) : (
+            {fieldErrors.payment.bankName ? (
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Bank Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.payment.bankName}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      payment: {
+                        ...prev.payment,
+                        bankName: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.bankName,
+                    hasValue: Boolean(formData.payment.bankName),
+                  })}
+                />
+                <ErrorText message={fieldErrors.payment.bankName} />
+              </div>
+            ) : null}
+
+            {fieldErrors.payment.accountNumber ? (
+              <div>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Account Number *
+                </label>
+                <input
+                  type="text"
+                  value={formData.payment.accountNumber}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      payment: {
+                        ...prev.payment,
+                        accountNumber: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.accountNumber,
+                    hasValue: Boolean(formData.payment.accountNumber),
+                  })}
+                />
+                <ErrorText message={fieldErrors.payment.accountNumber} />
+              </div>
+            ) : null}
+
+            {!showInternationalClientFields && fieldErrors.payment.ifscCode ? (
+              <div>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   IFSC Code *
                 </label>
                 <input
@@ -863,15 +1034,73 @@ function MiniForm({
                       },
                     }))
                   }
-                  className={getInputClass(fieldErrors.payment.ifscCode)}
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.ifscCode,
+                    hasValue: Boolean(formData.payment.ifscCode),
+                  })}
                 />
                 <ErrorText message={fieldErrors.payment.ifscCode} />
               </div>
-            )}
+            ) : null}
+
+            {showInternationalClientFields && fieldErrors.payment.swiftBicCode ? (
+              <div>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  SWIFT / BIC Code *
+                </label>
+                <input
+                  type="text"
+                  value={formData.payment.swiftBicCode}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      payment: {
+                        ...prev.payment,
+                        swiftBicCode: event.target.value
+                          .toUpperCase()
+                          .replace(/\s+/g, ""),
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.swiftBicCode,
+                    hasValue: Boolean(formData.payment.swiftBicCode),
+                  })}
+                />
+                <ErrorText message={fieldErrors.payment.swiftBicCode} />
+              </div>
+            ) : null}
+
+            {showInternationalClientFields && fieldErrors.payment.bankAddress ? (
+              <div className="md:col-span-2">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Bank Full Address *
+                </label>
+                <textarea
+                  rows={4}
+                  value={formData.payment.bankAddress}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      payment: {
+                        ...prev.payment,
+                        bankAddress: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.bankAddress,
+                    hasValue: Boolean(formData.payment.bankAddress),
+                    multiline: true,
+                  })}
+                />
+                <ErrorText message={fieldErrors.payment.bankAddress} />
+              </div>
+            ) : null}
 
             {showLicenseDuration ? (
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
                   License Duration *
                 </label>
                 <input
@@ -889,7 +1118,10 @@ function MiniForm({
                       },
                     }))
                   }
-                  className={getInputClass(fieldErrors.payment.licenseDuration)}
+                  className={getFieldClass({
+                    hasError: fieldErrors.payment.licenseDuration,
+                    hasValue: Boolean(formData.payment.license.licenseDuration),
+                  })}
                 />
                 <ErrorText message={fieldErrors.payment.licenseDuration} />
               </div>
@@ -898,74 +1130,90 @@ function MiniForm({
         </SectionCard>
       ) : null}
 
-      {visibleSteps.has("meta") ? (
+      {showMetaSection ? (
         <SectionCard
           title="Invoice Meta"
-          subtitle="Complete the required document dates and invoice reference."
+          subtitle="Only the missing document reference and date fields are shown."
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Invoice Number *
-              </label>
-              <input
-                type="text"
-                value={formData.meta.invoiceNumber}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    meta: {
-                      ...prev.meta,
-                      invoiceNumber: event.target.value,
-                    },
-                  }))
-                }
-                className={getInputClass(fieldErrors.meta.invoiceNumber)}
-              />
-              <ErrorText message={fieldErrors.meta.invoiceNumber} />
-            </div>
+            {fieldErrors.meta.invoiceNumber ? (
+              <div>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Invoice Number *
+                </label>
+                <input
+                  type="text"
+                  value={formData.meta.invoiceNumber}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      meta: {
+                        ...prev.meta,
+                        invoiceNumber: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.meta.invoiceNumber,
+                    hasValue: Boolean(formData.meta.invoiceNumber),
+                  })}
+                  placeholder="INV-2026-001"
+                />
+                <ErrorText message={fieldErrors.meta.invoiceNumber} />
+              </div>
+            ) : null}
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Invoice Date *
-              </label>
-              <input
-                type="date"
-                value={formData.meta.invoiceDate}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    meta: {
-                      ...prev.meta,
-                      invoiceDate: event.target.value,
-                    },
-                  }))
-                }
-                className={getInputClass(fieldErrors.meta.invoiceDate)}
-              />
-              <ErrorText message={fieldErrors.meta.invoiceDate} />
-            </div>
+            {fieldErrors.meta.invoiceDate ? (
+              <div>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Invoice Date *
+                </label>
+                <input
+                  type="date"
+                  value={formData.meta.invoiceDate}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      meta: {
+                        ...prev.meta,
+                        invoiceDate: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.meta.invoiceDate,
+                    hasValue: Boolean(formData.meta.invoiceDate),
+                  })}
+                />
+                <ErrorText message={fieldErrors.meta.invoiceDate} />
+              </div>
+            ) : null}
 
-            <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-black">
-                Due Date *
-              </label>
-              <input
-                type="date"
-                value={formData.meta.dueDate}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    meta: {
-                      ...prev.meta,
-                      dueDate: event.target.value,
-                    },
-                  }))
-                }
-                className={getInputClass(fieldErrors.meta.dueDate)}
-              />
-              <ErrorText message={fieldErrors.meta.dueDate} />
-            </div>
+            {fieldErrors.meta.dueDate ? (
+              <div className={fieldErrors.meta.invoiceNumber || fieldErrors.meta.invoiceDate ? "" : "md:col-span-2 md:max-w-xs"}>
+                <label className="mb-2.5 block text-sm font-medium text-slate-900">
+                  Due Date *
+                </label>
+                <input
+                  type="date"
+                  value={formData.meta.dueDate}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      meta: {
+                        ...prev.meta,
+                        dueDate: event.target.value,
+                      },
+                    }))
+                  }
+                  className={getFieldClass({
+                    hasError: fieldErrors.meta.dueDate,
+                    hasValue: Boolean(formData.meta.dueDate),
+                  })}
+                />
+                <ErrorText message={fieldErrors.meta.dueDate} />
+              </div>
+            ) : null}
           </div>
         </SectionCard>
       ) : null}
@@ -991,215 +1239,243 @@ export default function AutofillSummaryModal({
   onOpenFillMissing,
   onPreview,
 }: AutofillSummaryModalProps) {
-  const missingFieldsCount = missingFieldGroups.reduce(
-    (count, group) => count + group.fields.length,
-    0
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const missingFieldsCount = useMemo(
+    () =>
+      missingFieldGroups.reduce((count, group) => count + group.fields.length, 0),
+    [missingFieldGroups]
   );
-  const visibleSteps = new Set(missingFieldGroups.map((group) => group.step));
+  const visibleSteps = useMemo(
+    () => new Set(missingFieldGroups.map((group) => group.step)),
+    [missingFieldGroups]
+  );
+  const isSummaryMode = !isInlineFormOpen;
+
+  useEffect(() => {
+    if (isInlineFormOpen) {
+      bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isInlineFormOpen]);
 
   return (
     <div className="fixed inset-0 z-[320] flex items-center justify-center bg-black/35 px-4 py-4">
-      <div className="flex max-h-[min(92vh,960px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="shrink-0 border-b border-gray-200 bg-white px-6 py-5">
+      <div className="flex max-h-[min(92vh,960px)] w-full max-w-5xl flex-col overflow-hidden rounded-[30px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
+        <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                 Autofill Summary
               </p>
-              <h2 className="mt-1 text-2xl font-bold text-black">
-                Finish the invoice from extracted details
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+                {isSummaryMode
+                  ? "Finish the invoice from extracted details"
+                  : "Complete the remaining invoice details"}
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-                AI filled what it could. You can confirm ambiguities here,
-                complete any missing required fields inside this modal, or jump
-                back to the editor for a manual check. Recommended next stop:{" "}
-                <span className="font-medium text-black">
-                  {getStepLabel(recommendedStep)}
-                </span>
-                .
-              </p>
+              {isSummaryMode ? (
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  AI filled what it could. You can confirm ambiguities here,
+                  complete missing required fields inside this modal, or jump
+                  back to the editor for a manual check. Recommended next stop:{" "}
+                  <span className="font-medium text-slate-950">
+                    {getStepLabel(recommendedStep)}
+                  </span>
+                  .
+                </p>
+              ) : (
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  Only the remaining mandatory fields are shown below. Finish
+                  them here, and preview will unlock automatically as soon as
+                  the invoice passes the active validation rules.
+                </p>
+              )}
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-gray-300 px-3 py-2 text-sm font-medium text-black hover:border-black"
+              className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-950 transition hover:border-slate-950"
             >
               Close
             </button>
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-gray-50 px-6 py-5">
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-gray-200 bg-white p-4">
-              <p className="text-sm font-semibold text-black">
-                Needs confirmation
-              </p>
-              {clarificationSuggestions.length > 0 ? (
-                <div className="mt-3 space-y-3">
-                  {clarificationSuggestions.map((suggestion) => (
-                    <div
-                      key={suggestion.id}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
-                    >
-                      <p className="text-sm font-semibold text-black">
-                        {suggestion.title}
-                      </p>
-                      <p className="mt-1 text-sm leading-6 text-gray-700">
-                        {suggestion.message}
-                      </p>
-                      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.14em] text-gray-500">
-                        Review in {getStepLabel(suggestion.step)}
-                      </p>
-
-                      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                        {suggestion.options.map((option) => (
-                          <button
-                            key={`${suggestion.id}-${option.id}`}
-                            type="button"
-                            onClick={() =>
-                              onClarificationAnswer(suggestion.id, option.action)
-                            }
-                            className="rounded-2xl border border-gray-300 bg-white px-4 py-3 text-left text-sm font-medium text-black transition hover:border-black"
-                          >
-                            <span>{option.label}</span>
-                            {option.helper ? (
-                              <span className="mt-1 block text-xs font-normal leading-5 text-gray-600">
-                                {option.helper}
-                              </span>
-                            ) : null}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-3 text-sm leading-6 text-gray-600">
-                  No high-value confirmation questions are blocking the current
-                  autofill result.
-                </p>
-              )}
-            </div>
-
-            {isInlineFormOpen ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-black">
-                    Fill Missing Details
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-gray-600">
-                    Complete the remaining required fields here. The same
-                    invoice state updates live as you type.
-                  </p>
-                </div>
-
-                {visibleSteps.size > 0 ? (
-                  <MiniForm
-                    formData={formData}
-                    fieldErrors={fieldErrors}
-                    visibleSteps={visibleSteps}
-                    onFormDataChange={onFormDataChange}
-                  />
-                ) : (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                    All currently required fields are complete. You can preview
-                    the invoice now or switch to a manual check if you want one
-                    more pass in the full editor.
-                  </div>
-                )}
-              </div>
-            ) : null}
-
-            <div className="grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                <p className="text-sm font-semibold text-emerald-950">
-                  Confidently filled
-                </p>
-                {confidentFields.length > 0 ? (
-                  <SummaryFieldList fields={confidentFields} />
-                ) : (
-                  <p className="mt-3 text-sm leading-6 text-emerald-900/80">
-                    No high-confidence fields were autofilled yet.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                <p className="text-sm font-semibold text-amber-950">
-                  Inferred and autofilled
-                </p>
-                {inferredFields.length > 0 ? (
-                  <SummaryFieldList fields={inferredFields} />
-                ) : (
-                  <p className="mt-3 text-sm leading-6 text-amber-900/80">
-                    No medium-confidence inferred fields were applied.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <p className="text-sm font-semibold text-black">
-                  Needs review
-                </p>
-                {lowConfidenceFields.length > 0 ? (
-                  <SummaryFieldList fields={lowConfidenceFields} />
-                ) : (
-                  <p className="mt-3 text-sm leading-6 text-gray-600">
-                    No low-confidence fields were held back.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div
+          ref={bodyRef}
+          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-6 py-5"
+        >
+          {isSummaryMode ? (
+            <div className="space-y-4">
+              <div className="rounded-[26px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                 <p className="text-sm font-semibold text-slate-950">
-                  Missing required fields
+                  Needs confirmation
                 </p>
-                {missingFieldGroups.length > 0 ? (
-                  <div className="mt-3 space-y-4">
-                    {missingFieldGroups.map((group) => (
-                      <div key={group.step}>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
-                          {getStepLabel(group.step)}
+                {clarificationSuggestions.length > 0 ? (
+                  <div className="mt-3 space-y-3">
+                    {clarificationSuggestions.map((suggestion) => (
+                      <div
+                        key={suggestion.id}
+                        className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
+                      >
+                        <p className="text-sm font-semibold text-slate-950">
+                          {suggestion.title}
                         </p>
-                        <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-900">
-                          {group.fields.map((field) => (
-                            <li key={`${group.step}-${field}`}>{field}</li>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">
+                          {suggestion.message}
+                        </p>
+                        <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                          Review in {getStepLabel(suggestion.step)}
+                        </p>
+
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          {suggestion.options.map((option) => (
+                            <button
+                              key={`${suggestion.id}-${option.id}`}
+                              type="button"
+                              onClick={() =>
+                                onClarificationAnswer(suggestion.id, option.action)
+                              }
+                              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-medium text-slate-950 transition hover:border-slate-950 hover:shadow-[0_4px_14px_rgba(15,23,42,0.06)]"
+                            >
+                              <span>{option.label}</span>
+                              {option.helper ? (
+                                <span className="mt-1 block text-xs font-normal leading-5 text-slate-600">
+                                  {option.helper}
+                                </span>
+                              ) : null}
+                            </button>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-3 text-sm leading-6 text-slate-700">
-                    All required fields are satisfied under the current invoice
-                    logic.
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    No high-value confirmation questions are blocking the current
+                    autofill result.
                   </p>
                 )}
               </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 p-5">
+                  <p className="text-sm font-semibold text-emerald-950">
+                    Confidently filled
+                  </p>
+                  {confidentFields.length > 0 ? (
+                    <SummaryFieldList fields={confidentFields} />
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-emerald-900/80">
+                      No high-confidence fields were autofilled yet.
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-[26px] border border-amber-200 bg-amber-50 p-5">
+                  <p className="text-sm font-semibold text-amber-950">
+                    Inferred and autofilled
+                  </p>
+                  {inferredFields.length > 0 ? (
+                    <SummaryFieldList fields={inferredFields} />
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-amber-900/80">
+                      No medium-confidence inferred fields were applied.
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-[26px] border border-slate-200 bg-white p-5">
+                  <p className="text-sm font-semibold text-slate-950">
+                    Needs review
+                  </p>
+                  {lowConfidenceFields.length > 0 ? (
+                    <SummaryFieldList fields={lowConfidenceFields} />
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      No low-confidence fields were held back.
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-[26px] border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-sm font-semibold text-slate-950">
+                    Missing required fields
+                  </p>
+                  {missingFieldGroups.length > 0 ? (
+                    <div className="mt-3 space-y-4">
+                      {missingFieldGroups.map((group) => (
+                        <div key={group.step}>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
+                            {getStepLabel(group.step)}
+                          </p>
+                          <ul className="mt-2 space-y-2 text-sm leading-6 text-slate-900">
+                            {group.fields.map((field) => (
+                              <li key={`${group.step}-${field}`}>{field}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-slate-700">
+                      All required fields are satisfied under the current invoice
+                      logic.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-5">
+              <div className="rounded-[26px] border border-slate-200 bg-white px-5 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                <p className="text-sm font-semibold tracking-tight text-slate-950">
+                  Fill Missing Details
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Finish the required invoice fields here. This form updates the
+                  same invoice state live, and the preview action will appear as
+                  soon as everything validates cleanly.
+                </p>
+              </div>
+
+              {visibleSteps.size > 0 ? (
+                <MiniForm
+                  formData={formData}
+                  fieldErrors={fieldErrors}
+                  visibleSteps={visibleSteps}
+                  onFormDataChange={onFormDataChange}
+                />
+              ) : (
+                <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
+                  All currently required fields are complete. You can preview
+                  the invoice now or switch to a manual check if you want one
+                  more pass in the full editor.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="shrink-0 border-t border-gray-200 bg-white px-6 py-4">
+        <div className="shrink-0 border-t border-slate-200 bg-white px-6 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {isPreviewReady
                 ? "The invoice is complete enough to preview safely."
                 : missingFieldsCount > 0
                 ? `${missingFieldsCount} required field${
                     missingFieldsCount === 1 ? "" : "s"
                   } still need attention before preview is unlocked.`
-                : "Review the extracted details or keep working in the editor."}
+                : isSummaryMode
+                ? "Review the extracted details or keep working in the editor."
+                : "Complete the remaining required fields here to unlock preview."}
             </p>
 
             <div className="flex flex-wrap justify-end gap-3">
-              {missingFieldsCount > 0 && !isInlineFormOpen ? (
+              {missingFieldsCount > 0 && isSummaryMode ? (
                 <button
                   type="button"
                   onClick={onOpenFillMissing}
-                  className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-black hover:border-black"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:border-slate-950"
                 >
                   Fill Missing Details
                 </button>
@@ -1208,7 +1484,7 @@ export default function AutofillSummaryModal({
               <button
                 type="button"
                 onClick={onManualCheck}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-black hover:border-black"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:border-slate-950"
               >
                 Manual Check
               </button>
