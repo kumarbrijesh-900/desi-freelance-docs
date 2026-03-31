@@ -7,7 +7,11 @@ import {
   SparklesIcon,
   UploadIcon,
 } from "@/components/ui/app-icons";
-import { MotionReveal, MotionStagger } from "@/components/ui/motion-primitives";
+import {
+  MotionButton,
+  MotionReveal,
+  MotionStagger,
+} from "@/components/ui/motion-primitives";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { BriefIntakeInput } from "@/lib/invoice-brief-intake";
 import {
@@ -79,7 +83,7 @@ export default function BriefIntakeCard({
             </p>
           </div>
 
-          <button
+          <MotionButton
             type="button"
             onClick={() =>
               onPlaceholderAction(
@@ -90,7 +94,7 @@ export default function BriefIntakeCard({
           >
             <MicrophoneIcon className="h-4 w-4" />
             Speak Brief
-          </button>
+          </MotionButton>
         </div>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_320px]">
@@ -193,7 +197,7 @@ export default function BriefIntakeCard({
             ) : null}
           </MotionStagger>
 
-          <button
+          <MotionButton
             type="button"
             onClick={handleExtract}
             disabled={isExtracting}
@@ -201,7 +205,7 @@ export default function BriefIntakeCard({
           >
             <SparklesIcon className="h-4 w-4" />
             {isExtracting ? "Extracting..." : "Extract & Autofill"}
-          </button>
+          </MotionButton>
         </div>
       </section>
     </MotionReveal>

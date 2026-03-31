@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
-import { MotionReveal } from "@/components/ui/motion-primitives";
+import { AnimatePresence, MotionReveal } from "@/components/ui/motion-primitives";
 import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
@@ -1569,27 +1569,29 @@ export default function InvoiceEditorPage() {
         />
       )}
 
-      {autofillSummary && (
-        <AutofillSummaryModal
-          confidentFields={autofillSummary.confidentFields}
-          inferredFields={autofillSummary.inferredFields}
-          lowConfidenceFields={autofillSummary.lowConfidenceFields}
-          clarificationSuggestions={autofillSummary.clarificationSuggestions}
-          missingFieldGroups={autofillSummary.missingFieldGroups}
-          recommendedStep={autofillSummary.recommendedStep}
-          formData={formData}
-          fieldErrors={fieldErrors}
-          isInlineFormOpen={autofillSummary.isInlineCompletionOpen}
-          isPreviewReady={invoiceReadyForPreview}
-          onClarificationAnswer={handleClarificationAnswer}
-          onFormDataChange={applyAutofillFormUpdate}
-          onClose={() => setAutofillSummary(null)}
-          onBackToSummary={handleAutofillBackToSummary}
-          onManualCheck={handleAutofillManualCheck}
-          onOpenFillMissing={handleAutofillOpenMissingForm}
-          onPreview={handleAutofillPreview}
-        />
-      )}
+      <AnimatePresence>
+        {autofillSummary ? (
+          <AutofillSummaryModal
+            confidentFields={autofillSummary.confidentFields}
+            inferredFields={autofillSummary.inferredFields}
+            lowConfidenceFields={autofillSummary.lowConfidenceFields}
+            clarificationSuggestions={autofillSummary.clarificationSuggestions}
+            missingFieldGroups={autofillSummary.missingFieldGroups}
+            recommendedStep={autofillSummary.recommendedStep}
+            formData={formData}
+            fieldErrors={fieldErrors}
+            isInlineFormOpen={autofillSummary.isInlineCompletionOpen}
+            isPreviewReady={invoiceReadyForPreview}
+            onClarificationAnswer={handleClarificationAnswer}
+            onFormDataChange={applyAutofillFormUpdate}
+            onClose={() => setAutofillSummary(null)}
+            onBackToSummary={handleAutofillBackToSummary}
+            onManualCheck={handleAutofillManualCheck}
+            onOpenFillMissing={handleAutofillOpenMissingForm}
+            onPreview={handleAutofillPreview}
+          />
+        ) : null}
+      </AnimatePresence>
     </main>
   );
 }
