@@ -13,12 +13,6 @@ import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
-  getEffectiveInvoiceCurrency,
-  getResolvedTaxConfig,
-  getTaxComplianceMessage,
-  isInternationalClient,
-} from "@/lib/invoice-compliance";
-import {
   getInvoiceFieldErrors,
   getInvoiceStepError,
   isInvoiceStepValid,
@@ -138,12 +132,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       clientAddress:
         "Phoenix Marketcity, Whitefield Main Road, Bengaluru 560048",
       clientGstin: "29AAACM8899L1Z2",
-      clientTaxId: "",
       clientLocation: "domestic" as const,
-      gstRegistrationStatus: "",
-      hasValidLut: "",
-      lutNumber: "",
-      exportTaxHandling: "",
     },
     meta: {
       invoiceNumber,
@@ -181,14 +170,10 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       },
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
-      currency: "INR" as const,
       accountName: "DesiFreelanceDocs Studio",
       accountNumber: "50200044321098",
       ifscCode: "HDFC0001122",
       qrCodeUrl: "/dummy-qr.svg",
-      bankName: "",
-      swiftCode: "",
-      bankAddress: "",
     },
   };
 }
@@ -206,12 +191,7 @@ function isFormTouched(formData: InvoiceFormData) {
     formData.client.clientName ||
       formData.client.clientAddress ||
       formData.client.clientGstin ||
-      formData.client.clientTaxId ||
-      formData.client.clientLocation === "international" ||
-      formData.client.gstRegistrationStatus ||
-      formData.client.hasValidLut ||
-      formData.client.lutNumber ||
-      formData.client.exportTaxHandling
+      formData.client.clientLocation === "international"
   );
 
   const hasMetaData = Boolean(
@@ -229,15 +209,11 @@ function isFormTouched(formData: InvoiceFormData) {
   );
 
   const hasPaymentData = Boolean(
-      formData.payment.notes ||
-      formData.payment.currency !== "INR" ||
+    formData.payment.notes ||
       formData.payment.accountName ||
       formData.payment.accountNumber ||
       formData.payment.ifscCode ||
       formData.payment.qrCodeUrl ||
-      formData.payment.bankName ||
-      formData.payment.swiftCode ||
-      formData.payment.bankAddress ||
       formData.payment.license.isLicenseIncluded
   );
 
@@ -588,18 +564,7 @@ export default function InvoiceEditorPage() {
     [formData]
   );
 
-  const resolvedTax = useMemo(
-    () => getResolvedTaxConfig(formData.client, formData.tax),
-    [formData.client, formData.tax]
-  );
-
-  const computedTotals = calculateInvoiceTotals(formData.lineItems, resolvedTax);
-  const isInternationalInvoice = isInternationalClient(formData.client);
-  const effectiveCurrency = getEffectiveInvoiceCurrency(
-    formData.client,
-    formData.payment.currency
-  );
-  const taxComplianceMessage = getTaxComplianceMessage(formData.client);
+  const computedTotals = calculateInvoiceTotals(formData.lineItems, formData.tax);
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -866,7 +831,6 @@ export default function InvoiceEditorPage() {
             {currentStep === "payment" && (
               <TermsPaymentSection
                 value={formData.payment}
-                client={formData.client}
                 meta={formData.meta}
                 onChange={(payment) =>
                   setFormData((prev) => ({
@@ -894,31 +858,13 @@ export default function InvoiceEditorPage() {
 
             {currentStep === "totals" && (
               <TotalsTaxesSection
-                value={resolvedTax}
+                value={formData.tax}
                 computed={computedTotals}
-                currency={effectiveCurrency}
-                isLocked={isInternationalInvoice}
-                allowIgstOption={resolvedTax.taxMode === "igst"}
-                modeLabel={isInternationalInvoice ? "Tax Type" : "GST Type"}
-                rateLabel={
-                  isInternationalInvoice && resolvedTax.taxMode === "igst"
-                    ? "IGST %"
-                    : isInternationalInvoice
-                    ? "Tax %"
-                    : "GST %"
-                }
-                complianceMessage={taxComplianceMessage}
                 onChange={(tax) =>
-                  setFormData((prev) => {
-                    if (isInternationalClient(prev.client)) {
-                      return prev;
-                    }
-
-                    return {
-                      ...prev,
-                      tax,
-                    };
-                  })
+                  setFormData((prev) => ({
+                    ...prev,
+                    tax,
+                  }))
                 }
               />
             )}

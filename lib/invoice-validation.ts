@@ -15,9 +15,6 @@ export type InvoiceFieldErrors = {
     clientName?: string;
     clientAddress?: string;
     clientGstin?: string;
-    gstRegistrationStatus?: string;
-    hasValidLut?: string;
-    exportTaxHandling?: string;
   };
   meta: {
     invoiceNumber?: string;
@@ -97,30 +94,6 @@ export function getInvoiceFieldErrors(
   ) {
     errors.client.clientGstin =
       "Enter a valid client GSTIN in standard 15-character format.";
-  }
-
-  if (isInternationalClient(formData.client)) {
-    if (!formData.client.gstRegistrationStatus) {
-      errors.client.gstRegistrationStatus =
-        "Select the client's GST registration status.";
-    }
-
-    if (
-      formData.client.gstRegistrationStatus === "registered" &&
-      !formData.client.hasValidLut
-    ) {
-      errors.client.hasValidLut =
-        "Choose whether you have a valid LUT for the current financial year.";
-    }
-
-    if (
-      formData.client.gstRegistrationStatus === "registered" &&
-      formData.client.hasValidLut === "no" &&
-      !formData.client.exportTaxHandling
-    ) {
-      errors.client.exportTaxHandling =
-        "Choose how you want to handle export IGST for this invoice.";
-    }
   }
 
   if (isBlank(formData.meta.paymentTerms)) {
