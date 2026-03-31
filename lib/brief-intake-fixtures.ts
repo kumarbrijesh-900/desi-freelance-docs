@@ -6,6 +6,38 @@ export type BriefIntakeFixture = {
 
 export const BRIEF_INTAKE_FIXTURES: BriefIntakeFixture[] = [
   {
+    id: "domestic-gst-case",
+    title: "Domestic GST Case",
+    text: `Agency name: DesiFreelanceDocs Studio
+Agency address: Residency Road, Bengaluru, Karnataka
+GST registered
+Agency GSTIN: 29ABCDE1234F1Z5
+Client name: Metro Shoes Pvt. Ltd.
+Client address: Whitefield, Bengaluru, Karnataka 560048
+Deliverable: Landing page UI design
+3 screens at 15k per screen
+Payment terms: Net 15
+Bank transfer only`,
+  },
+  {
+    id: "international-usd-case",
+    title: "International USD Case",
+    text: `Please create invoice for Nike USA.
+We are DesiFreelanceDocs Studio, Bengaluru.
+GST registered, export of services, LUT available.
+Did editorial illustration set, 5 items at $500 each.
+Pay via Wise in USD.
+Due on receipt.`,
+  },
+  {
+    id: "mixed-deliverables-case",
+    title: "Mixed Deliverables Case",
+    text: `Invoice for Acme Labs.
+40 images + 5 reels for campaign launch.
+Use USD.
+Payment via Payoneer.`,
+  },
+  {
     id: "structured-brief",
     title: "Clean Structured Brief",
     text: `Agency name: DesiFreelanceDocs Studio

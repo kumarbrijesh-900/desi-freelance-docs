@@ -1,5 +1,9 @@
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
-import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
+import type {
+  AiBriefExtraction,
+  AiBriefField,
+  AiBriefTaxType,
+} from "@/lib/ai-brief-extractor";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   type InternationalCurrencyCode,
@@ -55,6 +59,10 @@ export type InvoiceBriefExtractionSchema = {
   clientLocation?: BriefExtractedField<InvoiceFormData["client"]["clientLocation"]>;
   clientCurrency?: BriefExtractedField<InternationalCurrencyCode>;
   clientGstin?: BriefExtractedField<string>;
+  invoiceIsInternational?: BriefExtractedField<boolean>;
+  invoiceCurrencyCode?: BriefExtractedField<string>;
+  invoiceTotalAmount?: BriefExtractedField<number>;
+  invoiceTaxType?: BriefExtractedField<AiBriefTaxType>;
   lineItems?: InvoiceBriefLineItemExtraction[];
   deliverableType?: BriefExtractedField<InvoiceLineItemType>;
   deliverableDescription?: BriefExtractedField<string>;
@@ -64,6 +72,7 @@ export type InvoiceBriefExtractionSchema = {
   licenseType?: BriefExtractedField<LicenseType>;
   licenseDuration?: BriefExtractedField<string>;
   paymentTerms?: BriefExtractedField<string>;
+  paymentMode?: BriefExtractedField<string>;
   paymentAccountName?: BriefExtractedField<string>;
   paymentBankName?: BriefExtractedField<string>;
   paymentBankAddress?: BriefExtractedField<string>;
@@ -71,6 +80,8 @@ export type InvoiceBriefExtractionSchema = {
   paymentIfscCode?: BriefExtractedField<string>;
   paymentSwiftBicCode?: BriefExtractedField<string>;
   paymentIbanRoutingCode?: BriefExtractedField<string>;
+  dueDate?: BriefExtractedField<string>;
+  timeline?: BriefExtractedField<string>;
 };
 
 export type BriefAutofillMappingResult = {
@@ -301,7 +312,7 @@ function makeCandidate<T>(
   };
 }
 
-function cleanValue(value?: string) {
+function cleanValue(value?: string | null) {
   return (value ?? "")
     .replace(/^[\s\-*•]+/, "")
     .replace(/\s+/g, " ")
@@ -309,14 +320,14 @@ function cleanValue(value?: string) {
     .trim();
 }
 
-function cleanSentenceValue(value?: string) {
+function cleanSentenceValue(value?: string | null) {
   return cleanValue(value)
     .replace(/\s+(?:and|with)\s+(?:bank|payment|terms?)\b.*$/i, "")
     .replace(/\s+(?:net\s*\d+|due on receipt)\b.*$/i, "")
     .trim();
 }
 
-function cleanAddressValue(value?: string) {
+function cleanAddressValue(value?: string | null) {
   return cleanValue(value)
     .replace(
       /\s+(?:\d+\s+(?:screens?|banners?|items?|illustrations?)|landing page|homepage|logo|illustration|ui\/?\s*ux|terms?|payment|bank|account|ifsc|swift)\b.*$/i,
@@ -457,14 +468,8 @@ function getConfidenceScore(confidence: BriefExtractionConfidence) {
   }
 }
 
-function normalizeEnumValue<T extends string>(
-  value: T | "" | undefined | null
-): T | undefined {
-  return value ? value : undefined;
-}
-
 function createAiCandidate<T>(
-  value: T | "" | 0 | undefined | null,
+  value: T | "" | undefined | null,
   confidence: BriefExtractionConfidence | undefined
 ): Candidate<T> | undefined {
   if (
@@ -479,152 +484,512 @@ function createAiCandidate<T>(
   return makeCandidate(value as T, confidence ?? "low", "ai");
 }
 
-function convertAiExtractionToSchema(
-  extraction: AiBriefExtraction
+function createAiBooleanCandidate<T>(
+  field: AiBriefField<boolean>,
+  trueValue: T,
+  falseValue: T
+): Candidate<T> | undefined {
+  if (field.value === null) {
+    return undefined;
+  }
+
+  return makeCandidate(field.value ? trueValue : falseValue, field.confidence, "ai");
+}
+
+function normalizeLineItemTypeValue(
+  value: string | null | undefined
+): InvoiceLineItemType | undefined {
+  const normalized = cleanValue(value ?? "");
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  if (/\blogos?\b/i.test(normalized)) return "Logo Design";
+  if (/\b(ui|ux|landing page|homepage|screen|wireframe|dashboard)\b/i.test(normalized)) {
+    return "UI/UX";
+  }
+  if (/\billustrations?\b/i.test(normalized)) return "Illustration";
+  if (/\b(photo|photography|images?)\b/i.test(normalized)) return "Photography";
+  if (/\b(video|reels?)\b/i.test(normalized)) return "Video Editing";
+  if (/\b(social|banner|carousel|post|story)\b/i.test(normalized)) {
+    return "Social Media";
+  }
+
+  return "Other";
+}
+
+function normalizeRateUnitValue(
+  value: string | null | undefined,
+  description?: string | null
+): InvoiceRateUnit | undefined {
+  const normalized = `${value ?? ""} ${description ?? ""}`.trim();
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  for (const matcher of rateUnitMatchers) {
+    if (matcher.patterns.some((pattern) => pattern.test(normalized))) {
+      return matcher.unit;
+    }
+  }
+
+  for (const hint of quantityUnitHints) {
+    if (hint.pattern.test(normalized)) {
+      return hint.unit;
+    }
+  }
+
+  if (/\breels?\b/i.test(normalized)) return "per-video";
+  if (/\bbanners?\b/i.test(normalized)) return "per-item";
+  if (/\bimages?\b/i.test(normalized)) return "per-image";
+  if (/\blogos?\b/i.test(normalized)) return "per-deliverable";
+
+  return undefined;
+}
+
+function normalizePaymentModeValue(value: string | null | undefined) {
+  const normalized = cleanValue(value ?? "").toLowerCase();
+
+  if (!normalized) {
+    return "";
+  }
+
+  if (normalized.includes("payoneer")) return "payoneer";
+  if (normalized.includes("wise")) return "wise";
+  if (normalized.includes("paypal")) return "paypal";
+  if (normalized.includes("bank") || normalized.includes("wire")) return "bank";
+  if (normalized.includes("upi")) return "upi";
+
+  return normalized;
+}
+
+function getForeignCityHint(text: string) {
+  return /\b(london|new york|san francisco|toronto|vancouver|dubai|singapore|paris|berlin|sydney)\b/i.test(
+    text
+  );
+}
+
+function formatDateCandidate(value: string | null | undefined) {
+  const cleaned = cleanValue(value ?? "");
+
+  if (!cleaned) {
+    return "";
+  }
+
+  const parsed = new Date(cleaned);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function deriveTaxTypeCandidate(params: {
+  explicitTaxType?: Candidate<AiBriefTaxType>;
+  rawText: string;
+  agencyState?: string;
+  clientState?: string;
+  clientLocation?: InvoiceFormData["client"]["clientLocation"];
+  gstRegistrationStatus?: AgencyDetails["gstRegistrationStatus"];
+  lutAvailability?: AgencyDetails["lutAvailability"];
+}) {
+  if (params.explicitTaxType) {
+    return params.explicitTaxType;
+  }
+
+  if (/igst/i.test(params.rawText)) {
+    return makeCandidate<AiBriefTaxType>("IGST", "medium", "inference");
+  }
+
+  if (
+    /export of services/i.test(params.rawText) ||
+    params.lutAvailability === "yes"
+  ) {
+    return makeCandidate<AiBriefTaxType>(
+      "ZERO_RATED",
+      "medium",
+      "inference"
+    );
+  }
+
+  if (
+    params.gstRegistrationStatus === "registered" &&
+    params.clientLocation === "domestic" &&
+    params.agencyState &&
+    params.clientState
+  ) {
+    return makeCandidate<AiBriefTaxType>(
+      params.agencyState === params.clientState ? "CGST_SGST" : "IGST",
+      "medium",
+      "inference"
+    );
+  }
+
+  return undefined;
+}
+
+function deriveFallbackDeliverables(text: string) {
+  const patterns: Array<{
+    pattern: RegExp;
+    type: InvoiceLineItemType;
+    rateUnit: InvoiceRateUnit;
+    description: string;
+  }> = [
+    {
+      pattern: /\b(\d+)\s+images?\b/i,
+      type: "Photography",
+      rateUnit: "per-image",
+      description: "Images",
+    },
+    {
+      pattern: /\b(\d+)\s+reels?\b/i,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      description: "Reels",
+    },
+    {
+      pattern: /\b(\d+)\s+screens?\b/i,
+      type: "UI/UX",
+      rateUnit: "per-screen",
+      description: "Screens",
+    },
+    {
+      pattern: /\b(\d+)\s+banners?\b/i,
+      type: "Social Media",
+      rateUnit: "per-item",
+      description: "Banners",
+    },
+  ];
+
+  const items: InvoiceBriefLineItemExtraction[] = [];
+
+  for (const entry of patterns) {
+    const match = text.match(entry.pattern);
+    const quantity = Number(match?.[1]);
+
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      continue;
+    }
+
+    items.push({
+      type: makeCandidate(entry.type, "medium", "inference"),
+      description: makeCandidate(entry.description, "medium", "inference"),
+      qty: makeCandidate(quantity, "medium", "inference"),
+      rate: undefined,
+      rateUnit: makeCandidate(entry.rateUnit, "medium", "inference"),
+    });
+  }
+
+  return items;
+}
+
+function normalizeAiDeliverables(
+  extraction: AiBriefExtraction,
+  rawText: string
+) {
+  const normalized = extraction.deliverables
+    .map((item) => {
+      const normalizedType = normalizeLineItemTypeValue(item.type.value);
+      const normalizedRateUnit = normalizeRateUnitValue(
+        item.unit.value,
+        item.description.value ?? item.type.value
+      );
+
+      return {
+        type: normalizedType
+          ? makeCandidate(normalizedType, item.type.confidence, "ai")
+          : undefined,
+        description: createAiCandidate(
+          cleanSentenceValue(item.description.value ?? item.type.value ?? ""),
+          item.description.confidence
+        ),
+        qty: createAiCandidate(item.quantity.value, item.quantity.confidence),
+        rate: createAiCandidate(item.rate.value, item.rate.confidence),
+        rateUnit: normalizedRateUnit
+          ? makeCandidate(normalizedRateUnit, item.unit.confidence, "ai")
+          : undefined,
+      } satisfies InvoiceBriefLineItemExtraction;
+    })
+    .filter(
+      (item) =>
+        item.type ||
+        item.description ||
+        item.qty ||
+        item.rate ||
+        item.rateUnit
+    );
+
+  return normalized.length > 0 ? normalized : deriveFallbackDeliverables(rawText);
+}
+
+export function normalizeExtractedData(
+  extraction: AiBriefExtraction,
+  rawText: string
 ): InvoiceBriefExtractionSchema {
-  return {
-    agencyName: createAiCandidate(extraction.agency.name.value, extraction.agency.name.confidence),
+  const agencyAddressValue = extraction.agency.agencyAddress.value ?? "";
+  const clientAddressValue = extraction.client.clientAddress.value ?? "";
+  const agencyStateValue =
+    getStateFromText(extraction.agency.agencyState.value ?? agencyAddressValue) ||
+    "";
+  const clientStateValue =
+    getStateFromText(extraction.client.clientState.value ?? clientAddressValue) ||
+    "";
+  const clientCountryValue =
+    getCountryFromText(
+      extraction.client.clientCountry.value || clientAddressValue || rawText
+    ) || "";
+  const currencyCandidate =
+    createAiCandidate(extraction.invoice.currency.value, extraction.invoice.currency.confidence) ??
+    getCurrencyFromText(rawText);
+  const explicitInternational = extraction.invoice.isInternational.value;
+  const paymentModeValue =
+    normalizePaymentModeValue(extraction.payment.paymentMode.value) ||
+    normalizePaymentModeValue(
+      /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0]
+    );
+  const clientLocationCandidate =
+    explicitInternational !== null
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          explicitInternational ? "international" : "domestic",
+          extraction.invoice.isInternational.confidence,
+          "ai"
+        )
+      : clientCountryValue
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "international",
+          "medium",
+          "inference"
+        )
+      : getForeignCityHint(rawText) || paymentModeValue === "wise" || paymentModeValue === "payoneer"
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "international",
+          "medium",
+          "inference"
+        )
+      : clientStateValue
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "domestic",
+          "medium",
+          "inference"
+        )
+      : undefined;
+  const agencyGstStatus =
+    createAiBooleanCandidate(
+      extraction.agency.gstRegistered,
+      "registered" as AgencyDetails["gstRegistrationStatus"],
+      "not-registered" as AgencyDetails["gstRegistrationStatus"]
+    ) ??
+    (extraction.agency.gstin.value
+      ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
+          "registered",
+          "medium",
+          "inference"
+        )
+      : undefined);
+  const agencyLutAvailability =
+    createAiBooleanCandidate(
+      extraction.agency.lutAvailable,
+      "yes" as AgencyDetails["lutAvailability"],
+      "no" as AgencyDetails["lutAvailability"]
+    ) ??
+    (/export of services/i.test(rawText)
+      ? makeCandidate<AgencyDetails["lutAvailability"]>(
+          "yes",
+          "medium",
+          "inference"
+        )
+      : undefined);
+  const taxTypeCandidate = deriveTaxTypeCandidate({
+    explicitTaxType: extraction.invoice.taxType.value
+      ? makeCandidate<AiBriefTaxType>(
+          extraction.invoice.taxType.value,
+          extraction.invoice.taxType.confidence,
+          "ai"
+        )
+      : undefined,
+    rawText,
+    agencyState: agencyStateValue,
+    clientState: clientStateValue,
+    clientLocation: clientLocationCandidate?.value,
+    gstRegistrationStatus: agencyGstStatus?.value,
+    lutAvailability: agencyLutAvailability?.value,
+  });
+
+  const normalized: InvoiceBriefExtractionSchema = {
+    agencyName: createAiCandidate(
+      cleanValue(extraction.agency.agencyName.value),
+      extraction.agency.agencyName.confidence
+    ),
     agencyAddress: createAiCandidate(
-      extraction.agency.address.value,
-      extraction.agency.address.confidence
+      cleanAddressValue(agencyAddressValue),
+      extraction.agency.agencyAddress.confidence
     ),
-    agencyState: createAiCandidate(
-      getStateFromText(extraction.agency.state.value),
-      extraction.agency.state.confidence
-    ),
-    agencyGstRegistrationStatus: createAiCandidate(
-      normalizeEnumValue(extraction.agency.gstRegistrationStatus.value),
-      extraction.agency.gstRegistrationStatus.confidence
-    ),
+    agencyState: agencyStateValue
+      ? makeCandidate(
+          agencyStateValue,
+          extraction.agency.agencyState.value
+            ? extraction.agency.agencyState.confidence
+            : "medium",
+          extraction.agency.agencyState.value ? "ai" : "inference"
+        )
+      : undefined,
+    agencyGstRegistrationStatus: agencyGstStatus,
     agencyGstin: createAiCandidate(
-      extraction.agency.gstin.value,
+      extraction.agency.gstin.value?.toUpperCase()?.replace(/\s+/g, ""),
       extraction.agency.gstin.confidence
     ),
     agencyPan: createAiCandidate(
-      extraction.agency.pan.value,
+      extraction.agency.pan.value?.toUpperCase()?.replace(/\s+/g, ""),
       extraction.agency.pan.confidence
     ),
-    agencyLutAvailability: createAiCandidate(
-      normalizeEnumValue(extraction.agency.lutAvailable.value),
-      extraction.agency.lutAvailable.confidence
-    ),
+    agencyLutAvailability,
     agencyLutNumber: createAiCandidate(
-      extraction.agency.lutNumber.value,
+      cleanValue(extraction.agency.lutNumber.value),
       extraction.agency.lutNumber.confidence
     ),
-    clientLocation: createAiCandidate(
-      normalizeEnumValue(extraction.client.location.value),
-      extraction.client.location.confidence
-    ),
     clientName: createAiCandidate(
-      extraction.client.name.value,
-      extraction.client.name.confidence
+      cleanValue(extraction.client.clientName.value),
+      extraction.client.clientName.confidence
     ),
     clientAddress: createAiCandidate(
-      extraction.client.address.value,
-      extraction.client.address.confidence
+      cleanAddressValue(clientAddressValue),
+      extraction.client.clientAddress.confidence
     ),
-    clientState: createAiCandidate(
-      getStateFromText(extraction.client.state.value),
-      extraction.client.state.confidence
-    ),
-    clientCountry: createAiCandidate(
-      getCountryFromText(extraction.client.country.value),
-      extraction.client.country.confidence
-    ),
+    clientState: clientStateValue
+      ? makeCandidate(
+          clientStateValue,
+          extraction.client.clientState.value ? extraction.client.clientState.confidence : "medium",
+          extraction.client.clientState.value ? "ai" : "inference"
+        )
+      : undefined,
+    clientCountry: clientCountryValue
+      ? makeCandidate(
+          clientCountryValue,
+          extraction.client.clientCountry.value ? extraction.client.clientCountry.confidence : "medium",
+          extraction.client.clientCountry.value ? "ai" : "inference"
+        )
+      : undefined,
+    clientLocation: clientLocationCandidate,
     clientGstin: createAiCandidate(
-      extraction.client.gstin.value || extraction.client.taxId.value,
+      cleanValue(
+        extraction.client.gstin.value || extraction.client.taxId.value || ""
+      ),
       extraction.client.gstin.value
         ? extraction.client.gstin.confidence
         : extraction.client.taxId.confidence
     ),
-    clientCurrency: createAiCandidate(
-      normalizeEnumValue(extraction.invoice.currency.value),
-      extraction.invoice.currency.confidence
+    clientCurrency:
+      currencyCandidate?.value &&
+      currencyCandidate.value !== "INR" &&
+      ["USD", "EUR", "GBP", "AED", "AUD", "CAD", "SGD"].includes(
+        currencyCandidate.value
+      )
+        ? makeCandidate(
+            currencyCandidate.value as InternationalCurrencyCode,
+            currencyCandidate.confidence,
+            currencyCandidate.source
+          )
+        : undefined,
+    invoiceIsInternational:
+      clientLocationCandidate?.value === "international"
+        ? makeCandidate(true, clientLocationCandidate.confidence, clientLocationCandidate.source)
+        : explicitInternational === false
+        ? makeCandidate(false, extraction.invoice.isInternational.confidence, "ai")
+        : undefined,
+    invoiceCurrencyCode: currencyCandidate,
+    invoiceTotalAmount: createAiCandidate(
+      extraction.invoice.totalAmount.value,
+      extraction.invoice.totalAmount.confidence
     ),
+    invoiceTaxType: taxTypeCandidate,
+    lineItems: normalizeAiDeliverables(extraction, rawText),
+    deliverableType: undefined,
+    deliverableDescription: undefined,
+    qty: undefined,
+    rate: undefined,
+    rateUnit: undefined,
     paymentTerms: createAiCandidate(
-      extraction.invoice.paymentTerms.value,
-      extraction.invoice.paymentTerms.confidence
+      cleanValue(extraction.payment.paymentTerms.value),
+      extraction.payment.paymentTerms.confidence
     ),
-    lineItems: extraction.lineItems
-      .map((item) => ({
-        type: createAiCandidate(normalizeEnumValue(item.type.value), item.type.confidence),
-        description: createAiCandidate(
-          item.description.value,
-          item.description.confidence
-        ),
-        qty: createAiCandidate(item.qty.value, item.qty.confidence),
-        rate: createAiCandidate(item.rate.value, item.rate.confidence),
-        rateUnit: createAiCandidate(
-          normalizeEnumValue(item.rateUnit.value),
-          item.rateUnit.confidence
-        ),
-      }))
-      .filter(
-        (item) =>
-          item.type ||
-          item.description ||
-          item.qty ||
-          item.rate ||
-          item.rateUnit
-      ),
-    deliverableType: createAiCandidate(
-      normalizeEnumValue(extraction.lineItems[0]?.type.value),
-      extraction.lineItems[0]?.type.confidence
-    ),
-    deliverableDescription: createAiCandidate(
-      extraction.lineItems[0]?.description.value,
-      extraction.lineItems[0]?.description.confidence
-    ),
-    qty: createAiCandidate(
-      extraction.lineItems[0]?.qty.value,
-      extraction.lineItems[0]?.qty.confidence
-    ),
-    rate: createAiCandidate(
-      extraction.lineItems[0]?.rate.value,
-      extraction.lineItems[0]?.rate.confidence
-    ),
-    rateUnit: createAiCandidate(
-      normalizeEnumValue(extraction.lineItems[0]?.rateUnit.value),
-      extraction.lineItems[0]?.rateUnit.confidence
-    ),
-    licenseType: createAiCandidate(
-      normalizeEnumValue(extraction.license.type.value),
-      extraction.license.type.confidence
-    ),
-    licenseDuration: createAiCandidate(
-      extraction.license.duration.value,
-      extraction.license.duration.confidence
-    ),
+    paymentMode: paymentModeValue
+      ? makeCandidate(
+          paymentModeValue,
+          extraction.payment.paymentMode.value
+            ? extraction.payment.paymentMode.confidence
+            : "medium",
+          extraction.payment.paymentMode.value ? "ai" : "inference"
+        )
+      : undefined,
     paymentAccountName: createAiCandidate(
-      extraction.payment.accountName.value,
+      cleanValue(extraction.payment.accountName.value),
       extraction.payment.accountName.confidence
     ),
     paymentBankName: createAiCandidate(
-      extraction.payment.bankName.value,
+      cleanValue(extraction.payment.bankName.value),
       extraction.payment.bankName.confidence
     ),
     paymentBankAddress: createAiCandidate(
-      extraction.payment.bankAddress.value,
+      cleanAddressValue(extraction.payment.bankAddress.value),
       extraction.payment.bankAddress.confidence
     ),
     paymentAccountNumber: createAiCandidate(
-      extraction.payment.accountNumber.value,
+      cleanValue(extraction.payment.accountNumber.value),
       extraction.payment.accountNumber.confidence
     ),
     paymentIfscCode: createAiCandidate(
-      extraction.payment.ifscCode.value,
+      extraction.payment.ifscCode.value?.toUpperCase()?.replace(/\s+/g, ""),
       extraction.payment.ifscCode.confidence
     ),
     paymentSwiftBicCode: createAiCandidate(
-      extraction.payment.swiftCode.value,
+      extraction.payment.swiftCode.value?.toUpperCase()?.replace(/\s+/g, ""),
       extraction.payment.swiftCode.confidence
     ),
     paymentIbanRoutingCode: createAiCandidate(
-      extraction.payment.ibanOrRouting.value,
+      cleanValue(extraction.payment.ibanOrRouting.value),
       extraction.payment.ibanOrRouting.confidence
     ),
-  };
+    dueDate: (() => {
+      const formattedDate = formatDateCandidate(extraction.dates.dueDate.value);
+      return formattedDate
+        ? makeCandidate(formattedDate, extraction.dates.dueDate.confidence, "ai")
+        : undefined;
+    })(),
+    timeline: createAiCandidate(
+      cleanValue(extraction.dates.timeline.value),
+      extraction.dates.timeline.confidence
+    ),
+  } satisfies InvoiceBriefExtractionSchema;
+
+  if (!normalized.deliverableType && normalized.lineItems?.[0]?.type) {
+    normalized.deliverableType = normalized.lineItems[0].type;
+  }
+
+  if (!normalized.deliverableDescription && normalized.lineItems?.[0]?.description) {
+    normalized.deliverableDescription = normalized.lineItems[0].description;
+  }
+
+  if (!normalized.qty && normalized.lineItems?.[0]?.qty) {
+    normalized.qty = normalized.lineItems[0].qty;
+  }
+
+  if (!normalized.rate && normalized.lineItems?.[0]?.rate) {
+    normalized.rate = normalized.lineItems[0].rate;
+  }
+
+  if (!normalized.rateUnit && normalized.lineItems?.[0]?.rateUnit) {
+    normalized.rateUnit = normalized.lineItems[0].rateUnit;
+  }
+
+  console.log("[Brief Intake AI] Normalized output:", normalized);
+  return normalized;
 }
 
 function chooseMergedCandidate<T>(
@@ -648,7 +1013,10 @@ function chooseMergedCandidate<T>(
   if (!heuristicCandidate) return aiCandidate;
 
   if (strictFallbackFields.has(fieldKey)) {
-    return heuristicCandidate;
+    const aiScore = getConfidenceScore(aiCandidate.confidence);
+    const heuristicScore = getConfidenceScore(heuristicCandidate.confidence);
+
+    return heuristicScore >= aiScore ? heuristicCandidate : aiCandidate;
   }
 
   const aiScore = getConfidenceScore(aiCandidate.confidence);
@@ -794,6 +1162,26 @@ export function mergeBriefExtractions(params: {
       aiExtraction.clientLocation,
       heuristicExtraction.clientLocation
     ),
+    invoiceIsInternational: chooseMergedCandidate(
+      "invoiceIsInternational",
+      aiExtraction.invoiceIsInternational,
+      heuristicExtraction.invoiceIsInternational
+    ),
+    invoiceCurrencyCode: chooseMergedCandidate(
+      "invoiceCurrencyCode",
+      aiExtraction.invoiceCurrencyCode,
+      heuristicExtraction.invoiceCurrencyCode
+    ),
+    invoiceTotalAmount: chooseMergedCandidate(
+      "invoiceTotalAmount",
+      aiExtraction.invoiceTotalAmount,
+      heuristicExtraction.invoiceTotalAmount
+    ),
+    invoiceTaxType: chooseMergedCandidate(
+      "invoiceTaxType",
+      aiExtraction.invoiceTaxType,
+      heuristicExtraction.invoiceTaxType
+    ),
     clientCurrency: chooseMergedCandidate(
       "clientCurrency",
       aiExtraction.clientCurrency,
@@ -844,6 +1232,11 @@ export function mergeBriefExtractions(params: {
       aiExtraction.paymentTerms,
       heuristicExtraction.paymentTerms
     ),
+    paymentMode: chooseMergedCandidate(
+      "paymentMode",
+      aiExtraction.paymentMode,
+      heuristicExtraction.paymentMode
+    ),
     paymentAccountName: chooseMergedCandidate(
       "paymentAccountName",
       aiExtraction.paymentAccountName,
@@ -878,6 +1271,16 @@ export function mergeBriefExtractions(params: {
       "paymentIbanRoutingCode",
       aiExtraction.paymentIbanRoutingCode,
       heuristicExtraction.paymentIbanRoutingCode
+    ),
+    dueDate: chooseMergedCandidate(
+      "dueDate",
+      aiExtraction.dueDate,
+      heuristicExtraction.dueDate
+    ),
+    timeline: chooseMergedCandidate(
+      "timeline",
+      aiExtraction.timeline,
+      heuristicExtraction.timeline
     ),
   };
 }
@@ -1943,6 +2346,20 @@ export function mapBriefExtractionToInvoiceForm(params: {
   });
 
   applyCandidate({
+    label: "Due date",
+    currentValue: nextFormData.meta.dueDate,
+    defaultValue: defaultInvoiceFormData.meta.dueDate,
+    candidate: extraction.dueDate,
+    assign: (value) => {
+      nextFormData.meta.dueDate = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
     label: "Beneficiary / account name",
     currentValue: nextFormData.payment.accountName,
     defaultValue: defaultInvoiceFormData.payment.accountName,
@@ -2057,7 +2474,7 @@ export function runBriefAutofill(params: {
   const normalizedText = normalizeBriefIntake(params.input);
   const heuristicExtraction = extractInvoiceBriefSchema(normalizedText);
   const aiExtraction = params.aiExtraction
-    ? convertAiExtractionToSchema(params.aiExtraction)
+    ? normalizeExtractedData(params.aiExtraction, normalizedText)
     : null;
   const extraction = mergeBriefExtractions({
     aiExtraction,
