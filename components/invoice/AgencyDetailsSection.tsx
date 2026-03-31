@@ -98,6 +98,14 @@ export default function AgencyDetailsSection({
   const showGstinField = value.gstRegistrationStatus === "registered";
   const showLutSection =
     clientLocation === "international" && showGstinField;
+  const showNoLutTaxDecision =
+    showLutSection && value.lutAvailability === "no";
+  const radioCardClass = (isSelected: boolean) =>
+    `rounded-2xl border p-3 text-left transition ${
+      isSelected
+        ? "border-black bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]"
+        : "border-gray-200 bg-white hover:border-gray-300"
+    }`;
 
   return (
     <>
@@ -274,6 +282,75 @@ export default function AgencyDetailsSection({
                           <p className="mt-2 text-xs leading-5 text-gray-500">
                             Add the LUT reference if you have it handy.
                           </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+                        showNoLutTaxDecision
+                          ? "mt-4 grid-rows-[1fr] opacity-100"
+                          : "mt-0 grid-rows-[0fr] opacity-0"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                          <p className="text-sm font-medium text-amber-950">
+                            Without a valid LUT, export of services may require
+                            18% IGST. Foreign clients usually expect a
+                            tax-clean invoice. Choose how you want to handle
+                            this invoice.
+                          </p>
+
+                          <div className="mt-4 space-y-3">
+                            <label className={radioCardClass(
+                              value.noLutTaxHandling === "add-igst"
+                            )}>
+                              <span className="flex items-start gap-3">
+                                <input
+                                  type="radio"
+                                  name="no-lut-tax-handling"
+                                  value="add-igst"
+                                  checked={
+                                    value.noLutTaxHandling === "add-igst"
+                                  }
+                                  onChange={() =>
+                                    updateField("noLutTaxHandling", "add-igst")
+                                  }
+                                  className="mt-1 h-4 w-4 border-gray-300 text-black focus:ring-black"
+                                />
+                                <span className="text-sm font-medium text-black">
+                                  Add 18% IGST to the client invoice
+                                </span>
+                              </span>
+                            </label>
+
+                            <label className={radioCardClass(
+                              value.noLutTaxHandling === "keep-zero-tax"
+                            )}>
+                              <span className="flex items-start gap-3">
+                                <input
+                                  type="radio"
+                                  name="no-lut-tax-handling"
+                                  value="keep-zero-tax"
+                                  checked={
+                                    value.noLutTaxHandling === "keep-zero-tax"
+                                  }
+                                  onChange={() =>
+                                    updateField(
+                                      "noLutTaxHandling",
+                                      "keep-zero-tax"
+                                    )
+                                  }
+                                  className="mt-1 h-4 w-4 border-gray-300 text-black focus:ring-black"
+                                />
+                                <span className="text-sm font-medium text-black">
+                                  Keep client invoice at 0% tax (I will handle
+                                  IGST separately)
+                                </span>
+                              </span>
+                            </label>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -129,6 +129,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       gstRegistrationStatus: "registered",
       lutAvailability: "",
       lutNumber: "",
+      noLutTaxHandling: "",
     },
     client: {
       clientName: "Metro Shoes Pvt. Ltd.",
@@ -190,7 +191,8 @@ function isFormTouched(formData: InvoiceFormData) {
       formData.agency.logoUrl ||
       formData.agency.gstRegistrationStatus ||
       formData.agency.lutAvailability ||
-      formData.agency.lutNumber
+      formData.agency.lutNumber ||
+      formData.agency.noLutTaxHandling
   );
 
   const hasClientData = Boolean(
