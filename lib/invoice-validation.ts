@@ -64,6 +64,7 @@ export function getInvoiceFieldErrors(
   }
 
   if (
+    formData.agency.gstRegistrationStatus === "registered" &&
     formData.agency.gstin.trim() &&
     !GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())
   ) {

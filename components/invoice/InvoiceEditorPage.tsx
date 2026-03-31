@@ -126,6 +126,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       gstin: "29ABCDE1234F1Z5",
       pan: "ABCDE1234F",
       logoUrl: "/dummy-logo.svg",
+      gstRegistrationStatus: "registered",
     },
     client: {
       clientName: "Metro Shoes Pvt. Ltd.",
@@ -184,7 +185,8 @@ function isFormTouched(formData: InvoiceFormData) {
       formData.agency.address ||
       formData.agency.gstin ||
       formData.agency.pan ||
-      formData.agency.logoUrl
+      formData.agency.logoUrl ||
+      formData.agency.gstRegistrationStatus
   );
 
   const hasClientData = Boolean(

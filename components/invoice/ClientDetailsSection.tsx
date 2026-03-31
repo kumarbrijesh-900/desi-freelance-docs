@@ -17,6 +17,8 @@ export default function ClientDetailsSection({
   onChange,
   errors,
 }: ClientDetailsSectionProps) {
+  const isInternational = value.clientLocation === "international";
+
   const updateField = <K extends keyof ClientDetails>(
     key: K,
     fieldValue: ClientDetails[K]
@@ -111,7 +113,9 @@ export default function ClientDetailsSection({
 
         <div>
           <label className="mb-2 block text-sm font-medium text-black">
-            Client GSTIN
+            {isInternational
+              ? "Client Tax ID / VAT No. (Optional)"
+              : "Client GSTIN"}
           </label>
           <input
             type="text"
@@ -122,7 +126,11 @@ export default function ClientDetailsSection({
                 e.target.value.toUpperCase().replace(/\s+/g, "")
               )
             }
-            placeholder="Client GSTIN"
+            placeholder={
+              isInternational
+                ? "Client tax ID or VAT number"
+                : "Client GSTIN"
+            }
             autoCapitalize="characters"
             spellCheck={false}
             className={inputClass(errors?.clientGstin)}

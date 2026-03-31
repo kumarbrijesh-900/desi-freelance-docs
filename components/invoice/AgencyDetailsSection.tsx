@@ -87,6 +87,14 @@ export default function AgencyDetailsSection({
       hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
     }`;
 
+  const chipButtonClass = (isSelected: boolean) =>
+    `rounded-full border px-4 py-2 text-sm font-medium transition ${
+      isSelected
+        ? "border-black bg-black text-white"
+        : "border-gray-300 bg-white text-black hover:border-black"
+    }`;
+  const showGstinField = value.gstRegistrationStatus === "registered";
+
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -134,56 +142,100 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+              <p className="text-sm font-medium text-black">
+                Agency Compliance
+              </p>
+              <div className="mt-3">
                 <label className="mb-2 block text-sm font-medium text-black">
-                  GSTIN
+                  GST Registration Status
                 </label>
-                <input
-                  type="text"
-                  value={value.gstin}
-                  onChange={(e) =>
-                    updateField(
-                      "gstin",
-                      e.target.value.toUpperCase().replace(/\s+/g, "")
-                    )
-                  }
-                  placeholder="GSTIN"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  className={inputClass(errors?.gstin)}
-                />
-                {errors?.gstin ? (
-                  <p className="mt-2 text-xs font-medium text-red-600">
-                    {errors.gstin}
-                  </p>
-                ) : null}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateField("gstRegistrationStatus", "registered")
+                    }
+                    className={chipButtonClass(
+                      value.gstRegistrationStatus === "registered"
+                    )}
+                  >
+                    Registered under GST
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateField("gstRegistrationStatus", "not-registered")
+                    }
+                    className={chipButtonClass(
+                      value.gstRegistrationStatus === "not-registered"
+                    )}
+                  >
+                    Not registered under GST
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  PAN
-                </label>
-                <input
-                  type="text"
-                  value={value.pan}
-                  onChange={(e) =>
-                    updateField(
-                      "pan",
-                      e.target.value.toUpperCase().replace(/\s+/g, "")
-                    )
-                  }
-                  placeholder="PAN"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  className={inputClass(errors?.pan)}
-                />
-                {errors?.pan ? (
-                  <p className="mt-2 text-xs font-medium text-red-600">
-                    {errors.pan}
-                  </p>
-                ) : null}
+              <div
+                className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+                  showGstinField
+                    ? "mt-4 grid-rows-[1fr] opacity-100"
+                    : "mt-0 grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="border-t border-gray-200 pt-4">
+                    <label className="mb-2 block text-sm font-medium text-black">
+                      GSTIN
+                    </label>
+                    <input
+                      type="text"
+                      value={value.gstin}
+                      onChange={(e) =>
+                        updateField(
+                          "gstin",
+                          e.target.value.toUpperCase().replace(/\s+/g, "")
+                        )
+                      }
+                      placeholder="GSTIN"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      className={inputClass(errors?.gstin)}
+                    />
+                    {errors?.gstin ? (
+                      <p className="mt-2 text-xs font-medium text-red-600">
+                        {errors.gstin}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black">
+                PAN
+              </label>
+              <input
+                type="text"
+                value={value.pan}
+                onChange={(e) =>
+                  updateField(
+                    "pan",
+                    e.target.value.toUpperCase().replace(/\s+/g, "")
+                  )
+                }
+                placeholder="PAN"
+                autoCapitalize="characters"
+                spellCheck={false}
+                className={inputClass(errors?.pan)}
+              />
+              {errors?.pan ? (
+                <p className="mt-2 text-xs font-medium text-red-600">
+                  {errors.pan}
+                </p>
+              ) : null}
             </div>
           </div>
 

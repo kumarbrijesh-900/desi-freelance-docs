@@ -34,6 +34,7 @@ export interface AgencyDetails {
   gstin: string;
   pan: string;
   logoUrl: string;
+  gstRegistrationStatus: "" | "registered" | "not-registered";
 }
 
 export interface ClientDetails {
@@ -105,6 +106,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     gstin: "",
     pan: "",
     logoUrl: "",
+    gstRegistrationStatus: "",
   },
   client: {
     clientName: "",
