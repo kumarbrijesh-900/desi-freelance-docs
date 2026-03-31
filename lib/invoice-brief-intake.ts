@@ -8,6 +8,7 @@ import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
+import { buildBriefClarificationSuggestions } from "@/lib/invoice-clarifications";
 import {
   type AgencyDetails,
   defaultInvoiceFormData,
@@ -15,6 +16,7 @@ import {
   type InvoiceFormData,
   type InvoiceLineItemType,
   type InvoiceRateUnit,
+  type InvoiceStepperStep,
   type LicenseType,
 } from "@/types/invoice";
 
@@ -84,12 +86,96 @@ export type InvoiceBriefExtractionSchema = {
   timeline?: BriefExtractedField<string>;
 };
 
+export type BriefAutofillFieldSummary = {
+  label: string;
+  step: InvoiceStepperStep;
+  confidence: BriefExtractionConfidence;
+  source: BriefExtractionSource;
+  origin: "ai" | "parser";
+};
+
+export type BriefClarificationAction =
+  | {
+      kind: "set-client-location";
+      value: InvoiceFormData["client"]["clientLocation"];
+    }
+  | {
+      kind: "set-client-currency";
+      value: InvoiceFormData["client"]["clientCurrency"];
+    }
+  | {
+      kind: "set-agency-gst-registration";
+      value: AgencyDetails["gstRegistrationStatus"];
+    }
+  | {
+      kind: "set-agency-lut-availability";
+      value: AgencyDetails["lutAvailability"];
+    }
+  | {
+      kind: "set-payment-terms";
+      value: string;
+    }
+  | {
+      kind: "append-payment-note";
+      value: string;
+    }
+  | {
+      kind: "use-amount-as-total-project-fee";
+      amount: number;
+      description: string;
+      type: InvoiceLineItemType;
+    }
+  | {
+      kind: "use-amount-as-line-item-rate";
+      amount: number;
+      rateUnit: InvoiceRateUnit;
+    }
+  | {
+      kind: "set-line-items";
+      items: Array<{
+        type: InvoiceLineItemType;
+        description: string;
+        qty: number;
+        rate: number;
+        rateUnit: InvoiceRateUnit;
+      }>;
+    }
+  | {
+      kind: "collapse-to-single-line-item";
+      item: {
+        type: InvoiceLineItemType;
+        description: string;
+        qty: number;
+        rate: number;
+        rateUnit: InvoiceRateUnit;
+      };
+    };
+
+export type BriefClarificationOption = {
+  id: string;
+  label: string;
+  helper?: string;
+  action: BriefClarificationAction;
+};
+
+export type BriefClarificationSuggestion = {
+  id: string;
+  title: string;
+  message: string;
+  step: InvoiceStepperStep;
+  priority: number;
+  options: BriefClarificationOption[];
+};
+
 export type BriefAutofillMappingResult = {
   nextFormData: InvoiceFormData;
   filledFields: string[];
   aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
+  confidentFieldSummaries: BriefAutofillFieldSummary[];
+  inferredFieldSummaries: BriefAutofillFieldSummary[];
+  lowConfidenceFieldSummaries: BriefAutofillFieldSummary[];
 };
 
 export type BriefIntakeInput = {
@@ -106,6 +192,10 @@ export type BriefAutofillResult = {
   aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
+  confidentFieldSummaries: BriefAutofillFieldSummary[];
+  inferredFieldSummaries: BriefAutofillFieldSummary[];
+  lowConfidenceFieldSummaries: BriefAutofillFieldSummary[];
+  clarificationSuggestions: BriefClarificationSuggestion[];
   hasImageAttachments: boolean;
   hasVoiceTranscript: boolean;
 };
@@ -466,6 +556,76 @@ function getConfidenceScore(confidence: BriefExtractionConfidence) {
     default:
       return 1;
   }
+}
+
+function getFieldStepForLabel(label: string): InvoiceStepperStep {
+  if (
+    /agency|gst|lut|pan/i.test(label) &&
+    !/client/i.test(label)
+  ) {
+    return "agency";
+  }
+
+  if (/client|country/i.test(label)) {
+    return "client";
+  }
+
+  if (/currency/i.test(label)) {
+    return "client";
+  }
+
+  if (/deliverable|quantity|rate/i.test(label)) {
+    return "deliverables";
+  }
+
+  if (
+    /payment terms|beneficiary|account|bank|ifsc|swift|iban|routing|license/i.test(
+      label
+    )
+  ) {
+    return "payment";
+  }
+
+  if (/invoice|due date|timeline/i.test(label)) {
+    return "meta";
+  }
+
+  return "totals";
+}
+
+function createFieldSummary(
+  label: string,
+  confidence: BriefExtractionConfidence,
+  source: BriefExtractionSource
+): BriefAutofillFieldSummary {
+  return {
+    label,
+    step: getFieldStepForLabel(label),
+    confidence,
+    source,
+    origin: source === "ai" ? "ai" : "parser",
+  };
+}
+
+function dedupeFieldSummaries(summaries: BriefAutofillFieldSummary[]) {
+  const seen = new Set<string>();
+
+  return summaries.filter((summary) => {
+    const key = [
+      summary.step,
+      summary.label,
+      summary.confidence,
+      summary.source,
+      summary.origin,
+    ].join(":");
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function createAiCandidate<T>(
@@ -1041,11 +1201,13 @@ function mergeLineItemExtractions(
   };
 
   const fallbackItems =
-    fallbackFirst.type ||
-    fallbackFirst.description ||
-    fallbackFirst.qty ||
-    fallbackFirst.rate ||
-    fallbackFirst.rateUnit
+    heuristic.lineItems && heuristic.lineItems.length > 0
+      ? heuristic.lineItems
+      : fallbackFirst.type ||
+        fallbackFirst.description ||
+        fallbackFirst.qty ||
+        fallbackFirst.rate ||
+        fallbackFirst.rateUnit
       ? [fallbackFirst]
       : [];
 
@@ -1752,6 +1914,275 @@ function extractPaymentField(
     : undefined;
 }
 
+function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "total amount",
+    "invoice total",
+    "project total",
+    "overall total",
+    "grand total",
+    "total fee",
+  ]);
+
+  if (labeled) {
+    const amount = parseAmount(labeled);
+    if (amount > 0) {
+      return makeCandidate(amount, "high", "label");
+    }
+  }
+
+  const fallbackPatterns = [
+    /\b(?:total|overall total|project total|invoice total|grand total)\s*(?:amount|fee|budget|cost)?\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
+  ];
+
+  for (const pattern of fallbackPatterns) {
+    const match = text.match(pattern);
+    if (!match?.[1]) continue;
+
+    const amount = parseAmount(match[1]);
+    if (amount > 0) {
+      return makeCandidate(amount, "medium", "regex");
+    }
+  }
+
+  return undefined;
+}
+
+function extractInvoiceTaxType(text: string): Candidate<AiBriefTaxType> | undefined {
+  if (/\bcgst\b.*\bsgst\b|\bsgst\b.*\bcgst\b/i.test(text)) {
+    return makeCandidate("CGST_SGST", "high", "pattern");
+  }
+
+  if (/\bigst\b/i.test(text)) {
+    return makeCandidate("IGST", "high", "pattern");
+  }
+
+  if (
+    /\bexport of services\b/i.test(text) ||
+    /\bwithout payment of igst\b/i.test(text)
+  ) {
+    return makeCandidate("ZERO_RATED", "medium", "inference");
+  }
+
+  return undefined;
+}
+
+function extractInvoiceIsInternational(
+  text: string,
+  clientCountry?: Candidate<InvoiceFormData["client"]["clientCountry"]>,
+  clientState?: Candidate<InvoiceFormData["client"]["clientState"]>,
+  clientCurrency?: Candidate<InternationalCurrencyCode>
+): Candidate<boolean> | undefined {
+  if (
+    /\binternational\b|\bforeign client\b|\boverseas\b|\bexport of services\b/i.test(
+      text
+    )
+  ) {
+    return makeCandidate(true, "high", "pattern");
+  }
+
+  if (clientCountry?.value) {
+    return makeCandidate(true, clientCountry.confidence, clientCountry.source);
+  }
+
+  if (clientCurrency?.value) {
+    return makeCandidate(true, "medium", clientCurrency.source);
+  }
+
+  if (getForeignCityHint(text)) {
+    return makeCandidate(true, "medium", "inference");
+  }
+
+  if (clientState?.value) {
+    return makeCandidate(false, "medium", "inference");
+  }
+
+  return undefined;
+}
+
+function extractPaymentMode(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "payment mode",
+    "payment method",
+    "payment via",
+    "paid via",
+  ]);
+  const normalizedLabeled = normalizePaymentModeValue(labeled);
+
+  if (normalizedLabeled) {
+    return makeCandidate(normalizedLabeled, "high", "label");
+  }
+
+  const inferred = normalizePaymentModeValue(
+    /\b(?:wise|payoneer|paypal|bank transfer|wire transfer|bank|upi)\b/i.exec(
+      text
+    )?.[0]
+  );
+
+  return inferred ? makeCandidate(inferred, "medium", "pattern") : undefined;
+}
+
+function extractTimeline(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "timeline",
+    "delivery timeline",
+    "delivery by",
+    "deadline",
+    "eta",
+  ]);
+
+  if (labeled) {
+    return makeCandidate(cleanValue(labeled), "high", "label");
+  }
+
+  const inferred = extractPatternValue(text, [
+    /\b(?:delivery|timeline|turnaround)\s+(?:is\s+)?(.+?)(?=,|\.|\n|$)/i,
+    /\bby\s+([a-z0-9, /-]{4,40})(?=,|\.|\n|$)/i,
+  ]);
+
+  return inferred
+    ? makeCandidate(cleanValue(inferred), "medium", "pattern")
+    : undefined;
+}
+
+function buildLineItemDescriptionFromContext(
+  text: string,
+  matchIndex: number,
+  fallback: string
+) {
+  const localContext = text.slice(
+    Math.max(0, matchIndex - 32),
+    Math.min(text.length, matchIndex + 48)
+  );
+
+  if (/landing page/i.test(localContext)) {
+    return "Landing page design";
+  }
+
+  if (/homepage|home page/i.test(localContext)) {
+    return "Homepage design";
+  }
+
+  if (/ui\/?\s*ux/i.test(localContext)) {
+    return "UI/UX design";
+  }
+
+  if (/editorial illustration/i.test(localContext)) {
+    return "Editorial illustration";
+  }
+
+  return fallback;
+}
+
+function extractHeuristicLineItems(text: string) {
+  const matchers: Array<{
+    pattern: RegExp;
+    type: InvoiceLineItemType;
+    rateUnit: InvoiceRateUnit;
+    fallbackDescription: string;
+  }> = [
+    {
+      pattern: /\b(\d+)\s+screens?\b/gi,
+      type: "UI/UX",
+      rateUnit: "per-screen",
+      fallbackDescription: "Screens",
+    },
+    {
+      pattern: /\b(\d+)\s+images?\b/gi,
+      type: "Photography",
+      rateUnit: "per-image",
+      fallbackDescription: "Images",
+    },
+    {
+      pattern: /\b(\d+)\s+reels?\b/gi,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      fallbackDescription: "Reels",
+    },
+    {
+      pattern: /\b(\d+)\s+banners?\b/gi,
+      type: "Social Media",
+      rateUnit: "per-item",
+      fallbackDescription: "Banners",
+    },
+    {
+      pattern: /\b(\d+)\s+illustrations?\b/gi,
+      type: "Illustration",
+      rateUnit: "per-item",
+      fallbackDescription: "Illustrations",
+    },
+    {
+      pattern: /\b(\d+)\s+logos?\b/gi,
+      type: "Logo Design",
+      rateUnit: "per-deliverable",
+      fallbackDescription: "Logo design",
+    },
+    {
+      pattern: /\b(\d+)\s+posts?\b/gi,
+      type: "Social Media",
+      rateUnit: "per-post",
+      fallbackDescription: "Posts",
+    },
+  ];
+
+  const items: InvoiceBriefLineItemExtraction[] = [];
+
+  for (const matcher of matchers) {
+    const matches = Array.from(text.matchAll(matcher.pattern));
+
+    for (const match of matches) {
+      const quantity = Number(match[1]);
+
+      if (!Number.isFinite(quantity) || quantity <= 0) {
+        continue;
+      }
+
+      const description = buildLineItemDescriptionFromContext(
+        text,
+        match.index ?? 0,
+        matcher.fallbackDescription
+      );
+
+      const rateText = text
+        .slice(match.index ?? 0, Math.min(text.length, (match.index ?? 0) + 80))
+        .match(
+          /\b(?:at|@|each|per)\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i
+        )?.[1];
+
+      items.push({
+        type: makeCandidate(matcher.type, "medium", "pattern"),
+        description: makeCandidate(description, "medium", "inference"),
+        qty: makeCandidate(quantity, "medium", "pattern"),
+        rate:
+          rateText && parseAmount(rateText) > 0
+            ? makeCandidate(parseAmount(rateText), "medium", "regex")
+            : undefined,
+        rateUnit: makeCandidate(matcher.rateUnit, "medium", "pattern"),
+      });
+    }
+  }
+
+  const dedupedItems: InvoiceBriefLineItemExtraction[] = [];
+  const seen = new Set<string>();
+
+  for (const item of items) {
+    const key = [
+      item.type?.value ?? "",
+      item.description?.value ?? "",
+      item.qty?.value ?? "",
+    ].join(":");
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    dedupedItems.push(item);
+  }
+
+  return dedupedItems;
+}
+
 export function extractInvoiceBriefSchema(
   text: string
 ): InvoiceBriefExtractionSchema {
@@ -1818,6 +2249,18 @@ export function extractInvoiceBriefSchema(
           "inference"
         )
       : undefined;
+  const heuristicLineItems = extractHeuristicLineItems(text);
+  const invoiceIsInternational = extractInvoiceIsInternational(
+    text,
+    clientCountry,
+    clientState,
+    clientCurrency
+  );
+  const invoiceTotalAmount = extractInvoiceTotalAmount(text);
+  const invoiceTaxType = extractInvoiceTaxType(text);
+  const paymentMode = extractPaymentMode(text);
+  const timeline = extractTimeline(text);
+  const primaryHeuristicLineItem = heuristicLineItems[0];
 
   return {
     agencyName: extractAgencyName(text),
@@ -1835,13 +2278,20 @@ export function extractInvoiceBriefSchema(
     clientLocation,
     clientCurrency,
     clientGstin,
-    deliverableType: extractLineItemType(text),
-    deliverableDescription: extractDeliverableDescription(text),
-    qty: extractQuantity(text),
-    rate: extractRate(text),
-    rateUnit: extractRateUnit(text),
+    invoiceIsInternational,
+    invoiceCurrencyCode: clientCurrency,
+    invoiceTotalAmount,
+    invoiceTaxType,
+    lineItems: heuristicLineItems,
+    deliverableType: primaryHeuristicLineItem?.type ?? extractLineItemType(text),
+    deliverableDescription:
+      primaryHeuristicLineItem?.description ?? extractDeliverableDescription(text),
+    qty: primaryHeuristicLineItem?.qty ?? extractQuantity(text),
+    rate: primaryHeuristicLineItem?.rate ?? extractRate(text),
+    rateUnit: primaryHeuristicLineItem?.rateUnit ?? extractRateUnit(text),
     licenseType: extractLicenseType(text),
     paymentTerms: extractPaymentTerms(text),
+    paymentMode,
     paymentAccountName: extractPaymentField(text, [
       "beneficiary",
       "beneficiary name",
@@ -1877,6 +2327,7 @@ export function extractInvoiceBriefSchema(
       "routing number",
       "sort code",
     ]),
+    timeline,
   };
 }
 
@@ -1905,28 +2356,26 @@ function recordField(
   source: BriefExtractionSource,
   filledFields: string[],
   aiFilledFields: string[],
-  reviewFields: string[]
+  reviewFields: string[],
+  confidentFieldSummaries: BriefAutofillFieldSummary[],
+  inferredFieldSummaries: BriefAutofillFieldSummary[]
 ) {
   filledFields.push(label);
   if (source === "ai") {
     aiFilledFields.push(label);
   }
-  if (confidence === "medium") {
+
+  const summary = createFieldSummary(label, confidence, source);
+
+  if (confidence === "medium" || source === "inference") {
     reviewFields.push(label);
+    inferredFieldSummaries.push(summary);
+  } else {
+    confidentFieldSummaries.push(summary);
   }
 }
 
-function applyCandidate<T>({
-  label,
-  currentValue,
-  defaultValue,
-  candidate,
-  assign,
-  filledFields,
-  aiFilledFields,
-  reviewFields,
-  lowConfidenceFields,
-}: {
+type ApplyCandidateArgs<T> = {
   label: string;
   currentValue: T;
   defaultValue: T;
@@ -1936,13 +2385,41 @@ function applyCandidate<T>({
   aiFilledFields: string[];
   reviewFields: string[];
   lowConfidenceFields: string[];
-}) {
+  confidentFieldSummaries: BriefAutofillFieldSummary[];
+  inferredFieldSummaries: BriefAutofillFieldSummary[];
+  lowConfidenceFieldSummaries: BriefAutofillFieldSummary[];
+};
+
+type MappingApplyCandidateArgs<T> = Omit<
+  ApplyCandidateArgs<T>,
+  | "confidentFieldSummaries"
+  | "inferredFieldSummaries"
+  | "lowConfidenceFieldSummaries"
+>;
+
+function applyCandidateToForm<T>({
+  label,
+  currentValue,
+  defaultValue,
+  candidate,
+  assign,
+  filledFields,
+  aiFilledFields,
+  reviewFields,
+  lowConfidenceFields,
+  confidentFieldSummaries,
+  inferredFieldSummaries,
+  lowConfidenceFieldSummaries,
+}: ApplyCandidateArgs<T>) {
   if (!candidate) {
     return;
   }
 
   if (candidate.confidence === "low") {
     lowConfidenceFields.push(label);
+    lowConfidenceFieldSummaries.push(
+      createFieldSummary(label, candidate.confidence, candidate.source)
+    );
     return;
   }
 
@@ -1957,7 +2434,9 @@ function applyCandidate<T>({
     candidate.source,
     filledFields,
     aiFilledFields,
-    reviewFields
+    reviewFields,
+    confidentFieldSummaries,
+    inferredFieldSummaries
   );
 }
 
@@ -1978,7 +2457,21 @@ export function mapBriefExtractionToInvoiceForm(params: {
   const aiFilledFields: string[] = [];
   const reviewFields: string[] = [];
   const lowConfidenceFields: string[] = [];
+  const confidentFieldSummaries: BriefAutofillFieldSummary[] = [];
+  const inferredFieldSummaries: BriefAutofillFieldSummary[] = [];
+  const lowConfidenceFieldSummaries: BriefAutofillFieldSummary[] = [];
   const { extraction } = params;
+  const applyCandidate = <T,>(args: MappingApplyCandidateArgs<T>) =>
+    applyCandidateToForm({
+      ...args,
+      filledFields,
+      aiFilledFields,
+      reviewFields,
+      lowConfidenceFields,
+      confidentFieldSummaries,
+      inferredFieldSummaries,
+      lowConfidenceFieldSummaries,
+    });
 
   applyCandidate({
     label: "Agency name",
@@ -2463,6 +2956,11 @@ export function mapBriefExtractionToInvoiceForm(params: {
     aiFilledFields: [...new Set(aiFilledFields)],
     reviewFields: [...new Set(reviewFields)],
     lowConfidenceFields: [...new Set(lowConfidenceFields)],
+    confidentFieldSummaries: dedupeFieldSummaries(confidentFieldSummaries),
+    inferredFieldSummaries: dedupeFieldSummaries(inferredFieldSummaries),
+    lowConfidenceFieldSummaries: dedupeFieldSummaries(
+      lowConfidenceFieldSummaries
+    ),
   };
 }
 
@@ -2484,6 +2982,11 @@ export function runBriefAutofill(params: {
     currentFormData: params.currentFormData,
     extraction,
   });
+  const clarificationSuggestions = buildBriefClarificationSuggestions({
+    normalizedText,
+    extraction,
+    currentFormData: mapping.nextFormData,
+  });
 
   return {
     normalizedText,
@@ -2493,6 +2996,10 @@ export function runBriefAutofill(params: {
     aiFilledFields: mapping.aiFilledFields,
     reviewFields: mapping.reviewFields,
     lowConfidenceFields: mapping.lowConfidenceFields,
+    confidentFieldSummaries: mapping.confidentFieldSummaries,
+    inferredFieldSummaries: mapping.inferredFieldSummaries,
+    lowConfidenceFieldSummaries: mapping.lowConfidenceFieldSummaries,
+    clarificationSuggestions,
     hasImageAttachments: Boolean(params.input.imageFiles?.length),
     hasVoiceTranscript: Boolean(params.input.voiceTranscript?.trim()),
   };

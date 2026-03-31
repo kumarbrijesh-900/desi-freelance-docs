@@ -22,8 +22,16 @@ import {
 import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
   runBriefAutofill,
+  type BriefAutofillFieldSummary,
+  type BriefClarificationAction,
+  type BriefClarificationSuggestion,
+  type InvoiceBriefExtractionSchema,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
+import {
+  applyBriefClarificationAction,
+  buildBriefClarificationSuggestions,
+} from "@/lib/invoice-clarifications";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -60,13 +68,19 @@ type StoredDraft = {
 };
 
 type AutofillSummaryState = {
-  filledFields: string[];
-  aiFilledFields: string[];
-  reviewFields: string[];
-  lowConfidenceFields: string[];
-  missingFields: string[];
+  confidentFields: BriefAutofillFieldSummary[];
+  inferredFields: BriefAutofillFieldSummary[];
+  lowConfidenceFields: BriefAutofillFieldSummary[];
+  clarificationSuggestions: BriefClarificationSuggestion[];
+  missingFieldGroups: Array<{
+    step: InvoiceStepperStep;
+    fields: string[];
+  }>;
   recommendedStep: InvoiceStepperStep;
   missingStep: InvoiceStepperStep | null;
+  normalizedText: string;
+  extraction: InvoiceBriefExtractionSchema;
+  resolvedClarificationIds: string[];
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -368,44 +382,59 @@ function getFirstInvalidStep(formData: InvoiceFormData) {
 
 function getMissingFieldLabels(formData: InvoiceFormData) {
   const errors = getInvoiceFieldErrors(formData);
-  const labels = new Set<string>();
+  const groups = new Map<InvoiceStepperStep, Set<string>>();
+  const addField = (step: InvoiceStepperStep, label: string) => {
+    if (!groups.has(step)) {
+      groups.set(step, new Set());
+    }
 
-  if (errors.agency.agencyName) labels.add("Agency name");
-  if (errors.agency.address) labels.add("Agency address");
-  if (errors.agency.agencyState) labels.add("Agency state");
-  if (errors.agency.gstin) labels.add("Agency GSTIN");
+    groups.get(step)?.add(label);
+  };
 
-  if (errors.client.clientName) labels.add("Client name");
-  if (errors.client.clientAddress) labels.add("Client address");
-  if (errors.client.clientState) labels.add("Client state");
-  if (errors.client.clientCountry) labels.add("Client country");
+  if (errors.agency.agencyName) addField("agency", "Agency name");
+  if (errors.agency.address) addField("agency", "Agency address");
+  if (errors.agency.agencyState) addField("agency", "Agency state");
+  if (errors.agency.gstin) addField("agency", "Agency GSTIN");
 
-  if (errors.meta.paymentTerms) labels.add("Payment terms");
-  if (errors.meta.invoiceNumber) labels.add("Invoice number");
-  if (errors.meta.invoiceDate) labels.add("Invoice date");
-  if (errors.meta.dueDate) labels.add("Due date");
+  if (errors.client.clientName) addField("client", "Client name");
+  if (errors.client.clientAddress) addField("client", "Client address");
+  if (errors.client.clientState) addField("client", "Client state");
+  if (errors.client.clientCountry) addField("client", "Client country");
+
+  if (errors.meta.paymentTerms) addField("payment", "Payment terms");
+  if (errors.meta.invoiceNumber) addField("meta", "Invoice number");
+  if (errors.meta.invoiceDate) addField("meta", "Invoice date");
+  if (errors.meta.dueDate) addField("meta", "Due date");
 
   if (errors.payment.accountName) {
-    labels.add(
+    addField(
+      "payment",
       formData.client.clientLocation === "international"
         ? "Beneficiary / Account Name"
         : "Account name"
     );
   }
-  if (errors.payment.bankName) labels.add("Bank name");
-  if (errors.payment.accountNumber) labels.add("Account number");
-  if (errors.payment.ifscCode) labels.add("IFSC code");
-  if (errors.payment.bankAddress) labels.add("Bank full address");
-  if (errors.payment.swiftBicCode) labels.add("SWIFT / BIC code");
-  if (errors.payment.licenseDuration) labels.add("License duration");
+  if (errors.payment.bankName) addField("payment", "Bank name");
+  if (errors.payment.accountNumber) addField("payment", "Account number");
+  if (errors.payment.ifscCode) addField("payment", "IFSC code");
+  if (errors.payment.bankAddress) addField("payment", "Bank full address");
+  if (errors.payment.swiftBicCode) addField("payment", "SWIFT / BIC code");
+  if (errors.payment.licenseDuration) addField("payment", "License duration");
 
   Object.values(errors.lineItems).forEach((lineItemErrors) => {
-    if (lineItemErrors.description) labels.add("Deliverable description");
-    if (lineItemErrors.qty) labels.add("Deliverable quantity");
-    if (lineItemErrors.rate) labels.add("Deliverable rate");
+    if (lineItemErrors.description) {
+      addField("deliverables", "Deliverable description");
+    }
+    if (lineItemErrors.qty) addField("deliverables", "Deliverable quantity");
+    if (lineItemErrors.rate) addField("deliverables", "Deliverable rate");
   });
 
-  return Array.from(labels);
+  return orderedSteps
+    .map((step) => ({
+      step,
+      fields: Array.from(groups.get(step) ?? []),
+    }))
+    .filter((group) => group.fields.length > 0);
 }
 
 function CompactJourneyStepper({
@@ -1072,18 +1101,21 @@ export default function InvoiceEditorPage() {
       nextFormData.meta.dueDate === nextSuggestedDueDate;
 
     const missingStep = getFirstInvalidStep(nextFormData);
-    const missingFields = getMissingFieldLabels(nextFormData);
+    const missingFieldGroups = getMissingFieldLabels(nextFormData);
     const recommendedStep = missingStep ?? "totals";
 
     setFormData(nextFormData);
     setAutofillSummary({
-      filledFields: result.filledFields,
-      aiFilledFields: result.aiFilledFields,
-      reviewFields: result.reviewFields,
-      lowConfidenceFields: result.lowConfidenceFields,
-      missingFields,
+      confidentFields: result.confidentFieldSummaries,
+      inferredFields: result.inferredFieldSummaries,
+      lowConfidenceFields: result.lowConfidenceFieldSummaries,
+      clarificationSuggestions: result.clarificationSuggestions,
+      missingFieldGroups,
       recommendedStep,
       missingStep,
+      normalizedText: result.normalizedText,
+      extraction: result.extraction,
+      resolvedClarificationIds: [],
     });
 
     triggerToast(
@@ -1091,10 +1123,48 @@ export default function InvoiceEditorPage() {
         ? `Autofilled ${result.filledFields.length} field${
             result.filledFields.length === 1 ? "" : "s"
           }`
-        : result.lowConfidenceFields.length > 0
+        : result.lowConfidenceFieldSummaries.length > 0
         ? "No high-confidence matches were autofilled. Review the low-confidence suggestions first."
         : "No confident matches found. Review the summary and continue manually."
     );
+  };
+
+  const handleClarificationAnswer = (
+    suggestionId: string,
+    action: BriefClarificationAction
+  ) => {
+    if (!autofillSummary) return;
+
+    const nextFormData = applyBriefClarificationAction({
+      formData,
+      action,
+    });
+    const nextResolvedClarificationIds = Array.from(
+      new Set([...autofillSummary.resolvedClarificationIds, suggestionId])
+    );
+    const nextMissingStep = getFirstInvalidStep(nextFormData);
+    const nextMissingFieldGroups = getMissingFieldLabels(nextFormData);
+
+    setFormData(nextFormData);
+    setAutofillSummary((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        missingFieldGroups: nextMissingFieldGroups,
+        missingStep: nextMissingStep,
+        recommendedStep: nextMissingStep ?? "totals",
+        clarificationSuggestions: buildBriefClarificationSuggestions({
+          normalizedText: prev.normalizedText,
+          extraction: prev.extraction,
+          currentFormData: nextFormData,
+          resolvedIds: nextResolvedClarificationIds,
+        }),
+        resolvedClarificationIds: nextResolvedClarificationIds,
+      };
+    });
   };
 
   const handleAutofillContinue = () => {
@@ -1402,12 +1472,13 @@ export default function InvoiceEditorPage() {
 
       {autofillSummary && (
         <AutofillSummaryModal
-          filledFields={autofillSummary.filledFields}
-          aiFilledFields={autofillSummary.aiFilledFields}
-          reviewFields={autofillSummary.reviewFields}
+          confidentFields={autofillSummary.confidentFields}
+          inferredFields={autofillSummary.inferredFields}
           lowConfidenceFields={autofillSummary.lowConfidenceFields}
-          missingFields={autofillSummary.missingFields}
+          clarificationSuggestions={autofillSummary.clarificationSuggestions}
+          missingFieldGroups={autofillSummary.missingFieldGroups}
           recommendedStep={autofillSummary.recommendedStep}
+          onClarificationAnswer={handleClarificationAnswer}
           onClose={() => setAutofillSummary(null)}
           onContinue={handleAutofillContinue}
           onJumpToMissing={handleAutofillJumpToMissing}

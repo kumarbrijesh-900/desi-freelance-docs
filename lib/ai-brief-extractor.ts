@@ -353,8 +353,11 @@ Compatibility extras:
   - high = explicit mention
   - medium = clear inference
   - low = weak guess
+- Resolve entities by role: agency vs client vs payment recipient.
 - For multiple deliverables like "40 images + 5 reels", return separate array items.
+- If one total amount covers multiple deliverables, keep invoice.totalAmount and leave item-level rate null unless the brief clearly gives per-item pricing.
 - Normalize shorthand amounts such as 15k => 15000, $500 => 500 with USD, and ₹15000 => 15000 with INR.
+- Use null instead of guessing when country, LUT state, or payment mode is not reasonably clear.
 `.trim();
 
 function extractOutputText(payload: unknown) {
