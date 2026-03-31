@@ -1,11 +1,13 @@
 "use client";
 
 import type { ClientDetails } from "@/types/invoice";
+import ChoiceCards from "@/components/ui/ChoiceCards";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
+import { getAppFieldClass } from "@/lib/ui-foundation";
 
 interface ClientDetailsSectionProps {
   value: ClientDetails;
@@ -36,17 +38,16 @@ export default function ClientDetailsSection({
     });
   };
 
-  const inputClass = (hasError?: string) =>
-    `w-full rounded-xl border p-3 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
-
-  const segmentButtonClass = (isSelected: boolean) =>
-    `flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
-      isSelected
-        ? "bg-black text-white"
-        : "bg-transparent text-black hover:bg-gray-100"
-    }`;
+  const inputClass = (
+    hasError?: string,
+    hasValue?: boolean,
+    multiline = false
+  ) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+      multiline,
+    });
 
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-5">
@@ -64,7 +65,7 @@ export default function ClientDetailsSection({
             value={value.clientName}
             onChange={(e) => updateField("clientName", e.target.value)}
             placeholder="Client or company name"
-            className={inputClass(errors?.clientName)}
+            className={inputClass(errors?.clientName, Boolean(value.clientName))}
           />
           {errors?.clientName ? (
             <p className="mt-2 text-xs font-medium text-red-600">
@@ -82,7 +83,11 @@ export default function ClientDetailsSection({
             value={value.clientAddress}
             onChange={(e) => updateField("clientAddress", e.target.value)}
             placeholder="Client billing address"
-            className={inputClass(errors?.clientAddress)}
+            className={inputClass(
+              errors?.clientAddress,
+              Boolean(value.clientAddress),
+              true
+            )}
           />
           {errors?.clientAddress ? (
             <p className="mt-2 text-xs font-medium text-red-600">
@@ -95,27 +100,28 @@ export default function ClientDetailsSection({
           <label className="mb-2 block text-sm font-medium text-black">
             Client Location *
           </label>
-          <div className="inline-flex w-full max-w-sm rounded-xl border border-gray-300 bg-gray-50 p-1">
-            <button
-              type="button"
-              onClick={() => updateField("clientLocation", "domestic")}
-              className={segmentButtonClass(
-                value.clientLocation === "domestic"
-              )}
-            >
-              Domestic (India)
-            </button>
-
-            <button
-              type="button"
-              onClick={() => updateField("clientLocation", "international")}
-              className={segmentButtonClass(
-                value.clientLocation === "international"
-              )}
-            >
-              International
-            </button>
-          </div>
+          <ChoiceCards
+            name="client-location"
+            value={value.clientLocation}
+            onChange={(nextValue) => updateField("clientLocation", nextValue)}
+            variant="segmented"
+            columns={2}
+            options={[
+              {
+                value: "domestic",
+                label: "Domestic (India)",
+                description: "Use Indian state-based billing and domestic payment details.",
+              },
+              {
+                value: "international",
+                label: "International",
+                description: "Use country, currency, and export billing details.",
+              },
+            ]}
+          />
+          <p className="mt-2 text-xs leading-5 text-gray-500">
+            This choice decides which tax, payment, and billing fields appear next.
+          </p>
         </div>
 
         {!isInternational ? (
@@ -131,7 +137,7 @@ export default function ClientDetailsSection({
                   e.target.value as ClientDetails["clientState"]
                 )
               }
-              className={inputClass(errors?.clientState)}
+              className={inputClass(errors?.clientState, Boolean(value.clientState))}
             >
               <option value="">Select state or union territory</option>
               {INDIA_STATE_OPTIONS.map((stateName) => (
@@ -162,7 +168,7 @@ export default function ClientDetailsSection({
                     e.target.value as ClientDetails["clientCountry"]
                   )
                 }
-                className={inputClass(errors?.clientCountry)}
+                className={inputClass(errors?.clientCountry, Boolean(value.clientCountry))}
               >
                 <option value="">Select country</option>
                 {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
@@ -190,7 +196,7 @@ export default function ClientDetailsSection({
                     e.target.value as ClientDetails["clientCurrency"]
                   )
                 }
-                className={inputClass()}
+                className={inputClass(undefined, Boolean(value.clientCurrency))}
               >
                 <option value="">Keep INR as primary (default)</option>
                 {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
@@ -232,7 +238,7 @@ export default function ClientDetailsSection({
             }
             autoCapitalize="characters"
             spellCheck={false}
-            className={inputClass(errors?.clientGstin)}
+            className={inputClass(errors?.clientGstin, Boolean(value.clientGstin))}
           />
           {errors?.clientGstin ? (
             <p className="mt-2 text-xs font-medium text-red-600">

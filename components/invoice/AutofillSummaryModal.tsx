@@ -224,6 +224,27 @@ function getOriginLabel(origin: BriefAutofillFieldSummary["origin"]) {
   return origin === "ai" ? "AI" : "Parser";
 }
 
+function getOrderedStepperFields(root: ParentNode | null) {
+  if (!root) return [];
+
+  return Array.from(
+    root.querySelectorAll<HTMLElement>("[data-stepper-field-order]")
+  )
+    .filter((element) => {
+      if (element.hasAttribute("disabled")) {
+        return false;
+      }
+
+      return element.offsetParent !== null;
+    })
+    .sort((left, right) => {
+      const leftOrder = Number(left.dataset.stepperFieldOrder ?? "0");
+      const rightOrder = Number(right.dataset.stepperFieldOrder ?? "0");
+
+      return leftOrder - rightOrder;
+    });
+}
+
 function ErrorText({ message }: { message?: string }) {
   return (
     <AnimatePresence initial={false}>
@@ -325,12 +346,14 @@ function ModalSelect({
   value,
   hasError,
   hasValue,
+  fieldOrder,
   onChange,
   children,
 }: {
   value: string;
   hasError?: string;
   hasValue?: boolean;
+  fieldOrder?: number;
   onChange: (value: string) => void;
   children: ReactNode;
 }) {
@@ -339,6 +362,7 @@ function ModalSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        data-stepper-field-order={fieldOrder}
         className={getFieldClass({
           hasError,
           hasValue,
@@ -354,12 +378,15 @@ function ModalSelect({
 
 function ModalSegmentedControl<T extends string>({
   name,
+  ariaLabel,
   value,
   options,
   columns = 2,
+  fieldOrderStart,
   onChange,
 }: {
   name: string;
+  ariaLabel?: string;
   value: T | "";
   options: Array<{
     value: T;
@@ -367,18 +394,21 @@ function ModalSegmentedControl<T extends string>({
     description?: string;
   }>;
   columns?: 1 | 2;
+  fieldOrderStart?: number;
   onChange: (value: T) => void;
 }) {
   return (
     <div
       role="radiogroup"
-      aria-label={name}
+      aria-label={ariaLabel ?? name}
       className={cn(
         "grid gap-2 rounded-[20px] border border-slate-200 bg-slate-100/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]",
         columns === 2 ? "sm:grid-cols-2" : ""
       )}
     >
-      {options.map((option) => {
+      {options.map((option, index) => {
+        const optionId = `${name}-${option.value}`;
+        const descriptionId = option.description ? `${optionId}-description` : undefined;
         const selected = value === option.value;
 
         return (
@@ -387,17 +417,37 @@ function ModalSegmentedControl<T extends string>({
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={option.label}
+            aria-describedby={descriptionId}
             onClick={() => onChange(option.value)}
+            data-stepper-field-order={
+              fieldOrderStart !== undefined ? fieldOrderStart + index : undefined
+            }
             className={cn(
-              "min-h-[46px] rounded-2xl border px-4 py-2.5 text-left text-sm transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
+              "min-h-[48px] rounded-2xl border px-4 py-2.5 text-left text-sm transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/12",
               selected
-                ? "border-slate-900/15 bg-white text-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.08)]"
-                : "border-transparent bg-transparent text-slate-600 hover:bg-white/80 hover:text-slate-900"
+                ? "border-slate-950 bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
+                : "border-transparent bg-transparent text-slate-600 hover:bg-white hover:text-slate-900"
             )}
           >
-            <span className="block font-medium">{option.label}</span>
+            <span className="flex items-center justify-between gap-3">
+              <span className="block font-medium">{option.label}</span>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "h-2.5 w-2.5 rounded-full transition-colors",
+                  selected ? "bg-white" : "bg-slate-300"
+                )}
+              />
+            </span>
             {option.description ? (
-              <span className="mt-1 block text-xs leading-5 text-slate-500">
+              <span
+                id={descriptionId}
+                className={cn(
+                  "mt-1 block text-xs leading-5",
+                  selected ? "text-white/80" : "text-slate-500"
+                )}
+              >
                 {option.description}
               </span>
             ) : null}
@@ -410,22 +460,32 @@ function ModalSegmentedControl<T extends string>({
 
 function ModalChoiceCardGroup<T extends string>({
   name,
+  ariaLabel,
   value,
   options,
+  fieldOrderStart,
   onChange,
 }: {
   name: string;
+  ariaLabel?: string;
   value: T | "";
   options: Array<{
     value: T;
     label: string;
     description?: string;
   }>;
+  fieldOrderStart?: number;
   onChange: (value: T) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label={name} className="grid gap-3 md:grid-cols-2">
-      {options.map((option) => {
+    <div
+      role="radiogroup"
+      aria-label={ariaLabel ?? name}
+      className="grid gap-3 md:grid-cols-2"
+    >
+      {options.map((option, index) => {
+        const optionId = `${name}-${option.value}`;
+        const descriptionId = option.description ? `${optionId}-description` : undefined;
         const selected = value === option.value;
 
         return (
@@ -434,7 +494,12 @@ function ModalChoiceCardGroup<T extends string>({
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={option.label}
+            aria-describedby={descriptionId}
             onClick={() => onChange(option.value)}
+            data-stepper-field-order={
+              fieldOrderStart !== undefined ? fieldOrderStart + index : undefined
+            }
             className={cn(
               "min-h-[108px] rounded-[22px] border px-4 py-4 text-left transition-all duration-150 focus:outline-none focus:ring-[3px] focus:ring-slate-950/10",
               selected
@@ -447,6 +512,7 @@ function ModalChoiceCardGroup<T extends string>({
             </span>
             {option.description ? (
               <span
+                id={descriptionId}
                 className={`mt-2 block text-xs leading-5 ${
                   selected ? "text-white/80" : "text-slate-500"
                 }`}
@@ -505,7 +571,19 @@ function MiniForm({
     formData.client
   );
   const activePanelRef = useRef<HTMLDivElement | null>(null);
+  const defaultVisibleStepKey =
+    MODAL_SECTION_KEYS.find(
+      (sectionKey) => trackedFieldIdsBySection[sectionKey].length > 0
+    ) ?? null;
+  const defaultIncompleteStepKey =
+    MODAL_SECTION_KEYS.find(
+      (sectionKey) =>
+        trackedFieldIdsBySection[sectionKey].length > 0 &&
+        currentMissingFieldIdsBySection[sectionKey].length > 0
+    ) ?? defaultVisibleStepKey;
   const [preferredActiveStepKey, setPreferredActiveStepKey] =
+    useState<ModalSectionKey | null>(defaultIncompleteStepKey);
+  const [advanceRequestedSectionKey, setAdvanceRequestedSectionKey] =
     useState<ModalSectionKey | null>(null);
   const agencyFieldIds = new Set(trackedFieldIdsBySection.agency);
   const clientFieldIds = new Set(trackedFieldIdsBySection.client);
@@ -534,7 +612,8 @@ function MiniForm({
   };
 
   const handleCompactFieldKeyDown = (
-    event: ReactKeyboardEvent<HTMLInputElement>
+    event: ReactKeyboardEvent<HTMLInputElement>,
+    sectionKey: ModalSectionKey
   ) => {
     if (
       event.key !== "Enter" ||
@@ -548,16 +627,43 @@ function MiniForm({
 
     event.preventDefault();
 
-    const panel = activePanelRef.current;
-    if (!panel) return;
-
-    const advanceFields = Array.from(
-      panel.querySelectorAll<HTMLInputElement>('[data-stepper-advance="true"]')
-    );
+    const advanceFields = getOrderedStepperFields(activePanelRef.current);
     const currentIndex = advanceFields.indexOf(event.currentTarget);
 
     if (currentIndex >= 0 && currentIndex < advanceFields.length - 1) {
       advanceFields[currentIndex + 1]?.focus();
+      return;
+    }
+
+    setAdvanceRequestedSectionKey(sectionKey);
+  };
+
+  const handleActivePanelBlurCapture = (sectionKey: ModalSectionKey) => {
+    window.requestAnimationFrame(() => {
+      const panel = activePanelRef.current;
+      const activeElement = document.activeElement;
+
+      if (panel && activeElement instanceof Node && panel.contains(activeElement)) {
+        return;
+      }
+
+      const remainingFields = currentMissingFieldIdsBySection[sectionKey] ?? [];
+
+      if (remainingFields.length === 0) {
+        setAdvanceRequestedSectionKey(sectionKey);
+      }
+    });
+  };
+
+  const applySectionChange = (
+    sectionKey: ModalSectionKey,
+    updater: (prev: InvoiceFormData) => InvoiceFormData,
+    options?: { advanceOnCommit?: boolean }
+  ) => {
+    onFormDataChange(updater);
+
+    if (options?.advanceOnCommit) {
+      setAdvanceRequestedSectionKey(sectionKey);
     }
   };
 
@@ -570,63 +676,32 @@ function MiniForm({
       missingCount: currentMissingFieldIdsBySection.agency.length,
       content: (
         <div className={appGroupGapClass}>
-          <div className={appFieldGridWideStartClass}>
-            {agencyFieldIds.has("agencyName") ? (
-              <div>
-                <FieldLabel required>Agency Name</FieldLabel>
-                <input
-                  type="text"
-                  value={formData.agency.agencyName}
-                  onChange={(event) =>
-                    onFormDataChange((prev) => ({
-                      ...prev,
-                      agency: {
-                        ...prev.agency,
-                        agencyName: event.target.value,
-                      },
-                    }))
-                  }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
-                  className={getFieldClass({
-                    hasError: fieldErrors.agency.agencyName,
-                    hasValue: Boolean(formData.agency.agencyName),
-                  })}
-                  placeholder="Your agency or freelance brand name"
-                />
-                <ErrorText message={fieldErrors.agency.agencyName} />
-              </div>
-            ) : null}
-
-            {agencyFieldIds.has("agencyState") ? (
-              <div>
-                <FieldLabel required>Agency State</FieldLabel>
-                <ModalSelect
-                  value={formData.agency.agencyState}
-                  onChange={(value) =>
-                    onFormDataChange((prev) => ({
-                      ...prev,
-                      agency: {
-                        ...prev.agency,
-                        agencyState:
-                          value as InvoiceFormData["agency"]["agencyState"],
-                      },
-                    }))
-                  }
-                  hasError={fieldErrors.agency.agencyState}
-                  hasValue={Boolean(formData.agency.agencyState)}
-                >
-                  <option value="">Select state or union territory</option>
-                  {INDIA_STATE_OPTIONS.map((stateName) => (
-                    <option key={stateName} value={stateName}>
-                      {stateName}
-                    </option>
-                  ))}
-                </ModalSelect>
-                <ErrorText message={fieldErrors.agency.agencyState} />
-              </div>
-            ) : null}
-          </div>
+          {agencyFieldIds.has("agencyName") ? (
+            <div>
+              <FieldLabel required>Agency Name</FieldLabel>
+              <input
+                type="text"
+                value={formData.agency.agencyName}
+                onChange={(event) =>
+                  onFormDataChange((prev) => ({
+                    ...prev,
+                    agency: {
+                      ...prev.agency,
+                      agencyName: event.target.value,
+                    },
+                  }))
+                }
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "agency")}
+                data-stepper-field-order={1}
+                className={getFieldClass({
+                  hasError: fieldErrors.agency.agencyName,
+                  hasValue: Boolean(formData.agency.agencyName),
+                })}
+                placeholder="Your agency or freelance brand name"
+              />
+              <ErrorText message={fieldErrors.agency.agencyName} />
+            </div>
+          ) : null}
 
           {agencyFieldIds.has("address") ? (
             <div>
@@ -648,11 +723,48 @@ function MiniForm({
                   hasValue: Boolean(formData.agency.address),
                   multiline: true,
                 })}
+                data-stepper-field-order={2}
                 placeholder="Business address"
               />
               <ErrorText message={fieldErrors.agency.address} />
             </div>
           ) : null}
+
+          <div className={appFieldGridWideStartClass}>
+            {agencyFieldIds.has("agencyState") ? (
+              <div>
+                <FieldLabel required>Agency State</FieldLabel>
+                <ModalSelect
+                  value={formData.agency.agencyState}
+                  onChange={(value) =>
+                    applySectionChange(
+                      "agency",
+                      (prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          agencyState:
+                            value as InvoiceFormData["agency"]["agencyState"],
+                        },
+                      }),
+                      { advanceOnCommit: true }
+                    )
+                  }
+                  fieldOrder={3}
+                  hasError={fieldErrors.agency.agencyState}
+                  hasValue={Boolean(formData.agency.agencyState)}
+                >
+                  <option value="">Select state or union territory</option>
+                  {INDIA_STATE_OPTIONS.map((stateName) => (
+                    <option key={stateName} value={stateName}>
+                      {stateName}
+                    </option>
+                  ))}
+                </ModalSelect>
+                <ErrorText message={fieldErrors.agency.agencyState} />
+              </div>
+            ) : null}
+          </div>
         </div>
       ),
     },
@@ -679,8 +791,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "client")}
+                data-stepper-field-order={1}
                 className={getFieldClass({
                   hasError: fieldErrors.client.clientName,
                   hasValue: Boolean(formData.client.clientName),
@@ -711,26 +823,37 @@ function MiniForm({
                   hasValue: Boolean(formData.client.clientAddress),
                   multiline: true,
                 })}
+                data-stepper-field-order={2}
                 placeholder="Client billing address"
               />
               <ErrorText message={fieldErrors.client.clientAddress} />
             </div>
           ) : null}
 
-          {(clientFieldIds.has("clientState") ||
-            clientFieldIds.has("clientCountry")) ? (
-            <div>
-              <FieldLabel>Client Location</FieldLabel>
-              <ModalSegmentedControl
-                name="modal-client-location"
-                columns={2}
-                value={formData.client.clientLocation}
-                options={[
-                  { value: "domestic", label: "Domestic (India)" },
-                  { value: "international", label: "International" },
-                ]}
-                onChange={(value) =>
-                  onFormDataChange((prev) => ({
+          <div>
+            <FieldLabel>Client Location</FieldLabel>
+            <ModalSegmentedControl
+              name="modal-client-location"
+              ariaLabel="Client Location"
+              columns={2}
+              value={formData.client.clientLocation}
+              options={[
+                {
+                  value: "domestic",
+                  label: "Domestic (India)",
+                  description: "Use Indian state-based billing and domestic payment fields.",
+                },
+                {
+                  value: "international",
+                  label: "International",
+                  description:
+                    "Use country and export-billing fields for a foreign client.",
+                },
+              ]}
+              onChange={(value) =>
+                applySectionChange(
+                  "client",
+                  (prev) => ({
                     ...prev,
                     client: {
                       ...prev.client,
@@ -740,11 +863,16 @@ function MiniForm({
                       clientState:
                         value === "international" ? "" : prev.client.clientState,
                     },
-                  }))
-                }
-              />
-            </div>
-          ) : null}
+                  }),
+                  { advanceOnCommit: true }
+                )
+              }
+              fieldOrderStart={3}
+            />
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              This decides which billing, tax, and payment fields the invoice needs next.
+            </p>
+          </div>
 
           {showInternationalClientFields &&
           (clientFieldIds.has("clientCountry") || Boolean(formData.client.clientCurrency)) ? (
@@ -754,15 +882,20 @@ function MiniForm({
                 <ModalSelect
                   value={formData.client.clientCountry}
                   onChange={(value) =>
-                    onFormDataChange((prev) => ({
-                      ...prev,
-                      client: {
-                        ...prev.client,
-                        clientCountry:
-                          value as InvoiceFormData["client"]["clientCountry"],
-                      },
-                    }))
+                    applySectionChange(
+                      "client",
+                      (prev) => ({
+                        ...prev,
+                        client: {
+                          ...prev.client,
+                          clientCountry:
+                            value as InvoiceFormData["client"]["clientCountry"],
+                        },
+                      }),
+                      { advanceOnCommit: true }
+                    )
                   }
+                  fieldOrder={5}
                   hasError={fieldErrors.client.clientCountry}
                   hasValue={Boolean(formData.client.clientCountry)}
                 >
@@ -781,7 +914,7 @@ function MiniForm({
                 <ModalSelect
                   value={formData.client.clientCurrency}
                   onChange={(value) =>
-                    onFormDataChange((prev) => ({
+                    applySectionChange("client", (prev) => ({
                       ...prev,
                       client: {
                         ...prev.client,
@@ -790,6 +923,7 @@ function MiniForm({
                       },
                     }))
                   }
+                  fieldOrder={6}
                   hasValue={Boolean(formData.client.clientCurrency)}
                 >
                   <option value="">Keep INR as primary</option>
@@ -809,15 +943,20 @@ function MiniForm({
               <ModalSelect
                 value={formData.client.clientState}
                 onChange={(value) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    client: {
-                      ...prev.client,
-                      clientState:
-                        value as InvoiceFormData["client"]["clientState"],
-                    },
-                  }))
+                  applySectionChange(
+                    "client",
+                    (prev) => ({
+                      ...prev,
+                      client: {
+                        ...prev.client,
+                        clientState:
+                          value as InvoiceFormData["client"]["clientState"],
+                      },
+                    }),
+                    { advanceOnCommit: true }
+                  )
                 }
+                fieldOrder={5}
                 hasError={fieldErrors.client.clientState}
                 hasValue={Boolean(formData.client.clientState)}
               >
@@ -874,8 +1013,10 @@ function MiniForm({
                             description: event.target.value,
                           }))
                         }
-                        onKeyDown={handleCompactFieldKeyDown}
-                        data-stepper-advance="true"
+                        onKeyDown={(event) =>
+                          handleCompactFieldKeyDown(event, "deliverables")
+                        }
+                        data-stepper-field-order={index * 10 + 1}
                         className={getFieldClass({
                           hasError: itemErrors?.description,
                           hasValue: Boolean(item.description),
@@ -899,8 +1040,10 @@ function MiniForm({
                             qty: Number(event.target.value),
                           }))
                         }
-                        onKeyDown={handleCompactFieldKeyDown}
-                        data-stepper-advance="true"
+                        onKeyDown={(event) =>
+                          handleCompactFieldKeyDown(event, "deliverables")
+                        }
+                        data-stepper-field-order={index * 10 + 2}
                         className={getFieldClass({
                           hasError: itemErrors?.qty,
                           hasValue: item.qty > 0,
@@ -923,8 +1066,10 @@ function MiniForm({
                             rate: Number(event.target.value),
                           }))
                         }
-                        onKeyDown={handleCompactFieldKeyDown}
-                        data-stepper-advance="true"
+                        onKeyDown={(event) =>
+                          handleCompactFieldKeyDown(event, "deliverables")
+                        }
+                        data-stepper-field-order={index * 10 + 3}
                         className={getFieldClass({
                           hasError: itemErrors?.rate,
                           hasValue: item.rate > 0,
@@ -964,8 +1109,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                data-stepper-field-order={1}
                 className={getFieldClass({
                   hasError: fieldErrors.meta.paymentTerms,
                   hasValue: Boolean(formData.meta.paymentTerms),
@@ -992,8 +1137,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={2}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.accountName,
                     hasValue: Boolean(formData.payment.accountName),
@@ -1018,8 +1163,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={3}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.bankName,
                     hasValue: Boolean(formData.payment.bankName),
@@ -1044,8 +1189,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={4}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.accountNumber,
                     hasValue: Boolean(formData.payment.accountNumber),
@@ -1072,8 +1217,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={5}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.ifscCode,
                     hasValue: Boolean(formData.payment.ifscCode),
@@ -1100,8 +1245,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={5}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.swiftBicCode,
                     hasValue: Boolean(formData.payment.swiftBicCode),
@@ -1131,6 +1276,7 @@ function MiniForm({
                     hasValue: Boolean(formData.payment.bankAddress),
                     multiline: true,
                   })}
+                  data-stepper-field-order={6}
                 />
                 <ErrorText message={fieldErrors.payment.bankAddress} />
               </div>
@@ -1154,8 +1300,8 @@ function MiniForm({
                       },
                     }))
                   }
-                  onKeyDown={handleCompactFieldKeyDown}
-                  data-stepper-advance="true"
+                  onKeyDown={(event) => handleCompactFieldKeyDown(event, "payment")}
+                  data-stepper-field-order={7}
                   className={getFieldClass({
                     hasError: fieldErrors.payment.licenseDuration,
                     hasValue: Boolean(formData.payment.license.licenseDuration),
@@ -1191,8 +1337,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "meta")}
+                data-stepper-field-order={1}
                 className={getFieldClass({
                   hasError: fieldErrors.meta.invoiceNumber,
                   hasValue: Boolean(formData.meta.invoiceNumber),
@@ -1218,8 +1364,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "meta")}
+                data-stepper-field-order={2}
                 className={getFieldClass({
                   hasError: fieldErrors.meta.invoiceDate,
                   hasValue: Boolean(formData.meta.invoiceDate),
@@ -1250,8 +1396,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "meta")}
+                data-stepper-field-order={3}
                 className={getFieldClass({
                   hasError: fieldErrors.meta.dueDate,
                   hasValue: Boolean(formData.meta.dueDate),
@@ -1276,21 +1422,35 @@ function MiniForm({
             <FieldLabel>GST Registration</FieldLabel>
             <ModalSegmentedControl
               name="modal-gst-registration"
+              ariaLabel="GST Registration"
               columns={2}
               value={formData.agency.gstRegistrationStatus}
               options={[
-                { value: "registered", label: "Registered" },
-                { value: "not-registered", label: "Not Registered" },
+                {
+                  value: "registered",
+                  label: "Registered",
+                  description: "GSTIN becomes mandatory and domestic tax can apply.",
+                },
+                {
+                  value: "not-registered",
+                  label: "Not Registered",
+                  description: "Keep the invoice out of GST registration flow.",
+                },
               ]}
               onChange={(value) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  agency: {
-                    ...prev.agency,
-                    gstRegistrationStatus: value,
-                  },
-                }))
+                applySectionChange(
+                  "totals",
+                  (prev) => ({
+                    ...prev,
+                    agency: {
+                      ...prev.agency,
+                      gstRegistrationStatus: value,
+                    },
+                  }),
+                  { advanceOnCommit: true }
+                )
               }
+              fieldOrderStart={1}
             />
           </div>
 
@@ -1310,8 +1470,8 @@ function MiniForm({
                     },
                   }))
                 }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
+                onKeyDown={(event) => handleCompactFieldKeyDown(event, "totals")}
+                data-stepper-field-order={3}
                 className={getFieldClass({
                   hasError: fieldErrors.agency.gstin,
                   hasValue: Boolean(formData.agency.gstin),
@@ -1329,21 +1489,35 @@ function MiniForm({
                 <FieldLabel>Valid LUT for current financial year?</FieldLabel>
                 <ModalSegmentedControl
                   name="modal-lut-availability"
+                  ariaLabel="Valid LUT for current financial year"
                   columns={2}
                   value={formData.agency.lutAvailability}
                   options={[
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
+                    {
+                      value: "yes",
+                      label: "Yes",
+                      description: "Use zero-rated export flow for this international invoice.",
+                    },
+                    {
+                      value: "no",
+                      label: "No",
+                      description: "You’ll need to choose how to handle export IGST.",
+                    },
                   ]}
                   onChange={(value) =>
-                    onFormDataChange((prev) => ({
-                      ...prev,
-                      agency: {
-                        ...prev.agency,
-                        lutAvailability: value,
-                      },
-                    }))
+                    applySectionChange(
+                      "totals",
+                      (prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          lutAvailability: value,
+                        },
+                      }),
+                      { advanceOnCommit: true }
+                    )
                   }
+                  fieldOrderStart={4}
                 />
               </div>
 
@@ -1362,8 +1536,8 @@ function MiniForm({
                         },
                       }))
                     }
-                    onKeyDown={handleCompactFieldKeyDown}
-                    data-stepper-advance="true"
+                    onKeyDown={(event) => handleCompactFieldKeyDown(event, "totals")}
+                    data-stepper-field-order={6}
                     className={getFieldClass({
                       hasValue: Boolean(formData.agency.lutNumber),
                     })}
@@ -1379,6 +1553,7 @@ function MiniForm({
               <FieldLabel required>Export tax handling</FieldLabel>
               <ModalChoiceCardGroup
                 name="modal-export-tax-choice"
+                ariaLabel="Export tax handling"
                 value={formData.agency.noLutTaxHandling}
                 options={[
                   {
@@ -1394,14 +1569,19 @@ function MiniForm({
                   },
                 ]}
                 onChange={(value) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      noLutTaxHandling: value,
-                    },
-                  }))
+                  applySectionChange(
+                    "totals",
+                    (prev) => ({
+                      ...prev,
+                      agency: {
+                        ...prev.agency,
+                        noLutTaxHandling: value,
+                      },
+                    }),
+                    { advanceOnCommit: true }
+                  )
                 }
+                fieldOrderStart={7}
               />
             </div>
           ) : null}
@@ -1411,7 +1591,9 @@ function MiniForm({
   ].filter((section) => section.isVisible);
 
   const activeByDefaultSectionKey =
-    stepSections.find((section) => section.missingCount > 0)?.key ?? null;
+    stepSections.find((section) => section.missingCount > 0)?.key ??
+    stepSections[0]?.key ??
+    null;
   const activeStepKey =
     preferredActiveStepKey &&
     stepSections.some((section) => section.key === preferredActiveStepKey)
@@ -1419,14 +1601,45 @@ function MiniForm({
       : activeByDefaultSectionKey;
 
   useEffect(() => {
-    if (!activeStepKey) return;
+    if (!activeByDefaultSectionKey) {
+      return;
+    }
+
+    if (
+      preferredActiveStepKey &&
+      !stepSections.some((section) => section.key === preferredActiveStepKey)
+    ) {
+      const frameId = window.requestAnimationFrame(() => {
+        setPreferredActiveStepKey(activeByDefaultSectionKey);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frameId);
+      };
+    }
+  }, [activeByDefaultSectionKey, preferredActiveStepKey, stepSections]);
+
+  useEffect(() => {
+    if (!advanceRequestedSectionKey) return;
 
     const activeSectionIndex = stepSections.findIndex(
-      (section) => section.key === activeStepKey
+      (section) => section.key === advanceRequestedSectionKey
     );
     const activeSection = stepSections[activeSectionIndex];
 
-    if (!activeSection || activeSection.missingCount > 0) return;
+    if (!activeSection) {
+      const frameId = window.requestAnimationFrame(() => {
+        setAdvanceRequestedSectionKey(null);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frameId);
+      };
+    }
+
+    if (activeSection.missingCount > 0) {
+      return;
+    }
 
     const nextIncompleteSection =
       stepSections
@@ -1437,29 +1650,21 @@ function MiniForm({
 
     const nextStepKey = nextIncompleteSection?.key ?? null;
 
-    if (nextStepKey === preferredActiveStepKey) {
-      return;
-    }
-
     const frameId = window.requestAnimationFrame(() => {
+      setAdvanceRequestedSectionKey(null);
       setPreferredActiveStepKey(nextStepKey);
     });
 
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [activeStepKey, preferredActiveStepKey, stepSections]);
+  }, [advanceRequestedSectionKey, stepSections]);
 
   useEffect(() => {
     if (!activeStepKey) return;
 
     const frameId = window.requestAnimationFrame(() => {
-      const panel = activePanelRef.current;
-      if (!panel) return;
-
-      const firstFocusable = panel.querySelector<HTMLElement>(
-        'input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled])'
-      );
+      const firstFocusable = getOrderedStepperFields(activePanelRef.current)[0];
 
       if (firstFocusable && document.activeElement !== firstFocusable) {
         firstFocusable.focus();
@@ -1501,12 +1706,15 @@ function MiniForm({
               />
             ) : null}
 
-            <MotionButton
-              type="button"
-              hoverScale={1.02}
-              tapScale={0.98}
-              onClick={() => setPreferredActiveStepKey(section.key)}
-              className={cn(
+              <MotionButton
+                type="button"
+                hoverScale={1.02}
+                tapScale={0.98}
+                onClick={() => {
+                  setAdvanceRequestedSectionKey(null);
+                  setPreferredActiveStepKey(section.key);
+                }}
+                className={cn(
                 "app-focus-ring absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-200 focus:outline-none",
                 isComplete
                   ? "border-emerald-300 bg-emerald-100 text-emerald-900"
@@ -1525,6 +1733,7 @@ function MiniForm({
                   key={`${section.key}-active`}
                   layout
                   ref={activePanelRef}
+                  onBlurCapture={() => handleActivePanelBlurCapture(section.key)}
                   initial={{ opacity: 0, y: 12, scale: 0.992 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.995 }}
@@ -1561,7 +1770,10 @@ function MiniForm({
                     type="button"
                     hoverScale={1.01}
                     tapScale={0.985}
-                    onClick={() => setPreferredActiveStepKey(section.key)}
+                    onClick={() => {
+                      setAdvanceRequestedSectionKey(null);
+                      setPreferredActiveStepKey(section.key);
+                    }}
                     className={cn(
                       "app-focus-ring app-interactive-surface w-full rounded-[24px] border px-5 py-4 text-left transition-all duration-200 focus:outline-none",
                       isComplete
@@ -1721,6 +1933,9 @@ export default function AutofillSummaryModal({
       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="autofill-summary-title"
         initial={{ opacity: 0, y: 18, scale: 0.982 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 12, scale: 0.988 }}
@@ -1742,7 +1957,10 @@ export default function AutofillSummaryModal({
                 <SparklesIcon className="h-4 w-4" />
                 Autofill Summary
               </p>
-              <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
+              <h2
+                id="autofill-summary-title"
+                className="mt-1 text-2xl font-bold tracking-tight text-slate-950"
+              >
                 {isSummaryMode
                   ? "Finish the invoice from extracted details"
                   : "Complete the remaining invoice details"}

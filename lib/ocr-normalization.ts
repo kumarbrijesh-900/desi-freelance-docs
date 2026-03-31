@@ -1,5 +1,34 @@
 import { expandAmountShorthandInText } from "@/lib/amount-normalization";
 
+const looseFieldLabels = [
+  "agency name",
+  "agency address",
+  "business address",
+  "client name",
+  "client address",
+  "bill to",
+  "bank name",
+  "bank address",
+  "bank full address",
+  "beneficiary",
+  "beneficiary name",
+  "account name",
+  "account number",
+  "ifsc",
+  "ifsc code",
+  "swift",
+  "swift / bic code",
+  "swift code",
+  "gstin",
+  "pan",
+  "payment terms",
+  "terms",
+  "country",
+  "currency",
+  "invoice date",
+  "due date",
+];
+
 function normalizeCommonOcrLabels(text: string) {
   return text
     .replace(/\baddre55\b/gi, "address")
@@ -11,6 +40,32 @@ function normalizeCommonOcrLabels(text: string) {
     .replace(/\bterm5\b/gi, "terms")
     .replace(/\bg5tin\b/gi, "gstin")
     .replace(/\bl u t\b/gi, "lut");
+}
+
+function normalizeLooseLabeledLines(text: string) {
+  return text
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+
+      if (!trimmed || /[:\-]\s+\S/.test(trimmed)) {
+        return line;
+      }
+
+      const matchedLabel = looseFieldLabels.find((label) =>
+        new RegExp(`^${label}\\b\\s+`, "i").test(trimmed)
+      );
+
+      if (!matchedLabel) {
+        return line;
+      }
+
+      return trimmed.replace(
+        new RegExp(`^(${matchedLabel})\\b\\s+`, "i"),
+        "$1: "
+      );
+    })
+    .join("\n");
 }
 
 function normalizeWordLevelOcrNoise(text: string) {
@@ -69,7 +124,9 @@ export function normalizeOcrText(text: string) {
   return expandAmountShorthandInText(
     normalizeWordLevelOcrNoise(
       normalizeCommonOcrLabels(
-        removeOcrJunkLines(reconnectSplitWords(normalized))
+        normalizeLooseLabeledLines(
+          removeOcrJunkLines(reconnectSplitWords(normalized))
+        )
       )
     )
   );

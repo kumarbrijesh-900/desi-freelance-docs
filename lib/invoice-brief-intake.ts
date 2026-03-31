@@ -428,7 +428,11 @@ function findFirstMatch(text: string, patterns: RegExp[]) {
 
 function extractLabeledValue(text: string, labels: string[]) {
   const patterns = labels.map(
-    (label) => new RegExp(`(?:^|\\n)\\s*${label}\\s*[:\\-]\\s*(.+)$`, "im")
+    (label) =>
+      new RegExp(
+        `(?:^|\\n)\\s*${label}(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
+        "im"
+      )
   );
 
   return findFirstMatch(text, patterns);
@@ -895,6 +899,10 @@ export function normalizeExtractedData(
   extraction: AiBriefExtraction,
   rawText: string
 ): InvoiceBriefExtractionSchema {
+  const fallbackAgencyName =
+    cleanValue(extraction.agencyName.value) ||
+    cleanValue(extraction.payment.accountName.value) ||
+    "";
   const agencyAddressValue =
     extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
   const clientAddressValue =
@@ -1032,10 +1040,17 @@ export function normalizeExtractedData(
   const dueDateValue = formatDateCandidate(extraction.timeline.dueDate.value);
 
   const normalized: InvoiceBriefExtractionSchema = {
-    agencyName: createAiCandidate(
-      cleanValue(extraction.agencyName.value),
-      extraction.agencyName.confidence
-    ),
+    agencyName: fallbackAgencyName
+      ? makeCandidate(
+          fallbackAgencyName,
+          extraction.agencyName.value
+            ? extraction.agencyName.confidence
+            : extraction.payment.accountName.value
+            ? extraction.payment.accountName.confidence
+            : "low",
+          extraction.agencyName.value ? "ai" : "inference"
+        )
+      : undefined,
     agencyAddress: createAiCandidate(
       cleanAddressValue(agencyAddressValue),
       extraction.agencyAddress.value
@@ -1599,8 +1614,11 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
 
   const inferred = extractPatternValue(text, [
     /\bwe(?:'re| are)\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b|need\b|invoice\b|did\b|made\b)|$)/i,
+    /\bwe\s+at\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b|need\b|invoice\b|did\b|made\b)|$)/i,
     /\bour (?:studio|agency)(?: is)?\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b)|$)/i,
     /\b(?:i(?:'m| am)|this is)\s+([a-z][a-z0-9&.' -]{2,60}?)(?=,|\.|\n|\s+(?:from\b|at\b|based\b|invoice\b|project\b)|$)/i,
+    /\bfrom\s+([a-z0-9&.' -]{3,80}?(?:studio|design|creative|agency|media|labs|works?|collective|co\.?|llc|pvt\.?\s*ltd\.?|private limited))(?=,|\.|\n|$)/i,
+    /(?:^|\n)\s*(?:regards|thanks|best),?\s*\n\s*([a-z0-9&.' -]{3,80}?(?:studio|design|creative|agency|media|labs|works?|collective|co\.?|llc|pvt\.?\s*ltd\.?|private limited))(?=,|\.|\n|$)/i,
   ]);
 
   return inferred && looksLikeEntityName(inferred)
@@ -2298,7 +2316,17 @@ function extractHeuristicLineItems(text: string) {
 export function extractInvoiceBriefSchema(
   text: string
 ): InvoiceBriefExtractionSchema {
-  const agencyName = extractAgencyName(text);
+  const paymentAccountName = extractPaymentField(text, [
+    "beneficiary",
+    "beneficiary name",
+    "account name",
+    "name on account",
+  ]);
+  const agencyName =
+    extractAgencyName(text) ??
+    (paymentAccountName?.value && looksLikeEntityName(paymentAccountName.value)
+      ? makeCandidate(paymentAccountName.value, "medium", "inference")
+      : undefined);
   const agencyAddress = extractAgencyAddress(text);
   const clientName = extractClientName(text);
   const clientAddress = extractClientAddress(text);
@@ -2473,12 +2501,7 @@ export function extractInvoiceBriefSchema(
     licenseType: extractLicenseType(text),
     paymentTerms: extractPaymentTerms(text),
     paymentMode,
-    paymentAccountName: extractPaymentField(text, [
-      "beneficiary",
-      "beneficiary name",
-      "account name",
-      "name on account",
-    ]),
+    paymentAccountName,
     paymentBankName: extractPaymentField(text, ["bank name"]),
     paymentBankAddress: extractPaymentField(text, ["bank address", "bank full address"]),
     paymentAccountNumber: extractPaymentField(text, ["account number"]),

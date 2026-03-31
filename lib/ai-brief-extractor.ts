@@ -66,6 +66,7 @@ export type AiBriefExtraction = {
 
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
 const DEFAULT_MODEL = "gpt-4o-mini";
+const AI_EXTRACTION_TIMEOUT_MS = 4500;
 
 function createNullableStringFieldSchema(description: string) {
   return {
@@ -359,6 +360,8 @@ IMPORTANT RULES:
 - Do NOT hallucinate details that are unsupported by the brief
 - If a guess would be too speculative, still return the closest grounded interpretation with low confidence
 - Separate agency details from client details from payment details
+- Treat sender/self-referential phrases like "we are", "I'm", "from", "our studio", and beneficiary/account-name details as agency clues
+- Treat phrases like "invoice for", "bill to", "client", "brand", and "your company" as client clues
 - Treat AI output as an intelligent assistant interpretation, not a literal regex dump
 - If any grounded signal exists for a schema field, try to map it instead of leaving the field empty
 - Favor role-based extraction: agency, client, invoice, deliverables, compliance, payment, timeline
@@ -448,44 +451,69 @@ export async function extractInvoiceBriefWithAi(
     return null;
   }
 
-  const response = await fetch(OPENAI_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_BRIEF_EXTRACTION_MODEL || DEFAULT_MODEL,
-      input: [
-        {
-          role: "system",
-          content: [
-            {
-              type: "input_text",
-              text: SYSTEM_PROMPT,
-            },
-          ],
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: normalizedText,
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "invoice_brief_interpretation_v3",
-          strict: true,
-          schema: AI_EXTRACTION_SCHEMA,
-        },
+  const abortController = new AbortController();
+  const timeout = setTimeout(
+    () => abortController.abort("AI brief extraction timed out."),
+    AI_EXTRACTION_TIMEOUT_MS
+  );
+
+  let response: Response;
+
+  try {
+    response = await fetch(OPENAI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-    }),
-  });
+      body: JSON.stringify({
+        model: process.env.OPENAI_BRIEF_EXTRACTION_MODEL || DEFAULT_MODEL,
+        input: [
+          {
+            role: "system",
+            content: [
+              {
+                type: "input_text",
+                text: SYSTEM_PROMPT,
+              },
+            ],
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "input_text",
+                text: normalizedText,
+              },
+            ],
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "invoice_brief_interpretation_v3",
+            strict: true,
+            schema: AI_EXTRACTION_SCHEMA,
+          },
+        },
+      }),
+      signal: abortController.signal,
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === "AbortError" ||
+        error.message.includes("timed out") ||
+        error.message.includes("aborted"))
+    ) {
+      console.warn("AI brief extraction timed out; falling back to parser only.");
+      return null;
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
