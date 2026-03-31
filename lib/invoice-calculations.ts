@@ -11,6 +11,8 @@ type CalculateInvoiceTotalsInput = {
   clientState: IndiaStateOption | "";
   isInternational: boolean;
   gstRegistered: boolean;
+  lutAvailability: "" | "yes" | "no";
+  noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
 };
 
 export function calculateInvoiceTotals({
@@ -19,6 +21,8 @@ export function calculateInvoiceTotals({
   clientState,
   isInternational,
   gstRegistered,
+  lutAvailability,
+  noLutTaxHandling,
 }: CalculateInvoiceTotalsInput): InvoiceComputedValues {
   const subtotal = lineItems.reduce((sum, item) => {
     const qty = Number(item.qty) || 0;
@@ -32,6 +36,8 @@ export function calculateInvoiceTotals({
     clientState,
     isInternational,
     gstRegistered,
+    lutAvailability,
+    noLutTaxHandling,
   });
 
   return {

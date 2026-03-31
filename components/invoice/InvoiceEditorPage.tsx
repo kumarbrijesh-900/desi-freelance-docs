@@ -577,6 +577,8 @@ export default function InvoiceEditorPage() {
   );
 
   const clientIsInternational = formData.client.clientLocation === "international";
+  const agencyIsGstRegistered =
+    formData.agency.gstRegistrationStatus === "registered";
 
   const computedTotals = useMemo(
     () =>
@@ -585,15 +587,18 @@ export default function InvoiceEditorPage() {
         agencyState: formData.agency.agencyState,
         clientState: formData.client.clientState,
         isInternational: clientIsInternational,
-        gstRegistered:
-          formData.agency.gstRegistrationStatus === "registered",
+        gstRegistered: agencyIsGstRegistered,
+        lutAvailability: formData.agency.lutAvailability,
+        noLutTaxHandling: formData.agency.noLutTaxHandling,
       }),
     [
       formData.lineItems,
       formData.agency.agencyState,
       formData.client.clientState,
       clientIsInternational,
-      formData.agency.gstRegistrationStatus,
+      agencyIsGstRegistered,
+      formData.agency.lutAvailability,
+      formData.agency.noLutTaxHandling,
     ]
   );
 
@@ -618,6 +623,22 @@ export default function InvoiceEditorPage() {
   }, [computedTotals.taxType]);
 
   const totalsComplianceMessage = useMemo(() => {
+    if (clientIsInternational && agencyIsGstRegistered) {
+      if (formData.agency.lutAvailability === "yes") {
+        return "Export of services under LUT — no IGST charged on client invoice.";
+      }
+
+      if (formData.agency.lutAvailability === "no") {
+        return "";
+      }
+
+       return "Set LUT status in Agency Compliance to determine how export tax should be handled for this invoice.";
+    }
+
+    if (clientIsInternational && !agencyIsGstRegistered) {
+      return "No GST applied because agency is marked as not registered under GST.";
+    }
+
     if (computedTotals.taxType === "CGST_SGST") {
       return "Domestic same-state billing: tax is split into CGST 9% and SGST 9%.";
     }
@@ -626,11 +647,7 @@ export default function InvoiceEditorPage() {
       return "Domestic interstate billing: IGST 18% applies to this invoice.";
     }
 
-    if (clientIsInternational) {
-      return "International invoices are currently kept at 0% tax in this step. Export tax handling is managed separately in compliance flow.";
-    }
-
-    if (formData.agency.gstRegistrationStatus !== "registered") {
+    if (!agencyIsGstRegistered) {
       return "Tax is set to 0% because the agency is marked as not registered under GST.";
     }
 
@@ -642,10 +659,34 @@ export default function InvoiceEditorPage() {
   }, [
     computedTotals.taxType,
     clientIsInternational,
-    formData.agency.gstRegistrationStatus,
+    agencyIsGstRegistered,
+    formData.agency.lutAvailability,
     formData.agency.agencyState,
     formData.client.clientState,
   ]);
+
+  const totalsComplianceVariant = useMemo(() => {
+    if (clientIsInternational && agencyIsGstRegistered) {
+      return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
+    }
+
+    return "neutral";
+  }, [
+    clientIsInternational,
+    agencyIsGstRegistered,
+    formData.agency.lutAvailability,
+  ]);
+
+  const showInternationalExportDecision =
+    clientIsInternational &&
+    agencyIsGstRegistered &&
+    formData.agency.lutAvailability === "no";
+
+  const exportTaxHelperNote =
+    showInternationalExportDecision &&
+    formData.agency.noLutTaxHandling === "keep-zero-tax"
+      ? "Internal note: this invoice is being kept tax-clean for the client, and IGST will be handled separately outside the client-facing invoice."
+      : "";
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -952,6 +993,21 @@ export default function InvoiceEditorPage() {
                 rateLabel="Total Tax %"
                 gstOptionLabel="CGST + SGST"
                 complianceMessage={totalsComplianceMessage}
+                complianceVariant={totalsComplianceVariant}
+                exportTaxDecision={formData.agency.noLutTaxHandling}
+                exportTaxHelperNote={exportTaxHelperNote}
+                onExportTaxDecisionChange={
+                  showInternationalExportDecision
+                    ? (noLutTaxHandling) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          agency: {
+                            ...prev.agency,
+                            noLutTaxHandling,
+                          },
+                        }))
+                    : undefined
+                }
                 onChange={(tax) =>
                   setFormData((prev) => ({
                     ...prev,
