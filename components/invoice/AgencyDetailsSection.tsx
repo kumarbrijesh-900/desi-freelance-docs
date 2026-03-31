@@ -6,6 +6,7 @@ import UploadToast from "@/components/ui/UploadToast";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
+  clientLocation: "domestic" | "international";
   onChange: (value: AgencyDetails) => void;
   errors?: {
     agencyName?: string;
@@ -17,6 +18,7 @@ interface AgencyDetailsSectionProps {
 
 export default function AgencyDetailsSection({
   value,
+  clientLocation,
   onChange,
   errors,
 }: AgencyDetailsSectionProps) {
@@ -94,6 +96,8 @@ export default function AgencyDetailsSection({
         : "border-gray-300 bg-white text-black hover:border-black"
     }`;
   const showGstinField = value.gstRegistrationStatus === "registered";
+  const showLutSection =
+    clientLocation === "international" && showGstinField;
 
   return (
     <>
@@ -208,6 +212,71 @@ export default function AgencyDetailsSection({
                         {errors.gstin}
                       </p>
                     ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+                  showLutSection
+                    ? "mt-4 grid-rows-[1fr] opacity-100"
+                    : "mt-0 grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="border-t border-gray-200 pt-4">
+                    <label className="mb-2 block text-sm font-medium text-black">
+                      Valid LUT for current financial year?
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => updateField("lutAvailability", "yes")}
+                        className={chipButtonClass(
+                          value.lutAvailability === "yes"
+                        )}
+                      >
+                        Yes
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => updateField("lutAvailability", "no")}
+                        className={chipButtonClass(
+                          value.lutAvailability === "no"
+                        )}
+                      >
+                        No
+                      </button>
+                    </div>
+
+                    <div
+                      className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+                        value.lutAvailability === "yes"
+                          ? "mt-4 grid-rows-[1fr] opacity-100"
+                          : "mt-0 grid-rows-[0fr] opacity-0"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="border-t border-gray-200 pt-4">
+                          <label className="mb-2 block text-sm font-medium text-black">
+                            LUT Number / ARN
+                          </label>
+                          <input
+                            type="text"
+                            value={value.lutNumber}
+                            onChange={(e) =>
+                              updateField("lutNumber", e.target.value)
+                            }
+                            placeholder="Recommended, not mandatory"
+                            className={inputClass()}
+                          />
+                          <p className="mt-2 text-xs leading-5 text-gray-500">
+                            Add the LUT reference if you have it handy.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

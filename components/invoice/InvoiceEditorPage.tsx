@@ -127,6 +127,8 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       pan: "ABCDE1234F",
       logoUrl: "/dummy-logo.svg",
       gstRegistrationStatus: "registered",
+      lutAvailability: "",
+      lutNumber: "",
     },
     client: {
       clientName: "Metro Shoes Pvt. Ltd.",
@@ -186,7 +188,9 @@ function isFormTouched(formData: InvoiceFormData) {
       formData.agency.gstin ||
       formData.agency.pan ||
       formData.agency.logoUrl ||
-      formData.agency.gstRegistrationStatus
+      formData.agency.gstRegistrationStatus ||
+      formData.agency.lutAvailability ||
+      formData.agency.lutNumber
   );
 
   const hasClientData = Boolean(
@@ -794,6 +798,7 @@ export default function InvoiceEditorPage() {
             {currentStep === "agency" && (
               <AgencyDetailsSection
                 value={formData.agency}
+                clientLocation={formData.client.clientLocation}
                 onChange={(agency) =>
                   setFormData((prev) => ({
                     ...prev,
