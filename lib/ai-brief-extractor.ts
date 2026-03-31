@@ -496,6 +496,6 @@ export async function extractInvoiceBriefWithAi(
   }
 
   const parsed = JSON.parse(outputText) as AiBriefExtraction;
-  console.log("[Brief Intake AI] Raw AI response:", parsed);
+  console.log("AI STRUCTURED OUTPUT:", parsed);
   return parsed;
 }

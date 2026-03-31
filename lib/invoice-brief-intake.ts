@@ -495,7 +495,7 @@ function extractLabeledValue(text: string, labels: string[]) {
 }
 
 function parseAmount(value: string) {
-  const normalized = value.toLowerCase().replace(/,/g, " ").trim();
+  const normalized = value.toLowerCase().replace(/,/g, "").trim();
   const amountMatch = normalized.match(/(\d+(?:\.\d+)?)\s*(k|m|lakh|lac)?\b/i);
 
   if (!amountMatch) {
