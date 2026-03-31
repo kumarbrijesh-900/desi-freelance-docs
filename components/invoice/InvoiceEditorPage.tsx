@@ -587,6 +587,12 @@ export default function InvoiceEditorPage() {
   const clientIsInternational = formData.client.clientLocation === "international";
   const agencyIsGstRegistered =
     formData.agency.gstRegistrationStatus === "registered";
+  const effectiveExportTaxDecision =
+    clientIsInternational &&
+    agencyIsGstRegistered &&
+    formData.agency.lutAvailability !== "yes"
+      ? formData.agency.noLutTaxHandling || "keep-zero-tax"
+      : formData.agency.noLutTaxHandling;
   const displayCurrency = useMemo(
     () =>
       getInvoiceDisplayCurrency({
@@ -605,7 +611,7 @@ export default function InvoiceEditorPage() {
         isInternational: clientIsInternational,
         gstRegistered: agencyIsGstRegistered,
         lutAvailability: formData.agency.lutAvailability,
-        noLutTaxHandling: formData.agency.noLutTaxHandling,
+        noLutTaxHandling: effectiveExportTaxDecision,
       }),
     [
       formData.lineItems,
@@ -614,7 +620,7 @@ export default function InvoiceEditorPage() {
       clientIsInternational,
       agencyIsGstRegistered,
       formData.agency.lutAvailability,
-      formData.agency.noLutTaxHandling,
+      effectiveExportTaxDecision,
     ]
   );
 
@@ -641,14 +647,14 @@ export default function InvoiceEditorPage() {
   const totalsComplianceMessage = useMemo(() => {
     if (clientIsInternational && agencyIsGstRegistered) {
       if (formData.agency.lutAvailability === "yes") {
-        return "Export of services under LUT — no IGST charged on client invoice.";
+        const lutNumber = formData.agency.lutNumber.trim();
+
+        return lutNumber
+          ? `Export of services under LUT ${lutNumber} without payment of IGST.`
+          : "Export of services under LUT without payment of IGST.";
       }
 
-      if (formData.agency.lutAvailability === "no") {
-        return "";
-      }
-
-       return "Set LUT status in Agency Compliance to determine how export tax should be handled for this invoice.";
+      return "";
     }
 
     if (clientIsInternational && !agencyIsGstRegistered) {
@@ -677,6 +683,7 @@ export default function InvoiceEditorPage() {
     clientIsInternational,
     agencyIsGstRegistered,
     formData.agency.lutAvailability,
+    formData.agency.lutNumber,
     formData.agency.agencyState,
     formData.client.clientState,
   ]);
@@ -696,13 +703,18 @@ export default function InvoiceEditorPage() {
   const showInternationalExportDecision =
     clientIsInternational &&
     agencyIsGstRegistered &&
-    formData.agency.lutAvailability === "no";
+    formData.agency.lutAvailability !== "yes";
 
   const exportTaxHelperNote =
     showInternationalExportDecision &&
-    formData.agency.noLutTaxHandling === "keep-zero-tax"
-      ? "Internal note: this invoice is being kept tax-clean for the client, and IGST will be handled separately outside the client-facing invoice."
+    effectiveExportTaxDecision === "keep-zero-tax"
+      ? "You chose to handle the IGST liability separately."
       : "";
+  const estimatedIgstLiability =
+    showInternationalExportDecision &&
+    effectiveExportTaxDecision === "keep-zero-tax"
+      ? computedTotals.subtotal * 0.18
+      : undefined;
   const showApproximateUsdReference =
     clientIsInternational && !formData.client.clientCurrency;
   const approximateUsdGrandTotal = showApproximateUsdReference
@@ -1016,8 +1028,9 @@ export default function InvoiceEditorPage() {
                 gstOptionLabel="CGST + SGST"
                 complianceMessage={totalsComplianceMessage}
                 complianceVariant={totalsComplianceVariant}
-                exportTaxDecision={formData.agency.noLutTaxHandling}
+                exportTaxDecision={effectiveExportTaxDecision}
                 exportTaxHelperNote={exportTaxHelperNote}
+                estimatedIgstLiability={estimatedIgstLiability}
                 grandTotalReferenceLabel={
                   showApproximateUsdReference
                     ? "Approx. USD total (reference only)"

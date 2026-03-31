@@ -2,6 +2,7 @@
 
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
+import ChoiceCards from "@/components/ui/ChoiceCards";
 
 type InternationalTaxHandling = "" | "add-igst" | "keep-zero-tax";
 
@@ -18,6 +19,7 @@ type TotalsTaxesSectionProps = {
   complianceVariant?: "neutral" | "info" | "warning";
   exportTaxDecision?: InternationalTaxHandling;
   exportTaxHelperNote?: string;
+  estimatedIgstLiability?: number;
   grandTotalReferenceLabel?: string;
   grandTotalReferenceAmount?: number;
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
@@ -72,6 +74,7 @@ export default function TotalsTaxesSection({
   complianceVariant = "neutral",
   exportTaxDecision = "",
   exportTaxHelperNote = "",
+  estimatedIgstLiability,
   grandTotalReferenceLabel = "",
   grandTotalReferenceAmount,
   onExportTaxDecisionChange,
@@ -96,12 +99,6 @@ export default function TotalsTaxesSection({
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const panelClass =
     "flex h-full flex-col justify-between rounded-2xl border border-gray-200 p-4";
-  const decisionCardClass = (isSelected: boolean) =>
-    `rounded-2xl border p-3 text-left transition ${
-      isSelected
-        ? "border-black bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]"
-        : "border-gray-200 bg-white hover:border-gray-300"
-    }`;
   const complianceMessageClass =
     complianceVariant === "warning"
       ? "mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
@@ -143,55 +140,37 @@ export default function TotalsTaxesSection({
           <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
             <p className="text-sm font-medium leading-6 text-amber-950">
               No valid LUT has been provided for this international invoice.
-              Export of services may require 18% IGST. Foreign clients often
-              expect a tax-clean invoice. Choose how you want to handle this
-              invoice.
+              Export of services may require 18% IGST. Choose how you want to
+              handle this invoice.
             </p>
 
-            <div className="mt-4 space-y-3">
-              <label className={decisionCardClass(exportTaxDecision === "add-igst")}>
-                <span className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    name="export-tax-handling"
-                    value="add-igst"
-                    checked={exportTaxDecision === "add-igst"}
-                    onChange={() => onExportTaxDecisionChange("add-igst")}
-                    className="mt-1 h-4 w-4 border-gray-300 text-black focus:ring-black"
-                  />
-                  <span className="text-sm font-medium text-black">
-                    Add 18% IGST to the client invoice
-                  </span>
-                </span>
-              </label>
-
-              <label
-                className={decisionCardClass(
-                  exportTaxDecision === "keep-zero-tax"
-                )}
-              >
-                <span className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    name="export-tax-handling"
-                    value="keep-zero-tax"
-                    checked={exportTaxDecision === "keep-zero-tax"}
-                    onChange={() =>
-                      onExportTaxDecisionChange("keep-zero-tax")
-                    }
-                    className="mt-1 h-4 w-4 border-gray-300 text-black focus:ring-black"
-                  />
-                  <span className="text-sm font-medium text-black">
-                    Keep client invoice at 0% tax — I will handle IGST
-                    separately
-                  </span>
-                </span>
-              </label>
+            <div className="mt-4">
+              <ChoiceCards
+                name="export-tax-handling"
+                value={exportTaxDecision}
+                onChange={onExportTaxDecisionChange}
+                options={[
+                  {
+                    value: "add-igst",
+                    label: "Add 18% IGST to the client invoice",
+                  },
+                  {
+                    value: "keep-zero-tax",
+                    label:
+                      "Keep client invoice at 0% tax — I will handle IGST separately",
+                  },
+                ]}
+              />
             </div>
 
             {exportTaxHelperNote ? (
               <p className="mt-3 text-xs leading-5 text-amber-900/80">
                 {exportTaxHelperNote}
+              </p>
+            ) : null}
+            {typeof estimatedIgstLiability === "number" ? (
+              <p className="mt-2 text-sm font-medium leading-6 text-amber-950">
+                Estimated IGST liability: {formatCurrency(estimatedIgstLiability, "INR")}
               </p>
             ) : null}
           </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
+import ChoiceCards from "@/components/ui/ChoiceCards";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
 interface AgencyDetailsSectionProps {
@@ -257,27 +258,25 @@ export default function AgencyDetailsSection({
                     <label className="mb-2 block text-sm font-medium text-black">
                       Valid LUT for current financial year?
                     </label>
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={() => updateField("lutAvailability", "yes")}
-                        className={chipButtonClass(
-                          value.lutAvailability === "yes"
-                        )}
-                      >
-                        Yes
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => updateField("lutAvailability", "no")}
-                        className={chipButtonClass(
-                          value.lutAvailability === "no"
-                        )}
-                      >
-                        No
-                      </button>
-                    </div>
+                    <ChoiceCards
+                      name="agency-lut-availability"
+                      value={value.lutAvailability}
+                      onChange={(nextValue) =>
+                        updateField("lutAvailability", nextValue)
+                      }
+                      variant="segmented"
+                      columns={2}
+                      options={[
+                        {
+                          value: "yes",
+                          label: "Yes",
+                        },
+                        {
+                          value: "no",
+                          label: "No",
+                        },
+                      ]}
+                    />
 
                     <div
                       className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
