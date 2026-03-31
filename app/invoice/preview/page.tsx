@@ -4,10 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
+  getClientFacingTaxComplianceNote,
   getClientTaxIdLabel,
   getEffectiveExportTaxHandling,
-  getLutDeclarationText,
+  hasExplicitExportTaxChoice,
+  isAgencyGstRegistered,
   isInternationalClient,
+  requiresExplicitExportTaxChoice,
+  shouldShowAgencyGstin,
 } from "@/lib/invoice-compliance";
 import {
   convertInrToApproximateUsd,
@@ -117,8 +121,15 @@ export default function InvoicePreviewPage() {
   const clientIsInternational = data
     ? isInternationalClient(data.client)
     : false;
-  const agencyIsGstRegistered =
-    data?.agency?.gstRegistrationStatus === "registered";
+  const agencyIsGstRegistered = data
+    ? isAgencyGstRegistered(data.agency)
+    : false;
+  const requiresExportChoice = data
+    ? requiresExplicitExportTaxChoice(data.agency, data.client)
+    : false;
+  const hasResolvedExportChoice = data
+    ? hasExplicitExportTaxChoice(data.agency)
+    : false;
   const effectiveExportTaxHandling = data
     ? getEffectiveExportTaxHandling(data.agency)
     : "";
@@ -162,8 +173,11 @@ export default function InvoicePreviewPage() {
     effectiveExportTaxHandling,
   ]);
 
+  const shouldRenderAgencyGstin = data
+    ? shouldShowAgencyGstin(data.agency)
+    : false;
   const hasAgencyTax = Boolean(
-    (agencyIsGstRegistered && data?.agency?.gstin) || data?.agency?.pan
+    shouldRenderAgencyGstin || data?.agency?.pan?.trim()
   );
   const hasClientTaxId = Boolean(data?.client?.clientGstin);
   const hasNotes = Boolean(data?.payment?.notes?.trim());
@@ -203,33 +217,11 @@ export default function InvoicePreviewPage() {
       : null;
   const clientTaxLabel = data ? getClientTaxIdLabel(data.client) : "GSTIN";
   const taxComplianceNote = data
-    ? (() => {
-        if (clientIsInternational && agencyIsGstRegistered) {
-          if (data.agency.lutAvailability === "yes") {
-            return getLutDeclarationText(data.agency);
-          }
-
-          if (effectiveExportTaxHandling === "add-igst") {
-            return "IGST 18% has been added to this international invoice.";
-          }
-
-          return "";
-        }
-
-        if (clientIsInternational && !agencyIsGstRegistered) {
-          return "No GST applied because agency is marked as not registered under GST.";
-        }
-
-        if (computed.taxType === "CGST_SGST") {
-          return "Domestic same-state billing: CGST 9% and SGST 9% applied.";
-        }
-
-        if (computed.taxType === "IGST") {
-          return "Domestic interstate billing: IGST 18% applied.";
-        }
-
-        return "";
-      })()
+    ? getClientFacingTaxComplianceNote({
+        agency: data.agency,
+        client: data.client,
+        taxType: computed.taxType,
+      })
     : "";
 
   useEffect(() => {
@@ -314,6 +306,30 @@ export default function InvoicePreviewPage() {
           <div className="mt-6">
             <Link
               href="/invoice/new"
+              className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+            >
+              ← Back to Editor
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (requiresExportChoice && !hasResolvedExportChoice) {
+    return (
+      <main className="min-h-screen bg-gray-100 px-6 py-10">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            This international invoice still needs an explicit export tax
+            choice in Totals &amp; Taxes before preview or PDF export.
+          </p>
+
+          <div className="mt-6">
+            <Link
+              href="/invoice/new"
+              onClick={handleBackToEdit}
               className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
             >
               ← Back to Editor
@@ -415,7 +431,7 @@ export default function InvoicePreviewPage() {
                   {data.agency?.agencyState ? (
                     <p>State: {data.agency.agencyState}</p>
                   ) : null}
-                  {agencyIsGstRegistered && data.agency?.gstin ? (
+                  {shouldRenderAgencyGstin ? (
                     <p>GSTIN: {data.agency.gstin}</p>
                   ) : null}
                   {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}

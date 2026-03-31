@@ -2,7 +2,12 @@ import type {
   InvoiceFormData,
   InvoiceStepperStep,
 } from "@/types/invoice";
-import { isInternationalClient } from "@/lib/invoice-compliance";
+import {
+  hasExplicitExportTaxChoice,
+  isAgencyGstRegistered,
+  isInternationalClient,
+  requiresExplicitExportTaxChoice,
+} from "@/lib/invoice-compliance";
 
 export type InvoiceFieldErrors = {
   agency: {
@@ -53,14 +58,6 @@ function isBlank(value?: string) {
   return !value || !value.trim();
 }
 
-function requiresExportTaxDecision(formData: InvoiceFormData) {
-  return (
-    isInternationalClient(formData.client) &&
-    formData.agency.gstRegistrationStatus === "registered" &&
-    formData.agency.lutAvailability !== "yes"
-  );
-}
-
 export function getInvoiceFieldErrors(
   formData: InvoiceFormData
 ): InvoiceFieldErrors {
@@ -84,9 +81,7 @@ export function getInvoiceFieldErrors(
     errors.agency.agencyState = "Agency state is required.";
   }
 
-  if (
-    formData.agency.gstRegistrationStatus === "registered"
-  ) {
+  if (isAgencyGstRegistered(formData.agency)) {
     if (isBlank(formData.agency.gstin)) {
       errors.agency.gstin = "GSTIN is required when registered under GST.";
     } else if (
@@ -283,7 +278,10 @@ export function isInvoiceStepValid(
       );
 
     case "totals":
-      return !requiresExportTaxDecision(formData) || Boolean(formData.agency.noLutTaxHandling);
+      return (
+        !requiresExplicitExportTaxChoice(formData.agency, formData.client) ||
+        hasExplicitExportTaxChoice(formData.agency)
+      );
 
     default:
       return true;
@@ -319,8 +317,8 @@ export function getInvoiceStepError(
 
     case "totals":
       return (
-        !requiresExportTaxDecision(formData) ||
-        formData.agency.noLutTaxHandling
+        !requiresExplicitExportTaxChoice(formData.agency, formData.client) ||
+        hasExplicitExportTaxChoice(formData.agency)
       )
         ? ""
         : "Choose how you want to handle export tax before previewing this invoice.";
