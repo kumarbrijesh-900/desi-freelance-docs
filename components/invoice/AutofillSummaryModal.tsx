@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { InvoiceFieldErrors } from "@/lib/invoice-validation";
-import { requiresExplicitExportTaxChoice } from "@/lib/invoice-compliance";
+import {
+  hasExplicitExportTaxChoice,
+  requiresExplicitExportTaxChoice,
+} from "@/lib/invoice-compliance";
 import type {
   BriefClarificationAction,
   BriefAutofillFieldSummary,
@@ -46,8 +49,122 @@ interface AutofillSummaryModalProps {
   onPreview: () => void;
 }
 
+type ModalSectionKey =
+  | "agency"
+  | "client"
+  | "deliverables"
+  | "payment"
+  | "meta"
+  | "totals";
+
+type MissingFieldIdsBySection = Record<ModalSectionKey, string[]>;
+
 function cn(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
+}
+
+const MODAL_SECTION_KEYS: ModalSectionKey[] = [
+  "agency",
+  "client",
+  "deliverables",
+  "payment",
+  "meta",
+  "totals",
+];
+
+function createEmptyMissingFieldIdsBySection(): MissingFieldIdsBySection {
+  return {
+    agency: [],
+    client: [],
+    deliverables: [],
+    payment: [],
+    meta: [],
+    totals: [],
+  };
+}
+
+function uniqFieldIds(fieldIds: string[]) {
+  return Array.from(new Set(fieldIds));
+}
+
+function mergeMissingFieldIdsBySection(
+  previous: MissingFieldIdsBySection,
+  current: MissingFieldIdsBySection
+) {
+  const next = createEmptyMissingFieldIdsBySection();
+  let hasChanges = false;
+
+  for (const sectionKey of MODAL_SECTION_KEYS) {
+    next[sectionKey] = uniqFieldIds([
+      ...previous[sectionKey],
+      ...current[sectionKey],
+    ]);
+
+    if (
+      next[sectionKey].length !== previous[sectionKey].length ||
+      next[sectionKey].some((fieldId, index) => fieldId !== previous[sectionKey][index])
+    ) {
+      hasChanges = true;
+    }
+  }
+
+  return hasChanges ? next : previous;
+}
+
+function buildMissingFieldIdsBySection(params: {
+  formData: InvoiceFormData;
+  fieldErrors: InvoiceFieldErrors;
+}): MissingFieldIdsBySection {
+  const { formData, fieldErrors } = params;
+  const sectionFieldIds = createEmptyMissingFieldIdsBySection();
+
+  if (fieldErrors.agency.agencyName) sectionFieldIds.agency.push("agencyName");
+  if (fieldErrors.agency.address) sectionFieldIds.agency.push("address");
+  if (fieldErrors.agency.agencyState) sectionFieldIds.agency.push("agencyState");
+  if (fieldErrors.agency.gstin) sectionFieldIds.totals.push("gstin");
+
+  if (fieldErrors.client.clientName) sectionFieldIds.client.push("clientName");
+  if (fieldErrors.client.clientAddress) sectionFieldIds.client.push("clientAddress");
+  if (fieldErrors.client.clientState) sectionFieldIds.client.push("clientState");
+  if (fieldErrors.client.clientCountry) sectionFieldIds.client.push("clientCountry");
+
+  if (fieldErrors.meta.paymentTerms) sectionFieldIds.payment.push("paymentTerms");
+  if (fieldErrors.meta.invoiceNumber) sectionFieldIds.meta.push("invoiceNumber");
+  if (fieldErrors.meta.invoiceDate) sectionFieldIds.meta.push("invoiceDate");
+  if (fieldErrors.meta.dueDate) sectionFieldIds.meta.push("dueDate");
+
+  if (fieldErrors.payment.accountName) sectionFieldIds.payment.push("accountName");
+  if (fieldErrors.payment.bankName) sectionFieldIds.payment.push("bankName");
+  if (fieldErrors.payment.accountNumber) sectionFieldIds.payment.push("accountNumber");
+  if (fieldErrors.payment.ifscCode) sectionFieldIds.payment.push("ifscCode");
+  if (fieldErrors.payment.bankAddress) sectionFieldIds.payment.push("bankAddress");
+  if (fieldErrors.payment.swiftBicCode) sectionFieldIds.payment.push("swiftBicCode");
+  if (fieldErrors.payment.licenseDuration) {
+    sectionFieldIds.payment.push("licenseDuration");
+  }
+
+  for (const [lineItemId, lineItemErrors] of Object.entries(fieldErrors.lineItems)) {
+    if (lineItemErrors.description) {
+      sectionFieldIds.deliverables.push(`description:${lineItemId}`);
+    }
+
+    if (lineItemErrors.qty) {
+      sectionFieldIds.deliverables.push(`qty:${lineItemId}`);
+    }
+
+    if (lineItemErrors.rate) {
+      sectionFieldIds.deliverables.push(`rate:${lineItemId}`);
+    }
+  }
+
+  if (
+    requiresExplicitExportTaxChoice(formData.agency, formData.client) &&
+    !hasExplicitExportTaxChoice(formData.agency)
+  ) {
+    sectionFieldIds.totals.push("exportTaxHandling");
+  }
+
+  return sectionFieldIds;
 }
 
 function getStepLabel(step: InvoiceStepperStep) {
@@ -176,6 +293,49 @@ function SummaryCard({
     >
       <p className="text-sm font-semibold tracking-tight text-slate-950">{title}</p>
       {children}
+    </div>
+  );
+}
+
+function CompletedSectionCard({
+  title,
+}: {
+  title: string;
+}) {
+  return (
+    <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <p className="text-sm font-semibold tracking-tight text-emerald-950">
+        {title} complete
+      </p>
+      <p className="mt-1 text-sm leading-6 text-emerald-900/80">
+        Everything required in this section is now valid.
+      </p>
+    </div>
+  );
+}
+
+function SectionTransition({
+  isCompleting,
+  children,
+}: {
+  isCompleting: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden transition-all duration-300 ease-out",
+        isCompleting ? "max-h-32 opacity-80" : "max-h-[1200px] opacity-100"
+      )}
+    >
+      <div
+        className={cn(
+          "origin-top transition-all duration-300 ease-out",
+          isCompleting ? "translate-y-[-2px] scale-[0.992]" : "translate-y-0 scale-100"
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -387,12 +547,14 @@ function SummaryFieldList({
 function MiniForm({
   formData,
   fieldErrors,
-  visibleSteps,
+  trackedFieldIdsBySection,
+  completingSections,
   onFormDataChange,
 }: {
   formData: InvoiceFormData;
   fieldErrors: InvoiceFieldErrors;
-  visibleSteps: Set<InvoiceStepperStep>;
+  trackedFieldIdsBySection: MissingFieldIdsBySection;
+  completingSections: Set<ModalSectionKey>;
   onFormDataChange: (
     updater: (prev: InvoiceFormData) => InvoiceFormData
   ) => void;
@@ -403,51 +565,26 @@ function MiniForm({
     formData.agency,
     formData.client
   );
+  const agencyFieldIds = new Set(trackedFieldIdsBySection.agency);
+  const clientFieldIds = new Set(trackedFieldIdsBySection.client);
+  const deliverableFieldIds = new Set(trackedFieldIdsBySection.deliverables);
+  const paymentFieldIds = new Set(trackedFieldIdsBySection.payment);
+  const metaFieldIds = new Set(trackedFieldIdsBySection.meta);
+  const complianceFieldIds = new Set(trackedFieldIdsBySection.totals);
   const showComplianceSection =
-    Boolean(fieldErrors.agency.gstin) ||
-    (visibleSteps.has("totals") && needsExportChoice);
+    complianceFieldIds.size > 0 || completingSections.has("totals");
   const showLicenseDuration =
-    Boolean(fieldErrors.payment.licenseDuration) &&
+    paymentFieldIds.has("licenseDuration") &&
     formData.payment.license.isLicenseIncluded &&
     (formData.payment.license.licenseType === "exclusive-license" ||
       formData.payment.license.licenseType === "non-exclusive-license");
-  const showAgencyBasics =
-    visibleSteps.has("agency") &&
-    Boolean(
-      fieldErrors.agency.agencyName ||
-        fieldErrors.agency.address ||
-        fieldErrors.agency.agencyState
-    );
-  const showClientSection =
-    visibleSteps.has("client") &&
-    Boolean(
-      fieldErrors.client.clientName ||
-        fieldErrors.client.clientAddress ||
-        fieldErrors.client.clientState ||
-        fieldErrors.client.clientCountry
-    );
+  const showAgencyBasics = agencyFieldIds.size > 0 || completingSections.has("agency");
+  const showClientSection = clientFieldIds.size > 0 || completingSections.has("client");
   const showDeliverablesSection =
-    visibleSteps.has("deliverables") &&
-    formData.lineItems.some((item) => Boolean(fieldErrors.lineItems[item.id]));
+    deliverableFieldIds.size > 0 || completingSections.has("deliverables");
   const showPaymentSection =
-    visibleSteps.has("payment") &&
-    Boolean(
-      fieldErrors.meta.paymentTerms ||
-        fieldErrors.payment.accountName ||
-        fieldErrors.payment.bankName ||
-        fieldErrors.payment.accountNumber ||
-        fieldErrors.payment.ifscCode ||
-        fieldErrors.payment.bankAddress ||
-        fieldErrors.payment.swiftBicCode ||
-        fieldErrors.payment.licenseDuration
-    );
-  const showMetaSection =
-    visibleSteps.has("meta") &&
-    Boolean(
-      fieldErrors.meta.invoiceNumber ||
-        fieldErrors.meta.invoiceDate ||
-        fieldErrors.meta.dueDate
-    );
+    paymentFieldIds.size > 0 || completingSections.has("payment");
+  const showMetaSection = metaFieldIds.size > 0 || completingSections.has("meta");
 
   const updateLineItem = (
     lineItemId: string,
@@ -464,237 +601,253 @@ function MiniForm({
   return (
     <div className="space-y-5">
       {showAgencyBasics ? (
-        <SectionCard
-          title="Agency Details"
-          subtitle="Only the agency fields still blocking validation are shown here."
-        >
-          {fieldErrors.agency.agencyName ? (
-            <div>
-              <FieldLabel required>Agency Name</FieldLabel>
-              <input
-                type="text"
-                value={formData.agency.agencyName}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      agencyName: event.target.value,
-                    },
-                  }))
-                }
-                className={getFieldClass({
-                  hasError: fieldErrors.agency.agencyName,
-                  hasValue: Boolean(formData.agency.agencyName),
-                })}
-                placeholder="Your agency or freelance brand name"
-              />
-              <ErrorText message={fieldErrors.agency.agencyName} />
-            </div>
-          ) : null}
+        <SectionTransition isCompleting={completingSections.has("agency")}>
+          {completingSections.has("agency") ? (
+            <CompletedSectionCard title="Agency Details" />
+          ) : (
+            <SectionCard
+              title="Agency Details"
+              subtitle="Finish the remaining agency fields before previewing."
+            >
+              {agencyFieldIds.has("agencyName") ? (
+                <div>
+                  <FieldLabel required>Agency Name</FieldLabel>
+                  <input
+                    type="text"
+                    value={formData.agency.agencyName}
+                    onChange={(event) =>
+                      onFormDataChange((prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          agencyName: event.target.value,
+                        },
+                      }))
+                    }
+                    className={getFieldClass({
+                      hasError: fieldErrors.agency.agencyName,
+                      hasValue: Boolean(formData.agency.agencyName),
+                    })}
+                    placeholder="Your agency or freelance brand name"
+                  />
+                  <ErrorText message={fieldErrors.agency.agencyName} />
+                </div>
+              ) : null}
 
-          {fieldErrors.agency.address ? (
-            <div>
-              <FieldLabel required>Address</FieldLabel>
-              <textarea
-                rows={4}
-                value={formData.agency.address}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      address: event.target.value,
-                    },
-                  }))
-                }
-                className={getFieldClass({
-                  hasError: fieldErrors.agency.address,
-                  hasValue: Boolean(formData.agency.address),
-                  multiline: true,
-                })}
-                placeholder="Business address"
-              />
-              <ErrorText message={fieldErrors.agency.address} />
-            </div>
-          ) : null}
+              {agencyFieldIds.has("address") ? (
+                <div>
+                  <FieldLabel required>Address</FieldLabel>
+                  <textarea
+                    rows={4}
+                    value={formData.agency.address}
+                    onChange={(event) =>
+                      onFormDataChange((prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          address: event.target.value,
+                        },
+                      }))
+                    }
+                    className={getFieldClass({
+                      hasError: fieldErrors.agency.address,
+                      hasValue: Boolean(formData.agency.address),
+                      multiline: true,
+                    })}
+                    placeholder="Business address"
+                  />
+                  <ErrorText message={fieldErrors.agency.address} />
+                </div>
+              ) : null}
 
-          {fieldErrors.agency.agencyState ? (
-            <div>
-              <FieldLabel required>Agency State</FieldLabel>
-              <ModalSelect
-                value={formData.agency.agencyState}
-                onChange={(value) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      agencyState:
-                        value as InvoiceFormData["agency"]["agencyState"],
-                    },
-                  }))
-                }
-                hasError={fieldErrors.agency.agencyState}
-                hasValue={Boolean(formData.agency.agencyState)}
-              >
-                <option value="">Select state or union territory</option>
-                {INDIA_STATE_OPTIONS.map((stateName) => (
-                  <option key={stateName} value={stateName}>
-                    {stateName}
-                  </option>
-                ))}
-              </ModalSelect>
-              <ErrorText message={fieldErrors.agency.agencyState} />
-            </div>
-          ) : null}
-        </SectionCard>
+              {agencyFieldIds.has("agencyState") ? (
+                <div>
+                  <FieldLabel required>Agency State</FieldLabel>
+                  <ModalSelect
+                    value={formData.agency.agencyState}
+                    onChange={(value) =>
+                      onFormDataChange((prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          agencyState:
+                            value as InvoiceFormData["agency"]["agencyState"],
+                        },
+                      }))
+                    }
+                    hasError={fieldErrors.agency.agencyState}
+                    hasValue={Boolean(formData.agency.agencyState)}
+                  >
+                    <option value="">Select state or union territory</option>
+                    {INDIA_STATE_OPTIONS.map((stateName) => (
+                      <option key={stateName} value={stateName}>
+                        {stateName}
+                      </option>
+                    ))}
+                  </ModalSelect>
+                  <ErrorText message={fieldErrors.agency.agencyState} />
+                </div>
+              ) : null}
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
 
       {showComplianceSection ? (
-        <SectionCard
-          title="Compliance"
-          subtitle="These controls affect GST, LUT, and export-tax readiness for the current invoice."
-        >
-          <div>
-            <FieldLabel>GST Registration</FieldLabel>
-            <ModalSegmentedControl
-              name="modal-gst-registration"
-              columns={2}
-              value={formData.agency.gstRegistrationStatus}
-              options={[
-                { value: "registered", label: "Registered" },
-                { value: "not-registered", label: "Not Registered" },
-              ]}
-              onChange={(value) =>
-                onFormDataChange((prev) => ({
-                  ...prev,
-                  agency: {
-                    ...prev.agency,
-                    gstRegistrationStatus: value,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {formData.agency.gstRegistrationStatus === "registered" &&
-          fieldErrors.agency.gstin ? (
-            <div>
-              <FieldLabel required>GSTIN</FieldLabel>
-              <input
-                type="text"
-                value={formData.agency.gstin}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      gstin: event.target.value
-                        .toUpperCase()
-                        .replace(/\s+/g, ""),
-                    },
-                  }))
-                }
-                className={getFieldClass({
-                  hasError: fieldErrors.agency.gstin,
-                  hasValue: Boolean(formData.agency.gstin),
-                })}
-                placeholder="Agency GSTIN"
-              />
-              <ErrorText message={fieldErrors.agency.gstin} />
-            </div>
-          ) : null}
-
-          {formData.agency.gstRegistrationStatus === "registered" &&
-          formData.client.clientLocation === "international" ? (
-            <>
+        <SectionTransition isCompleting={completingSections.has("totals")}>
+          {completingSections.has("totals") ? (
+            <CompletedSectionCard title="Compliance" />
+          ) : (
+            <SectionCard
+              title="Compliance"
+              subtitle="These controls affect GST, LUT, and export-tax readiness for the current invoice."
+            >
               <div>
-                <FieldLabel>Valid LUT for current financial year?</FieldLabel>
+                <FieldLabel>GST Registration</FieldLabel>
                 <ModalSegmentedControl
-                  name="modal-lut-availability"
+                  name="modal-gst-registration"
                   columns={2}
-                  value={formData.agency.lutAvailability}
+                  value={formData.agency.gstRegistrationStatus}
                   options={[
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
+                    { value: "registered", label: "Registered" },
+                    { value: "not-registered", label: "Not Registered" },
                   ]}
                   onChange={(value) =>
                     onFormDataChange((prev) => ({
                       ...prev,
                       agency: {
                         ...prev.agency,
-                        lutAvailability: value,
+                        gstRegistrationStatus: value,
                       },
                     }))
                   }
                 />
               </div>
 
-              {formData.agency.lutAvailability === "yes" ? (
+              {formData.agency.gstRegistrationStatus === "registered" &&
+              complianceFieldIds.has("gstin") ? (
                 <div>
-                  <FieldLabel>LUT Number / ARN</FieldLabel>
+                  <FieldLabel required>GSTIN</FieldLabel>
                   <input
                     type="text"
-                    value={formData.agency.lutNumber}
+                    value={formData.agency.gstin}
                     onChange={(event) =>
                       onFormDataChange((prev) => ({
                         ...prev,
                         agency: {
                           ...prev.agency,
-                          lutNumber: event.target.value,
+                          gstin: event.target.value
+                            .toUpperCase()
+                            .replace(/\s+/g, ""),
                         },
                       }))
                     }
                     className={getFieldClass({
-                      hasValue: Boolean(formData.agency.lutNumber),
+                      hasError: fieldErrors.agency.gstin,
+                      hasValue: Boolean(formData.agency.gstin),
                     })}
-                    placeholder="Optional but recommended"
+                    placeholder="Agency GSTIN"
+                  />
+                  <ErrorText message={fieldErrors.agency.gstin} />
+                </div>
+              ) : null}
+
+              {formData.agency.gstRegistrationStatus === "registered" &&
+              formData.client.clientLocation === "international" ? (
+                <>
+                  <div>
+                    <FieldLabel>Valid LUT for current financial year?</FieldLabel>
+                    <ModalSegmentedControl
+                      name="modal-lut-availability"
+                      columns={2}
+                      value={formData.agency.lutAvailability}
+                      options={[
+                        { value: "yes", label: "Yes" },
+                        { value: "no", label: "No" },
+                      ]}
+                      onChange={(value) =>
+                        onFormDataChange((prev) => ({
+                          ...prev,
+                          agency: {
+                            ...prev.agency,
+                            lutAvailability: value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {formData.agency.lutAvailability === "yes" ? (
+                    <div>
+                      <FieldLabel>LUT Number / ARN</FieldLabel>
+                      <input
+                        type="text"
+                        value={formData.agency.lutNumber}
+                        onChange={(event) =>
+                          onFormDataChange((prev) => ({
+                            ...prev,
+                            agency: {
+                              ...prev.agency,
+                              lutNumber: event.target.value,
+                            },
+                          }))
+                        }
+                        className={getFieldClass({
+                          hasValue: Boolean(formData.agency.lutNumber),
+                        })}
+                        placeholder="Optional but recommended"
+                      />
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
+
+              {needsExportChoice && complianceFieldIds.has("exportTaxHandling") ? (
+                <div>
+                  <FieldLabel required>Export tax handling</FieldLabel>
+                  <ModalChoiceCardGroup
+                    name="modal-export-tax-choice"
+                    value={formData.agency.noLutTaxHandling}
+                    options={[
+                      {
+                        value: "add-igst",
+                        label: "Add 18% IGST",
+                        description: "Charge IGST directly on the client invoice.",
+                      },
+                      {
+                        value: "keep-zero-tax",
+                        label: "Keep client invoice at 0%",
+                        description:
+                          "Keep the client-facing invoice tax-clean and handle IGST separately.",
+                      },
+                    ]}
+                    onChange={(value) =>
+                      onFormDataChange((prev) => ({
+                        ...prev,
+                        agency: {
+                          ...prev.agency,
+                          noLutTaxHandling: value,
+                        },
+                      }))
+                    }
                   />
                 </div>
               ) : null}
-            </>
-          ) : null}
-
-          {needsExportChoice ? (
-            <div>
-              <FieldLabel required>Export tax handling</FieldLabel>
-              <ModalChoiceCardGroup
-                name="modal-export-tax-choice"
-                value={formData.agency.noLutTaxHandling}
-                options={[
-                  {
-                    value: "add-igst",
-                    label: "Add 18% IGST",
-                    description: "Charge IGST directly on the client invoice.",
-                  },
-                  {
-                    value: "keep-zero-tax",
-                    label: "Keep client invoice at 0%",
-                    description:
-                      "Keep the client-facing invoice tax-clean and handle IGST separately.",
-                  },
-                ]}
-                onChange={(value) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      noLutTaxHandling: value,
-                    },
-                  }))
-                }
-              />
-            </div>
-          ) : null}
-        </SectionCard>
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
 
       {showClientSection ? (
-        <SectionCard
-          title="Client Details"
-          subtitle="Only the client fields still required for billing are shown."
-        >
-          {fieldErrors.client.clientName ? (
+        <SectionTransition isCompleting={completingSections.has("client")}>
+          {completingSections.has("client") ? (
+            <CompletedSectionCard title="Client Details" />
+          ) : (
+            <SectionCard
+              title="Client Details"
+              subtitle="Only the client fields still required for billing are shown."
+            >
+              {clientFieldIds.has("clientName") ? (
             <div>
               <FieldLabel required>Client Name</FieldLabel>
               <input
@@ -717,9 +870,9 @@ function MiniForm({
               />
               <ErrorText message={fieldErrors.client.clientName} />
             </div>
-          ) : null}
+              ) : null}
 
-          {fieldErrors.client.clientAddress ? (
+              {clientFieldIds.has("clientAddress") ? (
             <div>
               <FieldLabel required>Client Address</FieldLabel>
               <textarea
@@ -743,9 +896,9 @@ function MiniForm({
               />
               <ErrorText message={fieldErrors.client.clientAddress} />
             </div>
-          ) : null}
+              ) : null}
 
-          {(fieldErrors.client.clientState || fieldErrors.client.clientCountry) ? (
+              {(clientFieldIds.has("clientState") || clientFieldIds.has("clientCountry")) ? (
             <div>
               <FieldLabel>Client Location</FieldLabel>
               <ModalSegmentedControl
@@ -771,9 +924,9 @@ function MiniForm({
                 }
               />
             </div>
-          ) : null}
+              ) : null}
 
-          {showInternationalClientFields && fieldErrors.client.clientCountry ? (
+              {showInternationalClientFields && clientFieldIds.has("clientCountry") ? (
             <>
               <div>
                 <FieldLabel required>Country</FieldLabel>
@@ -827,9 +980,9 @@ function MiniForm({
                 </ModalSelect>
               </div>
             </>
-          ) : null}
+              ) : null}
 
-          {!showInternationalClientFields && fieldErrors.client.clientState ? (
+              {!showInternationalClientFields && clientFieldIds.has("clientState") ? (
             <div>
               <FieldLabel required>Client State</FieldLabel>
               <ModalSelect
@@ -856,110 +1009,125 @@ function MiniForm({
               </ModalSelect>
               <ErrorText message={fieldErrors.client.clientState} />
             </div>
-          ) : null}
-        </SectionCard>
+              ) : null}
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
 
       {showDeliverablesSection ? (
-        <SectionCard
-          title="Deliverables"
-          subtitle="Only the line-item fields still failing validation are shown."
-        >
-          {formData.lineItems.map((item, index) => {
-            const itemErrors = fieldErrors.lineItems[item.id];
+        <SectionTransition isCompleting={completingSections.has("deliverables")}>
+          {completingSections.has("deliverables") ? (
+            <CompletedSectionCard title="Deliverables" />
+          ) : (
+            <SectionCard
+              title="Deliverables"
+              subtitle="Only the line-item fields still failing validation are shown."
+            >
+              {formData.lineItems.map((item, index) => {
+                const itemErrors = fieldErrors.lineItems[item.id];
+                const showDescription = deliverableFieldIds.has(`description:${item.id}`);
+                const showQty = deliverableFieldIds.has(`qty:${item.id}`);
+                const showRate = deliverableFieldIds.has(`rate:${item.id}`);
 
-            if (!itemErrors) {
-              return null;
-            }
+                if (!showDescription && !showQty && !showRate) {
+                  return null;
+                }
 
-            return (
-              <div
-                key={item.id}
-                className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
-              >
-                <p className="text-sm font-semibold text-slate-950">
-                  Line Item {index + 1}
-                </p>
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
+                  >
+                    <p className="text-sm font-semibold text-slate-950">
+                      Line Item {index + 1}
+                    </p>
 
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
-                  {itemErrors.description ? (
-                    <div className="md:col-span-2">
-                      <FieldLabel required>Description</FieldLabel>
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(event) =>
-                          updateLineItem(item.id, (current) => ({
-                            ...current,
-                            description: event.target.value,
-                          }))
-                        }
-                        className={getFieldClass({
-                          hasError: itemErrors.description,
-                          hasValue: Boolean(item.description),
-                        })}
-                        placeholder="Describe the deliverable"
-                      />
-                      <ErrorText message={itemErrors.description} />
+                    <div className="mt-4 grid gap-4 md:grid-cols-2">
+                      {showDescription ? (
+                        <div className="md:col-span-2">
+                          <FieldLabel required>Description</FieldLabel>
+                          <input
+                            type="text"
+                            value={item.description}
+                            onChange={(event) =>
+                              updateLineItem(item.id, (current) => ({
+                                ...current,
+                                description: event.target.value,
+                              }))
+                            }
+                            className={getFieldClass({
+                              hasError: itemErrors?.description,
+                              hasValue: Boolean(item.description),
+                            })}
+                            placeholder="Describe the deliverable"
+                          />
+                          <ErrorText message={itemErrors?.description} />
+                        </div>
+                      ) : null}
+
+                      {showQty ? (
+                        <div>
+                          <FieldLabel required>Quantity</FieldLabel>
+                          <input
+                            type="number"
+                            min={1}
+                            value={item.qty}
+                            onChange={(event) =>
+                              updateLineItem(item.id, (current) => ({
+                                ...current,
+                                qty: Number(event.target.value),
+                              }))
+                            }
+                            className={getFieldClass({
+                              hasError: itemErrors?.qty,
+                              hasValue: item.qty > 0,
+                            })}
+                          />
+                          <ErrorText message={itemErrors?.qty} />
+                        </div>
+                      ) : null}
+
+                      {showRate ? (
+                        <div>
+                          <FieldLabel required>Rate</FieldLabel>
+                          <input
+                            type="number"
+                            min={0}
+                            value={item.rate}
+                            onChange={(event) =>
+                              updateLineItem(item.id, (current) => ({
+                                ...current,
+                                rate: Number(event.target.value),
+                              }))
+                            }
+                            className={getFieldClass({
+                              hasError: itemErrors?.rate,
+                              hasValue: item.rate > 0,
+                            })}
+                          />
+                          <ErrorText message={itemErrors?.rate} />
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-
-                  {itemErrors.qty ? (
-                    <div>
-                      <FieldLabel required>Quantity</FieldLabel>
-                      <input
-                        type="number"
-                        min={1}
-                        value={item.qty}
-                        onChange={(event) =>
-                          updateLineItem(item.id, (current) => ({
-                            ...current,
-                            qty: Number(event.target.value),
-                          }))
-                        }
-                        className={getFieldClass({
-                          hasError: itemErrors.qty,
-                          hasValue: item.qty > 0,
-                        })}
-                      />
-                      <ErrorText message={itemErrors.qty} />
-                    </div>
-                  ) : null}
-
-                  {itemErrors.rate ? (
-                    <div>
-                      <FieldLabel required>Rate</FieldLabel>
-                      <input
-                        type="number"
-                        min={0}
-                        value={item.rate}
-                        onChange={(event) =>
-                          updateLineItem(item.id, (current) => ({
-                            ...current,
-                            rate: Number(event.target.value),
-                          }))
-                        }
-                        className={getFieldClass({
-                          hasError: itemErrors.rate,
-                          hasValue: item.rate > 0,
-                        })}
-                      />
-                      <ErrorText message={itemErrors.rate} />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            );
-          })}
-        </SectionCard>
+                  </div>
+                );
+              })}
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
 
       {showPaymentSection ? (
-        <SectionCard
-          title="Payment & Terms"
-          subtitle="Only the payment fields still needed for the active payment mode are shown."
-        >
-          {fieldErrors.meta.paymentTerms ? (
+        <SectionTransition isCompleting={completingSections.has("payment")}>
+          {completingSections.has("payment") ? (
+            <CompletedSectionCard title="Payment & Terms" />
+          ) : (
+            <SectionCard
+              title="Payment & Terms"
+              subtitle="Only the payment fields still needed for the active payment mode are shown."
+            >
+              {paymentFieldIds.has("paymentTerms") ? (
             <div>
               <FieldLabel required>Payment Terms</FieldLabel>
               <input
@@ -982,10 +1150,10 @@ function MiniForm({
               />
               <ErrorText message={fieldErrors.meta.paymentTerms} />
             </div>
-          ) : null}
+              ) : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {showInternationalClientFields && fieldErrors.payment.accountName ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {showInternationalClientFields && paymentFieldIds.has("accountName") ? (
               <div>
                 <FieldLabel required>Beneficiary / Account Name</FieldLabel>
                 <input
@@ -1007,9 +1175,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.accountName} />
               </div>
-            ) : null}
+                ) : null}
 
-            {fieldErrors.payment.bankName ? (
+                {paymentFieldIds.has("bankName") ? (
               <div>
                 <FieldLabel required>Bank Name</FieldLabel>
                 <input
@@ -1031,9 +1199,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.bankName} />
               </div>
-            ) : null}
+                ) : null}
 
-            {fieldErrors.payment.accountNumber ? (
+                {paymentFieldIds.has("accountNumber") ? (
               <div>
                 <FieldLabel required>Account Number</FieldLabel>
                 <input
@@ -1055,9 +1223,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.accountNumber} />
               </div>
-            ) : null}
+                ) : null}
 
-            {!showInternationalClientFields && fieldErrors.payment.ifscCode ? (
+                {!showInternationalClientFields && paymentFieldIds.has("ifscCode") ? (
               <div>
                 <FieldLabel required>IFSC Code</FieldLabel>
                 <input
@@ -1081,9 +1249,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.ifscCode} />
               </div>
-            ) : null}
+                ) : null}
 
-            {showInternationalClientFields && fieldErrors.payment.swiftBicCode ? (
+                {showInternationalClientFields && paymentFieldIds.has("swiftBicCode") ? (
               <div>
                 <FieldLabel required>SWIFT / BIC Code</FieldLabel>
                 <input
@@ -1107,9 +1275,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.swiftBicCode} />
               </div>
-            ) : null}
+                ) : null}
 
-            {showInternationalClientFields && fieldErrors.payment.bankAddress ? (
+                {showInternationalClientFields && paymentFieldIds.has("bankAddress") ? (
               <div className="md:col-span-2">
                 <FieldLabel required>Bank Full Address</FieldLabel>
                 <textarea
@@ -1132,9 +1300,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.bankAddress} />
               </div>
-            ) : null}
+                ) : null}
 
-            {showLicenseDuration ? (
+                {showLicenseDuration ? (
               <div>
                 <FieldLabel required>License Duration</FieldLabel>
                 <input
@@ -1159,18 +1327,24 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.payment.licenseDuration} />
               </div>
-            ) : null}
-          </div>
-        </SectionCard>
+                ) : null}
+              </div>
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
 
       {showMetaSection ? (
-        <SectionCard
-          title="Invoice Meta"
-          subtitle="Only the missing document reference and date fields are shown."
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {fieldErrors.meta.invoiceNumber ? (
+        <SectionTransition isCompleting={completingSections.has("meta")}>
+          {completingSections.has("meta") ? (
+            <CompletedSectionCard title="Invoice Meta" />
+          ) : (
+            <SectionCard
+              title="Invoice Meta"
+              subtitle="Only the missing document reference and date fields are shown."
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                {metaFieldIds.has("invoiceNumber") ? (
               <div>
                 <FieldLabel required>Invoice Number</FieldLabel>
                 <input
@@ -1193,9 +1367,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.meta.invoiceNumber} />
               </div>
-            ) : null}
+                ) : null}
 
-            {fieldErrors.meta.invoiceDate ? (
+                {metaFieldIds.has("invoiceDate") ? (
               <div>
                 <FieldLabel required>Invoice Date</FieldLabel>
                 <input
@@ -1217,9 +1391,9 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.meta.invoiceDate} />
               </div>
-            ) : null}
+                ) : null}
 
-            {fieldErrors.meta.dueDate ? (
+                {metaFieldIds.has("dueDate") ? (
               <div className={fieldErrors.meta.invoiceNumber || fieldErrors.meta.invoiceDate ? "" : "md:col-span-2 md:max-w-xs"}>
                 <FieldLabel required>Due Date</FieldLabel>
                 <input
@@ -1241,9 +1415,11 @@ function MiniForm({
                 />
                 <ErrorText message={fieldErrors.meta.dueDate} />
               </div>
-            ) : null}
-          </div>
-        </SectionCard>
+                ) : null}
+              </div>
+            </SectionCard>
+          )}
+        </SectionTransition>
       ) : null}
     </div>
   );
@@ -1269,22 +1445,150 @@ export default function AutofillSummaryModal({
   onPreview,
 }: AutofillSummaryModalProps) {
   const bodyRef = useRef<HTMLDivElement | null>(null);
+  const completionTimeoutsRef = useRef<Partial<Record<ModalSectionKey, number>>>(
+    {}
+  );
   const missingFieldsCount = useMemo(
     () =>
       missingFieldGroups.reduce((count, group) => count + group.fields.length, 0),
     [missingFieldGroups]
   );
-  const visibleSteps = useMemo(
-    () => new Set(missingFieldGroups.map((group) => group.step)),
-    [missingFieldGroups]
+  const currentMissingFieldIdsBySection = useMemo(
+    () => buildMissingFieldIdsBySection({ formData, fieldErrors }),
+    [formData, fieldErrors]
   );
+  const [stickyFieldIdsBySection, setStickyFieldIdsBySection] =
+    useState<MissingFieldIdsBySection>(createEmptyMissingFieldIdsBySection);
   const isSummaryMode = !isInlineFormOpen;
+  const trackedFieldIdsBySection = useMemo(() => {
+    const merged = createEmptyMissingFieldIdsBySection();
+
+    for (const sectionKey of MODAL_SECTION_KEYS) {
+      merged[sectionKey] = uniqFieldIds([
+        ...stickyFieldIdsBySection[sectionKey],
+        ...currentMissingFieldIdsBySection[sectionKey],
+      ]);
+    }
+
+    return merged;
+  }, [stickyFieldIdsBySection, currentMissingFieldIdsBySection]);
+  const completingSections = useMemo(() => {
+    const nextCompleting = new Set<ModalSectionKey>();
+
+    for (const sectionKey of MODAL_SECTION_KEYS) {
+      if (
+        stickyFieldIdsBySection[sectionKey].length > 0 &&
+        currentMissingFieldIdsBySection[sectionKey].length === 0
+      ) {
+        nextCompleting.add(sectionKey);
+      }
+    }
+
+    return nextCompleting;
+  }, [currentMissingFieldIdsBySection, stickyFieldIdsBySection]);
+  const hasTrackedOrCompletingSections = useMemo(
+    () =>
+      MODAL_SECTION_KEYS.some(
+        (sectionKey) =>
+          trackedFieldIdsBySection[sectionKey].length > 0 ||
+          completingSections.has(sectionKey)
+      ),
+    [completingSections, trackedFieldIdsBySection]
+  );
 
   useEffect(() => {
     if (isInlineFormOpen) {
       bodyRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [isInlineFormOpen]);
+
+  useEffect(() => {
+    if (!isInlineFormOpen) return;
+
+    for (const sectionKey of MODAL_SECTION_KEYS) {
+      if (completingSections.has(sectionKey)) {
+        if (!completionTimeoutsRef.current[sectionKey]) {
+          completionTimeoutsRef.current[sectionKey] = window.setTimeout(() => {
+            setStickyFieldIdsBySection((previous) => {
+              if (previous[sectionKey].length === 0) {
+                return previous;
+              }
+
+              return {
+                ...previous,
+                [sectionKey]: [],
+              };
+            });
+            delete completionTimeoutsRef.current[sectionKey];
+          }, 420);
+        }
+      } else {
+        const timeoutId = completionTimeoutsRef.current[sectionKey];
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+          delete completionTimeoutsRef.current[sectionKey];
+        }
+      }
+    }
+  }, [completingSections, isInlineFormOpen]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(completionTimeoutsRef.current).forEach((timeoutId) => {
+        if (timeoutId) {
+          window.clearTimeout(timeoutId);
+        }
+      });
+    };
+  }, []);
+
+  const resetInlineCompletionState = () => {
+    Object.values(completionTimeoutsRef.current).forEach((timeoutId) => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    });
+    completionTimeoutsRef.current = {};
+    setStickyFieldIdsBySection(createEmptyMissingFieldIdsBySection());
+  };
+
+  const snapshotCurrentMissingFields = () => {
+    setStickyFieldIdsBySection((previous) =>
+      mergeMissingFieldIdsBySection(previous, currentMissingFieldIdsBySection)
+    );
+  };
+
+  const handleOpenFillMissing = () => {
+    snapshotCurrentMissingFields();
+    onOpenFillMissing();
+  };
+
+  const handleMiniFormChange = (
+    updater: (prev: InvoiceFormData) => InvoiceFormData
+  ) => {
+    snapshotCurrentMissingFields();
+    onFormDataChange(updater);
+  };
+
+  const handleBackToSummary = () => {
+    resetInlineCompletionState();
+    onBackToSummary();
+  };
+
+  const handleClose = () => {
+    resetInlineCompletionState();
+    onClose();
+  };
+
+  const handleManualCheck = () => {
+    resetInlineCompletionState();
+    onManualCheck();
+  };
+
+  const handlePreview = () => {
+    resetInlineCompletionState();
+    onPreview();
+  };
 
   return (
     <div className="fixed inset-0 z-[320] flex items-center justify-center bg-slate-950/35 px-4 py-4 backdrop-blur-[2px]">
@@ -1319,7 +1623,7 @@ export default function AutofillSummaryModal({
               )}
             </div>
 
-            <ModalButton variant="secondary" onClick={onClose}>
+            <ModalButton variant="secondary" onClick={handleClose}>
               Close
             </ModalButton>
           </div>
@@ -1447,12 +1751,13 @@ export default function AutofillSummaryModal({
                 </p>
               </SummaryCard>
 
-              {visibleSteps.size > 0 ? (
+              {hasTrackedOrCompletingSections ? (
                 <MiniForm
                   formData={formData}
                   fieldErrors={fieldErrors}
-                  visibleSteps={visibleSteps}
-                  onFormDataChange={onFormDataChange}
+                  trackedFieldIdsBySection={trackedFieldIdsBySection}
+                  completingSections={completingSections}
+                  onFormDataChange={handleMiniFormChange}
                 />
               ) : (
                 <div className="rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
@@ -1481,23 +1786,23 @@ export default function AutofillSummaryModal({
 
             <div className="flex flex-wrap justify-end gap-3">
               {missingFieldsCount > 0 && isSummaryMode ? (
-                <ModalButton variant="secondary" onClick={onOpenFillMissing}>
+                <ModalButton variant="secondary" onClick={handleOpenFillMissing}>
                   Fill Missing Details
                 </ModalButton>
               ) : null}
 
               {!isSummaryMode ? (
-                <ModalButton variant="ghost" onClick={onBackToSummary}>
+                <ModalButton variant="ghost" onClick={handleBackToSummary}>
                   Back to Summary
                 </ModalButton>
               ) : null}
 
-              <ModalButton variant="secondary" onClick={onManualCheck}>
+              <ModalButton variant="secondary" onClick={handleManualCheck}>
                 Manual Check
               </ModalButton>
 
               {isPreviewReady ? (
-                <ModalButton variant="primary" onClick={onPreview}>
+                <ModalButton variant="primary" onClick={handlePreview}>
                   Preview & Download
                 </ModalButton>
               ) : null}
