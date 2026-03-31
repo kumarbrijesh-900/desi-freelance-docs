@@ -45,6 +45,15 @@ import {
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
 import {
+  appCardClass,
+  appGridClass,
+  appPageContainerClass,
+  appPageSectionClass,
+  appPageShellClass,
+  appReadableContentClass,
+  appSectionGapClass,
+} from "@/lib/layout-foundation";
+import {
   defaultInvoiceFormData,
   mergeInvoiceFormData,
   type InvoiceFormData,
@@ -1308,7 +1317,7 @@ export default function InvoiceEditorPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
 
       <AppHeader
@@ -1316,7 +1325,7 @@ export default function InvoiceEditorPage() {
           <button
             type="button"
             onClick={handleBackToHome}
-            className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
           >
             ← Back to Home
           </button>
@@ -1324,10 +1333,11 @@ export default function InvoiceEditorPage() {
         rightSlot={<LogoutButton />}
       />
 
-      <section className="mx-auto max-w-6xl px-6 py-8">
+      <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+        <div className={appGridClass}>
         <MotionReveal
           preset="fade-up"
-          className="overflow-visible rounded-2xl border-2 border-gray-300 bg-white p-6 shadow-sm"
+          className={`${appReadableContentClass} ${appCardClass} ${appSectionGapClass} overflow-visible border-2 border-gray-300 shadow-sm`}
         >
           <header className="mb-6 border-b border-gray-200 pb-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1559,6 +1569,7 @@ export default function InvoiceEditorPage() {
             )}
           </footer>
         </MotionReveal>
+        </div>
       </section>
 
       {showExitModal && (

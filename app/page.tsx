@@ -6,6 +6,13 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import { ArrowRightIcon } from "@/components/ui/app-icons";
 import { MotionReveal } from "@/components/ui/motion-primitives";
+import {
+  appGridClass,
+  appPageContainerClass,
+  appPageSectionClass,
+  appPageShellClass,
+  appReadableContentClass,
+} from "@/lib/layout-foundation";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 
@@ -32,25 +39,29 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className={appPageShellClass}>
       <AppHeader rightSlot={isLoggedIn ? <LogoutButton /> : null} />
 
-      <section className="mx-auto flex max-w-6xl flex-col items-center px-6 py-20 text-center">
-        <MotionReveal preset="fade-up" className="max-w-3xl">
+      <section className={`${appPageContainerClass} ${appPageSectionClass} pt-14 sm:pt-16 lg:pt-20`}>
+        <div className={appGridClass}>
+          <MotionReveal
+            preset="fade-up"
+            className={`${appReadableContentClass} text-center`}
+          >
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
             Freelance document workflow
           </p>
 
-          <h1 className="mt-4 text-5xl font-bold tracking-tight text-black">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-black sm:text-5xl">
             Create invoices and scope documents faster
           </h1>
 
-          <p className="mt-6 text-lg text-gray-600">
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-gray-600 sm:text-lg">
             Turn a raw client brief into structured freelance documents with
             guided inputs, licensing controls, and quick generation flows.
           </p>
 
-          <div className="mt-10 flex justify-center">
+          <div className="mt-6 flex justify-center sm:mt-8">
             <Link
               href={isLoggedIn ? "/invoice/new" : "/login"}
               className={getAppButtonClass({ variant: "primary", size: "lg" })}
@@ -61,7 +72,8 @@ export default function Home() {
               </span>
             </Link>
           </div>
-        </MotionReveal>
+          </MotionReveal>
+        </div>
       </section>
     </main>
   );

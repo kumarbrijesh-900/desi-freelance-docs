@@ -15,6 +15,11 @@ import {
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { BriefIntakeInput } from "@/lib/invoice-brief-intake";
 import {
+  appGridClass,
+  appPrimaryPaneClass,
+  appSecondaryPaneClass,
+} from "@/lib/layout-foundation";
+import {
   cn,
   getAppButtonClass,
   getAppFieldClass,
@@ -69,7 +74,8 @@ export default function BriefIntakeCard({
   return (
     <MotionReveal className="mb-6" preset="fade-up" delay={40}>
       <section className={cn(getAppPanelClass("muted"), "overflow-hidden")}>
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className={appGridClass}>
+          <div className="col-span-4 sm:col-span-8 lg:col-span-12 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
               <SparklesIcon className="h-4 w-4" />
@@ -95,10 +101,9 @@ export default function BriefIntakeCard({
             <MicrophoneIcon className="h-4 w-4" />
             Speak Brief
           </MotionButton>
-        </div>
+          </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_320px]">
-          <MotionReveal preset="soft">
+          <MotionReveal preset="soft" className={`${appPrimaryPaneClass} mt-2`}>
             <div>
               <label className="mb-2.5 block text-sm font-medium tracking-tight text-slate-900">
                 Paste or type a brief
@@ -116,7 +121,7 @@ export default function BriefIntakeCard({
             </div>
           </MotionReveal>
 
-          <MotionReveal preset="soft" delay={60}>
+          <MotionReveal preset="soft" delay={60} className={`${appSecondaryPaneClass} mt-2`}>
             <div className="space-y-3">
               <label className="block text-sm font-medium tracking-tight text-slate-900">
                 Upload brief screenshot
@@ -182,9 +187,8 @@ export default function BriefIntakeCard({
               ) : null}
             </div>
           </MotionReveal>
-        </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="col-span-4 mt-1 flex flex-wrap items-center justify-between gap-3 sm:col-span-8 lg:col-span-12">
           <MotionStagger className="text-xs leading-5 text-slate-500">
             <p>
               Text parsing and image OCR now feed the same autofill pipeline.
@@ -206,6 +210,7 @@ export default function BriefIntakeCard({
             <SparklesIcon className="h-4 w-4" />
             {isExtracting ? "Extracting..." : "Extract & Autofill"}
           </MotionButton>
+          </div>
         </div>
       </section>
     </MotionReveal>

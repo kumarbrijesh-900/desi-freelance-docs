@@ -45,6 +45,15 @@ import {
   getAppPanelClass,
   getAppStatusPillClass,
 } from "@/lib/ui-foundation";
+import {
+  appFieldGridClass,
+  appFieldGridWideStartClass,
+  appGroupGapClass,
+  appMetaGridClass,
+  appModalPaddingClass,
+  appModalWidthClass,
+  appSummaryGridClass,
+} from "@/lib/layout-foundation";
 import type {
   InvoiceFormData,
   InvoiceStepperStep,
@@ -560,33 +569,64 @@ function MiniForm({
       isVisible: trackedFieldIdsBySection.agency.length > 0,
       missingCount: currentMissingFieldIdsBySection.agency.length,
       content: (
-        <div className="space-y-5">
-          {agencyFieldIds.has("agencyName") ? (
-            <div>
-              <FieldLabel required>Agency Name</FieldLabel>
-              <input
-                type="text"
-                value={formData.agency.agencyName}
-                onChange={(event) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      agencyName: event.target.value,
-                    },
-                  }))
-                }
-                onKeyDown={handleCompactFieldKeyDown}
-                data-stepper-advance="true"
-                className={getFieldClass({
-                  hasError: fieldErrors.agency.agencyName,
-                  hasValue: Boolean(formData.agency.agencyName),
-                })}
-                placeholder="Your agency or freelance brand name"
-              />
-              <ErrorText message={fieldErrors.agency.agencyName} />
-            </div>
-          ) : null}
+        <div className={appGroupGapClass}>
+          <div className={appFieldGridWideStartClass}>
+            {agencyFieldIds.has("agencyName") ? (
+              <div>
+                <FieldLabel required>Agency Name</FieldLabel>
+                <input
+                  type="text"
+                  value={formData.agency.agencyName}
+                  onChange={(event) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      agency: {
+                        ...prev.agency,
+                        agencyName: event.target.value,
+                      },
+                    }))
+                  }
+                  onKeyDown={handleCompactFieldKeyDown}
+                  data-stepper-advance="true"
+                  className={getFieldClass({
+                    hasError: fieldErrors.agency.agencyName,
+                    hasValue: Boolean(formData.agency.agencyName),
+                  })}
+                  placeholder="Your agency or freelance brand name"
+                />
+                <ErrorText message={fieldErrors.agency.agencyName} />
+              </div>
+            ) : null}
+
+            {agencyFieldIds.has("agencyState") ? (
+              <div>
+                <FieldLabel required>Agency State</FieldLabel>
+                <ModalSelect
+                  value={formData.agency.agencyState}
+                  onChange={(value) =>
+                    onFormDataChange((prev) => ({
+                      ...prev,
+                      agency: {
+                        ...prev.agency,
+                        agencyState:
+                          value as InvoiceFormData["agency"]["agencyState"],
+                      },
+                    }))
+                  }
+                  hasError={fieldErrors.agency.agencyState}
+                  hasValue={Boolean(formData.agency.agencyState)}
+                >
+                  <option value="">Select state or union territory</option>
+                  {INDIA_STATE_OPTIONS.map((stateName) => (
+                    <option key={stateName} value={stateName}>
+                      {stateName}
+                    </option>
+                  ))}
+                </ModalSelect>
+                <ErrorText message={fieldErrors.agency.agencyState} />
+              </div>
+            ) : null}
+          </div>
 
           {agencyFieldIds.has("address") ? (
             <div>
@@ -613,35 +653,6 @@ function MiniForm({
               <ErrorText message={fieldErrors.agency.address} />
             </div>
           ) : null}
-
-          {agencyFieldIds.has("agencyState") ? (
-            <div>
-              <FieldLabel required>Agency State</FieldLabel>
-              <ModalSelect
-                value={formData.agency.agencyState}
-                onChange={(value) =>
-                  onFormDataChange((prev) => ({
-                    ...prev,
-                    agency: {
-                      ...prev.agency,
-                      agencyState:
-                        value as InvoiceFormData["agency"]["agencyState"],
-                    },
-                  }))
-                }
-                hasError={fieldErrors.agency.agencyState}
-                hasValue={Boolean(formData.agency.agencyState)}
-              >
-                <option value="">Select state or union territory</option>
-                {INDIA_STATE_OPTIONS.map((stateName) => (
-                  <option key={stateName} value={stateName}>
-                    {stateName}
-                  </option>
-                ))}
-              </ModalSelect>
-              <ErrorText message={fieldErrors.agency.agencyState} />
-            </div>
-          ) : null}
         </div>
       ),
     },
@@ -652,7 +663,7 @@ function MiniForm({
       isVisible: trackedFieldIdsBySection.client.length > 0,
       missingCount: currentMissingFieldIdsBySection.client.length,
       content: (
-        <div className="space-y-5">
+        <div className={appGroupGapClass}>
           {clientFieldIds.has("clientName") ? (
             <div>
               <FieldLabel required>Client Name</FieldLabel>
@@ -735,8 +746,9 @@ function MiniForm({
             </div>
           ) : null}
 
-          {showInternationalClientFields && clientFieldIds.has("clientCountry") ? (
-            <>
+          {showInternationalClientFields &&
+          (clientFieldIds.has("clientCountry") || Boolean(formData.client.clientCurrency)) ? (
+            <div className={appFieldGridClass}>
               <div>
                 <FieldLabel required>Country</FieldLabel>
                 <ModalSelect
@@ -788,7 +800,7 @@ function MiniForm({
                   ))}
                 </ModalSelect>
               </div>
-            </>
+            </div>
           ) : null}
 
           {!showInternationalClientFields && clientFieldIds.has("clientState") ? (
@@ -936,7 +948,7 @@ function MiniForm({
       isVisible: trackedFieldIdsBySection.payment.length > 0,
       missingCount: currentMissingFieldIdsBySection.payment.length,
       content: (
-        <div className="space-y-5">
+        <div className={appGroupGapClass}>
           {paymentFieldIds.has("paymentTerms") ? (
             <div>
               <FieldLabel required>Payment Terms</FieldLabel>
@@ -964,7 +976,7 @@ function MiniForm({
             </div>
           ) : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className={appFieldGridClass}>
             {showInternationalClientFields && paymentFieldIds.has("accountName") ? (
               <div>
                 <FieldLabel required>Beneficiary / Account Name</FieldLabel>
@@ -1163,7 +1175,7 @@ function MiniForm({
       isVisible: trackedFieldIdsBySection.meta.length > 0,
       missingCount: currentMissingFieldIdsBySection.meta.length,
       content: (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className={appMetaGridClass}>
           {metaFieldIds.has("invoiceNumber") ? (
             <div>
               <FieldLabel required>Invoice Number</FieldLabel>
@@ -1259,7 +1271,7 @@ function MiniForm({
       isVisible: trackedFieldIdsBySection.totals.length > 0,
       missingCount: currentMissingFieldIdsBySection.totals.length,
       content: (
-        <div className="space-y-5">
+        <div className={appGroupGapClass}>
           <div>
             <FieldLabel>GST Registration</FieldLabel>
             <ModalSegmentedControl
@@ -1699,7 +1711,10 @@ export default function AutofillSummaryModal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[320] flex items-center justify-center bg-slate-950/35 px-4 py-4 backdrop-blur-[2px]"
+      className={cn(
+        "fixed inset-0 z-[320] flex items-center justify-center bg-slate-950/35 backdrop-blur-[2px]",
+        appModalPaddingClass
+      )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -1715,9 +1730,12 @@ export default function AutofillSummaryModal({
           damping: 30,
           mass: 0.82,
         }}
-        className="flex max-h-[min(92vh,960px)] w-full max-w-[1080px] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]"
+        className={cn(
+          "flex max-h-[min(92vh,960px)] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]",
+          appModalWidthClass
+        )}
       >
-        <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
+        <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6 lg:px-7">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
@@ -1756,7 +1774,7 @@ export default function AutofillSummaryModal({
 
         <div
           ref={bodyRef}
-          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-5 py-5 sm:px-6"
+          className="min-h-0 flex-1 overflow-y-auto bg-slate-50/90 px-5 py-5 sm:px-6 lg:px-7"
         >
           <AnimatePresence mode="wait" initial={false}>
             {isSummaryMode ? (
@@ -1821,7 +1839,7 @@ export default function AutofillSummaryModal({
                 )}
               </SummaryCard>
 
-              <div className="grid gap-4 xl:grid-cols-2">
+              <div className={appSummaryGridClass}>
                 <SummaryCard title="Confidently filled" tone="success">
                   {confidentFields.length > 0 ? (
                     <SummaryFieldList fields={confidentFields} />
@@ -1912,7 +1930,7 @@ export default function AutofillSummaryModal({
           </AnimatePresence>
         </div>
 
-        <div className="shrink-0 border-t border-slate-200 bg-white px-5 py-4 sm:px-6">
+        <div className="shrink-0 border-t border-slate-200 bg-white px-5 py-4 sm:px-6 lg:px-7">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
               {isPreviewReady

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { appPageContainerClass } from "@/lib/layout-foundation";
 
 interface AppHeaderProps {
   rightSlot?: React.ReactNode;
@@ -13,7 +14,7 @@ export default function AppHeader({
 }: AppHeaderProps) {
   return (
     <header className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className={`${appPageContainerClass} flex items-center justify-between py-4`}>
         <div className="flex items-center gap-3">
           {leftSlot}
           <Link href="/" className="text-xl font-bold text-black">

@@ -12,6 +12,15 @@
   --app-focus-ring-strong: rgba(15, 23, 42, 0.18);
   --app-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   --app-floating-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 16px;
+  --app-space-4: 24px;
+  --app-space-5: 32px;
+  --app-space-6: 48px;
+  --app-radius-control: 16px;
+  --app-radius-card: 24px;
+  --app-radius-shell: 32px;
 }
 
 @theme inline {

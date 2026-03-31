@@ -4,6 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
+  appCardClass,
+  appGridClass,
+  appPageContainerClass,
+  appPageSectionClass,
+} from "@/lib/layout-foundation";
+import {
   getClientFacingTaxComplianceNote,
   getClientTaxIdLabel,
   getEffectiveExportTaxHandling,
@@ -21,6 +27,7 @@ import {
   mergeInvoiceFormData,
   type InvoiceFormData,
 } from "@/types/invoice";
+import { getAppButtonClass } from "@/lib/ui-foundation";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -285,57 +292,75 @@ export default function InvoicePreviewPage() {
 
   if (!isReady) {
     return (
-      <main className="min-h-screen bg-gray-100 px-6 py-10">
-        <div className="mx-auto max-w-5xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-          <p className="text-sm text-gray-500">Loading preview…</p>
-        </div>
+      <main className="min-h-screen bg-gray-100">
+        <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+          <div className={appGridClass}>
+            <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+              <div className={`${appCardClass} p-8 shadow-sm`}>
+                <p className="text-sm text-gray-500">Loading preview…</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     );
   }
 
   if (!data) {
     return (
-      <main className="min-h-screen bg-gray-100 px-6 py-10">
-        <div className="mx-auto max-w-5xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
-          <p className="mt-3 text-sm text-gray-600">
-            No invoice data found. Go back to the editor and click Preview
-            Invoice again.
-          </p>
+      <main className="min-h-screen bg-gray-100">
+        <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+          <div className={appGridClass}>
+            <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+              <div className={`${appCardClass} p-8 shadow-sm`}>
+                <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
+                <p className="mt-3 text-sm text-gray-600">
+                  No invoice data found. Go back to the editor and click Preview
+                  Invoice again.
+                </p>
 
-          <div className="mt-6">
-            <Link
-              href="/invoice/new"
-              className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
-            >
-              ← Back to Editor
-            </Link>
+                <div className="mt-6">
+                  <Link
+                    href="/invoice/new"
+                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                  >
+                    ← Back to Editor
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
     );
   }
 
   if (requiresExportChoice && !hasResolvedExportChoice) {
     return (
-      <main className="min-h-screen bg-gray-100 px-6 py-10">
-        <div className="mx-auto max-w-5xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
-          <p className="mt-3 text-sm leading-6 text-gray-600">
-            This international invoice still needs an explicit export tax
-            choice in Totals &amp; Taxes before preview or PDF export.
-          </p>
+      <main className="min-h-screen bg-gray-100">
+        <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+          <div className={appGridClass}>
+            <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+              <div className={`${appCardClass} p-8 shadow-sm`}>
+                <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
+                <p className="mt-3 text-sm leading-6 text-gray-600">
+                  This international invoice still needs an explicit export tax
+                  choice in Totals &amp; Taxes before preview or PDF export.
+                </p>
 
-          <div className="mt-6">
-            <Link
-              href="/invoice/new"
-              onClick={handleBackToEdit}
-              className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
-            >
-              ← Back to Editor
-            </Link>
+                <div className="mt-6">
+                  <Link
+                    href="/invoice/new"
+                    onClick={handleBackToEdit}
+                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                  >
+                    ← Back to Editor
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
     );
   }
@@ -377,12 +402,15 @@ export default function InvoicePreviewPage() {
         }
       `}</style>
 
-      <main className="min-h-screen bg-stone-100 px-4 py-5 sm:px-6 sm:py-8 print:bg-white print:p-0">
-        <div className="mx-auto mb-6 flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
+      <main className="min-h-screen bg-stone-100 print:bg-white print:p-0">
+        <section className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}>
+        <div className={`${appGridClass} print:block`}>
+        <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <Link
             href="/invoice/new"
             onClick={handleBackToEdit}
-            className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
           >
             ← Back to Edit
           </Link>
@@ -391,7 +419,7 @@ export default function InvoicePreviewPage() {
             <button
               type="button"
               onClick={handlePrint}
-              className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
             >
               Print
             </button>
@@ -399,7 +427,7 @@ export default function InvoicePreviewPage() {
             <button
               type="button"
               onClick={handleDownloadPdf}
-              className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white"
+              className={getAppButtonClass({ variant: "primary", size: "sm" })}
             >
               Export PDF
             </button>
@@ -858,6 +886,9 @@ export default function InvoicePreviewPage() {
             </aside>
           </section>
         </div>
+        </div>
+        </div>
+        </section>
       </main>
     </>
   );
