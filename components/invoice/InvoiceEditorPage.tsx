@@ -919,7 +919,6 @@ export default function InvoiceEditorPage() {
             {currentStep === "agency" && (
               <AgencyDetailsSection
                 value={formData.agency}
-                clientLocation={formData.client.clientLocation}
                 onChange={(agency) =>
                   setFormData((prev) => ({
                     ...prev,

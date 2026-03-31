@@ -7,7 +7,6 @@ import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
-  clientLocation: "domestic" | "international";
   onChange: (value: AgencyDetails) => void;
   errors?: {
     agencyName?: string;
@@ -20,7 +19,6 @@ interface AgencyDetailsSectionProps {
 
 export default function AgencyDetailsSection({
   value,
-  clientLocation,
   onChange,
   errors,
 }: AgencyDetailsSectionProps) {
@@ -98,8 +96,7 @@ export default function AgencyDetailsSection({
         : "border-gray-300 bg-white text-black hover:border-black"
     }`;
   const showGstinField = value.gstRegistrationStatus === "registered";
-  const showLutSection =
-    clientLocation === "international" && showGstinField;
+  const showLutSection = showGstinField;
   const showNoLutTotalsNote =
     showLutSection && value.lutAvailability === "no";
 
@@ -320,8 +317,9 @@ export default function AgencyDetailsSection({
                       <div className="overflow-hidden">
                         <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3">
                           <p className="text-xs leading-5 text-gray-600">
-                            Export tax handling for no-LUT invoices is chosen
-                            in the Totals & Taxes step.
+                            This LUT setting stays part of agency compliance
+                            and only affects tax handling later when the client
+                            invoice is international.
                           </p>
                         </div>
                       </div>
