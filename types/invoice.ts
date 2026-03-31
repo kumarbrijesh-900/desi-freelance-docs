@@ -134,7 +134,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     gstin: "",
     pan: "",
     logoUrl: "",
-    gstRegistrationStatus: "",
+    gstRegistrationStatus: "not-registered",
     lutAvailability: "",
     lutNumber: "",
     noLutTaxHandling: "",
@@ -195,6 +195,9 @@ export function mergeInvoiceFormData(
     agency: {
       ...defaultInvoiceFormData.agency,
       ...value?.agency,
+      gstRegistrationStatus:
+        value?.agency?.gstRegistrationStatus ||
+        defaultInvoiceFormData.agency.gstRegistrationStatus,
     },
     client: {
       ...defaultInvoiceFormData.client,

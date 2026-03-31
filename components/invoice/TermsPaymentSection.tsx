@@ -17,6 +17,12 @@ interface TermsPaymentSectionProps {
   paymentTermsError?: string;
   errors?: {
     licenseDuration?: string;
+    accountName?: string;
+    bankName?: string;
+    accountNumber?: string;
+    ifscCode?: string;
+    bankAddress?: string;
+    swiftBicCode?: string;
   };
 }
 
@@ -341,6 +347,24 @@ export default function TermsPaymentSection({
               <div className="space-y-3">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-black">
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    value={value.bankName}
+                    onChange={(e) => updateField("bankName", e.target.value)}
+                    placeholder="Bank name"
+                    className={inputClass(errors?.bankName)}
+                  />
+                  {errors?.bankName ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.bankName}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
                     Account Name
                   </label>
                   <input
@@ -361,8 +385,13 @@ export default function TermsPaymentSection({
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
                     placeholder="Bank account number"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.accountNumber)}
                   />
+                  {errors?.accountNumber ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.accountNumber}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -374,8 +403,13 @@ export default function TermsPaymentSection({
                     value={value.ifscCode}
                     onChange={(e) => updateField("ifscCode", e.target.value)}
                     placeholder="Bank IFSC code"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.ifscCode)}
                   />
+                  {errors?.ifscCode ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.ifscCode}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -458,8 +492,13 @@ export default function TermsPaymentSection({
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
                     placeholder="Beneficiary name on bank account"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.accountName)}
                   />
+                  {errors?.accountName ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.accountName}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -471,8 +510,13 @@ export default function TermsPaymentSection({
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
                     placeholder="Receiving bank name"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.bankName)}
                   />
+                  {errors?.bankName ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.bankName}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="md:col-span-2">
@@ -484,8 +528,13 @@ export default function TermsPaymentSection({
                     value={value.bankAddress}
                     onChange={(e) => updateField("bankAddress", e.target.value)}
                     placeholder="Full bank branch address"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.bankAddress)}
                   />
+                  {errors?.bankAddress ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.bankAddress}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -497,8 +546,13 @@ export default function TermsPaymentSection({
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
                     placeholder="Bank account number"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.accountNumber)}
                   />
+                  {errors?.accountNumber ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.accountNumber}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -510,8 +564,13 @@ export default function TermsPaymentSection({
                     value={value.swiftBicCode}
                     onChange={(e) => updateField("swiftBicCode", e.target.value)}
                     placeholder="Bank SWIFT or BIC code"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(errors?.swiftBicCode)}
                   />
+                  {errors?.swiftBicCode ? (
+                    <p className="mt-2 text-xs font-medium text-red-600">
+                      {errors.swiftBicCode}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="md:col-span-2">

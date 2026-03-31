@@ -13,6 +13,10 @@ import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
+  getEffectiveExportTaxHandling,
+  getLutDeclarationText,
+} from "@/lib/invoice-compliance";
+import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
@@ -183,7 +187,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
       accountName: "DesiFreelanceDocs Studio",
-      bankName: "",
+      bankName: "HDFC Bank",
       bankAddress: "",
       accountNumber: "50200044321098",
       ifscCode: "HDFC0001122",
@@ -595,12 +599,9 @@ export default function InvoiceEditorPage() {
   const clientIsInternational = formData.client.clientLocation === "international";
   const agencyIsGstRegistered =
     formData.agency.gstRegistrationStatus === "registered";
-  const effectiveExportTaxDecision =
-    clientIsInternational &&
-    agencyIsGstRegistered &&
-    formData.agency.lutAvailability !== "yes"
-      ? formData.agency.noLutTaxHandling || "keep-zero-tax"
-      : formData.agency.noLutTaxHandling;
+  const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
+    formData.agency
+  );
   const displayCurrency = useMemo(
     () =>
       getInvoiceDisplayCurrency({
@@ -655,11 +656,7 @@ export default function InvoiceEditorPage() {
   const totalsComplianceMessage = useMemo(() => {
     if (clientIsInternational && agencyIsGstRegistered) {
       if (formData.agency.lutAvailability === "yes") {
-        const lutNumber = formData.agency.lutNumber.trim();
-
-        return lutNumber
-          ? `Export of services under LUT ${lutNumber} without payment of IGST.`
-          : "Export of services under LUT without payment of IGST.";
+        return getLutDeclarationText(formData.agency);
       }
 
       return "";
@@ -690,9 +687,7 @@ export default function InvoiceEditorPage() {
     computedTotals.taxType,
     clientIsInternational,
     agencyIsGstRegistered,
-    formData.agency.lutAvailability,
-    formData.agency.lutNumber,
-    formData.agency.agencyState,
+    formData.agency,
     formData.client.clientState,
   ]);
 
@@ -800,6 +795,8 @@ export default function InvoiceEditorPage() {
   };
 
   const handlePreviewInvoice = () => {
+    if (!currentStepValid) return;
+
     try {
       const previewFormData = {
         ...formData,
@@ -841,6 +838,7 @@ export default function InvoiceEditorPage() {
   };
 
   const handleDownloadPdf = () => {
+    if (!currentStepValid) return;
     alert("Download PDF will be connected after preview layout is ready.");
   };
 
@@ -1068,7 +1066,7 @@ export default function InvoiceEditorPage() {
             )}
           </div>
 
-          {!currentStepValid && !isLastStep && (
+          {!currentStepValid && (
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {currentStepError}
             </div>
@@ -1102,7 +1100,8 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handlePreviewInvoice}
-                  className="rounded-xl bg-black px-6 py-3 text-sm font-bold text-white"
+                  disabled={!currentStepValid}
+                  className="rounded-xl bg-black px-6 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   PREVIEW INVOICE
                 </button>
@@ -1110,7 +1109,8 @@ export default function InvoiceEditorPage() {
                 <button
                   type="button"
                   onClick={handleDownloadPdf}
-                  className="rounded-xl border border-black px-6 py-3 text-sm font-bold text-black"
+                  disabled={!currentStepValid}
+                  className="rounded-xl border border-black px-6 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   DOWNLOAD PDF
                 </button>

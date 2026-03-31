@@ -35,6 +35,12 @@ export type InvoiceFieldErrors = {
   >;
   payment: {
     licenseDuration?: string;
+    accountName?: string;
+    bankName?: string;
+    accountNumber?: string;
+    ifscCode?: string;
+    bankAddress?: string;
+    swiftBicCode?: string;
   };
 };
 
@@ -45,6 +51,14 @@ const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
 function isBlank(value?: string) {
   return !value || !value.trim();
+}
+
+function requiresExportTaxDecision(formData: InvoiceFormData) {
+  return (
+    isInternationalClient(formData.client) &&
+    formData.agency.gstRegistrationStatus === "registered" &&
+    formData.agency.lutAvailability !== "yes"
+  );
 }
 
 export function getInvoiceFieldErrors(
@@ -71,12 +85,16 @@ export function getInvoiceFieldErrors(
   }
 
   if (
-    formData.agency.gstRegistrationStatus === "registered" &&
-    formData.agency.gstin.trim() &&
-    !GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())
+    formData.agency.gstRegistrationStatus === "registered"
   ) {
-    errors.agency.gstin =
-      "Enter a valid GSTIN in standard 15-character format.";
+    if (isBlank(formData.agency.gstin)) {
+      errors.agency.gstin = "GSTIN is required when registered under GST.";
+    } else if (
+      !GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())
+    ) {
+      errors.agency.gstin =
+        "Enter a valid GSTIN in standard 15-character format.";
+    }
   }
 
   if (
@@ -178,6 +196,47 @@ export function getInvoiceFieldErrors(
       "License duration is required for time-bound licenses.";
   }
 
+  if (isInternationalClient(formData.client)) {
+    if (isBlank(formData.payment.accountName)) {
+      errors.payment.accountName =
+        "Beneficiary / account name is required for international payments.";
+    }
+
+    if (isBlank(formData.payment.bankName)) {
+      errors.payment.bankName =
+        "Bank name is required for international payments.";
+    }
+
+    if (isBlank(formData.payment.accountNumber)) {
+      errors.payment.accountNumber =
+        "Account number is required for international payments.";
+    }
+
+    if (isBlank(formData.payment.bankAddress)) {
+      errors.payment.bankAddress =
+        "Bank address is required for international payments.";
+    }
+
+    if (isBlank(formData.payment.swiftBicCode)) {
+      errors.payment.swiftBicCode =
+        "SWIFT / BIC code is required for international payments.";
+    }
+  } else {
+    if (isBlank(formData.payment.bankName)) {
+      errors.payment.bankName =
+        "Bank name is required for domestic payments.";
+    }
+
+    if (isBlank(formData.payment.accountNumber)) {
+      errors.payment.accountNumber =
+        "Account number is required for domestic payments.";
+    }
+
+    if (isBlank(formData.payment.ifscCode)) {
+      errors.payment.ifscCode = "IFSC code is required for domestic payments.";
+    }
+  }
+
   return errors;
 }
 
@@ -224,7 +283,7 @@ export function isInvoiceStepValid(
       );
 
     case "totals":
-      return true;
+      return !requiresExportTaxDecision(formData) || Boolean(formData.agency.noLutTaxHandling);
 
     default:
       return true;
@@ -256,7 +315,15 @@ export function getInvoiceStepError(
     case "payment":
       return !errors.meta.paymentTerms && !hasAnyErrors(errors.payment)
         ? ""
-        : "Please review payment terms and license details.";
+        : "Please review payment terms, payment details, and license details.";
+
+    case "totals":
+      return (
+        !requiresExportTaxDecision(formData) ||
+        formData.agency.noLutTaxHandling
+      )
+        ? ""
+        : "Choose how you want to handle export tax before previewing this invoice.";
 
     case "meta":
       return hasAnyErrors({
@@ -266,9 +333,6 @@ export function getInvoiceStepError(
       })
         ? "Please fix the highlighted invoice metadata fields."
         : "";
-
-    case "totals":
-      return "";
 
     default:
       return "";

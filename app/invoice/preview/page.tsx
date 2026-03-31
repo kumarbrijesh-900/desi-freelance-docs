@@ -2,6 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import {
+  getClientTaxIdLabel,
+  getEffectiveExportTaxHandling,
+  getLutDeclarationText,
+  isInternationalClient,
+} from "@/lib/invoice-compliance";
+import {
+  convertInrToApproximateUsd,
+  getInvoiceDisplayCurrency,
+} from "@/lib/international-billing-options";
 import {
   mergeInvoiceFormData,
   type InvoiceFormData,
@@ -73,6 +84,17 @@ function getPdfTitle(invoiceNumber?: string) {
   return invoiceNumber?.trim() ? `${invoiceNumber.trim()}.pdf` : "invoice.pdf";
 }
 
+function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE") {
+  switch (taxType) {
+    case "CGST_SGST":
+      return "CGST + SGST (18%)";
+    case "IGST":
+      return "IGST (18%)";
+    default:
+      return "Tax (0%)";
+  }
+}
+
 export default function InvoicePreviewPage() {
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -92,36 +114,78 @@ export default function InvoicePreviewPage() {
     }
   }, []);
 
+  const clientIsInternational = data
+    ? isInternationalClient(data.client)
+    : false;
+  const agencyIsGstRegistered =
+    data?.agency?.gstRegistrationStatus === "registered";
+  const effectiveExportTaxHandling = data
+    ? getEffectiveExportTaxHandling(data.agency)
+    : "";
+  const displayCurrency = data
+    ? getInvoiceDisplayCurrency({
+        clientLocation: data.client.clientLocation,
+        clientCurrency: data.client.clientCurrency,
+      })
+    : "INR";
+
   const computed = useMemo(() => {
-    const lineItems = data?.lineItems ?? [];
-    const subtotal = lineItems.reduce(
-      (sum, item) => sum + Number(item.qty || 0) * Number(item.rate || 0),
-      0
-    );
-    const taxRate = data?.tax?.taxRate ?? 0;
-    const taxAmount =
-      data?.tax?.taxMode === "none" ? 0 : subtotal * (taxRate / 100);
-    const grandTotal = subtotal + taxAmount;
+    if (!data) {
+      return {
+        lineItems: [],
+        subtotal: 0,
+        taxAmount: 0,
+        grandTotal: 0,
+        totalTax: 0,
+        taxType: "NONE" as const,
+      };
+    }
+
+    const totals = calculateInvoiceTotals({
+      lineItems: data.lineItems,
+      agencyState: data.agency.agencyState,
+      clientState: data.client.clientState,
+      isInternational: clientIsInternational,
+      gstRegistered: agencyIsGstRegistered,
+      lutAvailability: data.agency.lutAvailability,
+      noLutTaxHandling: effectiveExportTaxHandling,
+    });
 
     return {
-      lineItems,
-      subtotal,
-      taxRate,
-      taxAmount,
-      grandTotal,
+      lineItems: data.lineItems,
+      ...totals,
     };
-  }, [data]);
+  }, [
+    data,
+    clientIsInternational,
+    agencyIsGstRegistered,
+    effectiveExportTaxHandling,
+  ]);
 
-  const hasAgencyTax = Boolean(data?.agency?.gstin || data?.agency?.pan);
-  const hasClientGstin = Boolean(data?.client?.clientGstin);
+  const hasAgencyTax = Boolean(
+    (agencyIsGstRegistered && data?.agency?.gstin) || data?.agency?.pan
+  );
+  const hasClientTaxId = Boolean(data?.client?.clientGstin);
   const hasNotes = Boolean(data?.payment?.notes?.trim());
-  const hasBankDetails = Boolean(
-    data?.payment?.accountName ||
+  const hasDomesticPaymentDetails = Boolean(
+    data?.payment?.bankName ||
+      data?.payment?.accountName ||
       data?.payment?.accountNumber ||
       data?.payment?.ifscCode
   );
+  const hasInternationalPaymentDetails = Boolean(
+    data?.payment?.accountName ||
+      data?.payment?.bankName ||
+      data?.payment?.bankAddress ||
+      data?.payment?.accountNumber ||
+      data?.payment?.swiftBicCode ||
+      data?.payment?.ibanRoutingCode
+  );
   const hasLicense = Boolean(data?.payment?.license?.isLicenseIncluded);
-  const hasQr = Boolean(data?.payment?.qrCodeUrl);
+  const hasQr = !clientIsInternational && Boolean(data?.payment?.qrCodeUrl);
+  const hasBankDetails = clientIsInternational
+    ? hasInternationalPaymentDetails
+    : hasDomesticPaymentDetails;
   const sectionLabelClass =
     "text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500";
   const metaLabelClass = "text-[10px] uppercase tracking-[0.16em] text-gray-500";
@@ -132,6 +196,41 @@ export default function InvoicePreviewPage() {
   const pdfTitle = getPdfTitle(invoiceNumber);
   const hasSupportingDetails = hasNotes || hasLicense;
   const hasPaymentDetails = hasBankDetails || hasQr;
+  const taxLineLabel = getTaxLineLabel(computed.taxType);
+  const approximateUsdGrandTotal =
+    clientIsInternational && !data?.client?.clientCurrency
+      ? convertInrToApproximateUsd(computed.grandTotal)
+      : null;
+  const clientTaxLabel = data ? getClientTaxIdLabel(data.client) : "GSTIN";
+  const taxComplianceNote = data
+    ? (() => {
+        if (clientIsInternational && agencyIsGstRegistered) {
+          if (data.agency.lutAvailability === "yes") {
+            return getLutDeclarationText(data.agency);
+          }
+
+          if (effectiveExportTaxHandling === "add-igst") {
+            return "IGST 18% has been added to this international invoice.";
+          }
+
+          return "";
+        }
+
+        if (clientIsInternational && !agencyIsGstRegistered) {
+          return "No GST applied because agency is marked as not registered under GST.";
+        }
+
+        if (computed.taxType === "CGST_SGST") {
+          return "Domestic same-state billing: CGST 9% and SGST 9% applied.";
+        }
+
+        if (computed.taxType === "IGST") {
+          return "Domestic interstate billing: IGST 18% applied.";
+        }
+
+        return "";
+      })()
+    : "";
 
   useEffect(() => {
     defaultTitleRef.current = previewTitle;
@@ -313,8 +412,17 @@ export default function InvoicePreviewPage() {
 
               {hasAgencyTax ? (
                 <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px] leading-5 text-gray-600">
-                  {data.agency?.gstin ? <p>GSTIN: {data.agency.gstin}</p> : null}
+                  {data.agency?.agencyState ? (
+                    <p>State: {data.agency.agencyState}</p>
+                  ) : null}
+                  {agencyIsGstRegistered && data.agency?.gstin ? (
+                    <p>GSTIN: {data.agency.gstin}</p>
+                  ) : null}
                   {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
+                </div>
+              ) : data.agency?.agencyState ? (
+                <div className="mt-2 text-[12px] leading-5 text-gray-600">
+                  <p>State: {data.agency.agencyState}</p>
                 </div>
               ) : null}
             </div>
@@ -346,6 +454,15 @@ export default function InvoicePreviewPage() {
                     {data.meta?.paymentTerms || "—"}
                   </span>
                 </div>
+
+                {clientIsInternational ? (
+                  <div className="flex items-start justify-between gap-4 border-t border-gray-100 pt-2">
+                    <span className={metaLabelClass}>Invoice Currency</span>
+                    <span className="text-right font-medium text-black">
+                      {displayCurrency}
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </div>
           </header>
@@ -359,6 +476,11 @@ export default function InvoicePreviewPage() {
               <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
                 {data.agency?.address || "—"}
               </p>
+              {data.agency?.agencyState ? (
+                <p className="mt-2 text-[12px] leading-5 text-gray-600">
+                  State: {data.agency.agencyState}
+                </p>
+              ) : null}
             </div>
 
             <div className={documentBlockClass}>
@@ -369,9 +491,19 @@ export default function InvoicePreviewPage() {
               <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
                 {data.client?.clientAddress || "—"}
               </p>
-              {hasClientGstin ? (
+              {!clientIsInternational && data.client?.clientState ? (
                 <p className="mt-2 text-[12px] leading-5 text-gray-600">
-                  GSTIN: {data.client?.clientGstin}
+                  State: {data.client.clientState}
+                </p>
+              ) : null}
+              {clientIsInternational && data.client?.clientCountry ? (
+                <p className="mt-2 text-[12px] leading-5 text-gray-600">
+                  Country: {data.client.clientCountry}
+                </p>
+              ) : null}
+              {hasClientTaxId ? (
+                <p className="mt-2 text-[12px] leading-5 text-gray-600">
+                  {clientTaxLabel}: {data.client?.clientGstin}
                 </p>
               ) : null}
             </div>
@@ -425,13 +557,13 @@ export default function InvoicePreviewPage() {
                             {item.qty}
                           </td>
                           <td className="px-3 py-2.5 align-top font-medium text-black sm:px-4">
-                            {formatCurrency(item.rate)}
+                            {formatCurrency(item.rate, displayCurrency)}
                           </td>
                           <td className="px-3 py-2.5 align-top sm:px-4">
                             {getUnitLabel(item.rateUnit)}
                           </td>
                           <td className="px-3 py-2.5 text-right align-top font-semibold text-black sm:px-4">
-                            {formatCurrency(amount)}
+                            {formatCurrency(amount, displayCurrency)}
                           </td>
                         </tr>
                       );
@@ -499,14 +631,14 @@ export default function InvoicePreviewPage() {
                     <div className="flex items-center justify-between gap-4">
                       <span>Subtotal</span>
                       <span className="font-medium text-black">
-                        {formatCurrency(computed.subtotal)}
+                        {formatCurrency(computed.subtotal, displayCurrency)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-4">
-                      <span>Tax ({computed.taxRate}%)</span>
+                      <span>{taxLineLabel}</span>
                       <span className="font-medium text-black">
-                        {formatCurrency(computed.taxAmount)}
+                        {formatCurrency(computed.taxAmount, displayCurrency)}
                       </span>
                     </div>
 
@@ -514,10 +646,25 @@ export default function InvoicePreviewPage() {
                       <div className="flex items-center justify-between gap-4">
                         <span className="font-semibold text-black">Grand Total</span>
                         <span className="text-[16px] font-bold text-black">
-                          {formatCurrency(computed.grandTotal)}
+                          {formatCurrency(computed.grandTotal, displayCurrency)}
                         </span>
                       </div>
                     </div>
+
+                    {approximateUsdGrandTotal !== null ? (
+                      <div className="border-t border-gray-100 pt-2 text-[12px] leading-5 text-gray-600">
+                        Approx. USD total (reference only):{" "}
+                        <span className="font-medium text-black">
+                          {formatCurrency(approximateUsdGrandTotal, "USD")}
+                        </span>
+                      </div>
+                    ) : null}
+
+                    {taxComplianceNote ? (
+                      <div className="border-t border-gray-100 pt-2 text-[12px] leading-5 text-gray-600">
+                        {taxComplianceNote}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -536,14 +683,14 @@ export default function InvoicePreviewPage() {
                     <div className="flex items-center justify-between gap-4">
                       <span>Subtotal</span>
                       <span className="font-medium text-black">
-                        {formatCurrency(computed.subtotal)}
+                        {formatCurrency(computed.subtotal, displayCurrency)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-4">
-                      <span>Tax ({computed.taxRate}%)</span>
+                      <span>{taxLineLabel}</span>
                       <span className="font-medium text-black">
-                        {formatCurrency(computed.taxAmount)}
+                        {formatCurrency(computed.taxAmount, displayCurrency)}
                       </span>
                     </div>
 
@@ -551,10 +698,25 @@ export default function InvoicePreviewPage() {
                       <div className="flex items-center justify-between gap-4">
                         <span className="font-semibold text-black">Grand Total</span>
                         <span className="text-[16px] font-bold text-black">
-                          {formatCurrency(computed.grandTotal)}
+                          {formatCurrency(computed.grandTotal, displayCurrency)}
                         </span>
                       </div>
                     </div>
+
+                    {approximateUsdGrandTotal !== null ? (
+                      <div className="border-t border-gray-100 pt-2 text-[12px] leading-5 text-gray-600">
+                        Approx. USD total (reference only):{" "}
+                        <span className="font-medium text-black">
+                          {formatCurrency(approximateUsdGrandTotal, "USD")}
+                        </span>
+                      </div>
+                    ) : null}
+
+                    {taxComplianceNote ? (
+                      <div className="border-t border-gray-100 pt-2 text-[12px] leading-5 text-gray-600">
+                        {taxComplianceNote}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               ) : null}
@@ -565,32 +727,101 @@ export default function InvoicePreviewPage() {
 
                   {hasBankDetails ? (
                     <dl className="mt-2 grid grid-cols-[100px_1fr] gap-x-3 gap-y-1 text-[13px] leading-5 text-gray-700">
-                      {data.payment?.accountName ? (
+                      {!clientIsInternational ? (
                         <>
-                          <dt className="text-gray-500">Account</dt>
-                          <dd className="font-medium text-black">
-                            {data.payment.accountName}
-                          </dd>
-                        </>
-                      ) : null}
+                          {data.payment?.bankName ? (
+                            <>
+                              <dt className="text-gray-500">Bank</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.bankName}
+                              </dd>
+                            </>
+                          ) : null}
 
-                      {data.payment?.accountNumber ? (
-                        <>
-                          <dt className="text-gray-500">Number</dt>
-                          <dd className="font-medium text-black">
-                            {data.payment.accountNumber}
-                          </dd>
-                        </>
-                      ) : null}
+                          {data.payment?.accountName ? (
+                            <>
+                              <dt className="text-gray-500">Account</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.accountName}
+                              </dd>
+                            </>
+                          ) : null}
 
-                      {data.payment?.ifscCode ? (
-                        <>
-                          <dt className="text-gray-500">IFSC</dt>
-                          <dd className="font-medium text-black">
-                            {data.payment.ifscCode}
-                          </dd>
+                          {data.payment?.accountNumber ? (
+                            <>
+                              <dt className="text-gray-500">Number</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.accountNumber}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.ifscCode ? (
+                            <>
+                              <dt className="text-gray-500">IFSC</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.ifscCode}
+                              </dd>
+                            </>
+                          ) : null}
                         </>
-                      ) : null}
+                      ) : (
+                        <>
+                          {data.payment?.accountName ? (
+                            <>
+                              <dt className="text-gray-500">Beneficiary</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.accountName}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.bankName ? (
+                            <>
+                              <dt className="text-gray-500">Bank</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.bankName}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.bankAddress ? (
+                            <>
+                              <dt className="text-gray-500">Bank Address</dt>
+                              <dd className="font-medium whitespace-pre-line text-black">
+                                {data.payment.bankAddress}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.accountNumber ? (
+                            <>
+                              <dt className="text-gray-500">Account</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.accountNumber}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.swiftBicCode ? (
+                            <>
+                              <dt className="text-gray-500">SWIFT / BIC</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.swiftBicCode}
+                              </dd>
+                            </>
+                          ) : null}
+
+                          {data.payment?.ibanRoutingCode ? (
+                            <>
+                              <dt className="text-gray-500">IBAN / Routing</dt>
+                              <dd className="font-medium text-black">
+                                {data.payment.ibanRoutingCode}
+                              </dd>
+                            </>
+                          ) : null}
+                        </>
+                      )}
                     </dl>
                   ) : null}
 
