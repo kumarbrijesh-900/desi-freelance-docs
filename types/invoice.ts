@@ -94,8 +94,12 @@ export interface PaymentDetails {
   license: LicenseDetails;
   notes: string;
   accountName: string;
+  bankName: string;
+  bankAddress: string;
   accountNumber: string;
   ifscCode: string;
+  swiftBicCode: string;
+  ibanRoutingCode: string;
   qrCodeUrl: string;
 }
 
@@ -172,8 +176,12 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     },
     notes: "1.5% monthly late fee applies. Final files delivered after full payment.",
     accountName: "",
+    bankName: "",
+    bankAddress: "",
     accountNumber: "",
     ifscCode: "",
+    swiftBicCode: "",
+    ibanRoutingCode: "",
     qrCodeUrl: "",
   },
 };

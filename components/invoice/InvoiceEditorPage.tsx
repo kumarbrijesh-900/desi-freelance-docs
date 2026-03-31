@@ -183,8 +183,12 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
       accountName: "DesiFreelanceDocs Studio",
+      bankName: "",
+      bankAddress: "",
       accountNumber: "50200044321098",
       ifscCode: "HDFC0001122",
+      swiftBicCode: "",
+      ibanRoutingCode: "",
       qrCodeUrl: "/dummy-qr.svg",
     },
   };
@@ -231,8 +235,12 @@ function isFormTouched(formData: InvoiceFormData) {
   const hasPaymentData = Boolean(
     formData.payment.notes ||
       formData.payment.accountName ||
+      formData.payment.bankName ||
+      formData.payment.bankAddress ||
       formData.payment.accountNumber ||
       formData.payment.ifscCode ||
+      formData.payment.swiftBicCode ||
+      formData.payment.ibanRoutingCode ||
       formData.payment.qrCodeUrl ||
       formData.payment.license.isLicenseIncluded
   );
@@ -993,6 +1001,7 @@ export default function InvoiceEditorPage() {
               <TermsPaymentSection
                 value={formData.payment}
                 meta={formData.meta}
+                clientLocation={formData.client.clientLocation}
                 onChange={(payment) =>
                   setFormData((prev) => ({
                     ...prev,
