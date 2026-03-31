@@ -59,8 +59,9 @@ type StoredDraft = {
 
 type AutofillSummaryState = {
   filledFields: string[];
+  reviewFields: string[];
+  lowConfidenceFields: string[];
   missingFields: string[];
-  uncertainFields: string[];
   recommendedStep: InvoiceStepperStep;
   missingStep: InvoiceStepperStep | null;
 };
@@ -978,8 +979,9 @@ export default function InvoiceEditorPage() {
     setFormData(nextFormData);
     setAutofillSummary({
       filledFields: result.filledFields,
+      reviewFields: result.reviewFields,
+      lowConfidenceFields: result.lowConfidenceFields,
       missingFields,
-      uncertainFields: result.uncertainFields,
       recommendedStep,
       missingStep,
     });
@@ -989,6 +991,8 @@ export default function InvoiceEditorPage() {
         ? `Autofilled ${result.filledFields.length} field${
             result.filledFields.length === 1 ? "" : "s"
           }`
+        : result.lowConfidenceFields.length > 0
+        ? "No high-confidence matches were autofilled. Review the low-confidence suggestions first."
         : "No confident matches found. Review the summary and continue manually."
     );
   };
@@ -1288,8 +1292,9 @@ export default function InvoiceEditorPage() {
       {autofillSummary && (
         <AutofillSummaryModal
           filledFields={autofillSummary.filledFields}
+          reviewFields={autofillSummary.reviewFields}
+          lowConfidenceFields={autofillSummary.lowConfidenceFields}
           missingFields={autofillSummary.missingFields}
-          uncertainFields={autofillSummary.uncertainFields}
           recommendedStep={autofillSummary.recommendedStep}
           onClose={() => setAutofillSummary(null)}
           onContinue={handleAutofillContinue}

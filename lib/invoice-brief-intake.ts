@@ -12,37 +12,52 @@ import {
   type LicenseType,
 } from "@/types/invoice";
 
-type Confidence = "high" | "medium";
+export type BriefExtractionConfidence = "high" | "medium" | "low";
 
-type Candidate<T> = {
+export type BriefExtractionSource = "label" | "regex" | "pattern" | "inference";
+
+export type BriefExtractedField<T> = {
   value: T;
-  confidence: Confidence;
+  confidence: BriefExtractionConfidence;
+  source: BriefExtractionSource;
 };
 
-type InvoiceBriefCandidates = {
-  agencyName?: Candidate<string>;
-  agencyAddress?: Candidate<string>;
-  agencyState?: Candidate<InvoiceFormData["agency"]["agencyState"]>;
-  clientName?: Candidate<string>;
-  clientAddress?: Candidate<string>;
-  clientState?: Candidate<InvoiceFormData["client"]["clientState"]>;
-  clientCountry?: Candidate<InvoiceFormData["client"]["clientCountry"]>;
-  clientLocation?: Candidate<InvoiceFormData["client"]["clientLocation"]>;
-  clientCurrency?: Candidate<InternationalCurrencyCode>;
-  deliverableType?: Candidate<InvoiceLineItemType>;
-  deliverableDescription?: Candidate<string>;
-  qty?: Candidate<number>;
-  rate?: Candidate<number>;
-  rateUnit?: Candidate<InvoiceRateUnit>;
-  licenseType?: Candidate<LicenseType>;
-  paymentTerms?: Candidate<string>;
-  paymentAccountName?: Candidate<string>;
-  paymentBankName?: Candidate<string>;
-  paymentBankAddress?: Candidate<string>;
-  paymentAccountNumber?: Candidate<string>;
-  paymentIfscCode?: Candidate<string>;
-  paymentSwiftBicCode?: Candidate<string>;
-  paymentIbanRoutingCode?: Candidate<string>;
+type Candidate<T> = BriefExtractedField<T>;
+
+export type InvoiceBriefExtractionSchema = {
+  agencyName?: BriefExtractedField<string>;
+  agencyAddress?: BriefExtractedField<string>;
+  agencyState?: BriefExtractedField<InvoiceFormData["agency"]["agencyState"]>;
+  agencyGstin?: BriefExtractedField<string>;
+  agencyPan?: BriefExtractedField<string>;
+  clientName?: BriefExtractedField<string>;
+  clientAddress?: BriefExtractedField<string>;
+  clientState?: BriefExtractedField<InvoiceFormData["client"]["clientState"]>;
+  clientCountry?: BriefExtractedField<InvoiceFormData["client"]["clientCountry"]>;
+  clientLocation?: BriefExtractedField<InvoiceFormData["client"]["clientLocation"]>;
+  clientCurrency?: BriefExtractedField<InternationalCurrencyCode>;
+  clientGstin?: BriefExtractedField<string>;
+  deliverableType?: BriefExtractedField<InvoiceLineItemType>;
+  deliverableDescription?: BriefExtractedField<string>;
+  qty?: BriefExtractedField<number>;
+  rate?: BriefExtractedField<number>;
+  rateUnit?: BriefExtractedField<InvoiceRateUnit>;
+  licenseType?: BriefExtractedField<LicenseType>;
+  paymentTerms?: BriefExtractedField<string>;
+  paymentAccountName?: BriefExtractedField<string>;
+  paymentBankName?: BriefExtractedField<string>;
+  paymentBankAddress?: BriefExtractedField<string>;
+  paymentAccountNumber?: BriefExtractedField<string>;
+  paymentIfscCode?: BriefExtractedField<string>;
+  paymentSwiftBicCode?: BriefExtractedField<string>;
+  paymentIbanRoutingCode?: BriefExtractedField<string>;
+};
+
+export type BriefAutofillMappingResult = {
+  nextFormData: InvoiceFormData;
+  filledFields: string[];
+  reviewFields: string[];
+  lowConfidenceFields: string[];
 };
 
 export type BriefIntakeInput = {
@@ -53,10 +68,11 @@ export type BriefIntakeInput = {
 
 export type BriefAutofillResult = {
   normalizedText: string;
-  candidates: InvoiceBriefCandidates;
+  extraction: InvoiceBriefExtractionSchema;
   nextFormData: InvoiceFormData;
   filledFields: string[];
-  uncertainFields: string[];
+  reviewFields: string[];
+  lowConfidenceFields: string[];
   hasImageAttachments: boolean;
   hasVoiceTranscript: boolean;
 };
@@ -209,6 +225,21 @@ const currencyMatchers: Array<{
   },
 ];
 
+const GSTIN_REGEX = /\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/i;
+const PAN_REGEX = /\b[A-Z]{5}\d{4}[A-Z]\b/i;
+
+function makeCandidate<T>(
+  value: T,
+  confidence: BriefExtractionConfidence,
+  source: BriefExtractionSource
+): Candidate<T> {
+  return {
+    value,
+    confidence,
+    source,
+  };
+}
+
 function cleanValue(value?: string) {
   return (value ?? "")
     .replace(/^[\s\-*•]+/, "")
@@ -242,6 +273,19 @@ function parseAmount(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function findUniquePatternMatch(text: string, pattern: RegExp) {
+  const flags = pattern.flags.includes("g")
+    ? pattern.flags
+    : `${pattern.flags}g`;
+  const globalPattern = new RegExp(pattern.source, flags);
+  const matches = Array.from(text.matchAll(globalPattern)).map((match) =>
+    match[0].toUpperCase()
+  );
+  const uniqueMatches = Array.from(new Set(matches));
+
+  return uniqueMatches.length === 1 ? uniqueMatches[0] : "";
+}
+
 function getStateFromText(
   text: string
 ): InvoiceFormData["agency"]["agencyState"] {
@@ -266,16 +310,15 @@ function getCountryFromText(
   );
 }
 
-function getCurrencyFromText(text: string): Candidate<InternationalCurrencyCode> | undefined {
+function getCurrencyFromText(
+  text: string
+): Candidate<InternationalCurrencyCode> | undefined {
   const labelMatches = currencyMatchers.filter((matcher) =>
     matcher.labelPatterns.some((pattern) => pattern.test(text))
   );
 
   if (labelMatches.length === 1) {
-    return {
-      value: labelMatches[0].code,
-      confidence: "high",
-    };
+    return makeCandidate(labelMatches[0].code, "high", "label");
   }
 
   const fallbackMatches = currencyMatchers.filter((matcher) =>
@@ -283,10 +326,31 @@ function getCurrencyFromText(text: string): Candidate<InternationalCurrencyCode>
   );
 
   if (fallbackMatches.length === 1) {
-    return {
-      value: fallbackMatches[0].code,
-      confidence: "medium",
-    };
+    return makeCandidate(fallbackMatches[0].code, "medium", "pattern");
+  }
+
+  if (/US\$/i.test(text)) {
+    return makeCandidate("USD", "medium", "regex");
+  }
+
+  if (/A\$/i.test(text)) {
+    return makeCandidate("AUD", "medium", "regex");
+  }
+
+  if (/C\$/i.test(text)) {
+    return makeCandidate("CAD", "medium", "regex");
+  }
+
+  if (/S\$/i.test(text)) {
+    return makeCandidate("SGD", "medium", "regex");
+  }
+
+  if (/€/.test(text)) {
+    return makeCandidate("EUR", "medium", "regex");
+  }
+
+  if (/£/.test(text)) {
+    return makeCandidate("GBP", "medium", "regex");
   }
 
   return undefined;
@@ -301,7 +365,7 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
     "from",
   ]);
 
-  return value ? { value, confidence: "high" } : undefined;
+  return value ? makeCandidate(value, "high", "label") : undefined;
 }
 
 function extractAgencyAddress(text: string): Candidate<string> | undefined {
@@ -311,7 +375,40 @@ function extractAgencyAddress(text: string): Candidate<string> | undefined {
     "from address",
   ]);
 
-  return value ? { value, confidence: "high" } : undefined;
+  return value ? makeCandidate(value, "high", "label") : undefined;
+}
+
+function extractAgencyGstin(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "agency gstin",
+    "business gstin",
+    "freelancer gstin",
+    "our gstin",
+  ]);
+
+  if (labeled) {
+    const match = labeled.toUpperCase().match(GSTIN_REGEX);
+    if (match?.[0]) {
+      return makeCandidate(match[0], "high", "label");
+    }
+  }
+
+  const uniqueMatch = findUniquePatternMatch(text.toUpperCase(), GSTIN_REGEX);
+  return uniqueMatch ? makeCandidate(uniqueMatch, "low", "regex") : undefined;
+}
+
+function extractAgencyPan(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, ["pan", "agency pan", "business pan"]);
+
+  if (labeled) {
+    const match = labeled.toUpperCase().match(PAN_REGEX);
+    if (match?.[0]) {
+      return makeCandidate(match[0], "high", "label");
+    }
+  }
+
+  const uniqueMatch = findUniquePatternMatch(text.toUpperCase(), PAN_REGEX);
+  return uniqueMatch ? makeCandidate(uniqueMatch, "low", "regex") : undefined;
 }
 
 function extractClientName(text: string): Candidate<string> | undefined {
@@ -322,7 +419,7 @@ function extractClientName(text: string): Candidate<string> | undefined {
     "customer name",
   ]);
 
-  return value ? { value, confidence: "high" } : undefined;
+  return value ? makeCandidate(value, "high", "label") : undefined;
 }
 
 function extractClientAddress(text: string): Candidate<string> | undefined {
@@ -333,7 +430,28 @@ function extractClientAddress(text: string): Candidate<string> | undefined {
     "customer address",
   ]);
 
-  return value ? { value, confidence: "high" } : undefined;
+  return value ? makeCandidate(value, "high", "label") : undefined;
+}
+
+function extractClientTaxId(text: string): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, [
+    "client gstin",
+    "customer gstin",
+    "billing gstin",
+    "client tax id",
+    "tax id",
+    "vat no",
+    "vat number",
+  ]);
+
+  if (!labeled) {
+    return undefined;
+  }
+
+  const normalized = labeled.toUpperCase().replace(/\s+/g, "");
+  const gstinMatch = normalized.match(GSTIN_REGEX);
+
+  return makeCandidate(gstinMatch?.[0] ?? labeled, "high", "label");
 }
 
 function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | undefined {
@@ -348,10 +466,11 @@ function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | und
 
   for (const matcher of lineItemTypeMatchers) {
     if (matcher.patterns.some((pattern) => pattern.test(source))) {
-      return {
-        value: matcher.type,
-        confidence: explicitType ? "high" : "medium",
-      };
+      return makeCandidate(
+        matcher.type,
+        explicitType ? "high" : "medium",
+        explicitType ? "label" : "pattern"
+      );
     }
   }
 
@@ -368,10 +487,7 @@ function extractDeliverableDescription(text: string): Candidate<string> | undefi
   ]);
 
   if (labeled) {
-    return {
-      value: labeled,
-      confidence: "high",
-    };
+    return makeCandidate(labeled, "high", "label");
   }
 
   const sentenceMatch = text.match(
@@ -379,10 +495,7 @@ function extractDeliverableDescription(text: string): Candidate<string> | undefi
   );
 
   if (sentenceMatch?.[1]) {
-    return {
-      value: cleanValue(sentenceMatch[1]),
-      confidence: "medium",
-    };
+    return makeCandidate(cleanValue(sentenceMatch[1]), "low", "inference");
   }
 
   return undefined;
@@ -394,10 +507,7 @@ function extractQuantity(text: string): Candidate<number> | undefined {
     const qty = Number(explicit.replace(/[^0-9]/g, ""));
 
     if (Number.isFinite(qty) && qty > 0) {
-      return {
-        value: qty,
-        confidence: "high",
-      };
+      return makeCandidate(qty, "high", "label");
     }
   }
 
@@ -406,10 +516,7 @@ function extractQuantity(text: string): Candidate<number> | undefined {
     const qty = Number(match?.[1]);
 
     if (Number.isFinite(qty) && qty > 0) {
-      return {
-        value: qty,
-        confidence: "medium",
-      };
+      return makeCandidate(qty, "medium", "pattern");
     }
   }
 
@@ -429,24 +536,18 @@ function extractRate(text: string): Candidate<number> | undefined {
   if (labeled) {
     const rate = parseAmount(labeled);
     if (rate > 0) {
-      return {
-        value: rate,
-        confidence: "high",
-      };
+      return makeCandidate(rate, "high", "label");
     }
   }
 
   const fallbackMatch = text.match(
-    /\b(?:at|@)\s*(₹\s?\d[\d,]*(?:\.\d{1,2})?|\d[\d,]*(?:\.\d{1,2})?\s*(?:inr|rupees?))/i
+    /\b(?:at|@)\s*((?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s?\d[\d,]*(?:\.\d{1,2})?|\d[\d,]*(?:\.\d{1,2})?\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))/i
   );
 
   if (fallbackMatch?.[1]) {
     const rate = parseAmount(fallbackMatch[1]);
     if (rate > 0) {
-      return {
-        value: rate,
-        confidence: "medium",
-      };
+      return makeCandidate(rate, "medium", "regex");
     }
   }
 
@@ -456,19 +557,13 @@ function extractRate(text: string): Candidate<number> | undefined {
 function extractRateUnit(text: string): Candidate<InvoiceRateUnit> | undefined {
   for (const matcher of rateUnitMatchers) {
     if (matcher.patterns.some((pattern) => pattern.test(text))) {
-      return {
-        value: matcher.unit,
-        confidence: "high",
-      };
+      return makeCandidate(matcher.unit, "high", "pattern");
     }
   }
 
   for (const hint of quantityUnitHints) {
     if (hint.pattern.test(text)) {
-      return {
-        value: hint.unit,
-        confidence: "medium",
-      };
+      return makeCandidate(hint.unit, "medium", "pattern");
     }
   }
 
@@ -477,15 +572,15 @@ function extractRateUnit(text: string): Candidate<InvoiceRateUnit> | undefined {
 
 function extractLicenseType(text: string): Candidate<LicenseType> | undefined {
   if (/full assignment/i.test(text)) {
-    return { value: "full-assignment", confidence: "high" };
+    return makeCandidate("full-assignment", "high", "pattern");
   }
 
   if (/exclusive license/i.test(text)) {
-    return { value: "exclusive-license", confidence: "high" };
+    return makeCandidate("exclusive-license", "high", "pattern");
   }
 
   if (/non[-\s]?exclusive license/i.test(text)) {
-    return { value: "non-exclusive-license", confidence: "high" };
+    return makeCandidate("non-exclusive-license", "high", "pattern");
   }
 
   return undefined;
@@ -494,25 +589,16 @@ function extractLicenseType(text: string): Candidate<LicenseType> | undefined {
 function extractPaymentTerms(text: string): Candidate<string> | undefined {
   const labeled = extractLabeledValue(text, ["payment terms", "terms"]);
   if (labeled) {
-    return {
-      value: labeled,
-      confidence: "high",
-    };
+    return makeCandidate(labeled, "high", "label");
   }
 
   const netMatch = text.match(/\bnet[\s-]?\d+\b/i);
   if (netMatch?.[0]) {
-    return {
-      value: cleanValue(netMatch[0]),
-      confidence: "high",
-    };
+    return makeCandidate(cleanValue(netMatch[0]), "high", "regex");
   }
 
   if (/due on receipt/i.test(text)) {
-    return {
-      value: "Due on receipt",
-      confidence: "high",
-    };
+    return makeCandidate("Due on receipt", "high", "pattern");
   }
 
   return undefined;
@@ -525,17 +611,19 @@ function extractPaymentField(
   const value = extractLabeledValue(text, labels);
 
   return value
-    ? {
-        value,
-        confidence: "high",
-      }
+    ? makeCandidate(value, "high", "label")
     : undefined;
 }
 
-function extractInvoiceBriefCandidates(text: string): InvoiceBriefCandidates {
+export function extractInvoiceBriefSchema(
+  text: string
+): InvoiceBriefExtractionSchema {
   const agencyAddress = extractAgencyAddress(text);
   const clientAddress = extractClientAddress(text);
   const clientCurrency = getCurrencyFromText(text);
+  const agencyGstin = extractAgencyGstin(text);
+  const agencyPan = extractAgencyPan(text);
+  const clientGstin = extractClientTaxId(text);
   const explicitClientCountry = extractPaymentField(text, [
     "client country",
     "country",
@@ -547,74 +635,66 @@ function extractInvoiceBriefCandidates(text: string): InvoiceBriefCandidates {
 
   const clientCountry =
     explicitClientCountry?.value && derivedClientCountry
-      ? {
-          value: derivedClientCountry,
-          confidence: "high" as const,
-        }
+      ? makeCandidate(derivedClientCountry, "high", "label")
       : derivedClientCountry
-      ? {
-          value: derivedClientCountry,
-          confidence: "medium" as const,
-        }
+      ? makeCandidate(derivedClientCountry, "low", "inference")
       : undefined;
 
   const agencyState =
     agencyAddress?.value && getStateFromText(agencyAddress.value)
-      ? {
-          value: getStateFromText(agencyAddress.value),
-          confidence: "medium" as const,
-        }
+      ? makeCandidate(getStateFromText(agencyAddress.value), "medium", "inference")
       : undefined;
 
   const explicitClientState = extractPaymentField(text, ["client state"]);
   const clientState =
     explicitClientState?.value && getStateFromText(explicitClientState.value)
-      ? {
-          value: getStateFromText(explicitClientState.value),
-          confidence: "high" as const,
-        }
+      ? makeCandidate(getStateFromText(explicitClientState.value), "high", "label")
       : clientAddress?.value && getStateFromText(clientAddress.value)
-      ? {
-          value: getStateFromText(clientAddress.value),
-          confidence: "medium" as const,
-        }
+      ? makeCandidate(getStateFromText(clientAddress.value), "medium", "inference")
       : undefined;
 
   const explicitLocation = extractPaymentField(text, ["client location", "location"]);
-  const clientLocation =
+  const clientLocation: InvoiceBriefExtractionSchema["clientLocation"] =
     explicitLocation?.value &&
     /international|foreign|overseas/i.test(explicitLocation.value)
-      ? {
-          value: "international" as const,
-          confidence: "high" as const,
-        }
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "international",
+          "high",
+          "label"
+        )
       : explicitLocation?.value && /domestic|india/i.test(explicitLocation.value)
-      ? {
-          value: "domestic" as const,
-          confidence: "high" as const,
-        }
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "domestic",
+          "high",
+          "label"
+        )
       : clientCountry || clientCurrency || /international client|foreign client|overseas client/i.test(text)
-      ? {
-          value: "international" as const,
-          confidence: "medium" as const,
-        }
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "international",
+          "low",
+          "inference"
+        )
       : clientState
-      ? {
-          value: "domestic" as const,
-          confidence: "medium" as const,
-        }
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "domestic",
+          "low",
+          "inference"
+        )
       : undefined;
 
   return {
     agencyName: extractAgencyName(text),
     agencyAddress,
     agencyState,
+    agencyGstin,
+    agencyPan,
     clientName: extractClientName(text),
     clientAddress,
     clientState,
     clientCountry,
     clientLocation,
     clientCurrency,
+    clientGstin,
     deliverableType: extractLineItemType(text),
     deliverableDescription: extractDeliverableDescription(text),
     qty: extractQuantity(text),
@@ -634,19 +714,21 @@ function extractInvoiceBriefCandidates(text: string): InvoiceBriefCandidates {
     paymentIfscCode: (() => {
       const field = extractPaymentField(text, ["ifsc", "ifsc code"]);
       return field
-        ? {
-            value: field.value.toUpperCase().replace(/\s+/g, ""),
-            confidence: field.confidence,
-          }
+        ? makeCandidate(
+            field.value.toUpperCase().replace(/\s+/g, ""),
+            field.confidence,
+            field.source
+          )
         : undefined;
     })(),
     paymentSwiftBicCode: (() => {
       const field = extractPaymentField(text, ["swift", "swift / bic code", "bic", "swift code"]);
       return field
-        ? {
-            value: field.value.toUpperCase().replace(/\s+/g, ""),
-            confidence: field.confidence,
-          }
+        ? makeCandidate(
+            field.value.toUpperCase().replace(/\s+/g, ""),
+            field.confidence,
+            field.source
+          )
         : undefined;
     })(),
     paymentIbanRoutingCode: extractPaymentField(text, [
@@ -664,6 +746,7 @@ function shouldApplyCandidate<T>(
   candidate?: Candidate<T>
 ) {
   if (!candidate) return false;
+  if (candidate.confidence === "low") return false;
 
   if (typeof currentValue === "string") {
     return !currentValue.trim() || currentValue === defaultValue;
@@ -674,13 +757,13 @@ function shouldApplyCandidate<T>(
 
 function recordField(
   label: string,
-  confidence: Confidence,
+  confidence: BriefExtractionConfidence,
   filledFields: string[],
-  uncertainFields: string[]
+  reviewFields: string[]
 ) {
   filledFields.push(label);
   if (confidence === "medium") {
-    uncertainFields.push(label);
+    reviewFields.push(label);
   }
 }
 
@@ -691,7 +774,8 @@ function applyCandidate<T>({
   candidate,
   assign,
   filledFields,
-  uncertainFields,
+  reviewFields,
+  lowConfidenceFields,
 }: {
   label: string;
   currentValue: T;
@@ -699,18 +783,24 @@ function applyCandidate<T>({
   candidate?: Candidate<T>;
   assign: (value: T) => void;
   filledFields: string[];
-  uncertainFields: string[];
+  reviewFields: string[];
+  lowConfidenceFields: string[];
 }) {
-  if (!shouldApplyCandidate(currentValue, defaultValue, candidate)) {
-    return;
-  }
-
   if (!candidate) {
     return;
   }
 
+  if (candidate.confidence === "low") {
+    lowConfidenceFields.push(label);
+    return;
+  }
+
+  if (!shouldApplyCandidate(currentValue, defaultValue, candidate)) {
+    return;
+  }
+
   assign(candidate.value);
-  recordField(label, candidate.confidence, filledFields, uncertainFields);
+  recordField(label, candidate.confidence, filledFields, reviewFields);
 }
 
 export function normalizeBriefIntake(input: BriefIntakeInput) {
@@ -719,124 +809,172 @@ export function normalizeBriefIntake(input: BriefIntakeInput) {
     .join("\n\n");
 }
 
-export function runBriefAutofill(params: {
+export function mapBriefExtractionToInvoiceForm(params: {
   currentFormData: InvoiceFormData;
-  input: BriefIntakeInput;
-}): BriefAutofillResult {
-  const normalizedText = normalizeBriefIntake(params.input);
-  const candidates = extractInvoiceBriefCandidates(normalizedText);
+  extraction: InvoiceBriefExtractionSchema;
+}): BriefAutofillMappingResult {
   const nextFormData = mergeInvoiceFormData(params.currentFormData);
   const filledFields: string[] = [];
-  const uncertainFields: string[] = [];
+  const reviewFields: string[] = [];
+  const lowConfidenceFields: string[] = [];
+  const { extraction } = params;
 
   applyCandidate({
     label: "Agency name",
     currentValue: nextFormData.agency.agencyName,
     defaultValue: defaultInvoiceFormData.agency.agencyName,
-    candidate: candidates.agencyName,
+    candidate: extraction.agencyName,
     assign: (value) => {
       nextFormData.agency.agencyName = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Agency address",
     currentValue: nextFormData.agency.address,
     defaultValue: defaultInvoiceFormData.agency.address,
-    candidate: candidates.agencyAddress,
+    candidate: extraction.agencyAddress,
     assign: (value) => {
       nextFormData.agency.address = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Agency state",
     currentValue: nextFormData.agency.agencyState,
     defaultValue: defaultInvoiceFormData.agency.agencyState,
-    candidate: candidates.agencyState,
+    candidate: extraction.agencyState,
     assign: (value) => {
       nextFormData.agency.agencyState = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Agency GSTIN",
+    currentValue: nextFormData.agency.gstin,
+    defaultValue: defaultInvoiceFormData.agency.gstin,
+    candidate: extraction.agencyGstin,
+    assign: (value) => {
+      nextFormData.agency.gstin = value;
+    },
+    filledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Agency PAN",
+    currentValue: nextFormData.agency.pan,
+    defaultValue: defaultInvoiceFormData.agency.pan,
+    candidate: extraction.agencyPan,
+    assign: (value) => {
+      nextFormData.agency.pan = value;
+    },
+    filledFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Client name",
     currentValue: nextFormData.client.clientName,
     defaultValue: defaultInvoiceFormData.client.clientName,
-    candidate: candidates.clientName,
+    candidate: extraction.clientName,
     assign: (value) => {
       nextFormData.client.clientName = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Client address",
     currentValue: nextFormData.client.clientAddress,
     defaultValue: defaultInvoiceFormData.client.clientAddress,
-    candidate: candidates.clientAddress,
+    candidate: extraction.clientAddress,
     assign: (value) => {
       nextFormData.client.clientAddress = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Client location",
     currentValue: nextFormData.client.clientLocation,
     defaultValue: defaultInvoiceFormData.client.clientLocation,
-    candidate: candidates.clientLocation,
+    candidate: extraction.clientLocation,
     assign: (value) => {
       nextFormData.client.clientLocation = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Client state",
     currentValue: nextFormData.client.clientState,
     defaultValue: defaultInvoiceFormData.client.clientState,
-    candidate: candidates.clientState,
+    candidate: extraction.clientState,
     assign: (value) => {
       nextFormData.client.clientState = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Client country",
     currentValue: nextFormData.client.clientCountry,
     defaultValue: defaultInvoiceFormData.client.clientCountry,
-    candidate: candidates.clientCountry,
+    candidate: extraction.clientCountry,
     assign: (value) => {
       nextFormData.client.clientCountry = value;
       nextFormData.client.clientLocation = "international";
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Invoice currency",
     currentValue: nextFormData.client.clientCurrency,
     defaultValue: defaultInvoiceFormData.client.clientCurrency,
-    candidate: candidates.clientCurrency,
+    candidate: extraction.clientCurrency,
     assign: (value) => {
       nextFormData.client.clientCurrency = value;
       nextFormData.client.clientLocation = "international";
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client GSTIN / Tax ID",
+    currentValue: nextFormData.client.clientGstin,
+    defaultValue: defaultInvoiceFormData.client.clientGstin,
+    candidate: extraction.clientGstin,
+    assign: (value) => {
+      nextFormData.client.clientGstin = value;
+    },
+    filledFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   const firstLineItem = nextFormData.lineItems[0] ?? {
@@ -847,60 +985,65 @@ export function runBriefAutofill(params: {
     label: "Deliverable type",
     currentValue: firstLineItem.type,
     defaultValue: defaultLineItem.type,
-    candidate: candidates.deliverableType,
+    candidate: extraction.deliverableType,
     assign: (value) => {
       firstLineItem.type = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Deliverable description",
     currentValue: firstLineItem.description,
     defaultValue: defaultLineItem.description,
-    candidate: candidates.deliverableDescription,
+    candidate: extraction.deliverableDescription,
     assign: (value) => {
       firstLineItem.description = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Quantity",
     currentValue: firstLineItem.qty,
     defaultValue: defaultLineItem.qty,
-    candidate: candidates.qty,
+    candidate: extraction.qty,
     assign: (value) => {
       firstLineItem.qty = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Rate",
     currentValue: firstLineItem.rate,
     defaultValue: defaultLineItem.rate,
-    candidate: candidates.rate,
+    candidate: extraction.rate,
     assign: (value) => {
       firstLineItem.rate = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Rate unit",
     currentValue: firstLineItem.rateUnit,
     defaultValue: defaultLineItem.rateUnit,
-    candidate: candidates.rateUnit,
+    candidate: extraction.rateUnit,
     assign: (value) => {
       firstLineItem.rateUnit = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   nextFormData.lineItems[0] = firstLineItem;
@@ -909,117 +1052,146 @@ export function runBriefAutofill(params: {
     label: "License type",
     currentValue: nextFormData.payment.license.licenseType,
     defaultValue: defaultInvoiceFormData.payment.license.licenseType,
-    candidate: candidates.licenseType,
+    candidate: extraction.licenseType,
     assign: (value) => {
       nextFormData.payment.license.isLicenseIncluded = true;
       nextFormData.payment.license.licenseType = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Payment terms",
     currentValue: nextFormData.meta.paymentTerms,
     defaultValue: defaultInvoiceFormData.meta.paymentTerms,
-    candidate: candidates.paymentTerms,
+    candidate: extraction.paymentTerms,
     assign: (value) => {
       nextFormData.meta.paymentTerms = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Beneficiary / account name",
     currentValue: nextFormData.payment.accountName,
     defaultValue: defaultInvoiceFormData.payment.accountName,
-    candidate: candidates.paymentAccountName,
+    candidate: extraction.paymentAccountName,
     assign: (value) => {
       nextFormData.payment.accountName = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Bank name",
     currentValue: nextFormData.payment.bankName,
     defaultValue: defaultInvoiceFormData.payment.bankName,
-    candidate: candidates.paymentBankName,
+    candidate: extraction.paymentBankName,
     assign: (value) => {
       nextFormData.payment.bankName = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Bank address",
     currentValue: nextFormData.payment.bankAddress,
     defaultValue: defaultInvoiceFormData.payment.bankAddress,
-    candidate: candidates.paymentBankAddress,
+    candidate: extraction.paymentBankAddress,
     assign: (value) => {
       nextFormData.payment.bankAddress = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "Account number",
     currentValue: nextFormData.payment.accountNumber,
     defaultValue: defaultInvoiceFormData.payment.accountNumber,
-    candidate: candidates.paymentAccountNumber,
+    candidate: extraction.paymentAccountNumber,
     assign: (value) => {
       nextFormData.payment.accountNumber = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "IFSC code",
     currentValue: nextFormData.payment.ifscCode,
     defaultValue: defaultInvoiceFormData.payment.ifscCode,
-    candidate: candidates.paymentIfscCode,
+    candidate: extraction.paymentIfscCode,
     assign: (value) => {
       nextFormData.payment.ifscCode = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "SWIFT / BIC code",
     currentValue: nextFormData.payment.swiftBicCode,
     defaultValue: defaultInvoiceFormData.payment.swiftBicCode,
-    candidate: candidates.paymentSwiftBicCode,
+    candidate: extraction.paymentSwiftBicCode,
     assign: (value) => {
       nextFormData.payment.swiftBicCode = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
   });
 
   applyCandidate({
     label: "IBAN / routing code",
     currentValue: nextFormData.payment.ibanRoutingCode,
     defaultValue: defaultInvoiceFormData.payment.ibanRoutingCode,
-    candidate: candidates.paymentIbanRoutingCode,
+    candidate: extraction.paymentIbanRoutingCode,
     assign: (value) => {
       nextFormData.payment.ibanRoutingCode = value;
     },
     filledFields,
-    uncertainFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  return {
+    nextFormData,
+    filledFields: [...new Set(filledFields)],
+    reviewFields: [...new Set(reviewFields)],
+    lowConfidenceFields: [...new Set(lowConfidenceFields)],
+  };
+}
+
+export function runBriefAutofill(params: {
+  currentFormData: InvoiceFormData;
+  input: BriefIntakeInput;
+}): BriefAutofillResult {
+  const normalizedText = normalizeBriefIntake(params.input);
+  const extraction = extractInvoiceBriefSchema(normalizedText);
+  const mapping = mapBriefExtractionToInvoiceForm({
+    currentFormData: params.currentFormData,
+    extraction,
   });
 
   return {
     normalizedText,
-    candidates,
-    nextFormData,
-    filledFields: [...new Set(filledFields)],
-    uncertainFields: [...new Set(uncertainFields)],
+    extraction,
+    nextFormData: mapping.nextFormData,
+    filledFields: mapping.filledFields,
+    reviewFields: mapping.reviewFields,
+    lowConfidenceFields: mapping.lowConfidenceFields,
     hasImageAttachments: Boolean(params.input.imageFiles?.length),
     hasVoiceTranscript: Boolean(params.input.voiceTranscript?.trim()),
   };

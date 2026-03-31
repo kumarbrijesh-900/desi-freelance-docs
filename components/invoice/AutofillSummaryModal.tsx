@@ -4,8 +4,9 @@ import type { InvoiceStepperStep } from "@/types/invoice";
 
 interface AutofillSummaryModalProps {
   filledFields: string[];
+  reviewFields: string[];
+  lowConfidenceFields: string[];
   missingFields: string[];
-  uncertainFields: string[];
   recommendedStep: InvoiceStepperStep;
   onClose: () => void;
   onContinue: () => void;
@@ -33,8 +34,9 @@ function getStepLabel(step: InvoiceStepperStep) {
 
 export default function AutofillSummaryModal({
   filledFields,
+  reviewFields,
+  lowConfidenceFields,
   missingFields,
-  uncertainFields,
   recommendedStep,
   onClose,
   onContinue,
@@ -52,8 +54,8 @@ export default function AutofillSummaryModal({
               Review extracted invoice details
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              We filled what looked reliable and kept uncertain or missing
-              fields for review. Recommended next stop:{" "}
+              We filled high- and medium-confidence matches, and held back
+              low-confidence matches for review. Recommended next stop:{" "}
               <span className="font-medium text-black">
                 {getStepLabel(recommendedStep)}
               </span>
@@ -109,9 +111,9 @@ export default function AutofillSummaryModal({
             <p className="text-sm font-semibold text-black">
               Review closely
             </p>
-            {uncertainFields.length > 0 ? (
+            {reviewFields.length > 0 ? (
               <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-700">
-                {uncertainFields.map((field) => (
+                {reviewFields.map((field) => (
                   <li key={field}>{field}</li>
                 ))}
               </ul>
@@ -120,6 +122,23 @@ export default function AutofillSummaryModal({
                 No medium-confidence fields need extra attention right now.
               </p>
             )}
+
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <p className="text-sm font-semibold text-black">
+                Low-confidence matches
+              </p>
+              {lowConfidenceFields.length > 0 ? (
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-700">
+                  {lowConfidenceFields.map((field) => (
+                    <li key={field}>{field}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-gray-600">
+                  No low-confidence fields were held back from autofill.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
