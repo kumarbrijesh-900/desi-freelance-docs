@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
+import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
@@ -11,6 +12,7 @@ interface AgencyDetailsSectionProps {
   errors?: {
     agencyName?: string;
     address?: string;
+    agencyState?: string;
     gstin?: string;
     pan?: string;
   };
@@ -150,6 +152,34 @@ export default function AgencyDetailsSection({
               {errors?.address ? (
                 <p className="mt-2 text-xs font-medium text-red-600">
                   {errors.address}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-black">
+                Agency State *
+              </label>
+              <select
+                value={value.agencyState}
+                onChange={(e) =>
+                  updateField(
+                    "agencyState",
+                    e.target.value as AgencyDetails["agencyState"]
+                  )
+                }
+                className={inputClass(errors?.agencyState)}
+              >
+                <option value="">Select state or union territory</option>
+                {INDIA_STATE_OPTIONS.map((stateName) => (
+                  <option key={stateName} value={stateName}>
+                    {stateName}
+                  </option>
+                ))}
+              </select>
+              {errors?.agencyState ? (
+                <p className="mt-2 text-xs font-medium text-red-600">
+                  {errors.agencyState}
                 </p>
               ) : null}
             </div>

@@ -8,12 +8,14 @@ export type InvoiceFieldErrors = {
   agency: {
     agencyName?: string;
     address?: string;
+    agencyState?: string;
     gstin?: string;
     pan?: string;
   };
   client: {
     clientName?: string;
     clientAddress?: string;
+    clientState?: string;
     clientGstin?: string;
   };
   meta: {
@@ -63,6 +65,10 @@ export function getInvoiceFieldErrors(
     errors.agency.address = "Agency address is required.";
   }
 
+  if (isBlank(formData.agency.agencyState)) {
+    errors.agency.agencyState = "Agency state is required.";
+  }
+
   if (
     formData.agency.gstRegistrationStatus === "registered" &&
     formData.agency.gstin.trim() &&
@@ -86,6 +92,13 @@ export function getInvoiceFieldErrors(
 
   if (isBlank(formData.client.clientAddress)) {
     errors.client.clientAddress = "Client address is required.";
+  }
+
+  if (
+    !isInternationalClient(formData.client) &&
+    isBlank(formData.client.clientState)
+  ) {
+    errors.client.clientState = "Client state is required for domestic invoices.";
   }
 
   if (

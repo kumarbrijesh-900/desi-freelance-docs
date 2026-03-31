@@ -1,6 +1,7 @@
 "use client";
 
 import type { ClientDetails } from "@/types/invoice";
+import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
 interface ClientDetailsSectionProps {
   value: ClientDetails;
@@ -8,6 +9,7 @@ interface ClientDetailsSectionProps {
   errors?: {
     clientName?: string;
     clientAddress?: string;
+    clientState?: string;
     clientGstin?: string;
   };
 }
@@ -110,6 +112,36 @@ export default function ClientDetailsSection({
             </button>
           </div>
         </div>
+
+        {!isInternational ? (
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black">
+              Client State *
+            </label>
+            <select
+              value={value.clientState}
+              onChange={(e) =>
+                updateField(
+                  "clientState",
+                  e.target.value as ClientDetails["clientState"]
+                )
+              }
+              className={inputClass(errors?.clientState)}
+            >
+              <option value="">Select state or union territory</option>
+              {INDIA_STATE_OPTIONS.map((stateName) => (
+                <option key={stateName} value={stateName}>
+                  {stateName}
+                </option>
+              ))}
+            </select>
+            {errors?.clientState ? (
+              <p className="mt-2 text-xs font-medium text-red-600">
+                {errors.clientState}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div>
           <label className="mb-2 block text-sm font-medium text-black">

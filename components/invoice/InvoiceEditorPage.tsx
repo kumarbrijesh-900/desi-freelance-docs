@@ -123,6 +123,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
     agency: {
       agencyName: "DesiFreelanceDocs Studio",
       address: "2nd Floor, 14 Residency Road, Bengaluru, Karnataka 560025",
+      agencyState: "Karnataka",
       gstin: "29ABCDE1234F1Z5",
       pan: "ABCDE1234F",
       logoUrl: "/dummy-logo.svg",
@@ -135,6 +136,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       clientName: "Metro Shoes Pvt. Ltd.",
       clientAddress:
         "Phoenix Marketcity, Whitefield Main Road, Bengaluru 560048",
+      clientState: "Karnataka",
       clientGstin: "29AAACM8899L1Z2",
       clientLocation: "domestic" as const,
     },
@@ -184,8 +186,9 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
 
 function isFormTouched(formData: InvoiceFormData) {
   const hasAgencyData = Boolean(
-    formData.agency.agencyName ||
+      formData.agency.agencyName ||
       formData.agency.address ||
+      formData.agency.agencyState ||
       formData.agency.gstin ||
       formData.agency.pan ||
       formData.agency.logoUrl ||
@@ -198,6 +201,7 @@ function isFormTouched(formData: InvoiceFormData) {
   const hasClientData = Boolean(
     formData.client.clientName ||
       formData.client.clientAddress ||
+      formData.client.clientState ||
       formData.client.clientGstin ||
       formData.client.clientLocation === "international"
   );

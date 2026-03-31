@@ -1,3 +1,5 @@
+import type { IndiaStateOption } from "@/lib/india-state-options";
+
 export type InvoiceLineItemType =
   | "Logo Design"
   | "UI/UX"
@@ -31,6 +33,7 @@ export interface InvoiceLineItem {
 export interface AgencyDetails {
   agencyName: string;
   address: string;
+  agencyState: IndiaStateOption | "";
   gstin: string;
   pan: string;
   logoUrl: string;
@@ -43,6 +46,7 @@ export interface AgencyDetails {
 export interface ClientDetails {
   clientName: string;
   clientAddress: string;
+  clientState: IndiaStateOption | "";
   clientGstin: string;
   clientLocation: "domestic" | "international";
 }
@@ -106,6 +110,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   agency: {
     agencyName: "",
     address: "",
+    agencyState: "",
     gstin: "",
     pan: "",
     logoUrl: "",
@@ -117,6 +122,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   client: {
     clientName: "",
     clientAddress: "",
+    clientState: "",
     clientGstin: "",
     clientLocation: "domestic",
   },
