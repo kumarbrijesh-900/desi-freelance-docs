@@ -18,6 +18,8 @@ import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
   getLutDeclarationText,
+  hasExplicitExportTaxChoice,
+  requiresExplicitExportTaxChoice,
 } from "@/lib/invoice-compliance";
 import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
@@ -81,6 +83,7 @@ type AutofillSummaryState = {
   normalizedText: string;
   extraction: InvoiceBriefExtractionSchema;
   resolvedClarificationIds: string[];
+  isInlineCompletionOpen: boolean;
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -429,12 +432,23 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
     if (lineItemErrors.rate) addField("deliverables", "Deliverable rate");
   });
 
+  if (
+    requiresExplicitExportTaxChoice(formData.agency, formData.client) &&
+    !hasExplicitExportTaxChoice(formData.agency)
+  ) {
+    addField("totals", "Export tax handling choice");
+  }
+
   return orderedSteps
     .map((step) => ({
       step,
       fields: Array.from(groups.get(step) ?? []),
     }))
     .filter((group) => group.fields.length > 0);
+}
+
+function isInvoiceReadyForPreview(formData: InvoiceFormData) {
+  return orderedSteps.every((step) => isInvoiceStepValid(formData, step));
 }
 
 function CompactJourneyStepper({
@@ -862,6 +876,10 @@ export default function InvoiceEditorPage() {
 
   const currentStepValid = isInvoiceStepValid(formData, currentStep);
   const currentStepError = getInvoiceStepError(formData, currentStep);
+  const invoiceReadyForPreview = useMemo(
+    () => isInvoiceReadyForPreview(formData),
+    [formData]
+  );
 
   const shouldConfirmExit = currentStepIndex > 0 || isFormTouched(formData);
 
@@ -908,7 +926,7 @@ export default function InvoiceEditorPage() {
   };
 
   const handlePreviewInvoice = () => {
-    if (!currentStepValid) return;
+    if (!invoiceReadyForPreview) return;
 
     try {
       const previewFormData = {
@@ -926,6 +944,74 @@ export default function InvoiceEditorPage() {
       console.error("Failed to save preview data:", error);
       alert("Could not open preview. Please try again.");
     }
+  };
+
+  const refreshAutofillSummary = (
+    nextFormData: InvoiceFormData,
+    options?: {
+      resolvedClarificationIds?: string[];
+      isInlineCompletionOpen?: boolean;
+    }
+  ) => {
+    setAutofillSummary((prev) => {
+      if (!prev) {
+        return prev;
+      }
+
+      const nextResolvedClarificationIds =
+        options?.resolvedClarificationIds ?? prev.resolvedClarificationIds;
+      const nextInlineCompletionOpen =
+        options?.isInlineCompletionOpen ?? prev.isInlineCompletionOpen;
+      const nextMissingStep = getFirstInvalidStep(nextFormData);
+      const nextMissingFieldGroups = getMissingFieldLabels(nextFormData);
+
+      return {
+        ...prev,
+        missingFieldGroups: nextMissingFieldGroups,
+        missingStep: nextMissingStep,
+        recommendedStep: nextMissingStep ?? "totals",
+        clarificationSuggestions: buildBriefClarificationSuggestions({
+          normalizedText: prev.normalizedText,
+          extraction: prev.extraction,
+          currentFormData: nextFormData,
+          resolvedIds: nextResolvedClarificationIds,
+        }),
+        resolvedClarificationIds: nextResolvedClarificationIds,
+        isInlineCompletionOpen: nextInlineCompletionOpen,
+      };
+    });
+  };
+
+  const applyAutofillFormUpdate = (
+    updater: (prev: InvoiceFormData) => InvoiceFormData
+  ) => {
+    let nextFormData = formData;
+
+    setFormData((prev) => {
+      const updatedFormData = mergeInvoiceFormData(updater(prev));
+      const nextSuggestedDueDate = getSuggestedDueDate(
+        updatedFormData.meta.paymentTerms,
+        updatedFormData.meta.invoiceDate
+      );
+
+      if (
+        !updatedFormData.meta.dueDate &&
+        updatedFormData.meta.invoiceDate &&
+        nextSuggestedDueDate
+      ) {
+        updatedFormData.meta.dueDate = nextSuggestedDueDate;
+      }
+
+      lastAutoDueDateRef.current = nextSuggestedDueDate;
+      dueDateAutoManagedRef.current =
+        !updatedFormData.meta.dueDate ||
+        updatedFormData.meta.dueDate === nextSuggestedDueDate;
+
+      nextFormData = updatedFormData;
+      return updatedFormData;
+    });
+
+    refreshAutofillSummary(nextFormData);
   };
 
   const handleSaveDraft = () => {
@@ -1116,6 +1202,7 @@ export default function InvoiceEditorPage() {
       normalizedText: result.normalizedText,
       extraction: result.extraction,
       resolvedClarificationIds: [],
+      isInlineCompletionOpen: false,
     });
 
     triggerToast(
@@ -1142,42 +1229,34 @@ export default function InvoiceEditorPage() {
     const nextResolvedClarificationIds = Array.from(
       new Set([...autofillSummary.resolvedClarificationIds, suggestionId])
     );
-    const nextMissingStep = getFirstInvalidStep(nextFormData);
-    const nextMissingFieldGroups = getMissingFieldLabels(nextFormData);
 
     setFormData(nextFormData);
-    setAutofillSummary((prev) => {
-      if (!prev) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        missingFieldGroups: nextMissingFieldGroups,
-        missingStep: nextMissingStep,
-        recommendedStep: nextMissingStep ?? "totals",
-        clarificationSuggestions: buildBriefClarificationSuggestions({
-          normalizedText: prev.normalizedText,
-          extraction: prev.extraction,
-          currentFormData: nextFormData,
-          resolvedIds: nextResolvedClarificationIds,
-        }),
-        resolvedClarificationIds: nextResolvedClarificationIds,
-      };
+    refreshAutofillSummary(nextFormData, {
+      resolvedClarificationIds: nextResolvedClarificationIds,
     });
   };
 
-  const handleAutofillContinue = () => {
+  const handleAutofillManualCheck = () => {
     if (!autofillSummary) return;
     setCurrentStep(autofillSummary.recommendedStep);
     setAutofillSummary(null);
   };
 
-  const handleAutofillJumpToMissing = () => {
+  const handleAutofillOpenMissingForm = () => {
     if (!autofillSummary) return;
-    setCurrentStep(
-      autofillSummary.missingStep ?? autofillSummary.recommendedStep
+    setAutofillSummary((prev) =>
+      prev
+        ? {
+            ...prev,
+            isInlineCompletionOpen: true,
+          }
+        : prev
     );
+  };
+
+  const handleAutofillPreview = () => {
+    if (!invoiceReadyForPreview) return;
+    handlePreviewInvoice();
     setAutofillSummary(null);
   };
 
@@ -1478,10 +1557,16 @@ export default function InvoiceEditorPage() {
           clarificationSuggestions={autofillSummary.clarificationSuggestions}
           missingFieldGroups={autofillSummary.missingFieldGroups}
           recommendedStep={autofillSummary.recommendedStep}
+          formData={formData}
+          fieldErrors={fieldErrors}
+          isInlineFormOpen={autofillSummary.isInlineCompletionOpen}
+          isPreviewReady={invoiceReadyForPreview}
           onClarificationAnswer={handleClarificationAnswer}
+          onFormDataChange={applyAutofillFormUpdate}
           onClose={() => setAutofillSummary(null)}
-          onContinue={handleAutofillContinue}
-          onJumpToMissing={handleAutofillJumpToMissing}
+          onManualCheck={handleAutofillManualCheck}
+          onOpenFillMissing={handleAutofillOpenMissingForm}
+          onPreview={handleAutofillPreview}
         />
       )}
     </main>

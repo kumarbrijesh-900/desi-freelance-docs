@@ -360,6 +360,11 @@ IMPORTANT RULES:
 - If a guess would be too speculative, still return the closest grounded interpretation with low confidence
 - Separate agency details from client details from payment details
 - Treat AI output as an intelligent assistant interpretation, not a literal regex dump
+- If any grounded signal exists for a schema field, try to map it instead of leaving the field empty
+- Favor role-based extraction: agency, client, invoice, deliverables, compliance, payment, timeline
+- If GSTIN is present, strongly lean toward GST registration being true
+- If export or LUT signals exist, strongly consider ZERO tax treatment unless IGST is explicitly stated
+- If multiple deliverables are present, keep them as separate deliverable objects instead of collapsing them
 
 INTERPRETATION RULES:
 - Amount detection:
@@ -378,6 +383,7 @@ INTERPRETATION RULES:
 - Deliverables:
   - Split multiple deliverables into separate array items when the brief says things like "40 images + 5 reels"
   - Preserve quantity, type, description, rate, and unit when possible
+  - Understand common freelance wording like landing page, homepage, logo, illustration, banner, brand film, reel, shorts, shots, videos, and screens
 - Payment terms:
   - Detect Net 15 / Net 30 / Due on receipt
   - Detect milestone schedules like 50% advance, 40% booking, balance on delivery

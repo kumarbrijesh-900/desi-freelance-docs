@@ -1,14 +1,23 @@
-import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import type {
   AiBriefExtraction,
   AiBriefField,
   AiBriefTaxType,
 } from "@/lib/ai-brief-extractor";
 import {
-  INTERNATIONAL_COUNTRY_OPTIONS,
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import { buildBriefClarificationSuggestions } from "@/lib/invoice-clarifications";
+import {
+  detectCurrencyFromText,
+  parseFlexibleAmount,
+} from "@/lib/amount-normalization";
+import {
+  hasForeignCityHint,
+  inferCountryFromText,
+  inferLocationTypeFromText,
+  inferStateFromText,
+} from "@/lib/location-inference";
+import { normalizeOcrText } from "@/lib/ocr-normalization";
 import {
   type AgencyDetails,
   defaultInvoiceFormData,
@@ -364,34 +373,6 @@ const currencyMatchers: Array<{
 const GSTIN_REGEX = /\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/i;
 const PAN_REGEX = /\b[A-Z]{5}\d{4}[A-Z]\b/i;
 
-const INDIA_STATE_ALIASES: Array<{
-  state: InvoiceFormData["agency"]["agencyState"];
-  patterns: RegExp[];
-}> = [
-  { state: "Karnataka", patterns: [/\bbengaluru\b/i, /\bbangalore\b/i] },
-  { state: "Maharashtra", patterns: [/\bmumbai\b/i, /\bpune\b/i] },
-  { state: "Delhi", patterns: [/\bnew delhi\b/i, /\bdelhi\b/i] },
-  { state: "Telangana", patterns: [/\bhyderabad\b/i] },
-  { state: "Tamil Nadu", patterns: [/\bchennai\b/i] },
-  { state: "West Bengal", patterns: [/\bkolkata\b/i, /\bcalcutta\b/i] },
-  { state: "Gujarat", patterns: [/\bahmedabad\b/i] },
-  { state: "Kerala", patterns: [/\bkochi\b/i, /\bcochin\b/i] },
-  { state: "Haryana", patterns: [/\bgurugram\b/i, /\bgurgaon\b/i] },
-  { state: "Uttar Pradesh", patterns: [/\bnoida\b/i] },
-];
-
-const INTERNATIONAL_COUNTRY_ALIASES: Array<{
-  country: InvoiceFormData["client"]["clientCountry"];
-  patterns: RegExp[];
-}> = [
-  { country: "United States", patterns: [/\busa\b/i, /\bu\.s\.a\b/i, /\bus client\b/i] },
-  { country: "United Kingdom", patterns: [/\buk\b/i, /\bu\.k\b/i, /\blondon\b/i] },
-  {
-    country: "United Arab Emirates",
-    patterns: [/\buae\b/i, /\bdubai\b/i, /\bab[uú] dhabi\b/i],
-  },
-];
-
 function makeCandidate<T>(
   value: T,
   confidence: BriefExtractionConfidence,
@@ -428,50 +409,9 @@ function cleanAddressValue(value?: string | null) {
     .trim();
 }
 
-function normalizeCommonOcrLabels(text: string) {
-  return text
-    .replace(/\baddre55\b/gi, "address")
-    .replace(/\bn4me\b/gi, "name")
-    .replace(/\bbill t0\b/gi, "bill to")
-    .replace(/\bclient n4me\b/gi, "client name")
-    .replace(/\bagency n4me\b/gi, "agency name")
-    .replace(/\breg15tered\b/gi, "registered")
-    .replace(/\bterm5\b/gi, "terms");
-}
-
-function normalizeWordLevelOcrNoise(text: string) {
-  return text.replace(/\b[a-zA-Z][a-zA-Z0-9]{2,}\b/g, (token) => {
-    const digitCount = (token.match(/[0-9]/g) ?? []).length;
-
-    if (
-      !/[A-Za-z]/.test(token) ||
-      !/[05]/.test(token) ||
-      digitCount > 1 ||
-      token === token.toUpperCase()
-    ) {
-      return token;
-    }
-
-    return token.replace(/0/g, "o").replace(/5/g, "s");
-  });
-}
-
 export function normalizeBriefText(text: string) {
-  return normalizeWordLevelOcrNoise(
-    normalizeCommonOcrLabels(
-      text
-      .replace(/\r\n?/g, "\n")
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/[\u2013\u2014]/g, "-")
-      .replace(/([A-Za-z])-\s*\n\s*([A-Za-z])/g, "$1$2")
-      .replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 ")
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/[ ]+\n/g, "\n")
-      .replace(/\n[ ]+/g, "\n")
-      .trim()
-    )
+  return normalizeOcrText(
+    text.replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 ")
   );
 }
 
@@ -495,29 +435,7 @@ function extractLabeledValue(text: string, labels: string[]) {
 }
 
 function parseAmount(value: string) {
-  const normalized = value.toLowerCase().replace(/,/g, "").trim();
-  const amountMatch = normalized.match(/(\d+(?:\.\d+)?)\s*(k|m|lakh|lac)?\b/i);
-
-  if (!amountMatch) {
-    return 0;
-  }
-
-  const parsed = Number(amountMatch[1]);
-  if (!Number.isFinite(parsed)) {
-    return 0;
-  }
-
-  switch ((amountMatch[2] ?? "").toLowerCase()) {
-    case "k":
-      return parsed * 1_000;
-    case "m":
-      return parsed * 1_000_000;
-    case "lakh":
-    case "lac":
-      return parsed * 100_000;
-    default:
-      return parsed;
-  }
+  return parseFlexibleAmount(value);
 }
 
 function findUniquePatternMatch(text: string, pattern: RegExp) {
@@ -731,12 +649,6 @@ function normalizePaymentModeValue(value: string | null | undefined) {
   return normalized;
 }
 
-function getForeignCityHint(text: string) {
-  return /\b(london|new york|san francisco|toronto|vancouver|dubai|singapore|paris|berlin|sydney)\b/i.test(
-    text
-  );
-}
-
 function formatDateCandidate(value: string | null | undefined) {
   const cleaned = cleanValue(value ?? "");
 
@@ -755,6 +667,30 @@ function formatDateCandidate(value: string | null | undefined) {
   const day = String(parsed.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+function extractDateCandidate(
+  text: string,
+  labels: string[]
+): Candidate<string> | undefined {
+  const labeled = extractLabeledValue(text, labels);
+
+  if (labeled) {
+    const formatted = formatDateCandidate(labeled);
+
+    if (formatted) {
+      return makeCandidate(formatted, "high", "label");
+    }
+  }
+
+  const matchedDate = text.match(
+    /\b(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b/i
+  )?.[1];
+  const formatted = formatDateCandidate(matchedDate);
+
+  return formatted
+    ? makeCandidate(formatted, "medium", "pattern")
+    : undefined;
 }
 
 function deriveTaxTypeCandidate(params: {
@@ -835,6 +771,24 @@ function deriveFallbackDeliverables(text: string) {
       type: "Social Media",
       rateUnit: "per-item",
       description: "Banners",
+    },
+    {
+      pattern: /\b(\d+)\s+shorts?\b/i,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      description: "Short videos",
+    },
+    {
+      pattern: /\b(\d+)\s+videos?\b/i,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      description: "Videos",
+    },
+    {
+      pattern: /\b(\d+)\s+shots?\b/i,
+      type: "Photography",
+      rateUnit: "per-image",
+      description: "Shots",
     },
   ];
 
@@ -966,6 +920,15 @@ export function normalizeExtractedData(
     normalizePaymentModeValue(
       /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0]
     );
+  const inferredLocationType = inferLocationTypeFromText(
+    [
+      extraction.clientName.value ?? "",
+      clientAddressValue,
+      clientCountryValue,
+      clientStateValue,
+      rawText,
+    ].join(" ")
+  );
   const clientLocationCandidate =
     explicitInternational !== null
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
@@ -973,13 +936,25 @@ export function normalizeExtractedData(
           extraction.locations.inferredType.confidence,
           "ai"
         )
+      : inferredLocationType === "international"
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "international",
+          "medium",
+          "inference"
+        )
+      : inferredLocationType === "domestic"
+      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+          "domestic",
+          "medium",
+          "inference"
+        )
       : clientCountryValue
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
           "medium",
           "inference"
         )
-      : getForeignCityHint(rawText) || paymentModeValue === "wise" || paymentModeValue === "payoneer"
+      : hasForeignCityHint(rawText) || paymentModeValue === "wise" || paymentModeValue === "payoneer"
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
           "medium",
@@ -1513,6 +1488,11 @@ export function mergeBriefExtractions(params: {
       aiExtraction.paymentIbanRoutingCode,
       heuristicExtraction.paymentIbanRoutingCode
     ),
+    invoiceDate: chooseMergedCandidate(
+      "invoiceDate",
+      aiExtraction.invoiceDate,
+      heuristicExtraction.invoiceDate
+    ),
     dueDate: chooseMergedCandidate(
       "dueDate",
       aiExtraction.dueDate,
@@ -1529,46 +1509,34 @@ export function mergeBriefExtractions(params: {
 function getStateFromText(
   text: string
 ): InvoiceFormData["agency"]["agencyState"] {
-  const normalized = text.toLowerCase();
-  const directMatch =
-    INDIA_STATE_OPTIONS.find((stateName) =>
-      normalized.includes(stateName.toLowerCase())
-    ) ?? "";
-
-  if (directMatch) {
-    return directMatch;
-  }
-
-  return (
-    INDIA_STATE_ALIASES.find((entry) =>
-      entry.patterns.some((pattern) => pattern.test(text))
-    )?.state ?? ""
-  );
+  return inferStateFromText(text);
 }
 
 function getCountryFromText(
   text: string
 ): InvoiceFormData["client"]["clientCountry"] {
-  const normalized = text.toLowerCase();
-  const directMatch =
-    INTERNATIONAL_COUNTRY_OPTIONS.find((countryName) =>
-      normalized.includes(countryName.toLowerCase())
-    ) ?? "";
-
-  if (directMatch) {
-    return directMatch;
-  }
-
-  return (
-    INTERNATIONAL_COUNTRY_ALIASES.find((entry) =>
-      entry.patterns.some((pattern) => pattern.test(text))
-    )?.country ?? ""
-  );
+  return inferCountryFromText(text);
 }
 
 function getCurrencyFromText(
   text: string
 ): Candidate<InternationalCurrencyCode> | undefined {
+  const stronglyDetectedCurrency = detectCurrencyFromText(text);
+
+  if (
+    stronglyDetectedCurrency &&
+    stronglyDetectedCurrency !== "INR" &&
+    ["USD", "EUR", "GBP", "AED", "AUD", "CAD", "SGD"].includes(
+      stronglyDetectedCurrency
+    )
+  ) {
+    return makeCandidate(
+      stronglyDetectedCurrency as InternationalCurrencyCode,
+      "high",
+      "regex"
+    );
+  }
+
   const labelMatches = currencyMatchers.filter((matcher) =>
     matcher.labelPatterns.some((pattern) => pattern.test(text))
   );
@@ -1632,6 +1600,7 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
   const inferred = extractPatternValue(text, [
     /\bwe(?:'re| are)\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b|need\b|invoice\b|did\b|made\b)|$)/i,
     /\bour (?:studio|agency)(?: is)?\s+([a-z0-9&.' -]{3,80}?)(?=,|\.|\n|\s+(?:based\b|from\b|at\b|client\b)|$)/i,
+    /\b(?:i(?:'m| am)|this is)\s+([a-z][a-z0-9&.' -]{2,60}?)(?=,|\.|\n|\s+(?:from\b|at\b|based\b|invoice\b|project\b)|$)/i,
   ]);
 
   return inferred && looksLikeEntityName(inferred)
@@ -1709,6 +1678,8 @@ function extractClientName(text: string): Candidate<string> | undefined {
     /\bbill to\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b|bank\b)|$)/i,
     /\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:invoice\b|project\b|work\b|landing\b|homepage\b|logo\b|illustration\b|screens?\b|banners?\b|rate\b|at\b|@|qty\b|quantity\b|net\b|currency\b)|$)/i,
     /\bclient(?:\s+name)?\s+(?:is\s+)?([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b|bank\b)|$)/i,
+    /\b(?:client|brand)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|usa\b|uk\b|london\b|dubai\b|singapore\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b)|$)/i,
+    /\b([a-z0-9&.' -]{2,80}?)\s+client\b/i,
   ]);
 
   return inferred && looksLikeEntityName(inferred)
@@ -1861,7 +1832,7 @@ function extractDeliverableDescription(text: string): Candidate<string> | undefi
 
   const inferred = extractPatternValue(text, [
     /\b(?:did|made|created|worked on)\s+(.+?)(?=,|\.\s|(?:\s+(?:at|@|for\b|net\b|bank\b|terms\b))|$)/i,
-    /\b((?:landing page|homepage design|home page design|logo(?: design)?|editorial illustration(?: set)?|illustration(?: set)?|ui\/?\s*ux(?: design)?|banner design|banners?))\b/i,
+    /\b((?:landing page|homepage design|home page design|logo(?: design)?|editorial illustration(?: set)?|illustration(?: set)?|ui\/?\s*ux(?: design)?|banner design|banners?|brand film|short videos?|videos?|shots?))\b/i,
   ]);
 
   if (inferred) {
@@ -1911,6 +1882,7 @@ function extractRate(text: string): Candidate<number> | undefined {
   }
 
   const fallbackPatterns = [
+    /\b(?:project fee|fixed budget|budget fixed(?: hua tha)?|fixed fee|total project fee)\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
     /\b(?:rate|fee|budget|quote(?:d)?|charge(?:d|s|ing)?|cost)\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
     /\b(?:at|@)\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
     /(?:^|[\s(])((?:US\$|A\$|C\$|S\$|\$|€|£)\s*\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m)?|\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)\b|\d[\d,.]*(?:\.\d{1,2})?\s*(?:usd|eur|gbp|aed|aud|cad|sgd|inr|rupees?)\b)/i,
@@ -1979,6 +1951,14 @@ function extractPaymentTerms(text: string): Candidate<string> | undefined {
     return makeCandidate("Due on receipt", "high", "pattern");
   }
 
+  const scheduleSnippet = text.match(
+    /\b(?:\d{1,3}%\s+(?:advance|upfront|booking|booking retainer|retainer)[^.\n]*|\d{1,3}%\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*|balance\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*)/i
+  )?.[0];
+
+  if (scheduleSnippet) {
+    return makeCandidate(cleanValue(scheduleSnippet), "medium", "pattern");
+  }
+
   return undefined;
 }
 
@@ -2011,6 +1991,7 @@ function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined 
   }
 
   const fallbackPatterns = [
+    /\b(?:budget fixed(?: hua tha)?|project fee|fixed budget|fixed fee)\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
     /\b(?:total|overall total|project total|invoice total|grand total)\s*(?:amount|fee|budget|cost)?\s*(?:is|was|of|:)?\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
   ];
 
@@ -2038,9 +2019,19 @@ function extractInvoiceTaxType(
     return makeCandidate("IGST", "high", "pattern");
   }
 
+  if (/\bsame state\b/i.test(text)) {
+    return makeCandidate("CGST_SGST", "medium", "inference");
+  }
+
+  if (/\binter[-\s]?state\b/i.test(text)) {
+    return makeCandidate("IGST", "medium", "inference");
+  }
+
   if (
     /\bexport of services\b/i.test(text) ||
-    /\bwithout payment of igst\b/i.test(text)
+    /\bwithout payment of igst\b/i.test(text) ||
+    /\b0% gst\b/i.test(text) ||
+    /\bunder lut\b/i.test(text)
   ) {
     return makeCandidate("ZERO_RATED", "medium", "inference");
   }
@@ -2054,6 +2045,16 @@ function extractInvoiceIsInternational(
   clientState?: Candidate<InvoiceFormData["client"]["clientState"]>,
   clientCurrency?: Candidate<InternationalCurrencyCode>
 ): Candidate<boolean> | undefined {
+  const inferredLocationType = inferLocationTypeFromText(text);
+
+  if (inferredLocationType === "international") {
+    return makeCandidate(true, "high", "inference");
+  }
+
+  if (inferredLocationType === "domestic") {
+    return makeCandidate(false, "medium", "inference");
+  }
+
   if (
     /\binternational\b|\bforeign client\b|\boverseas\b|\bexport of services\b/i.test(
       text
@@ -2070,7 +2071,7 @@ function extractInvoiceIsInternational(
     return makeCandidate(true, "medium", clientCurrency.source);
   }
 
-  if (getForeignCityHint(text)) {
+  if (hasForeignCityHint(text)) {
     return makeCandidate(true, "medium", "inference");
   }
 
@@ -2152,6 +2153,18 @@ function buildLineItemDescriptionFromContext(
     return "Editorial illustration";
   }
 
+  if (/brand film/i.test(localContext)) {
+    return "Brand film";
+  }
+
+  if (/shorts?/i.test(localContext)) {
+    return "Short videos";
+  }
+
+  if (/shots?/i.test(localContext)) {
+    return "Shots";
+  }
+
   return fallback;
 }
 
@@ -2203,6 +2216,24 @@ function extractHeuristicLineItems(text: string) {
       type: "Social Media",
       rateUnit: "per-post",
       fallbackDescription: "Posts",
+    },
+    {
+      pattern: /\b(\d+)\s+shorts?\b/gi,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      fallbackDescription: "Short videos",
+    },
+    {
+      pattern: /\b(\d+)\s+videos?\b/gi,
+      type: "Video Editing",
+      rateUnit: "per-video",
+      fallbackDescription: "Videos",
+    },
+    {
+      pattern: /\b(\d+)\s+shots?\b/gi,
+      type: "Photography",
+      rateUnit: "per-image",
+      fallbackDescription: "Shots",
     },
   ];
 
@@ -2267,12 +2298,26 @@ function extractHeuristicLineItems(text: string) {
 export function extractInvoiceBriefSchema(
   text: string
 ): InvoiceBriefExtractionSchema {
+  const agencyName = extractAgencyName(text);
   const agencyAddress = extractAgencyAddress(text);
+  const clientName = extractClientName(text);
   const clientAddress = extractClientAddress(text);
   const clientCurrency = getCurrencyFromText(text);
   const agencyGstin = extractAgencyGstin(text);
   const agencyPan = extractAgencyPan(text);
   const clientGstin = extractClientTaxId(text);
+  const explicitAgencyGstStatus = extractAgencyGstRegistrationStatus(text);
+  const explicitLutAvailability = extractAgencyLutAvailability(text);
+  const invoiceDate = extractDateCandidate(text, [
+    "invoice date",
+    "dated",
+    "date",
+  ]);
+  const dueDate = extractDateCandidate(text, [
+    "due date",
+    "payment due",
+    "due by",
+  ]);
   const explicitClientCountry = extractPaymentField(text, [
     "client country",
     "country",
@@ -2280,29 +2325,50 @@ export function extractInvoiceBriefSchema(
   const derivedClientCountry =
     explicitClientCountry?.value
       ? getCountryFromText(explicitClientCountry.value)
-      : getCountryFromText(clientAddress?.value ?? text);
+      : getCountryFromText(
+          [clientName?.value ?? "", clientAddress?.value ?? "", text].join(" ")
+        );
 
   const clientCountry =
     explicitClientCountry?.value && derivedClientCountry
       ? makeCandidate(derivedClientCountry, "high", "label")
       : derivedClientCountry
-      ? makeCandidate(derivedClientCountry, "low", "inference")
+      ? makeCandidate(derivedClientCountry, "medium", "inference")
       : undefined;
 
   const agencyState =
-    agencyAddress?.value && getStateFromText(agencyAddress.value)
-      ? makeCandidate(getStateFromText(agencyAddress.value), "medium", "inference")
+    getStateFromText(
+      [agencyAddress?.value ?? "", agencyName?.value ?? "", text].join(" ")
+    )
+      ? makeCandidate(
+          getStateFromText(
+            [agencyAddress?.value ?? "", agencyName?.value ?? "", text].join(" ")
+          ),
+          "medium",
+          "inference"
+        )
       : undefined;
 
   const explicitClientState = extractPaymentField(text, ["client state"]);
   const clientState =
     explicitClientState?.value && getStateFromText(explicitClientState.value)
       ? makeCandidate(getStateFromText(explicitClientState.value), "high", "label")
-      : clientAddress?.value && getStateFromText(clientAddress.value)
-      ? makeCandidate(getStateFromText(clientAddress.value), "medium", "inference")
+      : getStateFromText(
+          [clientName?.value ?? "", clientAddress?.value ?? "", text].join(" ")
+        )
+      ? makeCandidate(
+          getStateFromText(
+            [clientName?.value ?? "", clientAddress?.value ?? "", text].join(" ")
+          ),
+          "medium",
+          "inference"
+        )
       : undefined;
 
   const explicitLocation = extractPaymentField(text, ["client location", "location"]);
+  const inferredLocationType = inferLocationTypeFromText(
+    [clientName?.value ?? "", clientAddress?.value ?? "", text].join(" ")
+  );
   const clientLocation: InvoiceBriefExtractionSchema["clientLocation"] =
     explicitLocation?.value &&
     /international|foreign|overseas/i.test(explicitLocation.value)
@@ -2317,16 +2383,19 @@ export function extractInvoiceBriefSchema(
           "high",
           "label"
         )
-      : clientCountry || clientCurrency || /international client|foreign client|overseas client/i.test(text)
+      : inferredLocationType === "international" ||
+        clientCountry ||
+        clientCurrency ||
+        /international client|foreign client|overseas client/i.test(text)
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
-          "low",
+          inferredLocationType === "international" ? "medium" : "low",
           "inference"
         )
-      : clientState
+      : inferredLocationType === "domestic" || clientState
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "domestic",
-          "low",
+          inferredLocationType === "domestic" ? "medium" : "low",
           "inference"
         )
       : undefined;
@@ -2338,21 +2407,52 @@ export function extractInvoiceBriefSchema(
     clientCurrency
   );
   const invoiceTotalAmount = extractInvoiceTotalAmount(text);
-  const invoiceTaxType = extractInvoiceTaxType(text);
+  const derivedGstRegistrationStatus =
+    explicitAgencyGstStatus ??
+    (agencyGstin
+      ? makeCandidate("registered", "high", "inference")
+      : undefined);
+  const derivedLutAvailability =
+    explicitLutAvailability ??
+    (/\b(?:export of services|under lut|0% gst|without payment of igst)\b/i.test(
+      text
+    )
+      ? makeCandidate("yes", "medium", "inference")
+      : undefined);
+  const explicitInvoiceTaxType = extractInvoiceTaxType(text);
+  const invoiceTaxType =
+    explicitInvoiceTaxType ??
+    (derivedGstRegistrationStatus?.value === "registered" &&
+    clientLocation?.value === "domestic" &&
+    agencyState?.value &&
+    clientState?.value
+      ? makeCandidate<NormalizedInvoiceTaxType>(
+          agencyState.value === clientState.value ? "CGST_SGST" : "IGST",
+          "medium",
+          "inference"
+        )
+      : invoiceIsInternational?.value === true &&
+        derivedLutAvailability?.value === "yes"
+      ? makeCandidate<NormalizedInvoiceTaxType>(
+          "ZERO_RATED",
+          "medium",
+          "inference"
+        )
+      : undefined);
   const paymentMode = extractPaymentMode(text);
   const timeline = extractTimeline(text);
   const primaryHeuristicLineItem = heuristicLineItems[0];
 
   return {
-    agencyName: extractAgencyName(text),
+    agencyName,
     agencyAddress,
     agencyState,
-    agencyGstRegistrationStatus: extractAgencyGstRegistrationStatus(text),
+    agencyGstRegistrationStatus: derivedGstRegistrationStatus,
     agencyGstin,
     agencyPan,
-    agencyLutAvailability: extractAgencyLutAvailability(text),
+    agencyLutAvailability: derivedLutAvailability,
     agencyLutNumber: extractAgencyLutNumber(text),
-    clientName: extractClientName(text),
+    clientName,
     clientAddress,
     clientState,
     clientCountry,
@@ -2408,6 +2508,8 @@ export function extractInvoiceBriefSchema(
       "routing number",
       "sort code",
     ]),
+    invoiceDate,
+    dueDate,
     timeline,
   };
 }
