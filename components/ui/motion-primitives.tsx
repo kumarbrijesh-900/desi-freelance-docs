@@ -12,10 +12,41 @@ import { cn } from "@/lib/ui-foundation";
 
 export { AnimatePresence, motion };
 
-type MotionPreset = "fade-up" | "scale-in" | "modal" | "soft";
+type MotionPreset = "fade-in" | "fade-up" | "scale-in" | "modal" | "soft";
 
-const standardEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+export const appEaseStandard: [number, number, number, number] = [
+  0.22,
+  1,
+  0.36,
+  1,
+];
+export const appEaseGentle: [number, number, number, number] = [
+  0.25,
+  0.9,
+  0.3,
+  1,
+];
+
+export const appSpringTransition = {
+  type: "spring" as const,
+  stiffness: 380,
+  damping: 32,
+  mass: 0.78,
+};
+
+export const appStepTransition = {
+  type: "spring" as const,
+  stiffness: 360,
+  damping: 30,
+  mass: 0.8,
+};
+
 const revealVariants: Record<MotionPreset, Variants> = {
+  "fade-in": {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  },
   "fade-up": {
     hidden: { opacity: 0, y: 12, scale: 0.995 },
     visible: { opacity: 1, y: 0, scale: 1 },
@@ -54,19 +85,21 @@ const staggerVariants: Variants = {
   },
 };
 
+type MotionRevealProps = {
+  children: ReactNode;
+  className?: string;
+  preset?: MotionPreset;
+  delay?: number;
+  durationMs?: number;
+};
+
 export function MotionReveal({
   children,
   className,
   preset = "fade-up",
   delay = 0,
   durationMs,
-}: {
-  children: ReactNode;
-  className?: string;
-  preset?: MotionPreset;
-  delay?: number;
-  durationMs?: number;
-}) {
+}: MotionRevealProps) {
   const reducedMotion = useReducedMotion();
 
   return (
@@ -82,13 +115,33 @@ export function MotionReveal({
           : {
               duration: (durationMs ?? 240) / 1000,
               delay: delay / 1000,
-              ease: standardEase,
+              ease: appEaseStandard,
             }
       }
     >
       {children}
     </motion.div>
   );
+}
+
+export function FadeIn(props: Omit<MotionRevealProps, "preset">) {
+  return <MotionReveal {...props} preset="fade-in" />;
+}
+
+export function SlideUp(props: Omit<MotionRevealProps, "preset">) {
+  return <MotionReveal {...props} preset="fade-up" />;
+}
+
+export function ScaleIn(props: Omit<MotionRevealProps, "preset">) {
+  return <MotionReveal {...props} preset="scale-in" />;
+}
+
+export function SectionReveal(props: Omit<MotionRevealProps, "preset">) {
+  return <MotionReveal {...props} preset="fade-up" />;
+}
+
+export function ModalTransition(props: Omit<MotionRevealProps, "preset">) {
+  return <MotionReveal {...props} preset="modal" />;
 }
 
 export function MotionStagger({
@@ -119,7 +172,7 @@ export function MotionStagger({
             variants={revealVariants["fade-up"]}
             transition={{
               duration: 0.22,
-              ease: standardEase,
+              ease: appEaseStandard,
             }}
           >
             {child}
@@ -128,6 +181,13 @@ export function MotionStagger({
       }) ?? <Fragment />}
     </motion.div>
   );
+}
+
+export function StaggerChildren(props: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <MotionStagger {...props} />;
 }
 
 export function MotionButton({
@@ -154,7 +214,7 @@ export function MotionButton({
         reducedMotion
           ? undefined
           : {
-              type: "spring",
+              ...appSpringTransition,
               stiffness: 420,
               damping: 30,
               mass: 0.72,
@@ -164,5 +224,106 @@ export function MotionButton({
     >
       {children}
     </motion.button>
+  );
+}
+
+export function HoverLift({
+  children,
+  className,
+  hoverY = -2,
+  hoverScale = 1.01,
+  ...props
+}: HTMLMotionProps<"div"> & {
+  children: ReactNode;
+  hoverY?: number;
+  hoverScale?: number;
+}) {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      className={className}
+      whileHover={
+        reducedMotion ? undefined : { y: hoverY, scale: hoverScale }
+      }
+      transition={reducedMotion ? undefined : appSpringTransition}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function PressDown({
+  children,
+  className,
+  tapScale = 0.985,
+  ...props
+}: HTMLMotionProps<"div"> & {
+  children: ReactNode;
+  tapScale?: number;
+}) {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      className={className}
+      whileTap={reducedMotion ? undefined : { scale: tapScale }}
+      transition={reducedMotion ? undefined : appSpringTransition}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StepTransition({
+  children,
+  className,
+  ...props
+}: HTMLMotionProps<"div"> & { children: ReactNode }) {
+  return (
+    <motion.div
+      layout
+      className={className}
+      transition={appStepTransition}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function SuccessPulse({
+  children,
+  className,
+  active = true,
+  ...props
+}: HTMLMotionProps<"div"> & {
+  children: ReactNode;
+  active?: boolean;
+}) {
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      className={className}
+      animate={
+        reducedMotion || !active
+          ? undefined
+          : { scale: [1, 1.018, 1], opacity: [1, 0.98, 1] }
+      }
+      transition={
+        reducedMotion || !active
+          ? undefined
+          : {
+              duration: 0.9,
+              ease: appEaseGentle,
+            }
+      }
+      {...props}
+    >
+      {children}
+    </motion.div>
   );
 }

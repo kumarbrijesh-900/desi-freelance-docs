@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "test:extraction": "tsx tests/extraction/run-brief-extraction-benchmark.ts"
+    "test:extraction": "tsx tests/extraction/run-brief-extraction-benchmark.ts",
+    "test:compliance": "tsx tests/compliance/run-gst-compliance-tests.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.100.1",

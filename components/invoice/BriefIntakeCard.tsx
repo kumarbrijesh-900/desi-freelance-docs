@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ClipboardCheckIcon,
+  DocumentSparkIcon,
   MicrophoneIcon,
   SparklesIcon,
   UploadIcon,
@@ -14,6 +15,7 @@ import {
   MotionButton,
   MotionReveal,
   MotionStagger,
+  SuccessPulse,
   motion,
 } from "@/components/ui/motion-primitives";
 import { playInteractionCue } from "@/lib/interaction-feedback";
@@ -147,36 +149,38 @@ export default function BriefIntakeCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+            className="flex flex-col gap-2.5 px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4"
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   id="brief-intake-collapsed-heading"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
                 >
-                  <SparklesIcon className="h-4 w-4" />
+                  <DocumentSparkIcon className="h-4 w-4" />
                   Brief Intake
                 </span>
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
-                    statusBadgeClass
-                  )}
-                >
-                  {isExtracting
-                    ? "Extracting"
-                    : lastExtractionState === "success"
-                    ? "Autofill ready"
-                    : lastExtractionState === "error"
-                    ? "Needs more detail"
-                    : canExtract
-                    ? "Ready"
-                    : "Empty"}
-                </span>
+                <SuccessPulse active={lastExtractionState === "success"}>
+                  <span
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
+                      statusBadgeClass
+                    )}
+                  >
+                    {isExtracting
+                      ? "Extracting"
+                      : lastExtractionState === "success"
+                      ? "Autofill ready"
+                      : lastExtractionState === "error"
+                      ? "Needs more detail"
+                      : canExtract
+                      ? "Ready"
+                      : "Empty"}
+                  </span>
+                </SuccessPulse>
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
+              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
                 {(intakeSummaryBits.length > 0
                   ? intakeSummaryBits
                   : ["Screenshot / Text / Audio"]
@@ -192,12 +196,12 @@ export default function BriefIntakeCard({
             </div>
 
             <MotionButton
-              type="button"
-              onClick={() => onCollapsedChange(false)}
-              aria-expanded={false}
-              aria-controls="brief-intake-panel"
-              className={cn(
-                getAppButtonClass({ variant: "secondary", size: "sm" }),
+                type="button"
+                onClick={() => onCollapsedChange(false)}
+                aria-expanded={false}
+                aria-controls="brief-intake-panel"
+                className={cn(
+                getAppButtonClass({ variant: "tertiary", size: "sm" }),
                 "shrink-0"
               )}
             >
@@ -220,8 +224,8 @@ export default function BriefIntakeCard({
         <div className={appGridClass}>
           <div className="col-span-4 flex flex-col gap-3 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
-                <SparklesIcon className="h-4 w-4" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+                <DocumentSparkIcon className="h-4 w-4" />
                 Brief Intake
               </div>
               <h2
@@ -244,6 +248,24 @@ export default function BriefIntakeCard({
                   statusBadgeClass
                 )}
               >
+                <motion.span
+                  aria-hidden="true"
+                  className="mr-1 inline-flex"
+                  animate={
+                    isExtracting
+                      ? { rotate: [0, 12, -10, 0], scale: [1, 1.08, 1] }
+                      : lastExtractionState === "success"
+                      ? { scale: [1, 1.08, 1] }
+                      : undefined
+                  }
+                  transition={{
+                    duration: isExtracting ? 0.9 : 0.55,
+                    repeat: isExtracting ? Number.POSITIVE_INFINITY : 0,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <SparklesIcon className="h-3.5 w-3.5" />
+                </motion.span>
                 {isExtracting
                   ? "Extracting"
                   : lastExtractionState === "success"
@@ -262,7 +284,7 @@ export default function BriefIntakeCard({
                   aria-expanded={true}
                   aria-controls="brief-intake-panel"
                   className={cn(
-                    getAppButtonClass({ variant: "secondary", size: "sm" }),
+                    getAppButtonClass({ variant: "tertiary", size: "sm" }),
                     "shrink-0"
                   )}
                 >
@@ -358,9 +380,9 @@ export default function BriefIntakeCard({
                         setIsDragOver(false);
                         handleFiles(event.dataTransfer.files);
                       }}
-                      className={cn(
-                        "app-dropzone-surface flex min-h-[220px] cursor-pointer items-center justify-center rounded-[24px] border-2 border-dashed bg-white p-5 text-center text-sm",
-                        isDragOver
+                        className={cn(
+                          "app-dropzone-surface flex min-h-[220px] cursor-pointer items-center justify-center rounded-[24px] border-2 border-dashed bg-white p-5 text-center text-sm",
+                          isDragOver
                           ? "app-dropzone-accept text-slate-950"
                           : "border-slate-300 text-slate-500 hover:border-slate-500"
                       )}
@@ -377,9 +399,21 @@ export default function BriefIntakeCard({
                       />
 
                       <div className="flex flex-col items-center gap-3">
-                        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700">
+                        <motion.span
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700"
+                          animate={
+                            isDragOver
+                              ? { scale: 1.06, y: -2 }
+                              : { scale: 1, y: 0 }
+                          }
+                          transition={{
+                            type: "spring",
+                            stiffness: 360,
+                            damping: 28,
+                          }}
+                        >
                           <UploadIcon className="h-5 w-5" />
-                        </span>
+                        </motion.span>
                         <div>
                           Drop a screenshot here
                           <br />
@@ -431,7 +465,20 @@ export default function BriefIntakeCard({
                     disabled={isExtracting || !canExtract}
                     className={getAppButtonClass({ variant: "primary", size: "lg" })}
                   >
-                    <SparklesIcon className="h-4 w-4" />
+                    <motion.span
+                      animate={
+                        isExtracting
+                          ? { rotate: [0, 18, -10, 0], scale: [1, 1.06, 1] }
+                          : undefined
+                      }
+                      transition={{
+                        duration: 0.8,
+                        repeat: isExtracting ? Number.POSITIVE_INFINITY : 0,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                    >
+                      <SparklesIcon className="h-4 w-4" />
+                    </motion.span>
                     {isExtracting ? "Extracting..." : "Extract & Autofill"}
                   </MotionButton>
                 </div>

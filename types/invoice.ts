@@ -3,6 +3,12 @@ import type {
   InternationalCountryOption,
   InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
+import {
+  composeIndianAddress,
+  evaluateStateSignals,
+  hydrateIndianAddressFields,
+} from "@/lib/invoice-address";
+import { derivePanFromGstin, getStateFromGstin } from "@/lib/gstin-parser";
 
 export type InvoiceLineItemType =
   | "Logo Design"
@@ -37,6 +43,10 @@ export interface InvoiceLineItem {
 export interface AgencyDetails {
   agencyName: string;
   address: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  pinCode: string;
   agencyState: IndiaStateOption | "";
   gstin: string;
   pan: string;
@@ -50,11 +60,18 @@ export interface AgencyDetails {
 export interface ClientDetails {
   clientName: string;
   clientAddress: string;
+  clientAddressLine1: string;
+  clientAddressLine2: string;
+  clientCity: string;
+  clientPinCode: string;
+  clientPostalCode: string;
+  clientEmail: string;
   clientState: IndiaStateOption | "";
   clientCountry: InternationalCountryOption | "";
   clientCurrency: InternationalCurrencyCode | "";
   clientGstin: string;
   clientLocation: "domestic" | "international";
+  isClientSezUnit: "" | "yes" | "no" | "not-sure";
 }
 
 export interface InvoiceMeta {
@@ -93,6 +110,7 @@ export interface LicenseDetails {
 export interface PaymentDetails {
   license: LicenseDetails;
   notes: string;
+  paymentSettlementType: "" | "forex" | "inr" | "unknown";
   accountName: string;
   bankName: string;
   bankAddress: string;
@@ -130,6 +148,10 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   agency: {
     agencyName: "",
     address: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    pinCode: "",
     agencyState: "",
     gstin: "",
     pan: "",
@@ -142,11 +164,18 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   client: {
     clientName: "",
     clientAddress: "",
+    clientAddressLine1: "",
+    clientAddressLine2: "",
+    clientCity: "",
+    clientPinCode: "",
+    clientPostalCode: "",
+    clientEmail: "",
     clientState: "",
     clientCountry: "",
     clientCurrency: "",
     clientGstin: "",
     clientLocation: "domestic",
+    isClientSezUnit: "",
   },
   meta: {
     invoiceNumber: "",
@@ -175,6 +204,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
       licenseDuration: "",
     },
     notes: "1.5% monthly late fee applies. Final files delivered after full payment.",
+    paymentSettlementType: "",
     accountName: "",
     bankName: "",
     bankAddress: "",
@@ -186,23 +216,101 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   },
 };
 
+function normalizeAgencyDetails(agency: AgencyDetails): AgencyDetails {
+  const hydratedAddress = hydrateIndianAddressFields({
+    addressLine1: agency.addressLine1,
+    addressLine2: agency.addressLine2,
+    city: agency.city,
+    state: agency.agencyState,
+    pinCode: agency.pinCode,
+    legacyAddress: agency.address,
+  });
+  const gstinState = getStateFromGstin(agency.gstin);
+  const derivedPan = derivePanFromGstin(agency.gstin);
+  const stateSignals = evaluateStateSignals({
+    manualState: agency.agencyState,
+    city: hydratedAddress.city,
+    pinCode: hydratedAddress.pinCode,
+    gstinState,
+    label: "Agency state",
+  });
+  const nextAgencyState =
+    agency.agencyState ||
+    (stateSignals.strongestState as IndiaStateOption | "") ||
+    "";
+
+  return {
+    ...agency,
+    ...hydratedAddress,
+    agencyState: nextAgencyState,
+    pan: agency.pan || derivedPan,
+    address: composeIndianAddress({
+      addressLine1: hydratedAddress.addressLine1,
+      addressLine2: hydratedAddress.addressLine2,
+      city: hydratedAddress.city,
+      state: nextAgencyState,
+      pinCode: hydratedAddress.pinCode,
+    }),
+  };
+}
+
+function normalizeClientDetails(client: ClientDetails): ClientDetails {
+  if (client.clientLocation === "international") {
+    return client;
+  }
+
+  const hydratedAddress = hydrateIndianAddressFields({
+    addressLine1: client.clientAddressLine1,
+    addressLine2: client.clientAddressLine2,
+    city: client.clientCity,
+    state: client.clientState,
+    pinCode: client.clientPinCode,
+    legacyAddress: client.clientAddress,
+  });
+  const gstinState = getStateFromGstin(client.clientGstin);
+  const stateSignals = evaluateStateSignals({
+    manualState: client.clientState,
+    city: hydratedAddress.city,
+    pinCode: hydratedAddress.pinCode,
+    gstinState,
+    label: "Client state",
+  });
+  const nextClientState =
+    client.clientState ||
+    (stateSignals.strongestState as IndiaStateOption | "") ||
+    "";
+
+  return {
+    ...client,
+    ...hydratedAddress,
+    clientState: nextClientState,
+    clientAddress: composeIndianAddress({
+      addressLine1: hydratedAddress.addressLine1,
+      addressLine2: hydratedAddress.addressLine2,
+      city: hydratedAddress.city,
+      state: nextClientState,
+      pinCode: hydratedAddress.pinCode,
+    }),
+  };
+}
+
 export function mergeInvoiceFormData(
   value?: Partial<InvoiceFormData> | null
 ): InvoiceFormData {
   const defaultLineItem = defaultInvoiceFormData.lineItems[0];
 
   return {
-    agency: {
+    agency: normalizeAgencyDetails({
       ...defaultInvoiceFormData.agency,
       ...value?.agency,
       gstRegistrationStatus:
         value?.agency?.gstRegistrationStatus ||
         defaultInvoiceFormData.agency.gstRegistrationStatus,
-    },
-    client: {
+    }),
+    client: normalizeClientDetails({
       ...defaultInvoiceFormData.client,
       ...value?.client,
-    },
+    }),
     meta: {
       ...defaultInvoiceFormData.meta,
       ...value?.meta,

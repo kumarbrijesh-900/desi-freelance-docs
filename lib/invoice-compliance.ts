@@ -1,6 +1,7 @@
 import type {
   AgencyDetails,
   ClientDetails,
+  PaymentDetails,
   InvoiceTaxType,
 } from "@/types/invoice";
 
@@ -10,6 +11,12 @@ export function isInternationalClient(client: ClientDetails) {
 
 export function isAgencyGstRegistered(agency: AgencyDetails) {
   return agency.gstRegistrationStatus === "registered";
+}
+
+export function isDomesticSezClient(client: ClientDetails) {
+  return (
+    client.clientLocation === "domestic" && client.isClientSezUnit === "yes"
+  );
 }
 
 export function shouldShowAgencyGstin(agency: AgencyDetails) {
@@ -60,6 +67,27 @@ export function getLutDeclarationText(agency: AgencyDetails) {
     : "Export of services under LUT without payment of IGST.";
 }
 
+export function getSettlementComplianceWarning(params: {
+  client: ClientDetails;
+  payment: PaymentDetails;
+}) {
+  const { client, payment } = params;
+
+  if (!isInternationalClient(client)) {
+    return "";
+  }
+
+  if (payment.paymentSettlementType === "forex") {
+    return "";
+  }
+
+  if (payment.paymentSettlementType === "inr") {
+    return "Settlement is marked in INR. Review FEMA and export-document requirements before sending this invoice.";
+  }
+
+  return "Settlement type is still unknown. Confirm whether this export invoice will settle in foreign currency or INR.";
+}
+
 export function getClientFacingTaxComplianceNote(params: {
   agency: AgencyDetails;
   client: ClientDetails;
@@ -77,6 +105,20 @@ export function getClientFacingTaxComplianceNote(params: {
     }
 
     return "";
+  }
+
+  if (isDomesticSezClient(client) && isAgencyGstRegistered(agency)) {
+    if (agency.lutAvailability === "yes") {
+      return agency.lutNumber.trim()
+        ? `Supply to SEZ under LUT ${agency.lutNumber.trim()} without payment of IGST.`
+        : "Supply to SEZ under LUT without payment of IGST.";
+    }
+
+    if (taxType === "IGST") {
+      return "Supply to SEZ unit: IGST 18% applied on this invoice.";
+    }
+
+    return "Supply to SEZ unit: review IGST handling for this invoice.";
   }
 
   if (isInternationalClient(client) && !isAgencyGstRegistered(agency)) {

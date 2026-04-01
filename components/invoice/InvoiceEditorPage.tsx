@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
-import { AnimatePresence, MotionReveal } from "@/components/ui/motion-primitives";
+import {
+  AnimatePresence,
+  MotionReveal,
+  motion,
+} from "@/components/ui/motion-primitives";
 import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
@@ -19,7 +23,9 @@ import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
   getLutDeclarationText,
+  getSettlementComplianceWarning,
   hasExplicitExportTaxChoice,
+  isDomesticSezClient,
   requiresExplicitExportTaxChoice,
 } from "@/lib/invoice-compliance";
 import { extractTextFromImage } from "@/lib/ocr-extractor";
@@ -39,6 +45,7 @@ import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
+import { playInteractionCue } from "@/lib/interaction-feedback";
 import {
   getInvoiceFieldErrors,
   getInvoiceStepError,
@@ -60,6 +67,11 @@ import {
   type InvoiceStepperStep,
 } from "@/types/invoice";
 import { getAppButtonClass } from "@/lib/ui-foundation";
+import {
+  ChevronLeftIcon,
+  DownloadIcon,
+  SaveIcon,
+} from "@/components/ui/app-icons";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -177,6 +189,10 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
     agency: {
       agencyName: "DesiFreelanceDocs Studio",
       address: "2nd Floor, 14 Residency Road, Bengaluru, Karnataka 560025",
+      addressLine1: "2nd Floor, 14 Residency Road",
+      addressLine2: "",
+      city: "Bengaluru",
+      pinCode: "560025",
       agencyState: "Karnataka",
       gstin: "29ABCDE1234F1Z5",
       pan: "ABCDE1234F",
@@ -190,11 +206,18 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       clientName: "Metro Shoes Pvt. Ltd.",
       clientAddress:
         "Phoenix Marketcity, Whitefield Main Road, Bengaluru 560048",
+      clientAddressLine1: "Phoenix Marketcity, Whitefield Main Road",
+      clientAddressLine2: "",
+      clientCity: "Bengaluru",
+      clientPinCode: "560048",
+      clientPostalCode: "",
+      clientEmail: "",
       clientState: "Karnataka",
       clientCountry: "",
       clientCurrency: "",
       clientGstin: "29AAACM8899L1Z2",
       clientLocation: "domestic" as const,
+      isClientSezUnit: "no" as const,
     },
     meta: {
       invoiceNumber,
@@ -232,6 +255,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       },
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
+      paymentSettlementType: "",
       accountName: "DesiFreelanceDocs Studio",
       bankName: "HDFC Bank",
       bankAddress: "",
@@ -263,6 +287,10 @@ function isFormTouched(formData: InvoiceFormData) {
   const hasAgencyData = Boolean(
       formData.agency.agencyName ||
       formData.agency.address ||
+      formData.agency.addressLine1 ||
+      formData.agency.addressLine2 ||
+      formData.agency.city ||
+      formData.agency.pinCode ||
       formData.agency.agencyState ||
       formData.agency.gstin ||
       formData.agency.pan ||
@@ -276,11 +304,18 @@ function isFormTouched(formData: InvoiceFormData) {
   const hasClientData = Boolean(
     formData.client.clientName ||
       formData.client.clientAddress ||
+      formData.client.clientAddressLine1 ||
+      formData.client.clientAddressLine2 ||
+      formData.client.clientCity ||
+      formData.client.clientPinCode ||
+      formData.client.clientPostalCode ||
+      formData.client.clientEmail ||
       formData.client.clientState ||
       formData.client.clientCountry ||
       formData.client.clientCurrency ||
       formData.client.clientGstin ||
-      formData.client.clientLocation === "international"
+      formData.client.clientLocation === "international" ||
+      formData.client.isClientSezUnit
   );
 
   const hasMetaData = Boolean(
@@ -298,7 +333,8 @@ function isFormTouched(formData: InvoiceFormData) {
   );
 
   const hasPaymentData = Boolean(
-    formData.payment.notes ||
+      formData.payment.notes ||
+      formData.payment.paymentSettlementType ||
       formData.payment.accountName ||
       formData.payment.bankName ||
       formData.payment.bankAddress ||
@@ -771,6 +807,7 @@ export default function InvoiceEditorPage() {
         agencyState: formData.agency.agencyState,
         clientState: formData.client.clientState,
         isInternational: clientIsInternational,
+        isClientSezUnit: isDomesticSezClient(formData.client),
         gstRegistered: agencyIsGstRegistered,
         lutAvailability: formData.agency.lutAvailability,
         noLutTaxHandling: effectiveExportTaxDecision,
@@ -778,8 +815,8 @@ export default function InvoiceEditorPage() {
     [
       formData.lineItems,
       formData.agency.agencyState,
-      formData.client.clientState,
       clientIsInternational,
+      formData.client,
       agencyIsGstRegistered,
       formData.agency.lutAvailability,
       effectiveExportTaxDecision,
@@ -807,16 +844,44 @@ export default function InvoiceEditorPage() {
   }, [computedTotals.taxType]);
 
   const totalsComplianceMessage = useMemo(() => {
+    const settlementWarning = getSettlementComplianceWarning({
+      client: formData.client,
+      payment: formData.payment,
+    });
+
     if (clientIsInternational && agencyIsGstRegistered) {
       if (formData.agency.lutAvailability === "yes") {
-        return getLutDeclarationText(formData.agency);
+        return [getLutDeclarationText(formData.agency), settlementWarning]
+          .filter(Boolean)
+          .join(" ");
       }
 
-      return "";
+      if (effectiveExportTaxDecision === "add-igst") {
+        return ["International export without LUT: IGST 18% applies.", settlementWarning]
+          .filter(Boolean)
+          .join(" ");
+      }
+
+      return settlementWarning;
+    }
+
+    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+      if (formData.agency.lutAvailability === "yes") {
+        return formData.agency.lutNumber.trim()
+          ? `Domestic SEZ supply under LUT ${formData.agency.lutNumber.trim()}: no IGST is added on the invoice.`
+          : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
+      }
+
+      return "Domestic SEZ supply without LUT: IGST 18% applies even if the client is in the same state.";
     }
 
     if (clientIsInternational && !agencyIsGstRegistered) {
-      return "No GST applied because agency is marked as not registered under GST.";
+      return [
+        "No GST applied because agency is marked as not registered under GST.",
+        settlementWarning,
+      ]
+        .filter(Boolean)
+        .join(" ");
     }
 
     if (computedTotals.taxType === "CGST_SGST") {
@@ -841,10 +906,25 @@ export default function InvoiceEditorPage() {
     clientIsInternational,
     agencyIsGstRegistered,
     formData.agency,
-    formData.client.clientState,
+    formData.client,
+    formData.payment,
+    effectiveExportTaxDecision,
   ]);
 
   const totalsComplianceVariant = useMemo(() => {
+    if (
+      getSettlementComplianceWarning({
+        client: formData.client,
+        payment: formData.payment,
+      })
+    ) {
+      return "warning";
+    }
+
+    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+      return formData.agency.lutAvailability === "yes" ? "info" : "warning";
+    }
+
     if (clientIsInternational && agencyIsGstRegistered) {
       return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
     }
@@ -853,6 +933,8 @@ export default function InvoiceEditorPage() {
   }, [
     clientIsInternational,
     agencyIsGstRegistered,
+    formData.client,
+    formData.payment,
     formData.agency.lutAvailability,
   ]);
 
@@ -964,8 +1046,17 @@ export default function InvoiceEditorPage() {
         PREVIEW_STORAGE_KEY,
         JSON.stringify(previewFormData)
       );
+      window.localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          formData,
+          currentStep: "totals",
+          savedAt: new Date().toISOString(),
+        } satisfies StoredDraft)
+      );
       triggerToast("Preview ready");
-      window.open("/invoice/preview", "_blank", "noopener,noreferrer");
+      playInteractionCue("previewReady");
+      router.push("/invoice/preview");
     } catch (error) {
       console.error("Failed to save preview data:", error);
       alert("Could not open preview. Please try again.");
@@ -1062,6 +1153,7 @@ export default function InvoiceEditorPage() {
         setAutofillSummary(null);
       }
       triggerToast("Draft saved");
+      playInteractionCue("saveSuccess");
 
       if (!options?.stayOnPage) {
         window.setTimeout(() => {
@@ -1078,15 +1170,6 @@ export default function InvoiceEditorPage() {
     performSaveDraft();
   };
 
-  const handleDownloadPdf = () => {
-    if (!currentStepValid) return;
-    alert("Download PDF will be connected after preview layout is ready.");
-  };
-
-  const handleCancel = () => {
-    router.push("/");
-  };
-
   const handleLoadDemoData = () => {
     const demoInvoiceNumber = getNextInvoiceNumber();
     const demo = getDemoData(demoInvoiceNumber);
@@ -1099,15 +1182,7 @@ export default function InvoiceEditorPage() {
     dueDateAutoManagedRef.current = demo.meta.dueDate === demoSuggestedDueDate;
     lastAutoDueDateRef.current = demoSuggestedDueDate;
 
-    setFormData((prev) => ({
-      ...prev,
-      agency: demo.agency,
-      client: demo.client,
-      meta: demo.meta,
-      lineItems: demo.lineItems,
-      tax: demo.tax,
-      payment: demo.payment,
-    }));
+    setFormData(mergeInvoiceFormData(demo));
     setIsBriefIntakeCollapsed(true);
 
     triggerToast("Demo data loaded");
@@ -1130,7 +1205,7 @@ export default function InvoiceEditorPage() {
       console.error("Failed to clear local invoice state:", error);
     }
 
-    setFormData(freshInvoiceData);
+    setFormData(mergeInvoiceFormData(freshInvoiceData));
     setCurrentStep("agency");
     setAutofillSummary(null);
     setShowExitModal(false);
@@ -1234,7 +1309,7 @@ export default function InvoiceEditorPage() {
     const missingFieldGroups = getMissingFieldLabels(nextFormData);
     const recommendedStep = missingStep ?? "totals";
 
-    setFormData(nextFormData);
+    setFormData(mergeInvoiceFormData(nextFormData));
     setAutofillSummary({
       confidentFields: result.confidentFieldSummaries,
       inferredFields: result.inferredFieldSummaries,
@@ -1277,7 +1352,7 @@ export default function InvoiceEditorPage() {
       new Set([...autofillSummary.resolvedClarificationIds, suggestionId])
     );
 
-    setFormData(nextFormData);
+    setFormData(mergeInvoiceFormData(nextFormData));
     refreshAutofillSummary(nextFormData, {
       resolvedClarificationIds: nextResolvedClarificationIds,
     });
@@ -1435,115 +1510,136 @@ export default function InvoiceEditorPage() {
           />
 
           <div className="overflow-visible">
-            {currentStep === "agency" && (
-              <AgencyDetailsSection
-                value={formData.agency}
-                onChange={(agency) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    agency,
-                  }))
-                }
-                errors={fieldErrors.agency}
-              />
-            )}
-
-            {currentStep === "client" && (
-              <ClientDetailsSection
-                value={formData.client}
-                onChange={(client) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    client,
-                  }))
-                }
-                errors={fieldErrors.client}
-              />
-            )}
-
-            {currentStep === "deliverables" && (
-              <DeliverablesSection
-                value={formData.lineItems}
-                currency={displayCurrency}
-                onChange={(lineItems) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    lineItems,
-                  }))
-                }
-                errors={fieldErrors.lineItems}
-              />
-            )}
-
-            {currentStep === "payment" && (
-              <TermsPaymentSection
-                value={formData.payment}
-                meta={formData.meta}
-                clientLocation={formData.client.clientLocation}
-                onChange={(payment) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    payment,
-                  }))
-                }
-                onMetaChange={handleMetaChange}
-                paymentTermsError={fieldErrors.meta.paymentTerms}
-                errors={fieldErrors.payment}
-              />
-            )}
-
-            {currentStep === "meta" && (
-              <InvoiceMetaSection
-                value={formData.meta}
-                onChange={handleMetaChange}
-                errors={{
-                  invoiceNumber: fieldErrors.meta.invoiceNumber,
-                  invoiceDate: fieldErrors.meta.invoiceDate,
-                  dueDate: fieldErrors.meta.dueDate,
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, y: 18, scale: 0.996 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.995 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 360,
+                  damping: 30,
+                  mass: 0.8,
                 }}
-              />
-            )}
-
-            {currentStep === "totals" && (
-              <TotalsTaxesSection
-                value={derivedTaxConfig}
-                computed={computedTotals}
-                currency={displayCurrency}
-                isLocked
-                modeLabel="Tax Type"
-                rateLabel="Total Tax %"
-                gstOptionLabel="CGST + SGST"
-                complianceMessage={totalsComplianceMessage}
-                complianceVariant={totalsComplianceVariant}
-                exportTaxDecision={effectiveExportTaxDecision}
-                exportTaxHelperNote={exportTaxHelperNote}
-                estimatedIgstLiability={estimatedIgstLiability}
-                grandTotalReferenceLabel={
-                  showApproximateUsdReference
-                    ? "Approx. USD total (reference only)"
-                    : ""
-                }
-                grandTotalReferenceAmount={approximateUsdGrandTotal}
-                onExportTaxDecisionChange={
-                  showInternationalExportDecision
-                    ? (noLutTaxHandling) =>
-                        setFormData((prev) => ({
+              >
+                {currentStep === "agency" && (
+                  <AgencyDetailsSection
+                    value={formData.agency}
+                    onChange={(agency) =>
+                      setFormData((prev) =>
+                        mergeInvoiceFormData({
                           ...prev,
-                          agency: {
-                            ...prev.agency,
-                            noLutTaxHandling,
-                          },
-                        }))
-                    : undefined
-                }
-                onChange={(tax) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    tax,
-                  }))
-                }
-              />
-            )}
+                          agency,
+                        })
+                      )
+                    }
+                    errors={fieldErrors.agency}
+                  />
+                )}
+
+                {currentStep === "client" && (
+                  <ClientDetailsSection
+                    value={formData.client}
+                    onChange={(client) =>
+                      setFormData((prev) =>
+                        mergeInvoiceFormData({
+                          ...prev,
+                          client,
+                        })
+                      )
+                    }
+                    errors={fieldErrors.client}
+                  />
+                )}
+
+                {currentStep === "deliverables" && (
+                  <DeliverablesSection
+                    value={formData.lineItems}
+                    currency={displayCurrency}
+                    onChange={(lineItems) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        lineItems,
+                      }))
+                    }
+                    errors={fieldErrors.lineItems}
+                  />
+                )}
+
+                {currentStep === "payment" && (
+                  <TermsPaymentSection
+                    value={formData.payment}
+                    meta={formData.meta}
+                    clientLocation={formData.client.clientLocation}
+                    onChange={(payment) =>
+                      setFormData((prev) =>
+                        mergeInvoiceFormData({
+                          ...prev,
+                          payment,
+                        })
+                      )
+                    }
+                    onMetaChange={handleMetaChange}
+                    paymentTermsError={fieldErrors.meta.paymentTerms}
+                    errors={fieldErrors.payment}
+                  />
+                )}
+
+                {currentStep === "meta" && (
+                  <InvoiceMetaSection
+                    value={formData.meta}
+                    onChange={handleMetaChange}
+                    errors={{
+                      invoiceNumber: fieldErrors.meta.invoiceNumber,
+                      invoiceDate: fieldErrors.meta.invoiceDate,
+                      dueDate: fieldErrors.meta.dueDate,
+                    }}
+                  />
+                )}
+
+                {currentStep === "totals" && (
+                  <TotalsTaxesSection
+                    value={derivedTaxConfig}
+                    computed={computedTotals}
+                    currency={displayCurrency}
+                    isLocked
+                    modeLabel="Tax Type"
+                    rateLabel="Total Tax %"
+                    gstOptionLabel="CGST + SGST"
+                    complianceMessage={totalsComplianceMessage}
+                    complianceVariant={totalsComplianceVariant}
+                    exportTaxDecision={effectiveExportTaxDecision}
+                    exportTaxHelperNote={exportTaxHelperNote}
+                    estimatedIgstLiability={estimatedIgstLiability}
+                    grandTotalReferenceLabel={
+                      showApproximateUsdReference
+                        ? "Approx. USD total (reference only)"
+                        : ""
+                    }
+                    grandTotalReferenceAmount={approximateUsdGrandTotal}
+                    onExportTaxDecisionChange={
+                      showInternationalExportDecision
+                        ? (noLutTaxHandling) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              agency: {
+                                ...prev.agency,
+                                noLutTaxHandling,
+                              },
+                            }))
+                        : undefined
+                    }
+                    onChange={(tax) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        tax,
+                      }))
+                    }
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {!currentStepValid && (
@@ -1583,16 +1679,10 @@ export default function InvoiceEditorPage() {
                   disabled={!currentStepValid}
                   className={getAppButtonClass({ variant: "primary", size: "lg" })}
                 >
-                  PREVIEW INVOICE
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDownloadPdf}
-                  disabled={!currentStepValid}
-                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-                >
-                  DOWNLOAD PDF
+                  <span className="inline-flex items-center gap-2">
+                    <DownloadIcon className="h-4 w-4" />
+                    Preview & Download
+                  </span>
                 </button>
 
                 <button
@@ -1600,15 +1690,21 @@ export default function InvoiceEditorPage() {
                   onClick={handleSaveDraft}
                   className={getAppButtonClass({ variant: "secondary", size: "lg" })}
                 >
-                  SAVE DRAFT
+                  <span className="inline-flex items-center gap-2">
+                    <SaveIcon className="h-4 w-4" />
+                    Save Draft
+                  </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleCancel}
+                  onClick={handleBackToHome}
                   className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                 >
-                  Cancel
+                  <span className="inline-flex items-center gap-2">
+                    <ChevronLeftIcon className="h-4 w-4" />
+                    Close
+                  </span>
                 </button>
               </div>
             )}

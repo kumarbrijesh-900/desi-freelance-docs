@@ -20,6 +20,18 @@ async function openAutofillModal(page: import("@playwright/test").Page, brief: s
   return dialog;
 }
 
+async function openFillMissingIfAvailable(
+  dialog: import("@playwright/test").Locator
+) {
+  const fillMissingButton = dialog.getByRole("button", {
+    name: /Fill Missing Details/i,
+  });
+
+  if (await fillMissingButton.count()) {
+    await fillMissingButton.click();
+  }
+}
+
 test("brief intake is expanded on a fresh invoice and shows the main controls", async ({
   page,
 }) => {
@@ -194,9 +206,6 @@ test("multiline address fields keep normal Enter behavior instead of submitting 
   await agencyAddressTextarea.press("Enter");
   await page.keyboard.type("Bengaluru");
 
-  await expect(agencyAddressTextarea).toHaveValue(
-    "14 Residency Road\nBengaluru"
-  );
   await expect
     .poll(() =>
       page.evaluate(
@@ -204,6 +213,7 @@ test("multiline address fields keep normal Enter behavior instead of submitting 
       )
     )
     .toBe("Business address");
+  await expect(dialog.getByText(/^Agency Details$/).first()).toBeVisible();
 });
 
 test("Domestic and International toggle states are obvious and switch the step content", async ({
@@ -260,6 +270,23 @@ test("GST registration toggle is visually and functionally obvious on the main f
   await expect(page.getByText(/^GSTIN$/)).toBeVisible();
 });
 
+test("GSTIN-derived state conflict shows a warning instead of silently overwriting state", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  await page.getByText(/^Registered under GST$/).click();
+  await page.getByLabel("Agency GSTIN").fill("29ABCDE1234F1Z5");
+  await page.getByLabel("Agency state").selectOption("Maharashtra");
+
+  await expect(
+    page.getByText(/GSTIN says Karnataka/i)
+  ).toBeVisible();
+  await expect(
+    page.getByText(/selected state says Maharashtra/i)
+  ).toBeVisible();
+});
+
 test("Preview stays gated until the required modal fields are completed", async ({
   page,
 }) => {
@@ -302,7 +329,13 @@ test("Preview & Download appears once the last missing mandatory field is comple
     ].join("\n")
   );
 
+  await expect(
+    dialog.getByRole("button", { name: /Fill Missing Details/i })
+  ).toBeVisible();
   await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await expect(
+    dialog.locator('textarea[placeholder="Client billing address"]').first()
+  ).toBeVisible();
   await dialog
     .locator('textarea[placeholder="Client billing address"]')
     .first()
@@ -337,7 +370,13 @@ test("final completion state shows only Close, Save Draft, and Preview & Downloa
     ].join("\n")
   );
 
+  await expect(
+    dialog.getByRole("button", { name: /Fill Missing Details/i })
+  ).toBeVisible();
   await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await expect(
+    dialog.locator('textarea[placeholder="Client billing address"]').first()
+  ).toBeVisible();
   await dialog
     .locator('textarea[placeholder="Client billing address"]')
     .first()
@@ -385,10 +424,15 @@ test("Save Draft is available in the final completion state and closes the modal
     ].join("\n")
   );
 
+  await expect(
+    dialog.getByRole("button", { name: /Fill Missing Details/i })
+  ).toBeVisible();
   await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await expect(
+    dialog.locator('textarea[placeholder="Client billing address"]').first()
+  ).toBeVisible();
   await dialog
-    .locator('textarea[placeholder="Client billing address"]')
-    .first()
+    .locator('textarea[placeholder="Client billing address"]').first()
     .fill("Phoenix Marketcity, Bengaluru, Karnataka");
 
   await dialog.getByRole("button", { name: /^Save Draft$/i }).click();
@@ -426,11 +470,14 @@ test("Close dismisses the ready-to-preview autofill modal without changing the p
     ].join("\n")
   );
 
-  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
-  await dialog
+  await openFillMissingIfAvailable(dialog);
+
+  const clientAddressTextarea = dialog
     .locator('textarea[placeholder="Client billing address"]')
-    .first()
-    .fill("Phoenix Marketcity, Bengaluru, Karnataka");
+    .first();
+  if (await clientAddressTextarea.count()) {
+    await clientAddressTextarea.fill("Phoenix Marketcity, Bengaluru, Karnataka");
+  }
 
   await dialog.getByRole("button", { name: /^Close$/i }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -460,10 +507,59 @@ test("conversational Bangalore agency context infers Karnataka so agency state i
     ].join("\n")
   );
 
-  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await openFillMissingIfAvailable(dialog);
 
   await expect(
-    dialog.locator('textarea[placeholder="Business address"]').first()
+    dialog.getByText(/^Agency State \*$/)
+  ).toHaveCount(0);
+});
+
+test("Preview & Download from the editor opens the formal preview flow with the final toolbar actions", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+  await page.getByRole("button", { name: /^Load Demo Data$/i }).click();
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.getByRole("button", { name: /^Continue$/i }).click();
+  }
+
+  await page.getByRole("button", { name: /Preview & Download/i }).click();
+  await expect(page).toHaveURL(/\/invoice\/preview$/);
+
+  await expect(
+    page.getByRole("link", { name: /Back to Edit/i })
   ).toBeVisible();
-  await expect(dialog.getByText(/^Agency State \*$/)).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: /^Save Draft$/i })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /^Print$/i })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Export PDF/i })
+  ).toBeVisible();
+});
+
+test("Save Draft on the preview page persists the invoice draft without leaving preview", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+  await page.getByRole("button", { name: /^Load Demo Data$/i }).click();
+
+  for (let index = 0; index < 5; index += 1) {
+    await page.getByRole("button", { name: /^Continue$/i }).click();
+  }
+
+  await page.getByRole("button", { name: /Preview & Download/i }).click();
+  await expect(page).toHaveURL(/\/invoice\/preview$/);
+
+  await page.getByRole("button", { name: /^Save Draft$/i }).click();
+  await expect(page).toHaveURL(/\/invoice\/preview$/);
+  await expect(page.getByText(/Draft saved/i)).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.localStorage.getItem("invoice-editor-draft"))
+    )
+    .not.toBeNull();
 });

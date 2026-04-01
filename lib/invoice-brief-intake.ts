@@ -17,6 +17,7 @@ import {
   type IdentifierClassification,
   type IdentifierKind,
 } from "@/lib/identifier-classifier";
+import { derivePanFromGstin, getStateFromGstin } from "@/lib/gstin-parser";
 import {
   hasForeignCityHint,
   inferLocationDetailsFromText,
@@ -1009,6 +1010,9 @@ export function normalizeExtractedData(
     extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
   const clientAddressValue =
     extraction.clientAddress.value ?? extraction.locations.client.value ?? "";
+  const agencyStateFromGstin = getStateFromGstin(extraction.gst.gstin.value);
+  const clientStateFromGstin = getStateFromGstin(extraction.clientTaxId.value);
+  const agencyPanFromGstin = derivePanFromGstin(extraction.gst.gstin.value);
   const agencyLocationDetails = inferLocationDetailsFromText(
     [extraction.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" ")
   );
@@ -1020,8 +1024,8 @@ export function normalizeExtractedData(
       clientContext,
     ].join(" ")
   );
-  const agencyStateValue = agencyLocationDetails.state || "";
-  const clientStateValue = clientLocationDetails.state || "";
+  const agencyStateValue = agencyLocationDetails.state || agencyStateFromGstin || "";
+  const clientStateValue = clientLocationDetails.state || clientStateFromGstin || "";
   const clientCountryValue = clientLocationDetails.country || "";
   const currencyCandidate =
     createAiCandidate(extraction.currency.value, extraction.currency.confidence) ??
@@ -1183,8 +1187,12 @@ export function normalizeExtractedData(
       "agency gstin"
     ),
     agencyPan: createAiClassifiedCandidate(
-      extraction.gst.pan.value,
-      extraction.gst.pan.confidence,
+      extraction.gst.pan.value || agencyPanFromGstin,
+      extraction.gst.pan.value
+        ? extraction.gst.pan.confidence
+        : agencyPanFromGstin
+        ? "high"
+        : extraction.gst.pan.confidence,
       ["pan"],
       "agency pan"
     ),

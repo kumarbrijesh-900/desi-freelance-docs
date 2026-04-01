@@ -7,6 +7,7 @@ import type {
   LicenseType,
 } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
+import ChoiceCards from "@/components/ui/ChoiceCards";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -182,6 +183,45 @@ export default function TermsPaymentSection({
         </h2>
 
         <div className="space-y-4">
+          {isInternational ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+              <label className="mb-2 block text-sm font-medium text-amber-950">
+                Settlement Type
+              </label>
+              <ChoiceCards
+                name="payment-settlement-type"
+                value={value.paymentSettlementType}
+                onChange={(nextValue) =>
+                  updateField("paymentSettlementType", nextValue)
+                }
+                variant="segmented"
+                columns={2}
+                options={[
+                  {
+                    value: "forex",
+                    label: "Forex",
+                    description: "Use when payment settles in foreign currency.",
+                  },
+                  {
+                    value: "inr",
+                    label: "INR",
+                    description: "Use when export proceeds settle in rupees.",
+                  },
+                  {
+                    value: "unknown",
+                    label: "Unknown",
+                    description: "Leave this until the settlement route is confirmed.",
+                  },
+                ]}
+              />
+              {value.paymentSettlementType !== "forex" ? (
+                <p className="mt-3 text-xs font-medium leading-5 text-amber-950/85">
+                  International invoices usually need a clear forex-settlement trail. If this will settle in INR or you are unsure, review bank and FEMA documentation before final delivery.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           <div>
             <label className="mb-2 inline-flex items-center text-sm font-medium text-black">
               Payment Terms *

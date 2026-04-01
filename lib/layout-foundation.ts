@@ -1,4 +1,4 @@
-export const appPageShellClass = "min-h-screen bg-gray-50";
+export const appPageShellClass = "min-h-screen bg-transparent";
 
 export const appPageContainerClass =
   "mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 2xl:px-10";
@@ -19,7 +19,7 @@ export const appPrimaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-8";
 export const appSecondaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-4";
 
 export const appCardClass =
-  "rounded-[24px] border border-gray-200 bg-white p-5 sm:p-6";
+  "rounded-[28px] border border-slate-200/90 bg-white/92 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-6";
 
 export const appSectionGapClass = "space-y-8";
 

@@ -107,3 +107,43 @@ export function ChevronUpIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function EyeIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M2.5 12C4.9 7.8 8.1 5.7 12 5.7C15.9 5.7 19.1 7.8 21.5 12C19.1 16.2 15.9 18.3 12 18.3C8.1 18.3 4.9 16.2 2.5 12Z" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+
+export function SaveIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M5 4H17L20 7V20H4V5C4 4.448 4.448 4 5 4Z" />
+      <path d="M8 4V9H16V4" />
+      <path d="M8 20V14H16V20" />
+    </svg>
+  );
+}
+
+export function PrinterIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M7 8V3H17V8" />
+      <path d="M7 17H5C3.895 17 3 16.105 3 15V10C3 8.895 3.895 8 5 8H19C20.105 8 21 8.895 21 10V15C21 16.105 20.105 17 19 17H17" />
+      <path d="M7 13H17V21H7V13Z" />
+      <path d="M17 11H17.01" />
+    </svg>
+  );
+}
+
+export function DocumentSparkIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M7 3H14L19 8V20C19 21.105 18.105 22 17 22H7C5.895 22 5 21.105 5 20V5C5 3.895 5.895 3 7 3Z" />
+      <path d="M14 3V8H19" />
+      <path d="M10.5 12L11.3 14.2L13.5 15L11.3 15.8L10.5 18L9.7 15.8L7.5 15L9.7 14.2L10.5 12Z" />
+    </svg>
+  );
+}

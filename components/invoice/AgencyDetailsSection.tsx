@@ -5,6 +5,9 @@ import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-address";
+import { parseGstin } from "@/lib/gstin-parser";
+import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
@@ -37,11 +40,43 @@ export default function AgencyDetailsSection({
     return () => window.clearTimeout(timer);
   }, [showToast]);
 
+  const syncAgencyDetails = (nextValue: AgencyDetails) => {
+    const gstinInfo = parseGstin(nextValue.gstin);
+    const pinInference = inferIndianLocationFromPinCode(nextValue.pinCode);
+    const nextCity = nextValue.city || pinInference.city;
+    const stateSignals = evaluateStateSignals({
+      manualState: nextValue.agencyState,
+      city: nextCity,
+      pinCode: nextValue.pinCode,
+      gstinState: gstinInfo.state,
+      label: "Agency state",
+    });
+    const nextState =
+      nextValue.agencyState ||
+      (stateSignals.strongestState as AgencyDetails["agencyState"]) ||
+      "";
+    const nextPan = nextValue.pan || gstinInfo.pan;
+
+    onChange({
+      ...nextValue,
+      city: nextCity,
+      agencyState: nextState,
+      pan: nextPan,
+      address: composeIndianAddress({
+        addressLine1: nextValue.addressLine1,
+        addressLine2: nextValue.addressLine2,
+        city: nextCity,
+        state: nextState,
+        pinCode: nextValue.pinCode,
+      }),
+    });
+  };
+
   const updateField = <K extends keyof AgencyDetails>(
     key: K,
     fieldValue: AgencyDetails[K]
   ) => {
-    onChange({
+    syncAgencyDetails({
       ...value,
       [key]: fieldValue,
     });
@@ -94,6 +129,25 @@ export default function AgencyDetailsSection({
   const showLutSection = showGstinField;
   const showNoLutTotalsNote =
     showLutSection && value.lutAvailability === "no";
+  const gstinInfo = parseGstin(value.gstin);
+  const stateSignals = evaluateStateSignals({
+    manualState: value.agencyState,
+    city: value.city,
+    pinCode: value.pinCode,
+    gstinState: showGstinField ? gstinInfo.state : "",
+    label: "Agency state",
+  });
+  const panConflictWarning =
+    showGstinField &&
+    value.pan.trim() &&
+    gstinInfo.pan &&
+    value.pan.trim().toUpperCase() !== gstinInfo.pan
+      ? `PAN does not match this GSTIN. GSTIN implies PAN ${gstinInfo.pan}.`
+      : "";
+  const addressHelperText =
+    errors?.address || stateSignals.warning
+      ? ""
+      : "PIN code can suggest city and state, but you can still edit them manually.";
 
   return (
     <>
@@ -108,7 +162,7 @@ export default function AgencyDetailsSection({
           <div className="space-y-4">
             <div>
               <label className="mb-2 block text-sm font-medium text-black">
-                Agency Name *
+                Business / Trade Name *
               </label>
               <input
                 type="text"
@@ -125,47 +179,113 @@ export default function AgencyDetailsSection({
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Address *
-              </label>
-              <textarea
-                rows={3}
-                value={value.address}
-                onChange={(e) => updateField("address", e.target.value)}
-                placeholder="Business address"
-                className={inputClass(errors?.address)}
-              />
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className="block text-sm font-medium text-black">
+                  Registered Address *
+                </label>
+                <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                  Structured for GST checks
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    PIN Code
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={value.pinCode}
+                    onChange={(e) =>
+                      updateField("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    placeholder="560025"
+                    className={inputClass()}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    value={value.city}
+                    onChange={(e) => updateField("city", e.target.value)}
+                    placeholder="Bengaluru"
+                    className={inputClass()}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Address Line 1 *
+                  </label>
+                  <input
+                    type="text"
+                    value={value.addressLine1}
+                    onChange={(e) => updateField("addressLine1", e.target.value)}
+                    placeholder="Building, street, or area"
+                    className={inputClass(errors?.address)}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    Address Line 2
+                  </label>
+                  <input
+                    type="text"
+                    value={value.addressLine2}
+                    onChange={(e) => updateField("addressLine2", e.target.value)}
+                    placeholder="Suite, floor, landmark, or optional line"
+                    className={inputClass()}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-black">
+                    State *
+                  </label>
+                  <select
+                    aria-label="Agency state"
+                    value={value.agencyState}
+                    onChange={(e) =>
+                      updateField(
+                        "agencyState",
+                        e.target.value as AgencyDetails["agencyState"]
+                      )
+                    }
+                    className={inputClass(errors?.agencyState)}
+                  >
+                    <option value="">Select state or union territory</option>
+                    {INDIA_STATE_OPTIONS.map((stateName) => (
+                      <option key={stateName} value={stateName}>
+                        {stateName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               {errors?.address ? (
                 <p className="mt-2 text-xs font-medium text-red-600">
                   {errors.address}
                 </p>
               ) : null}
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-black">
-                Agency State *
-              </label>
-              <select
-                value={value.agencyState}
-                onChange={(e) =>
-                  updateField(
-                    "agencyState",
-                    e.target.value as AgencyDetails["agencyState"]
-                  )
-                }
-                className={inputClass(errors?.agencyState)}
-              >
-                <option value="">Select state or union territory</option>
-                {INDIA_STATE_OPTIONS.map((stateName) => (
-                  <option key={stateName} value={stateName}>
-                    {stateName}
-                  </option>
-                ))}
-              </select>
               {errors?.agencyState ? (
                 <p className="mt-2 text-xs font-medium text-red-600">
                   {errors.agencyState}
+                </p>
+              ) : null}
+              {stateSignals.warning ? (
+                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">
+                  {stateSignals.warning}
+                </p>
+              ) : addressHelperText ? (
+                <p className="mt-2 text-xs leading-5 text-gray-500">
+                  {addressHelperText}
                 </p>
               ) : null}
             </div>
@@ -218,6 +338,7 @@ export default function AgencyDetailsSection({
                     </label>
                     <input
                       type="text"
+                      aria-label="Agency GSTIN"
                       value={value.gstin}
                       onChange={(e) =>
                         updateField(
@@ -233,6 +354,10 @@ export default function AgencyDetailsSection({
                     {errors?.gstin ? (
                       <p className="mt-2 text-xs font-medium text-red-600">
                         {errors.gstin}
+                      </p>
+                    ) : gstinInfo.state ? (
+                      <p className="mt-2 text-xs leading-5 text-gray-500">
+                        GSTIN state code maps to {gstinInfo.state}. PAN will be derived automatically when blank.
                       </p>
                     ) : null}
                   </div>
@@ -342,6 +467,10 @@ export default function AgencyDetailsSection({
               {errors?.pan ? (
                 <p className="mt-2 text-xs font-medium text-red-600">
                   {errors.pan}
+                </p>
+              ) : panConflictWarning ? (
+                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">
+                  {panConflictWarning}
                 </p>
               ) : null}
             </div>

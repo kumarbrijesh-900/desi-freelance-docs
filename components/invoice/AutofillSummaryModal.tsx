@@ -13,14 +13,16 @@ import {
   CheckIcon,
   ChevronLeftIcon,
   ClipboardCheckIcon,
-  DownloadIcon,
-  SparklesIcon,
+  DocumentSparkIcon,
+  EyeIcon,
+  SaveIcon,
 } from "@/components/ui/app-icons";
 import {
   AnimatePresence,
   motion,
   MotionButton,
   MotionStagger,
+  SuccessPulse,
 } from "@/components/ui/motion-primitives";
 import type { InvoiceFieldErrors } from "@/lib/invoice-validation";
 import {
@@ -1956,15 +1958,27 @@ export default function AutofillSummaryModal({
           mass: 0.82,
         }}
         className={cn(
-          "flex max-h-[min(92vh,960px)] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white shadow-[0_28px_90px_rgba(15,23,42,0.18)]",
+          "flex max-h-[min(92vh,960px)] flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/96 shadow-[0_32px_96px_rgba(15,23,42,0.2)] backdrop-blur-xl",
           appModalWidthClass
         )}
       >
         <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6 lg:px-7">
           <div className="flex items-start gap-4">
             <div>
-              <p className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                <SparklesIcon className="h-4 w-4" />
+              <p className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+                <motion.span
+                  animate={
+                    isSummaryMode
+                      ? { rotate: [0, 10, -8, 0], scale: [1, 1.06, 1] }
+                      : { scale: [1, 1.04, 1] }
+                  }
+                  transition={{
+                    duration: isSummaryMode ? 1.2 : 0.6,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <DocumentSparkIcon className="h-4 w-4" />
+                </motion.span>
                 Autofill Summary
               </p>
               <h2
@@ -2002,10 +2016,15 @@ export default function AutofillSummaryModal({
         >
           <AnimatePresence mode="wait" initial={false}>
             {isSummaryMode ? (
-              <MotionStagger
+              <motion.div
                 key="summary-mode"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-4 transition-opacity duration-150"
               >
+              <MotionStagger>
               <SummaryCard title="Needs confirmation">
                 {clarificationSuggestions.length > 0 ? (
                   <MotionStagger className="mt-3 space-y-3">
@@ -2119,11 +2138,17 @@ export default function AutofillSummaryModal({
                 </SummaryCard>
               </div>
               </MotionStagger>
+              </motion.div>
             ) : (
-              <MotionStagger
+              <motion.div
                 key="fill-mode"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-5 transition-opacity duration-150"
               >
+              <MotionStagger>
               <SummaryCard title="Fill Missing Details">
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   Finish the required invoice fields here. This form updates the
@@ -2150,6 +2175,7 @@ export default function AutofillSummaryModal({
                 </div>
               )}
               </MotionStagger>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -2178,32 +2204,23 @@ export default function AutofillSummaryModal({
                     Close
                   </ModalButton>
 
-                  <ModalButton variant="secondary" onClick={handleSaveDraft}>
+                  <ModalButton
+                    variant="secondary"
+                    onClick={handleSaveDraft}
+                    icon={<SaveIcon className="h-4 w-4" />}
+                  >
                     Save Draft
                   </ModalButton>
 
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: [1, 1.018, 1] }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{
-                      opacity: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
-                      scale: {
-                        duration: 1.2,
-                        repeat: 1,
-                        repeatDelay: 1.3,
-                        ease: [0.22, 1, 0.36, 1],
-                      },
-                    }}
-                  >
+                  <SuccessPulse>
                     <ModalButton
                       variant="primary"
                       onClick={handlePreview}
-                      icon={<DownloadIcon className="h-4 w-4" />}
+                      icon={<EyeIcon className="h-4 w-4" />}
                     >
                       Preview & Download
                     </ModalButton>
-                  </motion.div>
+                  </SuccessPulse>
                 </>
               ) : isSummaryMode ? (
                 <>

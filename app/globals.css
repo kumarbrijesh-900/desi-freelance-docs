@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f4f5;
+  --foreground: #0f172a;
   --app-duration-fast: 160ms;
   --app-duration-medium: 240ms;
   --app-duration-slow: 360ms;
   --app-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --app-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
   --app-focus-ring: rgba(15, 23, 42, 0.12);
-  --app-focus-ring-strong: rgba(15, 23, 42, 0.18);
+  --app-focus-ring-strong: rgba(15, 23, 42, 0.22);
   --app-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --app-floating-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+  --app-floating-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+  --app-floating-shadow-strong: 0 24px 64px rgba(15, 23, 42, 0.16);
   --app-space-1: 4px;
   --app-space-2: 8px;
   --app-space-3: 16px;
@@ -41,6 +42,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(180deg, #f8fafc 0%, #f5f5f4 100%);
+  background-attachment: fixed;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 @keyframes app-fade-up {
@@ -52,6 +61,16 @@ body {
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
@@ -111,6 +130,11 @@ body {
 
 .app-motion-fade-up {
   animation-name: app-fade-up;
+  animation-timing-function: var(--app-ease-standard);
+}
+
+.app-motion-fade-in {
+  animation-name: app-fade-in;
   animation-timing-function: var(--app-ease-standard);
 }
 
@@ -185,20 +209,31 @@ body {
   transform: translate3d(0, 0, 0) scale(0.985);
 }
 
+.app-interactive-field:hover {
+  border-color: rgba(71, 85, 105, 0.48);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
 .app-focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--app-focus-ring);
+  box-shadow:
+    0 0 0 3px var(--app-focus-ring),
+    0 10px 24px rgba(15, 23, 42, 0.06);
 }
 
 .app-dropzone-accept {
   border-color: #0f172a;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.96);
   box-shadow:
     0 0 0 3px var(--app-focus-ring),
-    var(--app-surface-shadow);
+    var(--app-floating-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .app-motion-base,
   .app-motion-stagger > *,
   .app-success-pulse {

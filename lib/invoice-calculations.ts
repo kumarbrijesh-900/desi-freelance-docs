@@ -10,6 +10,7 @@ type CalculateInvoiceTotalsInput = {
   agencyState: IndiaStateOption | "";
   clientState: IndiaStateOption | "";
   isInternational: boolean;
+  isClientSezUnit: boolean;
   gstRegistered: boolean;
   lutAvailability: "" | "yes" | "no";
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
@@ -20,6 +21,7 @@ export function calculateInvoiceTotals({
   agencyState,
   clientState,
   isInternational,
+  isClientSezUnit,
   gstRegistered,
   lutAvailability,
   noLutTaxHandling,
@@ -32,12 +34,13 @@ export function calculateInvoiceTotals({
 
   const taxBreakdown = calculateTax({
     subtotal,
-    agencyState,
-    clientState,
-    isInternational,
-    gstRegistered,
-    lutAvailability,
-    noLutTaxHandling,
+      agencyState,
+      clientState,
+      isInternational,
+      isClientSezUnit,
+      gstRegistered,
+      lutAvailability,
+      noLutTaxHandling,
   });
 
   return {

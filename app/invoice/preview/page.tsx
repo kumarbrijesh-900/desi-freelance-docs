@@ -2,12 +2,26 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  ChevronLeftIcon,
+  DocumentSparkIcon,
+  DownloadIcon,
+  PrinterIcon,
+  SaveIcon,
+} from "@/components/ui/app-icons";
+import {
+  MotionButton,
+  MotionReveal,
+  MotionStagger,
+  SuccessPulse,
+} from "@/components/ui/motion-primitives";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   appCardClass,
   appGridClass,
   appPageContainerClass,
   appPageSectionClass,
+  appPageShellClass,
 } from "@/lib/layout-foundation";
 import {
   getClientFacingTaxComplianceNote,
@@ -15,6 +29,7 @@ import {
   getEffectiveExportTaxHandling,
   hasExplicitExportTaxChoice,
   isAgencyGstRegistered,
+  isDomesticSezClient,
   isInternationalClient,
   requiresExplicitExportTaxChoice,
   shouldShowAgencyGstin,
@@ -23,11 +38,13 @@ import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
+import { composeInternationalAddress } from "@/lib/invoice-address";
 import {
   mergeInvoiceFormData,
   type InvoiceFormData,
 } from "@/types/invoice";
 import { getAppButtonClass } from "@/lib/ui-foundation";
+import { playInteractionCue } from "@/lib/interaction-feedback";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -109,6 +126,8 @@ function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE") {
 export default function InvoicePreviewPage() {
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saved">("idle");
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -164,6 +183,7 @@ export default function InvoicePreviewPage() {
       agencyState: data.agency.agencyState,
       clientState: data.client.clientState,
       isInternational: clientIsInternational,
+      isClientSezUnit: isDomesticSezClient(data.client),
       gstRegistered: agencyIsGstRegistered,
       lutAvailability: data.agency.lutAvailability,
       noLutTaxHandling: effectiveExportTaxHandling,
@@ -223,6 +243,14 @@ export default function InvoicePreviewPage() {
       ? convertInrToApproximateUsd(computed.grandTotal)
       : null;
   const clientTaxLabel = data ? getClientTaxIdLabel(data.client) : "GSTIN";
+  const clientAddressDisplay =
+    data?.client?.clientLocation === "international"
+      ? composeInternationalAddress({
+          fullAddress: data.client.clientAddress,
+          postalCode: data.client.clientPostalCode,
+          country: data.client.clientCountry,
+        }) || "—"
+      : data?.client?.clientAddress || "—";
   const taxComplianceNote = data
     ? getClientFacingTaxComplianceNote({
         agency: data.agency,
@@ -245,6 +273,7 @@ export default function InvoicePreviewPage() {
   useEffect(() => {
     const resetTitleAfterPrint = () => {
       exportTitleRef.current = null;
+      setIsExportingPdf(false);
       document.title = defaultTitleRef.current || previewTitle;
     };
 
@@ -255,12 +284,18 @@ export default function InvoicePreviewPage() {
     };
   }, [previewTitle]);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  useEffect(() => {
+    if (saveState !== "saved") return;
 
-  const handleBackToEdit = () => {
-    if (!data) return;
+    const timer = window.setTimeout(() => {
+      setSaveState("idle");
+    }, 1800);
+
+    return () => window.clearTimeout(timer);
+  }, [saveState]);
+
+  const persistDraft = () => {
+    if (!data) return false;
 
     try {
       window.localStorage.setItem(
@@ -271,12 +306,35 @@ export default function InvoicePreviewPage() {
           savedAt: new Date().toISOString(),
         })
       );
+
+      return true;
     } catch (error) {
       console.error("Failed to store editor draft from preview:", error);
+      return false;
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleBackToEdit = () => {
+    persistDraft();
+  };
+
+  const handleSaveDraft = () => {
+    const didPersist = persistDraft();
+
+    if (!didPersist) {
+      return;
+    }
+
+    setSaveState("saved");
+    playInteractionCue("saveSuccess");
+  };
+
   const handleDownloadPdf = () => {
+    setIsExportingPdf(true);
     exportTitleRef.current = pdfTitle;
     document.title = pdfTitle;
     window.print();
@@ -285,20 +343,33 @@ export default function InvoicePreviewPage() {
     window.setTimeout(() => {
       if (exportTitleRef.current !== null) {
         exportTitleRef.current = null;
+        setIsExportingPdf(false);
         document.title = defaultTitleRef.current || previewTitle;
       }
-    }, 0);
+    }, 500);
   };
 
   if (!isReady) {
     return (
-      <main className="min-h-screen bg-gray-100">
+      <main className={appPageShellClass}>
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-              <div className={`${appCardClass} p-8 shadow-sm`}>
-                <p className="text-sm text-gray-500">Loading preview…</p>
-              </div>
+              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700">
+                    <DocumentSparkIcon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-950">
+                      Preparing preview
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Loading the invoice sheet and export actions.
+                    </p>
+                  </div>
+                </div>
+              </MotionReveal>
             </div>
           </div>
         </section>
@@ -308,11 +379,11 @@ export default function InvoicePreviewPage() {
 
   if (!data) {
     return (
-      <main className="min-h-screen bg-gray-100">
+      <main className={appPageShellClass}>
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-              <div className={`${appCardClass} p-8 shadow-sm`}>
+              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
                 <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
                 <p className="mt-3 text-sm text-gray-600">
                   No invoice data found. Go back to the editor and click Preview
@@ -327,7 +398,7 @@ export default function InvoicePreviewPage() {
                     ← Back to Editor
                   </Link>
                 </div>
-              </div>
+              </MotionReveal>
             </div>
           </div>
         </section>
@@ -337,11 +408,11 @@ export default function InvoicePreviewPage() {
 
   if (requiresExportChoice && !hasResolvedExportChoice) {
     return (
-      <main className="min-h-screen bg-gray-100">
+      <main className={appPageShellClass}>
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-              <div className={`${appCardClass} p-8 shadow-sm`}>
+              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
                 <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
                 <p className="mt-3 text-sm leading-6 text-gray-600">
                   This international invoice still needs an explicit export tax
@@ -357,7 +428,7 @@ export default function InvoicePreviewPage() {
                     ← Back to Editor
                   </Link>
                 </div>
-              </div>
+              </MotionReveal>
             </div>
           </div>
         </section>
@@ -402,39 +473,87 @@ export default function InvoicePreviewPage() {
         }
       `}</style>
 
-      <main className="min-h-screen bg-stone-100 print:bg-white print:p-0">
+      <main className={`${appPageShellClass} print:bg-white print:p-0`}>
         <section className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}>
         <div className={`${appGridClass} print:block`}>
         <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
-          <Link
-            href="/invoice/new"
-            onClick={handleBackToEdit}
-            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-          >
-            ← Back to Edit
-          </Link>
+        <MotionReveal className="mb-6 print:hidden" preset="fade-up">
+          <div className={`${appCardClass} border-slate-200/90 px-5 py-5 sm:px-6`}>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+                    <DocumentSparkIcon className="h-4 w-4" />
+                    Preview & Download
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">
+                    Ready to export
+                  </span>
+                  {saveState === "saved" ? (
+                    <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">
+                      Draft saved
+                    </span>
+                  ) : null}
+                </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handlePrint}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-            >
-              Print
-            </button>
+                <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 sm:text-[30px]">
+                  {invoiceNumber?.trim() || "Invoice Preview"}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  Review the final invoice sheet, save a draft if you need another pass, or export a clean PDF for delivery.
+                </p>
+              </div>
 
-            <button
-              type="button"
-              onClick={handleDownloadPdf}
-              className={getAppButtonClass({ variant: "primary", size: "sm" })}
-            >
-              Export PDF
-            </button>
+              <MotionStagger className="flex flex-wrap items-center justify-start gap-3 lg:justify-end">
+                <Link
+                  href="/invoice/new"
+                  onClick={handleBackToEdit}
+                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <ChevronLeftIcon className="h-4 w-4" />
+                    Back to Edit
+                  </span>
+                </Link>
+
+                <MotionButton
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                >
+                  <SaveIcon className="h-4 w-4" />
+                  Save Draft
+                </MotionButton>
+
+                <MotionButton
+                  type="button"
+                  onClick={handlePrint}
+                  className={getAppButtonClass({ variant: "tertiary", size: "sm" })}
+                >
+                  <PrinterIcon className="h-4 w-4" />
+                  Print
+                </MotionButton>
+
+                <SuccessPulse active={!isExportingPdf}>
+                  <MotionButton
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                  >
+                    <DownloadIcon className="h-4 w-4" />
+                    {isExportingPdf ? "Preparing PDF..." : "Export PDF"}
+                  </MotionButton>
+                </SuccessPulse>
+              </MotionStagger>
+            </div>
           </div>
-        </div>
+        </MotionReveal>
 
-        <div className="invoice-sheet mx-auto w-full max-w-[210mm] border border-stone-300 bg-white px-5 py-5 shadow-[0_16px_42px_rgba(15,23,42,0.08)] sm:px-7 sm:py-6 print:max-w-none print:border-0 print:px-0 print:py-0 print:shadow-none">
+        <MotionReveal
+          className="invoice-sheet mx-auto w-full max-w-[210mm] border border-stone-300 bg-white px-5 py-5 shadow-[0_28px_70px_rgba(15,23,42,0.12)] sm:px-7 sm:py-6 print:max-w-none print:border-0 print:px-0 print:py-0 print:shadow-none"
+          preset="scale-in"
+          delay={35}
+        >
           <header className="grid gap-5 border-b border-gray-300 pb-4 lg:grid-cols-[minmax(0,1fr)_270px] print:gap-4">
             <div className="min-w-0">
               {data.agency?.logoUrl ? (
@@ -533,7 +652,7 @@ export default function InvoicePreviewPage() {
                 {data.client?.clientName || "—"}
               </p>
               <p className={`mt-2 whitespace-pre-line ${compactTextClass}`}>
-                {data.client?.clientAddress || "—"}
+                {clientAddressDisplay}
               </p>
               {!clientIsInternational && data.client?.clientState ? (
                 <p className="mt-2 text-[12px] leading-5 text-gray-600">
@@ -885,7 +1004,7 @@ export default function InvoicePreviewPage() {
               ) : null}
             </aside>
           </section>
-        </div>
+        </MotionReveal>
         </div>
         </div>
         </section>

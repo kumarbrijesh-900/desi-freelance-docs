@@ -6,6 +6,7 @@ type CalculateTaxInput = {
   agencyState: IndiaStateOption | "";
   clientState: IndiaStateOption | "";
   isInternational: boolean;
+  isClientSezUnit: boolean;
   gstRegistered: boolean;
   lutAvailability: "" | "yes" | "no";
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
@@ -16,6 +17,7 @@ export function calculateTax({
   agencyState,
   clientState,
   isInternational,
+  isClientSezUnit,
   gstRegistered,
   lutAvailability,
   noLutTaxHandling,
@@ -48,6 +50,23 @@ export function calculateTax({
     return {
       totalTax: 0,
       taxType: "NONE",
+    };
+  }
+
+  if (isClientSezUnit) {
+    if (lutAvailability === "yes") {
+      return {
+        totalTax: 0,
+        taxType: "NONE",
+      };
+    }
+
+    const igst = subtotal * 0.18;
+
+    return {
+      igst,
+      totalTax: igst,
+      taxType: "IGST",
     };
   }
 
