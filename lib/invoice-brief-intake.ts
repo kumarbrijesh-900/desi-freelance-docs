@@ -13,10 +13,15 @@ import {
 } from "@/lib/amount-normalization";
 import {
   hasForeignCityHint,
+  inferLocationDetailsFromText,
   inferCountryFromText,
   inferLocationTypeFromText,
   inferStateFromText,
 } from "@/lib/location-inference";
+import {
+  collectRoleContextFromText,
+  inferNameRolesFromText,
+} from "@/lib/name-role-inference";
 import { normalizeOcrText } from "@/lib/ocr-normalization";
 import {
   type AgencyDetails,
@@ -423,67 +428,6 @@ function cleanAddressValue(value?: string | null) {
       ""
     )
     .trim();
-}
-
-function looksLikeFieldLabelLine(line: string) {
-  return /^[a-z][a-z0-9/&.' -]{2,40}:/i.test(line);
-}
-
-function collectRoleContext(text: string, role: "agency" | "client") {
-  const lines = text
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const markers =
-    role === "agency"
-      ? [
-          /\bagency name\b/i,
-          /\bagency address\b/i,
-          /\bbusiness address\b/i,
-          /\bfreelancer name\b/i,
-          /\bstudio name\b/i,
-          /\bwe(?:'re| are)\b/i,
-          /\bwe at\b/i,
-          /\bour (?:studio|agency)\b/i,
-          /\bhum\b/i,
-          /^\s*from\s*:/i,
-          /\bbased in\b/i,
-        ]
-      : [
-          /\bclient name\b/i,
-          /\bclient address\b/i,
-          /\bclient country\b/i,
-          /\bclient state\b/i,
-          /\bclient\b/i,
-          /\bbill to\b/i,
-          /\binvoice for\b/i,
-          /\bclient location\b/i,
-          /\bcustomer name\b/i,
-          /\bcustomer address\b/i,
-          /\bbrand\b/i,
-        ];
-
-  const collected: string[] = [];
-
-  lines.forEach((line, index) => {
-    if (!markers.some((pattern) => pattern.test(line))) {
-      return;
-    }
-
-    collected.push(line);
-
-    const nextLine = lines[index + 1];
-
-    if (
-      nextLine &&
-      !looksLikeFieldLabelLine(nextLine) &&
-      nextLine.length <= 140
-    ) {
-      collected.push(nextLine);
-    }
-  });
-
-  return Array.from(new Set(collected)).join("\n");
 }
 
 export function normalizeBriefText(text: string) {
@@ -976,37 +920,32 @@ export function normalizeExtractedData(
   extraction: AiBriefExtraction,
   rawText: string
 ): InvoiceBriefExtractionSchema {
-  const agencyContext = collectRoleContext(rawText, "agency");
-  const clientContext = collectRoleContext(rawText, "client");
+  const roleInferences = inferNameRolesFromText(rawText);
+  const agencyContext = roleInferences.agencyContext || collectRoleContextFromText(rawText, "agency");
+  const clientContext = roleInferences.clientContext || collectRoleContextFromText(rawText, "client");
   const fallbackAgencyName =
     cleanValue(extraction.agencyName.value) ||
+    cleanValue(roleInferences.agency?.value) ||
     cleanValue(extraction.payment.accountName.value) ||
     "";
   const agencyAddressValue =
     extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
   const clientAddressValue =
     extraction.clientAddress.value ?? extraction.locations.client.value ?? "";
-  const agencyStateValue =
-    getStateFromText(
-      [extraction.agencyState.value ?? "", agencyAddressValue, agencyContext].join(
-        " "
-      )
-    ) || "";
-  const clientStateValue =
-    getStateFromText(
-      [extraction.clientState.value ?? "", clientAddressValue, clientContext].join(
-        " "
-      )
-    ) || "";
-  const clientCountryValue =
-    getCountryFromText(
-      [
-        extraction.clientCountry.value || "",
-        clientAddressValue,
-        clientContext,
-      ].join(" ")
-    ) ||
-    "";
+  const agencyLocationDetails = inferLocationDetailsFromText(
+    [extraction.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" ")
+  );
+  const clientLocationDetails = inferLocationDetailsFromText(
+    [
+      extraction.clientState.value ?? "",
+      extraction.clientCountry.value ?? "",
+      clientAddressValue,
+      clientContext,
+    ].join(" ")
+  );
+  const agencyStateValue = agencyLocationDetails.state || "";
+  const clientStateValue = clientLocationDetails.state || "";
+  const clientCountryValue = clientLocationDetails.country || "";
   const currencyCandidate =
     createAiCandidate(extraction.currency.value, extraction.currency.confidence) ??
     getCurrencyFromText(rawText);
@@ -1023,7 +962,7 @@ export function normalizeExtractedData(
     );
   const inferredLocationType = inferLocationTypeFromText(
     [
-      extraction.clientName.value ?? "",
+      extraction.clientName.value ?? roleInferences.client?.value ?? "",
       clientAddressValue,
       clientCountryValue,
       clientStateValue,
@@ -1052,7 +991,7 @@ export function normalizeExtractedData(
       : clientCountryValue
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
-          "medium",
+          clientLocationDetails.confidence || "medium",
           "inference"
         )
       : hasForeignCityHint(rawText) || paymentModeValue === "wise" || paymentModeValue === "payoneer"
@@ -1064,7 +1003,7 @@ export function normalizeExtractedData(
       : clientStateValue
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "domestic",
-          "medium",
+          clientLocationDetails.confidence || "medium",
           "inference"
         )
       : undefined;
@@ -1155,7 +1094,7 @@ export function normalizeExtractedData(
           agencyStateValue,
           extraction.agencyState.value
             ? extraction.agencyState.confidence
-            : "medium",
+            : agencyLocationDetails.confidence || "medium",
           extraction.agencyState.value ? "ai" : "inference"
         )
       : undefined,
@@ -1174,8 +1113,10 @@ export function normalizeExtractedData(
       extraction.gst.lutNumber.confidence
     ),
     clientName: createAiCandidate(
-      cleanValue(extraction.clientName.value),
-      extraction.clientName.confidence
+      cleanValue(extraction.clientName.value ?? roleInferences.client?.value ?? ""),
+      extraction.clientName.value
+        ? extraction.clientName.confidence
+        : roleInferences.client?.confidence
     ),
     clientAddress: createAiCandidate(
       cleanAddressValue(clientAddressValue),
@@ -1186,14 +1127,18 @@ export function normalizeExtractedData(
     clientState: clientStateValue
       ? makeCandidate(
           clientStateValue,
-          extraction.clientState.value ? extraction.clientState.confidence : "medium",
+          extraction.clientState.value
+            ? extraction.clientState.confidence
+            : clientLocationDetails.confidence || "medium",
           extraction.clientState.value ? "ai" : "inference"
         )
       : undefined,
     clientCountry: clientCountryValue
       ? makeCandidate(
           clientCountryValue,
-          extraction.clientCountry.value ? extraction.clientCountry.confidence : "medium",
+          extraction.clientCountry.value
+            ? extraction.clientCountry.confidence
+            : clientLocationDetails.confidence || "medium",
           extraction.clientCountry.value ? "ai" : "inference"
         )
       : undefined,
@@ -1693,6 +1638,16 @@ function getCurrencyFromText(
 }
 
 function extractAgencyName(text: string): Candidate<string> | undefined {
+  const roleInference = inferNameRolesFromText(text).agency;
+
+  if (roleInference) {
+    return makeCandidate(
+      roleInference.value,
+      roleInference.confidence,
+      roleInference.confidence === "high" ? "label" : "inference"
+    );
+  }
+
   const value = extractLabeledValue(text, [
     "agency name",
     "freelancer name",
@@ -1774,6 +1729,16 @@ function extractAgencyPan(text: string): Candidate<string> | undefined {
 }
 
 function extractClientName(text: string): Candidate<string> | undefined {
+  const roleInference = inferNameRolesFromText(text).client;
+
+  if (roleInference) {
+    return makeCandidate(
+      roleInference.value,
+      roleInference.confidence,
+      roleInference.confidence === "high" ? "label" : "inference"
+    );
+  }
+
   const value = extractLabeledValue(text, [
     "client name",
     "bill to",
@@ -2521,8 +2486,11 @@ function extractHeuristicLineItems(text: string) {
 export function extractInvoiceBriefSchema(
   text: string
 ): InvoiceBriefExtractionSchema {
-  const agencyContext = collectRoleContext(text, "agency");
-  const clientContext = collectRoleContext(text, "client");
+  const roleInferences = inferNameRolesFromText(text);
+  const agencyContext =
+    roleInferences.agencyContext || collectRoleContextFromText(text, "agency");
+  const clientContext =
+    roleInferences.clientContext || collectRoleContextFromText(text, "client");
   const paymentAccountName = extractPaymentField(text, [
     "beneficiary",
     "beneficiary name",
@@ -2557,10 +2525,23 @@ export function extractInvoiceBriefSchema(
     "client country",
     "country",
   ]);
+  const agencyLocationDetails = inferLocationDetailsFromText(
+    [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(" ")
+  );
+  const clientLocationDetails = inferLocationDetailsFromText(
+    [
+      explicitClientCountry?.value ?? "",
+      clientName?.value ?? roleInferences.client?.value ?? "",
+      clientAddress?.value ?? "",
+      clientContext,
+    ].join(" ")
+  );
   const derivedClientCountry =
     explicitClientCountry?.value
-      ? getCountryFromText(explicitClientCountry.value)
-      : getCountryFromText(
+      ? inferLocationDetailsFromText(explicitClientCountry.value).country ||
+        getCountryFromText(explicitClientCountry.value)
+      : clientLocationDetails.country ||
+        getCountryFromText(
           [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
             " "
           )
@@ -2570,56 +2551,75 @@ export function extractInvoiceBriefSchema(
     explicitClientCountry?.value && derivedClientCountry
       ? makeCandidate(derivedClientCountry, "high", "label")
       : derivedClientCountry
-      ? makeCandidate(derivedClientCountry, "medium", "inference")
+      ? makeCandidate(
+          derivedClientCountry,
+          clientLocationDetails.country ? clientLocationDetails.confidence || "medium" : "medium",
+          "inference"
+        )
       : undefined;
 
   const agencyState =
+    agencyLocationDetails.state ||
     getStateFromText(
-      [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(
-        " "
-      )
+      [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(" ")
     )
       ? makeCandidate(
-          getStateFromText(
-            [
-              agencyAddress?.value ?? "",
-              agencyName?.value ?? "",
-              agencyContext,
-            ].join(" ")
-          ),
-          "medium",
+          agencyLocationDetails.state ||
+            getStateFromText(
+              [
+                agencyAddress?.value ?? "",
+                agencyName?.value ?? "",
+                agencyContext,
+              ].join(" ")
+            ),
+          agencyLocationDetails.state
+            ? agencyLocationDetails.confidence || "medium"
+            : "medium",
           "inference"
         )
       : undefined;
 
   const explicitClientState = extractPaymentField(text, ["client state"]);
   const clientState =
-    explicitClientState?.value && getStateFromText(explicitClientState.value)
-      ? makeCandidate(getStateFromText(explicitClientState.value), "high", "label")
-      : getStateFromText(
+    explicitClientState?.value &&
+    (inferLocationDetailsFromText(explicitClientState.value).state ||
+      getStateFromText(explicitClientState.value))
+      ? makeCandidate(
+          inferLocationDetailsFromText(explicitClientState.value).state ||
+            getStateFromText(explicitClientState.value),
+          "high",
+          "label"
+        )
+      : clientLocationDetails.state ||
+        getStateFromText(
           [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
             " "
           )
         )
       ? makeCandidate(
-          getStateFromText(
-            [
-              clientName?.value ?? "",
-              clientAddress?.value ?? "",
-              clientContext,
-            ].join(" ")
-          ),
-          "medium",
+          clientLocationDetails.state ||
+            getStateFromText(
+              [
+                clientName?.value ?? "",
+                clientAddress?.value ?? "",
+                clientContext,
+              ].join(" ")
+            ),
+          clientLocationDetails.state
+            ? clientLocationDetails.confidence || "medium"
+            : "medium",
           "inference"
         )
       : undefined;
 
   const explicitLocation = extractPaymentField(text, ["client location", "location"]);
-  const inferredLocationType = inferLocationTypeFromText(
-    [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
-      " "
-    )
-  );
+  const inferredLocationType =
+    clientLocationDetails.locationType ||
+    inferLocationTypeFromText(
+      [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
+        " "
+      )
+    );
   const clientLocation: InvoiceBriefExtractionSchema["clientLocation"] =
     explicitLocation?.value &&
     /international|foreign|overseas/i.test(explicitLocation.value)
@@ -2640,13 +2640,17 @@ export function extractInvoiceBriefSchema(
         /international client|foreign client|overseas client/i.test(text)
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
-          inferredLocationType === "international" ? "high" : "medium",
+          inferredLocationType === "international"
+            ? clientLocationDetails.confidence || "high"
+            : "medium",
           "inference"
         )
       : inferredLocationType === "domestic" || clientState
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "domestic",
-          inferredLocationType === "domestic" ? "high" : "medium",
+          inferredLocationType === "domestic"
+            ? clientLocationDetails.confidence || "high"
+            : "medium",
           "inference"
         )
       : undefined;
