@@ -74,7 +74,7 @@ function extractLabeledValue(
   const patterns = labels.map(
     (label) =>
       new RegExp(
-        `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
+        `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
         "im"
       )
   );

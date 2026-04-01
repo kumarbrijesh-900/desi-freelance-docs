@@ -12,6 +12,12 @@ import {
   parseFlexibleAmount,
 } from "@/lib/amount-normalization";
 import {
+  classifyIdentifier,
+  findBestIdentifier,
+  type IdentifierClassification,
+  type IdentifierKind,
+} from "@/lib/identifier-classifier";
+import {
   hasForeignCityHint,
   inferLocationDetailsFromText,
   inferCountryFromText,
@@ -375,8 +381,6 @@ const currencyMatchers: Array<{
   },
 ];
 
-const GSTIN_REGEX = /\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/i;
-const PAN_REGEX = /\b[A-Z]{5}\d{4}[A-Z]\b/i;
 const FLEXIBLE_AMOUNT_PATTERN =
   String.raw`(?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?`;
 
@@ -451,7 +455,7 @@ function extractLabeledValue(text: string, labels: string[]) {
   const patterns = labels.map(
     (label) =>
       new RegExp(
-        `(?:^|\\n)\\s*${label}(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
+        `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
         "im"
       )
   );
@@ -463,17 +467,26 @@ function parseAmount(value: string) {
   return parseFlexibleAmount(value);
 }
 
-function findUniquePatternMatch(text: string, pattern: RegExp) {
-  const flags = pattern.flags.includes("g")
-    ? pattern.flags
-    : `${pattern.flags}g`;
-  const globalPattern = new RegExp(pattern.source, flags);
-  const matches = Array.from(text.matchAll(globalPattern)).map((match) =>
-    match[0].toUpperCase()
-  );
-  const uniqueMatches = Array.from(new Set(matches));
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-  return uniqueMatches.length === 1 ? uniqueMatches[0] : "";
+function makeIdentifierCandidate(
+  identifier: IdentifierClassification | undefined
+): Candidate<string> | undefined {
+  if (!identifier) {
+    return undefined;
+  }
+
+  return makeCandidate(
+    identifier.normalizedValue,
+    identifier.confidence,
+    identifier.source === "label"
+      ? "label"
+      : identifier.source === "regex"
+      ? "regex"
+      : "inference"
+  );
 }
 
 function extractPatternValue(text: string, patterns: RegExp[]) {
@@ -599,6 +612,38 @@ function createAiBooleanCandidate<T>(
   }
 
   return makeCandidate(field.value ? trueValue : falseValue, field.confidence, "ai");
+}
+
+function createAiClassifiedCandidate(
+  value: string | null | undefined,
+  confidence: BriefExtractionConfidence | undefined,
+  allowedKinds: IdentifierKind[],
+  contextText: string
+): Candidate<string> | undefined {
+  const cleaned = cleanValue(value ?? "");
+
+  if (!cleaned) {
+    return undefined;
+  }
+
+  const classified = classifyIdentifier(cleaned, contextText);
+
+  if (!classified) {
+    return allowedKinds.includes("unknown-alphanumeric-code")
+      ? createAiCandidate(cleaned, confidence)
+      : undefined;
+  }
+
+  if (!allowedKinds.includes(classified.kind)) {
+    return undefined;
+  }
+
+  const resolvedConfidence =
+    classified.confidence === "low"
+      ? confidence ?? classified.confidence
+      : classified.confidence;
+
+  return makeCandidate(classified.normalizedValue, resolvedConfidence, "ai");
 }
 
 function normalizeLineItemTypeValue(
@@ -1099,13 +1144,17 @@ export function normalizeExtractedData(
         )
       : undefined,
     agencyGstRegistrationStatus: agencyGstStatus,
-    agencyGstin: createAiCandidate(
-      extraction.gst.gstin.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.gst.gstin.confidence
+    agencyGstin: createAiClassifiedCandidate(
+      extraction.gst.gstin.value,
+      extraction.gst.gstin.confidence,
+      ["gstin"],
+      "agency gstin"
     ),
-    agencyPan: createAiCandidate(
-      extraction.gst.pan.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.gst.pan.confidence
+    agencyPan: createAiClassifiedCandidate(
+      extraction.gst.pan.value,
+      extraction.gst.pan.confidence,
+      ["pan"],
+      "agency pan"
     ),
     agencyLutAvailability,
     agencyLutNumber: createAiCandidate(
@@ -1143,9 +1192,11 @@ export function normalizeExtractedData(
         )
       : undefined,
     clientLocation: clientLocationCandidate,
-    clientGstin: createAiCandidate(
-      cleanValue(extraction.clientTaxId.value || ""),
-      extraction.clientTaxId.confidence
+    clientGstin: createAiClassifiedCandidate(
+      extraction.clientTaxId.value,
+      extraction.clientTaxId.confidence,
+      ["gstin", "pan", "unknown-alphanumeric-code"],
+      "client tax id"
     ),
     clientCurrency:
       currencyCandidate?.value &&
@@ -1199,17 +1250,23 @@ export function normalizeExtractedData(
       cleanAddressValue(extraction.payment.bankAddress.value),
       extraction.payment.bankAddress.confidence
     ),
-    paymentAccountNumber: createAiCandidate(
-      cleanValue(extraction.payment.accountNumber.value),
-      extraction.payment.accountNumber.confidence
+    paymentAccountNumber: createAiClassifiedCandidate(
+      extraction.payment.accountNumber.value,
+      extraction.payment.accountNumber.confidence,
+      ["bank-account-number"],
+      "bank account number"
     ),
-    paymentIfscCode: createAiCandidate(
-      extraction.payment.ifscCode.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.payment.ifscCode.confidence
+    paymentIfscCode: createAiClassifiedCandidate(
+      extraction.payment.ifscCode.value,
+      extraction.payment.ifscCode.confidence,
+      ["ifsc"],
+      "ifsc code"
     ),
-    paymentSwiftBicCode: createAiCandidate(
-      extraction.payment.swiftCode.value?.toUpperCase()?.replace(/\s+/g, ""),
-      extraction.payment.swiftCode.confidence
+    paymentSwiftBicCode: createAiClassifiedCandidate(
+      extraction.payment.swiftCode.value,
+      extraction.payment.swiftCode.confidence,
+      ["swift-bic"],
+      "swift bic code"
     ),
     paymentIbanRoutingCode: createAiCandidate(
       cleanValue(extraction.payment.ibanOrRouting.value),
@@ -1696,36 +1753,34 @@ function extractAgencyAddress(text: string): Candidate<string> | undefined {
 }
 
 function extractAgencyGstin(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(text, [
-    "agency gstin",
-    "business gstin",
-    "freelancer gstin",
-    "our gstin",
-  ]);
-
-  if (labeled) {
-    const match = labeled.toUpperCase().match(GSTIN_REGEX);
-    if (match?.[0]) {
-      return makeCandidate(match[0], "high", "label");
-    }
-  }
-
-  const uniqueMatch = findUniquePatternMatch(text.toUpperCase(), GSTIN_REGEX);
-  return uniqueMatch ? makeCandidate(uniqueMatch, "low", "regex") : undefined;
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["gstin"], {
+      labels: [
+        "agency gstin",
+        "business gstin",
+        "freelancer gstin",
+        "our gstin",
+        "my gstin",
+        "gstin",
+      ],
+      preferredContext: [
+        /\b(?:agency|business|freelancer|our|my|issued by|from)\b/i,
+      ],
+      rejectContext: [/\b(?:client|customer|billing|bill to|recipient)\b/i],
+    })
+  );
 }
 
 function extractAgencyPan(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(text, ["pan", "agency pan", "business pan"]);
-
-  if (labeled) {
-    const match = labeled.toUpperCase().match(PAN_REGEX);
-    if (match?.[0]) {
-      return makeCandidate(match[0], "high", "label");
-    }
-  }
-
-  const uniqueMatch = findUniquePatternMatch(text.toUpperCase(), PAN_REGEX);
-  return uniqueMatch ? makeCandidate(uniqueMatch, "low", "regex") : undefined;
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["pan"], {
+      labels: ["pan", "agency pan", "business pan", "my pan"],
+      preferredContext: [
+        /\b(?:agency|business|freelancer|our|my|issued by|from)\b/i,
+      ],
+      rejectContext: [/\b(?:client|customer|billing|bill to|recipient)\b/i],
+    })
+  );
 }
 
 function extractClientName(text: string): Candidate<string> | undefined {
@@ -1776,24 +1831,58 @@ function extractClientAddress(text: string): Candidate<string> | undefined {
 }
 
 function extractClientTaxId(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(text, [
-    "client gstin",
-    "customer gstin",
-    "billing gstin",
-    "client tax id",
-    "tax id",
-    "vat no",
-    "vat number",
-  ]);
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["gstin", "pan", "unknown-alphanumeric-code"], {
+      labels: [
+        "client gstin",
+        "customer gstin",
+        "billing gstin",
+        "client tax id",
+        "tax id",
+        "vat no",
+        "vat number",
+      ],
+      preferredContext: [
+        /\b(?:client|customer|billing|bill to|recipient|tax|vat)\b/i,
+      ],
+      rejectContext: [/\b(?:agency|business|freelancer|our|my)\b/i],
+    })
+  );
+}
 
-  if (!labeled) {
-    return undefined;
-  }
+function extractPaymentAccountNumber(text: string): Candidate<string> | undefined {
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["bank-account-number"], {
+      labels: [
+        "account number",
+        "bank account",
+        "bank account number",
+        "account no",
+        "a/c",
+        "acct",
+      ],
+      preferredContext: [/\b(?:account|a\/c|acct|bank account)\b/i],
+      rejectContext: [/\b(?:phone|mobile|contact|pin|pincode|zip)\b/i],
+    })
+  );
+}
 
-  const normalized = labeled.toUpperCase().replace(/\s+/g, "");
-  const gstinMatch = normalized.match(GSTIN_REGEX);
+function extractPaymentIfscCode(text: string): Candidate<string> | undefined {
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["ifsc"], {
+      labels: ["ifsc", "ifsc code"],
+      preferredContext: [/\bifsc\b/i],
+    })
+  );
+}
 
-  return makeCandidate(gstinMatch?.[0] ?? labeled, "high", "label");
+function extractPaymentSwiftBicCode(text: string): Candidate<string> | undefined {
+  return makeIdentifierCandidate(
+    findBestIdentifier(text, ["swift-bic"], {
+      labels: ["swift", "swift / bic code", "bic", "swift code"],
+      preferredContext: [/\bswift\b/i, /\bbic\b/i],
+    })
+  );
 }
 
 function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | undefined {
@@ -2777,27 +2866,9 @@ export function extractInvoiceBriefSchema(
     paymentAccountName,
     paymentBankName: extractPaymentField(text, ["bank name"]),
     paymentBankAddress: extractPaymentField(text, ["bank address", "bank full address"]),
-    paymentAccountNumber: extractPaymentField(text, ["account number"]),
-    paymentIfscCode: (() => {
-      const field = extractPaymentField(text, ["ifsc", "ifsc code"]);
-      return field
-        ? makeCandidate(
-            field.value.toUpperCase().replace(/\s+/g, ""),
-            field.confidence,
-            field.source
-          )
-        : undefined;
-    })(),
-    paymentSwiftBicCode: (() => {
-      const field = extractPaymentField(text, ["swift", "swift / bic code", "bic", "swift code"]);
-      return field
-        ? makeCandidate(
-            field.value.toUpperCase().replace(/\s+/g, ""),
-            field.confidence,
-            field.source
-          )
-        : undefined;
-    })(),
+    paymentAccountNumber: extractPaymentAccountNumber(text),
+    paymentIfscCode: extractPaymentIfscCode(text),
+    paymentSwiftBicCode: extractPaymentSwiftBicCode(text),
     paymentIbanRoutingCode: extractPaymentField(text, [
       "iban",
       "routing code",
