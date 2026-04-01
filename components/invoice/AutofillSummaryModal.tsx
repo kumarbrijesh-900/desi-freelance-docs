@@ -85,6 +85,7 @@ interface AutofillSummaryModalProps {
   onManualCheck: () => void;
   onOpenFillMissing: () => void;
   onPreview: () => void;
+  onSaveDraft: () => void;
 }
 
 type ModalSectionKey =
@@ -285,19 +286,22 @@ function ModalButton({
   onClick,
   disabled,
   icon,
+  className,
 }: {
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost";
   onClick?: () => void;
   disabled?: boolean;
   icon?: ReactNode;
+  className?: string;
 }) {
   return (
     <MotionButton
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={getAppButtonClass({ variant })}
+      data-button-variant={variant}
+      className={cn(getAppButtonClass({ variant }), className)}
     >
       {icon}
       {children}
@@ -1839,6 +1843,7 @@ export default function AutofillSummaryModal({
   onManualCheck,
   onOpenFillMissing,
   onPreview,
+  onSaveDraft,
 }: AutofillSummaryModalProps) {
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const missingFieldsCount = useMemo(
@@ -1921,6 +1926,11 @@ export default function AutofillSummaryModal({
     onPreview();
   };
 
+  const handleSaveDraft = () => {
+    resetInlineCompletionState();
+    onSaveDraft();
+  };
+
   return (
     <motion.div
       className={cn(
@@ -1951,7 +1961,7 @@ export default function AutofillSummaryModal({
         )}
       >
         <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-6 lg:px-7">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                 <SparklesIcon className="h-4 w-4" />
@@ -1983,10 +1993,6 @@ export default function AutofillSummaryModal({
                 </p>
               )}
             </div>
-
-            <ModalButton variant="secondary" onClick={handleClose}>
-              Close
-            </ModalButton>
           </div>
         </div>
 
@@ -2162,59 +2168,82 @@ export default function AutofillSummaryModal({
                 : "Complete the remaining required fields here to unlock preview."}
             </p>
 
-            <div className="flex flex-wrap justify-end gap-3">
-              {missingFieldsCount > 0 && isSummaryMode ? (
-                <ModalButton
-                  variant="secondary"
-                  onClick={handleOpenFillMissing}
-                  icon={<ClipboardCheckIcon className="h-4 w-4" />}
-                >
-                  Fill Missing Details
-                </ModalButton>
-              ) : null}
-
-              {!isSummaryMode ? (
-                <ModalButton
-                  variant="ghost"
-                  onClick={handleBackToSummary}
-                  icon={<ChevronLeftIcon className="h-4 w-4" />}
-                >
-                  Back to Summary
-                </ModalButton>
-              ) : null}
-
-              <ModalButton
-                variant="secondary"
-                onClick={handleManualCheck}
-                icon={<ArrowRightIcon className="h-4 w-4" />}
-              >
-                Manual Check
-              </ModalButton>
-
+            <div
+              className="flex flex-wrap justify-end gap-3"
+              data-testid="autofill-modal-footer-actions"
+            >
               {isPreviewReady ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: [1, 1.018, 1] }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{
-                    opacity: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
-                    scale: {
-                      duration: 1.2,
-                      repeat: 1,
-                      repeatDelay: 1.3,
-                      ease: [0.22, 1, 0.36, 1],
-                    },
-                  }}
-                >
-                  <ModalButton
-                    variant="primary"
-                    onClick={handlePreview}
-                    icon={<DownloadIcon className="h-4 w-4" />}
-                  >
-                  Preview & Download
+                <>
+                  <ModalButton variant="ghost" onClick={handleClose}>
+                    Close
                   </ModalButton>
-                </motion.div>
-              ) : null}
+
+                  <ModalButton variant="secondary" onClick={handleSaveDraft}>
+                    Save Draft
+                  </ModalButton>
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: [1, 1.018, 1] }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{
+                      opacity: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
+                      scale: {
+                        duration: 1.2,
+                        repeat: 1,
+                        repeatDelay: 1.3,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                    }}
+                  >
+                    <ModalButton
+                      variant="primary"
+                      onClick={handlePreview}
+                      icon={<DownloadIcon className="h-4 w-4" />}
+                    >
+                      Preview & Download
+                    </ModalButton>
+                  </motion.div>
+                </>
+              ) : isSummaryMode ? (
+                <>
+                  <ModalButton variant="ghost" onClick={handleClose}>
+                    Close
+                  </ModalButton>
+
+                  {missingFieldsCount > 0 ? (
+                    <ModalButton
+                      variant="secondary"
+                      onClick={handleOpenFillMissing}
+                      icon={<ClipboardCheckIcon className="h-4 w-4" />}
+                    >
+                      Fill Missing Details
+                    </ModalButton>
+                  ) : null}
+
+                  <ModalButton
+                    variant="secondary"
+                    onClick={handleManualCheck}
+                    icon={<ArrowRightIcon className="h-4 w-4" />}
+                  >
+                    Manual Check
+                  </ModalButton>
+                </>
+              ) : (
+                <>
+                  <ModalButton variant="ghost" onClick={handleClose}>
+                    Close
+                  </ModalButton>
+
+                  <ModalButton
+                    variant="secondary"
+                    onClick={handleBackToSummary}
+                    icon={<ChevronLeftIcon className="h-4 w-4" />}
+                  >
+                    Back to Summary
+                  </ModalButton>
+                </>
+              )}
             </div>
           </div>
         </div>

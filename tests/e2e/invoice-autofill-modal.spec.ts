@@ -43,15 +43,27 @@ test("brief intake can collapse and expand without losing typed text", async ({
 
   const briefField = page.getByPlaceholder(/Example: Agency name:/i);
   await briefField.fill("Agency name: DesiFreelanceDocs Studio");
+  await page
+    .locator('[data-brief-intake-state="expanded"] input[type="file"]')
+    .first()
+    .setInputFiles({
+      name: "brief-screenshot.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("fake-image"),
+    });
 
   await page.getByRole("button", { name: /^Collapse$/i }).click();
+  await expect(page.getByTestId("brief-intake-collapsed")).toBeVisible();
   await expect(
-    page.getByText(/^Ready to extract$/)
+    page.locator('[data-brief-intake-state="collapsed"]')
   ).toBeVisible();
   await expect(briefField).toHaveCount(0);
+  await expect(page.getByText(/Paste a brief, upload a screenshot/i)).toHaveCount(0);
+  await expect(page.getByText(/Drop a screenshot here/i)).toHaveCount(0);
 
   await page.getByRole("button", { name: /^Expand$/i }).click();
   await expect(briefField).toHaveValue("Agency name: DesiFreelanceDocs Studio");
+  await expect(page.getByText("brief-screenshot.png")).toBeVisible();
   await expect(
     page.getByRole("button", { name: /^Speak Brief$/i })
   ).toBeVisible();
@@ -301,15 +313,140 @@ test("Preview & Download appears once the last missing mandatory field is comple
   ).toBeVisible();
 });
 
-test("Bengaluru in the brief infers Karnataka so agency state is not left missing", async ({
+test("final completion state shows only Close, Save Draft, and Preview & Download", async ({
   page,
 }) => {
   const dialog = await openAutofillModal(
     page,
     [
-      "We are DesiFreelanceDocs Studio in Bengaluru.",
+      "Agency name: DesiFreelanceDocs Studio",
+      "Agency address: 14 Residency Road, Bengaluru, Karnataka 560025",
+      "Agency state: Karnataka",
       "Client name: Metro Shoes Pvt. Ltd.",
-      "Client address: Whitefield, Bengaluru, Karnataka",
+      "Client state: Karnataka",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+      "Bank name: HDFC Bank",
+      "Account number: 50200044321098",
+      "IFSC: HDFC0001122",
+      "Invoice number: INV-2026-001",
+      "Invoice date: 2026-04-01",
+      "Due date: 2026-04-15",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await dialog
+    .locator('textarea[placeholder="Client billing address"]')
+    .first()
+    .fill("Phoenix Marketcity, Bengaluru, Karnataka");
+
+  const footer = dialog.getByTestId("autofill-modal-footer-actions");
+  await expect(footer.getByRole("button")).toHaveCount(3);
+  await expect(footer.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(
+    footer.getByRole("button", { name: /^Save Draft$/i })
+  ).toBeVisible();
+  await expect(
+    footer.getByRole("button", { name: /Preview & Download/i })
+  ).toBeVisible();
+  await expect(footer.getByText(/Manual Check/i)).toHaveCount(0);
+  await expect(footer.getByText(/Back to Summary/i)).toHaveCount(0);
+  await expect(
+    footer.locator('[data-button-variant="primary"]', {
+      hasText: "Preview & Download",
+    })
+  ).toBeVisible();
+});
+
+test("Save Draft is available in the final completion state and closes the modal safely", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "Agency name: DesiFreelanceDocs Studio",
+      "Agency address: 14 Residency Road, Bengaluru, Karnataka 560025",
+      "Agency state: Karnataka",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Client state: Karnataka",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+      "Bank name: HDFC Bank",
+      "Account number: 50200044321098",
+      "IFSC: HDFC0001122",
+      "Invoice number: INV-2026-001",
+      "Invoice date: 2026-04-01",
+      "Due date: 2026-04-15",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await dialog
+    .locator('textarea[placeholder="Client billing address"]')
+    .first()
+    .fill("Phoenix Marketcity, Bengaluru, Karnataka");
+
+  await dialog.getByRole("button", { name: /^Save Draft$/i }).click();
+
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/invoice\/new$/);
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.localStorage.getItem("invoice-editor-draft"))
+    )
+    .not.toBeNull();
+});
+
+test("Close dismisses the ready-to-preview autofill modal without changing the page", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "Agency name: DesiFreelanceDocs Studio",
+      "Agency address: 14 Residency Road, Bengaluru, Karnataka 560025",
+      "Agency state: Karnataka",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Client state: Karnataka",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+      "Bank name: HDFC Bank",
+      "Account number: 50200044321098",
+      "IFSC: HDFC0001122",
+      "Invoice number: INV-2026-001",
+      "Invoice date: 2026-04-01",
+      "Due date: 2026-04-15",
+    ].join("\n")
+  );
+
+  await dialog.getByRole("button", { name: /Fill Missing Details/i }).click();
+  await dialog
+    .locator('textarea[placeholder="Client billing address"]')
+    .first()
+    .fill("Phoenix Marketcity, Bengaluru, Karnataka");
+
+  await dialog.getByRole("button", { name: /^Close$/i }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/invoice\/new$/);
+});
+
+test("conversational Bangalore agency context infers Karnataka so agency state is not left missing", async ({
+  page,
+}) => {
+  const dialog = await openAutofillModal(
+    page,
+    [
+      "bhai invoice banana hai for Metro Shoes.",
+      "hum DesiFreelanceDocs Studio, Residency Road Bangalore se.",
+      "client bhi Bangalore mein hai.",
+      "Client name: Metro Shoes Pvt. Ltd.",
       "Deliverable description: Landing page UI design",
       "Qty: 1",
       "Rate: INR 12000 per screen",

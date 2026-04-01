@@ -797,6 +797,38 @@ function deriveTaxTypeCandidate(params: {
 
   if (
     params.gstRegistrationStatus === "registered" &&
+    (params.clientLocation === "domestic" ||
+      /\b(?:same state|same-state|inter state|inter-state|interstate|different state|out of state|cgst|sgst)\b/i.test(
+        params.rawText
+      ))
+  ) {
+    if (
+      /\b(?:same state|same-state|within state|cgst\s*(?:\+|and)\s*sgst)\b/i.test(
+        params.rawText
+      )
+    ) {
+      return makeCandidate<NormalizedInvoiceTaxType>(
+        "CGST_SGST",
+        "high",
+        "pattern"
+      );
+    }
+
+    if (
+      /\b(?:inter state|inter-state|interstate|different state|out of state)\b/i.test(
+        params.rawText
+      )
+    ) {
+      return makeCandidate<NormalizedInvoiceTaxType>(
+        "IGST",
+        "high",
+        "pattern"
+      );
+    }
+  }
+
+  if (
+    params.gstRegistrationStatus === "registered" &&
     params.clientLocation === "domestic" &&
     params.agencyState &&
     params.clientState
@@ -1831,23 +1863,47 @@ function extractClientAddress(text: string): Candidate<string> | undefined {
 }
 
 function extractClientTaxId(text: string): Candidate<string> | undefined {
-  return makeIdentifierCandidate(
-    findBestIdentifier(text, ["gstin", "pan", "unknown-alphanumeric-code"], {
-      labels: [
-        "client gstin",
-        "customer gstin",
-        "billing gstin",
-        "client tax id",
-        "tax id",
-        "vat no",
-        "vat number",
-      ],
-      preferredContext: [
-        /\b(?:client|customer|billing|bill to|recipient|tax|vat)\b/i,
-      ],
-      rejectContext: [/\b(?:agency|business|freelancer|our|my)\b/i],
-    })
+  const explicitLabels = [
+    "client gstin",
+    "customer gstin",
+    "billing gstin",
+    "client tax id",
+    "tax id",
+    "vat no",
+    "vat number",
+  ];
+  const strictIdentifier = findBestIdentifier(text, ["gstin", "pan"], {
+    labels: explicitLabels,
+    preferredContext: [
+      /\b(?:client|customer|billing|bill to|recipient|tax|vat)\b/i,
+    ],
+    rejectContext: [/\b(?:agency|business|freelancer|our|my)\b/i],
+  });
+
+  if (strictIdentifier) {
+    return makeIdentifierCandidate(strictIdentifier);
+  }
+
+  const labeledValue = extractLabeledValue(text, explicitLabels);
+
+  if (!labeledValue) {
+    return undefined;
+  }
+
+  const genericIdentifier = classifyIdentifier(
+    labeledValue,
+    `client tax id: ${labeledValue}`
   );
+
+  if (
+    genericIdentifier &&
+    ["gstin", "pan", "unknown-alphanumeric-code"].includes(genericIdentifier.kind)
+  ) {
+    return makeIdentifierCandidate(genericIdentifier);
+  }
+
+  const cleaned = cleanValue(labeledValue);
+  return cleaned ? makeCandidate(cleaned, "high", "label") : undefined;
 }
 
 function extractPaymentAccountNumber(text: string): Candidate<string> | undefined {
@@ -1877,12 +1933,18 @@ function extractPaymentIfscCode(text: string): Candidate<string> | undefined {
 }
 
 function extractPaymentSwiftBicCode(text: string): Candidate<string> | undefined {
-  return makeIdentifierCandidate(
-    findBestIdentifier(text, ["swift-bic"], {
+  const classified = findBestIdentifier(text, ["swift-bic"], {
       labels: ["swift", "swift / bic code", "bic", "swift code"],
       preferredContext: [/\bswift\b/i, /\bbic\b/i],
-    })
-  );
+    });
+
+  if (!classified) {
+    return undefined;
+  }
+
+  return /\b(?:swift|bic)\b/i.test(classified.contextText)
+    ? makeIdentifierCandidate(classified)
+    : undefined;
 }
 
 function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | undefined {

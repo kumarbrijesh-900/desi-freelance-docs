@@ -1040,26 +1040,42 @@ export default function InvoiceEditorPage() {
     refreshAutofillSummary(nextFormData);
   };
 
-  const handleSaveDraft = () => {
+  const persistDraft = () => {
+    window.localStorage.setItem(
+      DRAFT_STORAGE_KEY,
+      JSON.stringify({
+        formData,
+        currentStep,
+        savedAt: new Date().toISOString(),
+      } satisfies StoredDraft)
+    );
+  };
+
+  const performSaveDraft = (options?: {
+    stayOnPage?: boolean;
+    closeAutofill?: boolean;
+  }) => {
     try {
-      window.localStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          formData,
-          currentStep,
-          savedAt: new Date().toISOString(),
-        } satisfies StoredDraft)
-      );
+      persistDraft();
       setShowExitModal(false);
+      if (options?.closeAutofill) {
+        setAutofillSummary(null);
+      }
       triggerToast("Draft saved");
 
-      window.setTimeout(() => {
-        router.push("/");
-      }, 500);
+      if (!options?.stayOnPage) {
+        window.setTimeout(() => {
+          router.push("/");
+        }, 500);
+      }
     } catch (error) {
       console.error("Failed to save draft:", error);
       alert("Could not save draft. Please try again.");
     }
+  };
+
+  const handleSaveDraft = () => {
+    performSaveDraft();
   };
 
   const handleDownloadPdf = () => {
@@ -1301,6 +1317,13 @@ export default function InvoiceEditorPage() {
     if (!invoiceReadyForPreview) return;
     handlePreviewInvoice();
     setAutofillSummary(null);
+  };
+
+  const handleAutofillSaveDraft = () => {
+    performSaveDraft({
+      stayOnPage: true,
+      closeAutofill: true,
+    });
   };
 
   const handleBackToHome = () => {
@@ -1622,6 +1645,7 @@ export default function InvoiceEditorPage() {
             onManualCheck={handleAutofillManualCheck}
             onOpenFillMissing={handleAutofillOpenMissingForm}
             onPreview={handleAutofillPreview}
+            onSaveDraft={handleAutofillSaveDraft}
           />
         ) : null}
       </AnimatePresence>

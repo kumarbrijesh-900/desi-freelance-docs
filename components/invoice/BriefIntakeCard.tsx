@@ -132,11 +132,90 @@ export default function BriefIntakeCard({
     }
   };
 
+  if (isCollapsed) {
+    return (
+      <MotionReveal className="mb-4" preset="fade-up" delay={40}>
+        <section
+          className={cn(getAppPanelClass("muted"), "overflow-hidden")}
+          aria-labelledby="brief-intake-collapsed-heading"
+          data-brief-intake-state="collapsed"
+          data-testid="brief-intake-collapsed"
+        >
+          <motion.div
+            key="brief-intake-collapsed"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+          >
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  id="brief-intake-collapsed-heading"
+                  className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+                >
+                  <SparklesIcon className="h-4 w-4" />
+                  Brief Intake
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
+                    statusBadgeClass
+                  )}
+                >
+                  {isExtracting
+                    ? "Extracting"
+                    : lastExtractionState === "success"
+                    ? "Autofill ready"
+                    : lastExtractionState === "error"
+                    ? "Needs more detail"
+                    : canExtract
+                    ? "Ready"
+                    : "Empty"}
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
+                {(intakeSummaryBits.length > 0
+                  ? intakeSummaryBits
+                  : ["Screenshot / Text / Audio"]
+                ).map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <MotionButton
+              type="button"
+              onClick={() => onCollapsedChange(false)}
+              aria-expanded={false}
+              aria-controls="brief-intake-panel"
+              className={cn(
+                getAppButtonClass({ variant: "secondary", size: "sm" }),
+                "shrink-0"
+              )}
+            >
+              <ChevronDownIcon className="h-4 w-4" />
+              Expand
+            </MotionButton>
+          </motion.div>
+        </section>
+      </MotionReveal>
+    );
+  }
+
   return (
     <MotionReveal className="mb-6" preset="fade-up" delay={40}>
       <section
         className={cn(getAppPanelClass("muted"), "overflow-hidden")}
         aria-labelledby="brief-intake-heading"
+        data-brief-intake-state="expanded"
       >
         <div className={appGridClass}>
           <div className="col-span-4 flex flex-col gap-3 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
@@ -214,48 +293,15 @@ export default function BriefIntakeCard({
           </div>
 
           <AnimatePresence initial={false}>
-            {isCollapsed ? (
-              <motion.div
-                key="brief-intake-collapsed"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                className="col-span-4 sm:col-span-8 lg:col-span-12"
-              >
-                <div
-                  id="brief-intake-panel"
-                  className="mt-4 flex flex-col gap-3 rounded-[24px] border border-slate-200 bg-white/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900">
-                      Brief Intake
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {statusCopy}
-                    </p>
-                  </div>
-
-                  <MotionButton
-                    type="button"
-                    onClick={() => onCollapsedChange(false)}
-                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                  >
-                    <ChevronDownIcon className="h-4 w-4" />
-                    Expand
-                  </MotionButton>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="brief-intake-expanded"
-                id="brief-intake-panel"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="contents"
-              >
+            <motion.div
+              key="brief-intake-expanded"
+              id="brief-intake-panel"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="contents"
+            >
                 <MotionReveal preset="soft" className={`${appPrimaryPaneClass} mt-2`}>
                   <div>
                     <label className="mb-2.5 block text-sm font-medium tracking-tight text-slate-900">
@@ -390,7 +436,6 @@ export default function BriefIntakeCard({
                   </MotionButton>
                 </div>
               </motion.div>
-            )}
           </AnimatePresence>
         </div>
       </section>
