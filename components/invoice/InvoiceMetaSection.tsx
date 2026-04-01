@@ -1,10 +1,12 @@
 "use client";
 
 import type { InvoiceMeta } from "@/types/invoice";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 
 interface InvoiceMetaSectionProps {
   value: InvoiceMeta;
   onChange: (value: InvoiceMeta) => void;
+  embedded?: boolean;
   errors?: {
     invoiceNumber?: string;
     invoiceDate?: string;
@@ -15,6 +17,7 @@ interface InvoiceMetaSectionProps {
 export default function InvoiceMetaSection({
   value,
   onChange,
+  embedded = false,
   errors,
 }: InvoiceMetaSectionProps) {
   const updateField = <K extends keyof InvoiceMeta>(
@@ -27,16 +30,25 @@ export default function InvoiceMetaSection({
     });
   };
 
-  const inputClass = (hasError?: string) =>
-    `w-full rounded-xl border p-3 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
+  const inputClass = (hasError?: string, hasValue?: boolean) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+    });
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-        Invoice Meta Data
-      </h2>
+    <section
+      className={cn(
+        embedded
+          ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+          : getAppPanelClass()
+      )}
+    >
+      {!embedded ? (
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
+          Invoice Meta Data
+        </h2>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
@@ -48,7 +60,7 @@ export default function InvoiceMetaSection({
             value={value.invoiceNumber}
             onChange={(e) => updateField("invoiceNumber", e.target.value)}
             placeholder="INV-2026-001"
-            className={inputClass(errors?.invoiceNumber)}
+            className={inputClass(errors?.invoiceNumber, Boolean(value.invoiceNumber))}
           />
           <p className="mt-2 text-xs leading-5 text-gray-500">
             Auto-generated. You can edit this if needed.
@@ -68,7 +80,7 @@ export default function InvoiceMetaSection({
             type="date"
             value={value.invoiceDate}
             onChange={(e) => updateField("invoiceDate", e.target.value)}
-            className={inputClass(errors?.invoiceDate)}
+            className={inputClass(errors?.invoiceDate, Boolean(value.invoiceDate))}
           />
           {errors?.invoiceDate ? (
             <p className="mt-2 text-xs font-medium text-red-600">
@@ -85,7 +97,7 @@ export default function InvoiceMetaSection({
             type="date"
             value={value.dueDate}
             onChange={(e) => updateField("dueDate", e.target.value)}
-            className={inputClass(errors?.dueDate)}
+            className={inputClass(errors?.dueDate, Boolean(value.dueDate))}
           />
           {errors?.dueDate ? (
             <p className="mt-2 text-xs font-medium text-red-600">

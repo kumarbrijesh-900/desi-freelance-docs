@@ -1,27 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f4f5;
+  --background: #f0f2f5;
   --foreground: #0f172a;
-  --app-duration-fast: 160ms;
-  --app-duration-medium: 240ms;
-  --app-duration-slow: 360ms;
-  --app-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --app-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
-  --app-focus-ring: rgba(15, 23, 42, 0.12);
-  --app-focus-ring-strong: rgba(15, 23, 42, 0.22);
+  --app-duration-fast: 120ms;
+  --app-duration-medium: 180ms;
+  --app-duration-slow: 260ms;
+  --app-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --app-ease-emphasized: cubic-bezier(0.4, 0, 0.2, 1);
+  --app-focus-ring: rgba(79, 70, 229, 0.16);
+  --app-focus-ring-strong: rgba(79, 70, 229, 0.28);
   --app-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   --app-floating-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
   --app-floating-shadow-strong: 0 24px 64px rgba(15, 23, 42, 0.16);
+  --app-soft-background: #f0f2f5;
+  --app-soft-highlight: rgba(255, 255, 255, 0.95);
+  --app-soft-shadow: rgba(148, 163, 184, 0.18);
+  --app-soft-shadow-strong: rgba(100, 116, 139, 0.22);
+  --app-soft-border: rgba(148, 163, 184, 0.26);
+  --app-soft-border-strong: rgba(148, 163, 184, 0.36);
+  --app-soft-surface: rgba(245, 247, 250, 0.94);
+  --app-soft-surface-muted: rgba(242, 245, 249, 0.92);
+  --app-soft-surface-elevated: rgba(248, 250, 252, 0.98);
+  --app-soft-field: rgba(236, 241, 247, 0.96);
+  --app-soft-field-hover: rgba(240, 244, 249, 0.98);
+  --app-soft-shadow-raised:
+    -7px -7px 14px rgba(255, 255, 255, 0.92),
+    10px 11px 24px rgba(148, 163, 184, 0.16);
+  --app-soft-shadow-raised-hover:
+    -9px -9px 18px rgba(255, 255, 255, 0.95),
+    13px 15px 30px rgba(148, 163, 184, 0.18);
+  --app-soft-shadow-raised-strong:
+    -10px -10px 20px rgba(255, 255, 255, 0.96),
+    16px 18px 34px rgba(100, 116, 139, 0.2);
+  --app-soft-shadow-inset:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.88),
+    inset 3px 3px 9px rgba(203, 213, 225, 0.56),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.82);
+  --app-soft-shadow-inset-hover:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.92),
+    inset 4px 4px 10px rgba(203, 213, 225, 0.6),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.86);
   --app-space-1: 4px;
   --app-space-2: 8px;
   --app-space-3: 16px;
   --app-space-4: 24px;
   --app-space-5: 32px;
   --app-space-6: 48px;
-  --app-radius-control: 16px;
-  --app-radius-card: 24px;
-  --app-radius-shell: 32px;
+  --app-radius-control: 10px;
+  --app-radius-card: 14px;
+  --app-radius-shell: 18px;
 }
 
 @theme inline {
@@ -33,8 +61,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f0f2f5;
+    --foreground: #0f172a;
   }
 }
 
@@ -43,8 +71,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   background-image:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34%),
-    linear-gradient(180deg, #f8fafc 0%, #f5f5f4 100%);
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef2f6 100%);
   background-attachment: fixed;
 }
 
@@ -186,6 +214,238 @@ html {
   animation: app-success-pulse 620ms var(--app-ease-standard);
 }
 
+.app-soft-panel,
+.app-soft-panel-muted,
+.app-soft-panel-success,
+.app-soft-panel-warning,
+.app-soft-shell {
+  border: 1px solid var(--app-soft-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.88),
+    var(--app-soft-surface)
+  );
+  box-shadow: var(--app-soft-shadow-raised);
+}
+
+.app-soft-panel-muted {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.82),
+    var(--app-soft-surface-muted)
+  );
+}
+
+.app-soft-panel-success {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(236, 253, 245, 0.95)
+  );
+}
+
+.app-soft-panel-warning {
+  border-color: rgba(245, 158, 11, 0.26);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 251, 235, 0.96)
+  );
+}
+
+.app-soft-shell {
+  background: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.84),
+    rgba(242, 246, 250, 0.96)
+  );
+  box-shadow: var(--app-soft-shadow-raised-strong);
+}
+
+.app-soft-field {
+  border: 1px solid var(--app-soft-border-strong);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.72),
+    var(--app-soft-field)
+  );
+  box-shadow: var(--app-soft-shadow-inset);
+}
+
+.app-soft-field:hover {
+  border-color: rgba(100, 116, 139, 0.46);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.76),
+    var(--app-soft-field-hover)
+  );
+  box-shadow: var(--app-soft-shadow-inset-hover);
+}
+
+.app-soft-field-filled {
+  border-color: rgba(100, 116, 139, 0.42);
+  color: #0f172a;
+}
+
+.app-soft-field-error {
+  border-color: rgba(239, 68, 68, 0.52);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(254, 242, 242, 0.94)
+  );
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.05),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.82),
+    inset 2px 2px 8px rgba(254, 202, 202, 0.35);
+}
+
+.app-soft-button {
+  border: 1px solid var(--app-soft-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.88),
+    rgba(241, 245, 249, 0.98)
+  );
+  box-shadow: var(--app-soft-shadow-raised);
+}
+
+.app-soft-button:hover {
+  box-shadow: var(--app-soft-shadow-raised-hover);
+}
+
+.app-soft-button-primary {
+  border-color: rgba(49, 46, 129, 0.96);
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 62%, #4338ca 100%);
+  box-shadow: 0 16px 30px rgba(67, 56, 202, 0.24);
+}
+
+.app-soft-button-primary:hover {
+  box-shadow: 0 20px 34px rgba(67, 56, 202, 0.28);
+}
+
+.app-soft-button-secondary {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.92),
+    rgba(241, 245, 249, 0.98)
+  );
+}
+
+.app-soft-button-tertiary {
+  background: linear-gradient(
+    145deg,
+    rgba(248, 250, 252, 0.94),
+    rgba(236, 241, 247, 0.94)
+  );
+}
+
+.app-soft-button-subtle {
+  background: linear-gradient(
+    145deg,
+    rgba(246, 248, 251, 0.98),
+    rgba(235, 240, 246, 0.92)
+  );
+}
+
+.app-soft-button-destructive {
+  border-color: rgba(251, 113, 133, 0.26);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 241, 242, 0.96)
+  );
+}
+
+.app-soft-button-ghost {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-soft-button-ghost:hover {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.app-soft-choice-track {
+  border: 1px solid var(--app-soft-border);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.76),
+    rgba(233, 239, 246, 0.94)
+  );
+  box-shadow: var(--app-soft-shadow-inset);
+}
+
+.app-soft-choice-option {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.78),
+    rgba(243, 246, 250, 0.9)
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.68),
+    0 8px 18px rgba(148, 163, 184, 0.1);
+}
+
+.app-soft-choice-option-active {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(238, 242, 255, 0.95)
+  );
+  box-shadow:
+    var(--app-soft-shadow-raised-hover),
+    0 0 0 1px rgba(99, 102, 241, 0.08);
+}
+
+.app-soft-step-surface {
+  border: 1px solid var(--app-soft-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(243, 246, 250, 0.96)
+  );
+  box-shadow: var(--app-soft-shadow-raised);
+}
+
+.app-soft-step-surface[data-step-state="active"] {
+  border-color: rgba(99, 102, 241, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(240, 244, 255, 0.96)
+  );
+  box-shadow:
+    var(--app-soft-shadow-raised-strong),
+    0 0 0 1px rgba(99, 102, 241, 0.06);
+}
+
+.app-soft-step-surface[data-step-state="completed"] {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.94),
+    rgba(240, 253, 250, 0.95)
+  );
+}
+
+.app-soft-step-surface[data-step-state="locked"] {
+  background: linear-gradient(
+    145deg,
+    rgba(246, 248, 251, 0.95),
+    rgba(238, 242, 247, 0.94)
+  );
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.78),
+    0 6px 14px rgba(148, 163, 184, 0.08);
+}
+
 .app-interactive-button,
 .app-interactive-surface,
 .app-interactive-field,
@@ -209,24 +469,33 @@ html {
   transform: translate3d(0, 0, 0) scale(0.985);
 }
 
-.app-interactive-field:hover {
-  border-color: rgba(71, 85, 105, 0.48);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-}
-
 .app-focus-ring:focus-visible {
   outline: none;
   box-shadow:
     0 0 0 3px var(--app-focus-ring),
-    0 10px 24px rgba(15, 23, 42, 0.06);
+    0 12px 24px rgba(79, 70, 229, 0.08);
+}
+
+.app-dropzone-surface {
+  border-color: var(--app-soft-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.88),
+    rgba(241, 245, 249, 0.96)
+  );
+  box-shadow: var(--app-soft-shadow-raised);
 }
 
 .app-dropzone-accept {
-  border-color: #0f172a;
-  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(79, 70, 229, 0.38);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.96),
+    rgba(238, 242, 255, 0.96)
+  );
   box-shadow:
     0 0 0 3px var(--app-focus-ring),
-    var(--app-floating-shadow);
+    var(--app-soft-shadow-raised-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {

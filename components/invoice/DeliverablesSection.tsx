@@ -10,11 +10,13 @@ import {
   getCurrencySymbol,
   type InvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
+import { cn, getAppPanelClass } from "@/lib/ui-foundation";
 
 interface DeliverablesSectionProps {
   value: InvoiceLineItem[];
   currency?: InvoiceDisplayCurrency;
   onChange: (value: InvoiceLineItem[]) => void;
+  embedded?: boolean;
   errors?: Record<
     string,
     {
@@ -280,6 +282,7 @@ export default function DeliverablesSection({
   value,
   currency = "INR",
   onChange,
+  embedded = false,
   errors,
 }: DeliverablesSectionProps) {
   const [menu, setMenu] = useState<FloatingMenuState>(null);
@@ -453,10 +456,19 @@ export default function DeliverablesSection({
   };
 
   return (
-    <section className="overflow-visible rounded-2xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-        Deliverables
-      </h2>
+    <section
+      className={cn(
+        "overflow-visible",
+        embedded
+          ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+          : getAppPanelClass()
+      )}
+    >
+      {!embedded ? (
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
+          Deliverables
+        </h2>
+      ) : null}
 
       <div ref={containerRef} className="overflow-x-auto overflow-y-visible">
         <table className="w-full table-fixed border-collapse text-left text-sm">

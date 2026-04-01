@@ -3,6 +3,8 @@
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
 import ChoiceCards from "@/components/ui/ChoiceCards";
+import AppSelectField from "@/components/ui/AppSelectField";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 
 type InternationalTaxHandling = "" | "add-igst" | "keep-zero-tax";
 
@@ -10,6 +12,7 @@ type TotalsTaxesSectionProps = {
   value: TaxConfig;
   computed: InvoiceComputedValues;
   currency?: InvoiceDisplayCurrency;
+  embedded?: boolean;
   isLocked?: boolean;
   allowIgstOption?: boolean;
   modeLabel?: string;
@@ -42,29 +45,11 @@ function formatCurrency(
   }
 }
 
-function ChevronDownIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      fill="none"
-      className="h-4 w-4 text-gray-600"
-    >
-      <path
-        d="M5 7.5L10 12.5L15 7.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export default function TotalsTaxesSection({
   value,
   computed,
   currency = "INR",
+  embedded = false,
   isLocked = false,
   allowIgstOption = false,
   modeLabel = "GST Type",
@@ -121,12 +106,20 @@ export default function TotalsTaxesSection({
     : "Set the exact GST percentage applied to the subtotal.";
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5">
+    <section
+      className={cn(
+        embedded
+          ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+          : getAppPanelClass()
+      )}
+    >
       <div className="mb-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-gray-700">
-          Totals & Taxes
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-gray-500">
+        {!embedded ? (
+          <h2 className="text-sm font-bold uppercase tracking-wide text-gray-700">
+            Totals & Taxes
+          </h2>
+        ) : null}
+        <p className={cn(!embedded ? "mt-2" : "", "text-sm leading-6 text-gray-500")}>
           Review your billing summary and configure tax in one place. Subtotal
           and grand total are read-only so users always see the final financial
           impact clearly.
@@ -200,7 +193,7 @@ export default function TotalsTaxesSection({
             </label>
 
             <div className="relative">
-              <select
+              <AppSelectField
                 value={value.taxMode}
                 disabled={isLocked}
                 onChange={(e) => {
@@ -212,20 +205,16 @@ export default function TotalsTaxesSection({
                     updateField("taxRate", 18);
                   }
                 }}
-                className={`w-full appearance-none rounded-xl border bg-white px-3 py-3 pr-10 text-base text-black outline-none focus:border-black ${
-                  isLocked
-                    ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
-                    : "border-gray-300"
-                }`}
+                className={cn(
+                  isLocked ? "cursor-not-allowed" : "",
+                  "text-base"
+                )}
+                hasValue={Boolean(value.taxMode)}
               >
                 <option value="gst">{gstOptionLabel}</option>
                 {showIgstOption ? <option value="igst">IGST</option> : null}
                 <option value="none">No Tax</option>
-              </select>
-
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                <ChevronDownIcon />
-              </span>
+              </AppSelectField>
             </div>
           </div>
 
@@ -258,11 +247,15 @@ export default function TotalsTaxesSection({
                   e.preventDefault();
                 }
               }}
-              className={`w-full rounded-xl border bg-white px-3 py-3 text-base text-black outline-none focus:border-black ${
+              className={cn(
+                getAppFieldClass({
+                  hasValue: true,
+                }),
+                "text-base",
                 isNoTax || isLocked
-                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
-                  : "border-gray-300"
-              }`}
+                  ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                  : ""
+              )}
             />
           </div>
 

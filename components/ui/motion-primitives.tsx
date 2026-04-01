@@ -15,15 +15,15 @@ export { AnimatePresence, motion };
 type MotionPreset = "fade-in" | "fade-up" | "scale-in" | "modal" | "soft";
 
 export const appEaseStandard: [number, number, number, number] = [
-  0.22,
-  1,
-  0.36,
+  0.4,
+  0,
+  0.2,
   1,
 ];
 export const appEaseGentle: [number, number, number, number] = [
-  0.25,
-  0.9,
-  0.3,
+  0.4,
+  0,
+  0.2,
   1,
 ];
 

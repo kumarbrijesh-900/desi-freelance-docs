@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  ChevronDownIcon,
   ChevronUpIcon,
   ClipboardCheckIcon,
   DocumentSparkIcon,
@@ -138,7 +137,7 @@ export default function BriefIntakeCard({
     return (
       <MotionReveal className="mb-4" preset="fade-up" delay={40}>
         <section
-          className={cn(getAppPanelClass("muted"), "overflow-hidden")}
+          className={cn("app-soft-panel-muted overflow-hidden rounded-[14px]")}
           aria-labelledby="brief-intake-collapsed-heading"
           data-brief-intake-state="collapsed"
           data-testid="brief-intake-collapsed"
@@ -149,50 +148,34 @@ export default function BriefIntakeCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col gap-2.5 px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4"
+            className="flex h-12 items-center justify-between gap-3 px-3.5 sm:px-4"
           >
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+              <span
+                id="brief-intake-collapsed-heading"
+                className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
+              >
+                <ClipboardCheckIcon className="h-3.5 w-3.5" />
+                Brief
+              </span>
+              <SuccessPulse active={lastExtractionState === "success"}>
                 <span
-                  id="brief-intake-collapsed-heading"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+                  className={cn(
+                    "inline-flex h-7 min-w-0 items-center rounded-full border px-2.5 text-xs font-medium",
+                    statusBadgeClass
+                  )}
                 >
-                  <DocumentSparkIcon className="h-4 w-4" />
-                  Brief Intake
+                  {isExtracting
+                    ? "Extracting"
+                    : lastExtractionState === "success"
+                    ? "Autofill Ready"
+                    : lastExtractionState === "error"
+                    ? "Needs Detail"
+                    : canExtract
+                    ? "Ready"
+                    : "Empty"}
                 </span>
-                <SuccessPulse active={lastExtractionState === "success"}>
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
-                      statusBadgeClass
-                    )}
-                  >
-                    {isExtracting
-                      ? "Extracting"
-                      : lastExtractionState === "success"
-                      ? "Autofill ready"
-                      : lastExtractionState === "error"
-                      ? "Needs more detail"
-                      : canExtract
-                      ? "Ready"
-                      : "Empty"}
-                  </span>
-                </SuccessPulse>
-              </div>
-
-              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
-                {(intakeSummaryBits.length > 0
-                  ? intakeSummaryBits
-                  : ["Screenshot / Text / Audio"]
-                ).map((item) => (
-                  <span
-                    key={item}
-                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
+              </SuccessPulse>
             </div>
 
             <MotionButton
@@ -201,12 +184,11 @@ export default function BriefIntakeCard({
                 aria-expanded={false}
                 aria-controls="brief-intake-panel"
                 className={cn(
-                getAppButtonClass({ variant: "tertiary", size: "sm" }),
+                getAppButtonClass({ variant: "ghost", size: "sm" }),
                 "shrink-0"
               )}
             >
-              <ChevronDownIcon className="h-4 w-4" />
-              Expand
+              Edit
             </MotionButton>
           </motion.div>
         </section>
@@ -224,7 +206,7 @@ export default function BriefIntakeCard({
         <div className={appGridClass}>
           <div className="col-span-4 flex flex-col gap-3 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.05)]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                 <DocumentSparkIcon className="h-4 w-4" />
                 Brief Intake
               </div>
@@ -301,13 +283,13 @@ export default function BriefIntakeCard({
                 intakeSummaryBits.map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1"
+                    className="inline-flex items-center rounded-full border border-[color:var(--app-soft-border)] bg-white/82 px-2.5 py-1 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
                   >
                     {item}
                   </span>
                 ))
               ) : (
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1">
+                <span className="inline-flex items-center rounded-full border border-[color:var(--app-soft-border)] bg-white/82 px-2.5 py-1 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                   Screenshot / Text / Audio
                 </span>
               )}
@@ -381,7 +363,7 @@ export default function BriefIntakeCard({
                         handleFiles(event.dataTransfer.files);
                       }}
                         className={cn(
-                          "app-dropzone-surface flex min-h-[220px] cursor-pointer items-center justify-center rounded-[24px] border-2 border-dashed bg-white p-5 text-center text-sm",
+                          "app-dropzone-surface flex min-h-[220px] cursor-pointer items-center justify-center rounded-[18px] border-2 border-dashed p-5 text-center text-sm",
                           isDragOver
                           ? "app-dropzone-accept text-slate-950"
                           : "border-slate-300 text-slate-500 hover:border-slate-500"
@@ -400,7 +382,7 @@ export default function BriefIntakeCard({
 
                       <div className="flex flex-col items-center gap-3">
                         <motion.span
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700"
+                          className="app-soft-choice-option inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-700"
                           animate={
                             isDragOver
                               ? { scale: 1.06, y: -2 }

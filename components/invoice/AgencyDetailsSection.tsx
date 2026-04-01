@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
+import AppSelectField from "@/components/ui/AppSelectField";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-address";
 import { parseGstin } from "@/lib/gstin-parser";
 import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
   onChange: (value: AgencyDetails) => void;
+  embedded?: boolean;
   errors?: {
     agencyName?: string;
     address?: string;
@@ -24,6 +27,7 @@ interface AgencyDetailsSectionProps {
 export default function AgencyDetailsSection({
   value,
   onChange,
+  embedded = false,
   errors,
 }: AgencyDetailsSectionProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -120,10 +124,16 @@ export default function AgencyDetailsSection({
     updateField("logoUrl", "");
   };
 
-  const inputClass = (hasError?: string) =>
-    `w-full rounded-xl border p-3 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
+  const inputClass = (
+    hasError?: string,
+    hasValue?: boolean,
+    multiline = false
+  ) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+      multiline,
+    });
 
   const showGstinField = value.gstRegistrationStatus === "registered";
   const showLutSection = showGstinField;
@@ -153,10 +163,18 @@ export default function AgencyDetailsSection({
     <>
       <UploadToast message={toastMessage} visible={showToast} />
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-          My Agency Details
-        </h2>
+      <section
+        className={cn(
+          embedded
+            ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+            : getAppPanelClass()
+        )}
+      >
+        {!embedded ? (
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
+            My Agency Details
+          </h2>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-4">
@@ -169,7 +187,7 @@ export default function AgencyDetailsSection({
                 value={value.agencyName}
                 onChange={(e) => updateField("agencyName", e.target.value)}
                 placeholder="Your agency or freelance brand name"
-                className={inputClass(errors?.agencyName)}
+                className={inputClass(errors?.agencyName, Boolean(value.agencyName))}
               />
               {errors?.agencyName ? (
                 <p className="mt-2 text-xs font-medium text-red-600">
@@ -201,7 +219,7 @@ export default function AgencyDetailsSection({
                       updateField("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))
                     }
                     placeholder="560025"
-                    className={inputClass()}
+                    className={inputClass(undefined, Boolean(value.pinCode))}
                   />
                 </div>
 
@@ -214,7 +232,7 @@ export default function AgencyDetailsSection({
                     value={value.city}
                     onChange={(e) => updateField("city", e.target.value)}
                     placeholder="Bengaluru"
-                    className={inputClass()}
+                    className={inputClass(undefined, Boolean(value.city))}
                   />
                 </div>
 
@@ -227,7 +245,7 @@ export default function AgencyDetailsSection({
                     value={value.addressLine1}
                     onChange={(e) => updateField("addressLine1", e.target.value)}
                     placeholder="Building, street, or area"
-                    className={inputClass(errors?.address)}
+                    className={inputClass(errors?.address, Boolean(value.addressLine1))}
                   />
                 </div>
 
@@ -240,7 +258,7 @@ export default function AgencyDetailsSection({
                     value={value.addressLine2}
                     onChange={(e) => updateField("addressLine2", e.target.value)}
                     placeholder="Suite, floor, landmark, or optional line"
-                    className={inputClass()}
+                    className={inputClass(undefined, Boolean(value.addressLine2))}
                   />
                 </div>
 
@@ -248,7 +266,7 @@ export default function AgencyDetailsSection({
                   <label className="mb-2 block text-sm font-medium text-black">
                     State *
                   </label>
-                  <select
+                  <AppSelectField
                     aria-label="Agency state"
                     value={value.agencyState}
                     onChange={(e) =>
@@ -257,7 +275,8 @@ export default function AgencyDetailsSection({
                         e.target.value as AgencyDetails["agencyState"]
                       )
                     }
-                    className={inputClass(errors?.agencyState)}
+                    hasError={errors?.agencyState}
+                    hasValue={Boolean(value.agencyState)}
                   >
                     <option value="">Select state or union territory</option>
                     {INDIA_STATE_OPTIONS.map((stateName) => (
@@ -265,7 +284,7 @@ export default function AgencyDetailsSection({
                         {stateName}
                       </option>
                     ))}
-                  </select>
+                  </AppSelectField>
                 </div>
               </div>
 
@@ -349,7 +368,7 @@ export default function AgencyDetailsSection({
                       placeholder="GSTIN"
                       autoCapitalize="characters"
                       spellCheck={false}
-                      className={inputClass(errors?.gstin)}
+                      className={inputClass(errors?.gstin, Boolean(value.gstin))}
                     />
                     {errors?.gstin ? (
                       <p className="mt-2 text-xs font-medium text-red-600">
@@ -415,7 +434,7 @@ export default function AgencyDetailsSection({
                               updateField("lutNumber", e.target.value)
                             }
                             placeholder="Recommended, not mandatory"
-                            className={inputClass()}
+                            className={inputClass(undefined, Boolean(value.lutNumber))}
                           />
                           <p className="mt-2 text-xs leading-5 text-gray-500">
                             Add the LUT reference if you have it handy.
@@ -462,7 +481,7 @@ export default function AgencyDetailsSection({
                 placeholder="PAN"
                 autoCapitalize="characters"
                 spellCheck={false}
-                className={inputClass(errors?.pan)}
+                className={inputClass(errors?.pan, Boolean(value.pan))}
               />
               {errors?.pan ? (
                 <p className="mt-2 text-xs font-medium text-red-600">

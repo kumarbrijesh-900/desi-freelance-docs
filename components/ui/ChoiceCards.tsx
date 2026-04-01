@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/ui-foundation";
 
 type ChoiceOption<T extends string> = {
   value: T;
@@ -28,22 +29,22 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `grid gap-2 rounded-[22px] border border-slate-200/90 bg-slate-100/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_10px_24px_rgba(15,23,42,0.04)] ${columns === 2 ? "sm:grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid gap-2 rounded-[14px] p-1.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`
       : "space-y-3";
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[54px] items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-all duration-150 ${
+      return `flex min-h-[54px] items-center justify-between gap-3 rounded-[12px] border px-4 py-3 text-left text-sm font-medium transition-all duration-150 ${
         isSelected
-          ? "border-slate-950 bg-slate-950 text-white shadow-[0_16px_32px_rgba(15,23,42,0.18)]"
-          : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white hover:text-slate-950"
+          ? "app-soft-choice-option-active text-slate-950"
+          : "app-soft-choice-option text-slate-700 hover:text-slate-950"
       }`;
     }
 
-    return `block rounded-2xl border px-4 py-3 transition ${
+    return `block rounded-[14px] border px-4 py-3 transition ${
       isSelected
-        ? "border-slate-900 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] ring-1 ring-slate-950/8"
-        : "border-slate-200 bg-white/88 hover:border-slate-300 hover:bg-white"
+        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-indigo-200/70"
+        : "app-soft-choice-option text-slate-700 hover:text-slate-950"
     }`;
   };
 
@@ -88,7 +89,7 @@ export default function ChoiceCards<T extends string>({
               layout
               className={`${getCardClass(
                 isSelected
-              )} peer-focus-visible:ring-2 peer-focus-visible:ring-black peer-focus-visible:ring-offset-2 ${
+              )} peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-400/80 peer-focus-visible:ring-offset-2 ${
                 isSelected ? "ring-1 ring-slate-950/15" : ""
               }`}
               data-selected={isSelected ? "true" : "false"}
@@ -106,13 +107,10 @@ export default function ChoiceCards<T extends string>({
                 {option.description ? (
                   <span
                     id={descriptionId}
-                    className={`mt-1 block text-xs leading-5 ${
-                      isSelected
-                        ? variant === "segmented"
-                          ? "text-white/80"
-                          : "text-slate-600"
-                        : "text-slate-500"
-                    }`}
+                    className={cn(
+                      "mt-1 block text-xs leading-5",
+                      isSelected ? "text-slate-600" : "text-slate-500"
+                    )}
                   >
                     {option.description}
                   </span>
@@ -122,7 +120,7 @@ export default function ChoiceCards<T extends string>({
                 <motion.span
                   aria-hidden="true"
                   className={`h-2.5 w-2.5 rounded-full ${
-                    isSelected ? "bg-white" : "bg-slate-300"
+                    isSelected ? "bg-indigo-500" : "bg-slate-300"
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
                   transition={{

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
@@ -18,7 +25,6 @@ import InvoiceMetaSection from "@/components/invoice/InvoiceMetaSection";
 import DeliverablesSection from "@/components/invoice/DeliverablesSection";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
-import AutofillSummaryModal from "@/components/invoice/AutofillSummaryModal";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
@@ -31,16 +37,8 @@ import {
 import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
   runBriefAutofill,
-  type BriefAutofillFieldSummary,
-  type BriefClarificationAction,
-  type BriefClarificationSuggestion,
-  type InvoiceBriefExtractionSchema,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
-import {
-  applyBriefClarificationAction,
-  buildBriefClarificationSuggestions,
-} from "@/lib/invoice-clarifications";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -52,7 +50,6 @@ import {
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
 import {
-  appCardClass,
   appGridClass,
   appPageContainerClass,
   appPageSectionClass,
@@ -66,12 +63,8 @@ import {
   type InvoiceFormData,
   type InvoiceStepperStep,
 } from "@/types/invoice";
-import { getAppButtonClass } from "@/lib/ui-foundation";
-import {
-  ChevronLeftIcon,
-  DownloadIcon,
-  SaveIcon,
-} from "@/components/ui/app-icons";
+import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
+import { ChevronLeftIcon, DownloadIcon, SaveIcon } from "@/components/ui/app-icons";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -90,23 +83,6 @@ type StoredDraft = {
   formData: InvoiceFormData;
   currentStep: InvoiceStepperStep;
   savedAt: string;
-};
-
-type AutofillSummaryState = {
-  confidentFields: BriefAutofillFieldSummary[];
-  inferredFields: BriefAutofillFieldSummary[];
-  lowConfidenceFields: BriefAutofillFieldSummary[];
-  clarificationSuggestions: BriefClarificationSuggestion[];
-  missingFieldGroups: Array<{
-    step: InvoiceStepperStep;
-    fields: string[];
-  }>;
-  recommendedStep: InvoiceStepperStep;
-  missingStep: InvoiceStepperStep | null;
-  normalizedText: string;
-  extraction: InvoiceBriefExtractionSchema;
-  resolvedClarificationIds: string[];
-  isInlineCompletionOpen: boolean;
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -365,21 +341,23 @@ function ExitConfirmModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-black">Leave invoice editor?</h2>
-        <p className="mt-3 text-sm leading-6 text-gray-600">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-slate-950/20 px-4 backdrop-blur-sm">
+      <div className={`w-full max-w-md ${getAppPanelClass()}`}>
+        <h2 className="text-xl font-semibold tracking-tight text-slate-950">
+          Leave invoice editor?
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
           You have unsaved progress. Choose{" "}
-          <span className="font-medium text-black">Save Draft</span> to keep
-          your work, or <span className="font-medium text-black">Skip</span> to
-          leave without saving.
+          <span className="font-medium text-slate-950">Save Draft</span> to keep
+          your work, or <span className="font-medium text-slate-950">Skip</span>{" "}
+          to leave without saving.
         </p>
 
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-black hover:border-black"
+            className={getAppButtonClass({ variant: "ghost", size: "sm" })}
           >
             Cancel
           </button>
@@ -387,7 +365,7 @@ function ExitConfirmModal({
           <button
             type="button"
             onClick={onSkip}
-            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-black hover:border-black"
+            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
           >
             Skip
           </button>
@@ -395,7 +373,7 @@ function ExitConfirmModal({
           <button
             type="button"
             onClick={onSaveDraft}
-            className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white"
+            className={getAppButtonClass({ variant: "primary", size: "sm" })}
           >
             Save Draft
           </button>
@@ -441,13 +419,20 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
     groups.get(step)?.add(label);
   };
 
-  if (errors.agency.agencyName) addField("agency", "Agency name");
-  if (errors.agency.address) addField("agency", "Agency address");
+  if (errors.agency.agencyName) addField("agency", "Business / trade name");
+  if (errors.agency.address) addField("agency", "Address line 1");
   if (errors.agency.agencyState) addField("agency", "Agency state");
   if (errors.agency.gstin) addField("agency", "Agency GSTIN");
 
   if (errors.client.clientName) addField("client", "Client name");
-  if (errors.client.clientAddress) addField("client", "Client address");
+  if (errors.client.clientAddress) {
+    addField(
+      "client",
+      formData.client.clientLocation === "international"
+        ? "Full address"
+        : "Address line 1"
+    );
+  }
   if (errors.client.clientState) addField("client", "Client state");
   if (errors.client.clientCountry) addField("client", "Client country");
 
@@ -498,97 +483,134 @@ function isInvoiceReadyForPreview(formData: InvoiceFormData) {
   return orderedSteps.every((step) => isInvoiceStepValid(formData, step));
 }
 
-function CompactJourneyStepper({
-  steps,
-  currentStep,
+function getStepDescription(step: InvoiceStepperStep) {
+  switch (step) {
+    case "agency":
+      return "Your business identity, structured address, and GST setup.";
+    case "client":
+      return "Recipient details, billing location, and SEZ/export routing.";
+    case "deliverables":
+      return "Line items, quantities, rates, and billing units.";
+    case "payment":
+      return "Payment terms, bank details, and licensing information.";
+    case "meta":
+      return "Invoice number and dates before final review.";
+    case "totals":
+      return "Tax outcome, compliance notes, and preview readiness.";
+    default:
+      return "";
+  }
+}
+
+function InlineStepSection({
+  step,
+  index,
+  isActive,
+  isCompleted,
+  isLocked,
+  issueCount,
+  onActivate,
+  children,
 }: {
-  steps: InvoiceStepperStep[];
-  currentStep: InvoiceStepperStep;
+  step: InvoiceStepperStep;
+  index: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  isLocked: boolean;
+  issueCount: number;
+  onActivate: () => void;
+  children: ReactNode;
 }) {
-  const currentIndex = steps.indexOf(currentStep);
-  const progressPercent = ((currentIndex + 1) / steps.length) * 100;
+  const stepLabel = getStepShortLabel(step);
+  const statusLabel = isCompleted
+    ? "Complete"
+    : isActive
+    ? issueCount > 0
+      ? `${issueCount} field${issueCount === 1 ? "" : "s"} still needed`
+      : "Ready to continue"
+    : isLocked
+    ? "Locked until the step above is complete"
+    : "Available";
 
   return (
-    <div className="mt-3">
-      <div className="overflow-x-auto pb-1">
-        <div className="flex min-w-[700px] items-start gap-4">
-          <div className="flex min-w-0 flex-1 items-start">
-            {steps.map((step, index) => {
-              const isCompleted = index < currentIndex;
-              const isActive = index === currentIndex;
-              const isLast = index === steps.length - 1;
+    <motion.section
+      layout
+      data-step-section={step}
+      data-step-state={
+        isActive ? "active" : isCompleted ? "completed" : isLocked ? "locked" : "available"
+      }
+      className="app-soft-step-surface relative rounded-[16px]"
+    >
+      {index < orderedSteps.length - 1 ? (
+        <span
+          aria-hidden="true"
+          className="absolute bottom-[-20px] left-[26px] top-[76px] w-px bg-slate-300/70"
+        />
+      ) : null}
 
-              return (
-                <div
-                  key={step}
-                  className="flex min-w-0 flex-1"
-                  aria-current={isActive ? "step" : undefined}
-                >
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-center">
-                      <span
-                        className={`relative z-10 flex shrink-0 items-center justify-center rounded-full transition-all ${
-                          isCompleted
-                            ? "h-4 w-4 border border-black bg-black text-white"
-                            : isActive
-                            ? "h-4.5 w-4.5 border border-black bg-white"
-                            : "h-3.5 w-3.5 border border-gray-300 bg-white"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <span className="text-[8px] font-semibold leading-none">✓</span>
-                        ) : isActive ? (
-                          <span className="h-1.5 w-1.5 rounded-full bg-black" />
-                        ) : (
-                          <span className="h-1 w-1 rounded-full bg-gray-300" />
-                        )}
-                      </span>
+      <button
+        type="button"
+        onClick={onActivate}
+        disabled={isLocked}
+        aria-expanded={isActive}
+        className="flex w-full items-start gap-4 px-5 py-5 text-left transition-colors duration-[var(--app-duration-fast)] disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        <span
+          className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-[var(--app-duration-fast)] ${
+            isCompleted
+              ? "border-emerald-300 bg-emerald-500 text-white shadow-[0_10px_22px_rgba(16,185,129,0.22)]"
+              : isActive
+              ? "border-indigo-300 bg-white text-indigo-900 shadow-[var(--app-soft-shadow-raised)]"
+              : isLocked
+              ? "border-slate-200 bg-slate-100/90 text-slate-400"
+              : "border-slate-300 bg-white/92 text-slate-700 shadow-[0_8px_18px_rgba(148,163,184,0.12)]"
+          }`}
+        >
+          {isCompleted ? "✓" : index + 1}
+        </span>
 
-                      {!isLast ? (
-                        <div className="relative ml-2 h-px flex-1 bg-gray-200">
-                          <div
-                            className={`absolute left-0 top-0 h-px bg-black transition-all duration-300 ${
-                              isCompleted
-                                ? "w-full"
-                                : isActive
-                                ? "w-1/2"
-                                : "w-0"
-                            }`}
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="mt-2 pr-3">
-                      <span
-                        className={`block truncate text-[11px] font-medium leading-4 transition ${
-                          isCompleted
-                            ? "text-black"
-                            : isActive
-                            ? "text-black"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {getStepShortLabel(step)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="shrink-0 text-right">
-            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400">
-              Progress
-            </p>
-            <p className="mt-1 text-sm font-semibold tracking-tight text-black">
-              {Math.round(progressPercent)}%
-            </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-semibold tracking-tight text-slate-950">
+                {stepLabel}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                {getStepDescription(step)}
+              </p>
+            </div>
+            <span
+              className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                isCompleted
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+                  : isActive
+                  ? "border-indigo-200 bg-indigo-50/90 text-indigo-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+                  : isLocked
+                  ? "border-slate-200 bg-white/68 text-slate-500 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+                  : "border-slate-200 bg-white/82 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+              }`}
+            >
+              {statusLabel}
+            </span>
           </div>
         </div>
-      </div>
-    </div>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isActive ? (
+          <motion.div
+            key={`${step}-content`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+            className="border-t border-[color:var(--app-soft-border)] px-5 pb-5 pt-4"
+          >
+            {children}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </motion.section>
   );
 }
 
@@ -602,14 +624,21 @@ export default function InvoiceEditorPage() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [autofillSummary, setAutofillSummary] =
-    useState<AutofillSummaryState | null>(null);
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
+  const [focusRequestNonce, setFocusRequestNonce] = useState(0);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
   const lastAutoDueDateRef = useRef("");
+  const stepRefs = useRef<Record<InvoiceStepperStep, HTMLDivElement | null>>({
+    agency: null,
+    client: null,
+    deliverables: null,
+    payment: null,
+    meta: null,
+    totals: null,
+  });
 
   useEffect(() => {
     if (!showToast) return;
@@ -779,6 +808,38 @@ export default function InvoiceEditorPage() {
     dueDateAutoManagedRef.current = false;
     lastAutoDueDateRef.current = suggestedDueDate;
   }, [formData.meta.paymentTerms, formData.meta.invoiceDate, formData.meta.dueDate]);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const activeStepRoot = stepRefs.current[currentStep];
+      if (!activeStepRoot) return;
+
+      activeStepRoot.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (!focusRequestNonce) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      const activeStepRoot = stepRefs.current[currentStep];
+      if (!activeStepRoot) return;
+
+      const focusTarget =
+        activeStepRoot.querySelector<HTMLElement>(
+          'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])'
+        );
+
+      focusTarget?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [currentStep, focusRequestNonce]);
 
   const fieldErrors = useMemo(
     () => getInvoiceFieldErrors(formData),
@@ -958,6 +1019,35 @@ export default function InvoiceEditorPage() {
   const approximateUsdGrandTotal = showApproximateUsdReference
     ? convertInrToApproximateUsd(computedTotals.grandTotal)
     : undefined;
+  const missingFieldGroups = useMemo(
+    () => getMissingFieldLabels(formData),
+    [formData]
+  );
+  const missingFieldCountByStep = useMemo(
+    () =>
+      missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
+        (counts, group) => {
+          counts[group.step] = group.fields.length;
+          return counts;
+        },
+        {
+          agency: 0,
+          client: 0,
+          deliverables: 0,
+          payment: 0,
+          meta: 0,
+          totals: 0,
+        }
+      ),
+    [missingFieldGroups]
+  );
+  const firstInvalidStep = useMemo(
+    () => getFirstInvalidStep(formData),
+    [formData]
+  );
+  const highestUnlockedIndex = firstInvalidStep
+    ? orderedSteps.indexOf(firstInvalidStep)
+    : orderedSteps.length - 1;
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
   const isFirstStep = currentStepIndex === 0;
@@ -988,6 +1078,55 @@ export default function InvoiceEditorPage() {
     () => isInvoiceReadyForPreview(formData),
     [formData]
   );
+
+  const handleActiveStepKeyDownCapture = (
+    step: InvoiceStepperStep,
+    event: ReactKeyboardEvent<HTMLDivElement>
+  ) => {
+    if (
+      step !== currentStep ||
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+      return;
+    }
+
+    if (!(event.target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    const inputType = event.target.type.toLowerCase();
+    if (
+      ["checkbox", "radio", "file", "submit", "button"].includes(inputType)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const activeStepRoot = stepRefs.current[step];
+    if (!activeStepRoot) return;
+
+    const focusableFields = Array.from(
+      activeStepRoot.querySelectorAll<HTMLElement>(
+        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])'
+      )
+    ).filter((element) => element.offsetParent !== null);
+
+    const currentIndex = focusableFields.indexOf(event.target);
+
+    if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
+      focusableFields[currentIndex + 1]?.focus();
+      return;
+    }
+
+    if (currentStepValid && !isLastStep) {
+      goNext();
+    }
+  };
 
   const shouldConfirmExit = currentStepIndex > 0 || isFormTouched(formData);
 
@@ -1025,12 +1164,21 @@ export default function InvoiceEditorPage() {
   const goNext = () => {
     if (!currentStepValid || isLastStep) return;
     setCurrentStep(orderedSteps[currentStepIndex + 1]);
+    setFocusRequestNonce((prev) => prev + 1);
   };
 
   const goBack = () => {
     if (!isFirstStep) {
       setCurrentStep(orderedSteps[currentStepIndex - 1]);
+      setFocusRequestNonce((prev) => prev + 1);
     }
+  };
+
+  const goToStep = (step: InvoiceStepperStep) => {
+    const targetIndex = orderedSteps.indexOf(step);
+    if (targetIndex < 0 || targetIndex > highestUnlockedIndex) return;
+    setCurrentStep(step);
+    setFocusRequestNonce((prev) => prev + 1);
   };
 
   const handlePreviewInvoice = () => {
@@ -1063,74 +1211,6 @@ export default function InvoiceEditorPage() {
     }
   };
 
-  const refreshAutofillSummary = (
-    nextFormData: InvoiceFormData,
-    options?: {
-      resolvedClarificationIds?: string[];
-      isInlineCompletionOpen?: boolean;
-    }
-  ) => {
-    setAutofillSummary((prev) => {
-      if (!prev) {
-        return prev;
-      }
-
-      const nextResolvedClarificationIds =
-        options?.resolvedClarificationIds ?? prev.resolvedClarificationIds;
-      const nextInlineCompletionOpen =
-        options?.isInlineCompletionOpen ?? prev.isInlineCompletionOpen;
-      const nextMissingStep = getFirstInvalidStep(nextFormData);
-      const nextMissingFieldGroups = getMissingFieldLabels(nextFormData);
-
-      return {
-        ...prev,
-        missingFieldGroups: nextMissingFieldGroups,
-        missingStep: nextMissingStep,
-        recommendedStep: nextMissingStep ?? "totals",
-        clarificationSuggestions: buildBriefClarificationSuggestions({
-          normalizedText: prev.normalizedText,
-          extraction: prev.extraction,
-          currentFormData: nextFormData,
-          resolvedIds: nextResolvedClarificationIds,
-        }),
-        resolvedClarificationIds: nextResolvedClarificationIds,
-        isInlineCompletionOpen: nextInlineCompletionOpen,
-      };
-    });
-  };
-
-  const applyAutofillFormUpdate = (
-    updater: (prev: InvoiceFormData) => InvoiceFormData
-  ) => {
-    let nextFormData = formData;
-
-    setFormData((prev) => {
-      const updatedFormData = mergeInvoiceFormData(updater(prev));
-      const nextSuggestedDueDate = getSuggestedDueDate(
-        updatedFormData.meta.paymentTerms,
-        updatedFormData.meta.invoiceDate
-      );
-
-      if (
-        !updatedFormData.meta.dueDate &&
-        updatedFormData.meta.invoiceDate &&
-        nextSuggestedDueDate
-      ) {
-        updatedFormData.meta.dueDate = nextSuggestedDueDate;
-      }
-
-      lastAutoDueDateRef.current = nextSuggestedDueDate;
-      dueDateAutoManagedRef.current =
-        !updatedFormData.meta.dueDate ||
-        updatedFormData.meta.dueDate === nextSuggestedDueDate;
-
-      nextFormData = updatedFormData;
-      return updatedFormData;
-    });
-
-    refreshAutofillSummary(nextFormData);
-  };
-
   const persistDraft = () => {
     window.localStorage.setItem(
       DRAFT_STORAGE_KEY,
@@ -1144,14 +1224,10 @@ export default function InvoiceEditorPage() {
 
   const performSaveDraft = (options?: {
     stayOnPage?: boolean;
-    closeAutofill?: boolean;
   }) => {
     try {
       persistDraft();
       setShowExitModal(false);
-      if (options?.closeAutofill) {
-        setAutofillSummary(null);
-      }
       triggerToast("Draft saved");
       playInteractionCue("saveSuccess");
 
@@ -1183,7 +1259,9 @@ export default function InvoiceEditorPage() {
     lastAutoDueDateRef.current = demoSuggestedDueDate;
 
     setFormData(mergeInvoiceFormData(demo));
+    setCurrentStep("agency");
     setIsBriefIntakeCollapsed(true);
+    setFocusRequestNonce((prev) => prev + 1);
 
     triggerToast("Demo data loaded");
   };
@@ -1207,10 +1285,10 @@ export default function InvoiceEditorPage() {
 
     setFormData(mergeInvoiceFormData(freshInvoiceData));
     setCurrentStep("agency");
-    setAutofillSummary(null);
     setShowExitModal(false);
     setIsBriefIntakeCollapsed(false);
     setBriefIntakeResetKey((prev) => prev + 1);
+    setFocusRequestNonce((prev) => prev + 1);
     triggerToast("Demo data cleared");
   };
 
@@ -1306,99 +1384,24 @@ export default function InvoiceEditorPage() {
       nextFormData.meta.dueDate === nextSuggestedDueDate;
 
     const missingStep = getFirstInvalidStep(nextFormData);
-    const missingFieldGroups = getMissingFieldLabels(nextFormData);
     const recommendedStep = missingStep ?? "totals";
 
     setFormData(mergeInvoiceFormData(nextFormData));
-    setAutofillSummary({
-      confidentFields: result.confidentFieldSummaries,
-      inferredFields: result.inferredFieldSummaries,
-      lowConfidenceFields: result.lowConfidenceFieldSummaries,
-      clarificationSuggestions: result.clarificationSuggestions,
-      missingFieldGroups,
-      recommendedStep,
-      missingStep,
-      normalizedText: result.normalizedText,
-      extraction: result.extraction,
-      resolvedClarificationIds: [],
-      isInlineCompletionOpen: false,
-    });
+    setCurrentStep(recommendedStep);
+    setFocusRequestNonce((prev) => prev + 1);
 
     triggerToast(
       result.filledFields.length > 0
         ? `Autofilled ${result.filledFields.length} field${
             result.filledFields.length === 1 ? "" : "s"
-          }`
+          }. Review the highlighted step inline.`
         : result.lowConfidenceFieldSummaries.length > 0
-        ? "No high-confidence matches were autofilled. Review the low-confidence suggestions first."
-        : "No confident matches found. Review the summary and continue manually."
+        ? "Autofill landed in the form. Review the highlighted section and finish the missing fields inline."
+        : "Autofill landed in the form. Review the highlighted section and continue."
     );
 
     setIsBriefIntakeCollapsed(true);
     return true;
-  };
-
-  const handleClarificationAnswer = (
-    suggestionId: string,
-    action: BriefClarificationAction
-  ) => {
-    if (!autofillSummary) return;
-
-    const nextFormData = applyBriefClarificationAction({
-      formData,
-      action,
-    });
-    const nextResolvedClarificationIds = Array.from(
-      new Set([...autofillSummary.resolvedClarificationIds, suggestionId])
-    );
-
-    setFormData(mergeInvoiceFormData(nextFormData));
-    refreshAutofillSummary(nextFormData, {
-      resolvedClarificationIds: nextResolvedClarificationIds,
-    });
-  };
-
-  const handleAutofillManualCheck = () => {
-    if (!autofillSummary) return;
-    setCurrentStep(autofillSummary.recommendedStep);
-    setAutofillSummary(null);
-  };
-
-  const handleAutofillOpenMissingForm = () => {
-    if (!autofillSummary) return;
-    setAutofillSummary((prev) =>
-      prev
-        ? {
-            ...prev,
-            isInlineCompletionOpen: true,
-          }
-        : prev
-    );
-  };
-
-  const handleAutofillBackToSummary = () => {
-    if (!autofillSummary) return;
-    setAutofillSummary((prev) =>
-      prev
-        ? {
-            ...prev,
-            isInlineCompletionOpen: false,
-          }
-        : prev
-    );
-  };
-
-  const handleAutofillPreview = () => {
-    if (!invoiceReadyForPreview) return;
-    handlePreviewInvoice();
-    setAutofillSummary(null);
-  };
-
-  const handleAutofillSaveDraft = () => {
-    performSaveDraft({
-      stayOnPage: true,
-      closeAutofill: true,
-    });
   };
 
   const handleBackToHome = () => {
@@ -1434,6 +1437,135 @@ export default function InvoiceEditorPage() {
     }));
   };
 
+  const renderStepContent = (step: InvoiceStepperStep) => {
+    switch (step) {
+      case "agency":
+        return (
+          <AgencyDetailsSection
+            embedded
+            value={formData.agency}
+            onChange={(agency) =>
+              setFormData((prev) =>
+                mergeInvoiceFormData({
+                  ...prev,
+                  agency,
+                })
+              )
+            }
+            errors={fieldErrors.agency}
+          />
+        );
+      case "client":
+        return (
+          <ClientDetailsSection
+            embedded
+            value={formData.client}
+            onChange={(client) =>
+              setFormData((prev) =>
+                mergeInvoiceFormData({
+                  ...prev,
+                  client,
+                })
+              )
+            }
+            errors={fieldErrors.client}
+          />
+        );
+      case "deliverables":
+        return (
+          <DeliverablesSection
+            embedded
+            value={formData.lineItems}
+            currency={displayCurrency}
+            onChange={(lineItems) =>
+              setFormData((prev) => ({
+                ...prev,
+                lineItems,
+              }))
+            }
+            errors={fieldErrors.lineItems}
+          />
+        );
+      case "payment":
+        return (
+          <TermsPaymentSection
+            embedded
+            value={formData.payment}
+            meta={formData.meta}
+            clientLocation={formData.client.clientLocation}
+            onChange={(payment) =>
+              setFormData((prev) =>
+                mergeInvoiceFormData({
+                  ...prev,
+                  payment,
+                })
+              )
+            }
+            onMetaChange={handleMetaChange}
+            paymentTermsError={fieldErrors.meta.paymentTerms}
+            errors={fieldErrors.payment}
+          />
+        );
+      case "meta":
+        return (
+          <InvoiceMetaSection
+            embedded
+            value={formData.meta}
+            onChange={handleMetaChange}
+            errors={{
+              invoiceNumber: fieldErrors.meta.invoiceNumber,
+              invoiceDate: fieldErrors.meta.invoiceDate,
+              dueDate: fieldErrors.meta.dueDate,
+            }}
+          />
+        );
+      case "totals":
+        return (
+          <TotalsTaxesSection
+            embedded
+            value={derivedTaxConfig}
+            computed={computedTotals}
+            currency={displayCurrency}
+            isLocked
+            modeLabel="Tax Type"
+            rateLabel="Total Tax %"
+            gstOptionLabel="CGST + SGST"
+            complianceMessage={totalsComplianceMessage}
+            complianceVariant={totalsComplianceVariant}
+            exportTaxDecision={effectiveExportTaxDecision}
+            exportTaxHelperNote={exportTaxHelperNote}
+            estimatedIgstLiability={estimatedIgstLiability}
+            grandTotalReferenceLabel={
+              showApproximateUsdReference
+                ? "Approx. USD total (reference only)"
+                : ""
+            }
+            grandTotalReferenceAmount={approximateUsdGrandTotal}
+            onExportTaxDecisionChange={
+              showInternationalExportDecision
+                ? (noLutTaxHandling) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      agency: {
+                        ...prev.agency,
+                        noLutTaxHandling,
+                      },
+                    }))
+                : undefined
+            }
+            onChange={(tax) =>
+              setFormData((prev) => ({
+                ...prev,
+                tax,
+              }))
+            }
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <main className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -1455,19 +1587,19 @@ export default function InvoiceEditorPage() {
         <div className={appGridClass}>
         <MotionReveal
           preset="fade-up"
-          className={`${appReadableContentClass} ${appCardClass} ${appSectionGapClass} overflow-visible border-2 border-gray-300 shadow-sm`}
+          className={`${appReadableContentClass} app-soft-shell ${appSectionGapClass} overflow-visible rounded-[18px] border p-5 sm:p-6`}
         >
-          <header className="mb-6 border-b border-gray-200 pb-4">
+          <header className="mb-6 border-b border-[color:var(--app-soft-border)] pb-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                   New Invoice
                 </p>
-                <h1 className="mt-1 text-2xl font-bold text-black">
-                  {stepTitle}
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+                  Create Invoice
                 </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Step {currentStepIndex + 1} of {orderedSteps.length}
+                <p className="mt-1 text-sm text-slate-600">
+                  One guided flow from intake to preview. Autofill now lands directly inside the form.
                 </p>
               </div>
 
@@ -1493,11 +1625,23 @@ export default function InvoiceEditorPage() {
               </div>
             </div>
 
-            <div className="mt-4">
-              <CompactJourneyStepper
-                steps={orderedSteps}
-                currentStep={currentStep}
-              />
+            <div className="app-soft-choice-track mt-4 flex items-center justify-between gap-3 rounded-[14px] px-4 py-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Active Step
+                </p>
+                <p className="mt-1 text-sm font-semibold tracking-tight text-slate-950">
+                  {stepTitle}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Progress
+                </p>
+                <p className="mt-1 text-sm font-semibold tracking-tight text-slate-950">
+                  {currentStepIndex + 1} / {orderedSteps.length}
+                </p>
+              </div>
             </div>
           </header>
 
@@ -1509,157 +1653,58 @@ export default function InvoiceEditorPage() {
             onCollapsedChange={setIsBriefIntakeCollapsed}
           />
 
-          <div className="overflow-visible">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, y: 18, scale: 0.996 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.995 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 360,
-                  damping: 30,
-                  mass: 0.8,
-                }}
-              >
-                {currentStep === "agency" && (
-                  <AgencyDetailsSection
-                    value={formData.agency}
-                    onChange={(agency) =>
-                      setFormData((prev) =>
-                        mergeInvoiceFormData({
-                          ...prev,
-                          agency,
-                        })
-                      )
-                    }
-                    errors={fieldErrors.agency}
-                  />
-                )}
+          <div className="space-y-4 overflow-visible" data-testid="invoice-vertical-stepper">
+            {orderedSteps.map((step, index) => {
+              const isActive = currentStep === step;
+              const isCompleted = !isActive && index < highestUnlockedIndex;
+              const isLocked = !isActive && index > highestUnlockedIndex;
 
-                {currentStep === "client" && (
-                  <ClientDetailsSection
-                    value={formData.client}
-                    onChange={(client) =>
-                      setFormData((prev) =>
-                        mergeInvoiceFormData({
-                          ...prev,
-                          client,
-                        })
-                      )
-                    }
-                    errors={fieldErrors.client}
-                  />
-                )}
-
-                {currentStep === "deliverables" && (
-                  <DeliverablesSection
-                    value={formData.lineItems}
-                    currency={displayCurrency}
-                    onChange={(lineItems) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        lineItems,
-                      }))
-                    }
-                    errors={fieldErrors.lineItems}
-                  />
-                )}
-
-                {currentStep === "payment" && (
-                  <TermsPaymentSection
-                    value={formData.payment}
-                    meta={formData.meta}
-                    clientLocation={formData.client.clientLocation}
-                    onChange={(payment) =>
-                      setFormData((prev) =>
-                        mergeInvoiceFormData({
-                          ...prev,
-                          payment,
-                        })
-                      )
-                    }
-                    onMetaChange={handleMetaChange}
-                    paymentTermsError={fieldErrors.meta.paymentTerms}
-                    errors={fieldErrors.payment}
-                  />
-                )}
-
-                {currentStep === "meta" && (
-                  <InvoiceMetaSection
-                    value={formData.meta}
-                    onChange={handleMetaChange}
-                    errors={{
-                      invoiceNumber: fieldErrors.meta.invoiceNumber,
-                      invoiceDate: fieldErrors.meta.invoiceDate,
-                      dueDate: fieldErrors.meta.dueDate,
-                    }}
-                  />
-                )}
-
-                {currentStep === "totals" && (
-                  <TotalsTaxesSection
-                    value={derivedTaxConfig}
-                    computed={computedTotals}
-                    currency={displayCurrency}
-                    isLocked
-                    modeLabel="Tax Type"
-                    rateLabel="Total Tax %"
-                    gstOptionLabel="CGST + SGST"
-                    complianceMessage={totalsComplianceMessage}
-                    complianceVariant={totalsComplianceVariant}
-                    exportTaxDecision={effectiveExportTaxDecision}
-                    exportTaxHelperNote={exportTaxHelperNote}
-                    estimatedIgstLiability={estimatedIgstLiability}
-                    grandTotalReferenceLabel={
-                      showApproximateUsdReference
-                        ? "Approx. USD total (reference only)"
-                        : ""
-                    }
-                    grandTotalReferenceAmount={approximateUsdGrandTotal}
-                    onExportTaxDecisionChange={
-                      showInternationalExportDecision
-                        ? (noLutTaxHandling) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              agency: {
-                                ...prev.agency,
-                                noLutTaxHandling,
-                              },
-                            }))
-                        : undefined
-                    }
-                    onChange={(tax) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        tax,
-                      }))
-                    }
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+              return (
+                <div
+                  key={step}
+                  ref={(node) => {
+                    stepRefs.current[step] = node;
+                  }}
+                >
+                  <InlineStepSection
+                    step={step}
+                    index={index}
+                    isActive={isActive}
+                    isCompleted={isCompleted}
+                    isLocked={isLocked}
+                    issueCount={missingFieldCountByStep[step]}
+                    onActivate={() => goToStep(step)}
+                  >
+                    <div onKeyDownCapture={(event) => handleActiveStepKeyDownCapture(step, event)}>
+                      {renderStepContent(step)}
+                    </div>
+                  </InlineStepSection>
+                </div>
+              );
+            })}
           </div>
 
           {!currentStepValid && (
-            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50/92 px-4 py-3 text-sm text-red-700 shadow-[0_1px_0_rgba(255,255,255,0.72)]">
               {currentStepError}
             </div>
           )}
 
-          <footer className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 pt-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={goBack}
-                disabled={isFirstStep}
-                className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-              >
-                Back
-              </button>
+          <footer
+            className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--app-soft-border)] pt-4"
+            data-testid="editor-footer-actions"
+          >
+            {!isLastStep ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={isFirstStep}
+                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                >
+                  Back
+                </button>
 
-              {!isLastStep && (
                 <button
                   type="button"
                   onClick={goNext}
@@ -1668,20 +1713,21 @@ export default function InvoiceEditorPage() {
                 >
                   Continue
                 </button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div />
+            )}
 
             {isLastStep && (
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   type="button"
-                  onClick={handlePreviewInvoice}
-                  disabled={!currentStepValid}
-                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                  onClick={handleBackToHome}
+                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                 >
                   <span className="inline-flex items-center gap-2">
-                    <DownloadIcon className="h-4 w-4" />
-                    Preview & Download
+                    <ChevronLeftIcon className="h-4 w-4" />
+                    Close
                   </span>
                 </button>
 
@@ -1698,12 +1744,13 @@ export default function InvoiceEditorPage() {
 
                 <button
                   type="button"
-                  onClick={handleBackToHome}
-                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                  onClick={handlePreviewInvoice}
+                  disabled={!currentStepValid}
+                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
                 >
                   <span className="inline-flex items-center gap-2">
-                    <ChevronLeftIcon className="h-4 w-4" />
-                    Close
+                    <DownloadIcon className="h-4 w-4" />
+                    Preview & Download
                   </span>
                 </button>
               </div>
@@ -1720,31 +1767,6 @@ export default function InvoiceEditorPage() {
           onSaveDraft={handleSaveDraft}
         />
       )}
-
-      <AnimatePresence>
-        {autofillSummary ? (
-          <AutofillSummaryModal
-            confidentFields={autofillSummary.confidentFields}
-            inferredFields={autofillSummary.inferredFields}
-            lowConfidenceFields={autofillSummary.lowConfidenceFields}
-            clarificationSuggestions={autofillSummary.clarificationSuggestions}
-            missingFieldGroups={autofillSummary.missingFieldGroups}
-            recommendedStep={autofillSummary.recommendedStep}
-            formData={formData}
-            fieldErrors={fieldErrors}
-            isInlineFormOpen={autofillSummary.isInlineCompletionOpen}
-            isPreviewReady={invoiceReadyForPreview}
-            onClarificationAnswer={handleClarificationAnswer}
-            onFormDataChange={applyAutofillFormUpdate}
-            onClose={() => setAutofillSummary(null)}
-            onBackToSummary={handleAutofillBackToSummary}
-            onManualCheck={handleAutofillManualCheck}
-            onOpenFillMissing={handleAutofillOpenMissingForm}
-            onPreview={handleAutofillPreview}
-            onSaveDraft={handleAutofillSaveDraft}
-          />
-        ) : null}
-      </AnimatePresence>
     </main>
   );
 }

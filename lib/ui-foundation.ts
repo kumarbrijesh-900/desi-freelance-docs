@@ -34,7 +34,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring inline-flex items-center justify-center gap-2 rounded-2xl border font-semibold tracking-tight transition-[transform,background-color,border-color,box-shadow,color,opacity] duration-[var(--app-duration-fast)] disabled:pointer-events-none disabled:opacity-55",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[8px] border font-semibold tracking-tight text-sm transition-[transform,background-color,border-color,box-shadow,color,opacity] duration-[var(--app-duration-fast)] disabled:pointer-events-none disabled:opacity-55",
     size === "sm"
       ? "h-10 px-4 text-sm"
       : size === "lg"
@@ -42,16 +42,16 @@ export function getAppButtonClass(params?: {
       : "h-11 px-4 text-sm",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "border-slate-950 bg-slate-950 text-white shadow-[0_14px_30px_rgba(15,23,42,0.18)] hover:border-slate-900 hover:bg-slate-900"
+      ? "app-soft-button-primary text-white hover:border-indigo-900"
       : variant === "ghost"
-      ? "border-transparent bg-transparent text-slate-600 hover:bg-white/75 hover:text-slate-950"
+      ? "app-soft-button-ghost text-slate-600 hover:text-slate-950"
       : variant === "tertiary"
-      ? "border-slate-200/80 bg-slate-50/85 text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-slate-300 hover:bg-white hover:text-slate-950"
+      ? "app-soft-button-tertiary text-slate-700 hover:text-slate-950"
       : variant === "subtle"
-      ? "border-slate-200 bg-slate-100/90 text-slate-800 hover:border-slate-300 hover:bg-slate-200/85"
+      ? "app-soft-button-subtle text-slate-800"
       : variant === "destructive-lite"
-      ? "border-rose-200/80 bg-rose-50/70 text-rose-900 hover:border-rose-300 hover:bg-rose-50"
-      : "border-slate-300 bg-white/92 text-slate-950 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-slate-500 hover:bg-white"
+      ? "app-soft-button-destructive text-rose-900 hover:border-rose-300"
+      : "app-soft-button-secondary text-slate-950 hover:border-slate-400"
   );
 }
 
@@ -64,17 +64,17 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring w-full rounded-2xl border text-[15px] font-medium leading-6 text-slate-950 outline-none transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)]",
+    "app-interactive-field app-focus-ring app-soft-field w-full rounded-[10px] border text-[15px] font-medium leading-6 text-slate-950 outline-none transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
     multiline ? "min-h-[120px] px-4 py-3.5" : "h-12 px-4",
     isSelect ? "appearance-none pr-11" : "",
-    "placeholder:text-slate-400",
-    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
+    "placeholder:text-slate-500",
+    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100/85 disabled:text-slate-400 disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
-      ? "border-red-400 bg-red-50/70 shadow-[0_1px_2px_rgba(239,68,68,0.08)] focus:border-red-500"
+      ? "app-soft-field-error border-red-400 focus-visible:border-red-500 focus-visible:ring-red-200/80"
       : hasValue
-      ? "border-slate-400 bg-white shadow-[0_3px_10px_rgba(15,23,42,0.05)]"
-      : "border-slate-300 bg-white/80"
+      ? "app-soft-field-filled border-slate-400"
+      : "border-slate-300"
   );
 }
 
@@ -82,14 +82,14 @@ export function getAppPanelClass(
   tone: "default" | "success" | "warning" | "muted" = "default"
 ) {
   return cn(
-    "app-interactive-surface rounded-[26px] border p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[transform,background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
+    "app-interactive-surface rounded-[14px] border p-5 transition-[transform,background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:p-6",
     tone === "success"
-      ? "border-emerald-200 bg-emerald-50/92 shadow-[0_10px_24px_rgba(16,185,129,0.06)]"
+      ? "app-soft-panel-success"
       : tone === "warning"
-      ? "border-amber-200 bg-amber-50/92 shadow-[0_10px_24px_rgba(245,158,11,0.07)]"
+      ? "app-soft-panel-warning"
       : tone === "muted"
-      ? "border-slate-200 bg-slate-50/92"
-      : "border-slate-200 bg-white/94 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+      ? "app-soft-panel-muted"
+      : "app-soft-panel"
   );
 }
 
@@ -99,9 +99,9 @@ export function getAppStatusPillClass(
   return cn(
     "shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
     tone === "success"
-      ? "border-emerald-200 bg-emerald-100 text-emerald-800"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
       : tone === "muted"
-      ? "border-slate-200 bg-slate-100 text-slate-600"
-      : "border-slate-200 bg-white text-slate-600"
+      ? "border-slate-200 bg-white/72 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+      : "border-slate-200 bg-white/82 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
   );
 }

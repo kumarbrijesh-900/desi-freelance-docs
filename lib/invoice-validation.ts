@@ -73,7 +73,10 @@ export function getInvoiceFieldErrors(
     errors.agency.agencyName = "Agency name is required.";
   }
 
-  if (isBlank(formData.agency.address)) {
+  if (
+    isBlank(formData.agency.addressLine1) &&
+    isBlank(formData.agency.address)
+  ) {
     errors.agency.address = "Agency address is required.";
   }
 
@@ -104,7 +107,13 @@ export function getInvoiceFieldErrors(
     errors.client.clientName = "Client name is required.";
   }
 
-  if (isBlank(formData.client.clientAddress)) {
+  if (
+    (!isInternationalClient(formData.client) &&
+      isBlank(formData.client.clientAddressLine1) &&
+      isBlank(formData.client.clientAddress)) ||
+    (isInternationalClient(formData.client) &&
+      isBlank(formData.client.clientAddress))
+  ) {
     errors.client.clientAddress = "Client address is required.";
   }
 

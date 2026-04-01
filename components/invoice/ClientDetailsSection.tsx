@@ -2,12 +2,13 @@
 
 import type { ClientDetails } from "@/types/invoice";
 import ChoiceCards from "@/components/ui/ChoiceCards";
+import AppSelectField from "@/components/ui/AppSelectField";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
-import { getAppFieldClass } from "@/lib/ui-foundation";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 import {
   composeIndianAddress,
   evaluateStateSignals,
@@ -19,6 +20,7 @@ import { suggestSezCampus } from "@/lib/sez-lookup";
 interface ClientDetailsSectionProps {
   value: ClientDetails;
   onChange: (value: ClientDetails) => void;
+  embedded?: boolean;
   errors?: {
     clientName?: string;
     clientAddress?: string;
@@ -31,6 +33,7 @@ interface ClientDetailsSectionProps {
 export default function ClientDetailsSection({
   value,
   onChange,
+  embedded = false,
   errors,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
@@ -107,10 +110,18 @@ export default function ClientDetailsSection({
     : null;
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-        Client Details
-      </h2>
+    <section
+      className={cn(
+        embedded
+          ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+          : getAppPanelClass()
+      )}
+    >
+      {!embedded ? (
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
+          Client Details
+        </h2>
+      ) : null}
 
       <div className="space-y-4">
         <div>
@@ -312,7 +323,8 @@ export default function ClientDetailsSection({
                 <label className="mb-2 block text-sm font-medium text-black">
                   State *
                 </label>
-                <select
+                <AppSelectField
+                  aria-label="Client state"
                   value={value.clientState}
                   onChange={(e) =>
                     updateField(
@@ -320,7 +332,8 @@ export default function ClientDetailsSection({
                       e.target.value as ClientDetails["clientState"]
                     )
                   }
-                  className={inputClass(errors?.clientState, Boolean(value.clientState))}
+                  hasError={errors?.clientState}
+                  hasValue={Boolean(value.clientState)}
                 >
                   <option value="">Select state or union territory</option>
                   {INDIA_STATE_OPTIONS.map((stateName) => (
@@ -328,7 +341,7 @@ export default function ClientDetailsSection({
                       {stateName}
                     </option>
                   ))}
-                </select>
+                </AppSelectField>
               </div>
             </div>
 
@@ -361,7 +374,8 @@ export default function ClientDetailsSection({
                 <label className="mb-2 block text-sm font-medium text-black">
                   Country *
                 </label>
-                <select
+                <AppSelectField
+                  aria-label="Client country"
                   value={value.clientCountry}
                   onChange={(e) =>
                     updateField(
@@ -369,7 +383,8 @@ export default function ClientDetailsSection({
                       e.target.value as ClientDetails["clientCountry"]
                     )
                   }
-                  className={inputClass(errors?.clientCountry, Boolean(value.clientCountry))}
+                  hasError={errors?.clientCountry}
+                  hasValue={Boolean(value.clientCountry)}
                 >
                   <option value="">Select country</option>
                   {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
@@ -377,7 +392,7 @@ export default function ClientDetailsSection({
                       {countryName}
                     </option>
                   ))}
-                </select>
+                </AppSelectField>
                 {errors?.clientCountry ? (
                   <p className="mt-2 text-xs font-medium text-red-600">
                     {errors.clientCountry}
@@ -389,7 +404,8 @@ export default function ClientDetailsSection({
                 <label className="mb-2 block text-sm font-medium text-black">
                   Currency
                 </label>
-                <select
+                <AppSelectField
+                  aria-label="Client currency"
                   value={value.clientCurrency}
                   onChange={(e) =>
                     updateField(
@@ -397,7 +413,7 @@ export default function ClientDetailsSection({
                       e.target.value as ClientDetails["clientCurrency"]
                     )
                   }
-                  className={inputClass(undefined, Boolean(value.clientCurrency))}
+                  hasValue={Boolean(value.clientCurrency)}
                 >
                   <option value="">Keep INR as primary (default)</option>
                   {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
@@ -408,7 +424,7 @@ export default function ClientDetailsSection({
                       {currencyOption.label}
                     </option>
                   ))}
-                </select>
+                </AppSelectField>
                 <p className="mt-2 text-xs leading-5 text-gray-500">
                   Leave this blank to keep INR as the working invoice currency
                   and show a USD reference total later.

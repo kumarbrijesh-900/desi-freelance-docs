@@ -8,6 +8,7 @@ import type {
 } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -15,6 +16,7 @@ interface TermsPaymentSectionProps {
   clientLocation: "domestic" | "international";
   onChange: (value: PaymentDetails) => void;
   onMetaChange: (value: InvoiceMeta) => void;
+  embedded?: boolean;
   paymentTermsError?: string;
   errors?: {
     licenseDuration?: string;
@@ -68,6 +70,7 @@ export default function TermsPaymentSection({
   clientLocation,
   onChange,
   onMetaChange,
+  embedded = false,
   paymentTermsError,
   errors,
 }: TermsPaymentSectionProps) {
@@ -168,19 +171,29 @@ export default function TermsPaymentSection({
     value.license.licenseType === "non-exclusive-license";
   const isInternational = clientLocation === "international";
 
-  const inputClass = (hasError?: string) =>
-    `w-full rounded-xl border p-3 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
+  const inputClass = (hasError?: string, hasValue?: boolean, multiline = false) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+      multiline,
+    });
 
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-          Terms & Payment
-        </h2>
+      <section
+        className={cn(
+          embedded
+            ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+            : getAppPanelClass()
+        )}
+      >
+        {!embedded ? (
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
+            Terms & Payment
+          </h2>
+        ) : null}
 
         <div className="space-y-4">
           {isInternational ? (
@@ -232,7 +245,7 @@ export default function TermsPaymentSection({
               value={meta.paymentTerms}
               onChange={(e) => updateMetaField("paymentTerms", e.target.value)}
               placeholder="Net 15 (payment due within 15 days of invoice date)"
-              className={inputClass(paymentTermsError)}
+              className={inputClass(paymentTermsError, Boolean(meta.paymentTerms))}
             />
             {paymentTermsError ? (
               <p className="mt-2 text-xs font-medium text-red-600">
