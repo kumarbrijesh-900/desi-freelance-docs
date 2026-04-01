@@ -124,6 +124,12 @@ export function buildBriefClarificationSuggestions(
   const hasHighConfidenceLocation =
     extraction.clientLocation?.confidence === "high" ||
     extraction.invoiceIsInternational?.confidence === "high";
+  const hasResolvedLocation =
+    hasHighConfidenceLocation ||
+    (Boolean(extraction.clientCountry?.value) &&
+      extraction.clientLocation?.value === "international") ||
+    (Boolean(extraction.clientState?.value) &&
+      extraction.clientLocation?.value === "domestic");
   const locationLooksInternational =
     extraction.invoiceIsInternational?.value === true ||
     extraction.clientLocation?.value === "international" ||
@@ -174,13 +180,32 @@ export function buildBriefClarificationSuggestions(
     locationLooksInternational &&
     !currentFormData.client.clientCurrency &&
     !detectedForeignCurrency;
+  const hasExplicitPerUnitAmount =
+    Boolean(extraction.rateUnit?.value) ||
+    hasAnyPattern(normalizedText, [/\bper\s+\w+/i, /\beach\s+\w+/i]);
+  const strongTotalFeeSignal = hasAnyPattern(normalizedText, [
+    /\bproject fee\b/i,
+    /\bfixed budget\b/i,
+    /\bfixed fee\b/i,
+    /\btotal (?:amount|fee|project fee)\b/i,
+    /\boverall total\b/i,
+    /\bgrand total\b/i,
+  ]);
+  const genericAmountSignal = hasAnyPattern(normalizedText, [
+    /\bfee\b/i,
+    /\bbudget\b/i,
+    /\bamount\b/i,
+    /\brate\b/i,
+    /\bcharged?\b/i,
+  ]);
   const ambiguousAmount =
     !shouldSuppressSuggestion("amount-ambiguity", resolvedIds) &&
     firstSeed &&
     amountCandidate > 0 &&
     extractedItems.length <= 1 &&
-    (Boolean(extraction.invoiceTotalAmount?.value) ||
-      !extraction.rateUnit?.value);
+    !hasExplicitPerUnitAmount &&
+    !strongTotalFeeSignal &&
+    genericAmountSignal;
 
   if (ambiguousAmount) {
     suggestions.push({
@@ -262,7 +287,7 @@ export function buildBriefClarificationSuggestions(
 
   if (
     !shouldSuppressSuggestion("location-ambiguity", resolvedIds) &&
-    !hasHighConfidenceLocation &&
+    !hasResolvedLocation &&
     (locationLooksInternational || locationLooksDomestic)
   ) {
     suggestions.push({
@@ -298,7 +323,7 @@ export function buildBriefClarificationSuggestions(
   if (
     !shouldSuppressSuggestion("payment-terms-ambiguity", resolvedIds) &&
     paymentScheduleSnippet &&
-    (!extraction.paymentTerms || extraction.paymentTerms.confidence !== "high")
+    (!extraction.paymentTerms || extraction.paymentTerms.confidence === "low")
   ) {
     suggestions.push({
       id: "payment-terms-ambiguity",
@@ -333,7 +358,8 @@ export function buildBriefClarificationSuggestions(
   if (
     !shouldSuppressSuggestion("gst-compliance-ambiguity", resolvedIds) &&
     gstHintsPresent &&
-    !hasHighConfidenceGstStatus
+    !hasHighConfidenceGstStatus &&
+    !Boolean(extraction.agencyGstin?.value)
   ) {
     suggestions.push({
       id: "gst-compliance-ambiguity",
@@ -369,7 +395,9 @@ export function buildBriefClarificationSuggestions(
     (currentFormData.agency.gstRegistrationStatus === "registered" ||
       extraction.agencyGstRegistrationStatus?.value === "registered" ||
       Boolean(extraction.agencyGstin?.value)) &&
-    !hasHighConfidenceLutStatus
+    !hasHighConfidenceLutStatus &&
+    !Boolean(extraction.agencyLutNumber?.value) &&
+    extraction.agencyLutAvailability?.value !== "yes"
   ) {
     suggestions.push({
       id: "lut-ambiguity",
@@ -401,6 +429,7 @@ export function buildBriefClarificationSuggestions(
 
   if (
     !shouldSuppressSuggestion("currency-ambiguity", resolvedIds) &&
+    !currentFormData.client.clientCurrency &&
     (detectedForeignCurrency || unclearCurrency)
   ) {
     const switchLabel = detectedForeignCurrency
