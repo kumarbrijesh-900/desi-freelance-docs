@@ -62,7 +62,7 @@ function formatDate(dateString?: string) {
 
 function formatCurrency(amount: number, currency = "INR") {
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency,
       minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,

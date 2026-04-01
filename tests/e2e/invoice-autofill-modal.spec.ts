@@ -1,72 +1,33 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const pageConsoleIssues = new WeakMap<Page, string[]>();
-
-function isHydrationRelatedWarning(message: string) {
-  const text = message.toLowerCase();
-  return (
-    text.includes("hydration") ||
-    text.includes("did not match") ||
-    text.includes("server rendered html") ||
-    text.includes("text content does not match") ||
-    text.includes("classname") ||
-    text.includes("expected server html")
-  );
-}
-
-function attachConsoleGuards(page: Page) {
-  const issues: string[] = [];
-  pageConsoleIssues.set(page, issues);
-
-  page.on("console", (message) => {
-    const text = message.text();
-    if (message.type() === "error") {
-      issues.push(`console.error: ${text}`);
-      return;
-    }
-
-    if (message.type() === "warning" && isHydrationRelatedWarning(text)) {
-      issues.push(`console.warning: ${text}`);
-    }
-  });
-
-  page.on("pageerror", (error) => {
-    issues.push(`pageerror: ${error.message}`);
-  });
-}
+import { expect, test } from "@playwright/test";
+import {
+  assertConsoleClean,
+  attachConsoleGuards,
+  expectNoHorizontalOverflow,
+  extractBrief,
+  loadDemoData,
+  openInvoicePage,
+  stepToggle,
+  waitForScrollProgress,
+} from "./helpers/invoice-editor";
 
 test.beforeEach(async ({ page }) => {
   attachConsoleGuards(page);
 });
 
 test.afterEach(async ({ page }) => {
-  expect(pageConsoleIssues.get(page) ?? []).toEqual([]);
+  assertConsoleClean(page);
 });
 
-async function openInvoicePage(page: import("@playwright/test").Page) {
-  await page.goto("/invoice/new");
-  await expect(
-    page.getByRole("heading", { name: /Screenshot, text, or audio brief/i })
-  ).toBeVisible();
-}
-
-async function extractBrief(
-  page: import("@playwright/test").Page,
-  brief: string
-) {
+test("invoice editor loads cleanly without hydration warnings or console errors", async ({
+  page,
+}) => {
   await openInvoicePage(page);
-  await page.getByPlaceholder(/Example: Agency name:/i).fill(brief);
-  await page.getByRole("button", { name: /^Extract & Autofill$/i }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator('[data-brief-intake-state="collapsed"]')).toBeVisible();
-}
 
-function stepToggle(
-  page: import("@playwright/test").Page,
-  step: "agency" | "client" | "deliverables" | "payment" | "meta" | "totals"
-) {
-  return page.locator(`[data-step-section="${step}"] > button`);
-}
+  await expect(
+    page.locator('[data-step-section="agency"][data-step-state="active"]')
+  ).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
 
 test("brief intake collapses into a compact 48px-style summary row", async ({
   page,
@@ -168,7 +129,7 @@ test("progressive flow keeps completed sections visible and scrolls to the next 
     agencySection.getByPlaceholder("Building, street, or area")
   ).toBeVisible();
 
-  await page.waitForFunction(() => window.scrollY > 40);
+  await waitForScrollProgress(page, 0, 40);
 });
 
 test("single-line Enter advances to the next structured field", async ({
@@ -186,8 +147,7 @@ test("single-line Enter advances to the next structured field", async ({
 test("textarea fields keep normal Enter behavior and do not auto-advance", async ({
   page,
 }) => {
-  await openInvoicePage(page);
-  await page.getByRole("button", { name: /^Load Demo Data$/i }).click();
+  await loadDemoData(page);
   await stepToggle(page, "payment").click();
 
   const notes = page.getByPlaceholder(
@@ -246,19 +206,13 @@ test("the editor layout stays within the viewport without horizontal scrolling",
   page,
 }) => {
   await openInvoicePage(page);
-
-  const hasHorizontalOverflow = await page.evaluate(() => {
-    return document.documentElement.scrollWidth > window.innerWidth + 1;
-  });
-
-  expect(hasHorizontalOverflow).toBeFalsy();
+  await expectNoHorizontalOverflow(page);
 });
 
 test("final totals step shows only Close, Save Draft, and Preview & Download", async ({
   page,
 }) => {
-  await openInvoicePage(page);
-  await page.getByRole("button", { name: /^Load Demo Data$/i }).click();
+  await loadDemoData(page);
   await stepToggle(page, "totals").click();
 
   const footer = page.getByTestId("editor-footer-actions");
@@ -302,8 +256,7 @@ test("conversational Bangalore agency context still infers Karnataka inline", as
 test("Preview & Download from the editor opens the formal preview flow with the final toolbar actions", async ({
   page,
 }) => {
-  await openInvoicePage(page);
-  await page.getByRole("button", { name: /^Load Demo Data$/i }).click();
+  await loadDemoData(page);
   await stepToggle(page, "totals").click();
 
   await page.getByRole("button", { name: /Preview & Download/i }).click();

@@ -5,6 +5,11 @@ import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
+import {
+  AnimatePresence,
+  appEaseStandard,
+  motion,
+} from "@/components/ui/motion-primitives";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-address";
 import { parseGstin } from "@/lib/gstin-parser";
@@ -139,6 +144,10 @@ export default function AgencyDetailsSection({
       hasValue,
       multiline,
     });
+  const expandableSectionTransition = {
+    duration: 0.18,
+    ease: appEaseStandard,
+  } as const;
 
   const showGstinField = value.gstRegistrationStatus === "registered";
   const showLutSection = showGstinField;
@@ -348,126 +357,142 @@ export default function AgencyDetailsSection({
                 </p>
               </div>
 
-              <div
-                className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
-                  showGstinField
-                    ? "mt-4 grid-rows-[1fr] opacity-100"
-                    : "mt-0 grid-rows-[0fr] opacity-0"
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <div className="border-t border-gray-200 pt-4">
-                    <label className="mb-2 block text-sm font-medium text-black">
-                      GSTIN
-                    </label>
-                    <input
-                      type="text"
-                      aria-label="Agency GSTIN"
-                      value={value.gstin}
-                      onChange={(e) =>
-                        updateField(
-                          "gstin",
-                          e.target.value.toUpperCase().replace(/\s+/g, "")
-                        )
-                      }
-                      placeholder="GSTIN"
-                      autoCapitalize="characters"
-                      spellCheck={false}
-                      className={inputClass(errors?.gstin, Boolean(value.gstin))}
-                    />
-                    {errors?.gstin ? (
-                      <p className="mt-2 text-xs font-medium text-red-600">
-                        {errors.gstin}
-                      </p>
-                    ) : gstinInfo.state ? (
-                      <p className="mt-2 text-xs leading-5 text-gray-500">
-                        GSTIN state code maps to {gstinInfo.state}. PAN will be derived automatically when blank.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
-                  showLutSection
-                    ? "mt-4 grid-rows-[1fr] opacity-100"
-                    : "mt-0 grid-rows-[0fr] opacity-0"
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <div className="border-t border-gray-200 pt-4">
-                    <label className="mb-2 block text-sm font-medium text-black">
-                      Valid LUT for current financial year?
-                    </label>
-                    <ChoiceCards
-                      name="agency-lut-availability"
-                      value={value.lutAvailability}
-                      onChange={(nextValue) =>
-                        updateField("lutAvailability", nextValue)
-                      }
-                      variant="segmented"
-                      columns={2}
-                      options={[
-                        {
-                          value: "yes",
-                          label: "Yes",
-                        },
-                        {
-                          value: "no",
-                          label: "No",
-                        },
-                      ]}
-                    />
-
-                    <div
-                      className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
-                        value.lutAvailability === "yes"
-                          ? "mt-4 grid-rows-[1fr] opacity-100"
-                          : "mt-0 grid-rows-[0fr] opacity-0"
-                      }`}
-                    >
-                      <div className="overflow-hidden">
-                        <div className="border-t border-gray-200 pt-4">
-                          <label className="mb-2 block text-sm font-medium text-black">
-                            LUT Number / ARN
-                          </label>
-                          <input
-                            type="text"
-                            value={value.lutNumber}
-                            onChange={(e) =>
-                              updateField("lutNumber", e.target.value)
-                            }
-                            placeholder="Recommended, not mandatory"
-                            className={inputClass(undefined, Boolean(value.lutNumber))}
-                          />
-                          <p className="mt-2 text-xs leading-5 text-gray-500">
-                            Add the LUT reference if you have it handy.
-                          </p>
-                        </div>
-                      </div>
+              <AnimatePresence initial={false}>
+                {showGstinField ? (
+                  <motion.div
+                    key="agency-gstin-field"
+                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                    animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                    transition={expandableSectionTransition}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-gray-200 pt-4">
+                      <label className="mb-2 block text-sm font-medium text-black">
+                        GSTIN
+                      </label>
+                      <input
+                        type="text"
+                        aria-label="Agency GSTIN"
+                        value={value.gstin}
+                        onChange={(e) =>
+                          updateField(
+                            "gstin",
+                            e.target.value.toUpperCase().replace(/\s+/g, "")
+                          )
+                        }
+                        placeholder="GSTIN"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        className={inputClass(errors?.gstin, Boolean(value.gstin))}
+                      />
+                      {errors?.gstin ? (
+                        <p className="mt-2 text-xs font-medium text-red-600">
+                          {errors.gstin}
+                        </p>
+                      ) : gstinInfo.state ? (
+                        <p className="mt-2 text-xs leading-5 text-gray-500">
+                          GSTIN state code maps to {gstinInfo.state}. PAN will
+                          be derived automatically when blank.
+                        </p>
+                      ) : null}
                     </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
 
-                    <div
-                      className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
-                        showNoLutTotalsNote
-                          ? "mt-4 grid-rows-[1fr] opacity-100"
-                          : "mt-0 grid-rows-[0fr] opacity-0"
-                      }`}
-                    >
-                      <div className="overflow-hidden">
-                        <div className={cn(getAppPanelClass(), "p-4")}>
-                          <p className="text-xs leading-5 text-gray-600">
-                            This LUT setting stays part of agency compliance
-                            and only affects tax handling later when the client
-                            invoice is international.
-                          </p>
-                        </div>
-                      </div>
+              <AnimatePresence initial={false}>
+                {showLutSection ? (
+                  <motion.div
+                    key="agency-lut-section"
+                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                    animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                    transition={expandableSectionTransition}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-gray-200 pt-4">
+                      <label className="mb-2 block text-sm font-medium text-black">
+                        Valid LUT for current financial year?
+                      </label>
+                      <ChoiceCards
+                        name="agency-lut-availability"
+                        value={value.lutAvailability}
+                        onChange={(nextValue) =>
+                          updateField("lutAvailability", nextValue)
+                        }
+                        variant="segmented"
+                        columns={2}
+                        options={[
+                          {
+                            value: "yes",
+                            label: "Yes",
+                          },
+                          {
+                            value: "no",
+                            label: "No",
+                          },
+                        ]}
+                      />
+
+                      <AnimatePresence initial={false}>
+                        {value.lutAvailability === "yes" ? (
+                          <motion.div
+                            key="agency-lut-number"
+                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                            transition={expandableSectionTransition}
+                            className="overflow-hidden"
+                          >
+                            <div className="border-t border-gray-200 pt-4">
+                              <label className="mb-2 block text-sm font-medium text-black">
+                                LUT Number / ARN
+                              </label>
+                              <input
+                                type="text"
+                                value={value.lutNumber}
+                                onChange={(e) =>
+                                  updateField("lutNumber", e.target.value)
+                                }
+                                placeholder="Recommended, not mandatory"
+                                className={inputClass(
+                                  undefined,
+                                  Boolean(value.lutNumber)
+                                )}
+                              />
+                              <p className="mt-2 text-xs leading-5 text-gray-500">
+                                Add the LUT reference if you have it handy.
+                              </p>
+                            </div>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
+
+                      <AnimatePresence initial={false}>
+                        {showNoLutTotalsNote ? (
+                          <motion.div
+                            key="agency-lut-note"
+                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                            transition={expandableSectionTransition}
+                            className="overflow-hidden"
+                          >
+                            <div className={cn(getAppPanelClass(), "p-4")}>
+                              <p className="text-xs leading-5 text-gray-600">
+                                This LUT setting stays part of agency compliance
+                                and only affects tax handling later when the
+                                client invoice is international.
+                              </p>
+                            </div>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </div>
 
             <div>
