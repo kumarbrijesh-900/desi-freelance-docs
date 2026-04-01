@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -13,7 +14,6 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
 import {
-  AnimatePresence,
   MotionReveal,
   motion,
 } from "@/components/ui/motion-primitives";
@@ -49,9 +49,6 @@ import {
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
 import {
-  appFormLayoutClass,
-  appFormMainPaneClass,
-  appFormSidePaneClass,
   appPageContainerClass,
   appPageSectionClass,
   appPageShellClass,
@@ -523,8 +520,6 @@ function InlineStepSection({
   index,
   isActive,
   isCompleted,
-  isPending,
-  isExpanded,
   issueCount,
   onActivate,
   children,
@@ -533,8 +528,6 @@ function InlineStepSection({
   index: number;
   isActive: boolean;
   isCompleted: boolean;
-  isPending: boolean;
-  isExpanded: boolean;
   issueCount: number;
   onActivate: () => void;
   children: ReactNode;
@@ -544,38 +537,33 @@ function InlineStepSection({
     ? "Completed"
     : isActive
     ? "Active"
-    : "Pending";
+    : "Incomplete";
 
   return (
     <motion.section
       layout
       data-step-section={step}
-      data-step-state={isActive ? "active" : isCompleted ? "completed" : "pending"}
-      className="app-soft-step-surface relative scroll-mt-28 overflow-hidden rounded-[16px]"
+      data-step-state={isActive ? "active" : isCompleted ? "completed" : "incomplete"}
+      className={`app-soft-step-surface relative scroll-mt-28 rounded-[16px] ${
+        isActive
+          ? "ring-1 ring-indigo-200/80"
+          : isCompleted
+          ? "ring-1 ring-emerald-100/90"
+          : "ring-1 ring-slate-200/80"
+      }`}
     >
-      {index < orderedSteps.length - 1 ? (
-        <span
-          aria-hidden="true"
-          className="absolute bottom-[-24px] left-[28px] top-[82px] w-px bg-slate-300/65"
-        />
-      ) : null}
-
       <button
         type="button"
         onClick={onActivate}
-        disabled={isPending}
-        aria-expanded={isExpanded}
-        className="flex w-full items-start gap-4 px-6 py-5 text-left transition-colors duration-[var(--app-duration-fast)] disabled:cursor-not-allowed disabled:opacity-75"
+        className="flex w-full items-start gap-4 px-6 py-5 text-left transition-colors duration-[var(--app-duration-fast)]"
       >
         <span
           className={`relative z-10 mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-[var(--app-duration-fast)] ${
             isCompleted
               ? "border-emerald-300 bg-emerald-500 text-white shadow-[0_10px_22px_rgba(16,185,129,0.22)]"
-              : isActive
+            : isActive
               ? "border-indigo-300 bg-white text-indigo-900 shadow-[0_10px_22px_rgba(99,102,241,0.14)]"
-              : isPending
-              ? "border-slate-200 bg-slate-100/90 text-slate-400"
-              : "border-slate-300 bg-white/92 text-slate-700 shadow-[0_8px_18px_rgba(148,163,184,0.12)]"
+              : "border-amber-200 bg-white/92 text-slate-700 shadow-[0_8px_18px_rgba(148,163,184,0.12)]"
           }`}
         >
           {isCompleted ? "✓" : index + 1}
@@ -588,8 +576,8 @@ function InlineStepSection({
                 {stepLabel}
               </p>
               <p className="mt-1.5 text-sm leading-6 text-slate-500">
-                {isPending
-                  ? "Unlocks automatically when the step above is complete."
+                {isActive
+                  ? `Continue here next. ${getStepDescription(step)}`
                   : getStepDescription(step)}
               </p>
             </div>
@@ -599,10 +587,10 @@ function InlineStepSection({
                   ? "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
                 : isActive
                   ? "border-indigo-200 bg-indigo-50/90 text-indigo-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-                  : "border-slate-200 bg-white/82 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
+                  : "border-amber-200 bg-amber-50/80 text-amber-800 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
               }`}
             >
-              {isPending && issueCount > 0
+              {!isCompleted && issueCount > 0
                 ? `${statusLabel} · ${issueCount} required`
                 : statusLabel}
             </span>
@@ -610,20 +598,13 @@ function InlineStepSection({
         </div>
       </button>
 
-      <AnimatePresence initial={false}>
-        {isExpanded ? (
-          <motion.div
-            key={`${step}-content`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-[color:var(--app-soft-border)] px-6 pb-6 pt-5"
-          >
-            {children}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <motion.div
+        layout
+        initial={false}
+        className="border-t border-[color:var(--app-soft-border)] px-6 pb-6 pt-5"
+      >
+        {children}
+      </motion.div>
     </motion.section>
   );
 }
@@ -641,6 +622,7 @@ export default function InvoiceEditorPage() {
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
+  const [scrollRequestNonce, setScrollRequestNonce] = useState(0);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -827,6 +809,8 @@ export default function InvoiceEditorPage() {
   }, [formData.meta.paymentTerms, formData.meta.invoiceDate, formData.meta.dueDate]);
 
   useEffect(() => {
+    if (!scrollRequestNonce) return;
+
     const frameId = window.requestAnimationFrame(() => {
       const activeStepRoot = stepRefs.current[currentStep];
       if (!activeStepRoot) return;
@@ -838,7 +822,7 @@ export default function InvoiceEditorPage() {
     });
 
     return () => window.cancelAnimationFrame(frameId);
-  }, [currentStep]);
+  }, [currentStep, scrollRequestNonce]);
 
   useEffect(() => {
     if (!focusRequestNonce) return;
@@ -1077,12 +1061,7 @@ export default function InvoiceEditorPage() {
     () => getFirstInvalidStep(formData),
     [formData]
   );
-  const highestUnlockedIndex = firstInvalidStep
-    ? orderedSteps.indexOf(firstInvalidStep)
-    : orderedSteps.length - 1;
-
   const currentStepIndex = orderedSteps.indexOf(currentStep);
-  const isLastStep = currentStepIndex === orderedSteps.length - 1;
   const completedStepCount = useMemo(
     () => orderedSteps.filter((step) => stepValidityByStep[step]).length,
     [stepValidityByStep]
@@ -1110,18 +1089,45 @@ export default function InvoiceEditorPage() {
     }
   }, [currentStep]);
 
-  const currentStepValid = stepValidityByStep[currentStep];
   const invoiceReadyForPreview = useMemo(
     () => isInvoiceReadyForPreview(formData),
     [formData]
   );
 
-  const handleActiveStepKeyDownCapture = (
+  const getNextIncompleteStepAfter = useCallback(
+    (step: InvoiceStepperStep) => {
+      const startingIndex = orderedSteps.indexOf(step);
+      if (startingIndex < 0) return null;
+
+      return (
+        orderedSteps
+          .slice(startingIndex + 1)
+          .find((candidate) => !stepValidityByStep[candidate]) ?? null
+      );
+    },
+    [stepValidityByStep]
+  );
+
+  const guideToSection = (
+    step: InvoiceStepperStep,
+    options?: { focus?: boolean; scroll?: boolean }
+  ) => {
+    setCurrentStep(step);
+
+    if (options?.scroll !== false) {
+      setScrollRequestNonce((prev) => prev + 1);
+    }
+
+    if (options?.focus) {
+      setFocusRequestNonce((prev) => prev + 1);
+    }
+  };
+
+  const handleSectionKeyDownCapture = (
     step: InvoiceStepperStep,
     event: ReactKeyboardEvent<HTMLDivElement>
   ) => {
     if (
-      step !== currentStep ||
       event.key !== "Enter" ||
       event.shiftKey ||
       event.altKey ||
@@ -1160,11 +1166,10 @@ export default function InvoiceEditorPage() {
       return;
     }
 
-    if (currentStepValid && !isLastStep) {
-      const nextStep = orderedSteps[currentStepIndex + 1];
+    if (stepValidityByStep[step]) {
+      const nextStep = getNextIncompleteStepAfter(step);
       if (nextStep) {
-        setCurrentStep(nextStep);
-        setFocusRequestNonce((prev) => prev + 1);
+        guideToSection(nextStep, { focus: true });
       }
     }
   };
@@ -1202,11 +1207,8 @@ export default function InvoiceEditorPage() {
     };
   }, [shouldConfirmExit]);
 
-  const goToStep = (step: InvoiceStepperStep) => {
-    const targetIndex = orderedSteps.indexOf(step);
-    if (targetIndex < 0 || targetIndex > highestUnlockedIndex) return;
-    setCurrentStep(step);
-    setFocusRequestNonce((prev) => prev + 1);
+  const goToStep = (step: InvoiceStepperStep, options?: { focus?: boolean }) => {
+    guideToSection(step, { focus: options?.focus, scroll: true });
   };
 
   useEffect(() => {
@@ -1217,18 +1219,6 @@ export default function InvoiceEditorPage() {
 
     let frameId = 0;
 
-    if (
-      firstInvalidStep &&
-      orderedSteps.indexOf(firstInvalidStep) < currentStepIndex
-    ) {
-      previousValidityRef.current = stepValidityByStep;
-      frameId = window.requestAnimationFrame(() => {
-        setCurrentStep(firstInvalidStep);
-        setFocusRequestNonce((prev) => prev + 1);
-      });
-      return () => window.cancelAnimationFrame(frameId);
-    }
-
     const previousValidity = previousValidityRef.current;
     const activeStepBecameValid =
       previousValidity &&
@@ -1238,28 +1228,25 @@ export default function InvoiceEditorPage() {
     previousValidityRef.current = stepValidityByStep;
 
     if (activeStepBecameValid) {
-      const nextStep = orderedSteps[currentStepIndex + 1];
+      const nextStep = getNextIncompleteStepAfter(currentStep);
       if (!nextStep) return;
 
       playInteractionCue("stepComplete");
       frameId = window.requestAnimationFrame(() => {
-        setCurrentStep(firstInvalidStep ?? nextStep);
-        setFocusRequestNonce((prev) => prev + 1);
+        guideToSection(nextStep, { focus: true });
       });
       return () => window.cancelAnimationFrame(frameId);
     }
   }, [
     currentStep,
-    currentStepIndex,
-    firstInvalidStep,
+    getNextIncompleteStepAfter,
     stepValidityByStep,
   ]);
 
   const handlePreviewInvoice = () => {
     if (!invoiceReadyForPreview) {
       if (firstInvalidStep) {
-        setCurrentStep(firstInvalidStep);
-        setFocusRequestNonce((prev) => prev + 1);
+        guideToSection(firstInvalidStep, { focus: true });
         triggerToast("Complete the highlighted section before previewing.");
       }
       return;
@@ -1340,9 +1327,8 @@ export default function InvoiceEditorPage() {
     lastAutoDueDateRef.current = demoSuggestedDueDate;
 
     setFormData(mergeInvoiceFormData(demo));
-    setCurrentStep("totals");
+    guideToSection("totals", { focus: true });
     setIsBriefIntakeCollapsed(true);
-    setFocusRequestNonce((prev) => prev + 1);
 
     triggerToast("Demo data loaded");
   };
@@ -1365,11 +1351,10 @@ export default function InvoiceEditorPage() {
     }
 
     setFormData(mergeInvoiceFormData(freshInvoiceData));
-    setCurrentStep("agency");
+    guideToSection("agency", { focus: true });
     setShowExitModal(false);
     setIsBriefIntakeCollapsed(false);
     setBriefIntakeResetKey((prev) => prev + 1);
-    setFocusRequestNonce((prev) => prev + 1);
     triggerToast("Demo data cleared");
   };
 
@@ -1468,8 +1453,7 @@ export default function InvoiceEditorPage() {
     const recommendedStep = missingStep ?? "totals";
 
     setFormData(mergeInvoiceFormData(nextFormData));
-    setCurrentStep(recommendedStep);
-    setFocusRequestNonce((prev) => prev + 1);
+    guideToSection(recommendedStep, { focus: true });
 
     triggerToast(
       result.filledFields.length > 0
@@ -1665,8 +1649,8 @@ export default function InvoiceEditorPage() {
       />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className={appFormLayoutClass}>
-          <div className={`${appFormMainPaneClass} ${appSectionGapClass}`}>
+        <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,720px)_320px] xl:items-start xl:justify-center xl:gap-8">
+          <div className={`w-full max-w-[720px] ${appSectionGapClass}`}>
             <MotionReveal preset="fade-up" className={getAppPanelClass()}>
               <header className="space-y-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1704,40 +1688,31 @@ export default function InvoiceEditorPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(220px,0.8fr)]">
-                  <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Active Section
-                    </p>
-                    <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
-                      {stepTitle}
-                    </p>
-                    <p className="mt-1.5 text-sm leading-6 text-slate-600">
-                      Complete sections in order. Finished sections stay visible while the next section is guided into view.
+                <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Next Recommended Section
+                      </p>
+                      <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
+                        {stepTitle}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-6 text-slate-600">
+                        All sections stay open. Finish the highlighted section, then the form will guide you to the next incomplete one.
+                      </p>
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-600">
+                      {completedStepCount} of {orderedSteps.length} sections complete
                     </p>
                   </div>
 
-                  <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                          Progress
-                        </p>
-                        <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
-                          {progressPercent}%
-                        </p>
-                      </div>
-                      <p className="text-sm font-medium text-slate-600">
-                        {completedStepCount} of {orderedSteps.length} sections complete
-                      </p>
-                    </div>
-                    <div className="mt-4 h-2 rounded-full bg-slate-200/70">
-                      <motion.div
-                        className="h-full rounded-full bg-indigo-500"
-                        animate={{ width: `${progressPercent}%` }}
-                        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-                      />
-                    </div>
+                  <div className="mt-4 h-2 rounded-full bg-slate-200/70">
+                    <motion.div
+                      className="h-full rounded-full bg-indigo-500"
+                      animate={{ width: `${progressPercent}%` }}
+                      transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                    />
                   </div>
                 </div>
               </header>
@@ -1755,8 +1730,6 @@ export default function InvoiceEditorPage() {
               {orderedSteps.map((step, index) => {
                 const isActive = currentStep === step;
                 const isCompleted = stepValidityByStep[step] && !isActive;
-                const isPending = index > highestUnlockedIndex;
-                const isExpanded = index <= highestUnlockedIndex;
 
                 return (
                   <div
@@ -1764,18 +1737,21 @@ export default function InvoiceEditorPage() {
                     ref={(node) => {
                       stepRefs.current[step] = node;
                     }}
+                    onFocusCapture={() => {
+                      if (currentStep !== step) {
+                        setCurrentStep(step);
+                      }
+                    }}
                   >
                     <InlineStepSection
                       step={step}
                       index={index}
                       isActive={isActive}
                       isCompleted={isCompleted}
-                      isPending={isPending}
-                      isExpanded={isExpanded}
                       issueCount={missingFieldCountByStep[step]}
                       onActivate={() => goToStep(step)}
                     >
-                      <div onKeyDownCapture={(event) => handleActiveStepKeyDownCapture(step, event)}>
+                      <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
                         {renderStepContent(step)}
                       </div>
                     </InlineStepSection>
@@ -1837,7 +1813,7 @@ export default function InvoiceEditorPage() {
             </MotionReveal>
           </div>
 
-          <aside className={appFormSidePaneClass}>
+          <aside className="hidden w-full xl:block">
             <div className="space-y-5 xl:sticky xl:top-24">
               <MotionReveal preset="fade-up" delay={40} className={getAppPanelClass()}>
                 <div className="space-y-5">
@@ -1849,7 +1825,7 @@ export default function InvoiceEditorPage() {
                       Guided progress
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      The next section unlocks as soon as the current one is valid. Follow the highlighted section and use the status rail to review what is done next.
+                      Every section stays available. Use the highlighted row as your next recommended checkpoint, or jump anywhere to review and edit.
                     </p>
                   </div>
 
@@ -1857,22 +1833,19 @@ export default function InvoiceEditorPage() {
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = stepValidityByStep[step] && !isActive;
-                      const isPending = index > highestUnlockedIndex;
+                      const isIncomplete = !stepValidityByStep[step];
 
                       return (
                         <button
                           key={step}
                           type="button"
                           onClick={() => goToStep(step)}
-                          disabled={isPending}
                           className={`app-interactive-surface flex w-full items-center justify-between gap-3 rounded-[14px] border px-4 py-3.5 text-left transition duration-[var(--app-duration-fast)] ${
                             isActive
                               ? "app-soft-choice-option-active"
                               : isCompleted
                               ? "border-emerald-200 bg-emerald-50/80 shadow-[0_6px_16px_rgba(16,185,129,0.1)]"
-                              : isPending
-                              ? "border-slate-200 bg-slate-100/75 text-slate-400"
-                              : "app-soft-choice-option text-slate-700 hover:border-slate-300"
+                              : "border-amber-200 bg-white/88 text-slate-700 hover:border-amber-300"
                           }`}
                         >
                           <div className="flex items-center gap-3">
@@ -1896,16 +1869,16 @@ export default function InvoiceEditorPage() {
                                   ? "Completed"
                                   : isActive
                                   ? "Active now"
-                                  : isPending
-                                  ? "Pending"
-                                  : "Ready"}
+                                  : "Incomplete"}
                               </p>
                             </div>
                           </div>
                           <span className="text-xs text-slate-500">
-                            {missingFieldCountByStep[step] > 0
+                            {isIncomplete && missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} left`
-                              : "Ready"}
+                              : isCompleted
+                              ? "Ready"
+                              : "Review"}
                           </span>
                         </button>
                       );

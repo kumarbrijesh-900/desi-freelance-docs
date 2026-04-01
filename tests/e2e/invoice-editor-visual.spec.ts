@@ -86,6 +86,9 @@ test("post-autofill editor state stays stable and visually guided", async ({
   page,
 }) => {
   await extractBrief(page, seededBrief);
+  await expect(page.getByText(/Autofilled \d+ fields?/i)).toHaveCount(0, {
+    timeout: 4000,
+  });
   await expectNoHorizontalOverflow(page);
   await expect(
     page.locator('[data-step-section="client"][data-step-state="active"]')
