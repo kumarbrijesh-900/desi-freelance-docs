@@ -83,13 +83,13 @@ export default function TotalsTaxesSection({
   const effectiveRate = isNoTax ? 0 : value.taxRate ?? 0;
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const panelClass =
-    "flex h-full flex-col justify-between rounded-2xl border border-gray-200 p-4";
+    "app-soft-panel flex h-full flex-col justify-between rounded-[var(--app-radius-card)] border p-5";
   const complianceMessageClass =
     complianceVariant === "warning"
-      ? "mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
+      ? "mt-3 rounded-[var(--app-radius-card)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
       : complianceVariant === "info"
-      ? "mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
-      : "mt-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-600";
+      ? "mt-3 rounded-[var(--app-radius-card)] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
+      : "mt-3 rounded-[var(--app-radius-card)] border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm leading-6 text-slate-600";
   const taxAmountHelperText =
     computed.taxType === "CGST_SGST"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
@@ -130,7 +130,7 @@ export default function TotalsTaxesSection({
           </div>
         ) : null}
         {onExportTaxDecisionChange ? (
-          <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+          <div className="mt-3 rounded-[var(--app-radius-card)] border border-amber-200 bg-amber-50/80 p-4">
             <p className="text-sm font-medium leading-6 text-amber-950">
               No valid LUT has been provided for this international invoice.
               Export of services may require 18% IGST. Choose how you want to
@@ -171,7 +171,7 @@ export default function TotalsTaxesSection({
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1.05fr)_minmax(210px,0.9fr)_minmax(210px,0.9fr)_minmax(0,0.95fr)_minmax(0,1.15fr)] xl:items-stretch">
-        <div className={`${panelClass} bg-gray-50`}>
+        <div className={cn(panelClass, "bg-slate-50/80")}>
           <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               Subtotal
@@ -186,7 +186,7 @@ export default function TotalsTaxesSection({
           </p>
         </div>
 
-        <div className={`${panelClass} bg-white`}>
+        <div className={cn(panelClass, "bg-white/96")}>
           <div className="space-y-3">
             <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               {modeLabel}
@@ -225,7 +225,7 @@ export default function TotalsTaxesSection({
           </p>
         </div>
 
-        <div className={`${panelClass} bg-white`}>
+        <div className={cn(panelClass, "bg-white/96")}>
           <div className="space-y-3">
             <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               {rateLabel}
@@ -264,7 +264,7 @@ export default function TotalsTaxesSection({
           </p>
         </div>
 
-        <div className={`${panelClass} bg-gray-50`}>
+        <div className={cn(panelClass, "bg-slate-50/80")}>
           <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
               Tax Amount

@@ -204,7 +204,7 @@ export default function BriefIntakeCard({
         data-brief-intake-state="expanded"
       >
         <div className={appGridClass}>
-          <div className="col-span-4 flex flex-col gap-3 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
+          <div className="col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                 <DocumentSparkIcon className="h-4 w-4" />
@@ -278,7 +278,7 @@ export default function BriefIntakeCard({
           </div>
 
           <div className="col-span-4 sm:col-span-8 lg:col-span-12">
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
               {intakeSummaryBits.length > 0 ? (
                 intakeSummaryBits.map((item) => (
                   <span
@@ -306,7 +306,7 @@ export default function BriefIntakeCard({
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="contents"
             >
-                <MotionReveal preset="soft" className={`${appPrimaryPaneClass} mt-2`}>
+                <MotionReveal preset="soft" className={`${appPrimaryPaneClass} mt-4`}>
                   <div>
                     <label className="mb-2.5 block text-sm font-medium tracking-tight text-slate-900">
                       Paste or type a brief
@@ -327,7 +327,7 @@ export default function BriefIntakeCard({
                   </div>
                 </MotionReveal>
 
-                <MotionReveal preset="soft" delay={60} className={`${appSecondaryPaneClass} mt-2`}>
+                <MotionReveal preset="soft" delay={60} className={`${appSecondaryPaneClass} mt-4`}>
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <label className="block text-sm font-medium tracking-tight text-slate-900">

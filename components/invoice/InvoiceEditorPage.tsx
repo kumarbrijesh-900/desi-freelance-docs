@@ -46,15 +46,15 @@ import {
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import {
   getInvoiceFieldErrors,
-  getInvoiceStepError,
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
 import {
-  appGridClass,
+  appFormLayoutClass,
+  appFormMainPaneClass,
+  appFormSidePaneClass,
   appPageContainerClass,
   appPageSectionClass,
   appPageShellClass,
-  appReadableContentClass,
   appSectionGapClass,
 } from "@/lib/layout-foundation";
 import {
@@ -502,12 +502,29 @@ function getStepDescription(step: InvoiceStepperStep) {
   }
 }
 
+function formatSummaryCurrency(
+  amount: number,
+  currency: ReturnType<typeof getInvoiceDisplayCurrency> = "INR"
+) {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `₹${amount.toLocaleString("en-IN")}`;
+  }
+}
+
 function InlineStepSection({
   step,
   index,
   isActive,
   isCompleted,
-  isLocked,
+  isPending,
+  isExpanded,
   issueCount,
   onActivate,
   children,
@@ -516,52 +533,47 @@ function InlineStepSection({
   index: number;
   isActive: boolean;
   isCompleted: boolean;
-  isLocked: boolean;
+  isPending: boolean;
+  isExpanded: boolean;
   issueCount: number;
   onActivate: () => void;
   children: ReactNode;
 }) {
   const stepLabel = getStepShortLabel(step);
   const statusLabel = isCompleted
-    ? "Complete"
+    ? "Completed"
     : isActive
-    ? issueCount > 0
-      ? `${issueCount} field${issueCount === 1 ? "" : "s"} still needed`
-      : "Ready to continue"
-    : isLocked
-    ? "Locked until the step above is complete"
-    : "Available";
+    ? "Active"
+    : "Pending";
 
   return (
     <motion.section
       layout
       data-step-section={step}
-      data-step-state={
-        isActive ? "active" : isCompleted ? "completed" : isLocked ? "locked" : "available"
-      }
-      className="app-soft-step-surface relative rounded-[16px]"
+      data-step-state={isActive ? "active" : isCompleted ? "completed" : "pending"}
+      className="app-soft-step-surface relative scroll-mt-28 overflow-hidden rounded-[16px]"
     >
       {index < orderedSteps.length - 1 ? (
         <span
           aria-hidden="true"
-          className="absolute bottom-[-20px] left-[26px] top-[76px] w-px bg-slate-300/70"
+          className="absolute bottom-[-24px] left-[28px] top-[82px] w-px bg-slate-300/65"
         />
       ) : null}
 
       <button
         type="button"
         onClick={onActivate}
-        disabled={isLocked}
-        aria-expanded={isActive}
-        className="flex w-full items-start gap-4 px-5 py-5 text-left transition-colors duration-[var(--app-duration-fast)] disabled:cursor-not-allowed disabled:opacity-70"
+        disabled={isPending}
+        aria-expanded={isExpanded}
+        className="flex w-full items-start gap-4 px-6 py-5 text-left transition-colors duration-[var(--app-duration-fast)] disabled:cursor-not-allowed disabled:opacity-75"
       >
         <span
-          className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-[var(--app-duration-fast)] ${
+          className={`relative z-10 mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-[var(--app-duration-fast)] ${
             isCompleted
               ? "border-emerald-300 bg-emerald-500 text-white shadow-[0_10px_22px_rgba(16,185,129,0.22)]"
               : isActive
-              ? "border-indigo-300 bg-white text-indigo-900 shadow-[var(--app-soft-shadow-raised)]"
-              : isLocked
+              ? "border-indigo-300 bg-white text-indigo-900 shadow-[0_10px_22px_rgba(99,102,241,0.14)]"
+              : isPending
               ? "border-slate-200 bg-slate-100/90 text-slate-400"
               : "border-slate-300 bg-white/92 text-slate-700 shadow-[0_8px_18px_rgba(148,163,184,0.12)]"
           }`}
@@ -575,36 +587,38 @@ function InlineStepSection({
               <p className="text-base font-semibold tracking-tight text-slate-950">
                 {stepLabel}
               </p>
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                {getStepDescription(step)}
+              <p className="mt-1.5 text-sm leading-6 text-slate-500">
+                {isPending
+                  ? "Unlocks automatically when the step above is complete."
+                  : getStepDescription(step)}
               </p>
             </div>
             <span
               className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                 isCompleted
                   ? "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-                  : isActive
+                : isActive
                   ? "border-indigo-200 bg-indigo-50/90 text-indigo-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-                  : isLocked
-                  ? "border-slate-200 bg-white/68 text-slate-500 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
                   : "border-slate-200 bg-white/82 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
               }`}
             >
-              {statusLabel}
+              {isPending && issueCount > 0
+                ? `${statusLabel} · ${issueCount} required`
+                : statusLabel}
             </span>
           </div>
         </div>
       </button>
 
       <AnimatePresence initial={false}>
-        {isActive ? (
+        {isExpanded ? (
           <motion.div
             key={`${step}-content`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-[color:var(--app-soft-border)] px-5 pb-5 pt-4"
+            className="border-t border-[color:var(--app-soft-border)] px-6 pb-6 pt-5"
           >
             {children}
           </motion.div>
@@ -631,6 +645,9 @@ export default function InvoiceEditorPage() {
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
   const lastAutoDueDateRef = useRef("");
+  const previousValidityRef = useRef<Record<InvoiceStepperStep, boolean> | null>(
+    null
+  );
   const stepRefs = useRef<Record<InvoiceStepperStep, HTMLDivElement | null>>({
     agency: null,
     client: null,
@@ -1023,6 +1040,21 @@ export default function InvoiceEditorPage() {
     () => getMissingFieldLabels(formData),
     [formData]
   );
+  const stepValidityByStep = useMemo(
+    () =>
+      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>((result, step) => {
+        result[step] = isInvoiceStepValid(formData, step);
+        return result;
+      }, {
+        agency: false,
+        client: false,
+        deliverables: false,
+        payment: false,
+        meta: false,
+        totals: false,
+      }),
+    [formData]
+  );
   const missingFieldCountByStep = useMemo(
     () =>
       missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
@@ -1050,8 +1082,14 @@ export default function InvoiceEditorPage() {
     : orderedSteps.length - 1;
 
   const currentStepIndex = orderedSteps.indexOf(currentStep);
-  const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === orderedSteps.length - 1;
+  const completedStepCount = useMemo(
+    () => orderedSteps.filter((step) => stepValidityByStep[step]).length,
+    [stepValidityByStep]
+  );
+  const progressPercent = Math.round(
+    (completedStepCount / orderedSteps.length) * 100
+  );
 
   const stepTitle = useMemo(() => {
     switch (currentStep) {
@@ -1072,8 +1110,7 @@ export default function InvoiceEditorPage() {
     }
   }, [currentStep]);
 
-  const currentStepValid = isInvoiceStepValid(formData, currentStep);
-  const currentStepError = getInvoiceStepError(formData, currentStep);
+  const currentStepValid = stepValidityByStep[currentStep];
   const invoiceReadyForPreview = useMemo(
     () => isInvoiceReadyForPreview(formData),
     [formData]
@@ -1124,7 +1161,11 @@ export default function InvoiceEditorPage() {
     }
 
     if (currentStepValid && !isLastStep) {
-      goNext();
+      const nextStep = orderedSteps[currentStepIndex + 1];
+      if (nextStep) {
+        setCurrentStep(nextStep);
+        setFocusRequestNonce((prev) => prev + 1);
+      }
     }
   };
 
@@ -1161,19 +1202,6 @@ export default function InvoiceEditorPage() {
     };
   }, [shouldConfirmExit]);
 
-  const goNext = () => {
-    if (!currentStepValid || isLastStep) return;
-    setCurrentStep(orderedSteps[currentStepIndex + 1]);
-    setFocusRequestNonce((prev) => prev + 1);
-  };
-
-  const goBack = () => {
-    if (!isFirstStep) {
-      setCurrentStep(orderedSteps[currentStepIndex - 1]);
-      setFocusRequestNonce((prev) => prev + 1);
-    }
-  };
-
   const goToStep = (step: InvoiceStepperStep) => {
     const targetIndex = orderedSteps.indexOf(step);
     if (targetIndex < 0 || targetIndex > highestUnlockedIndex) return;
@@ -1181,8 +1209,61 @@ export default function InvoiceEditorPage() {
     setFocusRequestNonce((prev) => prev + 1);
   };
 
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      previousValidityRef.current = stepValidityByStep;
+      return;
+    }
+
+    let frameId = 0;
+
+    if (
+      firstInvalidStep &&
+      orderedSteps.indexOf(firstInvalidStep) < currentStepIndex
+    ) {
+      previousValidityRef.current = stepValidityByStep;
+      frameId = window.requestAnimationFrame(() => {
+        setCurrentStep(firstInvalidStep);
+        setFocusRequestNonce((prev) => prev + 1);
+      });
+      return () => window.cancelAnimationFrame(frameId);
+    }
+
+    const previousValidity = previousValidityRef.current;
+    const activeStepBecameValid =
+      previousValidity &&
+      previousValidity[currentStep] === false &&
+      stepValidityByStep[currentStep] === true;
+
+    previousValidityRef.current = stepValidityByStep;
+
+    if (activeStepBecameValid) {
+      const nextStep = orderedSteps[currentStepIndex + 1];
+      if (!nextStep) return;
+
+      playInteractionCue("stepComplete");
+      frameId = window.requestAnimationFrame(() => {
+        setCurrentStep(firstInvalidStep ?? nextStep);
+        setFocusRequestNonce((prev) => prev + 1);
+      });
+      return () => window.cancelAnimationFrame(frameId);
+    }
+  }, [
+    currentStep,
+    currentStepIndex,
+    firstInvalidStep,
+    stepValidityByStep,
+  ]);
+
   const handlePreviewInvoice = () => {
-    if (!invoiceReadyForPreview) return;
+    if (!invoiceReadyForPreview) {
+      if (firstInvalidStep) {
+        setCurrentStep(firstInvalidStep);
+        setFocusRequestNonce((prev) => prev + 1);
+        triggerToast("Complete the highlighted section before previewing.");
+      }
+      return;
+    }
 
     try {
       const previewFormData = {
@@ -1259,7 +1340,7 @@ export default function InvoiceEditorPage() {
     lastAutoDueDateRef.current = demoSuggestedDueDate;
 
     setFormData(mergeInvoiceFormData(demo));
-    setCurrentStep("agency");
+    setCurrentStep("totals");
     setIsBriefIntakeCollapsed(true);
     setFocusRequestNonce((prev) => prev + 1);
 
@@ -1584,179 +1665,350 @@ export default function InvoiceEditorPage() {
       />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className={appGridClass}>
-        <MotionReveal
-          preset="fade-up"
-          className={`${appReadableContentClass} app-soft-shell ${appSectionGapClass} overflow-visible rounded-[18px] border p-5 sm:p-6`}
-        >
-          <header className="mb-6 border-b border-[color:var(--app-soft-border)] pb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                  New Invoice
-                </p>
-                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                  Create Invoice
-                </h1>
-                <p className="mt-1 text-sm text-slate-600">
-                  One guided flow from intake to preview. Autofill now lands directly inside the form.
-                </p>
-              </div>
+        <div className={appFormLayoutClass}>
+          <div className={`${appFormMainPaneClass} ${appSectionGapClass}`}>
+            <MotionReveal preset="fade-up" className={getAppPanelClass()}>
+              <header className="space-y-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                      New Invoice
+                    </p>
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+                      Create Invoice
+                    </h1>
+                    <p className="max-w-2xl text-sm leading-6 text-slate-600">
+                      One continuous flow from intake to preview. Autofill lands directly inside the form, keeps completed sections visible, and moves you to the next missing step automatically.
+                    </p>
+                  </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleLoadDemoData}
-                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                >
-                  Load Demo Data
-                </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleLoadDemoData}
+                      className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                    >
+                      Load Demo Data
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={handleClearDemoData}
-                  className={getAppButtonClass({
-                    variant: "destructive-lite",
-                    size: "sm",
-                  })}
-                >
-                  Clear Demo Data
-                </button>
-              </div>
-            </div>
-
-            <div className="app-soft-choice-track mt-4 flex items-center justify-between gap-3 rounded-[14px] px-4 py-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Active Step
-                </p>
-                <p className="mt-1 text-sm font-semibold tracking-tight text-slate-950">
-                  {stepTitle}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Progress
-                </p>
-                <p className="mt-1 text-sm font-semibold tracking-tight text-slate-950">
-                  {currentStepIndex + 1} / {orderedSteps.length}
-                </p>
-              </div>
-            </div>
-          </header>
-
-          <BriefIntakeCard
-            key={briefIntakeResetKey}
-            onExtract={handleBriefAutofill}
-            onPlaceholderAction={triggerToast}
-            isCollapsed={isBriefIntakeCollapsed}
-            onCollapsedChange={setIsBriefIntakeCollapsed}
-          />
-
-          <div className="space-y-4 overflow-visible" data-testid="invoice-vertical-stepper">
-            {orderedSteps.map((step, index) => {
-              const isActive = currentStep === step;
-              const isCompleted = !isActive && index < highestUnlockedIndex;
-              const isLocked = !isActive && index > highestUnlockedIndex;
-
-              return (
-                <div
-                  key={step}
-                  ref={(node) => {
-                    stepRefs.current[step] = node;
-                  }}
-                >
-                  <InlineStepSection
-                    step={step}
-                    index={index}
-                    isActive={isActive}
-                    isCompleted={isCompleted}
-                    isLocked={isLocked}
-                    issueCount={missingFieldCountByStep[step]}
-                    onActivate={() => goToStep(step)}
-                  >
-                    <div onKeyDownCapture={(event) => handleActiveStepKeyDownCapture(step, event)}>
-                      {renderStepContent(step)}
-                    </div>
-                  </InlineStepSection>
+                    <button
+                      type="button"
+                      onClick={handleClearDemoData}
+                      className={getAppButtonClass({
+                        variant: "destructive-lite",
+                        size: "sm",
+                      })}
+                    >
+                      Clear Demo Data
+                    </button>
+                  </div>
                 </div>
-              );
-            })}
+
+                <div className="grid gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(220px,0.8fr)]">
+                  <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Active Section
+                    </p>
+                    <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
+                      {stepTitle}
+                    </p>
+                    <p className="mt-1.5 text-sm leading-6 text-slate-600">
+                      Complete sections in order. Finished sections stay visible while the next section is guided into view.
+                    </p>
+                  </div>
+
+                  <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          Progress
+                        </p>
+                        <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
+                          {progressPercent}%
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        {completedStepCount} of {orderedSteps.length} sections complete
+                      </p>
+                    </div>
+                    <div className="mt-4 h-2 rounded-full bg-slate-200/70">
+                      <motion.div
+                        className="h-full rounded-full bg-indigo-500"
+                        animate={{ width: `${progressPercent}%` }}
+                        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </header>
+            </MotionReveal>
+
+            <BriefIntakeCard
+              key={briefIntakeResetKey}
+              onExtract={handleBriefAutofill}
+              onPlaceholderAction={triggerToast}
+              isCollapsed={isBriefIntakeCollapsed}
+              onCollapsedChange={setIsBriefIntakeCollapsed}
+            />
+
+            <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
+              {orderedSteps.map((step, index) => {
+                const isActive = currentStep === step;
+                const isCompleted = stepValidityByStep[step] && !isActive;
+                const isPending = index > highestUnlockedIndex;
+                const isExpanded = index <= highestUnlockedIndex;
+
+                return (
+                  <div
+                    key={step}
+                    ref={(node) => {
+                      stepRefs.current[step] = node;
+                    }}
+                  >
+                    <InlineStepSection
+                      step={step}
+                      index={index}
+                      isActive={isActive}
+                      isCompleted={isCompleted}
+                      isPending={isPending}
+                      isExpanded={isExpanded}
+                      issueCount={missingFieldCountByStep[step]}
+                      onActivate={() => goToStep(step)}
+                    >
+                      <div onKeyDownCapture={(event) => handleActiveStepKeyDownCapture(step, event)}>
+                        {renderStepContent(step)}
+                      </div>
+                    </InlineStepSection>
+                  </div>
+                );
+              })}
+            </div>
+
+            <MotionReveal preset="fade-up" delay={60} className={getAppPanelClass("muted")}>
+              <footer
+                className="flex flex-wrap items-center justify-between gap-4"
+                data-testid="editor-footer-actions"
+              >
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-slate-950">
+                    Finalize when everything looks right
+                  </p>
+                  <p className="text-xs leading-5 text-slate-500">
+                    Preview remains gated until every required section is valid.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleBackToHome}
+                    className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <ChevronLeftIcon className="h-4 w-4" />
+                      Close
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <SaveIcon className="h-4 w-4" />
+                      Save Draft
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handlePreviewInvoice}
+                    disabled={!invoiceReadyForPreview}
+                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <DownloadIcon className="h-4 w-4" />
+                      Preview & Download
+                    </span>
+                  </button>
+                </div>
+              </footer>
+            </MotionReveal>
           </div>
 
-          {!currentStepValid && (
-            <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50/92 px-4 py-3 text-sm text-red-700 shadow-[0_1px_0_rgba(255,255,255,0.72)]">
-              {currentStepError}
+          <aside className={appFormSidePaneClass}>
+            <div className="space-y-5 xl:sticky xl:top-24">
+              <MotionReveal preset="fade-up" delay={40} className={getAppPanelClass()}>
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+                      Section Status
+                    </p>
+                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                      Guided progress
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      The next section unlocks as soon as the current one is valid. Follow the highlighted section and use the status rail to review what is done next.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {orderedSteps.map((step, index) => {
+                      const isActive = currentStep === step;
+                      const isCompleted = stepValidityByStep[step] && !isActive;
+                      const isPending = index > highestUnlockedIndex;
+
+                      return (
+                        <button
+                          key={step}
+                          type="button"
+                          onClick={() => goToStep(step)}
+                          disabled={isPending}
+                          className={`app-interactive-surface flex w-full items-center justify-between gap-3 rounded-[14px] border px-4 py-3.5 text-left transition duration-[var(--app-duration-fast)] ${
+                            isActive
+                              ? "app-soft-choice-option-active"
+                              : isCompleted
+                              ? "border-emerald-200 bg-emerald-50/80 shadow-[0_6px_16px_rgba(16,185,129,0.1)]"
+                              : isPending
+                              ? "border-slate-200 bg-slate-100/75 text-slate-400"
+                              : "app-soft-choice-option text-slate-700 hover:border-slate-300"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                                isActive
+                                  ? "bg-indigo-500 text-white"
+                                  : isCompleted
+                                  ? "bg-emerald-500 text-white"
+                                  : "bg-slate-200 text-slate-600"
+                              }`}
+                            >
+                              {isCompleted ? "✓" : index + 1}
+                            </span>
+                            <div>
+                              <p className="text-sm font-medium text-slate-950">
+                                {getStepShortLabel(step)}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {isCompleted
+                                  ? "Completed"
+                                  : isActive
+                                  ? "Active now"
+                                  : isPending
+                                  ? "Pending"
+                                  : "Ready"}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-xs text-slate-500">
+                            {missingFieldCountByStep[step] > 0
+                              ? `${missingFieldCountByStep[step]} left`
+                              : "Ready"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </MotionReveal>
+
+              <MotionReveal preset="fade-up" delay={80} className={getAppPanelClass("muted")}>
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+                      Live Snapshot
+                    </p>
+                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                      Invoice summary
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                        Invoice No.
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-950">
+                        {formData.meta.invoiceNumber || "Pending"}
+                      </p>
+                    </div>
+                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                        Currency
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-950">
+                        {displayCurrency}
+                      </p>
+                    </div>
+                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                        Client
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-950">
+                        {formData.client.clientName || "Not added yet"}
+                      </p>
+                    </div>
+                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                        Grand Total
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-950">
+                        {formatSummaryCurrency(computedTotals.grandTotal, displayCurrency)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="app-soft-panel-muted rounded-[14px] px-4 py-4">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                      Preview readiness
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-950">
+                      {invoiceReadyForPreview
+                        ? "Ready for preview and download"
+                        : firstInvalidStep
+                        ? `${getStepShortLabel(firstInvalidStep)} needs attention`
+                        : "Keep completing the form"}
+                    </p>
+                    {missingFieldGroups.length > 0 ? (
+                      <ul className="mt-3 space-y-2 text-xs leading-5 text-slate-600">
+                        {missingFieldGroups.slice(0, 4).map((group) => (
+                          <li key={group.step}>
+                            <span className="font-medium text-slate-950">
+                              {getStepShortLabel(group.step)}:
+                            </span>{" "}
+                            {group.fields.join(", ")}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-xs leading-5 text-slate-600">
+                        All required sections are valid. You can save a draft or move straight into preview.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </MotionReveal>
+
+              {totalsComplianceMessage ? (
+                <MotionReveal
+                  preset="fade-up"
+                  delay={110}
+                  className={getAppPanelClass(
+                    totalsComplianceVariant === "warning" ? "warning" : "muted"
+                  )}
+                >
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+                    Compliance note
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-slate-700">
+                    {totalsComplianceMessage}
+                  </p>
+                </MotionReveal>
+              ) : null}
             </div>
-          )}
-
-          <footer
-            className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--app-soft-border)] pt-4"
-            data-testid="editor-footer-actions"
-          >
-            {!isLastStep ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={isFirstStep}
-                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-                >
-                  Back
-                </button>
-
-                <button
-                  type="button"
-                  onClick={goNext}
-                  disabled={!currentStepValid}
-                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                >
-                  Continue
-                </button>
-              </div>
-            ) : (
-              <div />
-            )}
-
-            {isLastStep && (
-              <div className="flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={handleBackToHome}
-                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <ChevronLeftIcon className="h-4 w-4" />
-                    Close
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSaveDraft}
-                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <SaveIcon className="h-4 w-4" />
-                    Save Draft
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePreviewInvoice}
-                  disabled={!currentStepValid}
-                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <DownloadIcon className="h-4 w-4" />
-                    Preview & Download
-                  </span>
-                </button>
-              </div>
-            )}
-          </footer>
-        </MotionReveal>
+          </aside>
         </div>
       </section>
 

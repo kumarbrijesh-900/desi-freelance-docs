@@ -9,7 +9,12 @@ import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-address";
 import { parseGstin } from "@/lib/gstin-parser";
 import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
-import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  cn,
+  getAppButtonClass,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
 
 interface AgencyDetailsSectionProps {
   value: AgencyDetails;
@@ -176,8 +181,8 @@ export default function AgencyDetailsSection({
           </h2>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-black">
                 Business / Trade Name *
@@ -309,7 +314,7 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <div className={cn(getAppPanelClass("muted"), "p-5")}>
               <p className="text-sm font-medium text-black">
                 Agency Compliance
               </p>
@@ -451,7 +456,7 @@ export default function AgencyDetailsSection({
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3">
+                        <div className={cn(getAppPanelClass(), "p-4")}>
                           <p className="text-xs leading-5 text-gray-600">
                             This LUT setting stays part of agency compliance
                             and only affects tax handling later when the client
@@ -495,7 +500,7 @@ export default function AgencyDetailsSection({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className={cn(getAppPanelClass("muted"), "p-5")}>
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-black">Agency Logo</p>
 
@@ -503,7 +508,13 @@ export default function AgencyDetailsSection({
                 <button
                   type="button"
                   onClick={removeLogo}
-                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-400 hover:bg-red-50"
+                  className={cn(
+                    getAppButtonClass({
+                      variant: "destructive-lite",
+                      size: "sm",
+                    }),
+                    "h-8 px-3 text-xs"
+                  )}
                 >
                   Remove
                 </button>
@@ -517,10 +528,10 @@ export default function AgencyDetailsSection({
               }}
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
-              className={`flex min-h-[180px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed bg-white p-4 text-center text-sm transition ${
+              className={`app-dropzone-surface flex min-h-[180px] cursor-pointer items-center justify-center rounded-[var(--app-radius-card)] border-2 border-dashed p-4 text-center text-sm ${
                 isDragOver
-                  ? "border-black text-black"
-                  : "border-gray-300 text-gray-500 hover:border-black"
+                  ? "app-dropzone-accept text-slate-950"
+                  : "text-slate-500 hover:border-slate-400"
               }`}
             >
               <input

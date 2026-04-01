@@ -12,6 +12,7 @@ import ScopeTemplate from "@/components/documents/ScopeTemplate";
 import WatermarkedNotice from "@/components/documents/WatermarkedNotice";
 import { getLicensingSummary } from "@/lib/licensing-summary";
 import { extractDocumentData } from "@/lib/extract-document-data";
+import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 import type {
   ProjectPreset,
   LicensingData,
@@ -107,12 +108,15 @@ export default function CreateDocumentWizard() {
         onChange={setRawBrief}
       />
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className={getAppPanelClass()}>
         <button
           type="button"
           onClick={handleMagicFill}
           disabled={!rawBrief.trim() || isExtracting}
-          className="rounded-xl bg-black px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+          className={getAppButtonClass({
+            variant: "primary",
+            size: "lg",
+          })}
         >
           {isExtracting ? "Filling..." : "Magic Fill"}
         </button>
@@ -161,7 +165,7 @@ export default function CreateDocumentWizard() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className={getAppPanelClass("muted")}>
         <h2 className="text-2xl font-semibold text-black">
           Create Document Wizard
         </h2>

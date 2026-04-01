@@ -10,7 +10,13 @@ import {
   getCurrencySymbol,
   type InvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
-import { cn, getAppPanelClass } from "@/lib/ui-foundation";
+import AppSelectField from "@/components/ui/AppSelectField";
+import {
+  cn,
+  getAppButtonClass,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
 
 interface DeliverablesSectionProps {
   value: InvoiceLineItem[];
@@ -205,23 +211,16 @@ const helperCopyByType: Record<InvoiceLineItemType, string> = {
   Other: "Describe the exact freelance deliverable in your own words.",
 };
 
-function ChevronDownIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      fill="none"
-      className="h-4 w-4 text-gray-600"
-    >
-      <path
-        d="M5 7.5L10 12.5L15 7.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+let lineItemIdCounter = 0;
+
+function createLineItemId(existingItems: InvoiceLineItem[]) {
+  const existingCounters = existingItems
+    .map((item) => item.id.match(/^line-(\d+)$/)?.[1])
+    .filter((value): value is string => Boolean(value))
+    .map((value) => Number(value));
+
+  lineItemIdCounter = Math.max(lineItemIdCounter, ...existingCounters, 0) + 1;
+  return `line-${lineItemIdCounter}`;
 }
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
@@ -382,7 +381,7 @@ export default function DeliverablesSection({
 
   const addLineItem = () => {
     const newItem: InvoiceLineItem = {
-      id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      id: createLineItemId(value),
       type: "UI/UX",
       description: "",
       qty: 1,
@@ -434,14 +433,19 @@ export default function DeliverablesSection({
         })()
       : [];
 
-  const inputClass = (hasError?: string) =>
-    `w-full rounded-xl border bg-white p-2 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
-  const rateInputClass = (hasError?: string) =>
-    `w-full rounded-xl border bg-white py-2 pl-9 pr-2 text-sm text-black outline-none focus:border-black ${
-      hasError ? "border-red-400 bg-red-50/30" : "border-gray-300"
-    }`;
+  const inputClass = (hasError?: string, hasValue?: boolean) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+    });
+  const rateInputClass = (hasError?: string, hasValue?: boolean) =>
+    cn(
+      getAppFieldClass({
+        hasError,
+        hasValue,
+      }),
+      "pl-9"
+    );
   const currencySymbol = getCurrencySymbol(currency);
 
   const numberInputProps = {
@@ -515,28 +519,22 @@ export default function DeliverablesSection({
               return (
                 <tr key={item.id} className="border-b border-gray-100 align-top">
                   <td className="py-3 pr-3">
-                    <div className="relative">
-                      <select
-                        value={item.type}
-                        onChange={(e) =>
-                          handleTypeChange(
-                            item.id,
-                            e.target.value as InvoiceLineItemType
-                          )
-                        }
-                        className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-black outline-none focus:border-black"
-                      >
-                        {typeOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-
-                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                        <ChevronDownIcon />
-                      </span>
-                    </div>
+                    <AppSelectField
+                      value={item.type}
+                      onChange={(e) =>
+                        handleTypeChange(
+                          item.id,
+                          e.target.value as InvoiceLineItemType
+                        )
+                      }
+                      hasValue
+                    >
+                      {typeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </AppSelectField>
                   </td>
 
                   <td className="py-3 px-3">
@@ -553,7 +551,10 @@ export default function DeliverablesSection({
                         openDescriptionMenu(item.id);
                       }}
                       placeholder={placeholder}
-                      className={inputClass(rowErrors?.description)}
+                        className={inputClass(
+                          rowErrors?.description,
+                          Boolean(item.description)
+                        )}
                     />
 
                     {rowErrors?.description ? (
@@ -580,7 +581,7 @@ export default function DeliverablesSection({
                           Math.max(0, Number(e.target.value) || 0)
                         )
                       }
-                      className={inputClass(rowErrors?.qty)}
+                        className={inputClass(rowErrors?.qty, item.qty > 0)}
                       {...numberInputProps}
                     />
                     {rowErrors?.qty ? (
@@ -607,7 +608,7 @@ export default function DeliverablesSection({
                             Math.max(0, Number(e.target.value) || 0)
                           )
                         }
-                        className={rateInputClass(rowErrors?.rate)}
+                        className={rateInputClass(rowErrors?.rate, item.rate > 0)}
                         {...numberInputProps}
                       />
                     </div>
@@ -619,29 +620,23 @@ export default function DeliverablesSection({
                   </td>
 
                   <td className="py-3 px-3">
-                    <div className="relative">
-                      <select
-                        value={item.rateUnit}
-                        onChange={(e) =>
-                          updateItem(
-                            item.id,
-                            "rateUnit",
-                            e.target.value as InvoiceRateUnit
-                          )
-                        }
-                        className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-black outline-none focus:border-black"
-                      >
-                        {allowedUnits.map((unit) => (
-                          <option key={unit} value={unit}>
-                            {unitLabels[unit]}
-                          </option>
-                        ))}
-                      </select>
-
-                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                        <ChevronDownIcon />
-                      </span>
-                    </div>
+                    <AppSelectField
+                      value={item.rateUnit}
+                      onChange={(e) =>
+                        updateItem(
+                          item.id,
+                          "rateUnit",
+                          e.target.value as InvoiceRateUnit
+                        )
+                      }
+                      hasValue
+                    >
+                      {allowedUnits.map((unit) => (
+                        <option key={unit} value={unit}>
+                          {unitLabels[unit]}
+                        </option>
+                      ))}
+                    </AppSelectField>
                   </td>
 
                   <td className="py-3 pl-3 font-medium text-black">
@@ -653,7 +648,13 @@ export default function DeliverablesSection({
                       <button
                         type="button"
                         onClick={() => removeLineItem(item.id)}
-                        className="rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-400 hover:bg-red-50"
+                        className={cn(
+                          getAppButtonClass({
+                            variant: "destructive-lite",
+                            size: "sm",
+                          }),
+                          "h-9 px-3 text-xs"
+                        )}
                       >
                         Remove
                       </button>
@@ -670,7 +671,10 @@ export default function DeliverablesSection({
 
       {menu && activeItem && filteredSuggestions.length > 0 && (
         <div
-          className="fixed z-[200] max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2 shadow-xl"
+          className={cn(
+            "fixed z-[200] max-h-56 overflow-y-auto rounded-[var(--app-radius-card)] border p-2",
+            "app-soft-panel shadow-[var(--app-elevation-raised)]"
+          )}
           style={{
             top: menu.top,
             left: menu.left,
@@ -686,7 +690,13 @@ export default function DeliverablesSection({
                 updateItem(activeItem.id, "description", suggestion);
                 setMenu(null);
               }}
-              className="block w-full rounded-lg px-3 py-2 text-left text-sm text-black transition hover:bg-gray-50"
+              className={cn(
+                getAppButtonClass({
+                  variant: "ghost",
+                  size: "sm",
+                }),
+                "block h-auto w-full justify-start rounded-[10px] px-3 py-2 text-left text-sm font-medium text-slate-900"
+              )}
             >
               {suggestion}
             </button>
@@ -698,7 +708,10 @@ export default function DeliverablesSection({
         <button
           type="button"
           onClick={addLineItem}
-          className="rounded-xl border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-bold text-black transition hover:border-black"
+          className={getAppButtonClass({
+            variant: "secondary",
+            size: "md",
+          })}
         >
           + Add New Line Item
         </button>

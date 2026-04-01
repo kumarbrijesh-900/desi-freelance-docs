@@ -1,12 +1,19 @@
 export const appPageShellClass = "min-h-screen bg-transparent";
 
 export const appPageContainerClass =
-  "mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 2xl:px-10";
+  "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10";
 
 export const appPageSectionClass = "py-6 sm:py-8 lg:py-10";
 
 export const appGridClass =
   "grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-5 lg:grid-cols-12 lg:gap-6";
+
+export const appFormLayoutClass =
+  "grid grid-cols-1 gap-6 xl:grid-cols-12 xl:items-start";
+
+export const appFormMainPaneClass = "xl:col-span-7";
+
+export const appFormSidePaneClass = "xl:col-span-5";
 
 export const appReadableContentClass =
   "col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2";
@@ -19,9 +26,9 @@ export const appPrimaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-8";
 export const appSecondaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-4";
 
 export const appCardClass =
-  "rounded-[28px] border border-slate-200/90 bg-white/92 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-6";
+  "rounded-[var(--app-radius-card)] border border-[color:var(--app-soft-border)] bg-white/96 p-6 shadow-[var(--app-elevation-soft)] backdrop-blur-sm";
 
-export const appSectionGapClass = "space-y-8";
+export const appSectionGapClass = "space-y-6";
 
 export const appGroupGapClass = "space-y-6";
 
@@ -42,3 +49,5 @@ export const appSummaryGridClass = "grid grid-cols-1 gap-4 lg:grid-cols-2";
 
 export const appHistoryFoundationClass =
   "grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-5 lg:grid-cols-12 lg:gap-6";
+
+export const appSectionHeaderStackClass = "space-y-2";

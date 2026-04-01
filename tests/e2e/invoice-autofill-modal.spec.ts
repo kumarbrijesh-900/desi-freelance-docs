@@ -1,4 +1,47 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+const pageConsoleIssues = new WeakMap<Page, string[]>();
+
+function isHydrationRelatedWarning(message: string) {
+  const text = message.toLowerCase();
+  return (
+    text.includes("hydration") ||
+    text.includes("did not match") ||
+    text.includes("server rendered html") ||
+    text.includes("text content does not match") ||
+    text.includes("classname") ||
+    text.includes("expected server html")
+  );
+}
+
+function attachConsoleGuards(page: Page) {
+  const issues: string[] = [];
+  pageConsoleIssues.set(page, issues);
+
+  page.on("console", (message) => {
+    const text = message.text();
+    if (message.type() === "error") {
+      issues.push(`console.error: ${text}`);
+      return;
+    }
+
+    if (message.type() === "warning" && isHydrationRelatedWarning(text)) {
+      issues.push(`console.warning: ${text}`);
+    }
+  });
+
+  page.on("pageerror", (error) => {
+    issues.push(`pageerror: ${error.message}`);
+  });
+}
+
+test.beforeEach(async ({ page }) => {
+  attachConsoleGuards(page);
+});
+
+test.afterEach(async ({ page }) => {
+  expect(pageConsoleIssues.get(page) ?? []).toEqual([]);
+});
 
 async function openInvoicePage(page: import("@playwright/test").Page) {
   await page.goto("/invoice/new");
@@ -100,11 +143,12 @@ test("extract and autofill routes directly into the inline vertical stepper with
   ).toBeVisible();
 });
 
-test("vertical stepper advances cleanly and keeps only one expanded section active", async ({
+test("progressive flow keeps completed sections visible and scrolls to the next unlocked section", async ({
   page,
 }) => {
   await openInvoicePage(page);
 
+  const agencySection = page.locator('[data-step-section="agency"]');
   await page.getByPlaceholder(/Your agency or freelance brand name/i).fill(
     "DesiFreelanceDocs Studio"
   );
@@ -112,7 +156,6 @@ test("vertical stepper advances cleanly and keeps only one expanded section acti
     "14 Residency Road"
   );
   await page.getByLabel("Agency state").selectOption("Karnataka");
-  await page.getByRole("button", { name: /^Continue$/i }).click();
 
   await expect(page.locator('[data-step-state="active"]')).toHaveCount(1);
   await expect(
@@ -121,6 +164,11 @@ test("vertical stepper advances cleanly and keeps only one expanded section acti
   await expect(
     page.locator('[data-step-section="agency"][data-step-state="completed"]')
   ).toBeVisible();
+  await expect(
+    agencySection.getByPlaceholder("Building, street, or area")
+  ).toBeVisible();
+
+  await page.waitForFunction(() => window.scrollY > 40);
 });
 
 test("single-line Enter advances to the next structured field", async ({
@@ -192,6 +240,18 @@ test("dropdown selections work cleanly in the structured address flow", async ({
 
   await page.getByLabel("Agency state").selectOption("Delhi");
   await expect(page.getByLabel("Agency state")).toHaveValue("Delhi");
+});
+
+test("the editor layout stays within the viewport without horizontal scrolling", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  const hasHorizontalOverflow = await page.evaluate(() => {
+    return document.documentElement.scrollWidth > window.innerWidth + 1;
+  });
+
+  expect(hasHorizontalOverflow).toBeFalsy();
 });
 
 test("final totals step shows only Close, Save Draft, and Preview & Download", async ({

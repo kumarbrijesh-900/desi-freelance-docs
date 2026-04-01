@@ -1,5 +1,7 @@
 "use client";
 
+import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
+
 interface GenerateButtonsProps {
   onGenerateInvoice: () => void;
   onGenerateScope: () => void;
@@ -10,7 +12,7 @@ export default function GenerateButtons({
   onGenerateScope,
 }: GenerateButtonsProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className={getAppPanelClass()}>
       <h3 className="text-xl font-semibold text-black">Generate Documents</h3>
       <p className="mt-2 text-sm text-gray-600">
         Create your document outputs from the details above.
@@ -20,7 +22,10 @@ export default function GenerateButtons({
         <button
           type="button"
           onClick={onGenerateInvoice}
-          className="rounded-xl bg-black px-4 py-3 text-sm font-medium text-white"
+          className={getAppButtonClass({
+            variant: "primary",
+            size: "lg",
+          })}
         >
           Generate Invoice
         </button>
@@ -28,7 +33,10 @@ export default function GenerateButtons({
         <button
           type="button"
           onClick={onGenerateScope}
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-black hover:border-black"
+          className={getAppButtonClass({
+            variant: "secondary",
+            size: "lg",
+          })}
         >
           Generate Scope
         </button>

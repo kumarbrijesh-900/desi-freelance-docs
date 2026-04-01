@@ -48,9 +48,9 @@ const revealVariants: Record<MotionPreset, Variants> = {
     exit: { opacity: 0 },
   },
   "fade-up": {
-    hidden: { opacity: 0, y: 12, scale: 0.995 },
+    hidden: { opacity: 0, y: 8, scale: 0.995 },
     visible: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: 8, scale: 0.995 },
+    exit: { opacity: 0, y: 6, scale: 0.995 },
   },
   "scale-in": {
     hidden: { opacity: 0, scale: 0.985 },
@@ -63,7 +63,7 @@ const revealVariants: Record<MotionPreset, Variants> = {
     exit: { opacity: 0, y: 12, scale: 0.988 },
   },
   soft: {
-    hidden: { opacity: 0, y: 6 },
+    hidden: { opacity: 0, y: 8 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 4 },
   },
@@ -113,7 +113,7 @@ export function MotionReveal({
         reducedMotion
           ? undefined
           : {
-              duration: (durationMs ?? 240) / 1000,
+              duration: (durationMs ?? 200) / 1000,
               delay: delay / 1000,
               ease: appEaseStandard,
             }
@@ -171,7 +171,7 @@ export function MotionStagger({
             key={index}
             variants={revealVariants["fade-up"]}
             transition={{
-              duration: 0.22,
+              duration: 0.2,
               ease: appEaseStandard,
             }}
           >

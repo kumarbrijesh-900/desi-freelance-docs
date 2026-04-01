@@ -21,7 +21,7 @@ export default function AppSelectField({
   ...props
 }: AppSelectFieldProps) {
   return (
-    <div className="group relative">
+    <div className="group relative w-full">
       <select
         {...props}
         className={cn(
@@ -36,8 +36,8 @@ export default function AppSelectField({
       >
         {children}
       </select>
-      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400 transition-[color] duration-[var(--app-duration-fast)] group-hover:text-slate-600 group-focus-within:text-indigo-600">
-        <ChevronDownIcon className="h-4 w-4 transition-transform duration-[var(--app-duration-fast)] group-focus-within:rotate-180" />
+      <span className="pointer-events-none absolute inset-y-0 right-4 flex w-4 items-center justify-center text-slate-400 transition-[color] duration-[var(--app-duration-fast)] group-hover:text-slate-600 group-focus-within:text-indigo-600">
+        <ChevronDownIcon className="h-4 w-4 translate-y-[0.5px] transition-transform duration-[var(--app-duration-fast)] group-focus-within:rotate-180" />
       </span>
     </div>
   );

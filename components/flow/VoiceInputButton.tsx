@@ -1,5 +1,7 @@
 "use client";
 
+import { getAppButtonClass } from "@/lib/ui-foundation";
+
 interface VoiceInputButtonProps {
   onTranscript: (text: string) => void;
 }
@@ -46,7 +48,10 @@ export default function VoiceInputButton({
     <button
       type="button"
       onClick={handleClick}
-      className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-black hover:border-black"
+      className={getAppButtonClass({
+        variant: "secondary",
+        size: "sm",
+      })}
     >
       Use Voice Input
     </button>

@@ -1,5 +1,7 @@
 "use client";
 
+import ChoiceCards from "@/components/ui/ChoiceCards";
+import { getAppPanelClass } from "@/lib/ui-foundation";
 import type { ProjectPreset } from "@/types/document";
 
 interface ProjectPresetStepProps {
@@ -21,31 +23,21 @@ export default function ProjectPresetStep({
   onChange,
 }: ProjectPresetStepProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className={getAppPanelClass()}>
       <h3 className="text-xl font-semibold text-black">Choose Project Type</h3>
       <p className="mt-2 text-sm text-gray-600">
         Select the kind of freelance work you are creating documents for.
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        {options.map((option) => {
-          const isSelected = value === option.value;
-
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => onChange(option.value)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                isSelected
-                  ? "border-black bg-black text-white"
-                  : "border-gray-300 bg-white text-black hover:border-black"
-              }`}
-            >
-              {option.label}
-            </button>
-          );
-        })}
+      <div className="mt-4">
+        <ChoiceCards
+          name="project-preset"
+          value={value}
+          onChange={(nextValue) => onChange(nextValue as ProjectPreset)}
+          variant="cards"
+          columns={2}
+          options={options}
+        />
       </div>
     </div>
   );

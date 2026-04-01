@@ -1,6 +1,9 @@
 "use client";
 
+import AppSelectField from "@/components/ui/AppSelectField";
+import ChoiceCards from "@/components/ui/ChoiceCards";
 import { getLicensingSummary } from "@/lib/licensing-summary";
+import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
 import type { LicensingData, LicenseType, YesNo } from "@/types/document";
 
 interface LicensingStepProps {
@@ -36,7 +39,7 @@ export default function LicensingStep({
   const licensingSummary = getLicensingSummary(value);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className={getAppPanelClass()}>
       <h3 className="text-xl font-semibold text-black">Licensing</h3>
       <p className="mt-2 text-sm text-gray-600">
         Set the usage rights for this project.
@@ -48,28 +51,16 @@ export default function LicensingStep({
             License type
           </label>
 
-          <div className="flex flex-wrap gap-3">
-            {licenseOptions.map((option) => {
-              const isSelected = value.licenseType === option.value;
+          <ChoiceCards
+            name="licensing-type"
+            value={value.licenseType}
+            onChange={(nextValue) => updateField("licenseType", nextValue as LicenseType)}
+            variant="cards"
+            columns={2}
+            options={licenseOptions}
+          />
 
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => updateField("licenseType", option.value)}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                    isSelected
-                      ? "border-black bg-black text-white"
-                      : "border-gray-300 bg-white text-black hover:border-black"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-3 rounded-xl bg-gray-50 p-4">
+          <div className={cn(getAppPanelClass("muted"), "mt-3 p-4")}>
             <p className="text-sm font-medium text-black">Licensing summary</p>
             <p className="mt-2 text-sm text-gray-600">{licensingSummary}</p>
           </div>
@@ -84,7 +75,7 @@ export default function LicensingStep({
             value={value.duration}
             onChange={(e) => updateField("duration", e.target.value)}
             placeholder="Example: 12 months"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+            className={getAppFieldClass({ hasValue: Boolean(value.duration) })}
           />
         </div>
 
@@ -97,7 +88,7 @@ export default function LicensingStep({
             value={value.territory}
             onChange={(e) => updateField("territory", e.target.value)}
             placeholder="Example: India"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+            className={getAppFieldClass({ hasValue: Boolean(value.territory) })}
           />
         </div>
 
@@ -110,7 +101,7 @@ export default function LicensingStep({
             value={value.usageMedium}
             onChange={(e) => updateField("usageMedium", e.target.value)}
             placeholder="Example: Social media and digital ads"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+            className={getAppFieldClass({ hasValue: Boolean(value.usageMedium) })}
           />
         </div>
 
@@ -118,12 +109,12 @@ export default function LicensingStep({
           <label className="mb-2 block text-sm font-medium text-black">
             Source files included
           </label>
-          <select
+          <AppSelectField
             value={value.sourceFilesIncluded}
             onChange={(e) =>
               updateField("sourceFilesIncluded", e.target.value as YesNo)
             }
-            className="w-full rounded-xl border border-gray-300 px-3 py-3 pr-10 text-sm text-black outline-none focus:border-black"
+            hasValue={Boolean(value.sourceFilesIncluded)}
           >
             <option value="">Select option</option>
             {yesNoOptions.map((option) => (
@@ -131,19 +122,19 @@ export default function LicensingStep({
                 {option.label}
               </option>
             ))}
-          </select>
+          </AppSelectField>
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-black">
             Portfolio rights retained
           </label>
-          <select
+          <AppSelectField
             value={value.portfolioRightsRetained}
             onChange={(e) =>
               updateField("portfolioRightsRetained", e.target.value as YesNo)
             }
-            className="w-full rounded-xl border border-gray-300 px-3 py-3 pr-10 text-sm text-black outline-none focus:border-black"
+            hasValue={Boolean(value.portfolioRightsRetained)}
           >
             <option value="">Select option</option>
             {yesNoOptions.map((option) => (
@@ -151,7 +142,7 @@ export default function LicensingStep({
                 {option.label}
               </option>
             ))}
-          </select>
+          </AppSelectField>
         </div>
       </div>
     </div>

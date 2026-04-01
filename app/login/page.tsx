@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
+import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 
 export default function LoginPage() {
   const handleGoogleLogin = async () => {
@@ -13,7 +14,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-16">
+    <main className="min-h-screen px-6 py-16">
       <div className="mx-auto flex min-h-[80vh] max-w-5xl flex-col items-center justify-center gap-10 text-center">
         <div className="max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
@@ -30,7 +31,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className={`w-full max-w-md ${getAppPanelClass()}`}>
           <h2 className="text-2xl font-bold text-black">Login</h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in with Google to continue.
@@ -39,7 +40,11 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="mt-6 w-full rounded-xl bg-black px-4 py-3 text-sm font-medium text-white"
+            className={`mt-6 ${getAppButtonClass({
+              variant: "primary",
+              size: "lg",
+              fullWidth: true,
+            })}`}
           >
             Continue with Google
           </button>

@@ -123,7 +123,7 @@ export default function ClientDetailsSection({
         </h2>
       ) : null}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <label className="mb-2 block text-sm font-medium text-black">
             Client Name *
@@ -180,7 +180,7 @@ export default function ClientDetailsSection({
         </div>
 
         {!isInternational ? (
-          <div className="space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className={cn(getAppPanelClass("muted"), "space-y-5 p-5")}>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">
@@ -368,7 +368,7 @@ export default function ClientDetailsSection({
         ) : null}
 
         {isInternational ? (
-          <div className="space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+          <div className={cn(getAppPanelClass("muted"), "space-y-5 p-5")}>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">

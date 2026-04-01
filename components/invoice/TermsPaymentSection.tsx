@@ -8,7 +8,12 @@ import type {
 } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
-import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  cn,
+  getAppButtonClass,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -195,9 +200,9 @@ export default function TermsPaymentSection({
           </h2>
         ) : null}
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {isInternational ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+            <div className={cn(getAppPanelClass("warning"), "p-5")}>
               <label className="mb-2 block text-sm font-medium text-amber-950">
                 Settlement Type
               </label>
@@ -255,49 +260,44 @@ export default function TermsPaymentSection({
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className={cn(getAppPanelClass(), "p-5")}>
               <div className="space-y-3">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-black">
                     License Included?
                   </label>
 
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateLicenseField("isLicenseIncluded", true)
+                  <ChoiceCards
+                    name="license-included"
+                    value={value.license.isLicenseIncluded ? "yes" : "no"}
+                    onChange={(nextValue) => {
+                      if (nextValue === "yes") {
+                        updateLicenseField("isLicenseIncluded", true);
+                        return;
                       }
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                        value.license.isLicenseIncluded
-                          ? "border-black bg-black text-white"
-                          : "border-gray-300 bg-white text-black hover:border-black"
-                      }`}
-                    >
-                      Yes
-                    </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onChange({
-                          ...value,
-                          license: {
-                            isLicenseIncluded: false,
-                            licenseType: "",
-                            licenseDuration: "",
-                          },
-                        })
-                      }
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                        !value.license.isLicenseIncluded
-                          ? "border-black bg-black text-white"
-                          : "border-gray-300 bg-white text-black hover:border-black"
-                      }`}
-                    >
-                      No
-                    </button>
-                  </div>
+                      onChange({
+                        ...value,
+                        license: {
+                          isLicenseIncluded: false,
+                          licenseType: "",
+                          licenseDuration: "",
+                        },
+                      });
+                    }}
+                    variant="segmented"
+                    columns={2}
+                    options={[
+                      {
+                        value: "yes",
+                        label: "Yes",
+                      },
+                      {
+                        value: "no",
+                        label: "No",
+                      },
+                    ]}
+                  />
                 </div>
 
                 {showLicenseFields && (
@@ -306,8 +306,15 @@ export default function TermsPaymentSection({
                       License Type *
                     </label>
 
-                    <div className="flex flex-wrap gap-3">
-                      {[
+                    <ChoiceCards
+                      name="license-type"
+                      value={value.license.licenseType}
+                      onChange={(nextValue) =>
+                        updateLicenseField("licenseType", nextValue as LicenseType)
+                      }
+                      variant="cards"
+                      columns={2}
+                      options={[
                         {
                           label: "Full assignment",
                           value: "full-assignment",
@@ -320,31 +327,8 @@ export default function TermsPaymentSection({
                           label: "Non-exclusive license",
                           value: "non-exclusive-license",
                         },
-                      ].map((option) => {
-                        const isSelected =
-                          value.license.licenseType === option.value;
-
-                        return (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() =>
-                              updateLicenseField(
-                                "licenseType",
-                                option.value as LicenseType
-                              )
-                            }
-                            className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                              isSelected
-                                ? "border-black bg-black text-white"
-                                : "border-gray-300 bg-white text-black hover:border-black"
-                            }`}
-                          >
-                            {option.label}
-                          </button>
-                        );
-                      })}
-                    </div>
+                      ]}
+                    />
                   </div>
                 )}
 
@@ -360,7 +344,10 @@ export default function TermsPaymentSection({
                         updateLicenseField("licenseDuration", e.target.value)
                       }
                       placeholder="Example: 3 years"
-                      className={inputClass(errors?.licenseDuration)}
+                      className={inputClass(
+                        errors?.licenseDuration,
+                        Boolean(value.license.licenseDuration)
+                      )}
                     />
                     {errors?.licenseDuration ? (
                       <p className="mt-2 text-xs font-medium text-red-600">
@@ -372,7 +359,7 @@ export default function TermsPaymentSection({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <div className={cn(getAppPanelClass("muted"), "p-5")}>
               <p className="text-sm font-medium text-black">
                 License Explanation
               </p>
@@ -391,7 +378,7 @@ export default function TermsPaymentSection({
               value={value.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
-              className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+              className={inputClass(undefined, Boolean(value.notes), true)}
             />
           </div>
 
@@ -407,7 +394,7 @@ export default function TermsPaymentSection({
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
                     placeholder="Bank name"
-                    className={inputClass(errors?.bankName)}
+                    className={inputClass(errors?.bankName, Boolean(value.bankName))}
                   />
                   {errors?.bankName ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -425,7 +412,10 @@ export default function TermsPaymentSection({
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
                     placeholder="Name on bank account"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(
+                      errors?.accountName,
+                      Boolean(value.accountName)
+                    )}
                   />
                 </div>
 
@@ -438,7 +428,10 @@ export default function TermsPaymentSection({
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
                     placeholder="Bank account number"
-                    className={inputClass(errors?.accountNumber)}
+                    className={inputClass(
+                      errors?.accountNumber,
+                      Boolean(value.accountNumber)
+                    )}
                   />
                   {errors?.accountNumber ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -456,7 +449,10 @@ export default function TermsPaymentSection({
                     value={value.ifscCode}
                     onChange={(e) => updateField("ifscCode", e.target.value)}
                     placeholder="Bank IFSC code"
-                    className={inputClass(errors?.ifscCode)}
+                    className={inputClass(
+                      errors?.ifscCode,
+                      Boolean(value.ifscCode)
+                    )}
                   />
                   {errors?.ifscCode ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -466,7 +462,7 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+              <div className={cn(getAppPanelClass("muted"), "p-5")}>
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-black">Payment QR</p>
 
@@ -474,7 +470,13 @@ export default function TermsPaymentSection({
                     <button
                       type="button"
                       onClick={removeQr}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-400 hover:bg-red-50"
+                      className={cn(
+                        getAppButtonClass({
+                          variant: "destructive-lite",
+                          size: "sm",
+                        }),
+                        "h-8 px-3 text-xs"
+                      )}
                     >
                       Remove
                     </button>
@@ -488,10 +490,10 @@ export default function TermsPaymentSection({
                   }}
                   onDragLeave={() => setIsQrDragOver(false)}
                   onDrop={handleQrDrop}
-                  className={`flex min-h-[180px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed bg-white p-4 text-center text-sm transition ${
+                  className={`app-dropzone-surface flex min-h-[180px] cursor-pointer items-center justify-center rounded-[var(--app-radius-card)] border-2 border-dashed p-4 text-center text-sm ${
                     isQrDragOver
-                      ? "border-black text-black"
-                      : "border-gray-300 text-gray-500 hover:border-black"
+                      ? "app-dropzone-accept text-slate-950"
+                      : "text-slate-500 hover:border-slate-400"
                   }`}
                 >
                   <input
@@ -525,7 +527,7 @@ export default function TermsPaymentSection({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <div className={cn(getAppPanelClass("muted"), "p-5")}>
               <div className="mb-4">
                 <p className="text-sm font-medium text-black">
                   International Wire Details
@@ -545,7 +547,10 @@ export default function TermsPaymentSection({
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
                     placeholder="Beneficiary name on bank account"
-                    className={inputClass(errors?.accountName)}
+                    className={inputClass(
+                      errors?.accountName,
+                      Boolean(value.accountName)
+                    )}
                   />
                   {errors?.accountName ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -563,7 +568,7 @@ export default function TermsPaymentSection({
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
                     placeholder="Receiving bank name"
-                    className={inputClass(errors?.bankName)}
+                    className={inputClass(errors?.bankName, Boolean(value.bankName))}
                   />
                   {errors?.bankName ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -581,7 +586,11 @@ export default function TermsPaymentSection({
                     value={value.bankAddress}
                     onChange={(e) => updateField("bankAddress", e.target.value)}
                     placeholder="Full bank branch address"
-                    className={inputClass(errors?.bankAddress)}
+                    className={inputClass(
+                      errors?.bankAddress,
+                      Boolean(value.bankAddress),
+                      true
+                    )}
                   />
                   {errors?.bankAddress ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -599,7 +608,10 @@ export default function TermsPaymentSection({
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
                     placeholder="Bank account number"
-                    className={inputClass(errors?.accountNumber)}
+                    className={inputClass(
+                      errors?.accountNumber,
+                      Boolean(value.accountNumber)
+                    )}
                   />
                   {errors?.accountNumber ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -617,7 +629,10 @@ export default function TermsPaymentSection({
                     value={value.swiftBicCode}
                     onChange={(e) => updateField("swiftBicCode", e.target.value)}
                     placeholder="Bank SWIFT or BIC code"
-                    className={inputClass(errors?.swiftBicCode)}
+                    className={inputClass(
+                      errors?.swiftBicCode,
+                      Boolean(value.swiftBicCode)
+                    )}
                   />
                   {errors?.swiftBicCode ? (
                     <p className="mt-2 text-xs font-medium text-red-600">
@@ -637,7 +652,10 @@ export default function TermsPaymentSection({
                       updateField("ibanRoutingCode", e.target.value)
                     }
                     placeholder="IBAN, routing number, or sort code"
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm text-black outline-none focus:border-black"
+                    className={inputClass(
+                      undefined,
+                      Boolean(value.ibanRoutingCode)
+                    )}
                   />
                 </div>
               </div>
