@@ -478,7 +478,10 @@ export default function InvoicePreviewPage() {
         <div className={`${appGridClass} print:block`}>
         <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
         <MotionReveal className="mb-6 print:hidden" preset="fade-up">
-          <div className={`${appCardClass} border-slate-200/90 px-5 py-5 sm:px-6`}>
+          <div
+            data-testid="invoice-preview-toolbar"
+            className={`${appCardClass} border-slate-200/90 px-5 py-5 sm:px-6`}
+          >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">

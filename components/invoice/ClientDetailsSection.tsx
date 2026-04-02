@@ -8,7 +8,16 @@ import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
-import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  appFieldErrorTextClass,
+  appFieldHelperTextClass,
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
+  cn,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
 import {
   composeIndianAddress,
   evaluateStateSignals,
@@ -117,73 +126,71 @@ export default function ClientDetailsSection({
           : getAppPanelClass()
       )}
     >
-      {!embedded ? (
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-          Client Details
-        </h2>
-      ) : null}
+      <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
+        {!embedded ? <h2 className={appSectionTitleClass}>Client</h2> : null}
+        <p className={appSectionDescriptionClass}>
+          Capture who is being billed and which billing rules apply.
+        </p>
+      </div>
 
       <div className="space-y-6">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-black">
-            Client Name *
-          </label>
-          <input
-            type="text"
-            value={value.clientName}
-            onChange={(e) => updateField("clientName", e.target.value)}
-            placeholder="Client or company name"
-            className={inputClass(errors?.clientName, Boolean(value.clientName))}
-          />
-          {errors?.clientName ? (
-            <p className="mt-2 text-xs font-medium text-red-600">
-              {errors.clientName}
-            </p>
-          ) : null}
-        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+          <div>
+            <label className={appFieldLabelClass}>
+              Client Name *
+            </label>
+            <input
+              type="text"
+              value={value.clientName}
+              onChange={(e) => updateField("clientName", e.target.value)}
+              placeholder="Client or company name"
+              className={inputClass(errors?.clientName, Boolean(value.clientName))}
+            />
+            {errors?.clientName ? (
+              <p className={appFieldErrorTextClass}>
+                {errors.clientName}
+              </p>
+            ) : null}
+          </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-black">
-            Client Location *
-          </label>
-          <ChoiceCards
-            name="client-location"
-            value={value.clientLocation}
-            onChange={(nextValue) =>
-              syncClientDetails({
-                ...value,
-                clientLocation: nextValue,
-                clientCountry:
-                  nextValue === "domestic" ? "" : value.clientCountry,
-                clientState:
-                  nextValue === "international" ? "" : value.clientState,
-              })
-            }
-            variant="segmented"
-            columns={2}
-            options={[
-              {
-                value: "domestic",
-                label: "Domestic (India)",
-                description: "Use Indian state-based billing and domestic payment details.",
-              },
-              {
-                value: "international",
-                label: "International",
-                description: "Use country, currency, and export billing details.",
-              },
-            ]}
-          />
-          <p className="mt-2 text-xs leading-5 text-gray-500">
-            This choice decides which tax, payment, and billing fields appear next.
-          </p>
+          <div>
+            <label className={appFieldLabelClass}>
+              Client Location *
+            </label>
+            <ChoiceCards
+              name="client-location"
+              value={value.clientLocation}
+              onChange={(nextValue) =>
+                syncClientDetails({
+                  ...value,
+                  clientLocation: nextValue,
+                  clientCountry:
+                    nextValue === "domestic" ? "" : value.clientCountry,
+                  clientState:
+                    nextValue === "international" ? "" : value.clientState,
+                })
+              }
+              variant="segmented"
+              columns={2}
+              options={[
+                {
+                  value: "domestic",
+                  label: "Domestic",
+                },
+                {
+                  value: "international",
+                  label: "International",
+                },
+              ]}
+            />
+          </div>
         </div>
 
         {!isInternational ? (
-          <div className={cn(getAppPanelClass("muted"), "space-y-5 p-5")}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-5 border-t border-slate-200/70 pt-5">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_120px]">
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Client GSTIN
                 </label>
                 <input
@@ -201,18 +208,18 @@ export default function ClientDetailsSection({
                   className={inputClass(errors?.clientGstin, Boolean(value.clientGstin))}
                 />
                 {errors?.clientGstin ? (
-                  <p className="mt-2 text-xs font-medium text-red-600">
+                  <p className={appFieldErrorTextClass}>
                     {errors.clientGstin}
                   </p>
                 ) : gstinInfo.state ? (
-                  <p className="mt-2 text-xs leading-5 text-gray-500">
+                  <p className={appFieldHelperTextClass}>
                     GSTIN state code maps to {gstinInfo.state}.
                   </p>
                 ) : null}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Client Email
                 </label>
                 <input
@@ -226,75 +233,39 @@ export default function ClientDetailsSection({
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
+              <label className={appFieldLabelClass}>
                 SEZ Unit
               </label>
               <ChoiceCards
                 name="client-sez-unit"
                 value={value.isClientSezUnit}
                 onChange={(nextValue) => updateField("isClientSezUnit", nextValue)}
-                variant="segmented"
-                columns={2}
+                variant="inline"
                 options={[
                   {
                     value: "yes",
                     label: "Yes",
-                    description: "Treat this domestic recipient as an SEZ unit.",
                   },
                   {
                     value: "no",
                     label: "No",
-                    description: "Use regular domestic GST branching.",
                   },
                   {
                     value: "not-sure",
                     label: "Not sure",
-                    description: "Keep reviewing; no SEZ tax shortcut is assumed.",
                   },
                 ]}
               />
               {sezSuggestion ? (
-                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">
+                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
                   This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
                 </p>
               ) : null}
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  PIN Code
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={value.clientPinCode}
-                  onChange={(e) =>
-                    updateField(
-                      "clientPinCode",
-                      e.target.value.replace(/\D/g, "").slice(0, 6)
-                    )
-                  }
-                  placeholder="560048"
-                  className={inputClass(undefined, Boolean(value.clientPinCode))}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-black">
-                  City
-                </label>
-                <input
-                  type="text"
-                  value={value.clientCity}
-                  onChange={(e) => updateField("clientCity", e.target.value)}
-                  placeholder="Bengaluru"
-                  className={inputClass(undefined, Boolean(value.clientCity))}
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-black">
+              <div className="md:col-span-2 lg:col-span-3">
+                <label className={appFieldLabelClass}>
                   Address Line 1 *
                 </label>
                 <input
@@ -306,8 +277,8 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-black">
+              <div className="md:col-span-2 lg:col-span-3">
+                <label className={appFieldLabelClass}>
                   Address Line 2
                 </label>
                 <input
@@ -319,8 +290,8 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-black">
+              <div>
+                <label className={appFieldLabelClass}>
                   State *
                 </label>
                 <AppSelectField
@@ -343,35 +314,63 @@ export default function ClientDetailsSection({
                   ))}
                 </AppSelectField>
               </div>
+
+              <div>
+                <label className={appFieldLabelClass}>
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={value.clientCity}
+                  onChange={(e) => updateField("clientCity", e.target.value)}
+                  placeholder="Bengaluru"
+                  className={inputClass(undefined, Boolean(value.clientCity))}
+                />
+              </div>
+
+              <div>
+                <label className={appFieldLabelClass}>
+                  PIN Code
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={value.clientPinCode}
+                  onChange={(e) =>
+                    updateField(
+                      "clientPinCode",
+                      e.target.value.replace(/\D/g, "").slice(0, 6)
+                    )
+                  }
+                  placeholder="560048"
+                  className={inputClass(undefined, Boolean(value.clientPinCode))}
+                />
+              </div>
             </div>
 
             {errors?.clientAddress ? (
-              <p className="text-xs font-medium text-red-600">
+              <p className={appFieldErrorTextClass}>
                 {errors.clientAddress}
               </p>
             ) : null}
             {errors?.clientState ? (
-              <p className="text-xs font-medium text-red-600">
+              <p className={appFieldErrorTextClass}>
                 {errors.clientState}
               </p>
             ) : null}
             {stateSignals.warning ? (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">
+              <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
                 {stateSignals.warning}
               </p>
-            ) : (
-              <p className="text-xs leading-5 text-gray-500">
-                PIN code and GSTIN can suggest the billing state, but your manual selection always stays editable.
-              </p>
-            )}
+            ) : null}
           </div>
         ) : null}
 
         {isInternational ? (
-          <div className={cn(getAppPanelClass("muted"), "space-y-5 p-5")}>
+          <div className="space-y-5 border-t border-slate-200/70 pt-5">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Country *
                 </label>
                 <AppSelectField
@@ -394,14 +393,14 @@ export default function ClientDetailsSection({
                   ))}
                 </AppSelectField>
                 {errors?.clientCountry ? (
-                  <p className="mt-2 text-xs font-medium text-red-600">
+                  <p className={appFieldErrorTextClass}>
                     {errors.clientCountry}
                   </p>
                 ) : null}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Currency
                 </label>
                 <AppSelectField
@@ -425,15 +424,11 @@ export default function ClientDetailsSection({
                     </option>
                   ))}
                 </AppSelectField>
-                <p className="mt-2 text-xs leading-5 text-gray-500">
-                  Leave this blank to keep INR as the working invoice currency
-                  and show a USD reference total later.
-                </p>
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-black">
+              <label className={appFieldLabelClass}>
                 Full Address *
               </label>
               <textarea
@@ -448,7 +443,7 @@ export default function ClientDetailsSection({
                 )}
               />
               {errors?.clientAddress ? (
-                <p className="mt-2 text-xs font-medium text-red-600">
+                <p className={appFieldErrorTextClass}>
                   {errors.clientAddress}
                 </p>
               ) : null}
@@ -456,7 +451,7 @@ export default function ClientDetailsSection({
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Postal Code
                 </label>
                 <input
@@ -469,7 +464,7 @@ export default function ClientDetailsSection({
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-black">
+                <label className={appFieldLabelClass}>
                   Tax Identification Number
                 </label>
                 <input
@@ -480,15 +475,15 @@ export default function ClientDetailsSection({
                   className={inputClass(errors?.clientGstin, Boolean(value.clientGstin))}
                 />
                 {errors?.clientGstin ? (
-                  <p className="mt-2 text-xs font-medium text-red-600">
+                  <p className={appFieldErrorTextClass}>
                     {errors.clientGstin}
                   </p>
                 ) : null}
               </div>
             </div>
 
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-5 text-amber-900">
-              Export declaration and LUT readiness are handled in Totals & Taxes after you confirm agency compliance.
+            <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+              Export declaration and LUT handling are finalized in Totals after agency compliance is confirmed.
             </p>
           </div>
         ) : null}

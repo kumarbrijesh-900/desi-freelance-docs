@@ -28,17 +28,13 @@ export const appEaseGentle: [number, number, number, number] = [
 ];
 
 export const appSpringTransition = {
-  type: "spring" as const,
-  stiffness: 380,
-  damping: 32,
-  mass: 0.78,
+  duration: 0.2,
+  ease: appEaseStandard,
 };
 
 export const appStepTransition = {
-  type: "spring" as const,
-  stiffness: 360,
-  damping: 30,
-  mass: 0.8,
+  duration: 0.22,
+  ease: appEaseStandard,
 };
 
 const revealVariants: Record<MotionPreset, Variants> = {
@@ -213,12 +209,7 @@ export function MotionButton({
       transition={
         reducedMotion
           ? undefined
-          : {
-              ...appSpringTransition,
-              stiffness: 420,
-              damping: 30,
-              mass: 0.72,
-            }
+          : appSpringTransition
       }
       {...props}
     >
@@ -246,7 +237,7 @@ export function HoverLift({
       whileHover={
         reducedMotion ? undefined : { y: hoverY, scale: hoverScale }
       }
-      transition={reducedMotion ? undefined : appSpringTransition}
+      transition={reducedMotion ? undefined : { duration: 0.2, ease: appEaseStandard }}
       {...props}
     >
       {children}
@@ -269,7 +260,7 @@ export function PressDown({
     <motion.div
       className={className}
       whileTap={reducedMotion ? undefined : { scale: tapScale }}
-      transition={reducedMotion ? undefined : appSpringTransition}
+      transition={reducedMotion ? undefined : { duration: 0.18, ease: appEaseStandard }}
       {...props}
     >
       {children}

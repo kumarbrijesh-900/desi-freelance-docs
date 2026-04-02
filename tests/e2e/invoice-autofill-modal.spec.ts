@@ -141,7 +141,7 @@ test("single-line Enter advances to the next structured field", async ({
   await agencyName.fill("DesiFreelanceDocs Studio");
   await agencyName.press("Enter");
 
-  await expect(page.getByPlaceholder("560025")).toBeFocused();
+  await expect(page.getByPlaceholder("Building, street, or area")).toBeFocused();
 });
 
 test("textarea fields keep normal Enter behavior and do not auto-advance", async ({
@@ -209,21 +209,21 @@ test("the editor layout stays within the viewport without horizontal scrolling",
   await expectNoHorizontalOverflow(page);
 });
 
-test("final totals step shows only Close, Save Draft, and Preview & Download", async ({
+test("floating action cluster shows only Close, Save Draft, and Preview & Download", async ({
   page,
 }) => {
   await loadDemoData(page);
   await stepToggle(page, "totals").click();
 
-  const footer = page.getByTestId("editor-footer-actions");
-  await expect(footer.getByRole("button")).toHaveCount(3);
-  await expect(footer.getByRole("button", { name: /^Close$/i })).toBeVisible();
-  await expect(footer.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
+  const actions = page.getByTestId("floating-editor-actions");
+  await expect(actions.getByRole("button")).toHaveCount(3);
+  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
-    footer.getByRole("button", { name: /Preview & Download/i })
+    actions.getByRole("button", { name: /Preview & Download/i })
   ).toBeVisible();
-  await expect(footer.getByRole("button", { name: /^Back$/i })).toHaveCount(0);
-  await expect(footer.getByRole("button", { name: /^Continue$/i })).toHaveCount(0);
+  await expect(actions.getByRole("button", { name: /^Back$/i })).toHaveCount(0);
+  await expect(actions.getByRole("button", { name: /^Continue$/i })).toHaveCount(0);
 });
 
 test("conversational Bangalore agency context still infers Karnataka inline", async ({

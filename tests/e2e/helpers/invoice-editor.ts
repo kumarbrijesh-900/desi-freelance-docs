@@ -84,7 +84,9 @@ export async function extractBrief(page: Page, brief: string) {
 }
 
 export function stepToggle(page: Page, step: InvoiceStep) {
-  return page.locator(`[data-step-section="${step}"] > button`);
+  return page.locator(
+    `[data-step-section="${step}"] [data-step-activator="${step}"]`
+  );
 }
 
 export async function expectNoHorizontalOverflow(page: Page) {

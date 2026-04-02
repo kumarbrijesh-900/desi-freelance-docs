@@ -4,7 +4,16 @@ import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
-import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  appFieldHelperTextClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
+  cn,
+  getAppFieldClass,
+  getAppStatusPillClass,
+  getAppPanelClass,
+  getAppSubtlePanelClass,
+} from "@/lib/ui-foundation";
 
 type InternationalTaxHandling = "" | "add-igst" | "keep-zero-tax";
 
@@ -82,14 +91,12 @@ export default function TotalsTaxesSection({
   const isNoTax = value.taxMode === "none";
   const effectiveRate = isNoTax ? 0 : value.taxRate ?? 0;
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
-  const panelClass =
-    "app-soft-panel flex h-full flex-col justify-between rounded-[var(--app-radius-card)] border p-5";
   const complianceMessageClass =
     complianceVariant === "warning"
-      ? "mt-3 rounded-[var(--app-radius-card)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
+      ? "rounded-[var(--app-radius-card)] bg-amber-50/84 px-4 py-3 text-sm leading-6 text-amber-950 ring-1 ring-inset ring-amber-200/75"
       : complianceVariant === "info"
-      ? "mt-3 rounded-[var(--app-radius-card)] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
-      : "mt-3 rounded-[var(--app-radius-card)] border border-slate-200 bg-slate-50/90 px-4 py-3 text-sm leading-6 text-slate-600";
+      ? "rounded-[var(--app-radius-card)] bg-emerald-50/90 px-4 py-3 text-sm leading-6 text-emerald-950 ring-1 ring-inset ring-emerald-200/80"
+      : "rounded-[var(--app-radius-card)] bg-slate-50/90 px-4 py-3 text-sm leading-6 text-slate-600 ring-1 ring-inset ring-slate-200/80";
   const taxAmountHelperText =
     computed.taxType === "CGST_SGST"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
@@ -104,6 +111,12 @@ export default function TotalsTaxesSection({
   const rateHelperText = isLocked
     ? "This total tax rate is calculated automatically from client location, GST registration, and billing state."
     : "Set the exact GST percentage applied to the subtotal.";
+  const taxModeSummaryLabel =
+    computed.taxType === "CGST_SGST"
+      ? "CGST + SGST"
+      : computed.taxType === "IGST"
+      ? "IGST"
+      : "No tax";
 
   return (
     <section
@@ -114,23 +127,12 @@ export default function TotalsTaxesSection({
       )}
     >
       <div className="mb-4">
-        {!embedded ? (
-          <h2 className="text-sm font-bold uppercase tracking-wide text-gray-700">
-            Totals & Taxes
-          </h2>
-        ) : null}
-        <p className={cn(!embedded ? "mt-2" : "", "text-sm leading-6 text-gray-500")}>
-          Review your billing summary and configure tax in one place. Subtotal
-          and grand total are read-only so users always see the final financial
-          impact clearly.
+        {!embedded ? <h2 className={appSectionTitleClass}>Totals</h2> : null}
+        <p className={cn(!embedded ? "mt-2" : "", appSectionDescriptionClass)}>
+          Review the final billing outcome before preview.
         </p>
-        {complianceMessage ? (
-          <div className={complianceMessageClass}>
-            {complianceMessage}
-          </div>
-        ) : null}
         {onExportTaxDecisionChange ? (
-          <div className="mt-3 rounded-[var(--app-radius-card)] border border-amber-200 bg-amber-50/80 p-4">
+          <div className="mt-4 rounded-[var(--app-radius-card)] bg-amber-50/80 p-4 ring-1 ring-inset ring-amber-200/80">
             <p className="text-sm font-medium leading-6 text-amber-950">
               No valid LUT has been provided for this international invoice.
               Export of services may require 18% IGST. Choose how you want to
@@ -170,134 +172,182 @@ export default function TotalsTaxesSection({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1.05fr)_minmax(210px,0.9fr)_minmax(210px,0.9fr)_minmax(0,0.95fr)_minmax(0,1.15fr)] xl:items-stretch">
-        <div className={cn(panelClass, "bg-slate-50/80")}>
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              Subtotal
-            </p>
-            <p className="text-3xl font-bold text-black">
-              {formatCurrency(subtotal, currency)}
-            </p>
-          </div>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+        <div className="space-y-4">
+          {isLocked ? (
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 p-5")}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                    Tax summary
+                  </p>
+                  <p className="text-base font-semibold text-slate-950">
+                    {taxModeSummaryLabel}
+                  </p>
+                </div>
+                <span
+                  className={getAppStatusPillClass(
+                    computed.taxType === "NONE" ? "muted" : "default"
+                  )}
+                >
+                  {computed.taxType === "NONE"
+                    ? "No tax"
+                    : `${effectiveRate}% applied`}
+                </span>
+              </div>
 
-          <p className="mt-4 text-xs leading-5 text-gray-500">
-            Sum of all deliverable line items before tax.
-          </p>
-        </div>
-
-        <div className={cn(panelClass, "bg-white/96")}>
-          <div className="space-y-3">
-            <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              {modeLabel}
-            </label>
-
-            <div className="relative">
-              <AppSelectField
-                value={value.taxMode}
-                disabled={isLocked}
-                onChange={(e) => {
-                  const nextMode = e.target.value as TaxConfig["taxMode"];
-                  updateField("taxMode", nextMode);
-                  if (nextMode === "none") {
-                    updateField("taxRate", 0);
-                  } else if ((value.taxRate ?? 0) === 0) {
-                    updateField("taxRate", 18);
-                  }
-                }}
-                className={cn(
-                  isLocked ? "cursor-not-allowed" : "",
-                  "text-base"
-                )}
-                hasValue={Boolean(value.taxMode)}
-              >
-                <option value="gst">{gstOptionLabel}</option>
-                {showIgstOption ? <option value="igst">IGST</option> : null}
-                <option value="none">No Tax</option>
-              </AppSelectField>
+              <dl className="space-y-3 border-t border-slate-200/70 pt-4 text-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-slate-500">Current outcome</dt>
+                  <dd className="max-w-[220px] text-right font-medium text-slate-950">
+                    {taxModeSummaryLabel}
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-slate-500">Applied rate</dt>
+                  <dd className="text-right font-medium text-slate-950">
+                    {effectiveRate}% total tax
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-slate-500">Breakdown</dt>
+                  <dd className="max-w-[260px] text-right leading-6 text-slate-600">
+                    {taxAmountHelperText}
+                  </dd>
+                </div>
+              </dl>
             </div>
-          </div>
+          ) : (
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4")}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+                    {modeLabel}
+                  </label>
 
-          <p className="mt-4 text-xs leading-5 text-gray-500">
-            {isLocked
-              ? "This tax setting is controlled by your billing compliance selection."
-              : "Choose GST when tax should be added to the invoice total."}
-          </p>
+                  <AppSelectField
+                    value={value.taxMode}
+                    disabled={isLocked}
+                    onChange={(e) => {
+                      const nextMode = e.target.value as TaxConfig["taxMode"];
+                      updateField("taxMode", nextMode);
+                      if (nextMode === "none") {
+                        updateField("taxRate", 0);
+                      } else if ((value.taxRate ?? 0) === 0) {
+                        updateField("taxRate", 18);
+                      }
+                    }}
+                    className={cn(
+                      isLocked ? "cursor-not-allowed" : "",
+                      "text-base"
+                    )}
+                    hasValue={Boolean(value.taxMode)}
+                  >
+                    <option value="gst">{gstOptionLabel}</option>
+                    {showIgstOption ? <option value="igst">IGST</option> : null}
+                    <option value="none">No Tax</option>
+                  </AppSelectField>
+
+                  <p className={appFieldHelperTextClass}>
+                    Choose how tax should appear on the invoice.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+                    {rateLabel}
+                  </label>
+
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    inputMode="decimal"
+                    value={effectiveRate}
+                    disabled={isNoTax || isLocked}
+                    onChange={(e) =>
+                      updateField("taxRate", Math.max(0, Number(e.target.value) || 0))
+                    }
+                    onWheel={(e) => e.currentTarget.blur()}
+                    onKeyDown={(e) => {
+                      if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+                        e.preventDefault();
+                      }
+                    }}
+                    className={cn(
+                      getAppFieldClass({
+                        hasValue: true,
+                      }),
+                      "text-base",
+                      isNoTax || isLocked
+                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                        : ""
+                    )}
+                  />
+
+                  <p className={appFieldHelperTextClass}>
+                    {rateHelperText}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {complianceMessage ? (
+            <div className={complianceMessageClass}>{complianceMessage}</div>
+          ) : null}
         </div>
 
-        <div className={cn(panelClass, "bg-white/96")}>
-          <div className="space-y-3">
-            <label className="block text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              {rateLabel}
-            </label>
-
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              inputMode="decimal"
-              value={effectiveRate}
-              disabled={isNoTax || isLocked}
-              onChange={(e) =>
-                updateField("taxRate", Math.max(0, Number(e.target.value) || 0))
-              }
-              onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
-                  e.preventDefault();
-                }
-              }}
-              className={cn(
-                getAppFieldClass({
-                  hasValue: true,
-                }),
-                "text-base",
-                isNoTax || isLocked
-                  ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                  : ""
-              )}
-            />
+        <div className={cn(getAppPanelClass("muted"), "space-y-4 px-5 py-5")}>
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+              Final review
+            </p>
+            <h3 className="text-xl font-semibold tracking-tight text-slate-950">
+              Invoice totals
+            </h3>
           </div>
 
-          <p className="mt-4 text-xs leading-5 text-gray-500">
-            {rateHelperText}
-          </p>
-        </div>
+          <dl className="space-y-3 rounded-[16px] bg-white/82 px-4 py-4 ring-1 ring-inset ring-slate-200/75">
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <dt className="text-slate-500">Subtotal</dt>
+              <dd className="font-semibold text-slate-950">
+                {formatCurrency(subtotal, currency)}
+              </dd>
+            </div>
 
-        <div className={cn(panelClass, "bg-slate-50/80")}>
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-gray-500">
-              Tax Amount
-            </p>
-            <p className="text-2xl font-bold text-black">
-              {formatCurrency(taxAmount, currency)}
-            </p>
-          </div>
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <dt className="text-slate-500">Tax</dt>
+              <dd className="text-right font-medium text-slate-950">
+                <span>{taxModeSummaryLabel}</span>
+                <span className="ml-2 text-slate-500">
+                  {formatCurrency(taxAmount, currency)}
+                </span>
+              </dd>
+            </div>
 
-          <p className="mt-4 text-xs leading-5 text-gray-500">
-            {taxAmountHelperText}
-          </p>
-        </div>
+            <div className="border-t border-slate-200/80 pt-4">
+              <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                Grand total
+              </dt>
+              <dd className="mt-2 text-[32px] font-semibold tracking-tight text-slate-950">
+                {formatCurrency(grandTotal, currency)}
+              </dd>
+            </div>
+          </dl>
 
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-black bg-black p-4">
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/70">
-              Grand Total
-            </p>
-            <p className="text-3xl font-bold text-white">
-              {formatCurrency(grandTotal, currency)}
-            </p>
-            {grandTotalReferenceLabel &&
-            typeof grandTotalReferenceAmount === "number" ? (
-              <p className="text-sm font-medium leading-6 text-white/80">
-                {grandTotalReferenceLabel}:{" "}
+          {grandTotalReferenceLabel &&
+          typeof grandTotalReferenceAmount === "number" ? (
+            <p className="rounded-[14px] bg-slate-50/90 px-4 py-3 text-xs leading-5 text-slate-600 ring-1 ring-inset ring-slate-200/80">
+              {grandTotalReferenceLabel}:{" "}
+              <span className="font-medium text-slate-900">
                 {formatCurrency(grandTotalReferenceAmount, "USD")}
-              </p>
-            ) : null}
-          </div>
+              </span>
+            </p>
+          ) : null}
 
-          <p className="mt-4 text-xs leading-5 text-white/70">
-            Final invoice amount payable by the client.
+          <p className="text-[11px] leading-5 text-slate-500">
+            Final amount payable before any offline adjustments.
           </p>
         </div>
       </div>

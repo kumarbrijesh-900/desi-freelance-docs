@@ -13,22 +13,20 @@ import {
   AnimatePresence,
   MotionButton,
   MotionReveal,
-  MotionStagger,
   SuccessPulse,
   motion,
 } from "@/components/ui/motion-primitives";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { BriefIntakeInput } from "@/lib/invoice-brief-intake";
 import {
-  appGridClass,
-  appPrimaryPaneClass,
-  appSecondaryPaneClass,
-} from "@/lib/layout-foundation";
-import {
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
   cn,
   getAppButtonClass,
   getAppFieldClass,
   getAppPanelClass,
+  getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
 
 interface BriefIntakeCardProps {
@@ -54,11 +52,6 @@ export default function BriefIntakeCard({
   const hasTypedBrief = Boolean(briefText.trim());
   const hasImages = imageFiles.length > 0;
   const canExtract = hasTypedBrief || hasImages;
-  const intakeSummaryBits = [
-    hasTypedBrief ? "Text ready" : null,
-    hasImages ? `${imageFiles.length} screenshot${imageFiles.length === 1 ? "" : "s"}` : null,
-    "Audio placeholder",
-  ].filter(Boolean);
 
   const statusTone = isExtracting
     ? "processing"
@@ -73,15 +66,15 @@ export default function BriefIntakeCard({
   const statusCopy =
     statusTone === "processing"
       ? hasImages
-        ? "Extracting text from the screenshot and preparing the autofill summary."
-        : "Preparing the autofill summary from your brief."
+        ? "Reading your screenshot and preparing autofill."
+        : "Preparing autofill from the current brief."
       : statusTone === "success"
-      ? "Autofill summary ready. You can keep working in the form or reopen intake anytime."
+      ? "Autofill is ready. You can reopen intake anytime."
       : statusTone === "warning"
-      ? "Nothing usable was extracted yet. Add more detail or try a clearer screenshot."
+      ? "Add a little more detail or try a clearer screenshot."
       : statusTone === "ready"
-      ? "Ready to extract from the current brief input."
-      : "Start with text, a screenshot, or the voice placeholder whenever you’re ready.";
+      ? "Ready to extract from the current brief."
+      : "Start with a typed brief, then add a screenshot only if it helps.";
 
   const statusBadgeClass =
     statusTone === "processing"
@@ -203,27 +196,25 @@ export default function BriefIntakeCard({
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
-        <div className={appGridClass}>
-          <div className="col-span-4 flex flex-col gap-4 sm:col-span-8 lg:col-span-12 md:flex-row md:items-start md:justify-between">
-            <div className="max-w-3xl">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                 <DocumentSparkIcon className="h-4 w-4" />
                 Brief Intake
               </div>
               <h2
                 id="brief-intake-heading"
-                className="mt-3 text-xl font-semibold tracking-tight text-slate-950"
+                className={cn("mt-3", appSectionTitleClass)}
               >
                 Screenshot, text, or audio brief
               </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Paste a brief, upload a screenshot, or use the voice placeholder.
-                Mention agency details, client details, deliverables, price,
-                payment terms, and billing clues whenever you can.
+              <p className={cn("mt-2 max-w-2xl", appSectionDescriptionClass)}>
+                Start with text first. Add a screenshot only when it helps autofill.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 md:justify-end">
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               <span
                 className={cn(
                   "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
@@ -277,25 +268,6 @@ export default function BriefIntakeCard({
             </div>
           </div>
 
-          <div className="col-span-4 sm:col-span-8 lg:col-span-12">
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs leading-5 text-slate-500">
-              {intakeSummaryBits.length > 0 ? (
-                intakeSummaryBits.map((item) => (
-                  <span
-                    key={item}
-                    className="inline-flex items-center rounded-full border border-[color:var(--app-soft-border)] bg-white/82 px-2.5 py-1 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
-                  >
-                    {item}
-                  </span>
-                ))
-              ) : (
-                <span className="inline-flex items-center rounded-full border border-[color:var(--app-soft-border)] bg-white/82 px-2.5 py-1 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
-                  Screenshot / Text / Audio
-                </span>
-              )}
-            </div>
-          </div>
-
           <AnimatePresence initial={false}>
             <motion.div
               key="brief-intake-expanded"
@@ -304,34 +276,45 @@ export default function BriefIntakeCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="contents"
+              className="space-y-4"
             >
-                <MotionReveal preset="soft" className={`${appPrimaryPaneClass} mt-4`}>
-                  <div>
-                    <label className="mb-2.5 block text-sm font-medium tracking-tight text-slate-900">
+              <MotionReveal preset="soft">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-end justify-between gap-3">
+                    <label className={appFieldLabelClass}>
                       Paste or type a brief
                     </label>
-                    <textarea
-                      rows={8}
-                      value={briefText}
-                      onChange={(e) => {
-                        setBriefText(e.target.value);
-                        setLastExtractionState("idle");
-                      }}
-                      placeholder="Example: Agency name: DesiFreelanceDocs Studio. Agency address: 14 Residency Road, Bengaluru, Karnataka. Client name: Metro Shoes Pvt. Ltd. Client address: Bengaluru, Karnataka. Deliverable type: UI/UX. Deliverable description: Landing page UI design. Qty: 3 screens. Rate: INR 12000 per screen. License type: exclusive license. Payment terms: Net 15. Bank name: HDFC Bank. Account number: 50200044321098. IFSC: HDFC0001122."
-                      className={getAppFieldClass({
-                        hasValue: Boolean(briefText),
-                        multiline: true,
-                      })}
-                    />
-                  </div>
-                </MotionReveal>
 
-                <MotionReveal preset="soft" delay={60} className={`${appSecondaryPaneClass} mt-4`}>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <label className="block text-sm font-medium tracking-tight text-slate-900">
-                        Upload brief screenshot
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          setIsDragOver(true);
+                        }}
+                        onDragLeave={() => setIsDragOver(false)}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          setIsDragOver(false);
+                          handleFiles(event.dataTransfer.files);
+                        }}
+                        className={cn(
+                          getAppButtonClass({ variant: "secondary", size: "sm" }),
+                          "cursor-pointer",
+                          isDragOver ? "border-indigo-300 bg-white text-slate-950" : ""
+                        )}
+                      >
+                        <UploadIcon className="h-4 w-4" />
+                        Upload screenshot
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          multiple
+                          onChange={(event) => {
+                            handleFiles(event.target.files);
+                            event.target.value = "";
+                          }}
+                          className="hidden"
+                        />
                       </label>
 
                       <MotionButton
@@ -341,130 +324,76 @@ export default function BriefIntakeCard({
                             "Voice intake is ready as a placeholder hook. Speech-to-text can plug into this card next."
                           )
                         }
-                        className={cn(
-                          getAppButtonClass({ variant: "secondary", size: "sm" }),
-                          "shrink-0"
-                        )}
+                        className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                       >
                         <MicrophoneIcon className="h-4 w-4" />
-                        Speak Brief
+                        Voice
                       </MotionButton>
                     </div>
+                  </div>
 
-                    <label
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        setIsDragOver(true);
-                      }}
-                      onDragLeave={() => setIsDragOver(false)}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        setIsDragOver(false);
-                        handleFiles(event.dataTransfer.files);
-                      }}
-                        className={cn(
-                          "app-dropzone-surface flex min-h-[220px] cursor-pointer items-center justify-center rounded-[18px] border-2 border-dashed p-5 text-center text-sm",
-                          isDragOver
-                          ? "app-dropzone-accept text-slate-950"
-                          : "border-slate-300 text-slate-500 hover:border-slate-500"
-                      )}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg"
-                        multiple
-                        onChange={(event) => {
-                          handleFiles(event.target.files);
-                          event.target.value = "";
-                        }}
-                        className="hidden"
-                      />
+                  <textarea
+                    rows={5}
+                    value={briefText}
+                    onChange={(e) => {
+                      setBriefText(e.target.value);
+                      setLastExtractionState("idle");
+                    }}
+                    placeholder="Example: Agency name: DesiFreelanceDocs Studio. Agency address: 14 Residency Road, Bengaluru, Karnataka. Client name: Metro Shoes Pvt. Ltd. Client address: Bengaluru, Karnataka. Deliverable type: UI/UX. Deliverable description: Landing page UI design. Qty: 3 screens. Rate: INR 12000 per screen. License type: exclusive license. Payment terms: Net 15. Bank name: HDFC Bank. Account number: 50200044321098. IFSC: HDFC0001122."
+                    className={getAppFieldClass({
+                      hasValue: Boolean(briefText),
+                      multiline: true,
+                    })}
+                  />
 
-                      <div className="flex flex-col items-center gap-3">
-                        <motion.span
-                          className="app-soft-choice-option inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-700"
-                          animate={
-                            isDragOver
-                              ? { scale: 1.06, y: -2 }
-                              : { scale: 1, y: 0 }
-                          }
-                          transition={{
-                            type: "spring",
-                            stiffness: 360,
-                            damping: 28,
-                          }}
-                        >
-                          <UploadIcon className="h-5 w-5" />
-                        </motion.span>
-                        <div>
-                          Drop a screenshot here
-                          <br />
-                          or click to upload
-                          <br />
-                          <span className="text-xs text-slate-400">PNG, JPG, JPEG</span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {imageFiles.length > 0 ? (
-                      <MotionReveal preset="scale-in">
-                        <div
+                  {imageFiles.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {imageFiles.map((file) => (
+                        <span
+                          key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            getAppPanelClass(),
-                            "px-3 py-3 text-xs leading-5 text-slate-600"
+                            getAppSubtlePanelClass("muted"),
+                            "inline-flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700"
                           )}
                         >
-                          <p className="inline-flex items-center gap-2 font-medium text-slate-950">
-                            <ClipboardCheckIcon className="h-4 w-4" />
-                            Attached images
-                          </p>
-                          <ul className="mt-2 space-y-1">
-                            {imageFiles.map((file) => (
-                              <li key={`${file.name}-${file.lastModified}`}>
-                                {file.name}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </MotionReveal>
-                    ) : null}
-                  </div>
-                </MotionReveal>
+                          <ClipboardCheckIcon className="h-3.5 w-3.5" />
+                          {file.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
 
-                <div className="col-span-4 mt-1 flex flex-wrap items-center justify-between gap-3 sm:col-span-8 lg:col-span-12">
-                  <MotionStagger className="text-xs leading-5 text-slate-500">
-                    <p>{statusCopy}</p>
-                    <p>
-                      Text, OCR, and the future voice transcript all feed the same
-                      autofill pipeline, so you can reopen this section anytime
-                      without losing what you already typed or attached.
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-3">
+                    <p className="text-xs leading-5 text-slate-500">
+                      {statusCopy}
                     </p>
-                  </MotionStagger>
 
-                  <MotionButton
-                    type="button"
-                    onClick={handleExtract}
-                    disabled={isExtracting || !canExtract}
-                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                  >
-                    <motion.span
-                      animate={
-                        isExtracting
-                          ? { rotate: [0, 18, -10, 0], scale: [1, 1.06, 1] }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 0.8,
-                        repeat: isExtracting ? Number.POSITIVE_INFINITY : 0,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
+                    <MotionButton
+                      type="button"
+                      onClick={handleExtract}
+                      disabled={isExtracting || !canExtract}
+                      className={getAppButtonClass({ variant: "primary", size: "lg" })}
                     >
-                      <SparklesIcon className="h-4 w-4" />
-                    </motion.span>
-                    {isExtracting ? "Extracting..." : "Extract & Autofill"}
-                  </MotionButton>
+                      <motion.span
+                        animate={
+                          isExtracting
+                            ? { rotate: [0, 18, -10, 0], scale: [1, 1.06, 1] }
+                            : undefined
+                        }
+                        transition={{
+                          duration: 0.8,
+                          repeat: isExtracting ? Number.POSITIVE_INFINITY : 0,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
+                      >
+                        <SparklesIcon className="h-4 w-4" />
+                      </motion.span>
+                      {isExtracting ? "Extracting..." : "Extract & Autofill"}
+                    </MotionButton>
+                  </div>
                 </div>
-              </motion.div>
+              </MotionReveal>
+            </motion.div>
           </AnimatePresence>
         </div>
       </section>

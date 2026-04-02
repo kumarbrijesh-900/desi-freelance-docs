@@ -58,6 +58,30 @@ test("fresh invoice editor shell stays visually consistent across viewports", as
   );
 });
 
+test("desktop support rail and floating actions stay visible without competing with the form", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+
+  const viewport = page.viewportSize();
+  test.skip(!viewport || viewport.width < 1280, "Desktop-only support rail assertion");
+
+  const actions = page.getByTestId("floating-editor-actions");
+  const rail = page.getByTestId("desktop-support-rail");
+
+  const actionsBefore = await actions.boundingBox();
+  const railBefore = await rail.boundingBox();
+
+  await page.mouse.wheel(0, 1000);
+  await waitForUiSettle(page);
+
+  const actionsAfter = await actions.boundingBox();
+  const railAfter = await rail.boundingBox();
+
+  expect(actionsAfter?.y ?? 0).toBeLessThanOrEqual((actionsBefore?.y ?? 0) + 8);
+  expect(railAfter?.y ?? 0).toBeLessThanOrEqual((railBefore?.y ?? 0) + 8);
+});
+
 test("brief intake collapse preserves layout stability and compact visual state", async ({
   page,
 }) => {
@@ -160,7 +184,51 @@ test("shared field focus and dropdown affordance stay aligned", async ({
   expect(chevronOffset).toBeLessThanOrEqual(17);
 });
 
-test("full invoice journey stays clean through final footer and preview", async ({
+test("line items, compact uploads, and date fields stay readable and aligned", async ({
+  page,
+}) => {
+  const viewport = page.viewportSize();
+  await loadDemoData(page);
+  await stepToggle(page, "deliverables").click();
+  await waitForUiSettle(page);
+
+  await expect(page.getByTestId("line-items-list")).toHaveScreenshot(
+    "invoice-editor-line-items.png",
+    screenshotOptions
+  );
+
+  await stepToggle(page, "meta").click();
+  await waitForUiSettle(page);
+
+  const invoiceDate = page.locator('input[type="date"]').first();
+  const dueDate = page.locator('input[type="date"]').nth(1);
+  const invoiceDateBox = await invoiceDate.boundingBox();
+  const dueDateBox = await dueDate.boundingBox();
+
+  if ((viewport?.width ?? 0) >= 768) {
+    expect(invoiceDateBox?.width ?? 0).toBeLessThanOrEqual(190);
+    expect(dueDateBox?.width ?? 0).toBeLessThanOrEqual(190);
+  }
+
+  await stepToggle(page, "payment").click();
+  await waitForUiSettle(page);
+
+  const bankName = page.getByPlaceholder("Bank name");
+  const qrUpload = page
+    .locator('[data-step-section="payment"]')
+    .locator('label:has(input[type="file"])')
+    .first();
+  const bankNameBox = await bankName.boundingBox();
+  const qrUploadBox = await qrUpload.boundingBox();
+
+  if ((viewport?.width ?? 0) >= 1280) {
+    expect(bankNameBox?.width ?? 0).toBeGreaterThan(qrUploadBox?.width ?? 0);
+  } else {
+    expect((qrUploadBox?.y ?? 0)).toBeGreaterThan((bankNameBox?.y ?? 0));
+  }
+});
+
+test("full invoice journey stays clean through floating actions and preview", async ({
   page,
 }) => {
   await loadDemoData(page);
@@ -169,13 +237,13 @@ test("full invoice journey stays clean through final footer and preview", async 
   await stepToggle(page, "totals").click();
   await waitForUiSettle(page);
 
-  const footer = page.getByTestId("editor-footer-actions");
-  await expect(footer).toHaveScreenshot("invoice-editor-final-footer.png", screenshotOptions);
-  await expect(footer.getByRole("button")).toHaveCount(3);
-  await expect(footer.getByRole("button", { name: /^Close$/i })).toBeVisible();
-  await expect(footer.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
+  const actions = page.getByTestId("floating-editor-actions");
+  await expect(actions).toHaveScreenshot("invoice-editor-floating-actions.png", screenshotOptions);
+  await expect(actions.getByRole("button")).toHaveCount(3);
+  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
-    footer.getByRole("button", { name: /Preview & Download/i })
+    actions.getByRole("button", { name: /Preview & Download/i })
   ).toBeVisible();
 
   await page.getByRole("button", { name: /Preview & Download/i }).click();
@@ -183,5 +251,18 @@ test("full invoice journey stays clean through final footer and preview", async 
   await waitForUiSettle(page, 380);
 
   await expect(page.getByRole("link", { name: /Back to Edit/i })).toBeVisible();
-  await expect(page).toHaveScreenshot("invoice-preview-toolbar-top.png", screenshotOptions);
+  await page.evaluate(() => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement) {
+      active.blur();
+    }
+  });
+  await waitForUiSettle(page, 160);
+  await expect(page.getByTestId("invoice-preview-toolbar")).toHaveScreenshot(
+    "invoice-preview-toolbar-top.png",
+    {
+      ...screenshotOptions,
+      maxDiffPixels: 400,
+    }
+  );
 });

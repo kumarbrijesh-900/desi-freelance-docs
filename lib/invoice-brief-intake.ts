@@ -501,9 +501,18 @@ function looksLikeEntityName(value: string) {
     return false;
   }
 
-  return !/\b(?:invoice|brief|work|project|design|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(
-    cleaned
-  );
+  if (
+    /\b(?:landing page|homepage|home page|ui\/?\s*ux|wireframes?|design system|campaign launch|project fee|deliverables?|illustrations?|images?|reels?|screens?|banners?|posts?|videos?|retouched|editing|payment terms?|net\s*\d+|due on receipt)\b/i.test(
+      cleaned
+    ) &&
+    !/\b(?:studio|agency|creative|media|labs|works?|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i.test(
+      cleaned
+    )
+  ) {
+    return false;
+  }
+
+  return !/\b(?:invoice|brief|work|project|design|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(cleaned);
 }
 
 function getConfidenceScore(confidence: BriefExtractionConfidence) {
@@ -1846,8 +1855,8 @@ function extractClientName(text: string): Candidate<string> | undefined {
 
   const inferred = extractPatternValue(text, [
     /\binvoice\s+(?:for|to)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:project\b|work\b|landing\b|homepage\b|logo\b|illustration\b|screens?\b|banners?\b|rate\b|qty\b|quantity\b|currency\b|payment\b)|$)/i,
+    /\binvoice\b[^.\n]{0,40}\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:project\b|work\b|landing\b|homepage\b|logo\b|illustration\b|screens?\b|banners?\b|rate\b|qty\b|quantity\b|currency\b|payment\b)|$)/i,
     /\bbill to\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b|bank\b)|$)/i,
-    /\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:invoice\b|project\b|work\b|landing\b|homepage\b|logo\b|illustration\b|screens?\b|banners?\b|rate\b|at\b|@|qty\b|quantity\b|net\b|currency\b)|$)/i,
     /\bbrand\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|at\b|in\b|usa\b|uk\b|london\b|dubai\b|singapore\b|invoice\b|project\b|work\b|rate\b|qty\b|quantity\b|net\b|currency\b)|$)/i,
     /\b([a-z0-9&.' -]{2,80}?)\s+client\b/i,
   ]);

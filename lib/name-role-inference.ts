@@ -39,6 +39,9 @@ const roleLabels = {
 const companySuffixPattern =
   /\b(?:studio|agency|design|creative|media|labs|works?|collective|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i;
 
+const deliverableNoisePattern =
+  /\b(?:landing page|homepage|home page|ui\/?\s*ux|wireframes?|design system|dashboard|campaign launch|project fee|deliverables?|illustrations?|images?|reels?|screens?|banners?|posts?|videos?|retouched|editing|payment terms?|net\s*\d+|due on receipt)\b/i;
+
 function cleanValue(value?: string | null) {
   return (value ?? "")
     .replace(/^[\s\-*•]+/, "")
@@ -85,6 +88,10 @@ function extractLabeledValue(
 function normalizeContextLine(line: string) {
   return cleanValue(line)
     .replace(
+      /^(?:invoice\s+(?:for|to)|bill to|customer name|client name|recipient|client|for|to|your brand|brand)\s+/i,
+      ""
+    )
+    .replace(
       /\s+(?:address|country|state|currency|gstin|gst|bank|ifsc|swift|iban|routing|payment|terms?|rate|qty|quantity|invoice|project|due date)\b.*$/i,
       ""
     )
@@ -95,6 +102,18 @@ function looksLikeNameCandidate(value: string) {
   const cleaned = normalizeContextLine(value);
 
   if (!cleaned || cleaned.length < 2) {
+    return false;
+  }
+
+  if (/^\d+$/.test(cleaned)) {
+    return false;
+  }
+
+  if (
+    deliverableNoisePattern.test(cleaned) &&
+    !companySuffixPattern.test(cleaned) &&
+    cleaned.split(/\s+/).length > 2
+  ) {
     return false;
   }
 
@@ -241,7 +260,7 @@ function inferClientName(text: string): InferredRoleName | undefined {
   const inferred = findFirstMatch(text, [
     /\bbill to\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
     /\binvoice\s+(?:for|to)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
-    /\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|landing|homepage|logo|illustration|screens?|banners?|rate|currency|payment|bank)\b|$)/i,
+    /\binvoice\b[^.\n]{0,40}\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|landing|homepage|logo|illustration|screens?|banners?|rate|currency|payment|bank)\b|$)/i,
     /\b(?:client|recipient)\s+(?:is\s+)?([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
     /\byour brand\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|$)/i,
   ]);

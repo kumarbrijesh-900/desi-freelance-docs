@@ -60,7 +60,13 @@ import {
   type InvoiceFormData,
   type InvoiceStepperStep,
 } from "@/types/invoice";
-import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  cn,
+  getAppButtonClass,
+  getAppPanelClass,
+  getAppStatusPillClass,
+  getAppSubtlePanelClass,
+} from "@/lib/ui-foundation";
 import { ChevronLeftIcon, DownloadIcon, SaveIcon } from "@/components/ui/app-icons";
 
 const orderedSteps: InvoiceStepperStep[] = [
@@ -483,17 +489,17 @@ function isInvoiceReadyForPreview(formData: InvoiceFormData) {
 function getStepDescription(step: InvoiceStepperStep) {
   switch (step) {
     case "agency":
-      return "Your business identity, structured address, and GST setup.";
+      return "Business identity, address, and GST setup.";
     case "client":
-      return "Recipient details, billing location, and SEZ/export routing.";
+      return "Recipient details and billing location.";
     case "deliverables":
-      return "Line items, quantities, rates, and billing units.";
+      return "Billable line items and pricing.";
     case "payment":
-      return "Payment terms, bank details, and licensing information.";
+      return "Payment terms, bank details, and optional licensing.";
     case "meta":
-      return "Invoice number and dates before final review.";
+      return "Invoice number and dates.";
     case "totals":
-      return "Tax outcome, compliance notes, and preview readiness.";
+      return "Final review before preview.";
     default:
       return "";
   }
@@ -517,7 +523,6 @@ function formatSummaryCurrency(
 
 function InlineStepSection({
   step,
-  index,
   isActive,
   isCompleted,
   issueCount,
@@ -525,7 +530,6 @@ function InlineStepSection({
   children,
 }: {
   step: InvoiceStepperStep;
-  index: number;
   isActive: boolean;
   isCompleted: boolean;
   issueCount: number;
@@ -536,75 +540,82 @@ function InlineStepSection({
   const statusLabel = isCompleted
     ? "Completed"
     : isActive
-    ? "Active"
+    ? "Recommended"
     : "Incomplete";
+  const detailCopy = isCompleted
+    ? "Completed and still editable."
+    : isActive
+    ? `Recommended next. ${getStepDescription(step)}`
+    : getStepDescription(step);
 
   return (
     <motion.section
       layout
       data-step-section={step}
       data-step-state={isActive ? "active" : isCompleted ? "completed" : "incomplete"}
-      className={`app-soft-step-surface relative scroll-mt-28 rounded-[16px] ${
+      className={cn(
+        "relative scroll-mt-32 overflow-hidden rounded-[18px] px-6 py-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
         isActive
-          ? "ring-1 ring-indigo-200/80"
+          ? "border border-slate-200/75 bg-white/92 shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
           : isCompleted
-          ? "ring-1 ring-emerald-100/90"
-          : "ring-1 ring-slate-200/80"
-      }`}
+          ? "border border-slate-200/55 bg-white/68 shadow-[0_10px_24px_rgba(15,23,42,0.05)]"
+          : "border border-slate-200/45 bg-white/48 shadow-[0_6px_16px_rgba(15,23,42,0.03)]"
+      )}
     >
-      <button
-        type="button"
-        onClick={onActivate}
-        className="flex w-full items-start gap-4 px-6 py-5 text-left transition-colors duration-[var(--app-duration-fast)]"
-      >
-        <span
-          className={`relative z-10 mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-all duration-[var(--app-duration-fast)] ${
-            isCompleted
-              ? "border-emerald-300 bg-emerald-500 text-white shadow-[0_10px_22px_rgba(16,185,129,0.22)]"
-            : isActive
-              ? "border-indigo-300 bg-white text-indigo-900 shadow-[0_10px_22px_rgba(99,102,241,0.14)]"
-              : "border-amber-200 bg-white/92 text-slate-700 shadow-[0_8px_18px_rgba(148,163,184,0.12)]"
-          }`}
-        >
-          {isCompleted ? "✓" : index + 1}
-        </span>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-base font-semibold tracking-tight text-slate-950">
-                {stepLabel}
-              </p>
-              <p className="mt-1.5 text-sm leading-6 text-slate-500">
-                {isActive
-                  ? `Continue here next. ${getStepDescription(step)}`
-                  : getStepDescription(step)}
-              </p>
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <button
+            type="button"
+            onClick={onActivate}
+            data-step-activator={step}
+            className="min-w-0 flex-1 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
+                  isCompleted
+                    ? "bg-emerald-500"
+                    : isActive
+                    ? "bg-indigo-500"
+                    : "bg-slate-300"
+                )}
+              />
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">
+                {statusLabel}
+              </span>
             </div>
+            <h2 className="mt-2.5 text-[22px] font-semibold tracking-tight text-slate-950">
+              {stepLabel}
+            </h2>
+            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">
+              {detailCopy}
+            </p>
+          </button>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             <span
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
-                isCompleted
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-                : isActive
-                  ? "border-indigo-200 bg-indigo-50/90 text-indigo-700 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-                  : "border-amber-200 bg-amber-50/80 text-amber-800 shadow-[0_1px_0_rgba(255,255,255,0.76)]"
-              }`}
+              className={getAppStatusPillClass(
+                isCompleted ? "success" : isActive ? "default" : "muted"
+              )}
             >
               {!isCompleted && issueCount > 0
-                ? `${statusLabel} · ${issueCount} required`
-                : statusLabel}
+                ? `${issueCount} required`
+                : isCompleted
+                ? "Ready"
+                : "Needs review"}
             </span>
           </div>
         </div>
-      </button>
 
-      <motion.div
-        layout
-        initial={false}
-        className="border-t border-[color:var(--app-soft-border)] px-6 pb-6 pt-5"
-      >
-        {children}
-      </motion.div>
+        <motion.div
+          layout
+          initial={false}
+          className="border-t border-slate-200/60 pt-5"
+        >
+          {children}
+        </motion.div>
+      </div>
     </motion.section>
   );
 }
@@ -1066,28 +1077,6 @@ export default function InvoiceEditorPage() {
     () => orderedSteps.filter((step) => stepValidityByStep[step]).length,
     [stepValidityByStep]
   );
-  const progressPercent = Math.round(
-    (completedStepCount / orderedSteps.length) * 100
-  );
-
-  const stepTitle = useMemo(() => {
-    switch (currentStep) {
-      case "agency":
-        return "My Agency Details";
-      case "client":
-        return "Client Details";
-      case "deliverables":
-        return "Deliverables";
-      case "payment":
-        return "Payment & Terms";
-      case "meta":
-        return "Invoice Meta Data";
-      case "totals":
-        return "Totals & Taxes";
-      default:
-        return "Invoice";
-    }
-  }, [currentStep]);
 
   const invoiceReadyForPreview = useMemo(
     () => isInvoiceReadyForPreview(formData),
@@ -1635,86 +1624,118 @@ export default function InvoiceEditorPage() {
     <main className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
 
-      <AppHeader
-        leftSlot={
-          <button
-            type="button"
-            onClick={handleBackToHome}
-            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-          >
-            ← Back to Home
-          </button>
-        }
-        rightSlot={<LogoutButton />}
-      />
+      <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,720px)_320px] xl:items-start xl:justify-center xl:gap-8">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 xl:grid xl:grid-cols-[minmax(0,720px)_216px] xl:items-start xl:justify-center xl:gap-16">
           <div className={`w-full max-w-[720px] ${appSectionGapClass}`}>
-            <MotionReveal preset="fade-up" className={getAppPanelClass()}>
-              <header className="space-y-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 space-y-2">
+            <MotionReveal preset="fade-up" className="space-y-6">
+              <header className="space-y-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 space-y-1.5">
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                       New Invoice
                     </p>
                     <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
                       Create Invoice
                     </h1>
-                    <p className="max-w-2xl text-sm leading-6 text-slate-600">
-                      One continuous flow from intake to preview. Autofill lands directly inside the form, keeps completed sections visible, and moves you to the next missing step automatically.
+                    <p className="max-w-xl text-sm leading-6 text-slate-500">
+                      Fill the invoice top to bottom. Completed sections stay editable, and the next section that needs attention stays guided inline.
                     </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleLoadDemoData}
-                      className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                    >
-                      Load Demo Data
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleClearDemoData}
-                      className={getAppButtonClass({
-                        variant: "destructive-lite",
-                        size: "sm",
-                      })}
-                    >
-                      Clear Demo Data
-                    </button>
                   </div>
                 </div>
 
-                <div className="app-soft-panel-muted rounded-[16px] px-5 py-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div
+                  className={cn(
+                    getAppSubtlePanelClass("muted"),
+                    "px-4 py-3 xl:hidden"
+                  )}
+                  data-testid="compact-progress-summary"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Next Recommended Section
+                      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                        Progress
                       </p>
-                      <p className="mt-1 text-lg font-semibold tracking-tight text-slate-950">
-                        {stepTitle}
-                      </p>
-                      <p className="mt-1.5 text-sm leading-6 text-slate-600">
-                        All sections stay open. Finish the highlighted section, then the form will guide you to the next incomplete one.
+                      <p className="mt-1 text-sm font-semibold text-slate-950">
+                        {completedStepCount} of {orderedSteps.length} sections ready
                       </p>
                     </div>
-
-                    <p className="text-sm font-medium text-slate-600">
-                      {completedStepCount} of {orderedSteps.length} sections complete
-                    </p>
-                  </div>
-
-                  <div className="mt-4 h-2 rounded-full bg-slate-200/70">
-                    <motion.div
-                      className="h-full rounded-full bg-indigo-500"
-                      animate={{ width: `${progressPercent}%` }}
-                      transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-                    />
+                    <span className={getAppStatusPillClass(firstInvalidStep ? "default" : "success")}>
+                      {firstInvalidStep
+                        ? `Next: ${getStepShortLabel(firstInvalidStep)}`
+                        : "Ready for preview"}
+                    </span>
                   </div>
                 </div>
+
+                <MotionReveal
+                  preset="fade-up"
+                  delay={40}
+                  className="sticky top-[72px] z-20 w-full"
+                >
+                  <div className="app-soft-shell flex w-full flex-col gap-3 rounded-[18px] px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div
+                      className="flex flex-wrap items-center gap-2"
+                      data-testid="floating-editor-actions"
+                    >
+                      <button
+                        type="button"
+                        onClick={handleBackToHome}
+                        className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <ChevronLeftIcon className="h-4 w-4" />
+                          Close
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleSaveDraft}
+                        className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <SaveIcon className="h-4 w-4" />
+                          Save Draft
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handlePreviewInvoice}
+                        disabled={!invoiceReadyForPreview}
+                        className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <DownloadIcon className="h-4 w-4" />
+                          Preview & Download
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleLoadDemoData}
+                        className={getAppButtonClass({ variant: "subtle", size: "sm" })}
+                      >
+                        Load Demo Data
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleClearDemoData}
+                        className={getAppButtonClass({
+                          variant: "destructive-lite",
+                          size: "sm",
+                        })}
+                      >
+                        Clear Demo Data
+                      </button>
+                    </div>
+                  </div>
+                </MotionReveal>
               </header>
             </MotionReveal>
 
@@ -1727,7 +1748,7 @@ export default function InvoiceEditorPage() {
             />
 
             <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
-              {orderedSteps.map((step, index) => {
+              {orderedSteps.map((step) => {
                 const isActive = currentStep === step;
                 const isCompleted = stepValidityByStep[step] && !isActive;
 
@@ -1745,7 +1766,6 @@ export default function InvoiceEditorPage() {
                   >
                     <InlineStepSection
                       step={step}
-                      index={index}
                       isActive={isActive}
                       isCompleted={isCompleted}
                       issueCount={missingFieldCountByStep[step]}
@@ -1759,77 +1779,26 @@ export default function InvoiceEditorPage() {
                 );
               })}
             </div>
-
-            <MotionReveal preset="fade-up" delay={60} className={getAppPanelClass("muted")}>
-              <footer
-                className="flex flex-wrap items-center justify-between gap-4"
-                data-testid="editor-footer-actions"
-              >
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-950">
-                    Finalize when everything looks right
-                  </p>
-                  <p className="text-xs leading-5 text-slate-500">
-                    Preview remains gated until every required section is valid.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleBackToHome}
-                    className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <ChevronLeftIcon className="h-4 w-4" />
-                      Close
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSaveDraft}
-                    className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <SaveIcon className="h-4 w-4" />
-                      Save Draft
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handlePreviewInvoice}
-                    disabled={!invoiceReadyForPreview}
-                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <DownloadIcon className="h-4 w-4" />
-                      Preview & Download
-                    </span>
-                  </button>
-                </div>
-              </footer>
-            </MotionReveal>
           </div>
 
-          <aside className="hidden w-full xl:block">
-            <div className="space-y-5 xl:sticky xl:top-24">
-              <MotionReveal preset="fade-up" delay={40} className={getAppPanelClass()}>
-                <div className="space-y-5">
+          <aside className="hidden w-full xl:block xl:w-[216px] xl:justify-self-end" data-testid="desktop-support-rail">
+            <div className="space-y-3 xl:sticky xl:top-[88px]">
+              <MotionReveal
+                preset="fade-up"
+                delay={40}
+                className={cn(getAppSubtlePanelClass("muted"), "px-3 py-3")}
+              >
+                <div className="space-y-3">
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
-                      Section Status
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                      Progress
                     </p>
-                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
-                      Guided progress
-                    </h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Every section stays available. Use the highlighted row as your next recommended checkpoint, or jump anywhere to review and edit.
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      {completedStepCount} of {orderedSteps.length} sections ready
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = stepValidityByStep[step] && !isActive;
@@ -1840,17 +1809,17 @@ export default function InvoiceEditorPage() {
                           key={step}
                           type="button"
                           onClick={() => goToStep(step)}
-                          className={`app-interactive-surface flex w-full items-center justify-between gap-3 rounded-[14px] border px-4 py-3.5 text-left transition duration-[var(--app-duration-fast)] ${
+                          className={`app-interactive-surface flex w-full items-center justify-between gap-2 rounded-[12px] px-2.5 py-2 text-left transition duration-[var(--app-duration-fast)] ${
                             isActive
                               ? "app-soft-choice-option-active"
                               : isCompleted
-                              ? "border-emerald-200 bg-emerald-50/80 shadow-[0_6px_16px_rgba(16,185,129,0.1)]"
-                              : "border-amber-200 bg-white/88 text-slate-700 hover:border-amber-300"
+                              ? "bg-emerald-50/38 text-slate-700 ring-1 ring-inset ring-emerald-100/62"
+                              : "bg-white/28 text-slate-700 ring-1 ring-inset ring-slate-200/50"
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                              className={`inline-flex h-5.5 w-5.5 items-center justify-center rounded-full text-[10px] font-semibold ${
                                 isActive
                                   ? "bg-indigo-500 text-white"
                                   : isCompleted
@@ -1861,10 +1830,10 @@ export default function InvoiceEditorPage() {
                               {isCompleted ? "✓" : index + 1}
                             </span>
                             <div>
-                              <p className="text-sm font-medium text-slate-950">
+                              <p className="text-[13px] font-medium text-slate-950">
                                 {getStepShortLabel(step)}
                               </p>
-                              <p className="text-xs text-slate-500">
+                              <p className="text-[10px] text-slate-400">
                                 {isCompleted
                                   ? "Completed"
                                   : isActive
@@ -1873,7 +1842,7 @@ export default function InvoiceEditorPage() {
                               </p>
                             </div>
                           </div>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-[11px] text-slate-500">
                             {isIncomplete && missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} left`
                               : isCompleted
@@ -1887,89 +1856,70 @@ export default function InvoiceEditorPage() {
                 </div>
               </MotionReveal>
 
-              <MotionReveal preset="fade-up" delay={80} className={getAppPanelClass("muted")}>
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
-                      Live Snapshot
+              <MotionReveal
+                preset="fade-up"
+                delay={80}
+                className={cn(getAppSubtlePanelClass("muted"), "px-3 py-3")}
+              >
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                      Ready state
                     </p>
-                    <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-                      Invoice summary
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Invoice No.
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-slate-950">
-                        {formData.meta.invoiceNumber || "Pending"}
-                      </p>
-                    </div>
-                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Currency
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-slate-950">
-                        {displayCurrency}
-                      </p>
-                    </div>
-                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Client
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-slate-950">
-                        {formData.client.clientName || "Not added yet"}
-                      </p>
-                    </div>
-                    <div className="app-soft-panel rounded-[14px] px-4 py-3">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Grand Total
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-slate-950">
-                        {formatSummaryCurrency(computedTotals.grandTotal, displayCurrency)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="app-soft-panel-muted rounded-[14px] px-4 py-4">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-                      Preview readiness
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-slate-950">
+                    <p className="text-sm font-semibold tracking-tight text-slate-950">
                       {invoiceReadyForPreview
-                        ? "Ready for preview and download"
+                        ? "Ready for preview"
                         : firstInvalidStep
                         ? `${getStepShortLabel(firstInvalidStep)} needs attention`
                         : "Keep completing the form"}
                     </p>
-                    {missingFieldGroups.length > 0 ? (
-                      <ul className="mt-3 space-y-2 text-xs leading-5 text-slate-600">
-                        {missingFieldGroups.slice(0, 4).map((group) => (
-                          <li key={group.step}>
-                            <span className="font-medium text-slate-950">
-                              {getStepShortLabel(group.step)}:
-                            </span>{" "}
-                            {group.fields.join(", ")}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="mt-3 text-xs leading-5 text-slate-600">
-                        All required sections are valid. You can save a draft or move straight into preview.
-                      </p>
-                    )}
                   </div>
+
+                  <div className="space-y-2 text-[11px] leading-5 text-slate-600">
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Invoice</span>
+                      <span className="font-medium text-slate-900">
+                        {formData.meta.invoiceNumber || "Pending"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Client</span>
+                      <span className="truncate font-medium text-slate-900">
+                        {formData.client.clientName || "Pending"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Total</span>
+                      <span className="font-semibold text-slate-950">
+                        {formatSummaryCurrency(computedTotals.grandTotal, displayCurrency)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {missingFieldGroups.length > 0 ? (
+                    <ul className="space-y-1.5 border-t border-slate-200/70 pt-3 text-[11px] leading-5 text-slate-600">
+                      {missingFieldGroups.slice(0, 3).map((group) => (
+                        <li key={group.step}>
+                          <span className="font-medium text-slate-900">
+                            {getStepShortLabel(group.step)}:
+                          </span>{" "}
+                          {group.fields.join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
               </MotionReveal>
 
               {totalsComplianceMessage ? (
                 <MotionReveal
-                  preset="fade-up"
-                  delay={110}
-                  className={getAppPanelClass(
+                preset="fade-up"
+                delay={110}
+                className={cn(
+                  getAppSubtlePanelClass(
                     totalsComplianceVariant === "warning" ? "warning" : "muted"
+                  ),
+                    "px-3.5 py-3.5"
                   )}
                 >
                   <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">

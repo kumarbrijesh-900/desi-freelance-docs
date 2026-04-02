@@ -9,10 +9,15 @@ import type {
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import {
+  appFieldErrorTextClass,
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
   cn,
   getAppButtonClass,
   getAppFieldClass,
   getAppPanelClass,
+  getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
 
 interface TermsPaymentSectionProps {
@@ -39,34 +44,17 @@ function getLicenseExplanation(
 ): string {
   switch (licenseType) {
     case "full-assignment":
-      return "Full assignment means complete ownership of the final work is transferred to the client upon the agreed conditions, usually after full payment. The freelancer no longer retains commercial rights to the assigned work unless separately agreed.";
+      return "Full assignment transfers ownership of the final work to the client once the agreed conditions are met.";
 
     case "exclusive-license":
-      return "Exclusive license means the client receives exclusive rights to use the work for the agreed purpose and duration. The freelancer retains ownership unless otherwise stated, but cannot license the same work to others during the exclusive period.";
+      return "Exclusive license gives the client sole usage rights for the agreed purpose and duration while you retain ownership.";
 
     case "non-exclusive-license":
-      return "Non-exclusive license means the client receives permission to use the work for the agreed purpose, while the freelancer retains ownership and may reuse, resell, or license the work elsewhere unless restricted by contract.";
+      return "Non-exclusive license lets the client use the work while you keep ownership and can reuse it elsewhere.";
 
     default:
-      return "Choose Yes if this invoice includes usage rights or ownership terms for the work. Choose No if licensing is not part of this invoice.";
+      return "Use this only when the invoice includes usage rights or ownership terms.";
   }
-}
-
-function InfoTooltip({ text }: { text: string }) {
-  return (
-    <span className="group relative ml-1 inline-flex items-center">
-      <span
-        className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-gray-300 text-[10px] font-bold text-gray-500"
-        aria-label="More information"
-      >
-        i
-      </span>
-
-      <span className="pointer-events-none absolute left-1/2 top-6 z-[100] hidden w-72 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-3 text-xs font-normal leading-5 text-gray-600 shadow-lg group-hover:block">
-        {text}
-      </span>
-    </span>
-  );
 }
 
 export default function TermsPaymentSection({
@@ -82,6 +70,10 @@ export default function TermsPaymentSection({
   const [isQrDragOver, setIsQrDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isLicenseSectionExpanded, setIsLicenseSectionExpanded] = useState(
+    value.license.isLicenseIncluded ||
+      Boolean(value.license.licenseType || value.license.licenseDuration)
+  );
 
   useEffect(() => {
     if (!showToast) return;
@@ -169,6 +161,12 @@ export default function TermsPaymentSection({
   const licenseExplanation = getLicenseExplanation(
     value.license.licenseType
   );
+  const hasLicenseContent = Boolean(
+    value.license.isLicenseIncluded ||
+      value.license.licenseType ||
+      value.license.licenseDuration
+  );
+  const isLicenseSectionOpen = isLicenseSectionExpanded || hasLicenseContent;
 
   const showLicenseFields = value.license.isLicenseIncluded;
   const showLicenseDuration =
@@ -194,16 +192,17 @@ export default function TermsPaymentSection({
             : getAppPanelClass()
         )}
       >
-        {!embedded ? (
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-            Terms & Payment
-          </h2>
-        ) : null}
+        <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
+          {!embedded ? <h2 className={appSectionTitleClass}>Payment</h2> : null}
+          <p className={appSectionDescriptionClass}>
+            Add payment terms and the payout details that should appear on the invoice.
+          </p>
+        </div>
 
         <div className="space-y-6">
           {isInternational ? (
-            <div className={cn(getAppPanelClass("warning"), "p-5")}>
-              <label className="mb-2 block text-sm font-medium text-amber-950">
+            <div className={cn(getAppSubtlePanelClass("warning"), "space-y-3")}>
+              <label className={cn(appFieldLabelClass, "mb-0 text-amber-950")}>
                 Settlement Type
               </label>
               <ChoiceCards
@@ -233,144 +232,170 @@ export default function TermsPaymentSection({
                 ]}
               />
               {value.paymentSettlementType !== "forex" ? (
-                <p className="mt-3 text-xs font-medium leading-5 text-amber-950/85">
-                  International invoices usually need a clear forex-settlement trail. If this will settle in INR or you are unsure, review bank and FEMA documentation before final delivery.
+                <p className="text-xs font-medium leading-5 text-amber-950/85">
+                  International invoices usually need a clear forex-settlement trail. Review the settlement route before final delivery.
                 </p>
               ) : null}
             </div>
           ) : null}
 
           <div>
-            <label className="mb-2 inline-flex items-center text-sm font-medium text-black">
+            <label className={appFieldLabelClass}>
               Payment Terms *
-              <InfoTooltip text="Payment Terms define when payment is due after the invoice date, such as Net 15, Net 30, or Due on receipt. This helps set clear client expectations and can also be used to auto-suggest the due date." />
             </label>
             <input
               type="text"
               value={meta.paymentTerms}
               onChange={(e) => updateMetaField("paymentTerms", e.target.value)}
-              placeholder="Net 15 (payment due within 15 days of invoice date)"
+              placeholder="Net 15"
               className={inputClass(paymentTermsError, Boolean(meta.paymentTerms))}
             />
             {paymentTermsError ? (
-              <p className="mt-2 text-xs font-medium text-red-600">
+              <p className={appFieldErrorTextClass}>
                 {paymentTermsError}
               </p>
             ) : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className={cn(getAppPanelClass(), "p-5")}>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
-                    License Included?
-                  </label>
+          <div className="space-y-4 border-t border-slate-200/70 pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-950">
+                  Licensing
+                </p>
+              </div>
 
-                  <ChoiceCards
-                    name="license-included"
-                    value={value.license.isLicenseIncluded ? "yes" : "no"}
-                    onChange={(nextValue) => {
-                      if (nextValue === "yes") {
-                        updateLicenseField("isLicenseIncluded", true);
-                        return;
-                      }
+              <button
+                type="button"
+                onClick={() =>
+                  setIsLicenseSectionExpanded((current) =>
+                    hasLicenseContent ? true : !current
+                  )
+                }
+                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              >
+                {hasLicenseContent
+                  ? "License active"
+                  : isLicenseSectionOpen
+                  ? "Hide"
+                  : "Add"}{" "}
+                license terms
+              </button>
+            </div>
 
-                      onChange({
-                        ...value,
-                        license: {
-                          isLicenseIncluded: false,
-                          licenseType: "",
-                          licenseDuration: "",
-                        },
-                      });
-                    }}
-                    variant="segmented"
-                    columns={2}
-                    options={[
-                      {
-                        value: "yes",
-                        label: "Yes",
-                      },
-                      {
-                        value: "no",
-                        label: "No",
-                      },
-                    ]}
-                  />
-                </div>
-
-                {showLicenseFields && (
+            {isLicenseSectionOpen ? (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_176px] xl:items-start">
+                <div className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-black">
-                      License Type *
+                    <label className={appFieldLabelClass}>
+                      License Included?
                     </label>
 
                     <ChoiceCards
-                      name="license-type"
-                      value={value.license.licenseType}
-                      onChange={(nextValue) =>
-                        updateLicenseField("licenseType", nextValue as LicenseType)
-                      }
-                      variant="cards"
+                      name="license-included"
+                      value={value.license.isLicenseIncluded ? "yes" : "no"}
+                      onChange={(nextValue) => {
+                        if (nextValue === "yes") {
+                          updateLicenseField("isLicenseIncluded", true);
+                          return;
+                        }
+
+                        onChange({
+                          ...value,
+                          license: {
+                            isLicenseIncluded: false,
+                            licenseType: "",
+                            licenseDuration: "",
+                          },
+                        });
+                      }}
+                      variant="segmented"
                       columns={2}
                       options={[
                         {
-                          label: "Full assignment",
-                          value: "full-assignment",
+                          value: "yes",
+                          label: "Yes",
                         },
                         {
-                          label: "Exclusive license",
-                          value: "exclusive-license",
-                        },
-                        {
-                          label: "Non-exclusive license",
-                          value: "non-exclusive-license",
+                          value: "no",
+                          label: "No",
                         },
                       ]}
                     />
                   </div>
-                )}
 
-                {showLicenseFields && showLicenseDuration && (
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-black">
-                      License Duration *
-                    </label>
-                    <input
-                      type="text"
-                      value={value.license.licenseDuration}
-                      onChange={(e) =>
-                        updateLicenseField("licenseDuration", e.target.value)
-                      }
-                      placeholder="Example: 3 years"
-                      className={inputClass(
-                        errors?.licenseDuration,
-                        Boolean(value.license.licenseDuration)
-                      )}
-                    />
-                    {errors?.licenseDuration ? (
-                      <p className="mt-2 text-xs font-medium text-red-600">
-                        {errors.licenseDuration}
-                      </p>
-                    ) : null}
-                  </div>
-                )}
+                  {showLicenseFields ? (
+                    <div>
+                      <label className={appFieldLabelClass}>
+                        License Type *
+                      </label>
+
+                      <ChoiceCards
+                        name="license-type"
+                        value={value.license.licenseType}
+                        onChange={(nextValue) =>
+                          updateLicenseField("licenseType", nextValue as LicenseType)
+                        }
+                        variant="cards"
+                        columns={2}
+                        options={[
+                          {
+                            label: "Full assignment",
+                            value: "full-assignment",
+                          },
+                          {
+                            label: "Exclusive license",
+                            value: "exclusive-license",
+                          },
+                          {
+                            label: "Non-exclusive license",
+                            value: "non-exclusive-license",
+                          },
+                        ]}
+                      />
+                    </div>
+                  ) : null}
+
+                  {showLicenseFields && showLicenseDuration ? (
+                    <div className="max-w-[260px]">
+                      <label className={appFieldLabelClass}>
+                        License Duration *
+                      </label>
+                      <input
+                        type="text"
+                        value={value.license.licenseDuration}
+                        onChange={(e) =>
+                          updateLicenseField("licenseDuration", e.target.value)
+                        }
+                        placeholder="Example: 3 years"
+                        className={inputClass(
+                          errors?.licenseDuration,
+                          Boolean(value.license.licenseDuration)
+                        )}
+                      />
+                      {errors?.licenseDuration ? (
+                        <p className={appFieldErrorTextClass}>
+                          {errors.licenseDuration}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className={cn(getAppSubtlePanelClass("muted"), "space-y-2 p-3.5")}>
+                  <p className="text-sm font-medium text-slate-900">
+                    License summary
+                  </p>
+                  <p className="text-sm leading-6 text-slate-500">
+                    {licenseExplanation}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className={cn(getAppPanelClass("muted"), "p-5")}>
-              <p className="text-sm font-medium text-black">
-                License Explanation
-              </p>
-              <p className="mt-2 text-sm leading-6 text-gray-600">
-                {licenseExplanation}
-              </p>
-            </div>
+            ) : null}
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-black">
+            <label className={appFieldLabelClass}>
               Terms / Notes
             </label>
             <textarea
@@ -383,10 +408,10 @@ export default function TermsPaymentSection({
           </div>
 
           {!isInternational ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_320px]">
-              <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_128px] xl:items-start">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Bank Name
                   </label>
                   <input
@@ -397,30 +422,35 @@ export default function TermsPaymentSection({
                     className={inputClass(errors?.bankName, Boolean(value.bankName))}
                   />
                   {errors?.bankName ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.bankName}
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Account Name
                   </label>
                   <input
                     type="text"
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
-                    placeholder="Name on bank account"
+                    placeholder="Name as per bank account"
                     className={inputClass(
                       errors?.accountName,
                       Boolean(value.accountName)
                     )}
                   />
+                  {errors?.accountName ? (
+                    <p className={appFieldErrorTextClass}>
+                      {errors.accountName}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Account Number
                   </label>
                   <input
@@ -434,14 +464,14 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.accountNumber ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.accountNumber}
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     IFSC Code
                   </label>
                   <input
@@ -455,16 +485,19 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.ifscCode ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.ifscCode}
                     </p>
                   ) : null}
                 </div>
               </div>
 
-              <div className={cn(getAppPanelClass("muted"), "p-5")}>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-black">Payment QR</p>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Payment QR</p>
+                    <p className="mt-0.5 text-[11px] leading-5 text-slate-500">Optional</p>
+                  </div>
 
                   {value.qrCodeUrl ? (
                     <button
@@ -490,7 +523,7 @@ export default function TermsPaymentSection({
                   }}
                   onDragLeave={() => setIsQrDragOver(false)}
                   onDrop={handleQrDrop}
-                  className={`app-dropzone-surface flex min-h-[180px] cursor-pointer items-center justify-center rounded-[var(--app-radius-card)] border-2 border-dashed p-4 text-center text-sm ${
+                  className={`app-dropzone-surface flex aspect-square w-full max-w-[112px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-3 py-3 text-center text-sm ${
                     isQrDragOver
                       ? "app-dropzone-accept text-slate-950"
                       : "text-slate-500 hover:border-slate-400"
@@ -507,39 +540,26 @@ export default function TermsPaymentSection({
                     <img
                       src={value.qrCodeUrl}
                       alt="Payment QR preview"
-                      className="max-h-[150px] w-auto object-contain"
+                      className="max-h-[64px] w-auto object-contain"
                     />
                   ) : (
-                    <div>
-                      Drag & drop QR here
-                      <br />
-                      or click to upload
-                      <br />
-                      <span className="text-xs text-gray-400">PNG, JPG, SVG</span>
+                    <div className="space-y-1">
+                      <p className="font-medium text-slate-700">Upload</p>
+                      <p className="text-[11px] text-slate-400">QR</p>
                     </div>
                   )}
                 </label>
-
-                <p className="mt-3 text-xs leading-5 text-gray-500">
-                  Upload or drop a payment QR image to show it in invoice preview
-                  and export.
-                </p>
               </div>
             </div>
           ) : (
-            <div className={cn(getAppPanelClass("muted"), "p-5")}>
-              <div className="mb-4">
-                <p className="text-sm font-medium text-black">
-                  International Wire Details
-                </p>
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  Share bank transfer details for international client payments.
-                </p>
+            <div className="space-y-4 border-t border-slate-200/70 pt-5">
+              <div className="mb-2">
+                <p className="text-sm font-medium text-slate-900">International wire details</p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Beneficiary / Account Name
                   </label>
                   <input
@@ -553,14 +573,14 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.accountName ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.accountName}
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Bank Name
                   </label>
                   <input
@@ -571,14 +591,14 @@ export default function TermsPaymentSection({
                     className={inputClass(errors?.bankName, Boolean(value.bankName))}
                   />
                   {errors?.bankName ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.bankName}
                     </p>
                   ) : null}
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Bank Full Address
                   </label>
                   <textarea
@@ -593,14 +613,14 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.bankAddress ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.bankAddress}
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     Account Number
                   </label>
                   <input
@@ -614,14 +634,14 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.accountNumber ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.accountNumber}
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     SWIFT / BIC Code
                   </label>
                   <input
@@ -635,14 +655,14 @@ export default function TermsPaymentSection({
                     )}
                   />
                   {errors?.swiftBicCode ? (
-                    <p className="mt-2 text-xs font-medium text-red-600">
+                    <p className={appFieldErrorTextClass}>
                       {errors.swiftBicCode}
                     </p>
                   ) : null}
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-black">
+                  <label className={appFieldLabelClass}>
                     IBAN / Routing / Sort Code
                   </label>
                   <input

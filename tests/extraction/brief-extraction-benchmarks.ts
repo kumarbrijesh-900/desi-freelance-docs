@@ -196,6 +196,49 @@ term5 net15`,
     expectedClarifications: [],
   },
   {
+    id: "signature-style-agency-name",
+    title: "Signature-style agency intro",
+    text: `Please make an invoice for Atlas Skin.
+Client is Atlas Skin and they are based in Mumbai.
+2 social media posts at INR 8500 per post.
+Payment terms: Net 7.
+
+Regards,
+Megha Arora`,
+    expectedExtracted: {
+      agencyName: "Megha Arora",
+      clientName: "Atlas Skin",
+      rate: 8500,
+      rateUnit: "per-post",
+      paymentTerms: "Net 7",
+    },
+    expectedInferred: {
+      clientState: "Maharashtra",
+      clientLocationType: "domestic",
+    },
+    expectedClarifications: [],
+  },
+  {
+    id: "invoice-for-brand-without-legal-suffix",
+    title: "Invoice-for brand without legal suffix",
+    text: `Need an invoice for Northstar.
+We are DesiFreelanceDocs Studio, Bangalore.
+Did 4 homepage screens at 18000 per screen.
+Net 15.`,
+    expectedExtracted: {
+      agencyName: "DesiFreelanceDocs Studio",
+      clientName: "Northstar",
+      rate: 18000,
+      rateUnit: "per-screen",
+      paymentTerms: "Net 15",
+    },
+    expectedInferred: {
+      agencyState: "Karnataka",
+      clientLocationType: "domestic",
+    },
+    expectedClarifications: [],
+  },
+  {
     id: "multi-deliverable-brief",
     title: "Multi-deliverable brief",
     text: `Invoice for Acme Labs.

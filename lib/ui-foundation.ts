@@ -2,6 +2,33 @@ export function cn(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
+export const appSectionTitleClass =
+  "text-xl font-semibold tracking-tight text-slate-950";
+
+export const appSectionDescriptionClass = "text-sm leading-6 text-slate-500";
+
+export const appFieldLabelClass =
+  "mb-2 block text-sm font-medium tracking-tight text-slate-800";
+
+export const appFieldHelperTextClass =
+  "mt-1.5 text-[11px] leading-5 text-slate-500";
+
+export const appFieldErrorTextClass =
+  "mt-1.5 text-[11px] font-medium leading-5 text-rose-500";
+
+export function getAppSubtlePanelClass(
+  tone: "default" | "muted" | "warning" = "default"
+) {
+  return cn(
+    "rounded-[var(--app-radius-card)] p-5",
+    tone === "warning"
+      ? "bg-amber-50/74 ring-1 ring-inset ring-amber-200/65"
+      : tone === "muted"
+      ? "bg-slate-50/52 ring-1 ring-inset ring-slate-200/52"
+      : "bg-white/72 ring-1 ring-inset ring-slate-200/54"
+  );
+}
+
 export type AppButtonVariant =
   | "primary"
   | "secondary"
@@ -24,7 +51,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-tight text-sm transition-[transform,background-color,border-color,box-shadow,color,opacity] duration-[var(--app-duration-fast)] disabled:pointer-events-none disabled:opacity-55",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-tight text-sm transition-[background-color,border-color,box-shadow,color,opacity] duration-[var(--app-duration-fast)] disabled:pointer-events-none disabled:opacity-55",
     size === "sm"
       ? "h-10 px-4 text-sm"
       : size === "lg"
@@ -54,17 +81,17 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field w-full rounded-[var(--app-radius-control)] border text-[15px] font-normal leading-6 text-slate-950 outline-none transition-[transform,background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
+    "app-interactive-field app-focus-ring app-soft-field w-full rounded-[var(--app-radius-control)] border text-[15px] font-normal leading-6 text-slate-950 outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
     multiline ? "min-h-[120px] px-4 py-3.5" : "h-12 px-4",
     isSelect ? "appearance-none pr-12 text-left" : "",
     "placeholder:text-slate-400",
     "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100/85 disabled:text-slate-400 disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
-      ? "app-soft-field-error border-red-400 text-red-950 focus-visible:border-red-500"
+      ? "app-soft-field-error border-rose-300/80 text-slate-950 focus-visible:border-rose-400"
       : hasValue
-      ? "app-soft-field-filled border-slate-400"
-      : "border-slate-300"
+      ? "app-soft-field-filled border-slate-300/90"
+      : "border-slate-200"
   );
 }
 
@@ -72,7 +99,7 @@ export function getAppPanelClass(
   tone: "default" | "success" | "warning" | "muted" = "default"
 ) {
   return cn(
-    "app-interactive-surface rounded-[var(--app-radius-card)] border p-6 transition-[transform,background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
+    "app-interactive-surface rounded-[var(--app-radius-card)] p-6 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
     tone === "success"
       ? "app-soft-panel-success"
       : tone === "warning"

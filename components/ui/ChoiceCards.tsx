@@ -14,7 +14,7 @@ interface ChoiceCardsProps<T extends string> {
   value: T | "";
   options: ChoiceOption<T>[];
   onChange: (value: T) => void;
-  variant?: "segmented" | "cards";
+  variant?: "segmented" | "cards" | "inline";
   columns?: 1 | 2;
 }
 
@@ -30,11 +30,21 @@ export default function ChoiceCards<T extends string>({
   const wrapperClass =
     variant === "segmented"
       ? `app-soft-choice-track grid gap-1.5 rounded-[14px] p-1.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`
+      : variant === "inline"
+      ? "flex flex-wrap gap-2"
       : `grid gap-3.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
       return `flex min-h-[56px] items-center justify-between gap-3 rounded-[12px] border px-4 py-3.5 text-left text-sm font-medium transition-all duration-150 ${
+        isSelected
+          ? "app-soft-choice-option-active text-slate-950"
+          : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+      }`;
+    }
+
+    if (variant === "inline") {
+      return `inline-flex min-h-10 items-center rounded-full border px-3.5 py-2 text-left text-sm font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -66,10 +76,8 @@ export default function ChoiceCards<T extends string>({
               reducedMotion
                 ? undefined
                 : {
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 30,
-                    mass: 0.75,
+                    duration: 0.18,
+                    ease: [0, 0, 0.2, 1],
                   }
             }
           >
@@ -94,10 +102,8 @@ export default function ChoiceCards<T extends string>({
               }`}
               data-selected={isSelected ? "true" : "false"}
               transition={{
-                type: "spring",
-                stiffness: 380,
-                damping: 30,
-                mass: 0.82,
+                duration: 0.2,
+                ease: [0, 0, 0.2, 1],
               }}
             >
               <span className="block">
@@ -124,9 +130,8 @@ export default function ChoiceCards<T extends string>({
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 28,
+                    duration: 0.18,
+                    ease: [0, 0, 0.2, 1],
                   }}
                 />
               ) : null}

@@ -1,7 +1,15 @@
 "use client";
 
 import type { InvoiceMeta } from "@/types/invoice";
-import { cn, getAppFieldClass, getAppPanelClass } from "@/lib/ui-foundation";
+import {
+  appFieldErrorTextClass,
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
+  cn,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
 
 interface InvoiceMetaSectionProps {
   value: InvoiceMeta;
@@ -44,15 +52,16 @@ export default function InvoiceMetaSection({
           : getAppPanelClass()
       )}
     >
-      {!embedded ? (
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-700">
-          Invoice Meta Data
-        </h2>
-      ) : null}
+        <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
+          {!embedded ? <h2 className={appSectionTitleClass}>Invoice Details</h2> : null}
+          <p className={appSectionDescriptionClass}>
+            Keep numbering and dates compact here.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:max-w-[560px] md:grid-cols-[minmax(0,1fr)_164px_164px] md:items-start">
         <div>
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label className={appFieldLabelClass}>
             Invoice Number *
           </label>
           <input
@@ -62,18 +71,15 @@ export default function InvoiceMetaSection({
             placeholder="INV-2026-001"
             className={inputClass(errors?.invoiceNumber, Boolean(value.invoiceNumber))}
           />
-          <p className="mt-2 text-xs leading-5 text-gray-500">
-            Auto-generated. You can edit this if needed.
-          </p>
           {errors?.invoiceNumber ? (
-            <p className="mt-2 text-xs font-medium text-red-600">
+            <p className={appFieldErrorTextClass}>
               {errors.invoiceNumber}
             </p>
           ) : null}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label className={appFieldLabelClass}>
             Invoice Date *
           </label>
           <input
@@ -83,14 +89,14 @@ export default function InvoiceMetaSection({
             className={inputClass(errors?.invoiceDate, Boolean(value.invoiceDate))}
           />
           {errors?.invoiceDate ? (
-            <p className="mt-2 text-xs font-medium text-red-600">
+            <p className={appFieldErrorTextClass}>
               {errors.invoiceDate}
             </p>
           ) : null}
         </div>
 
-        <div className="sm:col-span-2">
-          <label className="mb-2 block text-sm font-medium text-black">
+        <div>
+          <label className={appFieldLabelClass}>
             Due Date *
           </label>
           <input
@@ -100,7 +106,7 @@ export default function InvoiceMetaSection({
             className={inputClass(errors?.dueDate, Boolean(value.dueDate))}
           />
           {errors?.dueDate ? (
-            <p className="mt-2 text-xs font-medium text-red-600">
+            <p className={appFieldErrorTextClass}>
               {errors.dueDate}
             </p>
           ) : null}
