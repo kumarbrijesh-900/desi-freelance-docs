@@ -2960,6 +2960,27 @@ export function extractInvoiceBriefSchema(
   };
 }
 
+function isEffectivelyEmptyValue<T>(currentValue: T, defaultValue: T) {
+  if (typeof currentValue === "string") {
+    return !currentValue.trim() || currentValue === defaultValue;
+  }
+
+  return currentValue === defaultValue;
+}
+
+// Autofill is allowed to fill only empty or untouched-default fields.
+// Once the user has meaningful data, we preserve it even when extraction
+// comes back with high confidence.
+function safeAssign<T>(
+  currentValue: T,
+  defaultValue: T,
+  incomingValue: T
+) {
+  return isEffectivelyEmptyValue(currentValue, defaultValue)
+    ? incomingValue
+    : currentValue;
+}
+
 function shouldApplyCandidate<T>(
   currentValue: T,
   defaultValue: T,
@@ -2968,15 +2989,7 @@ function shouldApplyCandidate<T>(
   if (!candidate) return false;
   if (candidate.confidence === "low") return false;
 
-  if (typeof currentValue === "string") {
-    return (
-      !currentValue.trim() ||
-      currentValue === defaultValue ||
-      candidate.confidence === "high"
-    );
-  }
-
-  return currentValue === defaultValue || candidate.confidence === "high";
+  return isEffectivelyEmptyValue(currentValue, defaultValue);
 }
 
 function recordField(
@@ -3056,7 +3069,13 @@ function applyCandidateToForm<T>({
     return;
   }
 
-  assign(candidate.value);
+  const nextValue = safeAssign(currentValue, defaultValue, candidate.value);
+
+  if (nextValue === currentValue) {
+    return;
+  }
+
+  assign(nextValue);
   recordField(
     label,
     candidate.confidence,
@@ -3101,6 +3120,15 @@ export function mapBriefExtractionToInvoiceForm(params: {
       inferredFieldSummaries,
       lowConfidenceFieldSummaries,
     });
+  const hasMeaningfulLineItems = nextFormData.lineItems.some((item) => {
+    return Boolean(
+      item.description.trim() ||
+        item.qty !== defaultLineItem.qty ||
+        item.rate !== defaultLineItem.rate ||
+        item.type !== defaultLineItem.type ||
+        item.rateUnit !== defaultLineItem.rateUnit
+    );
+  });
 
   applyCandidate({
     label: "Agency name",
@@ -3277,7 +3305,6 @@ export function mapBriefExtractionToInvoiceForm(params: {
     candidate: extraction.clientCountry,
     assign: (value) => {
       nextFormData.client.clientCountry = value;
-      nextFormData.client.clientLocation = "international";
     },
     filledFields,
     aiFilledFields,
@@ -3292,7 +3319,6 @@ export function mapBriefExtractionToInvoiceForm(params: {
     candidate: extraction.clientCurrency,
     assign: (value) => {
       nextFormData.client.clientCurrency = value;
-      nextFormData.client.clientLocation = "international";
     },
     filledFields,
     aiFilledFields,
@@ -3334,24 +3360,20 @@ export function mapBriefExtractionToInvoiceForm(params: {
             item.rateUnit
         );
 
-  if (extractedLineItems.length > 0) {
-    const mergedLineItems = [
-      ...nextFormData.lineItems.map((item) => ({ ...item })),
-    ];
-
-    extractedLineItems.forEach((candidateItem, index) => {
-      const existingItem = mergedLineItems[index] ?? {
+  if (extractedLineItems.length > 0 && !hasMeaningfulLineItems) {
+    const mergedLineItems = extractedLineItems.map((candidateItem, index) => {
+      const nextItem = {
         ...defaultLineItem,
         id: `brief-line-${index + 1}`,
       };
 
       applyCandidate({
         label: index === 0 ? "Deliverable type" : `Deliverable ${index + 1} type`,
-        currentValue: existingItem.type,
+        currentValue: nextItem.type,
         defaultValue: defaultLineItem.type,
         candidate: candidateItem.type,
         assign: (value) => {
-          existingItem.type = value;
+          nextItem.type = value;
         },
         filledFields,
         aiFilledFields,
@@ -3364,11 +3386,11 @@ export function mapBriefExtractionToInvoiceForm(params: {
           index === 0
             ? "Deliverable description"
             : `Deliverable ${index + 1} description`,
-        currentValue: existingItem.description,
+        currentValue: nextItem.description,
         defaultValue: defaultLineItem.description,
         candidate: candidateItem.description,
         assign: (value) => {
-          existingItem.description = value;
+          nextItem.description = value;
         },
         filledFields,
         aiFilledFields,
@@ -3378,11 +3400,11 @@ export function mapBriefExtractionToInvoiceForm(params: {
 
       applyCandidate({
         label: index === 0 ? "Quantity" : `Deliverable ${index + 1} quantity`,
-        currentValue: existingItem.qty,
+        currentValue: nextItem.qty,
         defaultValue: defaultLineItem.qty,
         candidate: candidateItem.qty,
         assign: (value) => {
-          existingItem.qty = value;
+          nextItem.qty = value;
         },
         filledFields,
         aiFilledFields,
@@ -3392,11 +3414,11 @@ export function mapBriefExtractionToInvoiceForm(params: {
 
       applyCandidate({
         label: index === 0 ? "Rate" : `Deliverable ${index + 1} rate`,
-        currentValue: existingItem.rate,
+        currentValue: nextItem.rate,
         defaultValue: defaultLineItem.rate,
         candidate: candidateItem.rate,
         assign: (value) => {
-          existingItem.rate = value;
+          nextItem.rate = value;
         },
         filledFields,
         aiFilledFields,
@@ -3406,11 +3428,11 @@ export function mapBriefExtractionToInvoiceForm(params: {
 
       applyCandidate({
         label: index === 0 ? "Rate unit" : `Deliverable ${index + 1} rate unit`,
-        currentValue: existingItem.rateUnit,
+        currentValue: nextItem.rateUnit,
         defaultValue: defaultLineItem.rateUnit,
         candidate: candidateItem.rateUnit,
         assign: (value) => {
-          existingItem.rateUnit = value;
+          nextItem.rateUnit = value;
         },
         filledFields,
         aiFilledFields,
@@ -3418,7 +3440,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
         lowConfidenceFields,
       });
 
-      mergedLineItems[index] = existingItem;
+      return nextItem;
     });
 
     nextFormData.lineItems = mergedLineItems;
