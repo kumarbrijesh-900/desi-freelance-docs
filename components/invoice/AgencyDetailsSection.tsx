@@ -38,6 +38,7 @@ interface AgencyDetailsSectionProps {
     gstin?: string;
     pan?: string;
   };
+  showAllErrors?: boolean;
 }
 
 export default function AgencyDetailsSection({
@@ -45,10 +46,12 @@ export default function AgencyDetailsSection({
   onChange,
   embedded = false,
   errors,
+  showAllErrors = false,
 }: AgencyDetailsSectionProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!showToast) return;
@@ -139,6 +142,13 @@ export default function AgencyDetailsSection({
   const removeLogo = () => {
     updateField("logoUrl", "");
   };
+  const markTouched = (field: string) => {
+    setTouchedFields((prev) =>
+      prev[field] ? prev : { ...prev, [field]: true }
+    );
+  };
+  const getVisibleError = (field: string, error?: string) =>
+    showAllErrors || touchedFields[field] ? error : undefined;
 
   const inputClass = (
     hasError?: string,
@@ -174,6 +184,11 @@ export default function AgencyDetailsSection({
     value.pan.trim().toUpperCase() !== gstinInfo.pan
       ? `PAN does not match this GSTIN. GSTIN implies PAN ${gstinInfo.pan}.`
       : "";
+  const agencyNameError = getVisibleError("agencyName", errors?.agencyName);
+  const addressError = getVisibleError("address", errors?.address);
+  const agencyStateError = getVisibleError("agencyState", errors?.agencyState);
+  const gstinError = getVisibleError("gstin", errors?.gstin);
+  const panError = getVisibleError("pan", errors?.pan);
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -203,12 +218,16 @@ export default function AgencyDetailsSection({
                 type="text"
                 value={value.agencyName}
                 onChange={(e) => updateField("agencyName", e.target.value)}
+                onBlur={() => markTouched("agencyName")}
                 placeholder="Your agency or freelance brand name"
-                className={inputClass(errors?.agencyName, Boolean(value.agencyName))}
+                className={inputClass(
+                  agencyNameError,
+                  Boolean(value.agencyName)
+                )}
               />
-              {errors?.agencyName ? (
+              {agencyNameError ? (
                 <p className={appFieldErrorTextClass}>
-                  {errors.agencyName}
+                  {agencyNameError}
                 </p>
               ) : null}
             </div>
@@ -230,8 +249,12 @@ export default function AgencyDetailsSection({
                     type="text"
                     value={value.addressLine1}
                     onChange={(e) => updateField("addressLine1", e.target.value)}
+                    onBlur={() => markTouched("address")}
                     placeholder="Building, street, or area"
-                    className={inputClass(errors?.address, Boolean(value.addressLine1))}
+                    className={inputClass(
+                      addressError,
+                      Boolean(value.addressLine1)
+                    )}
                   />
                 </div>
 
@@ -263,7 +286,8 @@ export default function AgencyDetailsSection({
                         e.target.value as AgencyDetails["agencyState"]
                       )
                     }
-                    hasError={errors?.agencyState}
+                    onBlur={() => markTouched("agencyState")}
+                    hasError={agencyStateError}
                     hasValue={Boolean(value.agencyState)}
                   >
                     <option value="">Select state or union territory</option>
@@ -307,14 +331,14 @@ export default function AgencyDetailsSection({
                 </div>
               </div>
 
-              {errors?.address ? (
+              {addressError ? (
                 <p className={appFieldErrorTextClass}>
-                  {errors.address}
+                  {addressError}
                 </p>
               ) : null}
-              {errors?.agencyState ? (
+              {agencyStateError ? (
                 <p className={appFieldErrorTextClass}>
-                  {errors.agencyState}
+                  {agencyStateError}
                 </p>
               ) : null}
               {stateSignals.warning ? (
@@ -378,14 +402,15 @@ export default function AgencyDetailsSection({
                             e.target.value.toUpperCase().replace(/\s+/g, "")
                           )
                         }
+                        onBlur={() => markTouched("gstin")}
                         placeholder="GSTIN"
                         autoCapitalize="characters"
                         spellCheck={false}
-                        className={inputClass(errors?.gstin, Boolean(value.gstin))}
+                        className={inputClass(gstinError, Boolean(value.gstin))}
                       />
-                      {errors?.gstin ? (
+                      {gstinError ? (
                         <p className={appFieldErrorTextClass}>
-                          {errors.gstin}
+                          {gstinError}
                         </p>
                       ) : gstinInfo.state ? (
                         <p className={appFieldHelperTextClass}>
@@ -503,14 +528,15 @@ export default function AgencyDetailsSection({
                     e.target.value.toUpperCase().replace(/\s+/g, "")
                   )
                 }
+                onBlur={() => markTouched("pan")}
                 placeholder="PAN"
                 autoCapitalize="characters"
                 spellCheck={false}
-                className={inputClass(errors?.pan, Boolean(value.pan))}
+                className={inputClass(panError, Boolean(value.pan))}
               />
-              {errors?.pan ? (
+              {panError ? (
                 <p className={appFieldErrorTextClass}>
-                  {errors.pan}
+                  {panError}
                 </p>
               ) : panConflictWarning ? (
                 <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">

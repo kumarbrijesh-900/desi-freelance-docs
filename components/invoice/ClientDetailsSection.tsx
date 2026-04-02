@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ClientDetails } from "@/types/invoice";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
@@ -37,6 +38,7 @@ interface ClientDetailsSectionProps {
     clientCountry?: string;
     clientGstin?: string;
   };
+  showAllErrors?: boolean;
 }
 
 export default function ClientDetailsSection({
@@ -44,8 +46,10 @@ export default function ClientDetailsSection({
   onChange,
   embedded = false,
   errors,
+  showAllErrors = false,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
 
   const syncClientDetails = (nextValue: ClientDetails) => {
     if (nextValue.clientLocation === "international") {
@@ -91,6 +95,13 @@ export default function ClientDetailsSection({
       [key]: fieldValue,
     });
   };
+  const markTouched = (field: string) => {
+    setTouchedFields((prev) =>
+      prev[field] ? prev : { ...prev, [field]: true }
+    );
+  };
+  const getVisibleError = (field: string, error?: string) =>
+    showAllErrors || touchedFields[field] ? error : undefined;
 
   const inputClass = (
     hasError?: string,
@@ -117,6 +128,17 @@ export default function ClientDetailsSection({
           .join(", ")
       )
     : null;
+  const clientNameError = getVisibleError("clientName", errors?.clientName);
+  const clientAddressError = getVisibleError(
+    "clientAddress",
+    errors?.clientAddress
+  );
+  const clientStateError = getVisibleError("clientState", errors?.clientState);
+  const clientCountryError = getVisibleError(
+    "clientCountry",
+    errors?.clientCountry
+  );
+  const clientGstinError = getVisibleError("clientGstin", errors?.clientGstin);
 
   return (
     <section
@@ -144,12 +166,16 @@ export default function ClientDetailsSection({
               type="text"
               value={value.clientName}
               onChange={(e) => updateField("clientName", e.target.value)}
+              onBlur={() => markTouched("clientName")}
               placeholder="Client or company name"
-              className={inputClass(errors?.clientName, Boolean(value.clientName))}
+              className={inputClass(
+                clientNameError,
+                Boolean(value.clientName)
+              )}
             />
-            {errors?.clientName ? (
+            {clientNameError ? (
               <p className={appFieldErrorTextClass}>
-                {errors.clientName}
+                {clientNameError}
               </p>
             ) : null}
           </div>
@@ -204,14 +230,18 @@ export default function ClientDetailsSection({
                       e.target.value.toUpperCase().replace(/\s+/g, "")
                     )
                   }
+                  onBlur={() => markTouched("clientGstin")}
                   placeholder="Client GSTIN"
                   autoCapitalize="characters"
                   spellCheck={false}
-                  className={inputClass(errors?.clientGstin, Boolean(value.clientGstin))}
+                  className={inputClass(
+                    clientGstinError,
+                    Boolean(value.clientGstin)
+                  )}
                 />
-                {errors?.clientGstin ? (
+                {clientGstinError ? (
                   <p className={appFieldErrorTextClass}>
-                    {errors.clientGstin}
+                    {clientGstinError}
                   </p>
                 ) : gstinInfo.state ? (
                   <p className={appFieldHelperTextClass}>
@@ -276,8 +306,12 @@ export default function ClientDetailsSection({
                   type="text"
                   value={value.clientAddressLine1}
                   onChange={(e) => updateField("clientAddressLine1", e.target.value)}
+                  onBlur={() => markTouched("clientAddress")}
                   placeholder="Building, street, or campus name"
-                  className={inputClass(errors?.clientAddress, Boolean(value.clientAddressLine1))}
+                  className={inputClass(
+                    clientAddressError,
+                    Boolean(value.clientAddressLine1)
+                  )}
                 />
               </div>
 
@@ -309,7 +343,8 @@ export default function ClientDetailsSection({
                       e.target.value as ClientDetails["clientState"]
                     )
                   }
-                  hasError={errors?.clientState}
+                  onBlur={() => markTouched("clientState")}
+                  hasError={clientStateError}
                   hasValue={Boolean(value.clientState)}
                 >
                   <option value="">Select state or union territory</option>
@@ -356,14 +391,14 @@ export default function ClientDetailsSection({
               </div>
             </div>
 
-            {errors?.clientAddress ? (
+            {clientAddressError ? (
               <p className={appFieldErrorTextClass}>
-                {errors.clientAddress}
+                {clientAddressError}
               </p>
             ) : null}
-            {errors?.clientState ? (
+            {clientStateError ? (
               <p className={appFieldErrorTextClass}>
-                {errors.clientState}
+                {clientStateError}
               </p>
             ) : null}
             {stateSignals.warning ? (
@@ -391,7 +426,8 @@ export default function ClientDetailsSection({
                       e.target.value as ClientDetails["clientCountry"]
                     )
                   }
-                  hasError={errors?.clientCountry}
+                  onBlur={() => markTouched("clientCountry")}
+                  hasError={clientCountryError}
                   hasValue={Boolean(value.clientCountry)}
                 >
                   <option value="">Select country</option>
@@ -401,9 +437,9 @@ export default function ClientDetailsSection({
                     </option>
                   ))}
                 </AppSelectField>
-                {errors?.clientCountry ? (
+                {clientCountryError ? (
                   <p className={appFieldErrorTextClass}>
-                    {errors.clientCountry}
+                    {clientCountryError}
                   </p>
                 ) : null}
               </div>
@@ -446,16 +482,17 @@ export default function ClientDetailsSection({
                 rows={4}
                 value={value.clientAddress}
                 onChange={(e) => updateField("clientAddress", e.target.value)}
+                onBlur={() => markTouched("clientAddress")}
                 placeholder="Full international billing address"
                 className={inputClass(
-                  errors?.clientAddress,
+                  clientAddressError,
                   Boolean(value.clientAddress),
                   true
                 )}
               />
-              {errors?.clientAddress ? (
+              {clientAddressError ? (
                 <p className={appFieldErrorTextClass}>
-                  {errors.clientAddress}
+                  {clientAddressError}
                 </p>
               ) : null}
             </div>
@@ -484,12 +521,16 @@ export default function ClientDetailsSection({
                   type="text"
                   value={value.clientGstin}
                   onChange={(e) => updateField("clientGstin", e.target.value)}
+                  onBlur={() => markTouched("clientGstin")}
                   placeholder="VAT / EIN / tax ID"
-                  className={inputClass(errors?.clientGstin, Boolean(value.clientGstin))}
+                  className={inputClass(
+                    clientGstinError,
+                    Boolean(value.clientGstin)
+                  )}
                 />
-                {errors?.clientGstin ? (
+                {clientGstinError ? (
                   <p className={appFieldErrorTextClass}>
-                    {errors.clientGstin}
+                    {clientGstinError}
                   </p>
                 ) : null}
               </div>

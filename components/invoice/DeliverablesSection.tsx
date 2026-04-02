@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type {
   InvoiceLineItem,
   InvoiceLineItemType,
@@ -34,6 +35,7 @@ interface DeliverablesSectionProps {
       rate?: string;
     }
   >;
+  showAllErrors?: boolean;
 }
 
 const typeOptions: InvoiceLineItemType[] = [
@@ -152,7 +154,9 @@ export default function DeliverablesSection({
   onChange,
   embedded = false,
   errors,
+  showAllErrors = false,
 }: DeliverablesSectionProps) {
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const updateItem = <K extends keyof InvoiceLineItem>(
     id: string,
     key: K,
@@ -232,6 +236,19 @@ export default function DeliverablesSection({
       }),
       "pl-9"
     );
+  const markTouched = (itemId: string, field: "description" | "qty" | "rate") => {
+    const key = `${itemId}:${field}`;
+    setTouchedFields((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+  };
+  const getVisibleRowError = (
+    itemId: string,
+    field: "description" | "qty" | "rate",
+    error?: string
+  ) => {
+    return showAllErrors || touchedFields[`${itemId}:${field}`]
+      ? error
+      : undefined;
+  };
 
   const numberInputProps = {
     onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
@@ -284,6 +301,13 @@ export default function DeliverablesSection({
           const lineTotal = item.qty * item.rate;
           const allowedUnits = allowedUnitsByType[item.type];
           const rowErrors = errors?.[item.id];
+          const descriptionError = getVisibleRowError(
+            item.id,
+            "description",
+            rowErrors?.description
+          );
+          const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
+          const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
           const compactLabelClass = cn(
             appFieldLabelClass,
             "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0"
@@ -331,9 +355,10 @@ export default function DeliverablesSection({
                         onChange={(e) =>
                           updateItem(item.id, "description", e.target.value)
                         }
+                        onBlur={() => markTouched(item.id, "description")}
                         placeholder={shortPlaceholders[item.type]}
                         className={inputClass(
-                          rowErrors?.description,
+                          descriptionError,
                           Boolean(item.description)
                         )}
                       />
@@ -343,10 +368,10 @@ export default function DeliverablesSection({
                   <p
                     className={cn(
                       lineItemErrorSlotClass,
-                      rowErrors?.description ? "" : "invisible"
+                      descriptionError ? "" : "invisible"
                     )}
                   >
-                    {rowErrors?.description ?? "Description error"}
+                    {descriptionError ?? "Description error"}
                   </p>
                 </div>
 
@@ -365,16 +390,17 @@ export default function DeliverablesSection({
                         Math.max(0, Number(e.target.value) || 0)
                       )
                     }
-                    className={inputClass(rowErrors?.qty, item.qty > 0)}
+                    onBlur={() => markTouched(item.id, "qty")}
+                    className={inputClass(qtyError, item.qty > 0)}
                     {...numberInputProps}
                   />
                   <p
                     className={cn(
                       lineItemErrorSlotClass,
-                      rowErrors?.qty ? "" : "invisible"
+                      qtyError ? "" : "invisible"
                     )}
                   >
-                    {rowErrors?.qty ?? "Quantity error"}
+                    {qtyError ?? "Quantity error"}
                   </p>
                 </div>
 
@@ -397,17 +423,18 @@ export default function DeliverablesSection({
                           Math.max(0, Number(e.target.value) || 0)
                         )
                       }
-                      className={rateInputClass(rowErrors?.rate, item.rate > 0)}
+                      onBlur={() => markTouched(item.id, "rate")}
+                      className={rateInputClass(rateError, item.rate > 0)}
                       {...numberInputProps}
                     />
                   </div>
                   <p
                     className={cn(
                       lineItemErrorSlotClass,
-                      rowErrors?.rate ? "" : "invisible"
+                      rateError ? "" : "invisible"
                     )}
                   >
-                    {rowErrors?.rate ?? "Rate error"}
+                    {rateError ?? "Rate error"}
                   </p>
                 </div>
 

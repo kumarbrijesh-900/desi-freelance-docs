@@ -37,6 +37,7 @@ interface TermsPaymentSectionProps {
     bankAddress?: string;
     swiftBicCode?: string;
   };
+  showAllErrors?: boolean;
 }
 
 function getLicenseExplanation(
@@ -66,10 +67,12 @@ export default function TermsPaymentSection({
   embedded = false,
   paymentTermsError,
   errors,
+  showAllErrors = false,
 }: TermsPaymentSectionProps) {
   const [isQrDragOver, setIsQrDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [isLicenseSectionExpanded, setIsLicenseSectionExpanded] = useState(
     value.license.isLicenseIncluded ||
       Boolean(value.license.licenseType || value.license.licenseDuration)
@@ -157,6 +160,13 @@ export default function TermsPaymentSection({
   const removeQr = () => {
     updateField("qrCodeUrl", "");
   };
+  const markTouched = (field: string) => {
+    setTouchedFields((prev) =>
+      prev[field] ? prev : { ...prev, [field]: true }
+    );
+  };
+  const getVisibleError = (field: string, error?: string) =>
+    showAllErrors || touchedFields[field] ? error : undefined;
 
   const licenseExplanation = getLicenseExplanation(
     value.license.licenseType
@@ -180,6 +190,26 @@ export default function TermsPaymentSection({
       hasValue,
       multiline,
     });
+  const paymentTermsFieldError = getVisibleError(
+    "paymentTerms",
+    paymentTermsError
+  );
+  const licenseDurationError = getVisibleError(
+    "licenseDuration",
+    errors?.licenseDuration
+  );
+  const accountNameError = getVisibleError("accountName", errors?.accountName);
+  const bankNameError = getVisibleError("bankName", errors?.bankName);
+  const accountNumberError = getVisibleError(
+    "accountNumber",
+    errors?.accountNumber
+  );
+  const ifscCodeError = getVisibleError("ifscCode", errors?.ifscCode);
+  const bankAddressError = getVisibleError("bankAddress", errors?.bankAddress);
+  const swiftBicCodeError = getVisibleError(
+    "swiftBicCode",
+    errors?.swiftBicCode
+  );
 
   return (
     <>
@@ -248,12 +278,16 @@ export default function TermsPaymentSection({
               type="text"
               value={meta.paymentTerms}
               onChange={(e) => updateMetaField("paymentTerms", e.target.value)}
+              onBlur={() => markTouched("paymentTerms")}
               placeholder="Net 15"
-              className={inputClass(paymentTermsError, Boolean(meta.paymentTerms))}
+              className={inputClass(
+                paymentTermsFieldError,
+                Boolean(meta.paymentTerms)
+              )}
             />
-            {paymentTermsError ? (
+            {paymentTermsFieldError ? (
               <p className={appFieldErrorTextClass}>
-                {paymentTermsError}
+                {paymentTermsFieldError}
               </p>
             ) : null}
           </div>
@@ -369,15 +403,16 @@ export default function TermsPaymentSection({
                         onChange={(e) =>
                           updateLicenseField("licenseDuration", e.target.value)
                         }
+                        onBlur={() => markTouched("licenseDuration")}
                         placeholder="Example: 3 years"
                         className={inputClass(
-                          errors?.licenseDuration,
+                          licenseDurationError,
                           Boolean(value.license.licenseDuration)
                         )}
                       />
-                      {errors?.licenseDuration ? (
+                      {licenseDurationError ? (
                         <p className={appFieldErrorTextClass}>
-                          {errors.licenseDuration}
+                          {licenseDurationError}
                         </p>
                       ) : null}
                     </div>
@@ -422,12 +457,13 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
+                    onBlur={() => markTouched("bankName")}
                     placeholder="Bank name"
-                    className={inputClass(errors?.bankName, Boolean(value.bankName))}
+                    className={inputClass(bankNameError, Boolean(value.bankName))}
                   />
-                  {errors?.bankName ? (
+                  {bankNameError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.bankName}
+                      {bankNameError}
                     </p>
                   ) : null}
                 </div>
@@ -441,15 +477,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
+                    onBlur={() => markTouched("accountName")}
                     placeholder="Name as per bank account"
                     className={inputClass(
-                      errors?.accountName,
+                      accountNameError,
                       Boolean(value.accountName)
                     )}
                   />
-                  {errors?.accountName ? (
+                  {accountNameError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.accountName}
+                      {accountNameError}
                     </p>
                   ) : null}
                 </div>
@@ -463,15 +500,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
+                    onBlur={() => markTouched("accountNumber")}
                     placeholder="Bank account number"
                     className={inputClass(
-                      errors?.accountNumber,
+                      accountNumberError,
                       Boolean(value.accountNumber)
                     )}
                   />
-                  {errors?.accountNumber ? (
+                  {accountNumberError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.accountNumber}
+                      {accountNumberError}
                     </p>
                   ) : null}
                 </div>
@@ -485,15 +523,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.ifscCode}
                     onChange={(e) => updateField("ifscCode", e.target.value)}
+                    onBlur={() => markTouched("ifscCode")}
                     placeholder="Bank IFSC code"
                     className={inputClass(
-                      errors?.ifscCode,
+                      ifscCodeError,
                       Boolean(value.ifscCode)
                     )}
                   />
-                  {errors?.ifscCode ? (
+                  {ifscCodeError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.ifscCode}
+                      {ifscCodeError}
                     </p>
                   ) : null}
                 </div>
@@ -574,15 +613,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
+                    onBlur={() => markTouched("accountName")}
                     placeholder="Beneficiary name on bank account"
                     className={inputClass(
-                      errors?.accountName,
+                      accountNameError,
                       Boolean(value.accountName)
                     )}
                   />
-                  {errors?.accountName ? (
+                  {accountNameError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.accountName}
+                      {accountNameError}
                     </p>
                   ) : null}
                 </div>
@@ -596,12 +636,13 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
+                    onBlur={() => markTouched("bankName")}
                     placeholder="Receiving bank name"
-                    className={inputClass(errors?.bankName, Boolean(value.bankName))}
+                    className={inputClass(bankNameError, Boolean(value.bankName))}
                   />
-                  {errors?.bankName ? (
+                  {bankNameError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.bankName}
+                      {bankNameError}
                     </p>
                   ) : null}
                 </div>
@@ -615,16 +656,17 @@ export default function TermsPaymentSection({
                     rows={3}
                     value={value.bankAddress}
                     onChange={(e) => updateField("bankAddress", e.target.value)}
+                    onBlur={() => markTouched("bankAddress")}
                     placeholder="Full bank branch address"
                     className={inputClass(
-                      errors?.bankAddress,
+                      bankAddressError,
                       Boolean(value.bankAddress),
                       true
                     )}
                   />
-                  {errors?.bankAddress ? (
+                  {bankAddressError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.bankAddress}
+                      {bankAddressError}
                     </p>
                   ) : null}
                 </div>
@@ -638,15 +680,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
+                    onBlur={() => markTouched("accountNumber")}
                     placeholder="Bank account number"
                     className={inputClass(
-                      errors?.accountNumber,
+                      accountNumberError,
                       Boolean(value.accountNumber)
                     )}
                   />
-                  {errors?.accountNumber ? (
+                  {accountNumberError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.accountNumber}
+                      {accountNumberError}
                     </p>
                   ) : null}
                 </div>
@@ -660,15 +703,16 @@ export default function TermsPaymentSection({
                     type="text"
                     value={value.swiftBicCode}
                     onChange={(e) => updateField("swiftBicCode", e.target.value)}
+                    onBlur={() => markTouched("swiftBicCode")}
                     placeholder="Bank SWIFT or BIC code"
                     className={inputClass(
-                      errors?.swiftBicCode,
+                      swiftBicCodeError,
                       Boolean(value.swiftBicCode)
                     )}
                   />
-                  {errors?.swiftBicCode ? (
+                  {swiftBicCodeError ? (
                     <p className={appFieldErrorTextClass}>
-                      {errors.swiftBicCode}
+                      {swiftBicCodeError}
                     </p>
                   ) : null}
                 </div>

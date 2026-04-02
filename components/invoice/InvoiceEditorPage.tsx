@@ -661,6 +661,7 @@ export default function InvoiceEditorPage() {
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [scrollRequestNonce, setScrollRequestNonce] = useState(0);
+  const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -1246,6 +1247,7 @@ export default function InvoiceEditorPage() {
 
   const handlePreviewInvoice = () => {
     if (!invoiceReadyForPreview) {
+      setShowAllValidationErrors(true);
       if (firstInvalidStep) {
         guideToSection(firstInvalidStep, { focus: true });
         triggerToast("Complete the highlighted section before previewing.");
@@ -1331,6 +1333,7 @@ export default function InvoiceEditorPage() {
     lastAutoDueDateRef.current = demoSuggestedDueDate;
 
     setFormData(mergeInvoiceFormData(demo));
+    setShowAllValidationErrors(false);
     guideToSection("totals", { focus: true });
     setIsBriefIntakeCollapsed(true);
 
@@ -1355,6 +1358,7 @@ export default function InvoiceEditorPage() {
     }
 
     setFormData(mergeInvoiceFormData(freshInvoiceData));
+    setShowAllValidationErrors(false);
     guideToSection("agency", { focus: true });
     setShowExitModal(false);
     setIsBriefIntakeCollapsed(false);
@@ -1524,6 +1528,7 @@ export default function InvoiceEditorPage() {
               )
             }
             errors={fieldErrors.agency}
+            showAllErrors={showAllValidationErrors}
           />
         );
       case "client":
@@ -1540,6 +1545,7 @@ export default function InvoiceEditorPage() {
               )
             }
             errors={fieldErrors.client}
+            showAllErrors={showAllValidationErrors}
           />
         );
       case "deliverables":
@@ -1555,6 +1561,7 @@ export default function InvoiceEditorPage() {
               }))
             }
             errors={fieldErrors.lineItems}
+            showAllErrors={showAllValidationErrors}
           />
         );
       case "payment":
@@ -1575,6 +1582,7 @@ export default function InvoiceEditorPage() {
             onMetaChange={handleMetaChange}
             paymentTermsError={fieldErrors.meta.paymentTerms}
             errors={fieldErrors.payment}
+            showAllErrors={showAllValidationErrors}
           />
         );
       case "meta":
@@ -1588,6 +1596,7 @@ export default function InvoiceEditorPage() {
               invoiceDate: fieldErrors.meta.invoiceDate,
               dueDate: fieldErrors.meta.dueDate,
             }}
+            showAllErrors={showAllValidationErrors}
           />
         );
       case "totals":

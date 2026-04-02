@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { InvoiceMeta } from "@/types/invoice";
 import {
   appFieldErrorTextClass,
@@ -20,6 +21,7 @@ interface InvoiceMetaSectionProps {
     invoiceDate?: string;
     dueDate?: string;
   };
+  showAllErrors?: boolean;
 }
 
 export default function InvoiceMetaSection({
@@ -27,7 +29,10 @@ export default function InvoiceMetaSection({
   onChange,
   embedded = false,
   errors,
+  showAllErrors = false,
 }: InvoiceMetaSectionProps) {
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+
   const updateField = <K extends keyof InvoiceMeta>(
     key: K,
     fieldValue: InvoiceMeta[K]
@@ -37,12 +42,25 @@ export default function InvoiceMetaSection({
       [key]: fieldValue,
     });
   };
+  const markTouched = (field: string) => {
+    setTouchedFields((prev) =>
+      prev[field] ? prev : { ...prev, [field]: true }
+    );
+  };
+  const getVisibleError = (field: string, error?: string) =>
+    showAllErrors || touchedFields[field] ? error : undefined;
 
   const inputClass = (hasError?: string, hasValue?: boolean) =>
     getAppFieldClass({
       hasError,
       hasValue,
     });
+  const invoiceNumberError = getVisibleError(
+    "invoiceNumber",
+    errors?.invoiceNumber
+  );
+  const invoiceDateError = getVisibleError("invoiceDate", errors?.invoiceDate);
+  const dueDateError = getVisibleError("dueDate", errors?.dueDate);
 
   return (
     <section
@@ -69,12 +87,16 @@ export default function InvoiceMetaSection({
             type="text"
             value={value.invoiceNumber}
             onChange={(e) => updateField("invoiceNumber", e.target.value)}
+            onBlur={() => markTouched("invoiceNumber")}
             placeholder="INV-2026-001"
-            className={inputClass(errors?.invoiceNumber, Boolean(value.invoiceNumber))}
+            className={inputClass(
+              invoiceNumberError,
+              Boolean(value.invoiceNumber)
+            )}
           />
-          {errors?.invoiceNumber ? (
+          {invoiceNumberError ? (
             <p className={appFieldErrorTextClass}>
-              {errors.invoiceNumber}
+              {invoiceNumberError}
             </p>
           ) : null}
         </div>
@@ -88,11 +110,12 @@ export default function InvoiceMetaSection({
             type="date"
             value={value.invoiceDate}
             onChange={(e) => updateField("invoiceDate", e.target.value)}
-            className={inputClass(errors?.invoiceDate, Boolean(value.invoiceDate))}
+            onBlur={() => markTouched("invoiceDate")}
+            className={inputClass(invoiceDateError, Boolean(value.invoiceDate))}
           />
-          {errors?.invoiceDate ? (
+          {invoiceDateError ? (
             <p className={appFieldErrorTextClass}>
-              {errors.invoiceDate}
+              {invoiceDateError}
             </p>
           ) : null}
         </div>
@@ -106,11 +129,12 @@ export default function InvoiceMetaSection({
             type="date"
             value={value.dueDate}
             onChange={(e) => updateField("dueDate", e.target.value)}
-            className={inputClass(errors?.dueDate, Boolean(value.dueDate))}
+            onBlur={() => markTouched("dueDate")}
+            className={inputClass(dueDateError, Boolean(value.dueDate))}
           />
-          {errors?.dueDate ? (
+          {dueDateError ? (
             <p className={appFieldErrorTextClass}>
-              {errors.dueDate}
+              {dueDateError}
             </p>
           ) : null}
         </div>
