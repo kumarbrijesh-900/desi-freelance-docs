@@ -90,7 +90,7 @@ test("brief intake collapse preserves layout stability and compact visual state"
 
   const stepper = page.getByTestId("invoice-vertical-stepper");
   await expectStableBoxAfter(page, stepper, async () => {
-    await page.getByRole("button", { name: /^Collapse$/i }).click();
+    await page.getByRole("button", { name: /^Hide$/i }).click();
   });
 
   const collapsed = page.getByTestId("brief-intake-collapsed");
@@ -102,7 +102,7 @@ test("brief intake collapse preserves layout stability and compact visual state"
   await expectNoHorizontalOverflow(page);
 
   await expectStableBoxAfter(page, stepper, async () => {
-    await page.getByRole("button", { name: /^Edit$/i }).click();
+    await page.getByRole("button", { name: /^Brief$/i }).click();
   });
 });
 
@@ -240,7 +240,7 @@ test("full invoice journey stays clean through floating actions and preview", as
   const actions = page.getByTestId("floating-editor-actions");
   await expect(actions).toHaveScreenshot("invoice-editor-floating-actions.png", screenshotOptions);
   await expect(actions.getByRole("button")).toHaveCount(3);
-  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
     actions.getByRole("button", { name: /Preview & Download/i })

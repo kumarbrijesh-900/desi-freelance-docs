@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  ChevronDownIcon,
   ChevronUpIcon,
   ClipboardCheckIcon,
   DocumentSparkIcon,
@@ -172,16 +173,17 @@ export default function BriefIntakeCard({
             </div>
 
             <MotionButton
-                type="button"
-                onClick={() => onCollapsedChange(false)}
-                aria-expanded={false}
-                aria-controls="brief-intake-panel"
-                className={cn(
+              type="button"
+              onClick={() => onCollapsedChange(false)}
+              aria-expanded={false}
+              aria-controls="brief-intake-panel"
+              className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
                 "shrink-0"
               )}
             >
-              Edit
+              <ChevronDownIcon className="h-3.5 w-3.5" />
+              Brief
             </MotionButton>
           </motion.div>
         </section>
@@ -261,8 +263,8 @@ export default function BriefIntakeCard({
                     "shrink-0"
                   )}
                 >
-                  <ChevronUpIcon className="h-4 w-4" />
-                  Collapse
+                  <ChevronUpIcon className="h-3.5 w-3.5" />
+                  Hide
                 </MotionButton>
               ) : null}
             </div>

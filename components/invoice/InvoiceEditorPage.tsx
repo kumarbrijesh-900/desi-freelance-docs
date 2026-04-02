@@ -67,7 +67,7 @@ import {
   getAppStatusPillClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
-import { ChevronLeftIcon, DownloadIcon, SaveIcon } from "@/components/ui/app-icons";
+import { DownloadIcon, SaveIcon } from "@/components/ui/app-icons";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -527,6 +527,7 @@ function InlineStepSection({
   isCompleted,
   issueCount,
   onActivate,
+  summary,
   children,
 }: {
   step: InvoiceStepperStep;
@@ -534,6 +535,7 @@ function InlineStepSection({
   isCompleted: boolean;
   issueCount: number;
   onActivate: () => void;
+  summary?: string;
   children: ReactNode;
 }) {
   const stepLabel = getStepShortLabel(step);
@@ -611,9 +613,30 @@ function InlineStepSection({
         <motion.div
           layout
           initial={false}
-          className="border-t border-slate-200/60 pt-5"
+          inert={!isActive && !isCompleted ? true : undefined}
+          className={cn(
+            isActive
+              ? "border-t border-slate-200/60 pt-5"
+              : isCompleted
+              ? "pt-1"
+              : "h-0 overflow-hidden opacity-0 pointer-events-none"
+          )}
         >
-          {children}
+          {isCompleted ? (
+            <p className="text-sm text-slate-500 pt-1">
+              {summary}
+            </p>
+          ) : null}
+          <div
+            inert={!isActive ? true : undefined}
+            className={cn(
+              isActive
+                ? ""
+                : "h-0 overflow-hidden opacity-0 pointer-events-none"
+            )}
+          >
+            {children}
+          </div>
         </motion.div>
       </div>
     </motion.section>
@@ -623,10 +646,53 @@ function InlineStepSection({
 export default function InvoiceEditorPage() {
   const router = useRouter();
 
-  const [formData, setFormData] =
-    useState<InvoiceFormData>(defaultInvoiceFormData);
-  const [currentStep, setCurrentStep] =
-    useState<InvoiceStepperStep>("agency");
+  const [formData, setFormData] = useState<InvoiceFormData>(() => {
+    if (typeof window === "undefined") return defaultInvoiceFormData;
+
+    try {
+      const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (rawDraft) {
+        const parsed = JSON.parse(rawDraft) as StoredDraft | null;
+        if (
+          parsed?.formData &&
+          parsed?.currentStep &&
+          orderedSteps.includes(parsed.currentStep)
+        ) {
+          return mergeInvoiceFormData(parsed.formData);
+        }
+      }
+    } catch {}
+
+    const today = getTodayDateString();
+    const fresh = mergeInvoiceFormData();
+    return {
+      ...fresh,
+      meta: {
+        ...fresh.meta,
+        invoiceNumber: getNextInvoiceNumber(),
+        invoiceDate: today,
+        dueDate: "",
+      },
+    };
+  });
+  const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>(() => {
+    if (typeof window === "undefined") return "agency";
+
+    try {
+      const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (rawDraft) {
+        const parsed = JSON.parse(rawDraft) as StoredDraft | null;
+        if (
+          parsed?.currentStep &&
+          orderedSteps.includes(parsed.currentStep)
+        ) {
+          return parsed.currentStep;
+        }
+      }
+    } catch {}
+
+    return "agency";
+  });
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -651,6 +717,10 @@ export default function InvoiceEditorPage() {
   });
 
   useEffect(() => {
+    hasInitializedRef.current = true;
+  }, []);
+
+  useEffect(() => {
     if (!showToast) return;
 
     const timer = window.setTimeout(() => {
@@ -670,39 +740,16 @@ export default function InvoiceEditorPage() {
   };
 
   useEffect(() => {
-    if (hasInitializedRef.current) return;
-
-    const today = getTodayDateString();
-    let frameId = 0;
-
     try {
       const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-
       if (rawDraft) {
         const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
-
         if (
-          parsedDraft &&
-          parsedDraft.formData &&
+          parsedDraft?.formData &&
           parsedDraft.currentStep &&
           orderedSteps.includes(parsedDraft.currentStep)
         ) {
-          const restoredFormData = mergeInvoiceFormData(parsedDraft.formData);
-          const restoredSuggestedDueDate = getSuggestedDueDate(
-            restoredFormData.meta.paymentTerms,
-            restoredFormData.meta.invoiceDate
-          );
-
-          dueDateAutoManagedRef.current =
-            !restoredFormData.meta.dueDate ||
-            restoredFormData.meta.dueDate === restoredSuggestedDueDate;
-
-          lastAutoDueDateRef.current = restoredSuggestedDueDate;
-
-          frameId = window.requestAnimationFrame(() => {
-            hasInitializedRef.current = true;
-            setFormData(restoredFormData);
-            setCurrentStep(parsedDraft.currentStep);
+          const frameId = window.requestAnimationFrame(() => {
             triggerToast("Draft restored");
           });
 
@@ -712,42 +759,6 @@ export default function InvoiceEditorPage() {
     } catch (error) {
       console.error("Failed to restore draft:", error);
     }
-
-    frameId = window.requestAnimationFrame(() => {
-      setFormData((prev) => {
-        const nextInvoiceNumber = prev.meta.invoiceNumber.trim()
-          ? prev.meta.invoiceNumber
-          : getNextInvoiceNumber();
-
-        const nextInvoiceDate = prev.meta.invoiceDate || today;
-        const suggestedDueDate = getSuggestedDueDate(
-          prev.meta.paymentTerms,
-          nextInvoiceDate
-        );
-
-        let nextDueDate = prev.meta.dueDate;
-        if (!nextDueDate && suggestedDueDate) {
-          nextDueDate = suggestedDueDate;
-        }
-
-        lastAutoDueDateRef.current = suggestedDueDate;
-        dueDateAutoManagedRef.current =
-          !prev.meta.dueDate || prev.meta.dueDate === suggestedDueDate;
-        hasInitializedRef.current = true;
-
-        return {
-          ...prev,
-          meta: {
-            ...prev.meta,
-            invoiceNumber: nextInvoiceNumber,
-            invoiceDate: nextInvoiceDate,
-            dueDate: nextDueDate,
-          },
-        };
-      });
-    });
-
-    return () => window.cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {
@@ -1082,6 +1093,16 @@ export default function InvoiceEditorPage() {
     () => isInvoiceReadyForPreview(formData),
     [formData]
   );
+  const summaryByStep: Record<InvoiceStepperStep, string> = {
+    agency: formData.agency.agencyName || "Not filled",
+    client: formData.client.clientName || "Not filled",
+    deliverables: `${formData.lineItems.length} item${
+      formData.lineItems.length !== 1 ? "s" : ""
+    }`,
+    payment: formData.payment.bankName || "Not filled",
+    meta: formData.meta.invoiceNumber || "Not filled",
+    totals: formatSummaryCurrency(computedTotals.grandTotal, displayCurrency),
+  };
 
   const getNextIncompleteStepAfter = useCallback(
     (step: InvoiceStepperStep) => {
@@ -1304,7 +1325,10 @@ export default function InvoiceEditorPage() {
   };
 
   const handleLoadDemoData = () => {
-    const demoInvoiceNumber = getNextInvoiceNumber();
+    const demoInvoiceNumber =
+      formData.meta.invoiceNumber?.startsWith("INV-")
+        ? formData.meta.invoiceNumber
+        : getNextInvoiceNumber();
     const demo = getDemoData(demoInvoiceNumber);
 
     const demoSuggestedDueDate = getSuggestedDueDate(
@@ -1346,6 +1370,8 @@ export default function InvoiceEditorPage() {
     setBriefIntakeResetKey((prev) => prev + 1);
     triggerToast("Demo data cleared");
   };
+  void handleLoadDemoData;
+  void handleClearDemoData;
 
   const handleBriefAutofill = async (input: BriefIntakeInput) => {
     let ocrText = "";
@@ -1627,125 +1653,106 @@ export default function InvoiceEditorPage() {
       <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 xl:grid xl:grid-cols-[minmax(0,720px)_216px] xl:items-start xl:justify-center xl:gap-16">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,720px)_216px] lg:items-start lg:justify-center lg:gap-16">
           <div className={`w-full max-w-[720px] ${appSectionGapClass}`}>
-            <MotionReveal preset="fade-up" className="space-y-6">
-              <header className="space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 space-y-1.5">
-                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                      New Invoice
-                    </p>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-                      Create Invoice
-                    </h1>
-                    <p className="max-w-xl text-sm leading-6 text-slate-500">
-                      Fill the invoice top to bottom. Completed sections stay editable, and the next section that needs attention stays guided inline.
-                    </p>
-                  </div>
+            <header className="space-y-3">
+              <MotionReveal preset="fade-up">
+                <div className="min-w-0 space-y-1.5">
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+                    New Invoice
+                  </p>
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+                    Create Invoice
+                  </h1>
+                  <p className="max-w-xl text-sm leading-6 text-slate-500">
+                    {formData.meta.invoiceNumber
+                      ? `${formData.meta.invoiceNumber} · Fill each section top to bottom.`
+                      : "Fill each section top to bottom."}
+                  </p>
                 </div>
+              </MotionReveal>
 
-                <div
-                  className={cn(
-                    getAppSubtlePanelClass("muted"),
-                    "px-4 py-3 xl:hidden"
-                  )}
-                  data-testid="compact-progress-summary"
+              <div
+                className="sticky top-4 z-20 mb-6 flex justify-end gap-2"
+                data-testid="floating-editor-actions"
+              >
+                <button
+                  type="button"
+                  onClick={handleBackToHome}
+                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                >
+                  <SaveIcon className="h-4 w-4" />
+                  Save draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePreviewInvoice}
+                  disabled={!invoiceReadyForPreview}
+                  aria-label={
+                    invoiceReadyForPreview
+                      ? "Preview and download your invoice"
+                      : firstInvalidStep
+                      ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
+                      : "Complete all sections to preview"
+                  }
+                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                >
+                  <DownloadIcon className="h-4 w-4" />
+                  Preview & download
+                </button>
+              </div>
+
+              <div
+                className={cn(
+                  getAppSubtlePanelClass("muted"),
+                  "px-4 py-3 lg:hidden"
+                )}
+                data-testid="compact-progress-summary"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
                         Progress
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950">
-                        {completedStepCount} of {orderedSteps.length} sections ready
-                      </p>
-                    </div>
-                    <span className={getAppStatusPillClass(firstInvalidStep ? "default" : "success")}>
-                      {firstInvalidStep
-                        ? `Next: ${getStepShortLabel(firstInvalidStep)}`
-                        : "Ready for preview"}
-                    </span>
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-slate-950">
+                      {completedStepCount} of {orderedSteps.length} sections ready
+                    </p>
                   </div>
+                  <span className={getAppStatusPillClass(firstInvalidStep ? "default" : "success")}>
+                    {firstInvalidStep
+                      ? `Next: ${getStepShortLabel(firstInvalidStep)}`
+                      : "Ready for preview"}
+                  </span>
                 </div>
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/80">
+                  <div
+                    className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                    style={{
+                      width: `${Math.round(
+                        (completedStepCount / orderedSteps.length) * 100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </header>
 
-                <MotionReveal
-                  preset="fade-up"
-                  delay={40}
-                  className="sticky top-[72px] z-20 w-full"
-                >
-                  <div className="app-soft-shell flex w-full flex-col gap-3 rounded-[18px] px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div
-                      className="flex flex-wrap items-center gap-2"
-                      data-testid="floating-editor-actions"
-                    >
-                      <button
-                        type="button"
-                        onClick={handleBackToHome}
-                        className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <ChevronLeftIcon className="h-4 w-4" />
-                          Close
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleSaveDraft}
-                        className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <SaveIcon className="h-4 w-4" />
-                          Save Draft
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handlePreviewInvoice}
-                        disabled={!invoiceReadyForPreview}
-                        className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <DownloadIcon className="h-4 w-4" />
-                          Preview & Download
-                        </span>
-                      </button>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleLoadDemoData}
-                        className={getAppButtonClass({ variant: "subtle", size: "sm" })}
-                      >
-                        Load Demo Data
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleClearDemoData}
-                        className={getAppButtonClass({
-                          variant: "destructive-lite",
-                          size: "sm",
-                        })}
-                      >
-                        Clear Demo Data
-                      </button>
-                    </div>
-                  </div>
-                </MotionReveal>
-              </header>
-            </MotionReveal>
-
-            <BriefIntakeCard
-              key={briefIntakeResetKey}
-              onExtract={handleBriefAutofill}
-              onPlaceholderAction={triggerToast}
-              isCollapsed={isBriefIntakeCollapsed}
-              onCollapsedChange={setIsBriefIntakeCollapsed}
-            />
+            <div className="opacity-80 transition-opacity duration-200 hover:opacity-100">
+              <BriefIntakeCard
+                key={briefIntakeResetKey}
+                onExtract={handleBriefAutofill}
+                onPlaceholderAction={triggerToast}
+                isCollapsed={isBriefIntakeCollapsed}
+                onCollapsedChange={setIsBriefIntakeCollapsed}
+              />
+            </div>
 
             <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
               {orderedSteps.map((step) => {
@@ -1770,6 +1777,7 @@ export default function InvoiceEditorPage() {
                       isCompleted={isCompleted}
                       issueCount={missingFieldCountByStep[step]}
                       onActivate={() => goToStep(step)}
+                      summary={summaryByStep[step]}
                     >
                       <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
                         {renderStepContent(step)}
@@ -1781,8 +1789,8 @@ export default function InvoiceEditorPage() {
             </div>
           </div>
 
-          <aside className="hidden w-full xl:block xl:w-[216px] xl:justify-self-end" data-testid="desktop-support-rail">
-            <div className="space-y-3 xl:sticky xl:top-[88px]">
+          <aside className="hidden w-full lg:block lg:w-[216px] lg:justify-self-end" data-testid="desktop-support-rail">
+            <div className="space-y-3 lg:sticky lg:top-[88px]">
               <MotionReveal
                 preset="fade-up"
                 delay={40}

@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "test:extraction": "tsx tests/extraction/run-brief-extraction-benchmark.ts",
     "test:compliance": "tsx tests/compliance/run-gst-compliance-tests.ts"
   },

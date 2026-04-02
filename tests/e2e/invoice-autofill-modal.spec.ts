@@ -36,12 +36,12 @@ test("brief intake collapses into a compact 48px-style summary row", async ({
 
   const briefField = page.getByPlaceholder(/Example: Agency name:/i);
   await briefField.fill("Agency name: DesiFreelanceDocs Studio");
-  await page.getByRole("button", { name: /^Collapse$/i }).click();
+  await page.getByRole("button", { name: /^Hide$/i }).click();
 
   const collapsed = page.getByTestId("brief-intake-collapsed");
   await expect(collapsed).toBeVisible();
   await expect(collapsed).toContainText("Brief");
-  await expect(collapsed.getByRole("button", { name: /^Edit$/i })).toBeVisible();
+  await expect(collapsed.getByRole("button", { name: /^Brief$/i })).toBeVisible();
 
   const box = await collapsed.boundingBox();
   expect(box?.height ?? 0).toBeLessThanOrEqual(56);
@@ -63,10 +63,10 @@ test("collapsed intake preserves entered text and uploaded image state", async (
       buffer: Buffer.from("fake-image"),
     });
 
-  await page.getByRole("button", { name: /^Collapse$/i }).click();
+  await page.getByRole("button", { name: /^Hide$/i }).click();
   await expect(page.getByTestId("brief-intake-collapsed")).toBeVisible();
 
-  await page.getByRole("button", { name: /^Edit$/i }).click();
+  await page.getByRole("button", { name: /^Brief$/i }).click();
   await expect(briefField).toHaveValue("Agency name: DesiFreelanceDocs Studio");
   await expect(page.getByText("brief-screenshot.png")).toBeVisible();
 });
@@ -209,7 +209,7 @@ test("the editor layout stays within the viewport without horizontal scrolling",
   await expectNoHorizontalOverflow(page);
 });
 
-test("floating action cluster shows only Close, Save Draft, and Preview & Download", async ({
+test("floating action cluster shows only Cancel, Save Draft, and Preview & Download", async ({
   page,
 }) => {
   await loadDemoData(page);
@@ -217,7 +217,7 @@ test("floating action cluster shows only Close, Save Draft, and Preview & Downlo
 
   const actions = page.getByTestId("floating-editor-actions");
   await expect(actions.getByRole("button")).toHaveCount(3);
-  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
     actions.getByRole("button", { name: /Preview & Download/i })
