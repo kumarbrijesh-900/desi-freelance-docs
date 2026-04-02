@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -620,22 +619,20 @@ function InlineStepSection({
           initial={false}
           inert={!isActive && !isCompleted ? true : undefined}
           className={cn(
-            isActive
+            isActive || isCompleted
               ? "border-t border-slate-200/60 pt-5"
-              : isCompleted
-              ? "pt-1"
               : "h-0 overflow-hidden opacity-0 pointer-events-none"
           )}
         >
-          {isCompleted ? (
+          {isCompleted && summary ? (
             <p className="text-sm text-slate-500 pt-1">
               {summary}
             </p>
           ) : null}
           <div
-            inert={!isActive ? true : undefined}
+            inert={!isActive && !isCompleted ? true : undefined}
             className={cn(
-              isActive
+              isActive || isCompleted
                 ? ""
                 : "h-0 overflow-hidden opacity-0 pointer-events-none"
             )}
@@ -666,9 +663,6 @@ export default function InvoiceEditorPage() {
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
   const lastAutoDueDateRef = useRef("");
-  const previousValidityRef = useRef<Record<InvoiceStepperStep, boolean> | null>(
-    null
-  );
   const stepRefs = useRef<Record<InvoiceStepperStep, HTMLDivElement | null>>({
     agency: null,
     client: null,
@@ -1096,20 +1090,6 @@ export default function InvoiceEditorPage() {
     totals: formatSummaryCurrency(computedTotals.grandTotal, displayCurrency),
   };
 
-  const getNextIncompleteStepAfter = useCallback(
-    (step: InvoiceStepperStep) => {
-      const startingIndex = orderedSteps.indexOf(step);
-      if (startingIndex < 0) return null;
-
-      return (
-        orderedSteps
-          .slice(startingIndex + 1)
-          .find((candidate) => !stepValidityByStep[candidate]) ?? null
-      );
-    },
-    [stepValidityByStep]
-  );
-
   const guideToSection = (
     step: InvoiceStepperStep,
     options?: { focus?: boolean; scroll?: boolean }
@@ -1168,12 +1148,6 @@ export default function InvoiceEditorPage() {
       return;
     }
 
-    if (stepValidityByStep[step]) {
-      const nextStep = getNextIncompleteStepAfter(step);
-      if (nextStep) {
-        guideToSection(nextStep, { focus: true });
-      }
-    }
   };
 
   const shouldConfirmExit = currentStepIndex > 0 || isFormTouched(formData);
@@ -1212,38 +1186,6 @@ export default function InvoiceEditorPage() {
   const goToStep = (step: InvoiceStepperStep, options?: { focus?: boolean }) => {
     guideToSection(step, { focus: options?.focus, scroll: true });
   };
-
-  useEffect(() => {
-    if (!hasInitializedRef.current) {
-      previousValidityRef.current = stepValidityByStep;
-      return;
-    }
-
-    let frameId = 0;
-
-    const previousValidity = previousValidityRef.current;
-    const activeStepBecameValid =
-      previousValidity &&
-      previousValidity[currentStep] === false &&
-      stepValidityByStep[currentStep] === true;
-
-    previousValidityRef.current = stepValidityByStep;
-
-    if (activeStepBecameValid) {
-      const nextStep = getNextIncompleteStepAfter(currentStep);
-      if (!nextStep) return;
-
-      playInteractionCue("stepComplete");
-      frameId = window.requestAnimationFrame(() => {
-        guideToSection(nextStep, { focus: true });
-      });
-      return () => window.cancelAnimationFrame(frameId);
-    }
-  }, [
-    currentStep,
-    getNextIncompleteStepAfter,
-    stepValidityByStep,
-  ]);
 
   const handlePreviewInvoice = () => {
     if (!invoiceReadyForPreview) {

@@ -940,122 +940,119 @@
               - generic [ref=e469]: Ready
             - generic [ref=e470]:
               - paragraph [ref=e471]: ₹0
-              - generic:
-                - generic:
-                  - generic:
-                    - generic:
-                      - paragraph: Review the final billing outcome before preview.
-                    - generic:
-                      - generic:
-                        - generic:
-                          - generic:
-                            - generic:
-                              - paragraph: Tax summary
-                              - paragraph: No tax
-                            - generic: No tax
-                          - generic:
-                            - generic:
-                              - term: Current outcome
-                              - definition: No tax
-                            - generic:
-                              - term: Applied rate
-                              - definition: 0% total tax
-                            - generic:
-                              - term: Breakdown
-                              - definition: No tax is currently applied to this invoice.
-                        - generic: Tax is set to 0% because the agency is marked as not registered under GST.
-                      - generic:
-                        - generic:
-                          - paragraph: Final review
-                          - heading "Invoice totals" [level=3]
-                        - generic:
-                          - generic:
-                            - term: Subtotal
-                            - definition: ₹0
-                          - generic:
-                            - term: Tax
-                            - definition: No tax₹0
-                          - generic:
-                            - term: Grand total
-                            - definition: ₹0
-                        - paragraph: Final amount payable before any offline adjustments.
-      - complementary [ref=e472]:
-        - generic [ref=e473]:
-          - generic [ref=e475]:
-            - generic [ref=e476]:
-              - paragraph [ref=e477]: Progress
-              - paragraph [ref=e478]: 1 of 6 sections ready
-            - generic [ref=e479]:
-              - button "1 Agency Active now 3 left" [ref=e480]:
-                - generic [ref=e481]:
-                  - generic [ref=e482]: "1"
-                  - generic [ref=e483]:
-                    - paragraph [ref=e484]: Agency
-                    - paragraph [ref=e485]: Active now
-                - generic [ref=e486]: 3 left
-              - button "2 Client Incomplete 3 left" [ref=e487]:
-                - generic [ref=e488]:
-                  - generic [ref=e489]: "2"
-                  - generic [ref=e490]:
-                    - paragraph [ref=e491]: Client
-                    - paragraph [ref=e492]: Incomplete
-                - generic [ref=e493]: 3 left
-              - button "3 Items Incomplete 2 left" [ref=e494]:
-                - generic [ref=e495]:
-                  - generic [ref=e496]: "3"
-                  - generic [ref=e497]:
-                    - paragraph [ref=e498]: Items
-                    - paragraph [ref=e499]: Incomplete
-                - generic [ref=e500]: 2 left
-              - button "4 Payment Incomplete 4 left" [ref=e501]:
-                - generic [ref=e502]:
-                  - generic [ref=e503]: "4"
-                  - generic [ref=e504]:
-                    - paragraph [ref=e505]: Payment
-                    - paragraph [ref=e506]: Incomplete
-                - generic [ref=e507]: 4 left
-              - button "5 Meta Incomplete 1 left" [ref=e508]:
-                - generic [ref=e509]:
-                  - generic [ref=e510]: "5"
-                  - generic [ref=e511]:
-                    - paragraph [ref=e512]: Meta
-                    - paragraph [ref=e513]: Incomplete
-                - generic [ref=e514]: 1 left
-              - button "✓ Totals Completed Ready" [ref=e515]:
-                - generic [ref=e516]:
-                  - generic [ref=e517]: ✓
-                  - generic [ref=e518]:
-                    - paragraph [ref=e519]: Totals
-                    - paragraph [ref=e520]: Completed
-                - generic [ref=e521]: Ready
-          - generic [ref=e523]:
-            - generic [ref=e524]:
-              - paragraph [ref=e525]: Ready state
-              - paragraph [ref=e526]: Agency needs attention
-            - generic [ref=e527]:
-              - generic [ref=e528]:
-                - generic [ref=e529]: Invoice
-                - generic [ref=e530]: INV-2026-001
-              - generic [ref=e531]:
-                - generic [ref=e532]: Client
-                - generic [ref=e533]: Pending
-              - generic [ref=e534]:
-                - generic [ref=e535]: Total
-                - generic [ref=e536]: ₹0
-            - list [ref=e537]:
-              - listitem [ref=e538]:
-                - generic [ref=e539]: "Agency:"
+              - generic [ref=e474]:
+                - paragraph [ref=e476]: Review the final billing outcome before preview.
+                - generic [ref=e477]:
+                  - generic [ref=e478]:
+                    - generic [ref=e479]:
+                      - generic [ref=e480]:
+                        - generic [ref=e481]:
+                          - paragraph [ref=e482]: Tax summary
+                          - paragraph [ref=e483]: No tax
+                        - generic [ref=e484]: No tax
+                      - generic [ref=e485]:
+                        - generic [ref=e486]:
+                          - term [ref=e487]: Current outcome
+                          - definition [ref=e488]: No tax
+                        - generic [ref=e489]:
+                          - term [ref=e490]: Applied rate
+                          - definition [ref=e491]: 0% total tax
+                        - generic [ref=e492]:
+                          - term [ref=e493]: Breakdown
+                          - definition [ref=e494]: No tax is currently applied to this invoice.
+                    - generic [ref=e495]: Tax is set to 0% because the agency is marked as not registered under GST.
+                  - generic [ref=e496]:
+                    - generic [ref=e497]:
+                      - paragraph [ref=e498]: Final review
+                      - heading "Invoice totals" [level=3] [ref=e499]
+                    - generic [ref=e500]:
+                      - generic [ref=e501]:
+                        - term [ref=e502]: Subtotal
+                        - definition [ref=e503]: ₹0
+                      - generic [ref=e504]:
+                        - term [ref=e505]: Tax
+                        - definition [ref=e506]: No tax₹0
+                      - generic [ref=e507]:
+                        - term [ref=e508]: Grand total
+                        - definition [ref=e509]: ₹0
+                    - paragraph [ref=e510]: Final amount payable before any offline adjustments.
+      - complementary [ref=e511]:
+        - generic [ref=e512]:
+          - generic [ref=e514]:
+            - generic [ref=e515]:
+              - paragraph [ref=e516]: Progress
+              - paragraph [ref=e517]: 1 of 6 sections ready
+            - generic [ref=e518]:
+              - button "1 Agency Active now 3 left" [ref=e519]:
+                - generic [ref=e520]:
+                  - generic [ref=e521]: "1"
+                  - generic [ref=e522]:
+                    - paragraph [ref=e523]: Agency
+                    - paragraph [ref=e524]: Active now
+                - generic [ref=e525]: 3 left
+              - button "2 Client Incomplete 3 left" [ref=e526]:
+                - generic [ref=e527]:
+                  - generic [ref=e528]: "2"
+                  - generic [ref=e529]:
+                    - paragraph [ref=e530]: Client
+                    - paragraph [ref=e531]: Incomplete
+                - generic [ref=e532]: 3 left
+              - button "3 Items Incomplete 2 left" [ref=e533]:
+                - generic [ref=e534]:
+                  - generic [ref=e535]: "3"
+                  - generic [ref=e536]:
+                    - paragraph [ref=e537]: Items
+                    - paragraph [ref=e538]: Incomplete
+                - generic [ref=e539]: 2 left
+              - button "4 Payment Incomplete 4 left" [ref=e540]:
+                - generic [ref=e541]:
+                  - generic [ref=e542]: "4"
+                  - generic [ref=e543]:
+                    - paragraph [ref=e544]: Payment
+                    - paragraph [ref=e545]: Incomplete
+                - generic [ref=e546]: 4 left
+              - button "5 Meta Incomplete 1 left" [ref=e547]:
+                - generic [ref=e548]:
+                  - generic [ref=e549]: "5"
+                  - generic [ref=e550]:
+                    - paragraph [ref=e551]: Meta
+                    - paragraph [ref=e552]: Incomplete
+                - generic [ref=e553]: 1 left
+              - button "✓ Totals Completed Ready" [ref=e554]:
+                - generic [ref=e555]:
+                  - generic [ref=e556]: ✓
+                  - generic [ref=e557]:
+                    - paragraph [ref=e558]: Totals
+                    - paragraph [ref=e559]: Completed
+                - generic [ref=e560]: Ready
+          - generic [ref=e562]:
+            - generic [ref=e563]:
+              - paragraph [ref=e564]: Ready state
+              - paragraph [ref=e565]: Agency needs attention
+            - generic [ref=e566]:
+              - generic [ref=e567]:
+                - generic [ref=e568]: Invoice
+                - generic [ref=e569]: INV-2026-001
+              - generic [ref=e570]:
+                - generic [ref=e571]: Client
+                - generic [ref=e572]: Pending
+              - generic [ref=e573]:
+                - generic [ref=e574]: Total
+                - generic [ref=e575]: ₹0
+            - list [ref=e576]:
+              - listitem [ref=e577]:
+                - generic [ref=e578]: "Agency:"
                 - text: Business / trade name, Address line 1, Agency state
-              - listitem [ref=e540]:
-                - generic [ref=e541]: "Client:"
+              - listitem [ref=e579]:
+                - generic [ref=e580]: "Client:"
                 - text: Client name, Address line 1, Client state
-              - listitem [ref=e542]:
-                - generic [ref=e543]: "Items:"
+              - listitem [ref=e581]:
+                - generic [ref=e582]: "Items:"
                 - text: Deliverable description, Deliverable rate
-          - generic [ref=e544]:
-            - paragraph [ref=e545]: Compliance note
-            - paragraph [ref=e546]: Tax is set to 0% because the agency is marked as not registered under GST.
-  - button "Open Next.js Dev Tools" [ref=e552] [cursor=pointer]:
-    - img [ref=e553]
-  - alert [ref=e556]
+          - generic [ref=e583]:
+            - paragraph [ref=e584]: Compliance note
+            - paragraph [ref=e585]: Tax is set to 0% because the agency is marked as not registered under GST.
+  - button "Open Next.js Dev Tools" [ref=e591] [cursor=pointer]:
+    - img [ref=e592]
+  - alert [ref=e595]
 ```
