@@ -538,6 +538,7 @@ function InlineStepSection({
   summary?: string;
   children: ReactNode;
 }) {
+  const [isMounted, setIsMounted] = useState(false);
   const stepLabel = getStepShortLabel(step);
   const statusLabel = isCompleted
     ? "Completed"
@@ -549,6 +550,10 @@ function InlineStepSection({
     : isActive
     ? `Recommended next. ${getStepDescription(step)}`
     : getStepDescription(step);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <motion.section
@@ -601,7 +606,7 @@ function InlineStepSection({
                 isCompleted ? "success" : isActive ? "default" : "muted"
               )}
             >
-              {!isCompleted && issueCount > 0
+              {!isCompleted && isMounted && issueCount > 0
                 ? `${issueCount} required`
                 : isCompleted
                 ? "Ready"
@@ -1647,7 +1652,7 @@ export default function InvoiceEditorPage() {
   };
 
   return (
-    <main className={appPageShellClass}>
+    <main suppressHydrationWarning className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
 
       <AppHeader rightSlot={<LogoutButton />} />

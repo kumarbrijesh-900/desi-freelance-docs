@@ -304,6 +304,7 @@ export default function DeliverablesSection({
                     <div>
                       <label className={compactLabelClass}>Type</label>
                       <AppSelectField
+                        suppressHydrationWarning
                         value={item.type}
                         onChange={(e) =>
                           handleTypeChange(
@@ -324,6 +325,7 @@ export default function DeliverablesSection({
                     <div>
                       <label className={compactLabelClass}>Description *</label>
                       <input
+                        suppressHydrationWarning
                         type="text"
                         value={item.description}
                         onChange={(e) =>
@@ -351,6 +353,7 @@ export default function DeliverablesSection({
                 <div>
                   <label className={compactLabelClass}>Qty *</label>
                   <input
+                    suppressHydrationWarning
                     type="number"
                     min={1}
                     inputMode="numeric"
@@ -382,6 +385,7 @@ export default function DeliverablesSection({
                       {currencySymbol}
                     </span>
                     <input
+                      suppressHydrationWarning
                       type="number"
                       min={0}
                       inputMode="decimal"
@@ -410,6 +414,7 @@ export default function DeliverablesSection({
                 <div>
                   <label className={compactLabelClass}>Unit *</label>
                   <AppSelectField
+                    suppressHydrationWarning
                     value={item.rateUnit}
                     onChange={(e) =>
                       updateItem(

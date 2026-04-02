@@ -199,6 +199,7 @@ export default function AgencyDetailsSection({
                 Business / Trade Name *
               </label>
               <input
+                suppressHydrationWarning
                 type="text"
                 value={value.agencyName}
                 onChange={(e) => updateField("agencyName", e.target.value)}
@@ -225,6 +226,7 @@ export default function AgencyDetailsSection({
                     Address Line 1 *
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.addressLine1}
                     onChange={(e) => updateField("addressLine1", e.target.value)}
@@ -238,6 +240,7 @@ export default function AgencyDetailsSection({
                     Address Line 2
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.addressLine2}
                     onChange={(e) => updateField("addressLine2", e.target.value)}
@@ -251,6 +254,7 @@ export default function AgencyDetailsSection({
                     State *
                   </label>
                   <AppSelectField
+                    suppressHydrationWarning
                     aria-label="Agency state"
                     value={value.agencyState}
                     onChange={(e) =>
@@ -276,6 +280,7 @@ export default function AgencyDetailsSection({
                     City
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.city}
                     onChange={(e) => updateField("city", e.target.value)}
@@ -289,6 +294,7 @@ export default function AgencyDetailsSection({
                     PIN Code
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     inputMode="numeric"
                     value={value.pinCode}
@@ -362,6 +368,7 @@ export default function AgencyDetailsSection({
                         GSTIN
                       </label>
                       <input
+                        suppressHydrationWarning
                         type="text"
                         aria-label="Agency GSTIN"
                         value={value.gstin}
@@ -440,6 +447,7 @@ export default function AgencyDetailsSection({
                                 LUT Number / ARN
                               </label>
                               <input
+                                suppressHydrationWarning
                                 type="text"
                                 value={value.lutNumber}
                                 onChange={(e) =>
@@ -486,6 +494,7 @@ export default function AgencyDetailsSection({
                 PAN
               </label>
               <input
+                suppressHydrationWarning
                 type="text"
                 value={value.pan}
                 onChange={(e) =>

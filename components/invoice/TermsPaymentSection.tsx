@@ -244,6 +244,7 @@ export default function TermsPaymentSection({
               Payment Terms *
             </label>
             <input
+              suppressHydrationWarning
               type="text"
               value={meta.paymentTerms}
               onChange={(e) => updateMetaField("paymentTerms", e.target.value)}
@@ -362,6 +363,7 @@ export default function TermsPaymentSection({
                         License Duration *
                       </label>
                       <input
+                        suppressHydrationWarning
                         type="text"
                         value={value.license.licenseDuration}
                         onChange={(e) =>
@@ -399,6 +401,7 @@ export default function TermsPaymentSection({
               Terms / Notes
             </label>
             <textarea
+              suppressHydrationWarning
               rows={3}
               value={value.notes}
               onChange={(e) => updateField("notes", e.target.value)}
@@ -415,6 +418,7 @@ export default function TermsPaymentSection({
                     Bank Name
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
@@ -433,6 +437,7 @@ export default function TermsPaymentSection({
                     Account Name
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
@@ -454,6 +459,7 @@ export default function TermsPaymentSection({
                     Account Number
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
@@ -475,6 +481,7 @@ export default function TermsPaymentSection({
                     IFSC Code
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.ifscCode}
                     onChange={(e) => updateField("ifscCode", e.target.value)}
@@ -563,6 +570,7 @@ export default function TermsPaymentSection({
                     Beneficiary / Account Name
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.accountName}
                     onChange={(e) => updateField("accountName", e.target.value)}
@@ -584,6 +592,7 @@ export default function TermsPaymentSection({
                     Bank Name
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.bankName}
                     onChange={(e) => updateField("bankName", e.target.value)}
@@ -602,6 +611,7 @@ export default function TermsPaymentSection({
                     Bank Full Address
                   </label>
                   <textarea
+                    suppressHydrationWarning
                     rows={3}
                     value={value.bankAddress}
                     onChange={(e) => updateField("bankAddress", e.target.value)}
@@ -624,6 +634,7 @@ export default function TermsPaymentSection({
                     Account Number
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.accountNumber}
                     onChange={(e) => updateField("accountNumber", e.target.value)}
@@ -645,6 +656,7 @@ export default function TermsPaymentSection({
                     SWIFT / BIC Code
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.swiftBicCode}
                     onChange={(e) => updateField("swiftBicCode", e.target.value)}
@@ -666,6 +678,7 @@ export default function TermsPaymentSection({
                     IBAN / Routing / Sort Code
                   </label>
                   <input
+                    suppressHydrationWarning
                     type="text"
                     value={value.ibanRoutingCode}
                     onChange={(e) =>

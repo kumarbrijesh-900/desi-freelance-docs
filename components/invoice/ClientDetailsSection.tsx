@@ -140,6 +140,7 @@ export default function ClientDetailsSection({
               Client Name *
             </label>
             <input
+              suppressHydrationWarning
               type="text"
               value={value.clientName}
               onChange={(e) => updateField("clientName", e.target.value)}
@@ -194,6 +195,7 @@ export default function ClientDetailsSection({
                   Client GSTIN
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientGstin}
                   onChange={(e) =>
@@ -223,6 +225,7 @@ export default function ClientDetailsSection({
                   Client Email
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="email"
                   value={value.clientEmail}
                   onChange={(e) => updateField("clientEmail", e.target.value)}
@@ -269,6 +272,7 @@ export default function ClientDetailsSection({
                   Address Line 1 *
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientAddressLine1}
                   onChange={(e) => updateField("clientAddressLine1", e.target.value)}
@@ -282,6 +286,7 @@ export default function ClientDetailsSection({
                   Address Line 2
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientAddressLine2}
                   onChange={(e) => updateField("clientAddressLine2", e.target.value)}
@@ -295,6 +300,7 @@ export default function ClientDetailsSection({
                   State *
                 </label>
                 <AppSelectField
+                  suppressHydrationWarning
                   aria-label="Client state"
                   value={value.clientState}
                   onChange={(e) =>
@@ -320,6 +326,7 @@ export default function ClientDetailsSection({
                   City
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientCity}
                   onChange={(e) => updateField("clientCity", e.target.value)}
@@ -333,6 +340,7 @@ export default function ClientDetailsSection({
                   PIN Code
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   inputMode="numeric"
                   value={value.clientPinCode}
@@ -374,6 +382,7 @@ export default function ClientDetailsSection({
                   Country *
                 </label>
                 <AppSelectField
+                  suppressHydrationWarning
                   aria-label="Client country"
                   value={value.clientCountry}
                   onChange={(e) =>
@@ -404,6 +413,7 @@ export default function ClientDetailsSection({
                   Currency
                 </label>
                 <AppSelectField
+                  suppressHydrationWarning
                   aria-label="Client currency"
                   value={value.clientCurrency}
                   onChange={(e) =>
@@ -432,6 +442,7 @@ export default function ClientDetailsSection({
                 Full Address *
               </label>
               <textarea
+                suppressHydrationWarning
                 rows={4}
                 value={value.clientAddress}
                 onChange={(e) => updateField("clientAddress", e.target.value)}
@@ -455,6 +466,7 @@ export default function ClientDetailsSection({
                   Postal Code
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientPostalCode}
                   onChange={(e) => updateField("clientPostalCode", e.target.value)}
@@ -468,6 +480,7 @@ export default function ClientDetailsSection({
                   Tax Identification Number
                 </label>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={value.clientGstin}
                   onChange={(e) => updateField("clientGstin", e.target.value)}

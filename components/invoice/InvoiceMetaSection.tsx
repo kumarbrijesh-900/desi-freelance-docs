@@ -65,6 +65,7 @@ export default function InvoiceMetaSection({
             Invoice Number *
           </label>
           <input
+            suppressHydrationWarning
             type="text"
             value={value.invoiceNumber}
             onChange={(e) => updateField("invoiceNumber", e.target.value)}
@@ -83,6 +84,7 @@ export default function InvoiceMetaSection({
             Invoice Date *
           </label>
           <input
+            suppressHydrationWarning
             type="date"
             value={value.invoiceDate}
             onChange={(e) => updateField("invoiceDate", e.target.value)}
@@ -100,6 +102,7 @@ export default function InvoiceMetaSection({
             Due Date *
           </label>
           <input
+            suppressHydrationWarning
             type="date"
             value={value.dueDate}
             onChange={(e) => updateField("dueDate", e.target.value)}
