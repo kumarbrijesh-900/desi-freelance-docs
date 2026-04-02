@@ -1665,9 +1665,7 @@ export default function InvoiceEditorPage() {
                     Create Invoice
                   </h1>
                   <p className="max-w-xl text-sm leading-6 text-slate-500">
-                    {formData.meta.invoiceNumber
-                      ? `${formData.meta.invoiceNumber} · Fill each section top to bottom.`
-                      : "Fill each section top to bottom."}
+                    Fill each section top to bottom.
                   </p>
                 </div>
               </MotionReveal>
