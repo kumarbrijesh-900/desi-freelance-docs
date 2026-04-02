@@ -2,12 +2,14 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  briefIntakeExpanded,
+  editorRoot,
+  expectStableBoxAfter,
   expectNoHorizontalOverflow,
   extractBrief,
   loadDemoData,
   openInvoicePage,
   stepToggle,
-  waitForScrollProgress,
 } from "./helpers/invoice-editor";
 
 test.beforeEach(async ({ page }) => {
@@ -22,9 +24,10 @@ test("invoice editor loads cleanly without hydration warnings or console errors"
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
   await expect(
-    page.locator('[data-step-section="agency"][data-step-state="active"]')
+    root.locator('[data-step-section="agency"][data-step-state="active"]')
   ).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
@@ -33,12 +36,13 @@ test("brief intake collapses into a compact 48px-style summary row", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  const briefField = page.getByPlaceholder(/Example: Agency name:/i);
+  const briefField = briefIntakeExpanded(page).locator("textarea").first();
   await briefField.fill("Agency name: DesiFreelanceDocs Studio");
-  await page.getByRole("button", { name: /^Hide$/i }).click();
+  await briefIntakeExpanded(page).getByRole("button", { name: /^Hide$/i }).click();
 
-  const collapsed = page.getByTestId("brief-intake-collapsed");
+  const collapsed = root.getByTestId("brief-intake-collapsed");
   await expect(collapsed).toBeVisible();
   await expect(collapsed).toContainText("Brief");
   await expect(collapsed.getByRole("button", { name: /^Brief$/i })).toBeVisible();
@@ -51,11 +55,12 @@ test("collapsed intake preserves entered text and uploaded image state", async (
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  const briefField = page.getByPlaceholder(/Example: Agency name:/i);
+  const briefField = briefIntakeExpanded(page).locator("textarea").first();
   await briefField.fill("Agency name: DesiFreelanceDocs Studio");
-  await page
-    .locator('[data-brief-intake-state="expanded"] input[type="file"]')
+  await briefIntakeExpanded(page)
+    .locator('input[type="file"]')
     .first()
     .setInputFiles({
       name: "brief-screenshot.png",
@@ -63,12 +68,12 @@ test("collapsed intake preserves entered text and uploaded image state", async (
       buffer: Buffer.from("fake-image"),
     });
 
-  await page.getByRole("button", { name: /^Hide$/i }).click();
-  await expect(page.getByTestId("brief-intake-collapsed")).toBeVisible();
+  await briefIntakeExpanded(page).getByRole("button", { name: /^Hide$/i }).click();
+  await expect(root.getByTestId("brief-intake-collapsed")).toBeVisible();
 
-  await page.getByRole("button", { name: /^Brief$/i }).click();
+  await root.getByTestId("brief-intake-collapsed").getByRole("button", { name: /^Brief$/i }).click();
   await expect(briefField).toHaveValue("Agency name: DesiFreelanceDocs Studio");
-  await expect(page.getByText("brief-screenshot.png")).toBeVisible();
+  await expect(root.getByText("brief-screenshot.png")).toBeVisible();
 });
 
 test("extract and autofill routes directly into the inline vertical stepper without a modal", async ({
@@ -94,63 +99,70 @@ test("extract and autofill routes directly into the inline vertical stepper with
       "Due date: 2026-04-15",
     ].join("\n")
   );
+  const root = editorRoot(page);
 
-  await expect(page.locator('[data-step-state="active"]')).toHaveCount(1);
-  await expect(
-    page.locator('[data-step-section="client"][data-step-state="active"]')
-  ).toBeVisible();
-  await expect(
-    page.locator('[data-step-section="agency"][data-step-state="completed"]')
-  ).toBeVisible();
+  await expect(root.getByTestId("invoice-vertical-stepper")).toBeVisible();
+  await expect(root.locator('[data-step-state="active"]')).toHaveCount(1);
+  await expect(root.locator('[data-step-section="client"]')).toBeVisible();
+  await expect(root.locator('[data-step-section="agency"]')).toBeVisible();
 });
 
-test("progressive flow keeps completed sections visible and scrolls to the next unlocked section", async ({
+test("progressive flow keeps sections visible without auto-scroll", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
+  const agencySection = root.locator('[data-step-section="agency"]');
+  const stepper = root.getByTestId("invoice-vertical-stepper");
 
-  const agencySection = page.locator('[data-step-section="agency"]');
-  await page.getByPlaceholder(/Your agency or freelance brand name/i).fill(
-    "DesiFreelanceDocs Studio"
+  await expectStableBoxAfter(
+    page,
+    stepper,
+    async () => {
+      await root.getByPlaceholder(/Your agency or freelance brand name/i).fill(
+        "DesiFreelanceDocs Studio"
+      );
+      await root.getByPlaceholder("Building, street, or area").fill(
+        "14 Residency Road"
+      );
+      await root.getByLabel("Agency state").selectOption("Karnataka");
+    },
+    {
+      keys: ["x", "width", "height"],
+      tolerance: 4,
+      settleMs: 220,
+    }
   );
-  await page.getByPlaceholder("Building, street, or area").fill(
-    "14 Residency Road"
-  );
-  await page.getByLabel("Agency state").selectOption("Karnataka");
 
-  await expect(page.locator('[data-step-state="active"]')).toHaveCount(1);
-  await expect(
-    page.locator('[data-step-section="client"][data-step-state="active"]')
-  ).toBeVisible();
-  await expect(
-    page.locator('[data-step-section="agency"][data-step-state="completed"]')
-  ).toBeVisible();
+  await expect(root.locator('[data-step-state="active"]')).toHaveCount(1);
+  await expect(root.locator('[data-step-section="client"]')).toBeVisible();
+  await expect(root.locator('[data-step-section="agency"]')).toBeVisible();
   await expect(
     agencySection.getByPlaceholder("Building, street, or area")
   ).toBeVisible();
-
-  await waitForScrollProgress(page, 0, 40);
 });
 
 test("single-line Enter advances to the next structured field", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  const agencyName = page.getByPlaceholder(/Your agency or freelance brand name/i);
+  const agencyName = root.getByPlaceholder(/Your agency or freelance brand name/i);
   await agencyName.fill("DesiFreelanceDocs Studio");
   await agencyName.press("Enter");
 
-  await expect(page.getByPlaceholder("Building, street, or area")).toBeFocused();
+  await expect(root.getByPlaceholder("Building, street, or area")).toBeFocused();
 });
 
 test("textarea fields keep normal Enter behavior and do not auto-advance", async ({
   page,
 }) => {
   await loadDemoData(page);
+  const root = editorRoot(page);
   await stepToggle(page, "payment").click();
 
-  const notes = page.getByPlaceholder(
+  const notes = root.getByPlaceholder(
     /Example: 1.5% monthly late fee applies/i
   );
   await notes.fill("Line one");
@@ -184,10 +196,9 @@ test("structured address inputs are used inline after autofill", async ({
       "Due date: 2026-04-15",
     ].join("\n")
   );
+  const root = editorRoot(page);
 
-  const activeClientStep = page.locator(
-    '[data-step-section="client"][data-step-state="active"]'
-  );
+  const activeClientStep = root.locator('[data-step-section="client"]');
   await expect(activeClientStep.getByPlaceholder("Building, street, or campus name")).toBeVisible();
   await expect(activeClientStep.getByPlaceholder("560048")).toBeVisible();
   await expect(activeClientStep.getByLabel("Client state")).toBeVisible();
@@ -197,9 +208,10 @@ test("dropdown selections work cleanly in the structured address flow", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  await page.getByLabel("Agency state").selectOption("Delhi");
-  await expect(page.getByLabel("Agency state")).toHaveValue("Delhi");
+  await root.getByLabel("Agency state").selectOption("Delhi");
+  await expect(root.getByLabel("Agency state")).toHaveValue("Delhi");
 });
 
 test("the editor layout stays within the viewport without horizontal scrolling", async ({
@@ -213,14 +225,15 @@ test("floating action cluster shows only Cancel, Save Draft, and Preview & Downl
   page,
 }) => {
   await loadDemoData(page);
+  const root = editorRoot(page);
   await stepToggle(page, "totals").click();
 
-  const actions = page.getByTestId("floating-editor-actions");
+  const actions = root.getByTestId("floating-editor-actions");
   await expect(actions.getByRole("button")).toHaveCount(3);
   await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
-    actions.getByRole("button", { name: /Preview & Download/i })
+    actions.locator("button").filter({ hasText: /Preview & download/i }).first()
   ).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Back$/i })).toHaveCount(0);
   await expect(actions.getByRole("button", { name: /^Continue$/i })).toHaveCount(0);
@@ -248,22 +261,36 @@ test("conversational Bangalore agency context still infers Karnataka inline", as
       "Due date: 2026-04-15",
     ].join("\n")
   );
+  const root = editorRoot(page);
 
   await stepToggle(page, "agency").click();
-  await expect(page.getByLabel("Agency state")).toHaveValue("Karnataka");
+  await expect(root.getByLabel("Agency state")).toHaveValue("Karnataka");
 });
 
 test("Preview & Download from the editor opens the formal preview flow with the final toolbar actions", async ({
   page,
 }) => {
   await loadDemoData(page);
+  const root = editorRoot(page);
   await stepToggle(page, "totals").click();
 
-  await page.getByRole("button", { name: /Preview & Download/i }).click();
+  await root
+    .getByTestId("floating-editor-actions")
+    .locator("button")
+    .filter({ hasText: /Preview & download/i })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/invoice\/preview$/);
 
   await expect(page.getByRole("link", { name: /Back to Edit/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Print$/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Export PDF/i })).toBeVisible();
+  const previewToolbar = page.getByTestId("invoice-preview-toolbar");
+  await expect(
+    previewToolbar.getByRole("button", { name: /^Save Draft$/i })
+  ).toBeVisible();
+  await expect(
+    previewToolbar.getByRole("button", { name: /^Print$/i })
+  ).toBeVisible();
+  await expect(
+    previewToolbar.getByRole("button", { name: /Export PDF/i })
+  ).toBeVisible();
 });

@@ -67,15 +67,15 @@ export default function BriefIntakeCard({
   const statusCopy =
     statusTone === "processing"
       ? hasImages
-        ? "Reading your screenshot and preparing autofill."
-        : "Preparing autofill from the current brief."
+        ? "Reading the screenshot and preparing autofill."
+        : "Preparing autofill from the brief."
       : statusTone === "success"
-      ? "Autofill is ready. You can reopen intake anytime."
+      ? "Autofill is ready."
       : statusTone === "warning"
       ? "Add a little more detail or try a clearer screenshot."
       : statusTone === "ready"
-      ? "Ready to extract from the current brief."
-      : "Start with a typed brief, then add a screenshot only if it helps.";
+      ? "Ready to extract."
+      : "Add a brief first.";
 
   const statusBadgeClass =
     statusTone === "processing"
@@ -192,34 +192,34 @@ export default function BriefIntakeCard({
   }
 
   return (
-    <MotionReveal className="mb-6" preset="fade-up" delay={40}>
+    <MotionReveal className="mb-4" preset="fade-up" delay={40}>
       <section
-        className={cn(getAppPanelClass("muted"), "overflow-hidden")}
+        className={cn(
+          getAppSubtlePanelClass("muted"),
+          "overflow-hidden px-4 py-3.5 sm:px-5"
+        )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
-        <div className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
+        <div className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 max-w-3xl space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                 <DocumentSparkIcon className="h-4 w-4" />
-                Brief Intake
+                Brief
               </div>
-              <h2
-                id="brief-intake-heading"
-                className={cn("mt-3", appSectionTitleClass)}
-              >
+              <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
               </h2>
-              <p className={cn("mt-2 max-w-2xl", appSectionDescriptionClass)}>
-                Start with text first. Add a screenshot only when it helps autofill.
+              <p className={cn("max-w-2xl", appSectionDescriptionClass)}>
+                Start with text and add a screenshot only if it helps autofill.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               <span
                 className={cn(
-                  "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium",
+                  "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium",
                   statusBadgeClass
                 )}
               >
@@ -278,13 +278,13 @@ export default function BriefIntakeCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-4"
+              className="space-y-3"
             >
               <MotionReveal preset="soft">
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <label className={appFieldLabelClass}>
-                      Paste or type a brief
+                      Brief
                     </label>
 
                     <div className="flex flex-wrap items-center gap-2">
@@ -306,7 +306,7 @@ export default function BriefIntakeCard({
                         )}
                       >
                         <UploadIcon className="h-4 w-4" />
-                        Upload screenshot
+                        Screenshot
                         <input
                           type="file"
                           accept="image/png,image/jpeg"
@@ -341,7 +341,7 @@ export default function BriefIntakeCard({
                       setBriefText(e.target.value);
                       setLastExtractionState("idle");
                     }}
-                    placeholder="Example: Agency name: DesiFreelanceDocs Studio. Agency address: 14 Residency Road, Bengaluru, Karnataka. Client name: Metro Shoes Pvt. Ltd. Client address: Bengaluru, Karnataka. Deliverable type: UI/UX. Deliverable description: Landing page UI design. Qty: 3 screens. Rate: INR 12000 per screen. License type: exclusive license. Payment terms: Net 15. Bank name: HDFC Bank. Account number: 50200044321098. IFSC: HDFC0001122."
+                    placeholder="Agency: DesiFreelanceDocs Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
                     className={getAppFieldClass({
                       hasValue: Boolean(briefText),
                       multiline: true,
@@ -354,8 +354,7 @@ export default function BriefIntakeCard({
                         <span
                           key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            getAppSubtlePanelClass("muted"),
-                            "inline-flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-slate-700"
+                            "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/78 px-3 py-1.5 text-[11px] font-medium text-slate-700"
                           )}
                         >
                           <ClipboardCheckIcon className="h-3.5 w-3.5" />
@@ -366,15 +365,17 @@ export default function BriefIntakeCard({
                   ) : null}
 
                   <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-3">
-                    <p className="text-xs leading-5 text-slate-500">
-                      {statusCopy}
-                    </p>
+                    {isExtracting || lastExtractionState !== "idle" ? (
+                      <p className="text-xs leading-5 text-slate-500">
+                        {statusCopy}
+                      </p>
+                    ) : <div />}
 
                     <MotionButton
                       type="button"
                       onClick={handleExtract}
                       disabled={isExtracting || !canExtract}
-                      className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                      className={getAppButtonClass({ variant: "primary", size: "md" })}
                     >
                       <motion.span
                         animate={

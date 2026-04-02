@@ -40,6 +40,74 @@ interface TermsPaymentSectionProps {
   showAllErrors?: boolean;
 }
 
+type StructuredBankAddressFields = {
+  line1: string;
+  line2: string;
+  cityRegion: string;
+  postalCode: string;
+  country: string;
+};
+
+function parseStructuredBankAddress(
+  bankAddress: string
+): StructuredBankAddressFields {
+  const normalized = bankAddress.replace(/\r\n?/g, "\n").trim();
+
+  if (!normalized) {
+    return {
+      line1: "",
+      line2: "",
+      cityRegion: "",
+      postalCode: "",
+      country: "",
+    };
+  }
+
+  const lines = normalized.split("\n");
+
+  if (lines.length > 5) {
+    return {
+      line1: normalized,
+      line2: "",
+      cityRegion: "",
+      postalCode: "",
+      country: "",
+    };
+  }
+
+  return {
+    line1: lines[0]?.trim() ?? "",
+    line2: lines[1]?.trim() ?? "",
+    cityRegion: lines[2]?.trim() ?? "",
+    postalCode: lines[3]?.trim() ?? "",
+    country: lines[4]?.trim() ?? "",
+  };
+}
+
+function composeStructuredBankAddress(fields: StructuredBankAddressFields) {
+  const parts = [
+    fields.line1,
+    fields.line2,
+    fields.cityRegion,
+    fields.postalCode,
+    fields.country,
+  ];
+  let lastNonEmptyIndex = -1;
+
+  parts.forEach((part, index) => {
+    if (part.trim()) {
+      lastNonEmptyIndex = index;
+    }
+  });
+
+  if (lastNonEmptyIndex === -1) return "";
+
+  return parts
+    .slice(0, lastNonEmptyIndex + 1)
+    .map((part) => part.trim())
+    .join("\n");
+}
+
 function getLicenseExplanation(
   licenseType: LicenseType | ""
 ): string {
@@ -77,6 +145,10 @@ export default function TermsPaymentSection({
     value.license.isLicenseIncluded ||
       Boolean(value.license.licenseType || value.license.licenseDuration)
   );
+  const [bankAddressFields, setBankAddressFields] =
+    useState<StructuredBankAddressFields>(() =>
+      parseStructuredBankAddress(value.bankAddress)
+    );
 
   useEffect(() => {
     if (!showToast) return;
@@ -87,6 +159,10 @@ export default function TermsPaymentSection({
 
     return () => window.clearTimeout(timer);
   }, [showToast]);
+
+  useEffect(() => {
+    setBankAddressFields(parseStructuredBankAddress(value.bankAddress));
+  }, [value.bankAddress]);
 
   const updateField = <K extends keyof PaymentDetails>(
     key: K,
@@ -168,6 +244,19 @@ export default function TermsPaymentSection({
   const getVisibleError = (field: string, error?: string) =>
     showAllErrors || touchedFields[field] ? error : undefined;
 
+  const updateBankAddressField = (
+    key: keyof StructuredBankAddressFields,
+    fieldValue: string
+  ) => {
+    const nextAddressFields = {
+      ...bankAddressFields,
+      [key]: fieldValue,
+    };
+
+    setBankAddressFields(nextAddressFields);
+    updateField("bankAddress", composeStructuredBankAddress(nextAddressFields));
+  };
+
   const licenseExplanation = getLicenseExplanation(
     value.license.licenseType
   );
@@ -176,7 +265,7 @@ export default function TermsPaymentSection({
       value.license.licenseType ||
       value.license.licenseDuration
   );
-  const isLicenseSectionOpen = isLicenseSectionExpanded || hasLicenseContent;
+  const isLicenseSectionOpen = isLicenseSectionExpanded;
 
   const showLicenseFields = value.license.isLicenseIncluded;
   const showLicenseDuration =
@@ -222,48 +311,63 @@ export default function TermsPaymentSection({
             : getAppPanelClass()
         )}
       >
-        <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
-          {!embedded ? <h2 className={appSectionTitleClass}>Payment</h2> : null}
-          <p className={appSectionDescriptionClass}>
-            Add payment terms and the payout details that should appear on the invoice.
-          </p>
-        </div>
+        {!embedded ? (
+          <div className="mb-6 space-y-2">
+            <h2 className={appSectionTitleClass}>Payment</h2>
+            <p className={appSectionDescriptionClass}>
+              Add payment and bank details.
+            </p>
+          </div>
+        ) : null}
 
         <div className="space-y-6">
           {isInternational ? (
-            <div className={cn(getAppSubtlePanelClass("warning"), "space-y-3")}>
-              <label className={cn(appFieldLabelClass, "mb-0 text-amber-950")}>
+            <div className="space-y-2.5" data-testid="payment-settlement-control">
+              <label className={appFieldLabelClass}>
                 Settlement Type
               </label>
-              <ChoiceCards
-                name="payment-settlement-type"
-                value={value.paymentSettlementType}
-                onChange={(nextValue) =>
-                  updateField("paymentSettlementType", nextValue)
-                }
-                variant="segmented"
-                columns={2}
-                options={[
-                  {
-                    value: "forex",
-                    label: "Forex",
-                    description: "Use when payment settles in foreign currency.",
-                  },
-                  {
-                    value: "inr",
-                    label: "INR",
-                    description: "Use when export proceeds settle in rupees.",
-                  },
-                  {
-                    value: "unknown",
-                    label: "Unknown",
-                    description: "Leave this until the settlement route is confirmed.",
-                  },
-                ]}
-              />
-              {value.paymentSettlementType !== "forex" ? (
-                <p className="text-xs font-medium leading-5 text-amber-950/85">
-                  International invoices usually need a clear forex-settlement trail. Review the settlement route before final delivery.
+              <div className="grid grid-cols-3 gap-1 rounded-[14px] border border-slate-200 bg-slate-50/78 p-1">
+                {[
+                  { value: "forex", label: "Forex" },
+                  { value: "inr", label: "INR" },
+                  { value: "unknown", label: "Not sure" },
+                ].map((option) => {
+                  const isSelected =
+                    value.paymentSettlementType === option.value;
+
+                  return (
+                    <label key={option.value} className="block cursor-pointer">
+                      <input
+                        type="radio"
+                        name="payment-settlement-type"
+                        value={option.value}
+                        checked={value.paymentSettlementType === option.value}
+                        onChange={() =>
+                          updateField(
+                            "paymentSettlementType",
+                            option.value as PaymentDetails["paymentSettlementType"]
+                          )
+                        }
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex min-h-10 items-center justify-center rounded-[10px] border px-3 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
+                          isSelected
+                            ? "app-soft-choice-option-active text-slate-950"
+                            : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+                        )}
+                      >
+                        {option.label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {value.paymentSettlementType &&
+              value.paymentSettlementType !== "forex" ? (
+                <p className="text-xs leading-5 text-slate-500">
+                  Review the settlement route before final delivery.
                 </p>
               ) : null}
             </div>
@@ -303,24 +407,20 @@ export default function TermsPaymentSection({
               <button
                 type="button"
                 onClick={() =>
-                  setIsLicenseSectionExpanded((current) =>
-                    hasLicenseContent ? true : !current
-                  )
+                  setIsLicenseSectionExpanded((current) => !current)
                 }
                 className={getAppButtonClass({ variant: "ghost", size: "sm" })}
               >
-                {hasLicenseContent
-                  ? "License active"
-                  : isLicenseSectionOpen
-                  ? "Hide"
-                  : "Add"}{" "}
-                license terms
+                {isLicenseSectionOpen
+                  ? "Hide license terms"
+                  : hasLicenseContent
+                  ? "License terms added"
+                  : "Add license terms"}
               </button>
             </div>
 
             {isLicenseSectionOpen ? (
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_176px] xl:items-start">
-                <div className="space-y-4">
+              <div className="space-y-4">
                   <div>
                     <label className={appFieldLabelClass}>
                       License Included?
@@ -417,16 +517,11 @@ export default function TermsPaymentSection({
                       ) : null}
                     </div>
                   ) : null}
-                </div>
-
-                <div className={cn(getAppSubtlePanelClass("muted"), "space-y-2 p-3.5")}>
-                  <p className="text-sm font-medium text-slate-900">
-                    License summary
-                  </p>
-                  <p className="text-sm leading-6 text-slate-500">
+                {showLicenseFields && value.license.licenseType ? (
+                  <p className="text-xs leading-5 text-slate-500">
                     {licenseExplanation}
                   </p>
-                </div>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -446,7 +541,7 @@ export default function TermsPaymentSection({
           </div>
 
           {!isInternational ? (
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_128px] xl:items-start">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_104px] xl:items-start">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className={appFieldLabelClass}>
@@ -541,7 +636,7 @@ export default function TermsPaymentSection({
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-medium text-slate-900">Payment QR</p>
+                    <p className="text-sm font-medium text-slate-900">QR</p>
                     <p className="mt-0.5 text-[11px] leading-5 text-slate-500">Optional</p>
                   </div>
 
@@ -569,7 +664,7 @@ export default function TermsPaymentSection({
                   }}
                   onDragLeave={() => setIsQrDragOver(false)}
                   onDrop={handleQrDrop}
-                  className={`app-dropzone-surface flex aspect-square w-full max-w-[112px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-3 py-3 text-center text-sm ${
+                  className={`app-dropzone-surface flex aspect-square w-full max-w-[96px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
                     isQrDragOver
                       ? "app-dropzone-accept text-slate-950"
                       : "text-slate-500 hover:border-slate-400"
@@ -586,7 +681,7 @@ export default function TermsPaymentSection({
                     <img
                       src={value.qrCodeUrl}
                       alt="Payment QR preview"
-                      className="max-h-[64px] w-auto object-contain"
+                      className="max-h-[60px] w-auto object-contain"
                     />
                   ) : (
                     <div className="space-y-1">
@@ -599,14 +694,10 @@ export default function TermsPaymentSection({
             </div>
           ) : (
             <div className="space-y-4 border-t border-slate-200/70 pt-5">
-              <div className="mb-2">
-                <p className="text-sm font-medium text-slate-900">International wire details</p>
-              </div>
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className={appFieldLabelClass}>
-                    Beneficiary / Account Name
+                    Beneficiary Name
                   </label>
                   <input
                     suppressHydrationWarning
@@ -638,35 +729,14 @@ export default function TermsPaymentSection({
                     onChange={(e) => updateField("bankName", e.target.value)}
                     onBlur={() => markTouched("bankName")}
                     placeholder="Receiving bank name"
-                    className={inputClass(bankNameError, Boolean(value.bankName))}
+                    className={inputClass(
+                      bankNameError,
+                      Boolean(value.bankName)
+                    )}
                   />
                   {bankNameError ? (
                     <p className={appFieldErrorTextClass}>
                       {bankNameError}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className={appFieldLabelClass}>
-                    Bank Full Address
-                  </label>
-                  <textarea
-                    suppressHydrationWarning
-                    rows={3}
-                    value={value.bankAddress}
-                    onChange={(e) => updateField("bankAddress", e.target.value)}
-                    onBlur={() => markTouched("bankAddress")}
-                    placeholder="Full bank branch address"
-                    className={inputClass(
-                      bankAddressError,
-                      Boolean(value.bankAddress),
-                      true
-                    )}
-                  />
-                  {bankAddressError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {bankAddressError}
                     </p>
                   ) : null}
                 </div>
@@ -696,7 +766,7 @@ export default function TermsPaymentSection({
 
                 <div>
                   <label className={appFieldLabelClass}>
-                    SWIFT / BIC Code
+                    SWIFT / BIC
                   </label>
                   <input
                     suppressHydrationWarning
@@ -734,6 +804,106 @@ export default function TermsPaymentSection({
                       Boolean(value.ibanRoutingCode)
                     )}
                   />
+                </div>
+
+                <div
+                  className="md:col-span-2"
+                  data-testid="international-bank-address-group"
+                >
+                  <label className={appFieldLabelClass}>
+                    Bank Address
+                  </label>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={bankAddressFields.line1}
+                        onChange={(e) =>
+                          updateBankAddressField("line1", e.target.value)
+                        }
+                        onBlur={() => markTouched("bankAddress")}
+                        placeholder="Address Line 1"
+                        className={inputClass(
+                          bankAddressError,
+                          Boolean(bankAddressFields.line1)
+                        )}
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={bankAddressFields.line2}
+                        onChange={(e) =>
+                          updateBankAddressField("line2", e.target.value)
+                        }
+                        onBlur={() => markTouched("bankAddress")}
+                        placeholder="Address Line 2"
+                        className={inputClass(
+                          undefined,
+                          Boolean(bankAddressFields.line2)
+                        )}
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={bankAddressFields.cityRegion}
+                        onChange={(e) =>
+                          updateBankAddressField("cityRegion", e.target.value)
+                        }
+                        onBlur={() => markTouched("bankAddress")}
+                        placeholder="City / Region"
+                        className={inputClass(
+                          undefined,
+                          Boolean(bankAddressFields.cityRegion)
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={bankAddressFields.postalCode}
+                        onChange={(e) =>
+                          updateBankAddressField("postalCode", e.target.value)
+                        }
+                        onBlur={() => markTouched("bankAddress")}
+                        placeholder="Postal Code"
+                        className={inputClass(
+                          undefined,
+                          Boolean(bankAddressFields.postalCode)
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={bankAddressFields.country}
+                        onChange={(e) =>
+                          updateBankAddressField("country", e.target.value)
+                        }
+                        onBlur={() => markTouched("bankAddress")}
+                        placeholder="Country"
+                        className={inputClass(
+                          undefined,
+                          Boolean(bankAddressFields.country)
+                        )}
+                      />
+                    </div>
+                  </div>
+                  {bankAddressError ? (
+                    <p className={cn(appFieldErrorTextClass, "mt-2")}>
+                      {bankAddressError}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>

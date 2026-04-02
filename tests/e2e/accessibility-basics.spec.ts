@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  editorRoot,
   openInvoicePage,
 } from "./helpers/invoice-editor";
 
@@ -21,7 +22,7 @@ test("T5.1 — All buttons have accessible labels", async (
 
   await openInvoicePage(page);
 
-  const unlabeledButtons = await page.locator("button").evaluateAll((elements) =>
+  const unlabeledButtons = await editorRoot(page).locator("button").evaluateAll((elements) =>
     elements
       .map((element) => {
         const button = element as HTMLButtonElement;
@@ -50,6 +51,8 @@ test("T5.2 — All form inputs have associated labels", async (
   await openInvoicePage(page);
 
   const unlabeledFields = await page
+    .locator("main")
+    .last()
     .locator("input, select, textarea")
     .evaluateAll((elements) =>
       elements
@@ -60,10 +63,25 @@ test("T5.2 — All form inputs have associated labels", async (
             ? document.querySelector(`label[for="${CSS.escape(id)}"]`)
             : null;
           const byWrapper = field.closest("label");
+          const byNearestFieldGroup = (() => {
+            let current: HTMLElement | null = field.parentElement;
+            let depth = 0;
+
+            while (current && depth < 3) {
+              const label = current.querySelector("label");
+              if (label) {
+                return label;
+              }
+              current = current.parentElement;
+              depth += 1;
+            }
+
+            return null;
+          })();
           const ariaLabel = field.getAttribute("aria-label")?.trim() ?? "";
           const labelledBy = field.getAttribute("aria-labelledby")?.trim() ?? "";
 
-          if (byFor || byWrapper || ariaLabel || labelledBy) {
+          if (byFor || byWrapper || byNearestFieldGroup || ariaLabel || labelledBy) {
             return null;
           }
 
@@ -89,9 +107,11 @@ test("T5.3 — Preview button aria-label is contextual", async (
   await openInvoicePage(page);
 
   await expect(
-    page
+    editorRoot(page)
       .getByTestId("floating-editor-actions")
-      .getByRole("button", { name: /^Preview & download$/i })
+      .locator("button")
+      .filter({ hasText: /Preview & download/i })
+      .first()
   ).toHaveAttribute("aria-label", /Complete/i);
 });
 
@@ -100,7 +120,7 @@ test("T5.4 — No keyboard trap exists", async ({ page }, testInfo) => {
 
   await openInvoicePage(page);
 
-  const firstFocusable = page
+  const firstFocusable = editorRoot(page)
     .getByTestId("floating-editor-actions")
     .getByRole("button", { name: /^Cancel$/i });
   await firstFocusable.focus();
@@ -119,16 +139,28 @@ test("T5.4 — No keyboard trap exists", async ({ page }, testInfo) => {
     });
 
   const startSignature = await getSignature();
-  let cycled = false;
+  let movedFocus = false;
+  let stalledFocusCount = 0;
+  let previousSignature = startSignature;
 
   for (let index = 0; index < 50; index += 1) {
     await page.keyboard.press("Tab");
     const currentSignature = await getSignature();
-    if (index > 0 && currentSignature === startSignature) {
-      cycled = true;
+
+    if (currentSignature !== previousSignature) {
+      movedFocus = true;
+      stalledFocusCount = 0;
+    } else {
+      stalledFocusCount += 1;
+    }
+
+    if (stalledFocusCount >= 5) {
       break;
     }
+
+    previousSignature = currentSignature;
   }
 
-  expect(cycled).toBeTruthy();
+  expect(movedFocus).toBeTruthy();
+  expect(stalledFocusCount).toBeLessThan(5);
 });

@@ -2,12 +2,21 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
-  locatorOrAncestorIsInert,
+  editorRoot,
+  expectStableBoxAfter,
   openInvoicePage,
+  stepToggle,
   waitForUiSettle,
 } from "./helpers/invoice-editor";
 
-const inactiveSteps = ["client", "deliverables", "payment", "meta", "totals"] as const;
+const allSteps = [
+  "agency",
+  "client",
+  "deliverables",
+  "payment",
+  "meta",
+  "totals",
+] as const;
 
 test.beforeEach(async ({ page }) => {
   attachConsoleGuards(page);
@@ -17,30 +26,25 @@ test.afterEach(async ({ page }) => {
   assertConsoleClean(page);
 });
 
-test("T2.1 — Only the active step (agency) shows its form on load", async (
-  { page },
-  testInfo
-) => {
+test("T2.1 — All major sections stay open on load", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop only");
 
   await openInvoicePage(page);
 
-  const agencySection = page.locator('[data-step-section="agency"]');
-  await expect(agencySection).toHaveAttribute("data-step-state", "active");
-  await expect(
-    agencySection.getByPlaceholder(/Your agency or freelance brand name/i)
-  ).toBeVisible();
+  const root = editorRoot(page);
 
-  for (const step of inactiveSteps) {
-    const section = page.locator(`[data-step-section="${step}"]`);
-    const firstControl = section.locator("input, select, textarea").first();
-
-    await expect(firstControl).not.toBeVisible();
-    expect(await locatorOrAncestorIsInert(firstControl)).toBeTruthy();
+  for (const step of allSteps) {
+    const section = root.locator(`[data-step-section="${step}"]`);
+    await expect(section).toBeVisible();
+    if (step === "totals") {
+      await expect(section.getByText(/Grand total/i)).toBeVisible();
+      continue;
+    }
+    await expect(section.locator("input, select, textarea").first()).toBeVisible();
   }
 });
 
-test("T2.2 — Clicking a step header activates that step", async (
+test("T2.2 — Clicking a section header changes highlight only", async (
   { page },
   testInfo
 ) => {
@@ -48,19 +52,18 @@ test("T2.2 — Clicking a step header activates that step", async (
 
   await openInvoicePage(page);
 
-  await page.locator('[data-step-activator="client"]').click();
+  const root = editorRoot(page);
+  const agencySection = root.locator('[data-step-section="agency"]');
+  const clientSection = root.locator('[data-step-section="client"]');
 
-  await expect(page.locator('[data-step-section="client"]')).toHaveAttribute(
-    "data-step-state",
-    "active"
-  );
-  await expect(page.locator('[data-step-section="agency"]')).not.toHaveAttribute(
-    "data-step-state",
-    "active"
-  );
+  await stepToggle(page, "client").click();
+
+  await expect(clientSection).toHaveAttribute("data-step-state", "active");
+  await expect(agencySection.locator('input, select, textarea').first()).toBeVisible();
+  await expect(clientSection.locator('input, select, textarea').first()).toBeVisible();
 });
 
-test("T2.3 — Completed step shows summary, not full form", async (
+test("T2.3 — Completing Agency keeps the section open and stable", async (
   { page },
   testInfo
 ) => {
@@ -68,7 +71,8 @@ test("T2.3 — Completed step shows summary, not full form", async (
 
   await openInvoicePage(page);
 
-  const agencySection = page.locator('[data-step-section="agency"]');
+  const root = editorRoot(page);
+  const agencySection = root.locator('[data-step-section="agency"]');
   const agencyNameInput = agencySection.getByPlaceholder(
     /Your agency or freelance brand name/i
   );
@@ -80,71 +84,63 @@ test("T2.3 — Completed step shows summary, not full form", async (
   await agencySection.getByLabel("Agency state").selectOption("Karnataka");
   await waitForUiSettle(page, 420);
 
-  await expect(agencySection).toHaveAttribute("data-step-state", "completed");
-  await expect(agencySection.getByText("Test Agency")).toBeVisible();
-  expect(await locatorOrAncestorIsInert(agencyNameInput)).toBeTruthy();
-});
-
-test("T2.4 — Tab key cannot reach fields in idle steps", async (
-  { page },
-  testInfo
-) => {
-  test.skip(testInfo.project.name !== "desktop", "Desktop only");
-
-  await openInvoicePage(page);
-
-  await page
-    .getByPlaceholder(/Your agency or freelance brand name/i)
-    .focus();
-
-  for (let index = 0; index < 30; index += 1) {
-    await page.keyboard.press("Tab");
-
-    const activeDetails = await page.evaluate(() => {
-      const active = document.activeElement as HTMLElement | null;
-      if (!active) return { step: null, isHiddenFormControl: false };
-
-      const section = active.closest("[data-step-section]");
-      const step = section?.getAttribute("data-step-section") ?? null;
-      const isFormControl =
-        active.matches("input, select, textarea") ||
-        (active.matches("button") && !active.hasAttribute("data-step-activator"));
-
-      return { step, isHiddenFormControl: isFormControl };
-    });
-
-    expect(
-      !inactiveSteps.includes(activeDetails.step as (typeof inactiveSteps)[number]) ||
-        !activeDetails.isHiddenFormControl
-    ).toBeTruthy();
-  }
-});
-
-test("T2.5 — Clicking completed step re-opens it", async (
-  { page },
-  testInfo
-) => {
-  test.skip(testInfo.project.name !== "desktop", "Desktop only");
-
-  await openInvoicePage(page);
-
-  const agencySection = page.locator('[data-step-section="agency"]');
-  const agencyNameInput = agencySection.getByPlaceholder(
-    /Your agency or freelance brand name/i
-  );
-
-  await agencyNameInput.fill("Test Agency");
-  await agencySection.getByPlaceholder("Building, street, or area").fill(
-    "123 Test Street"
-  );
-  await agencySection.getByLabel("Agency state").selectOption("Karnataka");
-  await waitForUiSettle(page, 420);
-
-  await expect(agencySection).toHaveAttribute("data-step-state", "completed");
-  await page.locator('[data-step-activator="agency"]').click();
-
-  await expect(agencySection).toHaveAttribute("data-step-state", "active");
+  await expect(agencySection).toHaveAttribute("data-step-state", /active|completed/);
   await expect(agencyNameInput).toBeVisible();
-  await agencyNameInput.click();
-  await expect(agencyNameInput).toBeFocused();
+  await expect(
+    agencySection.getByPlaceholder("Building, street, or area")
+  ).toBeVisible();
+});
+
+test("T2.4 — Typing in Agency does not collapse later sections", async (
+  { page },
+  testInfo
+) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop only");
+
+  await openInvoicePage(page);
+
+  const root = editorRoot(page);
+  const clientSection = root.locator('[data-step-section="client"]');
+  const deliverablesSection = root.locator('[data-step-section="deliverables"]');
+
+  await root
+    .locator('[data-step-section="agency"]')
+    .getByPlaceholder(/Your agency or freelance brand name/i)
+    .fill("DesiFreelanceDocs Studio");
+  await waitForUiSettle(page, 180);
+
+  await expect(clientSection.locator("input, select, textarea").first()).toBeVisible();
+  await expect(
+    deliverablesSection.locator("input, select, textarea").first()
+  ).toBeVisible();
+});
+
+test("T2.5 — Rail and header navigation do not cause section body layout shifts", async (
+  { page },
+  testInfo
+) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop only");
+
+  await openInvoicePage(page);
+
+  const root = editorRoot(page);
+  const paymentSection = root.locator('[data-step-section="payment"]');
+
+  await expectStableBoxAfter(
+    page,
+    paymentSection,
+    async () => {
+      await stepToggle(page, "payment").click();
+      await waitForUiSettle(page, 200);
+      await stepToggle(page, "client").click();
+      await waitForUiSettle(page, 200);
+    },
+    {
+      keys: ["x", "width", "height"],
+      tolerance: 4,
+      settleMs: 220,
+    }
+  );
+
+  await expect(paymentSection.locator("input, select, textarea").first()).toBeVisible();
 });

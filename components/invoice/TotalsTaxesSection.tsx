@@ -126,11 +126,13 @@ export default function TotalsTaxesSection({
           : getAppPanelClass()
       )}
     >
-      <div className="mb-4">
+      <div className={cn(!embedded ? "mb-4" : "")}>
         {!embedded ? <h2 className={appSectionTitleClass}>Totals</h2> : null}
-        <p className={cn(!embedded ? "mt-2" : "", appSectionDescriptionClass)}>
-          Review the final billing outcome before preview.
-        </p>
+        {!embedded ? (
+          <p className={cn("mt-2", appSectionDescriptionClass)}>
+            Review the final billing summary.
+          </p>
+        ) : null}
         {onExportTaxDecisionChange ? (
           <div className="mt-4 rounded-[var(--app-radius-card)] bg-amber-50/80 p-4 ring-1 ring-inset ring-amber-200/80">
             <p className="text-sm font-medium leading-6 text-amber-950">

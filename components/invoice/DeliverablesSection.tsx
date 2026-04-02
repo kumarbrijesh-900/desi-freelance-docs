@@ -189,10 +189,8 @@ export default function DeliverablesSection({
           ...item,
           type: nextType,
           rateUnit: nextRateUnit,
-          description:
-            item.description.trim() && item.description !== shortPlaceholders[item.type]
-              ? item.description
-              : "",
+          // Keep any user-entered description intact when the type changes.
+          description: item.description.trim() ? item.description : "",
         };
       })
     );
@@ -221,7 +219,7 @@ export default function DeliverablesSection({
   const currencySymbol = getCurrencySymbol(currency);
   const lineItemErrorSlotClass = cn(
     appFieldErrorTextClass,
-    "min-h-[20px]",
+    "min-h-[18px]",
   );
   const inputClass = (hasError?: string, hasValue?: boolean) =>
     getAppFieldClass({
@@ -270,16 +268,21 @@ export default function DeliverablesSection({
           : getAppPanelClass()
       )}
     >
-      <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
-        {!embedded ? <h2 className={appSectionTitleClass}>Items</h2> : null}
-        <p className={appSectionDescriptionClass}>
-          Add exactly what the client should see as billable line items.
-        </p>
-      </div>
+      {!embedded ? (
+        <div className="mb-6 space-y-2">
+          <h2 className={appSectionTitleClass}>Items</h2>
+          <p className={appSectionDescriptionClass}>
+            Add the billable line items.
+          </p>
+        </div>
+      ) : null}
 
-      <div className="mb-3 hidden xl:grid xl:grid-cols-[minmax(0,3.8fr)_76px_132px_132px_132px_36px] xl:gap-4 xl:px-4">
+      <div className="mb-3 hidden lg:grid lg:grid-cols-[108px_minmax(0,1.65fr)_72px_132px_120px_116px_36px] lg:gap-3 lg:px-3.5">
         <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Line item
+          Type
+        </span>
+        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          Description
         </span>
         <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Qty
@@ -310,7 +313,7 @@ export default function DeliverablesSection({
           const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
           const compactLabelClass = cn(
             appFieldLabelClass,
-            "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0"
+            "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
           );
 
           return (
@@ -319,52 +322,48 @@ export default function DeliverablesSection({
               data-testid="line-item-row"
               className={cn(
                 getAppSubtlePanelClass(index === 0 ? "default" : "muted"),
-                "px-4 py-3.5"
+                "px-3.5 py-3"
               )}
             >
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3.8fr)_76px_132px_132px_132px_36px] xl:items-start">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[108px_minmax(0,1.65fr)_72px_132px_120px_116px_36px] lg:items-start lg:gap-3">
+                <div>
+                  <label className={compactLabelClass}>Type</label>
+                  <AppSelectField
+                    suppressHydrationWarning
+                    value={item.type}
+                    onChange={(e) =>
+                      handleTypeChange(
+                        item.id,
+                        e.target.value as InvoiceLineItemType
+                      )
+                    }
+                    hasValue
+                  >
+                    {typeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </AppSelectField>
+                  <div className="min-h-[18px]" />
+                </div>
+
                 <div className="space-y-2">
-                  <div className="grid grid-cols-1 gap-3 xl:grid-cols-[150px_minmax(0,1fr)]">
-                    <div>
-                      <label className={compactLabelClass}>Type</label>
-                      <AppSelectField
-                        suppressHydrationWarning
-                        value={item.type}
-                        onChange={(e) =>
-                          handleTypeChange(
-                            item.id,
-                            e.target.value as InvoiceLineItemType
-                          )
-                        }
-                        hasValue
-                      >
-                        {typeOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </AppSelectField>
-                    </div>
-
-                    <div>
-                      <label className={compactLabelClass}>Description *</label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={item.description}
-                        onChange={(e) =>
-                          updateItem(item.id, "description", e.target.value)
-                        }
-                        onBlur={() => markTouched(item.id, "description")}
-                        placeholder={shortPlaceholders[item.type]}
-                        className={inputClass(
-                          descriptionError,
-                          Boolean(item.description)
-                        )}
-                      />
-                    </div>
-                  </div>
-
+                  <label className={compactLabelClass}>Description *</label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={item.description}
+                    onChange={(e) =>
+                      updateItem(item.id, "description", e.target.value)
+                    }
+                    onBlur={() => markTouched(item.id, "description")}
+                    placeholder={shortPlaceholders[item.type]}
+                    className={inputClass(
+                      descriptionError,
+                      Boolean(item.description)
+                    )}
+                  />
                   <p
                     className={cn(
                       lineItemErrorSlotClass,
@@ -405,7 +404,7 @@ export default function DeliverablesSection({
                 </div>
 
                 <div>
-                  <label className={compactLabelClass}>Rate ({currency})</label>
+                  <label className={compactLabelClass}>Rate</label>
                   <div className="relative">
                     <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-slate-500">
                       {currencySymbol}
@@ -458,7 +457,7 @@ export default function DeliverablesSection({
                       </option>
                     ))}
                   </AppSelectField>
-                  <div className="min-h-[20px]" />
+                  <div className="min-h-[18px]" />
                 </div>
 
                 <div>
@@ -466,15 +465,15 @@ export default function DeliverablesSection({
                   <div
                     className={cn(
                       getAppSubtlePanelClass("muted"),
-                      "flex h-12 items-center justify-end px-4 py-0 text-sm font-semibold text-slate-900"
+                      "flex h-12 items-center justify-end px-3 py-0 text-sm font-medium text-slate-700"
                     )}
                   >
                     {formatCurrency(lineTotal, currency)}
                   </div>
-                  <div className="min-h-[20px]" />
+                  <div className="min-h-[18px]" />
                 </div>
 
-                <div className="flex justify-end xl:pt-0.5">
+                <div className="flex justify-end lg:pt-0.5">
                   {canDeleteRows ? (
                     <button
                       type="button"
@@ -491,7 +490,7 @@ export default function DeliverablesSection({
                       ×
                     </button>
                   ) : (
-                    <div className="hidden xl:block" />
+                    <div className="hidden lg:block" />
                   )}
                 </div>
               </div>

@@ -2,11 +2,15 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  briefIntakeExpanded,
+  editorRoot,
   openInvoicePage,
 } from "./helpers/invoice-editor";
 
 function expandedToggle(page: Parameters<typeof openInvoicePage>[0]) {
-  return page.locator('[aria-controls="brief-intake-panel"]').first();
+  return briefIntakeExpanded(page)
+    .getByRole("button", { name: /Hide/i })
+    .first();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -23,7 +27,7 @@ test("T4.1 — Collapse toggle never says Expand", async ({ page }) => {
   await expect(expandedToggle(page)).not.toContainText(/Expand/i);
   await expandedToggle(page).click();
 
-  const collapsedToggle = page
+  const collapsedToggle = editorRoot(page)
     .getByTestId("brief-intake-collapsed")
     .getByRole("button");
   await expect(collapsedToggle).not.toContainText(/Expand/i);
@@ -42,7 +46,7 @@ test("T4.2 — Collapsed state shows Brief label", async (
   await expandedToggle(page).click();
 
   await expect(
-    page.getByTestId("brief-intake-collapsed").getByRole("button")
+    editorRoot(page).getByTestId("brief-intake-collapsed").getByRole("button")
   ).toContainText("Brief");
 });
 
@@ -64,9 +68,8 @@ test("T4.4 — Brief card has reduced opacity when not hovered", async (
 
   await openInvoicePage(page);
 
-  const wrapper = page
-    .locator('div.opacity-80')
-    .filter({ has: page.locator('[data-brief-intake-state="expanded"]') })
+  const wrapper = briefIntakeExpanded(page)
+    .locator('xpath=ancestor::div[contains(@class,"opacity-80")]')
     .first();
 
   await expect(wrapper).toHaveClass(/opacity-80/);

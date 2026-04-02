@@ -239,8 +239,11 @@ export async function openInvoicePage(
 
   await page.goto("/invoice/new");
   await expect(
-    page.getByRole("heading", { name: /Screenshot, text, or audio brief/i })
+    briefIntakeExpanded(page).getByRole("heading", {
+      name: /Screenshot, text, or audio brief/i,
+    })
   ).toBeVisible();
+  await editorRoot(page).scrollIntoViewIfNeeded();
   await waitForUiSettle(page);
 }
 
@@ -255,15 +258,25 @@ export async function loadDemoData(page: Page, currentStep: InvoiceStep = "agenc
 
 export async function extractBrief(page: Page, brief: string) {
   await openInvoicePage(page);
-  await page.getByPlaceholder(/Example: Agency name:/i).fill(brief);
-  await page.getByRole("button", { name: /^Extract & Autofill$/i }).click();
+  await briefIntakeExpanded(page).locator("textarea").first().fill(brief);
+  await briefIntakeExpanded(page)
+    .getByRole("button", { name: /^Extract & Autofill$/i })
+    .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator('[data-brief-intake-state="collapsed"]')).toBeVisible();
+  await expect(editorRoot(page).locator('[data-brief-intake-state="collapsed"]').first()).toBeVisible();
   await waitForUiSettle(page, 420);
 }
 
+export function editorRoot(page: Page) {
+  return page.locator("main").last();
+}
+
+export function briefIntakeExpanded(page: Page) {
+  return editorRoot(page).locator('[data-brief-intake-state="expanded"]').first();
+}
+
 export function stepToggle(page: Page, step: InvoiceStep) {
-  return page.locator(
+  return editorRoot(page).locator(
     `[data-step-section="${step}"] [data-step-activator="${step}"]`
   );
 }

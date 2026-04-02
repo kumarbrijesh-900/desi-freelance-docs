@@ -148,12 +148,14 @@ export default function ClientDetailsSection({
           : getAppPanelClass()
       )}
     >
-      <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
-        {!embedded ? <h2 className={appSectionTitleClass}>Client</h2> : null}
-        <p className={appSectionDescriptionClass}>
-          Capture who is being billed and which billing rules apply.
-        </p>
-      </div>
+      {!embedded ? (
+        <div className="mb-6 space-y-2">
+          <h2 className={appSectionTitleClass}>Client</h2>
+          <p className={appSectionDescriptionClass}>
+            Add the client details and billing location.
+          </p>
+        </div>
+      ) : null}
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
@@ -535,10 +537,6 @@ export default function ClientDetailsSection({
                 ) : null}
               </div>
             </div>
-
-            <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
-              Export declaration and LUT handling are finalized in Totals after agency compliance is confirmed.
-            </p>
           </div>
         ) : null}
       </div>

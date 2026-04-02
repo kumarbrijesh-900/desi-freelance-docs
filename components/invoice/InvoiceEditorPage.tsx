@@ -488,35 +488,19 @@ function isInvoiceReadyForPreview(formData: InvoiceFormData) {
 function getStepDescription(step: InvoiceStepperStep) {
   switch (step) {
     case "agency":
-      return "Business identity, address, and GST setup.";
+      return "Add your business details for the invoice.";
     case "client":
-      return "Recipient details and billing location.";
+      return "Add the client details and billing location.";
     case "deliverables":
-      return "Billable line items and pricing.";
+      return "Add the billable line items.";
     case "payment":
-      return "Payment terms, bank details, and optional licensing.";
+      return "Add payment and bank details.";
     case "meta":
-      return "Invoice number and dates.";
+      return "Confirm invoice number and dates.";
     case "totals":
-      return "Final review before preview.";
+      return "Review the final billing summary.";
     default:
       return "";
-  }
-}
-
-function formatSummaryCurrency(
-  amount: number,
-  currency: ReturnType<typeof getInvoiceDisplayCurrency> = "INR"
-) {
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `₹${amount.toLocaleString("en-IN")}`;
   }
 }
 
@@ -526,7 +510,6 @@ function InlineStepSection({
   isCompleted,
   issueCount,
   onActivate,
-  summary,
   children,
 }: {
   step: InvoiceStepperStep;
@@ -534,21 +517,11 @@ function InlineStepSection({
   isCompleted: boolean;
   issueCount: number;
   onActivate: () => void;
-  summary?: string;
   children: ReactNode;
 }) {
   const [isMounted, setIsMounted] = useState(false);
   const stepLabel = getStepShortLabel(step);
-  const statusLabel = isCompleted
-    ? "Completed"
-    : isActive
-    ? "Recommended"
-    : "Incomplete";
-  const detailCopy = isCompleted
-    ? "Completed and still editable."
-    : isActive
-    ? `Recommended next. ${getStepDescription(step)}`
-    : getStepDescription(step);
+  const detailCopy = getStepDescription(step);
 
   useEffect(() => {
     setIsMounted(true);
@@ -563,20 +536,18 @@ function InlineStepSection({
         "relative scroll-mt-32 overflow-hidden rounded-[18px] px-6 py-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
         isActive
           ? "border border-slate-200/75 bg-white/92 shadow-[0_16px_36px_rgba(15,23,42,0.08)]"
-          : isCompleted
-          ? "border border-slate-200/55 bg-white/68 shadow-[0_10px_24px_rgba(15,23,42,0.05)]"
-          : "border border-slate-200/45 bg-white/48 shadow-[0_6px_16px_rgba(15,23,42,0.03)]"
+          : "border border-slate-200/60 bg-white/76 shadow-[0_10px_24px_rgba(15,23,42,0.05)]"
       )}
     >
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <button
             type="button"
             onClick={onActivate}
             data-step-activator={step}
             className="min-w-0 flex-1 text-left"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span
                 className={cn(
                   "inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
@@ -587,13 +558,10 @@ function InlineStepSection({
                     : "bg-slate-300"
                 )}
               />
-              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">
-                {statusLabel}
-              </span>
+              <h2 className="text-[22px] font-semibold tracking-tight text-slate-950">
+                {stepLabel}
+              </h2>
             </div>
-            <h2 className="mt-2.5 text-[22px] font-semibold tracking-tight text-slate-950">
-              {stepLabel}
-            </h2>
             <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">
               {detailCopy}
             </p>
@@ -617,26 +585,9 @@ function InlineStepSection({
         <motion.div
           layout
           initial={false}
-          inert={!isActive && !isCompleted ? true : undefined}
-          className={cn(
-            isActive || isCompleted
-              ? "border-t border-slate-200/60 pt-5"
-              : "h-0 overflow-hidden opacity-0 pointer-events-none"
-          )}
+          className="border-t border-slate-200/60 pt-4"
         >
-          {isCompleted && summary ? (
-            <p className="text-sm text-slate-500 pt-1">
-              {summary}
-            </p>
-          ) : null}
-          <div
-            inert={!isActive && !isCompleted ? true : undefined}
-            className={cn(
-              isActive || isCompleted
-                ? ""
-                : "h-0 overflow-hidden opacity-0 pointer-events-none"
-            )}
-          >
+          <div>
             {children}
           </div>
         </motion.div>
@@ -657,7 +608,6 @@ export default function InvoiceEditorPage() {
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
-  const [scrollRequestNonce, setScrollRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
 
   const hasInitializedRef = useRef(false);
@@ -748,20 +698,6 @@ export default function InvoiceEditorPage() {
   }, []);
 
   useEffect(() => {
-    if (currentStep === "agency") {
-      return;
-    }
-
-    const frameId = window.requestAnimationFrame(() => {
-      setIsBriefIntakeCollapsed(true);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, [currentStep]);
-
-  useEffect(() => {
     if (!hasInitializedRef.current) return;
 
     const suggestedDueDate = getSuggestedDueDate(
@@ -815,22 +751,6 @@ export default function InvoiceEditorPage() {
     dueDateAutoManagedRef.current = false;
     lastAutoDueDateRef.current = suggestedDueDate;
   }, [formData.meta.paymentTerms, formData.meta.invoiceDate, formData.meta.dueDate]);
-
-  useEffect(() => {
-    if (!scrollRequestNonce) return;
-
-    const frameId = window.requestAnimationFrame(() => {
-      const activeStepRoot = stepRefs.current[currentStep];
-      if (!activeStepRoot) return;
-
-      activeStepRoot.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-
-    return () => window.cancelAnimationFrame(frameId);
-  }, [currentStep, scrollRequestNonce]);
 
   useEffect(() => {
     if (!focusRequestNonce) return;
@@ -1069,36 +989,27 @@ export default function InvoiceEditorPage() {
     () => getFirstInvalidStep(formData),
     [formData]
   );
-  const currentStepIndex = orderedSteps.indexOf(currentStep);
-  const completedStepCount = useMemo(
-    () => orderedSteps.filter((step) => stepValidityByStep[step]).length,
-    [stepValidityByStep]
-  );
 
   const invoiceReadyForPreview = useMemo(
     () => isInvoiceReadyForPreview(formData),
     [formData]
   );
-  const summaryByStep: Record<InvoiceStepperStep, string> = {
-    agency: formData.agency.agencyName || "Not filled",
-    client: formData.client.clientName || "Not filled",
-    deliverables: `${formData.lineItems.length} item${
-      formData.lineItems.length !== 1 ? "s" : ""
-    }`,
-    payment: formData.payment.bankName || "Not filled",
-    meta: formData.meta.invoiceNumber || "Not filled",
-    totals: formatSummaryCurrency(computedTotals.grandTotal, displayCurrency),
-  };
-
+  const displayStepValidityByStep = useMemo(
+    () => ({
+      ...stepValidityByStep,
+      totals: invoiceReadyForPreview,
+    }),
+    [stepValidityByStep, invoiceReadyForPreview]
+  );
+  const completedStepCount = useMemo(
+    () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
+    [displayStepValidityByStep]
+  );
   const guideToSection = (
     step: InvoiceStepperStep,
-    options?: { focus?: boolean; scroll?: boolean }
+    options?: { focus?: boolean }
   ) => {
     setCurrentStep(step);
-
-    if (options?.scroll !== false) {
-      setScrollRequestNonce((prev) => prev + 1);
-    }
 
     if (options?.focus) {
       setFocusRequestNonce((prev) => prev + 1);
@@ -1150,7 +1061,7 @@ export default function InvoiceEditorPage() {
 
   };
 
-  const shouldConfirmExit = currentStepIndex > 0 || isFormTouched(formData);
+  const shouldConfirmExit = isFormTouched(formData);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -1184,7 +1095,7 @@ export default function InvoiceEditorPage() {
   }, [shouldConfirmExit]);
 
   const goToStep = (step: InvoiceStepperStep, options?: { focus?: boolean }) => {
-    guideToSection(step, { focus: options?.focus, scroll: true });
+    guideToSection(step, { focus: options?.focus });
   };
 
   const handlePreviewInvoice = () => {
@@ -1701,7 +1612,7 @@ export default function InvoiceEditorPage() {
             <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
               {orderedSteps.map((step) => {
                 const isActive = currentStep === step;
-                const isCompleted = stepValidityByStep[step] && !isActive;
+                const isCompleted = displayStepValidityByStep[step];
 
                 return (
                   <div
@@ -1721,7 +1632,6 @@ export default function InvoiceEditorPage() {
                       isCompleted={isCompleted}
                       issueCount={missingFieldCountByStep[step]}
                       onActivate={() => goToStep(step)}
-                      summary={summaryByStep[step]}
                     >
                       <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
                         {renderStepContent(step)}
@@ -1740,21 +1650,15 @@ export default function InvoiceEditorPage() {
                 delay={40}
                 className={cn(getAppSubtlePanelClass("muted"), "px-3 py-3")}
               >
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                      Progress
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {completedStepCount} of {orderedSteps.length} sections ready
-                    </p>
-                  </div>
-
+                <div className="space-y-2.5" data-testid="support-rail-section-list">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                    Sections
+                  </p>
                   <div className="space-y-2">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
-                      const isCompleted = stepValidityByStep[step] && !isActive;
-                      const isIncomplete = !stepValidityByStep[step];
+                      const isCompleted = displayStepValidityByStep[step] && !isActive;
+                      const isIncomplete = !displayStepValidityByStep[step];
 
                       return (
                         <button
@@ -1797,6 +1701,8 @@ export default function InvoiceEditorPage() {
                           <span className="text-[11px] text-slate-500">
                             {isIncomplete && missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} left`
+                              : step === "totals" && !invoiceReadyForPreview
+                              ? "Pending"
                               : isCompleted
                               ? "Ready"
                               : "Review"}
@@ -1807,81 +1713,6 @@ export default function InvoiceEditorPage() {
                   </div>
                 </div>
               </MotionReveal>
-
-              <MotionReveal
-                preset="fade-up"
-                delay={80}
-                className={cn(getAppSubtlePanelClass("muted"), "px-3 py-3")}
-              >
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                      Ready state
-                    </p>
-                    <p className="text-sm font-semibold tracking-tight text-slate-950">
-                      {invoiceReadyForPreview
-                        ? "Ready for preview"
-                        : firstInvalidStep
-                        ? `${getStepShortLabel(firstInvalidStep)} needs attention`
-                        : "Keep completing the form"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 text-[11px] leading-5 text-slate-600">
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Invoice</span>
-                      <span className="font-medium text-slate-900">
-                        {formData.meta.invoiceNumber || "Pending"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Client</span>
-                      <span className="truncate font-medium text-slate-900">
-                        {formData.client.clientName || "Pending"}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Total</span>
-                      <span className="font-semibold text-slate-950">
-                        {formatSummaryCurrency(computedTotals.grandTotal, displayCurrency)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {missingFieldGroups.length > 0 ? (
-                    <ul className="space-y-1.5 border-t border-slate-200/70 pt-3 text-[11px] leading-5 text-slate-600">
-                      {missingFieldGroups.slice(0, 3).map((group) => (
-                        <li key={group.step}>
-                          <span className="font-medium text-slate-900">
-                            {getStepShortLabel(group.step)}:
-                          </span>{" "}
-                          {group.fields.join(", ")}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </div>
-              </MotionReveal>
-
-              {totalsComplianceMessage ? (
-                <MotionReveal
-                preset="fade-up"
-                delay={110}
-                className={cn(
-                  getAppSubtlePanelClass(
-                    totalsComplianceVariant === "warning" ? "warning" : "muted"
-                  ),
-                    "px-3.5 py-3.5"
-                  )}
-                >
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
-                    Compliance note
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">
-                    {totalsComplianceMessage}
-                  </p>
-                </MotionReveal>
-              ) : null}
             </div>
           </aside>
         </div>

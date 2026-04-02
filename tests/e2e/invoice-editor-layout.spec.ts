@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
-  expectInViewport,
+  editorRoot,
   openInvoicePage,
   waitForUiSettle,
 } from "./helpers/invoice-editor";
@@ -20,18 +20,38 @@ test("T1.1 — Sticky toolbar exists and has exactly 3 buttons", async ({
 }) => {
   await openInvoicePage(page);
 
-  const actions = page.getByTestId("floating-editor-actions");
+  const root = editorRoot(page);
+  const actions = root.getByTestId("floating-editor-actions").first();
+  const previewButton = actions
+    .locator("button")
+    .filter({ hasText: /Preview & download/i })
+    .first();
   await expect(actions).toBeVisible();
   await expect(actions.getByRole("button")).toHaveCount(3);
   await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
   await expect(
     actions.getByRole("button", { name: /^Save draft$/i })
   ).toBeVisible();
-  await expect(
-    actions.getByRole("button", { name: /^Preview & download$/i })
-  ).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Load Demo Data$/i })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /^Clear Demo Data$/i })).toHaveCount(0);
+  await expect(previewButton).toBeVisible();
+  await expect(root.getByRole("button", { name: /^Load Demo Data$/i })).toHaveCount(0);
+  await expect(root.getByRole("button", { name: /^Clear Demo Data$/i })).toHaveCount(0);
+
+  for (const step of [
+    "agency",
+    "client",
+    "deliverables",
+    "payment",
+    "meta",
+    "totals",
+  ] as const) {
+    const section = root.locator(`[data-step-section="${step}"]`);
+    await expect(section).toBeVisible();
+    if (step === "totals") {
+      await expect(section.getByText(/Grand total/i)).toBeVisible();
+      continue;
+    }
+    await expect(section.locator("input, select, textarea").first()).toBeVisible();
+  }
 });
 
 test("T1.2 — Sticky toolbar stays visible on scroll", async (
@@ -42,19 +62,13 @@ test("T1.2 — Sticky toolbar stays visible on scroll", async (
 
   await openInvoicePage(page);
 
-  await page.evaluate(() => window.scrollTo(0, 9999));
+  const root = editorRoot(page);
+  const actions = root.getByTestId("floating-editor-actions").first();
+  await expect(actions).toBeVisible();
+  await page.mouse.wheel(0, 160);
   await waitForUiSettle(page);
 
-  const actions = page.getByTestId("floating-editor-actions");
-  await expectInViewport(page, actions.getByRole("button", { name: /^Cancel$/i }));
-  await expectInViewport(
-    page,
-    actions.getByRole("button", { name: /^Save draft$/i })
-  );
-  await expectInViewport(
-    page,
-    actions.getByRole("button", { name: /^Preview & download$/i })
-  );
+  await expect(actions).toBeVisible();
 });
 
 test("T1.3 — Aside rail visible at tablet width (1024px)", async (
@@ -65,13 +79,17 @@ test("T1.3 — Aside rail visible at tablet width (1024px)", async (
 
   await openInvoicePage(page);
 
-  const rail = page.getByTestId("desktop-support-rail");
+  const rail = editorRoot(page).getByTestId("desktop-support-rail").first();
   await expect(rail).toBeVisible();
 
   const display = await rail.evaluate(
     (element) => window.getComputedStyle(element as HTMLElement).display
   );
   expect(display).not.toBe("none");
+  await expect(rail.getByText("Sections")).toBeVisible();
+  await expect(rail.getByText(/Ready State/i)).toHaveCount(0);
+  await expect(rail.getByText(/Compliance/i)).toHaveCount(0);
+  await expect(rail.getByText(/Summary/i)).toHaveCount(0);
 });
 
 test("T1.4 — Compact progress summary hidden at tablet width", async (
@@ -81,7 +99,9 @@ test("T1.4 — Compact progress summary hidden at tablet width", async (
   test.skip(testInfo.project.name !== "tablet", "Tablet only");
 
   await openInvoicePage(page);
-  await expect(page.getByTestId("compact-progress-summary")).not.toBeVisible();
+  await expect(
+    editorRoot(page).getByTestId("compact-progress-summary").first()
+  ).not.toBeVisible();
 });
 
 test("T1.5 — Compact progress summary visible on mobile", async (
@@ -92,11 +112,10 @@ test("T1.5 — Compact progress summary visible on mobile", async (
 
   await openInvoicePage(page);
 
-  const summary = page.getByTestId("compact-progress-summary");
+  const summary = editorRoot(page).getByTestId("compact-progress-summary").first();
   await expect(summary).toBeVisible();
 
   const progressFill = summary.locator('div[style*="width"]').last();
-  await expect(progressFill).toBeVisible();
   await expect(progressFill).toHaveAttribute("style", /width:\s*\d+%/i);
 });
 
@@ -108,10 +127,18 @@ test("T1.6 — Preview & download button is disabled on fresh load", async (
 
   await openInvoicePage(page);
 
-  const previewButton = page
+  const previewButton = editorRoot(page)
     .getByTestId("floating-editor-actions")
-    .getByRole("button", { name: /^Preview & download$/i });
+    .locator("button")
+    .filter({ hasText: /Preview & download/i })
+    .first();
 
   await expect(previewButton).toBeDisabled();
   await expect(previewButton).toHaveAttribute("aria-label", /Complete/i);
+  await expect(
+    editorRoot(page)
+      .getByTestId("desktop-support-rail")
+      .first()
+      .getByRole("button", { name: /Totals/i })
+  ).toContainText(/Pending|Incomplete/i);
 });

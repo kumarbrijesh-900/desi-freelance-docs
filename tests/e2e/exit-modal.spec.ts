@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  editorRoot,
   openInvoicePage,
 } from "./helpers/invoice-editor";
 
@@ -14,10 +15,10 @@ test.afterEach(async ({ page }) => {
 });
 
 async function triggerExitModal(page: Parameters<typeof openInvoicePage>[0]) {
-  await page
+  await editorRoot(page)
     .getByPlaceholder(/Your agency or freelance brand name/i)
     .fill("Touched Agency");
-  await page
+  await editorRoot(page)
     .getByTestId("floating-editor-actions")
     .getByRole("button", { name: /^Cancel$/i })
     .click();

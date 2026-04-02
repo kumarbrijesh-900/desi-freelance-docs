@@ -200,12 +200,14 @@ export default function AgencyDetailsSection({
             : getAppPanelClass()
         )}
       >
-        <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
-          {!embedded ? <h2 className={appSectionTitleClass}>Agency</h2> : null}
-          <p className={appSectionDescriptionClass}>
-            Add the business identity and billing address that should appear on the invoice.
-          </p>
-        </div>
+        {!embedded ? (
+          <div className="mb-6 space-y-2">
+            <h2 className={appSectionTitleClass}>Agency</h2>
+            <p className={appSectionDescriptionClass}>
+              Add your business details for the invoice.
+            </p>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_156px] xl:items-start">
           <div className="space-y-6">

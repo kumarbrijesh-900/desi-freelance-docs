@@ -70,12 +70,14 @@ export default function InvoiceMetaSection({
           : getAppPanelClass()
       )}
     >
-        <div className={cn(embedded ? "space-y-2" : "mb-6 space-y-2")}>
-          {!embedded ? <h2 className={appSectionTitleClass}>Invoice Details</h2> : null}
+      {!embedded ? (
+        <div className="mb-6 space-y-2">
+          <h2 className={appSectionTitleClass}>Invoice Details</h2>
           <p className={appSectionDescriptionClass}>
-            Keep numbering and dates compact here.
+            Confirm invoice number and dates.
           </p>
         </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 md:max-w-[560px] md:grid-cols-[minmax(0,1fr)_164px_164px] md:items-start">
         <div>

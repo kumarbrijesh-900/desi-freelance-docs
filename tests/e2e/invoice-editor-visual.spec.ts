@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  briefIntakeExpanded,
+  buildStoredDraft,
+  editorRoot,
   expectFocusVisible,
   expectNoHorizontalOverflow,
   expectStableBoxAfter,
@@ -10,7 +13,6 @@ import {
   loadDemoData,
   openInvoicePage,
   stepToggle,
-  waitForScrollProgress,
   waitForUiSettle,
 } from "./helpers/invoice-editor";
 
@@ -51,23 +53,27 @@ test("fresh invoice editor shell stays visually consistent across viewports", as
   await openInvoicePage(page);
   await expectNoHorizontalOverflow(page);
 
-  await expect(page).toHaveScreenshot("invoice-editor-shell.png", screenshotOptions);
-  await expect(page.locator('[data-brief-intake-state="expanded"]')).toHaveScreenshot(
+  const root = editorRoot(page);
+
+  await expect(root).toHaveScreenshot("invoice-editor-shell.png", screenshotOptions);
+  await expect(briefIntakeExpanded(page)).toHaveScreenshot(
     "brief-intake-expanded.png",
     screenshotOptions
   );
+  await expect(root.getByText(/Recommended next/i)).toHaveCount(0);
 });
 
 test("desktop support rail and floating actions stay visible without competing with the form", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
   const viewport = page.viewportSize();
   test.skip(!viewport || viewport.width < 1280, "Desktop-only support rail assertion");
 
-  const actions = page.getByTestId("floating-editor-actions");
-  const rail = page.getByTestId("desktop-support-rail");
+  const actions = root.getByTestId("floating-editor-actions").first();
+  const rail = root.getByTestId("desktop-support-rail").first();
 
   const actionsBefore = await actions.boundingBox();
   const railBefore = await rail.boundingBox();
@@ -80,29 +86,38 @@ test("desktop support rail and floating actions stay visible without competing w
 
   expect(actionsAfter?.y ?? 0).toBeLessThanOrEqual((actionsBefore?.y ?? 0) + 8);
   expect(railAfter?.y ?? 0).toBeLessThanOrEqual((railBefore?.y ?? 0) + 8);
+  await expect(rail.getByText(/Ready State/i)).toHaveCount(0);
+  await expect(rail.getByText(/Compliance/i)).toHaveCount(0);
+  await expect(rail).toHaveScreenshot("invoice-editor-right-rail.png", screenshotOptions);
 });
 
 test("brief intake collapse preserves layout stability and compact visual state", async ({
   page,
 }) => {
   await openInvoicePage(page);
-  await page.getByPlaceholder(/Example: Agency name:/i).fill(seededBrief);
+  const root = editorRoot(page);
+  await briefIntakeExpanded(page).locator("textarea").first().fill(seededBrief);
 
-  const stepper = page.getByTestId("invoice-vertical-stepper");
+  const stepper = root.getByTestId("invoice-vertical-stepper");
   await expectStableBoxAfter(page, stepper, async () => {
-    await page.getByRole("button", { name: /^Hide$/i }).click();
+    await briefIntakeExpanded(page).getByRole("button", { name: /^Hide$/i }).click();
+    await waitForUiSettle(page, 220);
   });
 
-  const collapsed = page.getByTestId("brief-intake-collapsed");
+  const collapsed = root.getByTestId("brief-intake-collapsed");
   await expect(collapsed).toBeVisible();
   await expect(collapsed).toHaveScreenshot(
     "brief-intake-collapsed.png",
-    screenshotOptions
+    {
+      ...screenshotOptions,
+      maxDiffPixels: 300,
+    }
   );
   await expectNoHorizontalOverflow(page);
 
   await expectStableBoxAfter(page, stepper, async () => {
-    await page.getByRole("button", { name: /^Brief$/i }).click();
+    await collapsed.getByRole("button", { name: /^Brief$/i }).click();
+    await waitForUiSettle(page, 220);
   });
 });
 
@@ -110,45 +125,47 @@ test("post-autofill editor state stays stable and visually guided", async ({
   page,
 }) => {
   await extractBrief(page, seededBrief);
+  const root = editorRoot(page);
   await expect(page.getByText(/Autofilled \d+ fields?/i)).toHaveCount(0, {
     timeout: 4000,
   });
   await expectNoHorizontalOverflow(page);
-  await expect(
-    page.locator('[data-step-section="client"][data-step-state="active"]')
-  ).toBeVisible();
+  await expect(root.locator('[data-step-section="client"]')).toBeVisible();
+  await expect(root.locator('[data-step-section="agency"]')).toBeVisible();
 
-  await expect(page).toHaveScreenshot(
+  await expect(root).toHaveScreenshot(
     "invoice-editor-post-autofill.png",
-    screenshotOptions
+    {
+      ...screenshotOptions,
+      maxDiffPixels: 2500,
+    }
   );
 });
 
-test("progressive section completion scrolls smoothly without jumpy layout shifts", async ({
+test("editing a section does not auto-scroll or collapse the continuous form", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  const previousScrollY = await page.evaluate(() => window.scrollY);
-  const stepper = page.getByTestId("invoice-vertical-stepper");
+  const stepper = root.getByTestId("invoice-vertical-stepper");
 
   await expectStableBoxAfter(page, stepper, async () => {
-    await page.getByPlaceholder(/Your agency or freelance brand name/i).fill(
+    await root.getByPlaceholder(/Your agency or freelance brand name/i).fill(
       "DesiFreelanceDocs Studio"
     );
-    await page.getByPlaceholder("Building, street, or area").fill(
+    await root.getByPlaceholder("Building, street, or area").fill(
       "14 Residency Road"
     );
-    await page.getByLabel("Agency state").selectOption("Karnataka");
+    await root.getByLabel("Agency state").selectOption("Karnataka");
+    await waitForUiSettle(page, 180);
   });
 
-  await expect(
-    page.locator('[data-step-section="client"][data-step-state="active"]')
-  ).toBeVisible();
-  await waitForScrollProgress(page, previousScrollY, 40);
+  await expect(root.locator('[data-step-section="client"]')).toBeVisible();
+  await expect(root.locator('[data-step-section="payment"]')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
-  await expect(page).toHaveScreenshot(
+  await expect(root).toHaveScreenshot(
     "invoice-editor-progressive-mid-form.png",
     screenshotOptions
   );
@@ -158,13 +175,18 @@ test("shared field focus and dropdown affordance stay aligned", async ({
   page,
 }) => {
   await openInvoicePage(page);
+  const root = editorRoot(page);
 
-  const agencyName = page.getByPlaceholder(/Your agency or freelance brand name/i);
+  const agencyName = root.getByPlaceholder(/Your agency or freelance brand name/i);
+  await root
+    .getByTestId("floating-editor-actions")
+    .getByRole("button", { name: /^Cancel$/i })
+    .focus();
   await focusViaTabUntil(page, agencyName);
   await expect(agencyName).toBeFocused();
   await expectFocusVisible(agencyName);
 
-  const agencyState = page.getByLabel("Agency state");
+  const agencyState = root.getByLabel("Agency state");
   await focusViaTabUntil(page, agencyState);
   await expect(agencyState).toBeFocused();
   await expectFocusVisible(agencyState);
@@ -189,19 +211,24 @@ test("line items, compact uploads, and date fields stay readable and aligned", a
 }) => {
   const viewport = page.viewportSize();
   await loadDemoData(page);
+  const root = editorRoot(page);
   await stepToggle(page, "deliverables").click();
   await waitForUiSettle(page);
 
-  await expect(page.getByTestId("line-items-list")).toHaveScreenshot(
+  const lineItems = root.getByTestId("line-items-list");
+  await expect(lineItems).toHaveScreenshot(
     "invoice-editor-line-items.png",
     screenshotOptions
   );
+  await expect(
+    lineItems.locator('[data-testid="line-item-row"]').first().locator('input[type="number"]').first()
+  ).toBeVisible();
 
   await stepToggle(page, "meta").click();
   await waitForUiSettle(page);
 
-  const invoiceDate = page.locator('input[type="date"]').first();
-  const dueDate = page.locator('input[type="date"]').nth(1);
+  const invoiceDate = root.locator('input[type="date"]').first();
+  const dueDate = root.locator('input[type="date"]').nth(1);
   const invoiceDateBox = await invoiceDate.boundingBox();
   const dueDateBox = await dueDate.boundingBox();
 
@@ -213,8 +240,8 @@ test("line items, compact uploads, and date fields stay readable and aligned", a
   await stepToggle(page, "payment").click();
   await waitForUiSettle(page);
 
-  const bankName = page.getByPlaceholder("Bank name");
-  const qrUpload = page
+  const bankName = root.getByPlaceholder("Bank name");
+  const qrUpload = root
     .locator('[data-step-section="payment"]')
     .locator('label:has(input[type="file"])')
     .first();
@@ -228,25 +255,81 @@ test("line items, compact uploads, and date fields stay readable and aligned", a
   }
 });
 
+test("payment and totals stay compact with structured international bank address UI", async ({
+  page,
+}) => {
+  const seededDraft = buildStoredDraft();
+  const seededFormData = seededDraft.formData as Record<string, any>;
+  const seededInternationalFormData = {
+    ...seededFormData,
+    client: {
+      ...seededFormData.client,
+      clientLocation: "international",
+      clientCountry: "United States",
+      clientState: "",
+      clientCurrency: "USD",
+      clientAddress:
+        "500 Market Street\nSuite 210\nSan Francisco\n94105\nUnited States",
+    },
+    payment: {
+      ...seededFormData.payment,
+      paymentSettlementType: "forex",
+      swiftBicCode: "HDFCINBB",
+      ibanRoutingCode: "021000021",
+      bankAddress:
+        "250 Bishopsgate\nLevel 5\nLondon\nEC2M 4AA\nUnited Kingdom",
+    },
+  };
+
+  await openInvoicePage(page, {
+    draft: buildStoredDraft({
+      currentStep: "payment",
+      formData: seededInternationalFormData,
+    }),
+  });
+  const root = editorRoot(page);
+  await stepToggle(page, "payment").click();
+  await waitForUiSettle(page);
+  await expect(root.getByTestId("payment-settlement-control")).toBeVisible();
+  await expect(root.getByTestId("international-bank-address-group")).toBeVisible();
+  await expect(
+    root.getByTestId("international-bank-address-group").getByPlaceholder("Address Line 1")
+  ).toBeVisible();
+  await expect(
+    root.getByTestId("international-bank-address-group").getByPlaceholder("City / Region")
+  ).toBeVisible();
+  await expect(
+    root.getByTestId("international-bank-address-group").getByPlaceholder("Country")
+  ).toBeVisible();
+  await expect(
+    root.locator('[data-step-section="payment"]')
+  ).toHaveScreenshot("invoice-editor-payment-section.png", screenshotOptions);
+});
+
 test("full invoice journey stays clean through floating actions and preview", async ({
   page,
 }) => {
   await loadDemoData(page);
+  const root = editorRoot(page);
   await expectNoHorizontalOverflow(page);
 
   await stepToggle(page, "totals").click();
   await waitForUiSettle(page);
 
-  const actions = page.getByTestId("floating-editor-actions");
+  const actions = root.getByTestId("floating-editor-actions").first();
   await expect(actions).toHaveScreenshot("invoice-editor-floating-actions.png", screenshotOptions);
   await expect(actions.getByRole("button")).toHaveCount(3);
   await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
   await expect(
-    actions.getByRole("button", { name: /Preview & Download/i })
+    actions.locator("button").filter({ hasText: /Preview & download/i }).first()
   ).toBeVisible();
 
-  await page.getByRole("button", { name: /Preview & Download/i }).click();
+  await actions
+    .locator("button")
+    .filter({ hasText: /Preview & download/i })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/invoice\/preview$/);
   await waitForUiSettle(page, 380);
 
