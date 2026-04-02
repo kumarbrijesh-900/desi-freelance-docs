@@ -651,53 +651,9 @@ function InlineStepSection({
 export default function InvoiceEditorPage() {
   const router = useRouter();
 
-  const [formData, setFormData] = useState<InvoiceFormData>(() => {
-    if (typeof window === "undefined") return defaultInvoiceFormData;
-
-    try {
-      const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (rawDraft) {
-        const parsed = JSON.parse(rawDraft) as StoredDraft | null;
-        if (
-          parsed?.formData &&
-          parsed?.currentStep &&
-          orderedSteps.includes(parsed.currentStep)
-        ) {
-          return mergeInvoiceFormData(parsed.formData);
-        }
-      }
-    } catch {}
-
-    const today = getTodayDateString();
-    const fresh = mergeInvoiceFormData();
-    return {
-      ...fresh,
-      meta: {
-        ...fresh.meta,
-        invoiceNumber: getNextInvoiceNumber(),
-        invoiceDate: today,
-        dueDate: "",
-      },
-    };
-  });
-  const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>(() => {
-    if (typeof window === "undefined") return "agency";
-
-    try {
-      const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (rawDraft) {
-        const parsed = JSON.parse(rawDraft) as StoredDraft | null;
-        if (
-          parsed?.currentStep &&
-          orderedSteps.includes(parsed.currentStep)
-        ) {
-          return parsed.currentStep;
-        }
-      }
-    } catch {}
-
-    return "agency";
-  });
+  const [formData, setFormData] = useState<InvoiceFormData>(defaultInvoiceFormData);
+  const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
+  const [isBootstrapped, setIsBootstrapped] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -722,10 +678,6 @@ export default function InvoiceEditorPage() {
   });
 
   useEffect(() => {
-    hasInitializedRef.current = true;
-  }, []);
-
-  useEffect(() => {
     if (!showToast) return;
 
     const timer = window.setTimeout(() => {
@@ -745,6 +697,11 @@ export default function InvoiceEditorPage() {
   };
 
   useEffect(() => {
+    let frameId = 0;
+    let nextFormData: InvoiceFormData | null = null;
+    let nextStep: InvoiceStepperStep = "agency";
+    let shouldShowRestoreToast = false;
+
     try {
       const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
       if (rawDraft) {
@@ -754,16 +711,45 @@ export default function InvoiceEditorPage() {
           parsedDraft.currentStep &&
           orderedSteps.includes(parsedDraft.currentStep)
         ) {
-          const frameId = window.requestAnimationFrame(() => {
-            triggerToast("Draft restored");
-          });
-
-          return () => window.cancelAnimationFrame(frameId);
+          nextFormData = mergeInvoiceFormData(parsedDraft.formData);
+          nextStep = parsedDraft.currentStep;
+          shouldShowRestoreToast = true;
         }
       }
     } catch (error) {
       console.error("Failed to restore draft:", error);
     }
+
+    if (!nextFormData) {
+      nextFormData = getFreshInvoiceData();
+    }
+
+    const suggestedDueDate = getSuggestedDueDate(
+      nextFormData.meta.paymentTerms,
+      nextFormData.meta.invoiceDate
+    );
+
+    dueDateAutoManagedRef.current =
+      !nextFormData.meta.dueDate ||
+      nextFormData.meta.dueDate === suggestedDueDate;
+    lastAutoDueDateRef.current = suggestedDueDate;
+
+    setFormData(nextFormData);
+    setCurrentStep(nextStep);
+    hasInitializedRef.current = true;
+    setIsBootstrapped(true);
+
+    if (shouldShowRestoreToast) {
+      frameId = window.requestAnimationFrame(() => {
+        triggerToast("Draft restored");
+      });
+    }
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -1650,6 +1636,10 @@ export default function InvoiceEditorPage() {
         return null;
     }
   };
+
+  if (!isBootstrapped) {
+    return null;
+  }
 
   return (
     <main suppressHydrationWarning className={appPageShellClass}>

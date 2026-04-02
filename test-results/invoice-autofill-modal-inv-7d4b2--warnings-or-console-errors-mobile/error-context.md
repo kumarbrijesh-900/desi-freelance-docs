@@ -1,0 +1,918 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - link "DesiFreelanceDocs" [ref=e6] [cursor=pointer]:
+        - /url: /
+      - button "Logout" [ref=e8]
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e14]:
+          - paragraph [ref=e15]: New Invoice
+          - heading "Create Invoice" [level=1] [ref=e16]
+          - paragraph [ref=e17]: Fill each section top to bottom.
+        - generic [ref=e18]:
+          - button "Cancel" [ref=e19]
+          - button "Save draft" [ref=e20]:
+            - img [ref=e21]
+            - text: Save draft
+          - button "Complete Agency section first" [disabled]:
+            - img
+            - text: Preview & download
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - paragraph [ref=e28]: Progress
+            - paragraph [ref=e29]: 1 of 6 sections ready
+          - generic [ref=e30]: "Next: Agency"
+      - region "Screenshot, text, or audio brief" [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - generic [ref=e39]:
+                - img [ref=e40]
+                - text: Brief Intake
+              - heading "Screenshot, text, or audio brief" [level=2] [ref=e44]
+              - paragraph [ref=e45]: Start with text first. Add a screenshot only when it helps autofill.
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - img [ref=e49]
+                - text: Waiting for input
+              - button "Hide" [expanded] [ref=e51]:
+                - img [ref=e52]
+                - text: Hide
+          - generic [ref=e56]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: Paste or type a brief
+              - generic [ref=e59]:
+                - generic [ref=e60] [cursor=pointer]:
+                  - img [ref=e61]
+                  - text: Upload screenshot
+                - button "Voice" [ref=e64]:
+                  - img [ref=e65]
+                  - text: Voice
+            - 'textbox "Example: Agency name: DesiFreelanceDocs Studio. Agency address: 14 Residency Road, Bengaluru, Karnataka. Client name: Metro Shoes Pvt. Ltd. Client address: Bengaluru, Karnataka. Deliverable type: UI/UX. Deliverable description: Landing page UI design. Qty: 3 screens. Rate: INR 12000 per screen. License type: exclusive license. Payment terms: Net 15. Bank name: HDFC Bank. Account number: 50200044321098. IFSC: HDFC0001122." [ref=e68]'
+            - generic [ref=e69]:
+              - paragraph [ref=e70]: Start with a typed brief, then add a screenshot only if it helps.
+              - button "Extract & Autofill" [disabled]:
+                - generic:
+                  - img
+                - text: Extract & Autofill
+      - generic [ref=e71]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - button "Recommended Agency Recommended next. Business identity, address, and GST setup." [ref=e76]:
+              - generic [ref=e79]: Recommended
+              - heading "Agency" [level=2] [ref=e80]
+              - paragraph [ref=e81]: Recommended next. Business identity, address, and GST setup.
+            - generic [ref=e83]: Needs review
+          - generic [ref=e87]:
+            - paragraph [ref=e89]: Add the business identity and billing address that should appear on the invoice.
+            - generic [ref=e90]:
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]: Business / Trade Name *
+                  - textbox "Your agency or freelance brand name" [ref=e94]
+                  - paragraph [ref=e95]: Agency name is required.
+                - generic [ref=e96]:
+                  - generic [ref=e98]: Registered Address *
+                  - generic [ref=e99]:
+                    - generic [ref=e100]:
+                      - generic [ref=e101]: Address Line 1 *
+                      - textbox "Building, street, or area" [ref=e102]
+                    - generic [ref=e103]:
+                      - generic [ref=e104]: Address Line 2
+                      - textbox "Suite, floor, landmark, or optional line" [ref=e105]
+                    - generic [ref=e106]:
+                      - generic [ref=e107]: State *
+                      - generic [ref=e108]:
+                        - combobox "Agency state" [ref=e109] [cursor=pointer]:
+                          - option "Select state or union territory" [selected]
+                          - option "Andaman and Nicobar Islands"
+                          - option "Andhra Pradesh"
+                          - option "Arunachal Pradesh"
+                          - option "Assam"
+                          - option "Bihar"
+                          - option "Chandigarh"
+                          - option "Chhattisgarh"
+                          - option "Dadra and Nagar Haveli and Daman and Diu"
+                          - option "Delhi"
+                          - option "Goa"
+                          - option "Gujarat"
+                          - option "Haryana"
+                          - option "Himachal Pradesh"
+                          - option "Jammu and Kashmir"
+                          - option "Jharkhand"
+                          - option "Karnataka"
+                          - option "Kerala"
+                          - option "Ladakh"
+                          - option "Lakshadweep"
+                          - option "Madhya Pradesh"
+                          - option "Maharashtra"
+                          - option "Manipur"
+                          - option "Meghalaya"
+                          - option "Mizoram"
+                          - option "Nagaland"
+                          - option "Odisha"
+                          - option "Puducherry"
+                          - option "Punjab"
+                          - option "Rajasthan"
+                          - option "Sikkim"
+                          - option "Tamil Nadu"
+                          - option "Telangana"
+                          - option "Tripura"
+                          - option "Uttar Pradesh"
+                          - option "Uttarakhand"
+                          - option "West Bengal"
+                        - generic:
+                          - img
+                    - generic [ref=e110]:
+                      - generic [ref=e111]: City
+                      - textbox "Bengaluru" [ref=e112]
+                    - generic [ref=e113]:
+                      - generic [ref=e114]: PIN Code
+                      - textbox "560025" [ref=e115]
+                  - paragraph [ref=e116]: Agency address is required.
+                  - paragraph [ref=e117]: Agency state is required.
+                - generic [ref=e118]:
+                  - paragraph [ref=e119]: Agency Compliance
+                  - generic [ref=e120]:
+                    - generic [ref=e121]: GST Registration Status
+                    - generic [ref=e122]:
+                      - generic [ref=e123] [cursor=pointer]:
+                        - radio "Registered" [ref=e124]
+                        - generic [ref=e127]: Registered
+                      - generic [ref=e129] [cursor=pointer]:
+                        - radio "Not registered" [ref=e130]
+                        - generic [ref=e133]: Not registered
+                - generic [ref=e135]:
+                  - generic [ref=e136]: PAN
+                  - textbox "PAN" [ref=e137]
+              - generic [ref=e138]:
+                - generic [ref=e140]:
+                  - paragraph [ref=e141]: Agency logo
+                  - paragraph [ref=e142]: Optional
+                - generic [ref=e144] [cursor=pointer]:
+                  - paragraph [ref=e145]: Upload
+                  - paragraph [ref=e146]: PNG, JPG
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - button "Incomplete Client Recipient details and billing location." [ref=e151]:
+              - generic [ref=e154]: Incomplete
+              - heading "Client" [level=2] [ref=e155]
+              - paragraph [ref=e156]: Recipient details and billing location.
+            - generic [ref=e158]: Needs review
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Capture who is being billed and which billing rules apply.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: Client Name *
+                        - textbox "Client or company name"
+                        - paragraph: Client name is required.
+                      - generic:
+                        - generic: Client Location *
+                        - generic:
+                          - generic:
+                            - radio "Domestic"
+                            - generic:
+                              - generic:
+                                - generic: Domestic
+                          - generic:
+                            - radio "International"
+                            - generic:
+                              - generic:
+                                - generic: International
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Client GSTIN
+                          - textbox "Client GSTIN"
+                        - generic:
+                          - generic: Client Email
+                          - textbox "billing@client.com"
+                      - generic:
+                        - generic: SEZ Unit
+                        - generic:
+                          - generic:
+                            - radio "Yes"
+                            - generic:
+                              - generic:
+                                - generic: "Yes"
+                          - generic:
+                            - radio "No"
+                            - generic:
+                              - generic:
+                                - generic: "No"
+                          - generic:
+                            - radio "Not sure"
+                            - generic:
+                              - generic:
+                                - generic: Not sure
+                      - generic:
+                        - generic:
+                          - generic: Address Line 1 *
+                          - textbox "Building, street, or campus name"
+                        - generic:
+                          - generic: Address Line 2
+                          - textbox "Suite, floor, landmark, or optional line"
+                        - generic:
+                          - generic: State *
+                          - generic:
+                            - combobox "Client state":
+                              - option "Select state or union territory" [selected]
+                              - option "Andaman and Nicobar Islands"
+                              - option "Andhra Pradesh"
+                              - option "Arunachal Pradesh"
+                              - option "Assam"
+                              - option "Bihar"
+                              - option "Chandigarh"
+                              - option "Chhattisgarh"
+                              - option "Dadra and Nagar Haveli and Daman and Diu"
+                              - option "Delhi"
+                              - option "Goa"
+                              - option "Gujarat"
+                              - option "Haryana"
+                              - option "Himachal Pradesh"
+                              - option "Jammu and Kashmir"
+                              - option "Jharkhand"
+                              - option "Karnataka"
+                              - option "Kerala"
+                              - option "Ladakh"
+                              - option "Lakshadweep"
+                              - option "Madhya Pradesh"
+                              - option "Maharashtra"
+                              - option "Manipur"
+                              - option "Meghalaya"
+                              - option "Mizoram"
+                              - option "Nagaland"
+                              - option "Odisha"
+                              - option "Puducherry"
+                              - option "Punjab"
+                              - option "Rajasthan"
+                              - option "Sikkim"
+                              - option "Tamil Nadu"
+                              - option "Telangana"
+                              - option "Tripura"
+                              - option "Uttar Pradesh"
+                              - option "Uttarakhand"
+                              - option "West Bengal"
+                            - generic:
+                              - img
+                        - generic:
+                          - generic: City
+                          - textbox "Bengaluru"
+                        - generic:
+                          - generic: PIN Code
+                          - textbox "560048"
+                      - paragraph: Client address is required.
+                      - paragraph: Client state is required for domestic invoices.
+        - generic [ref=e161]:
+          - generic [ref=e162]:
+            - button "Incomplete Items Billable line items and pricing." [ref=e163]:
+              - generic [ref=e166]: Incomplete
+              - heading "Items" [level=2] [ref=e167]
+              - paragraph [ref=e168]: Billable line items and pricing.
+            - generic [ref=e170]: Needs review
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Add exactly what the client should see as billable line items.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: Type
+                              - generic:
+                                - combobox:
+                                  - option "Logo Design"
+                                  - option "UI/UX" [selected]
+                                  - option "Illustration"
+                                  - option "Photography"
+                                  - option "Video Editing"
+                                  - option "Social Media"
+                                  - option "Other"
+                                - generic:
+                                  - img
+                            - generic:
+                              - generic: Description *
+                              - textbox "Landing page UI design"
+                          - paragraph: Description is required.
+                        - generic:
+                          - generic: Qty *
+                          - spinbutton: "1"
+                        - generic:
+                          - generic: Rate (INR)
+                          - generic:
+                            - generic: ₹
+                            - spinbutton: "0"
+                          - paragraph: Rate must be greater than 0.
+                        - generic:
+                          - generic: Unit *
+                          - generic:
+                            - combobox:
+                              - option "Per screen" [selected]
+                              - option "Per hour"
+                              - option "Per day"
+                              - option "Per deliverable"
+                              - option "Per revision"
+                            - generic:
+                              - img
+                        - generic:
+                          - generic: Total
+                          - generic: ₹0
+                  - generic:
+                    - button "+ Add New Line Item"
+        - generic [ref=e173]:
+          - generic [ref=e174]:
+            - button "Incomplete Payment Payment terms, bank details, and optional licensing." [ref=e175]:
+              - generic [ref=e178]: Incomplete
+              - heading "Payment" [level=2] [ref=e179]
+              - paragraph [ref=e180]: Payment terms, bank details, and optional licensing.
+            - generic [ref=e182]: Needs review
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Add payment terms and the payout details that should appear on the invoice.
+                  - generic:
+                    - generic:
+                      - generic: Payment Terms *
+                      - textbox "Net 15"
+                      - paragraph: Payment terms are required.
+                    - generic:
+                      - generic:
+                        - generic:
+                          - paragraph: Licensing
+                        - button "Add license terms"
+                    - generic:
+                      - generic: Terms / Notes
+                      - 'textbox "Example: 1.5% monthly late fee applies. Final files delivered after full payment."': 1.5% monthly late fee applies. Final files delivered after full payment.
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Bank Name
+                          - textbox "Bank name"
+                          - paragraph: Bank name is required for domestic payments.
+                        - generic:
+                          - generic: Account Name
+                          - textbox "Name as per bank account"
+                        - generic:
+                          - generic: Account Number
+                          - textbox "Bank account number"
+                          - paragraph: Account number is required for domestic payments.
+                        - generic:
+                          - generic: IFSC Code
+                          - textbox "Bank IFSC code"
+                          - paragraph: IFSC code is required for domestic payments.
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: Payment QR
+                            - paragraph: Optional
+                        - generic:
+                          - generic:
+                            - paragraph: Upload
+                            - paragraph: QR
+        - generic [ref=e185]:
+          - generic [ref=e186]:
+            - button "Incomplete Meta Invoice number and dates." [ref=e187]:
+              - generic [ref=e190]: Incomplete
+              - heading "Meta" [level=2] [ref=e191]
+              - paragraph [ref=e192]: Invoice number and dates.
+            - generic [ref=e194]: Needs review
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Keep numbering and dates compact here.
+                  - generic:
+                    - generic:
+                      - generic: Invoice Number *
+                      - textbox "INV-2026-001"
+                      - paragraph: Invoice number is required.
+                    - generic:
+                      - generic: Invoice Date *
+                      - textbox
+                      - paragraph: Invoice date is required.
+                    - generic:
+                      - generic: Due Date *
+                      - textbox
+                      - paragraph: Due date is required.
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - button "Completed Totals Completed and still editable." [ref=e199]:
+              - generic [ref=e202]: Completed
+              - heading "Totals" [level=2] [ref=e203]
+              - paragraph [ref=e204]: Completed and still editable.
+            - generic [ref=e206]: Ready
+          - generic [ref=e207]:
+            - paragraph [ref=e208]: ₹0
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Review the final billing outcome before preview.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: Tax summary
+                            - paragraph: No tax
+                          - generic: No tax
+                        - generic:
+                          - generic:
+                            - term: Current outcome
+                            - definition: No tax
+                          - generic:
+                            - term: Applied rate
+                            - definition: 0% total tax
+                          - generic:
+                            - term: Breakdown
+                            - definition: No tax is currently applied to this invoice.
+                      - generic: Tax is set to 0% because the agency is marked as not registered under GST.
+                    - generic:
+                      - generic:
+                        - paragraph: Final review
+                        - heading "Invoice totals" [level=3]
+                      - generic:
+                        - generic:
+                          - term: Subtotal
+                          - definition: ₹0
+                        - generic:
+                          - term: Tax
+                          - definition: No tax₹0
+                        - generic:
+                          - term: Grand total
+                          - definition: ₹0
+                      - paragraph: Final amount payable before any offline adjustments.
+  - main [ref=e209]:
+    - generic [ref=e211]:
+      - link "DesiFreelanceDocs" [ref=e213] [cursor=pointer]:
+        - /url: /
+      - button "Logout" [ref=e215]
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - generic [ref=e221]:
+          - paragraph [ref=e222]: New Invoice
+          - heading "Create Invoice" [level=1] [ref=e223]
+          - paragraph [ref=e224]: Fill each section top to bottom.
+        - generic [ref=e225]:
+          - button "Cancel" [ref=e226]
+          - button "Save draft" [ref=e227]:
+            - img [ref=e228]
+            - text: Save draft
+          - button "Complete Agency section first" [disabled]:
+            - img
+            - text: Preview & download
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - paragraph [ref=e235]: Progress
+            - paragraph [ref=e236]: 1 of 6 sections ready
+          - generic [ref=e237]: "Next: Agency"
+      - region "Screenshot, text, or audio brief" [ref=e242]:
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e245]:
+              - generic [ref=e246]:
+                - img [ref=e247]
+                - text: Brief Intake
+              - heading "Screenshot, text, or audio brief" [level=2] [ref=e251]
+              - paragraph [ref=e252]: Start with text first. Add a screenshot only when it helps autofill.
+            - generic [ref=e253]:
+              - generic [ref=e254]:
+                - img [ref=e256]
+                - text: Waiting for input
+              - button "Hide" [expanded] [ref=e258]:
+                - img [ref=e259]
+                - text: Hide
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - generic [ref=e265]: Paste or type a brief
+              - generic [ref=e266]:
+                - generic [ref=e267] [cursor=pointer]:
+                  - img [ref=e268]
+                  - text: Upload screenshot
+                - button "Voice" [ref=e271]:
+                  - img [ref=e272]
+                  - text: Voice
+            - 'textbox "Example: Agency name: DesiFreelanceDocs Studio. Agency address: 14 Residency Road, Bengaluru, Karnataka. Client name: Metro Shoes Pvt. Ltd. Client address: Bengaluru, Karnataka. Deliverable type: UI/UX. Deliverable description: Landing page UI design. Qty: 3 screens. Rate: INR 12000 per screen. License type: exclusive license. Payment terms: Net 15. Bank name: HDFC Bank. Account number: 50200044321098. IFSC: HDFC0001122." [ref=e275]'
+            - generic [ref=e276]:
+              - paragraph [ref=e277]: Start with a typed brief, then add a screenshot only if it helps.
+              - button "Extract & Autofill" [disabled]:
+                - generic:
+                  - img
+                - text: Extract & Autofill
+      - generic [ref=e278]:
+        - generic [ref=e281]:
+          - generic [ref=e282]:
+            - button "Recommended Agency Recommended next. Business identity, address, and GST setup." [ref=e283]:
+              - generic [ref=e286]: Recommended
+              - heading "Agency" [level=2] [ref=e287]
+              - paragraph [ref=e288]: Recommended next. Business identity, address, and GST setup.
+            - generic [ref=e290]: 3 required
+          - generic [ref=e294]:
+            - paragraph [ref=e296]: Add the business identity and billing address that should appear on the invoice.
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - generic [ref=e299]:
+                  - generic [ref=e300]: Business / Trade Name *
+                  - textbox "Your agency or freelance brand name" [ref=e301]
+                  - paragraph [ref=e302]: Agency name is required.
+                - generic [ref=e303]:
+                  - generic [ref=e305]: Registered Address *
+                  - generic [ref=e306]:
+                    - generic [ref=e307]:
+                      - generic [ref=e308]: Address Line 1 *
+                      - textbox "Building, street, or area" [ref=e309]
+                    - generic [ref=e310]:
+                      - generic [ref=e311]: Address Line 2
+                      - textbox "Suite, floor, landmark, or optional line" [ref=e312]
+                    - generic [ref=e313]:
+                      - generic [ref=e314]: State *
+                      - generic [ref=e315]:
+                        - combobox "Agency state" [ref=e316] [cursor=pointer]:
+                          - option "Select state or union territory" [selected]
+                          - option "Andaman and Nicobar Islands"
+                          - option "Andhra Pradesh"
+                          - option "Arunachal Pradesh"
+                          - option "Assam"
+                          - option "Bihar"
+                          - option "Chandigarh"
+                          - option "Chhattisgarh"
+                          - option "Dadra and Nagar Haveli and Daman and Diu"
+                          - option "Delhi"
+                          - option "Goa"
+                          - option "Gujarat"
+                          - option "Haryana"
+                          - option "Himachal Pradesh"
+                          - option "Jammu and Kashmir"
+                          - option "Jharkhand"
+                          - option "Karnataka"
+                          - option "Kerala"
+                          - option "Ladakh"
+                          - option "Lakshadweep"
+                          - option "Madhya Pradesh"
+                          - option "Maharashtra"
+                          - option "Manipur"
+                          - option "Meghalaya"
+                          - option "Mizoram"
+                          - option "Nagaland"
+                          - option "Odisha"
+                          - option "Puducherry"
+                          - option "Punjab"
+                          - option "Rajasthan"
+                          - option "Sikkim"
+                          - option "Tamil Nadu"
+                          - option "Telangana"
+                          - option "Tripura"
+                          - option "Uttar Pradesh"
+                          - option "Uttarakhand"
+                          - option "West Bengal"
+                        - generic:
+                          - img
+                    - generic [ref=e317]:
+                      - generic [ref=e318]: City
+                      - textbox "Bengaluru" [ref=e319]
+                    - generic [ref=e320]:
+                      - generic [ref=e321]: PIN Code
+                      - textbox "560025" [ref=e322]
+                  - paragraph [ref=e323]: Agency address is required.
+                  - paragraph [ref=e324]: Agency state is required.
+                - generic [ref=e325]:
+                  - paragraph [ref=e326]: Agency Compliance
+                  - generic [ref=e327]:
+                    - generic [ref=e328]: GST Registration Status
+                    - generic [ref=e329]:
+                      - generic [ref=e330] [cursor=pointer]:
+                        - radio "Registered" [ref=e331]
+                        - generic [ref=e334]: Registered
+                      - generic [ref=e336] [cursor=pointer]:
+                        - radio "Not registered" [checked] [ref=e337]
+                        - generic [ref=e340]: Not registered
+                - generic [ref=e342]:
+                  - generic [ref=e343]: PAN
+                  - textbox "PAN" [ref=e344]
+              - generic [ref=e345]:
+                - generic [ref=e347]:
+                  - paragraph [ref=e348]: Agency logo
+                  - paragraph [ref=e349]: Optional
+                - generic [ref=e351] [cursor=pointer]:
+                  - paragraph [ref=e352]: Upload
+                  - paragraph [ref=e353]: PNG, JPG
+        - generic [ref=e356]:
+          - generic [ref=e357]:
+            - button "Incomplete Client Recipient details and billing location." [ref=e358]:
+              - generic [ref=e361]: Incomplete
+              - heading "Client" [level=2] [ref=e362]
+              - paragraph [ref=e363]: Recipient details and billing location.
+            - generic [ref=e365]: 3 required
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Capture who is being billed and which billing rules apply.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: Client Name *
+                        - textbox "Client or company name"
+                        - paragraph: Client name is required.
+                      - generic:
+                        - generic: Client Location *
+                        - generic:
+                          - generic:
+                            - radio "Domestic" [checked]
+                            - generic:
+                              - generic:
+                                - generic: Domestic
+                          - generic:
+                            - radio "International"
+                            - generic:
+                              - generic:
+                                - generic: International
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Client GSTIN
+                          - textbox "Client GSTIN"
+                        - generic:
+                          - generic: Client Email
+                          - textbox "billing@client.com"
+                      - generic:
+                        - generic: SEZ Unit
+                        - generic:
+                          - generic:
+                            - radio "Yes"
+                            - generic:
+                              - generic:
+                                - generic: "Yes"
+                          - generic:
+                            - radio "No"
+                            - generic:
+                              - generic:
+                                - generic: "No"
+                          - generic:
+                            - radio "Not sure"
+                            - generic:
+                              - generic:
+                                - generic: Not sure
+                      - generic:
+                        - generic:
+                          - generic: Address Line 1 *
+                          - textbox "Building, street, or campus name"
+                        - generic:
+                          - generic: Address Line 2
+                          - textbox "Suite, floor, landmark, or optional line"
+                        - generic:
+                          - generic: State *
+                          - generic:
+                            - combobox "Client state":
+                              - option "Select state or union territory" [selected]
+                              - option "Andaman and Nicobar Islands"
+                              - option "Andhra Pradesh"
+                              - option "Arunachal Pradesh"
+                              - option "Assam"
+                              - option "Bihar"
+                              - option "Chandigarh"
+                              - option "Chhattisgarh"
+                              - option "Dadra and Nagar Haveli and Daman and Diu"
+                              - option "Delhi"
+                              - option "Goa"
+                              - option "Gujarat"
+                              - option "Haryana"
+                              - option "Himachal Pradesh"
+                              - option "Jammu and Kashmir"
+                              - option "Jharkhand"
+                              - option "Karnataka"
+                              - option "Kerala"
+                              - option "Ladakh"
+                              - option "Lakshadweep"
+                              - option "Madhya Pradesh"
+                              - option "Maharashtra"
+                              - option "Manipur"
+                              - option "Meghalaya"
+                              - option "Mizoram"
+                              - option "Nagaland"
+                              - option "Odisha"
+                              - option "Puducherry"
+                              - option "Punjab"
+                              - option "Rajasthan"
+                              - option "Sikkim"
+                              - option "Tamil Nadu"
+                              - option "Telangana"
+                              - option "Tripura"
+                              - option "Uttar Pradesh"
+                              - option "Uttarakhand"
+                              - option "West Bengal"
+                            - generic:
+                              - img
+                        - generic:
+                          - generic: City
+                          - textbox "Bengaluru"
+                        - generic:
+                          - generic: PIN Code
+                          - textbox "560048"
+                      - paragraph: Client address is required.
+                      - paragraph: Client state is required for domestic invoices.
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - button "Incomplete Items Billable line items and pricing." [ref=e370]:
+              - generic [ref=e373]: Incomplete
+              - heading "Items" [level=2] [ref=e374]
+              - paragraph [ref=e375]: Billable line items and pricing.
+            - generic [ref=e377]: 2 required
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Add exactly what the client should see as billable line items.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: Type
+                              - generic:
+                                - combobox:
+                                  - option "Logo Design"
+                                  - option "UI/UX" [selected]
+                                  - option "Illustration"
+                                  - option "Photography"
+                                  - option "Video Editing"
+                                  - option "Social Media"
+                                  - option "Other"
+                                - generic:
+                                  - img
+                            - generic:
+                              - generic: Description *
+                              - textbox "Landing page UI design"
+                          - paragraph: Description is required.
+                        - generic:
+                          - generic: Qty *
+                          - spinbutton: "1"
+                        - generic:
+                          - generic: Rate (INR)
+                          - generic:
+                            - generic: ₹
+                            - spinbutton: "0"
+                          - paragraph: Rate must be greater than 0.
+                        - generic:
+                          - generic: Unit *
+                          - generic:
+                            - combobox:
+                              - option "Per screen" [selected]
+                              - option "Per hour"
+                              - option "Per day"
+                              - option "Per deliverable"
+                              - option "Per revision"
+                            - generic:
+                              - img
+                        - generic:
+                          - generic: Total
+                          - generic: ₹0
+                  - generic:
+                    - button "+ Add New Line Item"
+        - generic [ref=e380]:
+          - generic [ref=e381]:
+            - button "Incomplete Payment Payment terms, bank details, and optional licensing." [ref=e382]:
+              - generic [ref=e385]: Incomplete
+              - heading "Payment" [level=2] [ref=e386]
+              - paragraph [ref=e387]: Payment terms, bank details, and optional licensing.
+            - generic [ref=e389]: 4 required
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Add payment terms and the payout details that should appear on the invoice.
+                  - generic:
+                    - generic:
+                      - generic: Payment Terms *
+                      - textbox "Net 15"
+                      - paragraph: Payment terms are required.
+                    - generic:
+                      - generic:
+                        - generic:
+                          - paragraph: Licensing
+                        - button "Add license terms"
+                    - generic:
+                      - generic: Terms / Notes
+                      - 'textbox "Example: 1.5% monthly late fee applies. Final files delivered after full payment."': 1.5% monthly late fee applies. Final files delivered after full payment.
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Bank Name
+                          - textbox "Bank name"
+                          - paragraph: Bank name is required for domestic payments.
+                        - generic:
+                          - generic: Account Name
+                          - textbox "Name as per bank account"
+                        - generic:
+                          - generic: Account Number
+                          - textbox "Bank account number"
+                          - paragraph: Account number is required for domestic payments.
+                        - generic:
+                          - generic: IFSC Code
+                          - textbox "Bank IFSC code"
+                          - paragraph: IFSC code is required for domestic payments.
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: Payment QR
+                            - paragraph: Optional
+                        - generic:
+                          - generic:
+                            - paragraph: Upload
+                            - paragraph: QR
+        - generic [ref=e392]:
+          - generic [ref=e393]:
+            - button "Incomplete Meta Invoice number and dates." [ref=e394]:
+              - generic [ref=e397]: Incomplete
+              - heading "Meta" [level=2] [ref=e398]
+              - paragraph [ref=e399]: Invoice number and dates.
+            - generic [ref=e401]: 1 required
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Keep numbering and dates compact here.
+                  - generic:
+                    - generic:
+                      - generic: Invoice Number *
+                      - textbox "INV-2026-001"
+                    - generic:
+                      - generic: Invoice Date *
+                      - textbox: 2026-04-02
+                    - generic:
+                      - generic: Due Date *
+                      - textbox
+                      - paragraph: Due date is required.
+        - generic [ref=e404]:
+          - generic [ref=e405]:
+            - button "Completed Totals Completed and still editable." [ref=e406]:
+              - generic [ref=e409]: Completed
+              - heading "Totals" [level=2] [ref=e410]
+              - paragraph [ref=e411]: Completed and still editable.
+            - generic [ref=e413]: Ready
+          - generic [ref=e414]:
+            - paragraph [ref=e415]: ₹0
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Review the final billing outcome before preview.
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - paragraph: Tax summary
+                            - paragraph: No tax
+                          - generic: No tax
+                        - generic:
+                          - generic:
+                            - term: Current outcome
+                            - definition: No tax
+                          - generic:
+                            - term: Applied rate
+                            - definition: 0% total tax
+                          - generic:
+                            - term: Breakdown
+                            - definition: No tax is currently applied to this invoice.
+                      - generic: Tax is set to 0% because the agency is marked as not registered under GST.
+                    - generic:
+                      - generic:
+                        - paragraph: Final review
+                        - heading "Invoice totals" [level=3]
+                      - generic:
+                        - generic:
+                          - term: Subtotal
+                          - definition: ₹0
+                        - generic:
+                          - term: Tax
+                          - definition: No tax₹0
+                        - generic:
+                          - term: Grand total
+                          - definition: ₹0
+                      - paragraph: Final amount payable before any offline adjustments.
+  - button "Open Next.js Dev Tools" [ref=e421] [cursor=pointer]:
+    - img [ref=e422]
+  - alert [ref=e425]
+```
