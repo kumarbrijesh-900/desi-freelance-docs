@@ -1,3 +1,10 @@
+/*
+ * LEGACY TYPE NOTICE
+ * ------------------
+ * This document schema supports the legacy `/create` wizard only.
+ * The canonical product domain is invoice-first and lives in `types/invoice.ts`.
+ */
+
 export type ProjectPreset =
   | "logo-design"
   | "social-media-design"

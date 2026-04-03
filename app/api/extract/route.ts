@@ -1,3 +1,11 @@
+/*
+ * LEGACY API NOTICE
+ * -----------------
+ * This extraction endpoint supports the legacy `/create` document wizard.
+ * It is frozen and should not receive new invoice-related extraction work.
+ * Canonical invoice extraction belongs in `/api/brief-extract`.
+ */
+
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

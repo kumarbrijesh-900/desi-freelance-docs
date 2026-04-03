@@ -1,3 +1,13 @@
+## Architecture Status
+
+- Canonical product flow: `/invoice/new` -> `/invoice/preview`
+- Legacy product flow: `/create` and the document-wizard stack under `components/flow/*`
+- New feature work should target the invoice-first architecture only
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the canonical folder map and [audits/migration-todo-map.md](./audits/migration-todo-map.md) for the migration checklist.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

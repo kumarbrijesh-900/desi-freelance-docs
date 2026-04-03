@@ -1,5 +1,13 @@
 "use client";
 
+/*
+ * LEGACY COMPONENT NOTICE
+ * -----------------------
+ * This wizard belongs to the legacy `/create` flow.
+ * Keep it frozen unless the team explicitly revives the old document-wizard
+ * product line. New product work should target `components/invoice/*`.
+ */
+
 import { useState } from "react";
 import ProjectPresetStep from "@/components/flow/ProjectPresetStep";
 import BriefInputStep from "@/components/flow/BriefInputStep";

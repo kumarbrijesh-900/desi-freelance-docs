@@ -1,3 +1,10 @@
+/*
+ * LEGACY HELPER NOTICE
+ * --------------------
+ * This helper belongs to the legacy `/create` document-wizard flow.
+ * Keep it frozen and do not extend it for the canonical invoice-first path.
+ */
+
 import type { ExtractedDocumentData, ProjectPreset } from "@/types/document";
 
 interface ExtractApiResponse {

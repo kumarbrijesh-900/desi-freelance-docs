@@ -1,5 +1,13 @@
 "use client";
 
+/*
+ * LEGACY ROUTE NOTICE
+ * -------------------
+ * `/create` belongs to the legacy document-wizard architecture.
+ * It is frozen for new feature work while the repo converges on the
+ * canonical invoice-first flow under `/invoice/new`.
+ */
+
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
