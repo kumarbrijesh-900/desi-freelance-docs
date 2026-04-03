@@ -599,7 +599,9 @@ function InlineStepSection({
 export default function InvoiceEditorPage() {
   const router = useRouter();
 
-  const [formData, setFormData] = useState<InvoiceFormData>(defaultInvoiceFormData);
+  const [formData, setFormData] = useState<InvoiceFormData>(() =>
+    mergeInvoiceFormData(defaultInvoiceFormData)
+  );
   const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
   const [isBootstrapped, setIsBootstrapped] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -642,51 +644,83 @@ export default function InvoiceEditorPage() {
   };
 
   useEffect(() => {
+    if (hasInitializedRef.current) {
+      return;
+    }
+
     let frameId = 0;
     let nextFormData: InvoiceFormData | null = null;
     let nextStep: InvoiceStepperStep = "agency";
     let shouldShowRestoreToast = false;
+    let shouldShowFallbackToast = false;
 
     try {
-      const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (rawDraft) {
-        const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
-        if (
-          parsedDraft?.formData &&
-          parsedDraft.currentStep &&
-          orderedSteps.includes(parsedDraft.currentStep)
-        ) {
-          nextFormData = mergeInvoiceFormData(parsedDraft.formData);
-          nextStep = parsedDraft.currentStep;
-          shouldShowRestoreToast = true;
+      try {
+        const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (rawDraft) {
+          const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
+          if (
+            parsedDraft?.formData &&
+            parsedDraft.currentStep &&
+            orderedSteps.includes(parsedDraft.currentStep)
+          ) {
+            nextFormData = mergeInvoiceFormData(parsedDraft.formData);
+            nextStep = parsedDraft.currentStep;
+            shouldShowRestoreToast = true;
+          }
         }
+      } catch (error) {
+        console.error("Failed to restore draft:", error);
       }
+
+      if (!nextFormData) {
+        nextFormData = getFreshInvoiceData();
+      }
+
+      const suggestedDueDate = getSuggestedDueDate(
+        nextFormData.meta.paymentTerms,
+        nextFormData.meta.invoiceDate
+      );
+
+      dueDateAutoManagedRef.current =
+        !nextFormData.meta.dueDate ||
+        nextFormData.meta.dueDate === suggestedDueDate;
+      lastAutoDueDateRef.current = suggestedDueDate;
+
+      setFormData(nextFormData);
+      setCurrentStep(nextStep);
     } catch (error) {
-      console.error("Failed to restore draft:", error);
+      console.error("Failed to initialize invoice editor:", error);
+
+      // Logic gap: the page used to return null until this bootstrap finished.
+      // If refresh-time localStorage or invoice-sequence setup failed, the
+      // editor stayed blank. Fall back to a safe empty form instead.
+      const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
+      const fallbackSuggestedDueDate = getSuggestedDueDate(
+        fallbackFormData.meta.paymentTerms,
+        fallbackFormData.meta.invoiceDate
+      );
+
+      dueDateAutoManagedRef.current =
+        !fallbackFormData.meta.dueDate ||
+        fallbackFormData.meta.dueDate === fallbackSuggestedDueDate;
+      lastAutoDueDateRef.current = fallbackSuggestedDueDate;
+
+      setFormData(fallbackFormData);
+      setCurrentStep("agency");
+      shouldShowFallbackToast = true;
+    } finally {
+      hasInitializedRef.current = true;
+      setIsBootstrapped(true);
     }
 
-    if (!nextFormData) {
-      nextFormData = getFreshInvoiceData();
-    }
-
-    const suggestedDueDate = getSuggestedDueDate(
-      nextFormData.meta.paymentTerms,
-      nextFormData.meta.invoiceDate
-    );
-
-    dueDateAutoManagedRef.current =
-      !nextFormData.meta.dueDate ||
-      nextFormData.meta.dueDate === suggestedDueDate;
-    lastAutoDueDateRef.current = suggestedDueDate;
-
-    setFormData(nextFormData);
-    setCurrentStep(nextStep);
-    hasInitializedRef.current = true;
-    setIsBootstrapped(true);
-
-    if (shouldShowRestoreToast) {
+    if (shouldShowRestoreToast || shouldShowFallbackToast) {
       frameId = window.requestAnimationFrame(() => {
-        triggerToast("Draft restored");
+        triggerToast(
+          shouldShowRestoreToast
+            ? "Draft restored"
+            : "Could not restore saved invoice state. Starting fresh."
+        );
       });
     }
 
@@ -1499,9 +1533,21 @@ export default function InvoiceEditorPage() {
     }
   };
 
-  if (!isBootstrapped) {
-    return null;
-  }
+  const pageHeader = (
+    <MotionReveal preset="fade-up">
+      <div className="min-w-0 space-y-1.5">
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+          New Invoice
+        </p>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
+          Create Invoice
+        </h1>
+        <p className="max-w-xl text-sm leading-6 text-slate-500">
+          Fill each section top to bottom.
+        </p>
+      </div>
+    </MotionReveal>
+  );
 
   return (
     <main suppressHydrationWarning className={appPageShellClass}>
@@ -1513,19 +1559,7 @@ export default function InvoiceEditorPage() {
         <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,720px)_216px] lg:items-start lg:justify-center lg:gap-16">
           <div className={`w-full max-w-[720px] ${appSectionGapClass}`}>
             <header className="space-y-3">
-              <MotionReveal preset="fade-up">
-                <div className="min-w-0 space-y-1.5">
-                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                    New Invoice
-                  </p>
-                  <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-                    Create Invoice
-                  </h1>
-                  <p className="max-w-xl text-sm leading-6 text-slate-500">
-                    Fill each section top to bottom.
-                  </p>
-                </div>
-              </MotionReveal>
+              {pageHeader}
 
               <div
                 className="sticky top-4 z-20 mb-6 flex justify-end gap-2"
