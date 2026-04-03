@@ -223,6 +223,31 @@ export type BriefAutofillResult = {
   hasVoiceTranscript: boolean;
 };
 
+// Canonical extraction boundary:
+// all extraction sources should be adapted into InvoiceBriefExtractionSchema
+// before any mapping into InvoiceFormData happens.
+export type InvoiceExtractionAdapterInput =
+  | {
+      source: "ai";
+      extraction: AiBriefExtraction;
+      rawText: string;
+    }
+  | {
+      source: "heuristic" | "ocr" | "schema";
+      extraction: InvoiceBriefExtractionSchema;
+    };
+
+export type NormalizedExtractionOutput =
+  | {
+      source: "ai";
+      extraction: AiBriefExtraction;
+      rawText: string;
+    }
+  | {
+      source: "schema";
+      extraction: InvoiceBriefExtractionSchema;
+    };
+
 const defaultLineItem = defaultInvoiceFormData.lineItems[0];
 
 const lineItemTypeMatchers: Array<{
@@ -1663,6 +1688,36 @@ export function mergeBriefExtractions(params: {
       heuristicExtraction.timeline
     ),
   };
+}
+
+export function normalizeExtractionOutput(
+  rawExtraction: InvoiceExtractionAdapterInput
+): NormalizedExtractionOutput {
+  if (rawExtraction.source === "ai") {
+    return {
+      source: "ai",
+      extraction: rawExtraction.extraction,
+      rawText: rawExtraction.rawText,
+    };
+  }
+
+  return {
+    source: "schema",
+    extraction: rawExtraction.extraction,
+  };
+}
+
+export function toInvoiceExtractionSchema(
+  normalizedData: NormalizedExtractionOutput
+): InvoiceBriefExtractionSchema {
+  if (normalizedData.source === "ai") {
+    return normalizeExtractedData(
+      normalizedData.extraction,
+      normalizedData.rawText
+    );
+  }
+
+  return normalizedData.extraction;
 }
 
 function getStateFromText(
@@ -3635,14 +3690,41 @@ export function runBriefAutofill(params: {
   aiExtraction?: AiBriefExtraction | null;
 }): BriefAutofillResult {
   const normalizedText = normalizeBriefIntake(params.input);
-  const heuristicExtraction = extractInvoiceBriefSchema(normalizedText);
+  const rawHeuristicExtraction = extractInvoiceBriefSchema(normalizedText);
+  const heuristicExtraction = toInvoiceExtractionSchema(
+    normalizeExtractionOutput({
+      source: "heuristic",
+      extraction: rawHeuristicExtraction,
+    })
+  );
   const aiExtraction = params.aiExtraction
-    ? normalizeExtractedData(params.aiExtraction, normalizedText)
+    ? toInvoiceExtractionSchema(
+        normalizeExtractionOutput({
+          source: "ai",
+          extraction: params.aiExtraction,
+          rawText: normalizedText,
+        })
+      )
     : null;
   const extraction = mergeBriefExtractions({
     aiExtraction,
     heuristicExtraction,
   });
+
+  if (process.env.NODE_ENV === "development") {
+    console.debug("[invoice-brief-intake] extraction-adapter", {
+      rawExtraction: {
+        ai: params.aiExtraction ?? null,
+        heuristic: rawHeuristicExtraction,
+      },
+      adaptedExtraction: {
+        ai: aiExtraction,
+        heuristic: heuristicExtraction,
+        merged: extraction,
+      },
+    });
+  }
+
   const mapping = mapBriefExtractionToInvoiceForm({
     currentFormData: params.currentFormData,
     extraction,
