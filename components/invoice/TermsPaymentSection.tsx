@@ -9,6 +9,11 @@ import type {
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@/components/ui/app-icons";
+import {
   appFieldErrorTextClass,
   appFieldLabelClass,
   appSectionDescriptionClass,
@@ -272,6 +277,11 @@ export default function TermsPaymentSection({
     value.license.licenseType === "exclusive-license" ||
     value.license.licenseType === "non-exclusive-license";
   const isInternational = clientLocation === "international";
+  const licenseToggleLabel = isLicenseSectionOpen
+    ? "Hide license terms"
+    : hasLicenseContent
+    ? "License terms added"
+    : "Add license terms";
 
   const inputClass = (hasError?: string, hasValue?: boolean, multiline = false) =>
     getAppFieldClass({
@@ -399,14 +409,17 @@ export default function TermsPaymentSection({
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "space-y-3.5 border border-slate-200/70 px-4 py-4"
+              "space-y-3 border border-slate-200/70 px-3.5 py-3.5"
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
+              <div className="flex min-w-0 items-center gap-2">
                 <p className="text-sm font-medium text-slate-950">
                   Licensing
                 </p>
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/78 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
+                  {hasLicenseContent ? "Enabled" : "Optional"}
+                </span>
               </div>
 
               <button
@@ -414,13 +427,16 @@ export default function TermsPaymentSection({
                 onClick={() =>
                   setIsLicenseSectionExpanded((current) => !current)
                 }
-                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                className={getAppButtonClass({ variant: "secondary", size: "sm" })}
               >
-                {isLicenseSectionOpen
-                  ? "Hide license terms"
-                  : hasLicenseContent
-                  ? "License terms added"
-                  : "Add license terms"}
+                {isLicenseSectionOpen ? (
+                  <ChevronUpIcon className="h-4 w-4" />
+                ) : hasLicenseContent ? (
+                  <CheckIcon className="h-4 w-4" />
+                ) : (
+                  <ChevronDownIcon className="h-4 w-4" />
+                )}
+                {licenseToggleLabel}
               </button>
             </div>
 

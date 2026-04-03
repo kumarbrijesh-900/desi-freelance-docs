@@ -243,6 +243,13 @@ test("line items, compact uploads, and date fields stay readable and aligned", a
   const viewport = page.viewportSize();
   await loadDemoData(page);
   const root = editorRoot(page);
+  const logoUpload = root
+    .locator('[data-step-section="agency"]')
+    .locator('label:has(input[type="file"])')
+    .first();
+  const logoUploadBox = await logoUpload.boundingBox();
+  expect(logoUploadBox?.height ?? 0).toBeLessThanOrEqual(120);
+
   await stepToggle(page, "deliverables").click();
   await waitForUiSettle(page);
 
@@ -284,6 +291,7 @@ test("line items, compact uploads, and date fields stay readable and aligned", a
   } else {
     expect((qrUploadBox?.y ?? 0)).toBeGreaterThan((bankNameBox?.y ?? 0));
   }
+  expect(qrUploadBox?.height ?? 0).toBeLessThanOrEqual(96);
 });
 
 test("payment and totals stay compact with structured international bank address UI", async ({

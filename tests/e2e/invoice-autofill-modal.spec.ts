@@ -107,6 +107,28 @@ test("extract and autofill routes directly into the inline vertical stepper with
   await expect(root.locator('[data-step-section="agency"]')).toBeVisible();
 });
 
+test("typed brief autofill keeps the agency name when it is clearly labeled", async ({
+  page,
+}) => {
+  await extractBrief(
+    page,
+    [
+      "Agency name is Acme Design Studio",
+      "Client name: Metro Shoes Pvt. Ltd.",
+      "Deliverable description: Landing page UI design",
+      "Qty: 1",
+      "Rate: INR 12000 per screen",
+      "Payment terms: Net 15",
+    ].join("\n")
+  );
+
+  const root = editorRoot(page);
+  await stepToggle(page, "agency").click();
+  await expect(
+    root.getByPlaceholder(/Your agency or freelance brand name/i)
+  ).toHaveValue("Acme Design Studio");
+});
+
 test("progressive flow keeps sections visible without auto-scroll", async ({
   page,
 }) => {

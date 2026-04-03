@@ -194,6 +194,37 @@ net 15.`,
     expectedClarifications: [],
   },
   {
+    id: "agency-name-is-labeled-brief",
+    title: "Agency name with explicit is-label",
+    text: `Agency name is Acme Design Studio
+Client name: Metro Shoes Pvt. Ltd.
+Deliverable description: Landing page UI design
+Qty: 1
+Rate: INR 12000 per screen
+Payment terms: Net 15`,
+    expectedExtracted: {
+      agencyName: "Acme Design Studio",
+      clientName: "Metro Shoes Pvt. Ltd.",
+      rate: 12000,
+      rateUnit: "per-screen",
+      paymentTerms: "Net 15",
+      deliverables: [
+        {
+          description: "Landing page UI design",
+          qty: 1,
+          rate: 12000,
+          rateUnit: "per-screen",
+        },
+      ],
+    },
+    expectedInferred: {},
+    expectedMapped: {
+      agencyName: "Acme Design Studio",
+      paymentTerms: "Net 15",
+    },
+    expectedClarifications: [],
+  },
+  {
     id: "ocr-noisy-email",
     title: "OCR-noisy email screenshot text",
     text: `AGENCY N4ME DesiFreelanceDocs Studi0

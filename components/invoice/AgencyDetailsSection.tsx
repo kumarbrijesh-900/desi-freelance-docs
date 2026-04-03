@@ -209,8 +209,8 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_156px] xl:items-start">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_116px] xl:items-start">
+          <div className="space-y-5">
             <div>
               <label className={appFieldLabelClass}>
                 Business / Trade Name *
@@ -241,7 +241,7 @@ export default function AgencyDetailsSection({
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_120px]">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[190px_minmax(0,1fr)_120px]">
                 <div className="md:col-span-2 lg:col-span-3">
                   <label className={appFieldLabelClass}>
                     Address Line 1 *
@@ -274,7 +274,7 @@ export default function AgencyDetailsSection({
                   />
                 </div>
 
-                <div>
+                <div className="max-w-[220px]">
                   <label className={appFieldLabelClass}>
                     State *
                   </label>
@@ -315,7 +315,7 @@ export default function AgencyDetailsSection({
                   />
                 </div>
 
-                <div>
+                <div className="max-w-[120px]">
                   <label className={appFieldLabelClass}>
                     PIN Code
                   </label>
@@ -350,11 +350,11 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-5")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
               <p className="text-sm font-medium text-slate-900">
                 Agency Compliance
               </p>
-              <div>
+              <div className="max-w-[360px]">
                 <label className={appFieldLabelClass}>
                   GST Registration Status
                 </label>
@@ -393,23 +393,25 @@ export default function AgencyDetailsSection({
                       <label className={appFieldLabelClass}>
                         GSTIN
                       </label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        aria-label="Agency GSTIN"
-                        value={value.gstin}
-                        onChange={(e) =>
-                          updateField(
-                            "gstin",
-                            e.target.value.toUpperCase().replace(/\s+/g, "")
-                          )
-                        }
-                        onBlur={() => markTouched("gstin")}
-                        placeholder="GSTIN"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        className={inputClass(gstinError, Boolean(value.gstin))}
-                      />
+                      <div className="max-w-[280px]">
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          aria-label="Agency GSTIN"
+                          value={value.gstin}
+                          onChange={(e) =>
+                            updateField(
+                              "gstin",
+                              e.target.value.toUpperCase().replace(/\s+/g, "")
+                            )
+                          }
+                          onBlur={() => markTouched("gstin")}
+                          placeholder="GSTIN"
+                          autoCapitalize="characters"
+                          spellCheck={false}
+                          className={inputClass(gstinError, Boolean(value.gstin))}
+                        />
+                      </div>
                       {gstinError ? (
                         <p className={appFieldErrorTextClass}>
                           {gstinError}
@@ -469,7 +471,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className="border-t border-gray-200 pt-4">
+                            <div className="max-w-[260px] border-t border-gray-200 pt-4">
                               <label className={appFieldLabelClass}>
                                 LUT Number / ARN
                               </label>
@@ -516,7 +518,7 @@ export default function AgencyDetailsSection({
               </AnimatePresence>
             </div>
 
-            <div>
+            <div className="max-w-[220px]">
               <label className={appFieldLabelClass}>
                 PAN
               </label>
@@ -548,12 +550,9 @@ export default function AgencyDetailsSection({
             </div>
           </div>
 
-          <div className={cn(getAppSubtlePanelClass("muted"), "space-y-2.5 p-3")}>
+          <div className={cn(getAppSubtlePanelClass("muted"), "space-y-2 p-2.5 xl:self-start")}>
             <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-slate-900">Agency logo</p>
-                <p className="mt-0.5 text-[11px] leading-5 text-slate-500">Optional</p>
-              </div>
+              <p className="text-sm font-medium text-slate-900">Logo</p>
 
               {value.logoUrl ? (
                 <button
@@ -579,7 +578,7 @@ export default function AgencyDetailsSection({
               }}
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
-              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[112px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-3 py-3 text-center text-sm ${
+              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[88px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
                 isDragOver
                   ? "app-dropzone-accept text-slate-950"
                   : "text-slate-500 hover:border-slate-400"
@@ -596,12 +595,12 @@ export default function AgencyDetailsSection({
                 <img
                   src={value.logoUrl}
                   alt="Agency logo preview"
-                  className="max-h-[56px] w-auto object-contain"
+                  className="max-h-[48px] w-auto object-contain"
                 />
               ) : (
                 <div className="space-y-1">
                   <p className="font-medium text-slate-700">Upload</p>
-                  <p className="text-[11px] text-slate-400">PNG, JPG</p>
+                  <p className="text-[10px] text-slate-400">PNG/JPG</p>
                 </div>
               )}
             </label>

@@ -5,7 +5,6 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ClipboardCheckIcon,
-  DocumentSparkIcon,
   MicrophoneIcon,
   SparklesIcon,
   UploadIcon,
@@ -26,7 +25,6 @@ import {
   cn,
   getAppButtonClass,
   getAppFieldClass,
-  getAppPanelClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
 
@@ -196,23 +194,19 @@ export default function BriefIntakeCard({
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "overflow-hidden px-4 py-3.5 sm:px-5"
+          "overflow-hidden px-4 py-3 sm:px-5"
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
-        <div className="space-y-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 max-w-3xl space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--app-soft-border)] bg-white/78 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
-                <DocumentSparkIcon className="h-4 w-4" />
-                Brief
-              </div>
+        <div className="space-y-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 max-w-3xl space-y-1.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
               </h2>
               <p className={cn("max-w-2xl", appSectionDescriptionClass)}>
-                Start with text and add a screenshot only if it helps autofill.
+                Paste a brief first, then add a screenshot only if it helps autofill.
               </p>
             </div>
 
@@ -281,7 +275,7 @@ export default function BriefIntakeCard({
               className="space-y-3"
             >
               <MotionReveal preset="soft">
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <label className={appFieldLabelClass}>
                       Brief
@@ -323,7 +317,7 @@ export default function BriefIntakeCard({
                         type="button"
                         onClick={() =>
                           onPlaceholderAction(
-                            "Voice intake is ready as a placeholder hook. Speech-to-text can plug into this card next."
+                            "Voice intake is still a placeholder hook. Add text or a screenshot for now."
                           )
                         }
                         className={getAppButtonClass({ variant: "ghost", size: "sm" })}

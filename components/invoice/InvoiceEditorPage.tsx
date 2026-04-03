@@ -1577,22 +1577,6 @@ export default function InvoiceEditorPage() {
     }
   };
 
-  const pageHeader = (
-    <MotionReveal preset="fade-up">
-      <div className="min-w-0 space-y-1.5">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-          New Invoice
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-          Create Invoice
-        </h1>
-        <p className="max-w-xl text-sm leading-6 text-slate-500">
-          Fill each section top to bottom.
-        </p>
-      </div>
-    </MotionReveal>
-  );
-
   return (
     <main suppressHydrationWarning className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -1600,46 +1584,17 @@ export default function InvoiceEditorPage() {
       <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto grid w-full max-w-[1260px] grid-cols-1 gap-8 lg:grid-cols-[156px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-10 xl:max-w-[1320px] xl:grid-cols-[164px_minmax(0,1fr)] xl:gap-12">
-          <div className={`w-full max-w-[980px] lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
-            <header className="space-y-3">
-              {pageHeader}
-
-              <div
-                className="sticky top-4 z-20 mb-6 flex justify-end gap-2"
-                data-testid="floating-editor-actions"
-              >
-                <button
-                  type="button"
-                  onClick={handleBackToHome}
-                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveDraft}
-                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                >
-                  <SaveIcon className="h-4 w-4" />
-                  Save draft
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePreviewInvoice}
-                  disabled={!invoiceReadyForPreview}
-                  aria-label={
-                    invoiceReadyForPreview
-                      ? "Preview and download your invoice"
-                      : firstInvalidStep
-                      ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
-                      : "Complete all sections to preview"
-                  }
-                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                >
-                  <DownloadIcon className="h-4 w-4" />
-                  Preview & download
-                </button>
+        <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 lg:grid-cols-[132px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-8 xl:max-w-[1360px] xl:grid-cols-[140px_minmax(0,1fr)] xl:gap-10">
+          <div className={`w-full max-w-[1040px] pb-28 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
+            <div className="space-y-4">
+              <div className="opacity-80 transition-opacity duration-200 hover:opacity-100">
+                <BriefIntakeCard
+                  key={briefIntakeResetKey}
+                  onExtract={handleBriefAutofill}
+                  onPlaceholderAction={triggerToast}
+                  isCollapsed={isBriefIntakeCollapsed}
+                  onCollapsedChange={setIsBriefIntakeCollapsed}
+                />
               </div>
 
               <div
@@ -1648,11 +1603,11 @@ export default function InvoiceEditorPage() {
                   "px-4 py-3 lg:hidden"
                 )}
                 data-testid="compact-progress-summary"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                        Progress
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                      Progress
                     </p>
                     <p className="mt-1 text-sm font-semibold text-slate-950">
                       {completedStepCount} of {orderedSteps.length} sections ready
@@ -1675,83 +1630,70 @@ export default function InvoiceEditorPage() {
                   />
                 </div>
               </div>
-            </header>
 
-            <div className="opacity-80 transition-opacity duration-200 hover:opacity-100">
-              <BriefIntakeCard
-                key={briefIntakeResetKey}
-                onExtract={handleBriefAutofill}
-                onPlaceholderAction={triggerToast}
-                isCollapsed={isBriefIntakeCollapsed}
-                onCollapsedChange={setIsBriefIntakeCollapsed}
-              />
-            </div>
+              <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
+                {orderedSteps.map((step) => {
+                  const isActive = currentStep === step;
+                  const isCompleted = displayStepValidityByStep[step];
 
-            <div className="space-y-5 overflow-visible" data-testid="invoice-vertical-stepper">
-              {orderedSteps.map((step) => {
-                const isActive = currentStep === step;
-                const isCompleted = displayStepValidityByStep[step];
-
-                return (
-                  <div
-                    key={step}
-                    ref={(node) => {
-                      stepRefs.current[step] = node;
-                    }}
-                    onFocusCapture={() => {
-                      if (currentStep !== step) {
-                        setCurrentStep(step);
-                      }
-                    }}
-                  >
-                    <InlineStepSection
-                      step={step}
-                      isActive={isActive}
-                      isCompleted={isCompleted}
-                      issueCount={missingFieldCountByStep[step]}
-                      onActivate={() => goToStep(step)}
-                      footer={
-                        getNextStep(step) ? (
-                          <div className="flex justify-end border-t border-slate-200/60 pt-4">
-                            <button
-                              type="button"
-                              data-testid={`continue-${step}-to-${getNextStep(step)}`}
-                              onClick={() =>
-                                scrollToStep(getNextStep(step)!, { focus: true })
-                              }
-                              className={getAppButtonClass({
-                                variant: "secondary",
-                                size: "sm",
-                              })}
-                            >
-                              Continue to {getStepShortLabel(getNextStep(step)!)}
-                            </button>
-                          </div>
-                        ) : null
-                      }
+                  return (
+                    <div
+                      key={step}
+                      ref={(node) => {
+                        stepRefs.current[step] = node;
+                      }}
+                      onFocusCapture={() => {
+                        if (currentStep !== step) {
+                          setCurrentStep(step);
+                        }
+                      }}
                     >
-                      <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
-                        {renderStepContent(step)}
-                      </div>
-                    </InlineStepSection>
-                  </div>
-                );
-              })}
+                      <InlineStepSection
+                        step={step}
+                        isActive={isActive}
+                        isCompleted={isCompleted}
+                        issueCount={missingFieldCountByStep[step]}
+                        onActivate={() => goToStep(step)}
+                        footer={
+                          getNextStep(step) ? (
+                            <div className="flex justify-end border-t border-slate-200/60 pt-4">
+                              <button
+                                type="button"
+                                data-testid={`continue-${step}-to-${getNextStep(step)}`}
+                                onClick={() =>
+                                  scrollToStep(getNextStep(step)!, { focus: true })
+                                }
+                                className={getAppButtonClass({
+                                  variant: "secondary",
+                                  size: "sm",
+                                })}
+                              >
+                                Continue to {getStepShortLabel(getNextStep(step)!)}
+                              </button>
+                            </div>
+                          ) : null
+                        }
+                      >
+                        <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
+                          {renderStepContent(step)}
+                        </div>
+                      </InlineStepSection>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[156px] lg:self-start xl:w-[164px]" data-testid="desktop-support-rail">
-            <div className="space-y-3 lg:sticky lg:top-[104px]">
+          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[132px] lg:self-start lg:sticky lg:top-[88px] xl:w-[140px]" data-testid="desktop-support-rail">
+            <div className="space-y-3">
               <MotionReveal
                 preset="fade-up"
                 delay={40}
-                className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-2.5 py-3")}
+                className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-2 py-2.5")}
               >
-                <div className="space-y-2.5" data-testid="support-rail-section-list">
-                  <p className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                    Sections
-                  </p>
-                  <div className="relative space-y-1.5 border-l border-slate-200/80 pl-3">
+                <div className="space-y-1.5" data-testid="support-rail-section-list">
+                  <div className="relative space-y-1 border-l border-slate-200/80 pl-2.5">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = displayStepValidityByStep[step] && !isActive;
@@ -1762,7 +1704,7 @@ export default function InvoiceEditorPage() {
                           key={step}
                           type="button"
                           onClick={() => scrollToStep(step)}
-                          className={`group flex w-full items-start justify-between gap-2 rounded-[12px] px-2 py-2 text-left transition duration-[var(--app-duration-fast)] ${
+                          className={`group flex w-full items-start justify-between gap-1.5 rounded-[10px] px-1.5 py-1.5 text-left transition duration-[var(--app-duration-fast)] ${
                             isActive
                               ? "bg-white text-slate-950 ring-1 ring-inset ring-slate-200 shadow-[0_4px_14px_rgba(15,23,42,0.06)]"
                               : isCompleted
@@ -1770,9 +1712,9 @@ export default function InvoiceEditorPage() {
                               : "bg-transparent text-slate-700 hover:bg-white/72"
                           }`}
                         >
-                          <div className="flex min-w-0 items-start gap-2.5">
+                          <div className="flex min-w-0 items-start gap-2">
                             <span
-                              className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
+                              className={`mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full text-[9px] font-semibold ${
                                 isActive
                                   ? "bg-indigo-500 text-white"
                                   : isCompleted
@@ -1782,20 +1724,13 @@ export default function InvoiceEditorPage() {
                             >
                               {isCompleted ? "✓" : index + 1}
                             </span>
-                            <div className="min-w-0">
-                              <p className="truncate text-[12px] font-medium text-slate-950">
+                            <div className="min-w-0 space-y-0.5">
+                              <p className="truncate text-[11px] font-medium text-slate-950">
                                 {getStepShortLabel(step)}
-                              </p>
-                              <p className="text-[10px] text-slate-400">
-                                {isCompleted
-                                  ? "Completed"
-                                  : isActive
-                                  ? "Active now"
-                                  : "Incomplete"}
                               </p>
                             </div>
                           </div>
-                          <span className="shrink-0 pt-0.5 text-[10px] text-slate-500">
+                          <span className="shrink-0 pt-0.5 text-[9px] text-slate-500">
                             {isIncomplete && missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} left`
                               : step === "totals" && !invoiceReadyForPreview
@@ -1814,6 +1749,50 @@ export default function InvoiceEditorPage() {
           </aside>
         </div>
       </section>
+
+      <div className="pointer-events-none fixed bottom-4 left-1/2 z-30 w-[calc(100%-1.25rem)] max-w-[1360px] -translate-x-1/2 sm:w-[calc(100%-2rem)] lg:w-[calc(100%-3rem)]">
+        <div className="flex justify-end">
+          <div
+            className={cn(
+              getAppSubtlePanelClass("default"),
+              "pointer-events-auto flex flex-col items-stretch gap-2 border border-slate-200/80 bg-white/94 px-3 py-3 shadow-[0_14px_32px_rgba(15,23,42,0.14)] backdrop-blur sm:flex-row sm:flex-wrap sm:items-center"
+            )}
+            data-testid="floating-editor-actions"
+          >
+            <button
+              type="button"
+              onClick={handleBackToHome}
+              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+            >
+              <SaveIcon className="h-4 w-4" />
+              Save draft
+            </button>
+            <button
+              type="button"
+              onClick={handlePreviewInvoice}
+              disabled={!invoiceReadyForPreview}
+              aria-label={
+                invoiceReadyForPreview
+                  ? "Preview and download your invoice"
+                  : firstInvalidStep
+                  ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
+                  : "Complete all sections to preview"
+              }
+              className={getAppButtonClass({ variant: "primary", size: "sm" })}
+            >
+              <DownloadIcon className="h-4 w-4" />
+              Preview & download
+            </button>
+          </div>
+        </div>
+      </div>
 
       {showExitModal && (
         <ExitConfirmModal

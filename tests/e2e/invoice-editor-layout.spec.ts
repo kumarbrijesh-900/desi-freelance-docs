@@ -65,10 +65,19 @@ test("T1.2 — Sticky toolbar stays visible on scroll", async (
   const root = editorRoot(page);
   const actions = root.getByTestId("floating-editor-actions").first();
   await expect(actions).toBeVisible();
+  const beforeBox = await actions.boundingBox();
   await page.mouse.wheel(0, 160);
   await waitForUiSettle(page);
 
   await expect(actions).toBeVisible();
+  const afterBox = await actions.boundingBox();
+  const viewport = page.viewportSize();
+
+  expect(afterBox?.x ?? 0).toBeGreaterThan((viewport?.width ?? 0) - ((afterBox?.width ?? 0) + 48));
+  expect((afterBox?.y ?? 0) + (afterBox?.height ?? 0)).toBeGreaterThanOrEqual(
+    (viewport?.height ?? 0) - 72
+  );
+  expect(Math.abs((afterBox?.y ?? 0) - (beforeBox?.y ?? 0))).toBeLessThanOrEqual(8);
 });
 
 test("T1.3 — Left rail is visible and positioned to the left of the form", async (
@@ -91,7 +100,13 @@ test("T1.3 — Left rail is visible and positioned to the left of the form", asy
   const railBox = await rail.boundingBox();
   const stepperBox = await stepper.boundingBox();
   expect(railBox?.x ?? 0).toBeLessThan(stepperBox?.x ?? 0);
-  await expect(rail.getByText("Sections")).toBeVisible();
+  const beforeY = railBox?.y ?? 0;
+  await page.mouse.wheel(0, 800);
+  await waitForUiSettle(page);
+  const afterY = (await rail.boundingBox())?.y ?? 0;
+  expect(Math.abs(afterY - beforeY)).toBeLessThanOrEqual(24);
+  expect(afterY).toBeLessThanOrEqual(120);
+  await expect(rail.getByRole("button", { name: /Agency/i })).toBeVisible();
   await expect(rail.getByText(/Ready State/i)).toHaveCount(0);
   await expect(rail.getByText(/Compliance/i)).toHaveCount(0);
   await expect(rail.getByText(/Summary/i)).toHaveCount(0);

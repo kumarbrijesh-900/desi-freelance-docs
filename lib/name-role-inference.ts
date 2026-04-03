@@ -109,6 +109,11 @@ function extractLabeledValue(
 function normalizeContextLine(line: string) {
   return cleanValue(line)
     .replace(
+      /^(?:agency name|agency|business name|business|freelancer name|freelancer|studio name|studio|issued by|my name|from)\s+/i,
+      ""
+    )
+    .replace(/^is\s+/i, "")
+    .replace(
       /^(?:invoice\s+(?:for|to)|bill to|customer name|client name|recipient|client|for|to|your brand|brand)\s+/i,
       ""
     )
