@@ -7,6 +7,7 @@ import {
   type ExtractionBenchmarkCase,
   type ExtractionBenchmarkDeliverableExpectation,
   type ExtractionBenchmarkFieldExpectation,
+  type ExtractionBenchmarkMappedExpectation,
 } from "@/tests/extraction/brief-extraction-benchmarks";
 import { defaultInvoiceFormData } from "@/types/invoice";
 
@@ -31,6 +32,7 @@ type BenchmarkCaseReport = {
   score: number;
   extracted: Record<string, BenchmarkFieldReport>;
   inferred: Record<string, BenchmarkFieldReport>;
+  mapped: Record<string, BenchmarkFieldReport>;
   clarifications: BenchmarkFieldReport;
 };
 
@@ -320,9 +322,38 @@ function buildActualFieldMap(result: BriefAutofillResult) {
   };
 }
 
+function buildMappedFieldMap(result: BriefAutofillResult) {
+  const { agency, client, meta } = result.nextFormData;
+
+  const scalar = <T,>(value: T | undefined): ActualValueWithMeta<T | undefined> => ({
+    value,
+    confidence: "-",
+    source: "mapped",
+    origin: "mapper",
+  });
+
+  return {
+    agencyName: scalar(agency.agencyName),
+    agencyAddressLine1: scalar(agency.addressLine1),
+    agencyAddressLine2: scalar(agency.addressLine2),
+    agencyCity: scalar(agency.city),
+    agencyPinCode: scalar(agency.pinCode),
+    clientName: scalar(client.clientName),
+    clientAddressLine1: scalar(client.clientAddressLine1),
+    clientAddressLine2: scalar(client.clientAddressLine2),
+    clientCity: scalar(client.clientCity),
+    clientPinCode: scalar(client.clientPinCode),
+    clientPostalCode: scalar(client.clientPostalCode),
+    clientCountry: scalar(client.clientCountry),
+    paymentTerms: scalar(meta.paymentTerms),
+  };
+}
+
 function scoreExpectationGroup(
-  expected: ExtractionBenchmarkFieldExpectation,
-  actual: ReturnType<typeof buildActualFieldMap>
+  expected:
+    | ExtractionBenchmarkFieldExpectation
+    | ExtractionBenchmarkMappedExpectation,
+  actual: Record<string, ActualValueWithMeta<string | number | ExtractionBenchmarkDeliverableExpectation[] | string[] | undefined>>
 ) {
   const report: Record<string, BenchmarkFieldReport> = {};
 
@@ -338,7 +369,7 @@ function scoreExpectationGroup(
           actual: actual.deliverables.value,
           status: compareDeliverables(
             expectedValue as ExtractionBenchmarkDeliverableExpectation[],
-            actual.deliverables.value
+            actual.deliverables.value as ExtractionBenchmarkDeliverableExpectation[]
           ),
           confidence: actual.deliverables.confidence,
           source: actual.deliverables.source,
@@ -349,7 +380,7 @@ function scoreExpectationGroup(
       case "rate":
         report[fieldName] = toScalarReport(
           expectedValue as number,
-          actual[fieldName],
+          actual[fieldName] as ActualValueWithMeta<number | undefined>,
           compareNumber
         );
         break;
@@ -420,8 +451,13 @@ function runCase(benchmarkCase: ExtractionBenchmarkCase): BenchmarkCaseReport {
     input: { text: benchmarkCase.text },
   });
   const actual = buildActualFieldMap(result);
+  const mappedActual = buildMappedFieldMap(result);
   const extracted = scoreExpectationGroup(benchmarkCase.expectedExtracted, actual);
   const inferred = scoreExpectationGroup(benchmarkCase.expectedInferred, actual);
+  const mapped = scoreExpectationGroup(
+    benchmarkCase.expectedMapped ?? {},
+    mappedActual
+  );
   const clarifications: BenchmarkFieldReport = {
     expected: benchmarkCase.expectedClarifications,
     actual: actual.clarifications.value,
@@ -433,7 +469,7 @@ function runCase(benchmarkCase: ExtractionBenchmarkCase): BenchmarkCaseReport {
     source: actual.clarifications.source,
     origin: actual.clarifications.origin,
   };
-  const tallies = tallyStatuses([extracted, inferred, { clarifications }]);
+  const tallies = tallyStatuses([extracted, inferred, mapped, { clarifications }]);
 
   return {
     id: benchmarkCase.id,
@@ -445,6 +481,7 @@ function runCase(benchmarkCase: ExtractionBenchmarkCase): BenchmarkCaseReport {
     score: computeScore(tallies),
     extracted,
     inferred,
+    mapped,
     clarifications,
   };
 }
@@ -502,6 +539,7 @@ function printHumanReport(output: BenchmarkOutput) {
     for (const [groupName, groupReport] of [
       ["Extracted", benchmarkCase.extracted],
       ["Inferred", benchmarkCase.inferred],
+      ["Mapped", benchmarkCase.mapped],
     ] as const) {
       const entries = Object.entries(groupReport);
 

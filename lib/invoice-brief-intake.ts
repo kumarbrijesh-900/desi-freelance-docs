@@ -4,6 +4,7 @@ import type {
   AiBriefTaxType,
 } from "@/lib/ai-brief-extractor";
 import {
+  type InternationalCountryOption,
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import { buildBriefClarificationSuggestions } from "@/lib/invoice-clarifications";
@@ -18,6 +19,7 @@ import {
   type IdentifierKind,
 } from "@/lib/identifier-classifier";
 import { derivePanFromGstin, getStateFromGstin } from "@/lib/gstin-parser";
+import { hydrateIndianAddressFields } from "@/lib/invoice-address";
 import {
   hasForeignCityHint,
   inferLocationDetailsFromText,
@@ -70,6 +72,10 @@ export type InvoiceBriefLineItemExtraction = {
 export type InvoiceBriefExtractionSchema = {
   agencyName?: BriefExtractedField<string>;
   agencyAddress?: BriefExtractedField<string>;
+  agencyAddressLine1?: BriefExtractedField<string>;
+  agencyAddressLine2?: BriefExtractedField<string>;
+  agencyCity?: BriefExtractedField<string>;
+  agencyPinCode?: BriefExtractedField<string>;
   agencyState?: BriefExtractedField<InvoiceFormData["agency"]["agencyState"]>;
   agencyGstRegistrationStatus?: BriefExtractedField<AgencyDetails["gstRegistrationStatus"]>;
   agencyGstin?: BriefExtractedField<string>;
@@ -78,6 +84,11 @@ export type InvoiceBriefExtractionSchema = {
   agencyLutNumber?: BriefExtractedField<string>;
   clientName?: BriefExtractedField<string>;
   clientAddress?: BriefExtractedField<string>;
+  clientAddressLine1?: BriefExtractedField<string>;
+  clientAddressLine2?: BriefExtractedField<string>;
+  clientCity?: BriefExtractedField<string>;
+  clientPinCode?: BriefExtractedField<string>;
+  clientPostalCode?: BriefExtractedField<string>;
   clientState?: BriefExtractedField<InvoiceFormData["client"]["clientState"]>;
   clientCountry?: BriefExtractedField<InvoiceFormData["client"]["clientCountry"]>;
   clientLocation?: BriefExtractedField<InvoiceFormData["client"]["clientLocation"]>;
@@ -460,6 +471,28 @@ function cleanAddressValue(value?: string | null) {
     .trim();
 }
 
+function cleanAddressBlockValue(value?: string | null) {
+  return (value ?? "")
+    .split(/\n+/)
+    .map((line) => cleanValue(line))
+    .filter(Boolean)
+    .join("\n")
+    .trim();
+}
+
+function looksLikeFieldLabelLine(line: string) {
+  return /^[a-z][a-z0-9/&.' -]{1,40}:/i.test(line.trim());
+}
+
+type ExtractLabeledValueOptions = {
+  allowContinuationLines?: boolean;
+  maxContinuationLines?: number;
+  preserveLineBreaks?: boolean;
+  strictShortLabels?: boolean;
+  shouldIncludeContinuationLine?: (line: string) => boolean;
+  normalizeContinuationLine?: (line: string) => string;
+};
+
 export function normalizeBriefText(text: string) {
   return normalizeOcrText(
     text.replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 ")
@@ -477,16 +510,134 @@ function findFirstMatch(text: string, patterns: RegExp[]) {
   return "";
 }
 
-function extractLabeledValue(text: string, labels: string[]) {
-  const patterns = labels.map(
-    (label) =>
-      new RegExp(
-        `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
-        "im"
-      )
-  );
+function extractLabeledValue(
+  text: string,
+  labels: string[],
+  options: ExtractLabeledValueOptions = {}
+) {
+  const lines = text.split(/\n/);
+  const orderedLabels = [...labels].sort((left, right) => right.length - left.length);
 
-  return findFirstMatch(text, patterns);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+
+    for (const label of orderedLabels) {
+      const pattern =
+        options.strictShortLabels && !label.includes(" ")
+          ? new RegExp(
+              `^\\s*${escapeRegExp(label)}(?:\\s*[:\\-]\\s*(.*))?\\s*$`,
+              "i"
+            )
+          : new RegExp(
+              `^\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.*)$`,
+              "i"
+            );
+      const match = line.match(pattern);
+
+      if (!match) {
+        continue;
+      }
+
+      const inlineValue = cleanValue(match[1]);
+
+      if (!options.allowContinuationLines) {
+        if (inlineValue) {
+          return inlineValue;
+        }
+
+        continue;
+      }
+
+      const collectedLines: string[] = inlineValue ? [inlineValue] : [];
+      const maxContinuationLines = options.maxContinuationLines ?? 1;
+
+      for (
+        let nextIndex = index + 1;
+        nextIndex < lines.length &&
+        collectedLines.length < maxContinuationLines;
+        nextIndex += 1
+      ) {
+        const nextLine = lines[nextIndex].trim();
+
+        if (!nextLine) {
+          if (collectedLines.length > 0) {
+            break;
+          }
+
+          continue;
+        }
+
+        if (looksLikeFieldLabelLine(nextLine)) {
+          break;
+        }
+
+        const normalizedContinuationLine = cleanValue(
+          options.normalizeContinuationLine
+            ? options.normalizeContinuationLine(nextLine)
+            : nextLine
+        );
+
+        if (!normalizedContinuationLine) {
+          break;
+        }
+
+        if (
+          options.shouldIncludeContinuationLine &&
+          !options.shouldIncludeContinuationLine(normalizedContinuationLine)
+        ) {
+          break;
+        }
+
+        collectedLines.push(normalizedContinuationLine);
+      }
+
+      const combined = options.preserveLineBreaks
+        ? collectedLines.join("\n")
+        : collectedLines.join(" ");
+
+      if (combined.trim()) {
+        return combined.trim();
+      }
+    }
+  }
+
+  return "";
+}
+
+function looksLikeAddressContinuationLine(line: string) {
+  const cleaned = cleanValue(line);
+
+  if (!cleaned) {
+    return false;
+  }
+
+  if (
+    /\b(?:gst|gstin|pan|lut|client|agency|deliverable|qty|quantity|rate|payment|terms?|due date|currency|bank|ifsc|swift|iban|routing|account|invoice date|landing page|homepage|home page|logo|illustrations?|editorial|ui\/?\s*ux|screens?|banners?|posts?|videos?|retouched|editing|campaign|project fee)\b/i.test(
+      cleaned
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function normalizeAddressContinuationLine(line: string) {
+  return cleanValue(line)
+    .replace(
+      /\s+(?:\d+\s+(?:screens?|banners?|items?|illustrations?|images?|posts?|videos?)|landing page|homepage|home page|logo|editorial illustrations?|ui\/?\s*ux|project fee|campaign launch|payment terms?)\b.*$/i,
+      ""
+    )
+    .trim();
+}
+
+function cleanEntityLabelValue(value?: string | null) {
+  return cleanValue(value)
+    .replace(/^is\s+/i, "")
+    .replace(/\s+(?:and they are|and they're|and is)\b.*$/i, "")
+    .replace(/\s+(?:based|located)\s+in\b.*$/i, "")
+    .replace(/\s+(?:invoice|project|work|rate|qty|quantity|currency|payment|bank)\b.*$/i, "")
+    .trim();
 }
 
 function parseAmount(value: string) {
@@ -537,7 +688,231 @@ function looksLikeEntityName(value: string) {
     return false;
   }
 
-  return !/\b(?:invoice|brief|work|project|design|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(cleaned);
+  if (/\bdesign\b/i.test(cleaned) && /\b(?:studio|agency|creative|media|labs|works?|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i.test(cleaned)) {
+    return true;
+  }
+
+  return !/\b(?:invoice|brief|work|project|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(cleaned);
+}
+
+type ParsedStructuredAgencyAddress = {
+  line1: string;
+  line2: string;
+  city: string;
+  pinCode: string;
+};
+
+type ParsedStructuredClientAddress = {
+  line1: string;
+  line2: string;
+  city: string;
+  pinCode: string;
+  postalCode: string;
+};
+
+const INTERNATIONAL_POSTAL_CODE_PATTERNS = [
+  /\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/,
+  /\b\d{4,10}\b/,
+];
+
+function splitAddressSegments(address: string) {
+  const normalized = cleanAddressBlockValue(address);
+
+  if (!normalized) {
+    return [];
+  }
+
+  const lineSegments = normalized
+    .split(/\n+/)
+    .map((segment) => cleanValue(segment))
+    .filter(Boolean);
+
+  if (lineSegments.length > 1) {
+    return lineSegments;
+  }
+
+  return normalized
+    .split(",")
+    .map((segment) => cleanValue(segment))
+    .filter(Boolean);
+}
+
+function stripLocationFragments(
+  value: string,
+  fragments: Array<string | undefined>
+) {
+  let nextValue = cleanValue(value);
+
+  for (const fragment of fragments) {
+    const cleanedFragment = cleanValue(fragment);
+
+    if (!cleanedFragment) {
+      continue;
+    }
+
+    nextValue = nextValue.replace(
+      new RegExp(`\\b${escapeRegExp(cleanedFragment)}\\b`, "ig"),
+      ""
+    );
+  }
+
+  return nextValue
+    .replace(/\b[1-9][0-9]{5}\b/g, "")
+    .replace(/\s+,/g, ",")
+    .replace(/,\s*,/g, ",")
+    .replace(/(^,|,$)/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function extractInternationalPostalCode(value: string) {
+  const normalized = cleanAddressBlockValue(value).toUpperCase();
+
+  for (const pattern of INTERNATIONAL_POSTAL_CODE_PATTERNS) {
+    const match = normalized.match(pattern);
+
+    if (match?.[0]) {
+      return cleanValue(match[0]);
+    }
+  }
+
+  return "";
+}
+
+function parseAgencyStructuredAddress(value?: string | null): ParsedStructuredAgencyAddress {
+  const cleaned = cleanAddressBlockValue(value);
+
+  if (!cleaned) {
+    return {
+      line1: "",
+      line2: "",
+      city: "",
+      pinCode: "",
+    };
+  }
+
+  const hydrated = hydrateIndianAddressFields({
+    legacyAddress: cleaned,
+  });
+  const inferredLocation = inferLocationDetailsFromText(cleaned);
+  const lineSegments = cleaned
+    .split(/\n+/)
+    .map((segment) => cleanValue(segment))
+    .filter(Boolean);
+  const trailingAddressLine = stripLocationFragments(lineSegments.at(-1) ?? "", [
+    hydrated.city || inferredLocation.matchedIndianCity,
+    inferredLocation.state,
+    hydrated.pinCode,
+  ]);
+
+  return {
+    line1:
+      (lineSegments.length > 1 ? lineSegments[0] : "") || hydrated.addressLine1,
+    line2:
+      (lineSegments.length > 2
+        ? lineSegments.slice(1, -1).join(", ")
+        : lineSegments.length === 2
+        ? trailingAddressLine
+        : "") ||
+      hydrated.addressLine2,
+    city:
+      hydrated.city || inferredLocation.matchedIndianCity || "",
+    pinCode: hydrated.pinCode,
+  };
+}
+
+function parseClientStructuredAddress(params: {
+  value?: string | null;
+  location?: InvoiceFormData["client"]["clientLocation"] | "";
+  country?: InternationalCountryOption | "";
+}): ParsedStructuredClientAddress {
+  const cleaned = cleanAddressBlockValue(params.value);
+
+  if (!cleaned) {
+    return {
+      line1: "",
+      line2: "",
+      city: "",
+      pinCode: "",
+      postalCode: "",
+    };
+  }
+
+  const inferredLocation = inferLocationDetailsFromText(cleaned);
+  const shouldTreatAsInternational =
+    params.location === "international" ||
+    Boolean(params.country) ||
+    inferredLocation.locationType === "international";
+
+  if (!shouldTreatAsInternational) {
+    const hydrated = hydrateIndianAddressFields({
+      legacyAddress: cleaned,
+    });
+    const lineSegments = cleaned
+      .split(/\n+/)
+      .map((segment) => cleanValue(segment))
+      .filter(Boolean);
+    const trailingAddressLine = stripLocationFragments(lineSegments.at(-1) ?? "", [
+      hydrated.city || inferredLocation.matchedIndianCity,
+      inferredLocation.state,
+      hydrated.pinCode,
+    ]);
+
+    return {
+      line1:
+        (lineSegments.length > 1 ? lineSegments[0] : "") || hydrated.addressLine1,
+      line2:
+        (lineSegments.length > 2
+          ? lineSegments.slice(1, -1).join(", ")
+          : lineSegments.length === 2
+          ? trailingAddressLine
+          : "") ||
+        hydrated.addressLine2,
+      city: hydrated.city || inferredLocation.matchedIndianCity || "",
+      pinCode: hydrated.pinCode,
+      postalCode: "",
+    };
+  }
+
+  const segments = splitAddressSegments(cleaned);
+  const city = inferredLocation.matchedForeignCity || "";
+  const postalCode = extractInternationalPostalCode(cleaned);
+  const country = params.country || inferredLocation.country || "";
+  const line1 = segments[0] ?? cleaned;
+  const remainingSegments = segments.slice(1).filter((segment) => {
+    const normalizedSegment = segment.toLowerCase();
+
+    if (country && normalizedSegment === country.toLowerCase()) {
+      return false;
+    }
+
+    if (city && normalizedSegment === city.toLowerCase()) {
+      return false;
+    }
+
+    if (postalCode && normalizedSegment === postalCode.toLowerCase()) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return {
+    line1,
+    line2: remainingSegments.join(", "),
+    city,
+    pinCode: "",
+    postalCode,
+  };
+}
+
+function makeStringCandidate(
+  value: string,
+  confidence: BriefExtractionConfidence,
+  source: BriefExtractionSource
+) {
+  const cleaned = cleanValue(value);
+  return cleaned ? makeCandidate(cleaned, confidence, source) : undefined;
 }
 
 function getConfidenceScore(confidence: BriefExtractionConfidence) {
@@ -1185,6 +1560,26 @@ export function normalizeExtractedData(
       : undefined);
   const invoiceDateValue = formatDateCandidate(extraction.timeline.invoiceDate.value);
   const dueDateValue = formatDateCandidate(extraction.timeline.dueDate.value);
+  const agencyAddressCandidate = createAiCandidate(
+    cleanAddressBlockValue(agencyAddressValue),
+    extraction.agencyAddress.value
+      ? extraction.agencyAddress.confidence
+      : extraction.locations.agency.confidence
+  );
+  const clientAddressCandidate = createAiCandidate(
+    cleanAddressBlockValue(clientAddressValue),
+    extraction.clientAddress.value
+      ? extraction.clientAddress.confidence
+      : extraction.locations.client.confidence
+  );
+  const parsedAgencyAddress = parseAgencyStructuredAddress(
+    agencyAddressCandidate?.value
+  );
+  const parsedClientAddress = parseClientStructuredAddress({
+    value: clientAddressCandidate?.value,
+    location: clientLocationCandidate?.value,
+    country: clientCountryValue,
+  });
 
   const normalized: InvoiceBriefExtractionSchema = {
     agencyName: fallbackAgencyName
@@ -1198,12 +1593,35 @@ export function normalizeExtractedData(
           extraction.agencyName.value ? "ai" : "inference"
         )
       : undefined,
-    agencyAddress: createAiCandidate(
-      cleanAddressValue(agencyAddressValue),
-      extraction.agencyAddress.value
-        ? extraction.agencyAddress.confidence
-        : extraction.locations.agency.confidence
-    ),
+    agencyAddress: agencyAddressCandidate,
+    agencyAddressLine1: agencyAddressCandidate
+      ? makeStringCandidate(
+          parsedAgencyAddress.line1,
+          agencyAddressCandidate.confidence,
+          agencyAddressCandidate.source
+        )
+      : undefined,
+    agencyAddressLine2: agencyAddressCandidate
+      ? makeStringCandidate(
+          parsedAgencyAddress.line2,
+          agencyAddressCandidate.confidence,
+          agencyAddressCandidate.source
+        )
+      : undefined,
+    agencyCity: agencyAddressCandidate
+      ? makeStringCandidate(
+          parsedAgencyAddress.city,
+          agencyAddressCandidate.confidence,
+          agencyAddressCandidate.source
+        )
+      : undefined,
+    agencyPinCode: agencyAddressCandidate
+      ? makeStringCandidate(
+          parsedAgencyAddress.pinCode,
+          agencyAddressCandidate.confidence,
+          agencyAddressCandidate.source
+        )
+      : undefined,
     agencyState: agencyStateValue
       ? makeCandidate(
           agencyStateValue,
@@ -1241,12 +1659,42 @@ export function normalizeExtractedData(
         ? extraction.clientName.confidence
         : roleInferences.client?.confidence
     ),
-    clientAddress: createAiCandidate(
-      cleanAddressValue(clientAddressValue),
-      extraction.clientAddress.value
-        ? extraction.clientAddress.confidence
-        : extraction.locations.client.confidence
-    ),
+    clientAddress: clientAddressCandidate,
+    clientAddressLine1: clientAddressCandidate
+      ? makeStringCandidate(
+          parsedClientAddress.line1,
+          clientAddressCandidate.confidence,
+          clientAddressCandidate.source
+        )
+      : undefined,
+    clientAddressLine2: clientAddressCandidate
+      ? makeStringCandidate(
+          parsedClientAddress.line2,
+          clientAddressCandidate.confidence,
+          clientAddressCandidate.source
+        )
+      : undefined,
+    clientCity: clientAddressCandidate
+      ? makeStringCandidate(
+          parsedClientAddress.city,
+          clientAddressCandidate.confidence,
+          clientAddressCandidate.source
+        )
+      : undefined,
+    clientPinCode: clientAddressCandidate
+      ? makeStringCandidate(
+          parsedClientAddress.pinCode,
+          clientAddressCandidate.confidence,
+          clientAddressCandidate.source
+        )
+      : undefined,
+    clientPostalCode: clientAddressCandidate
+      ? makeStringCandidate(
+          parsedClientAddress.postalCode,
+          clientAddressCandidate.confidence,
+          clientAddressCandidate.source
+        )
+      : undefined,
     clientState: clientStateValue
       ? makeCandidate(
           clientStateValue,
@@ -1507,6 +1955,26 @@ export function mergeBriefExtractions(params: {
       aiExtraction.agencyAddress,
       heuristicExtraction.agencyAddress
     ),
+    agencyAddressLine1: chooseMergedCandidate(
+      "agencyAddressLine1",
+      aiExtraction.agencyAddressLine1,
+      heuristicExtraction.agencyAddressLine1
+    ),
+    agencyAddressLine2: chooseMergedCandidate(
+      "agencyAddressLine2",
+      aiExtraction.agencyAddressLine2,
+      heuristicExtraction.agencyAddressLine2
+    ),
+    agencyCity: chooseMergedCandidate(
+      "agencyCity",
+      aiExtraction.agencyCity,
+      heuristicExtraction.agencyCity
+    ),
+    agencyPinCode: chooseMergedCandidate(
+      "agencyPinCode",
+      aiExtraction.agencyPinCode,
+      heuristicExtraction.agencyPinCode
+    ),
     agencyState: chooseMergedCandidate(
       "agencyState",
       aiExtraction.agencyState,
@@ -1546,6 +2014,31 @@ export function mergeBriefExtractions(params: {
       "clientAddress",
       aiExtraction.clientAddress,
       heuristicExtraction.clientAddress
+    ),
+    clientAddressLine1: chooseMergedCandidate(
+      "clientAddressLine1",
+      aiExtraction.clientAddressLine1,
+      heuristicExtraction.clientAddressLine1
+    ),
+    clientAddressLine2: chooseMergedCandidate(
+      "clientAddressLine2",
+      aiExtraction.clientAddressLine2,
+      heuristicExtraction.clientAddressLine2
+    ),
+    clientCity: chooseMergedCandidate(
+      "clientCity",
+      aiExtraction.clientCity,
+      heuristicExtraction.clientCity
+    ),
+    clientPinCode: chooseMergedCandidate(
+      "clientPinCode",
+      aiExtraction.clientPinCode,
+      heuristicExtraction.clientPinCode
+    ),
+    clientPostalCode: chooseMergedCandidate(
+      "clientPostalCode",
+      aiExtraction.clientPostalCode,
+      heuristicExtraction.clientPostalCode
     ),
     clientState: chooseMergedCandidate(
       "clientState",
@@ -1809,15 +2302,28 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
     );
   }
 
-  const value = extractLabeledValue(text, [
-    "agency name",
-    "freelancer name",
-    "studio name",
-    "from",
-  ]);
+  const value = extractLabeledValue(
+    text,
+    [
+      "agency",
+      "agency name",
+      "business",
+      "business name",
+      "freelancer name",
+      "freelancer",
+      "studio",
+      "studio name",
+      "from",
+    ],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 1,
+      strictShortLabels: true,
+    }
+  );
 
   if (value) {
-    return makeCandidate(cleanAddressValue(value), "high", "label");
+    return makeCandidate(cleanEntityLabelValue(value), "high", "label");
   }
 
   const inferred = extractPatternValue(text, [
@@ -1836,14 +2342,20 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
 }
 
 function extractAgencyAddress(text: string): Candidate<string> | undefined {
-  const value = extractLabeledValue(text, [
-    "agency address",
-    "business address",
-    "from address",
-  ]);
+  const value = extractLabeledValue(
+    text,
+    ["agency address", "business address", "from address"],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 3,
+      preserveLineBreaks: true,
+      shouldIncludeContinuationLine: looksLikeAddressContinuationLine,
+      normalizeContinuationLine: normalizeAddressContinuationLine,
+    }
+  );
 
   if (value) {
-    return makeCandidate(value, "high", "label");
+    return makeCandidate(cleanAddressBlockValue(value), "high", "label");
   }
 
   const inferred = extractPatternValue(text, [
@@ -1898,14 +2410,18 @@ function extractClientName(text: string): Candidate<string> | undefined {
     );
   }
 
-  const value = extractLabeledValue(text, [
-    "client name",
-    "bill to",
-    "customer name",
-  ]);
+  const value = extractLabeledValue(
+    text,
+    ["client", "client name", "bill to", "customer name"],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 1,
+      strictShortLabels: true,
+    }
+  );
 
   if (value) {
-    return makeCandidate(value, "high", "label");
+    return makeCandidate(cleanEntityLabelValue(value), "high", "label");
   }
 
   const inferred = extractPatternValue(text, [
@@ -1922,15 +2438,25 @@ function extractClientName(text: string): Candidate<string> | undefined {
 }
 
 function extractClientAddress(text: string): Candidate<string> | undefined {
-  const value = extractLabeledValue(text, [
-    "client address",
-    "billing address",
-    "bill to address",
-    "customer address",
-  ]);
+  const value = extractLabeledValue(
+    text,
+    [
+      "client address",
+      "billing address",
+      "bill to address",
+      "customer address",
+    ],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 4,
+      preserveLineBreaks: true,
+      shouldIncludeContinuationLine: looksLikeAddressContinuationLine,
+      normalizeContinuationLine: normalizeAddressContinuationLine,
+    }
+  );
 
   return value
-    ? makeCandidate(cleanAddressValue(value), "high", "label")
+    ? makeCandidate(cleanAddressBlockValue(value), "high", "label")
     : undefined;
 }
 
@@ -2116,13 +2642,21 @@ function extractAgencyLutNumber(text: string): Candidate<string> | undefined {
 }
 
 function extractDeliverableDescription(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(text, [
-    "deliverable description",
-    "deliverable",
-    "task description",
-    "scope",
-    "work description",
-  ]);
+  const labeled = extractLabeledValue(
+    text,
+    [
+      "deliverable description",
+      "deliverable",
+      "task description",
+      "scope",
+      "work description",
+    ],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 1,
+      strictShortLabels: true,
+    }
+  );
 
   if (labeled) {
     return makeCandidate(labeled, "high", "label");
@@ -2267,7 +2801,15 @@ function extractLicenseType(text: string): Candidate<LicenseType> | undefined {
 }
 
 function extractPaymentTerms(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(text, ["payment terms", "terms"]);
+  const labeled = extractLabeledValue(
+    text,
+    ["payment terms", "terms"],
+    {
+      allowContinuationLines: true,
+      maxContinuationLines: 1,
+      strictShortLabels: true,
+    }
+  );
   if (labeled) {
     return makeCandidate(normalizePaymentTermsValue(labeled), "high", "label");
   }
@@ -2877,6 +3419,12 @@ export function extractInvoiceBriefSchema(
           "inference"
         )
       : undefined;
+  const parsedAgencyAddress = parseAgencyStructuredAddress(agencyAddress?.value);
+  const parsedClientAddress = parseClientStructuredAddress({
+    value: clientAddress?.value,
+    location: clientLocation?.value,
+    country: clientCountry?.value,
+  });
   const heuristicLineItems = extractHeuristicLineItems(text);
   const extractedRate = extractRate(text);
   const extractedRateUnit = extractRateUnit(text);
@@ -2970,6 +3518,34 @@ export function extractInvoiceBriefSchema(
   return {
     agencyName,
     agencyAddress,
+    agencyAddressLine1: agencyAddress
+      ? makeStringCandidate(
+          parsedAgencyAddress.line1,
+          agencyAddress.confidence,
+          agencyAddress.source
+        )
+      : undefined,
+    agencyAddressLine2: agencyAddress
+      ? makeStringCandidate(
+          parsedAgencyAddress.line2,
+          agencyAddress.confidence,
+          agencyAddress.source
+        )
+      : undefined,
+    agencyCity: agencyAddress
+      ? makeStringCandidate(
+          parsedAgencyAddress.city,
+          agencyAddress.confidence,
+          agencyAddress.source
+        )
+      : undefined,
+    agencyPinCode: agencyAddress
+      ? makeStringCandidate(
+          parsedAgencyAddress.pinCode,
+          agencyAddress.confidence,
+          agencyAddress.source
+        )
+      : undefined,
     agencyState,
     agencyGstRegistrationStatus: derivedGstRegistrationStatus,
     agencyGstin,
@@ -2978,6 +3554,41 @@ export function extractInvoiceBriefSchema(
     agencyLutNumber: extractAgencyLutNumber(text),
     clientName,
     clientAddress,
+    clientAddressLine1: clientAddress
+      ? makeStringCandidate(
+          parsedClientAddress.line1,
+          clientAddress.confidence,
+          clientAddress.source
+        )
+      : undefined,
+    clientAddressLine2: clientAddress
+      ? makeStringCandidate(
+          parsedClientAddress.line2,
+          clientAddress.confidence,
+          clientAddress.source
+        )
+      : undefined,
+    clientCity: clientAddress
+      ? makeStringCandidate(
+          parsedClientAddress.city,
+          clientAddress.confidence,
+          clientAddress.source
+        )
+      : undefined,
+    clientPinCode: clientAddress
+      ? makeStringCandidate(
+          parsedClientAddress.pinCode,
+          clientAddress.confidence,
+          clientAddress.source
+        )
+      : undefined,
+    clientPostalCode: clientAddress
+      ? makeStringCandidate(
+          parsedClientAddress.postalCode,
+          clientAddress.confidence,
+          clientAddress.source
+        )
+      : undefined,
     clientState,
     clientCountry,
     clientLocation,
@@ -3214,6 +3825,62 @@ export function mapBriefExtractionToInvoiceForm(params: {
   });
 
   applyCandidate({
+    label: "Agency address line 1",
+    currentValue: nextFormData.agency.addressLine1,
+    defaultValue: defaultInvoiceFormData.agency.addressLine1,
+    candidate: extraction.agencyAddressLine1,
+    assign: (value) => {
+      nextFormData.agency.addressLine1 = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Agency address line 2",
+    currentValue: nextFormData.agency.addressLine2,
+    defaultValue: defaultInvoiceFormData.agency.addressLine2,
+    candidate: extraction.agencyAddressLine2,
+    assign: (value) => {
+      nextFormData.agency.addressLine2 = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Agency city",
+    currentValue: nextFormData.agency.city,
+    defaultValue: defaultInvoiceFormData.agency.city,
+    candidate: extraction.agencyCity,
+    assign: (value) => {
+      nextFormData.agency.city = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Agency PIN code",
+    currentValue: nextFormData.agency.pinCode,
+    defaultValue: defaultInvoiceFormData.agency.pinCode,
+    candidate: extraction.agencyPinCode,
+    assign: (value) => {
+      nextFormData.agency.pinCode = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
     label: "Agency state",
     currentValue: nextFormData.agency.agencyState,
     defaultValue: defaultInvoiceFormData.agency.agencyState,
@@ -3318,6 +3985,76 @@ export function mapBriefExtractionToInvoiceForm(params: {
     candidate: extraction.clientAddress,
     assign: (value) => {
       nextFormData.client.clientAddress = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client address line 1",
+    currentValue: nextFormData.client.clientAddressLine1,
+    defaultValue: defaultInvoiceFormData.client.clientAddressLine1,
+    candidate: extraction.clientAddressLine1,
+    assign: (value) => {
+      nextFormData.client.clientAddressLine1 = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client address line 2",
+    currentValue: nextFormData.client.clientAddressLine2,
+    defaultValue: defaultInvoiceFormData.client.clientAddressLine2,
+    candidate: extraction.clientAddressLine2,
+    assign: (value) => {
+      nextFormData.client.clientAddressLine2 = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client city",
+    currentValue: nextFormData.client.clientCity,
+    defaultValue: defaultInvoiceFormData.client.clientCity,
+    candidate: extraction.clientCity,
+    assign: (value) => {
+      nextFormData.client.clientCity = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client PIN code",
+    currentValue: nextFormData.client.clientPinCode,
+    defaultValue: defaultInvoiceFormData.client.clientPinCode,
+    candidate: extraction.clientPinCode,
+    assign: (value) => {
+      nextFormData.client.clientPinCode = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Client postal code",
+    currentValue: nextFormData.client.clientPostalCode,
+    defaultValue: defaultInvoiceFormData.client.clientPostalCode,
+    candidate: extraction.clientPostalCode,
+    assign: (value) => {
+      nextFormData.client.clientPostalCode = value;
     },
     filledFields,
     aiFilledFields,

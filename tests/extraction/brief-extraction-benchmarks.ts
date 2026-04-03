@@ -29,12 +29,29 @@ export type ExtractionBenchmarkFieldExpectation = {
   timeline?: string;
 };
 
+export type ExtractionBenchmarkMappedExpectation = {
+  agencyName?: string;
+  agencyAddressLine1?: string;
+  agencyAddressLine2?: string;
+  agencyCity?: string;
+  agencyPinCode?: string;
+  clientName?: string;
+  clientAddressLine1?: string;
+  clientAddressLine2?: string;
+  clientCity?: string;
+  clientPinCode?: string;
+  clientPostalCode?: string;
+  clientCountry?: string;
+  paymentTerms?: string;
+};
+
 export type ExtractionBenchmarkCase = {
   id: string;
   title: string;
   text: string;
   expectedExtracted: ExtractionBenchmarkFieldExpectation;
   expectedInferred: ExtractionBenchmarkFieldExpectation;
+  expectedMapped?: ExtractionBenchmarkMappedExpectation;
   expectedClarifications: string[];
 };
 
@@ -79,6 +96,16 @@ Due date: 2026-04-25`,
       gstRegistrationStatus: "registered",
       taxType: "CGST_SGST",
     },
+    expectedMapped: {
+      agencyAddressLine1: "14 Residency Road",
+      agencyCity: "Bengaluru",
+      agencyPinCode: "560025",
+      clientAddressLine1: "Phoenix Marketcity",
+      clientAddressLine2: "Whitefield",
+      clientCity: "Bengaluru",
+      clientPinCode: "560048",
+      paymentTerms: "Net 15",
+    },
     expectedClarifications: [],
   },
   {
@@ -121,6 +148,14 @@ Payment terms: Due on receipt`,
       clientLocationType: "international",
       gstRegistrationStatus: "registered",
       taxType: "ZERO_RATED",
+    },
+    expectedMapped: {
+      agencyAddressLine1: "14 Residency Road",
+      agencyCity: "Bengaluru",
+      agencyPinCode: "560025",
+      clientAddressLine1: "221B Baker Street",
+      clientCity: "London",
+      clientCountry: "United Kingdom",
     },
     expectedClarifications: [],
   },
@@ -367,6 +402,129 @@ Payment via bank wire.`,
       clientLocationType: "international",
       gstRegistrationStatus: "registered",
       taxType: "ZERO_RATED",
+    },
+    expectedClarifications: [],
+  },
+  {
+    id: "typed-agency-next-line-name",
+    title: "Typed brief with next-line agency and client labels",
+    text: `Agency:
+Acme Design Studio
+Agency address:
+14 Residency Road
+Bengaluru, Karnataka 560025
+
+Client:
+Northstar Wellness
+Client address:
+Phoenix Marketcity
+Whitefield, Bengaluru 560048
+
+Deliverable description:
+Landing page UI design
+Qty: 2
+Rate: INR 18000 per screen
+Payment terms:
+Net 15`,
+    expectedExtracted: {
+      agencyName: "Acme Design Studio",
+      clientName: "Northstar Wellness",
+      rate: 18000,
+      rateUnit: "per-screen",
+      paymentTerms: "Net 15",
+      deliverables: [
+        {
+          type: "UI/UX",
+          description: "Landing page UI design",
+          qty: 2,
+          rate: 18000,
+          rateUnit: "per-screen",
+        },
+      ],
+    },
+    expectedInferred: {
+      agencyState: "Karnataka",
+      clientState: "Karnataka",
+      clientLocationType: "domestic",
+    },
+    expectedMapped: {
+      agencyName: "Acme Design Studio",
+      agencyAddressLine1: "14 Residency Road",
+      agencyCity: "Bengaluru",
+      agencyPinCode: "560025",
+      clientName: "Northstar Wellness",
+      clientAddressLine1: "Phoenix Marketcity",
+      clientAddressLine2: "Whitefield",
+      clientCity: "Bengaluru",
+      clientPinCode: "560048",
+      paymentTerms: "Net 15",
+    },
+    expectedClarifications: [],
+  },
+  {
+    id: "international-address-mapping",
+    title: "International address mapping",
+    text: `Agency name: DesiFreelanceDocs Studio
+Agency address: 14 Residency Road, Bengaluru, Karnataka 560025
+Bill to:
+Acme Labs LLC
+Client address:
+221B Baker Street
+Marylebone
+London NW1 6XE
+United Kingdom
+Currency: GBP
+Payment terms: Due on receipt`,
+    expectedExtracted: {
+      agencyName: "DesiFreelanceDocs Studio",
+      clientName: "Acme Labs LLC",
+      paymentTerms: "Due on receipt",
+    },
+    expectedInferred: {
+      clientCountry: "United Kingdom",
+      clientLocationType: "international",
+    },
+    expectedMapped: {
+      clientAddressLine1: "221B Baker Street",
+      clientAddressLine2: "Marylebone, London NW1 6XE",
+      clientCity: "London",
+      clientPostalCode: "NW1 6XE",
+      clientCountry: "United Kingdom",
+      paymentTerms: "Due on receipt",
+    },
+    expectedClarifications: [],
+  },
+  {
+    id: "partial-domestic-address-mapping",
+    title: "Partial domestic address mapping",
+    text: `Agency name: DesiFreelanceDocs Studio
+Client name: Whitefield Wellness
+Client address:
+Whitefield
+Bengaluru 560048
+2 homepage screens at INR 12000 per screen`,
+    expectedExtracted: {
+      clientName: "Whitefield Wellness",
+      rate: 12000,
+      rateUnit: "per-screen",
+      deliverables: [
+        {
+          type: "UI/UX",
+          description: "Homepage design",
+          qty: 2,
+          rate: 12000,
+          rateUnit: "per-screen",
+        },
+      ],
+    },
+    expectedInferred: {
+      clientState: "Karnataka",
+      clientLocationType: "domestic",
+    },
+    expectedMapped: {
+      clientAddressLine1: "Whitefield",
+      clientCity: "Bengaluru",
+      clientPinCode: "560048",
     },
     expectedClarifications: [],
   },

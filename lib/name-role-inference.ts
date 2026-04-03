@@ -19,8 +19,12 @@ export type InferredNameRoles = {
 
 const roleLabels = {
   agency: [
+    "agency",
     "agency name",
+    "business",
     "freelancer name",
+    "freelancer",
+    "studio",
     "studio name",
     "business name",
     "issued by",
@@ -28,6 +32,7 @@ const roleLabels = {
     "from",
   ],
   client: [
+    "client",
     "client name",
     "bill to",
     "customer name",
@@ -74,15 +79,31 @@ function extractLabeledValue(
   text: string,
   labels: readonly string[]
 ) {
-  const patterns = labels.map(
-    (label) =>
-      new RegExp(
-        `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
-        "im"
-      )
-  );
+  const orderedLabels = [...labels].sort((left, right) => right.length - left.length);
+  const lines = text.split(/\n/);
 
-  return findFirstMatch(text, patterns);
+  for (const line of lines) {
+    for (const label of orderedLabels) {
+      const pattern = !label.includes(" ")
+        ? new RegExp(
+            `^\\s*${escapeRegExp(label)}(?:\\s*[:\\-]\\s*(.*))?\\s*$`,
+            "i"
+          )
+        : new RegExp(
+            `^\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.*)$`,
+            "i"
+          );
+      const match = line.match(pattern);
+
+      if (!match?.[1]) {
+        continue;
+      }
+
+      return cleanValue(match[1]);
+    }
+  }
+
+  return "";
 }
 
 function normalizeContextLine(line: string) {
