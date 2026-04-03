@@ -504,6 +504,16 @@ function getStepDescription(step: InvoiceStepperStep) {
   }
 }
 
+function getNextStep(step: InvoiceStepperStep) {
+  const currentIndex = orderedSteps.indexOf(step);
+
+  if (currentIndex === -1 || currentIndex === orderedSteps.length - 1) {
+    return null;
+  }
+
+  return orderedSteps[currentIndex + 1];
+}
+
 function InlineStepSection({
   step,
   isActive,
@@ -511,6 +521,7 @@ function InlineStepSection({
   issueCount,
   onActivate,
   children,
+  footer,
 }: {
   step: InvoiceStepperStep;
   isActive: boolean;
@@ -518,6 +529,7 @@ function InlineStepSection({
   issueCount: number;
   onActivate: () => void;
   children: ReactNode;
+  footer?: ReactNode;
 }) {
   const [isMounted, setIsMounted] = useState(false);
   const stepLabel = getStepShortLabel(step);
@@ -587,8 +599,9 @@ function InlineStepSection({
           initial={false}
           className="border-t border-slate-200/60 pt-4"
         >
-          <div>
+          <div className="space-y-5">
             {children}
+            {footer}
           </div>
         </motion.div>
       </div>
@@ -1132,11 +1145,42 @@ export default function InvoiceEditorPage() {
     guideToSection(step, { focus: options?.focus });
   };
 
+  const scrollToStep = (
+    step: InvoiceStepperStep,
+    options?: { focus?: boolean }
+  ) => {
+    guideToSection(step);
+
+    const stepNode = stepRefs.current[step];
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (stepNode) {
+      stepNode.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    }
+
+    if (options?.focus) {
+      const requestFocus = () => {
+        setFocusRequestNonce((prev) => prev + 1);
+      };
+
+      if (prefersReducedMotion) {
+        requestAnimationFrame(requestFocus);
+      } else {
+        window.setTimeout(requestFocus, 220);
+      }
+    }
+  };
+
   const handlePreviewInvoice = () => {
     if (!invoiceReadyForPreview) {
       setShowAllValidationErrors(true);
       if (firstInvalidStep) {
-        guideToSection(firstInvalidStep, { focus: true });
+        scrollToStep(firstInvalidStep, { focus: true });
         triggerToast("Complete the highlighted section before previewing.");
       }
       return;
@@ -1556,8 +1600,8 @@ export default function InvoiceEditorPage() {
       <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,720px)_216px] lg:items-start lg:justify-center lg:gap-16">
-          <div className={`w-full max-w-[720px] ${appSectionGapClass}`}>
+        <div className="mx-auto grid w-full max-w-[1260px] grid-cols-1 gap-8 lg:grid-cols-[156px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-10 xl:max-w-[1320px] xl:grid-cols-[164px_minmax(0,1fr)] xl:gap-12">
+          <div className={`w-full max-w-[980px] lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
             <header className="space-y-3">
               {pageHeader}
 
@@ -1666,6 +1710,25 @@ export default function InvoiceEditorPage() {
                       isCompleted={isCompleted}
                       issueCount={missingFieldCountByStep[step]}
                       onActivate={() => goToStep(step)}
+                      footer={
+                        getNextStep(step) ? (
+                          <div className="flex justify-end border-t border-slate-200/60 pt-4">
+                            <button
+                              type="button"
+                              data-testid={`continue-${step}-to-${getNextStep(step)}`}
+                              onClick={() =>
+                                scrollToStep(getNextStep(step)!, { focus: true })
+                              }
+                              className={getAppButtonClass({
+                                variant: "secondary",
+                                size: "sm",
+                              })}
+                            >
+                              Continue to {getStepShortLabel(getNextStep(step)!)}
+                            </button>
+                          </div>
+                        ) : null
+                      }
                     >
                       <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
                         {renderStepContent(step)}
@@ -1677,18 +1740,18 @@ export default function InvoiceEditorPage() {
             </div>
           </div>
 
-          <aside className="hidden w-full lg:block lg:w-[216px] lg:justify-self-end" data-testid="desktop-support-rail">
-            <div className="space-y-3 lg:sticky lg:top-[88px]">
+          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[156px] lg:self-start xl:w-[164px]" data-testid="desktop-support-rail">
+            <div className="space-y-3 lg:sticky lg:top-[104px]">
               <MotionReveal
                 preset="fade-up"
                 delay={40}
-                className={cn(getAppSubtlePanelClass("muted"), "px-3 py-3")}
+                className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-2.5 py-3")}
               >
                 <div className="space-y-2.5" data-testid="support-rail-section-list">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                  <p className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                     Sections
                   </p>
-                  <div className="space-y-2">
+                  <div className="relative space-y-1.5 border-l border-slate-200/80 pl-3">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = displayStepValidityByStep[step] && !isActive;
@@ -1698,18 +1761,18 @@ export default function InvoiceEditorPage() {
                         <button
                           key={step}
                           type="button"
-                          onClick={() => goToStep(step)}
-                          className={`app-interactive-surface flex w-full items-center justify-between gap-2 rounded-[12px] px-2.5 py-2 text-left transition duration-[var(--app-duration-fast)] ${
+                          onClick={() => scrollToStep(step)}
+                          className={`group flex w-full items-start justify-between gap-2 rounded-[12px] px-2 py-2 text-left transition duration-[var(--app-duration-fast)] ${
                             isActive
-                              ? "app-soft-choice-option-active"
+                              ? "bg-white text-slate-950 ring-1 ring-inset ring-slate-200 shadow-[0_4px_14px_rgba(15,23,42,0.06)]"
                               : isCompleted
-                              ? "bg-emerald-50/38 text-slate-700 ring-1 ring-inset ring-emerald-100/62"
-                              : "bg-white/28 text-slate-700 ring-1 ring-inset ring-slate-200/50"
+                              ? "bg-emerald-50/34 text-slate-700 ring-1 ring-inset ring-emerald-100/60"
+                              : "bg-transparent text-slate-700 hover:bg-white/72"
                           }`}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex min-w-0 items-start gap-2.5">
                             <span
-                              className={`inline-flex h-5.5 w-5.5 items-center justify-center rounded-full text-[10px] font-semibold ${
+                              className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
                                 isActive
                                   ? "bg-indigo-500 text-white"
                                   : isCompleted
@@ -1719,8 +1782,8 @@ export default function InvoiceEditorPage() {
                             >
                               {isCompleted ? "✓" : index + 1}
                             </span>
-                            <div>
-                              <p className="text-[13px] font-medium text-slate-950">
+                            <div className="min-w-0">
+                              <p className="truncate text-[12px] font-medium text-slate-950">
                                 {getStepShortLabel(step)}
                               </p>
                               <p className="text-[10px] text-slate-400">
@@ -1732,7 +1795,7 @@ export default function InvoiceEditorPage() {
                               </p>
                             </div>
                           </div>
-                          <span className="text-[11px] text-slate-500">
+                          <span className="shrink-0 pt-0.5 text-[10px] text-slate-500">
                             {isIncomplete && missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} left`
                               : step === "totals" && !invoiceReadyForPreview

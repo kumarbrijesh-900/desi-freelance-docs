@@ -4,6 +4,7 @@ import {
   attachConsoleGuards,
   briefIntakeExpanded,
   buildStoredDraft,
+  continueButton,
   editorRoot,
   expectFocusVisible,
   expectNoHorizontalOverflow,
@@ -13,6 +14,7 @@ import {
   loadDemoData,
   openInvoicePage,
   stepToggle,
+  waitForScrollProgress,
   waitForUiSettle,
 } from "./helpers/invoice-editor";
 
@@ -63,7 +65,7 @@ test("fresh invoice editor shell stays visually consistent across viewports", as
   await expect(root.getByText(/Recommended next/i)).toHaveCount(0);
 });
 
-test("desktop support rail and floating actions stay visible without competing with the form", async ({
+test("desktop left rail and floating actions stay visible without competing with the form", async ({
   page,
 }) => {
   await openInvoicePage(page);
@@ -83,12 +85,16 @@ test("desktop support rail and floating actions stay visible without competing w
 
   const actionsAfter = await actions.boundingBox();
   const railAfter = await rail.boundingBox();
+  const stepper = root.getByTestId("invoice-vertical-stepper");
+  const stepperBox = await stepper.boundingBox();
 
   expect(actionsAfter?.y ?? 0).toBeLessThanOrEqual((actionsBefore?.y ?? 0) + 8);
   expect(railAfter?.y ?? 0).toBeLessThanOrEqual((railBefore?.y ?? 0) + 8);
+  expect(railAfter?.x ?? 0).toBeLessThan(stepperBox?.x ?? Number.POSITIVE_INFINITY);
   await expect(rail.getByText(/Ready State/i)).toHaveCount(0);
   await expect(rail.getByText(/Compliance/i)).toHaveCount(0);
-  await expect(rail).toHaveScreenshot("invoice-editor-right-rail.png", screenshotOptions);
+  await expect(rail.getByText(/Summary/i)).toHaveCount(0);
+  await expect(rail).toHaveScreenshot("invoice-editor-left-rail.png", screenshotOptions);
 });
 
 test("brief intake collapse preserves layout stability and compact visual state", async ({
@@ -147,6 +153,8 @@ test("editing a section does not auto-scroll or collapse the continuous form", a
 }) => {
   await openInvoicePage(page);
   const root = editorRoot(page);
+  const viewport = page.viewportSize();
+  const initialScrollY = await page.evaluate(() => window.scrollY);
 
   const stepper = root.getByTestId("invoice-vertical-stepper");
 
@@ -157,18 +165,41 @@ test("editing a section does not auto-scroll or collapse the continuous form", a
     await root.getByPlaceholder("Building, street, or area").fill(
       "14 Residency Road"
     );
-    await root.getByLabel("Agency state").selectOption("Karnataka");
-    await waitForUiSettle(page, 180);
+      await root.getByLabel("Agency state").selectOption("Karnataka");
+      await waitForUiSettle(page, 180);
   });
+  const finalScrollY = await page.evaluate(() => window.scrollY);
 
   await expect(root.locator('[data-step-section="client"]')).toBeVisible();
   await expect(root.locator('[data-step-section="payment"]')).toBeVisible();
+  if ((viewport?.width ?? 0) >= 768) {
+    expect(Math.abs(finalScrollY - initialScrollY)).toBeLessThanOrEqual(8);
+  }
   await expectNoHorizontalOverflow(page);
 
   await expect(root).toHaveScreenshot(
     "invoice-editor-progressive-mid-form.png",
     screenshotOptions
   );
+});
+
+test("continue actions scroll between sections while keeping the continuous form open", async ({
+  page,
+}) => {
+  await openInvoicePage(page);
+  const root = editorRoot(page);
+
+  const agencySection = root.locator('[data-step-section="agency"]');
+  const clientSection = root.locator('[data-step-section="client"]');
+  const scrollBefore = await page.evaluate(() => window.scrollY);
+
+  await continueButton(page, "agency").click();
+  await waitForScrollProgress(page, scrollBefore, 60);
+  await waitForUiSettle(page, 220);
+
+  await expect(clientSection).toHaveAttribute("data-step-state", "active");
+  await expect(agencySection.locator("input, select, textarea").first()).toBeVisible();
+  await expect(clientSection.locator("input, select, textarea").first()).toBeVisible();
 });
 
 test("shared field focus and dropdown affordance stay aligned", async ({

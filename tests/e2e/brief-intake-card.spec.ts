@@ -33,6 +33,8 @@ test("T4.1 — Collapse toggle never says Expand", async ({ page }) => {
   await expect(collapsedToggle).not.toContainText(/Expand/i);
 
   await collapsedToggle.click();
+  await expect(briefIntakeExpanded(page)).toBeVisible();
+  await expect(expandedToggle(page)).toContainText("Hide");
   await expect(expandedToggle(page)).not.toContainText(/Expand/i);
 });
 

@@ -277,7 +277,7 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="mb-3 hidden lg:grid lg:grid-cols-[108px_minmax(0,1.65fr)_72px_132px_120px_116px_36px] lg:gap-3 lg:px-3.5">
+      <div className="mb-2.5 hidden lg:grid lg:grid-cols-[94px_minmax(0,2.45fr)_74px_144px_128px_116px_36px] lg:gap-2.5 lg:px-3">
         <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Type
         </span>
@@ -322,10 +322,10 @@ export default function DeliverablesSection({
               data-testid="line-item-row"
               className={cn(
                 getAppSubtlePanelClass(index === 0 ? "default" : "muted"),
-                "px-3.5 py-3"
+                "px-3 py-2.5"
               )}
             >
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[108px_minmax(0,1.65fr)_72px_132px_120px_116px_36px] lg:items-start lg:gap-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[94px_minmax(0,2.45fr)_74px_144px_128px_116px_36px] lg:items-start lg:gap-2.5">
                 <div>
                   <label className={compactLabelClass}>Type</label>
                   <AppSelectField
@@ -348,7 +348,7 @@ export default function DeliverablesSection({
                   <div className="min-h-[18px]" />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className={compactLabelClass}>Description *</label>
                   <input
                     suppressHydrationWarning
@@ -465,7 +465,7 @@ export default function DeliverablesSection({
                   <div
                     className={cn(
                       getAppSubtlePanelClass("muted"),
-                      "flex h-12 items-center justify-end px-3 py-0 text-sm font-medium text-slate-700"
+                      "flex h-12 items-center justify-end px-3 py-0 text-sm font-medium text-slate-600"
                     )}
                   >
                     {formatCurrency(lineTotal, currency)}

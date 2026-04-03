@@ -281,6 +281,25 @@ export function stepToggle(page: Page, step: InvoiceStep) {
   );
 }
 
+export function continueButton(page: Page, step: InvoiceStep) {
+  const orderedSteps: InvoiceStep[] = [
+    "agency",
+    "client",
+    "deliverables",
+    "payment",
+    "meta",
+    "totals",
+  ];
+  const currentIndex = orderedSteps.indexOf(step);
+  const nextStep = orderedSteps[currentIndex + 1];
+
+  if (!nextStep) {
+    throw new Error(`Step "${step}" does not have a next-step action`);
+  }
+
+  return editorRoot(page).getByTestId(`continue-${step}-to-${nextStep}`);
+}
+
 export async function locatorOrAncestorIsInert(locator: Locator) {
   return locator.evaluate((element) => {
     if (!(element instanceof HTMLElement)) return false;

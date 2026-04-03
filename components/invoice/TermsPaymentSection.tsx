@@ -320,13 +320,13 @@ export default function TermsPaymentSection({
           </div>
         ) : null}
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {isInternational ? (
-            <div className="space-y-2.5" data-testid="payment-settlement-control">
+            <div className="space-y-2" data-testid="payment-settlement-control">
               <label className={appFieldLabelClass}>
                 Settlement Type
               </label>
-              <div className="grid grid-cols-3 gap-1 rounded-[14px] border border-slate-200 bg-slate-50/78 p-1">
+              <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[13px] border border-slate-200 bg-slate-50/78 p-1">
                 {[
                   { value: "forex", label: "Forex" },
                   { value: "inr", label: "INR" },
@@ -352,7 +352,7 @@ export default function TermsPaymentSection({
                       />
                       <span
                         className={cn(
-                          "flex min-h-10 items-center justify-center rounded-[10px] border px-3 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
+                          "flex min-h-9 items-center justify-center rounded-[9px] border px-3 py-1.5 text-[13px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
                           isSelected
                             ? "app-soft-choice-option-active text-slate-950"
                             : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -367,7 +367,7 @@ export default function TermsPaymentSection({
               {value.paymentSettlementType &&
               value.paymentSettlementType !== "forex" ? (
                 <p className="text-xs leading-5 text-slate-500">
-                  Review the settlement route before final delivery.
+                  Confirm the settlement route before final delivery.
                 </p>
               ) : null}
             </div>
@@ -396,7 +396,12 @@ export default function TermsPaymentSection({
             ) : null}
           </div>
 
-          <div className="space-y-4 border-t border-slate-200/70 pt-5">
+          <div
+            className={cn(
+              getAppSubtlePanelClass("default"),
+              "space-y-3.5 border border-slate-200/70 px-4 py-4"
+            )}
+          >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-medium text-slate-950">
@@ -420,15 +425,15 @@ export default function TermsPaymentSection({
             </div>
 
             {isLicenseSectionOpen ? (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                   <div>
                     <label className={appFieldLabelClass}>
                       License Included?
                     </label>
 
-                    <ChoiceCards
-                      name="license-included"
-                      value={value.license.isLicenseIncluded ? "yes" : "no"}
+                      <ChoiceCards
+                        name="license-included"
+                        value={value.license.isLicenseIncluded ? "yes" : "no"}
                       onChange={(nextValue) => {
                         if (nextValue === "yes") {
                           updateLicenseField("isLicenseIncluded", true);
@@ -444,11 +449,10 @@ export default function TermsPaymentSection({
                           },
                         });
                       }}
-                      variant="segmented"
-                      columns={2}
-                      options={[
-                        {
-                          value: "yes",
+                        variant="inline"
+                        options={[
+                          {
+                            value: "yes",
                           label: "Yes",
                         },
                         {
@@ -471,19 +475,18 @@ export default function TermsPaymentSection({
                         onChange={(nextValue) =>
                           updateLicenseField("licenseType", nextValue as LicenseType)
                         }
-                        variant="cards"
-                        columns={2}
+                        variant="inline"
                         options={[
                           {
                             label: "Full assignment",
                             value: "full-assignment",
                           },
                           {
-                            label: "Exclusive license",
+                            label: "Exclusive",
                             value: "exclusive-license",
                           },
                           {
-                            label: "Non-exclusive license",
+                            label: "Non-exclusive",
                             value: "non-exclusive-license",
                           },
                         ]}
@@ -541,7 +544,7 @@ export default function TermsPaymentSection({
           </div>
 
           {!isInternational ? (
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_104px] xl:items-start">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_92px] xl:items-start">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className={appFieldLabelClass}>
@@ -664,7 +667,7 @@ export default function TermsPaymentSection({
                   }}
                   onDragLeave={() => setIsQrDragOver(false)}
                   onDrop={handleQrDrop}
-                  className={`app-dropzone-surface flex aspect-square w-full max-w-[96px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
+                  className={`app-dropzone-surface flex aspect-square w-full max-w-[84px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
                     isQrDragOver
                       ? "app-dropzone-accept text-slate-950"
                       : "text-slate-500 hover:border-slate-400"
@@ -813,7 +816,7 @@ export default function TermsPaymentSection({
                   <label className={appFieldLabelClass}>
                     Bank Address
                   </label>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="sm:col-span-2">
                       <input
                         suppressHydrationWarning
@@ -848,7 +851,7 @@ export default function TermsPaymentSection({
                       />
                     </div>
 
-                    <div className="sm:col-span-2">
+                    <div>
                       <input
                         suppressHydrationWarning
                         type="text"
@@ -882,7 +885,7 @@ export default function TermsPaymentSection({
                       />
                     </div>
 
-                    <div>
+                    <div className="sm:col-span-2">
                       <input
                         suppressHydrationWarning
                         type="text"

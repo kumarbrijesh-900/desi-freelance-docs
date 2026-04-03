@@ -71,21 +71,26 @@ test("T1.2 — Sticky toolbar stays visible on scroll", async (
   await expect(actions).toBeVisible();
 });
 
-test("T1.3 — Aside rail visible at tablet width (1024px)", async (
+test("T1.3 — Left rail is visible and positioned to the left of the form", async (
   { page },
   testInfo
 ) => {
-  test.skip(testInfo.project.name !== "tablet", "Tablet only");
+  test.skip(testInfo.project.name !== "desktop", "Desktop only");
 
   await openInvoicePage(page);
 
-  const rail = editorRoot(page).getByTestId("desktop-support-rail").first();
+  const root = editorRoot(page);
+  const rail = root.getByTestId("desktop-support-rail").first();
+  const stepper = root.getByTestId("invoice-vertical-stepper");
   await expect(rail).toBeVisible();
 
   const display = await rail.evaluate(
     (element) => window.getComputedStyle(element as HTMLElement).display
   );
   expect(display).not.toBe("none");
+  const railBox = await rail.boundingBox();
+  const stepperBox = await stepper.boundingBox();
+  expect(railBox?.x ?? 0).toBeLessThan(stepperBox?.x ?? 0);
   await expect(rail.getByText("Sections")).toBeVisible();
   await expect(rail.getByText(/Ready State/i)).toHaveCount(0);
   await expect(rail.getByText(/Compliance/i)).toHaveCount(0);

@@ -2,10 +2,11 @@ import { expect, test } from "@playwright/test";
 import {
   assertConsoleClean,
   attachConsoleGuards,
+  continueButton,
   editorRoot,
-  expectStableBoxAfter,
   openInvoicePage,
   stepToggle,
+  waitForScrollProgress,
   waitForUiSettle,
 } from "./helpers/invoice-editor";
 
@@ -91,7 +92,7 @@ test("T2.3 — Completing Agency keeps the section open and stable", async (
   ).toBeVisible();
 });
 
-test("T2.4 — Typing in Agency does not collapse later sections", async (
+test("T2.4 — Typing in Agency does not auto-scroll or collapse later sections", async (
   { page },
   testInfo
 ) => {
@@ -102,6 +103,7 @@ test("T2.4 — Typing in Agency does not collapse later sections", async (
   const root = editorRoot(page);
   const clientSection = root.locator('[data-step-section="client"]');
   const deliverablesSection = root.locator('[data-step-section="deliverables"]');
+  const initialScrollY = await page.evaluate(() => window.scrollY);
 
   await root
     .locator('[data-step-section="agency"]')
@@ -109,13 +111,16 @@ test("T2.4 — Typing in Agency does not collapse later sections", async (
     .fill("DesiFreelanceDocs Studio");
   await waitForUiSettle(page, 180);
 
+  const finalScrollY = await page.evaluate(() => window.scrollY);
+  expect(Math.abs(finalScrollY - initialScrollY)).toBeLessThanOrEqual(8);
+
   await expect(clientSection.locator("input, select, textarea").first()).toBeVisible();
   await expect(
     deliverablesSection.locator("input, select, textarea").first()
   ).toBeVisible();
 });
 
-test("T2.5 — Rail and header navigation do not cause section body layout shifts", async (
+test("T2.5 — Continue button scrolls to the next section without collapsing the form", async (
   { page },
   testInfo
 ) => {
@@ -124,23 +129,17 @@ test("T2.5 — Rail and header navigation do not cause section body layout shift
   await openInvoicePage(page);
 
   const root = editorRoot(page);
+  const agencySection = root.locator('[data-step-section="agency"]');
+  const clientSection = root.locator('[data-step-section="client"]');
   const paymentSection = root.locator('[data-step-section="payment"]');
+  const scrollBefore = await page.evaluate(() => window.scrollY);
 
-  await expectStableBoxAfter(
-    page,
-    paymentSection,
-    async () => {
-      await stepToggle(page, "payment").click();
-      await waitForUiSettle(page, 200);
-      await stepToggle(page, "client").click();
-      await waitForUiSettle(page, 200);
-    },
-    {
-      keys: ["x", "width", "height"],
-      tolerance: 4,
-      settleMs: 220,
-    }
-  );
+  await continueButton(page, "agency").click();
+  await waitForScrollProgress(page, scrollBefore, 60);
+  await waitForUiSettle(page, 220);
 
+  await expect(clientSection).toHaveAttribute("data-step-state", "active");
+  await expect(agencySection.locator("input, select, textarea").first()).toBeVisible();
+  await expect(clientSection.locator("input, select, textarea").first()).toBeVisible();
   await expect(paymentSection.locator("input, select, textarea").first()).toBeVisible();
 });
