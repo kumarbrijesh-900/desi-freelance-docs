@@ -29,14 +29,14 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `app-soft-choice-track grid gap-1.5 rounded-[14px] p-1.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid gap-1 rounded-[13px] p-1 ${columns === 2 ? "sm:grid-cols-2" : ""}`
       : variant === "inline"
-      ? "flex flex-wrap gap-2"
+      ? "flex flex-wrap gap-1.5"
       : `grid gap-3.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[56px] items-center justify-between gap-3 rounded-[12px] border px-4 py-3.5 text-left text-sm font-medium transition-all duration-150 ${
+      return `flex min-h-[46px] items-center justify-between gap-2.5 rounded-[10px] border px-3 py-2.5 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -44,14 +44,14 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-10 items-center rounded-full border px-3.5 py-2 text-left text-sm font-medium transition-all duration-150 ${
+      return `inline-flex min-h-9 items-center rounded-full border px-3 py-1.5 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
       }`;
     }
 
-    return `block rounded-[14px] border px-4 py-3.5 transition ${
+    return `block rounded-[14px] border px-4 py-3 transition ${
       isSelected
         ? "app-soft-choice-option-active text-slate-950 ring-1 ring-indigo-200/70"
         : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -107,14 +107,14 @@ export default function ChoiceCards<T extends string>({
               }}
             >
               <span className="block">
-                <span className="block text-sm font-medium leading-5">
+                <span className="block text-[13px] font-medium leading-5">
                   {option.label}
                 </span>
                 {option.description ? (
                   <span
                     id={descriptionId}
                     className={cn(
-                      "mt-1.5 block text-xs leading-5",
+                      "mt-1 block text-[11px] leading-5",
                       isSelected ? "text-slate-600" : "text-slate-500"
                     )}
                   >

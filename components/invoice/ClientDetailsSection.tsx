@@ -157,8 +157,8 @@ export default function ClientDetailsSection({
         </div>
       ) : null}
 
-      <div className="space-y-5">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_208px] md:items-end">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,1fr)_196px] md:items-end">
           <div>
             <label className={appFieldLabelClass}>
               Client Name *
@@ -216,9 +216,9 @@ export default function ClientDetailsSection({
         </div>
 
         {!isInternational ? (
-          <div className="space-y-5 border-t border-slate-200/70 pt-5">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
-              <div className="max-w-[240px]">
+          <div className="space-y-4 border-t border-slate-200/70 pt-4">
+            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,232px)_minmax(0,1fr)]">
+              <div className="max-w-[232px]">
                 <label className={appFieldLabelClass}>
                   Client GSTIN
                 </label>
@@ -292,13 +292,13 @@ export default function ClientDetailsSection({
                 ]}
               />
               {sezSuggestion ? (
-                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-[11px] font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
                   This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
                 </p>
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[190px_minmax(0,1fr)_120px]">
+            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-[176px_minmax(0,1fr)_112px]">
               <div className="md:col-span-2 lg:col-span-3">
                 <label className={appFieldLabelClass}>
                   Address Line 1 *
@@ -331,7 +331,7 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="max-w-[220px]">
+              <div className="max-w-[208px]">
                 <label className={appFieldLabelClass}>
                   State *
                 </label>
@@ -372,7 +372,7 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="max-w-[120px]">
+              <div className="max-w-[112px]">
                 <label className={appFieldLabelClass}>
                   PIN Code
                 </label>
@@ -412,9 +412,9 @@ export default function ClientDetailsSection({
         ) : null}
 
         {isInternational ? (
-          <div className="space-y-5 border-t border-slate-200/70 pt-5">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,220px)_minmax(0,180px)]">
-              <div className="max-w-[220px]">
+          <div className="space-y-4 border-t border-slate-200/70 pt-4">
+            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,208px)_minmax(0,172px)]">
+              <div className="max-w-[208px]">
                 <label className={appFieldLabelClass}>
                   Country *
                 </label>
@@ -446,7 +446,7 @@ export default function ClientDetailsSection({
                 ) : null}
               </div>
 
-              <div className="max-w-[180px]">
+              <div className="max-w-[172px]">
                 <label className={appFieldLabelClass}>
                   Currency
                 </label>
@@ -499,8 +499,8 @@ export default function ClientDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-[180px_minmax(0,280px)]">
-              <div className="max-w-[180px]">
+            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[160px_minmax(0,256px)]">
+              <div className="max-w-[160px]">
                 <label className={appFieldLabelClass}>
                   Postal Code
                 </label>
@@ -514,7 +514,7 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="max-w-[280px]">
+              <div className="max-w-[256px]">
                 <label className={appFieldLabelClass}>
                   Tax Identification Number
                 </label>

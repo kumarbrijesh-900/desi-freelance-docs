@@ -44,10 +44,10 @@ export function getAppFieldStackClass(params?: {
   return cn(
     "grid grid-cols-1",
     density === "compact"
-      ? "gap-3"
+      ? "gap-2.5"
       : density === "relaxed"
-      ? "gap-5"
-      : "gap-4"
+      ? "gap-4"
+      : "gap-3.5"
   );
 }
 
@@ -60,7 +60,7 @@ export function getAppFieldRowClass(params?: {
 
   return cn(
     "grid grid-cols-1",
-    density === "compact" ? "gap-3 sm:gap-4" : "gap-4 sm:gap-5",
+    density === "compact" ? "gap-3 sm:gap-3.5" : "gap-3.5 sm:gap-4",
     columns >= 2 ? "md:grid-cols-2" : "",
     columns >= 3 ? "xl:grid-cols-3" : "",
     columns >= 4 ? "2xl:grid-cols-4" : ""
@@ -82,9 +82,9 @@ export const appSectionShellClass =
   "rounded-[var(--app-radius-shell)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface)] shadow-[var(--app-elevation-soft)]";
 
 export const appSectionHeaderClass =
-  "flex flex-wrap items-start justify-between gap-3 border-b border-[color:var(--app-color-border)] px-5 py-4";
+  "flex flex-wrap items-start justify-between gap-3 border-b border-[color:var(--app-color-border)] px-5 py-3.5";
 
-export const appSectionBodyClass = "space-y-5 px-5 py-5";
+export const appSectionBodyClass = "space-y-4 px-5 py-4";
 
 export const appStickyRailClass =
   "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface-muted)] shadow-[var(--app-elevation-soft)]";
@@ -93,4 +93,4 @@ export const appStickyActionDockClass =
   "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border-strong)] bg-[color:var(--app-color-surface-elevated)] shadow-[var(--app-elevation-raised)] backdrop-blur";
 
 export const appUtilityWidgetClass =
-  "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface-muted)] p-3 shadow-[var(--app-elevation-soft)]";
+  "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface-muted)] p-2.5 shadow-[var(--app-elevation-soft)]";

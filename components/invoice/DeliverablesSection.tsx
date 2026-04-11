@@ -277,7 +277,7 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="mb-2.5 hidden lg:grid lg:grid-cols-[88px_minmax(0,3.6fr)_72px_136px_120px_104px_32px] lg:gap-2 lg:px-2.5">
+      <div className="mb-2 hidden lg:grid lg:grid-cols-[96px_minmax(0,4.1fr)_76px_148px_124px_112px_36px] lg:gap-2.5 lg:px-3">
         <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Type
         </span>
@@ -299,7 +299,7 @@ export default function DeliverablesSection({
         <span />
       </div>
 
-      <div className="space-y-4 overflow-visible" data-testid="line-items-list">
+      <div className="space-y-3.5 overflow-visible" data-testid="line-items-list">
         {value.map((item, index) => {
           const lineTotal = item.qty * item.rate;
           const allowedUnits = allowedUnitsByType[item.type];
@@ -322,10 +322,10 @@ export default function DeliverablesSection({
               data-testid="line-item-row"
               className={cn(
                 getAppSubtlePanelClass(index === 0 ? "default" : "muted"),
-                "px-2.5 py-2.5"
+                "px-3 py-3"
               )}
             >
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[88px_minmax(0,3.6fr)_72px_136px_120px_104px_32px] lg:items-start lg:gap-2">
+              <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-[96px_minmax(0,4.1fr)_76px_148px_124px_112px_36px] lg:items-start lg:gap-2.5">
                 <div>
                   <label className={compactLabelClass}>Type</label>
                   <AppSelectField
@@ -363,6 +363,7 @@ export default function DeliverablesSection({
                       descriptionError,
                       Boolean(item.description)
                     )}
+                    title={item.description || shortPlaceholders[item.type]}
                   />
                   <p
                     className={cn(
@@ -465,7 +466,7 @@ export default function DeliverablesSection({
                   <div
                     className={cn(
                       getAppSubtlePanelClass("muted"),
-                      "flex h-12 items-center justify-end px-2.5 py-0 text-sm font-medium text-slate-600"
+                      "flex h-11 items-center justify-end px-3 py-0 text-sm font-semibold text-slate-600"
                     )}
                   >
                     {formatCurrency(lineTotal, currency)}
@@ -499,7 +500,7 @@ export default function DeliverablesSection({
         })}
       </div>
 
-      <div className="mt-5 flex justify-start">
+      <div className="mt-4 flex justify-start">
         <button
           type="button"
           onClick={addLineItem}

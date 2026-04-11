@@ -174,16 +174,16 @@ export default function TotalsTaxesSection({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_332px] xl:items-start">
         <div className="space-y-4">
           {isLocked ? (
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 p-5")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-1.5">
                   <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
                     Tax summary
                   </p>
-                  <p className="text-base font-semibold text-slate-950">
+                  <p className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">
                     {taxModeSummaryLabel}
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function TotalsTaxesSection({
               </dl>
             </div>
           ) : (
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-3">
                   <label className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
@@ -305,12 +305,12 @@ export default function TotalsTaxesSection({
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
               Final review
             </p>
-            <h3 className="text-xl font-semibold tracking-tight text-slate-950">
+            <h3 className="text-[1.15rem] font-semibold tracking-[-0.02em] text-slate-950">
               Invoice totals
             </h3>
           </div>
 
-          <dl className="space-y-3 rounded-[16px] bg-white/82 px-4 py-4 ring-1 ring-inset ring-slate-200/75">
+          <dl className="invoice-total-summary-card space-y-3 rounded-[16px] px-4 py-4">
             <div className="flex items-center justify-between gap-4 text-sm">
               <dt className="text-slate-500">Subtotal</dt>
               <dd className="font-semibold text-slate-950">
@@ -328,11 +328,11 @@ export default function TotalsTaxesSection({
               </dd>
             </div>
 
-            <div className="border-t border-slate-200/80 pt-4">
+            <div className="invoice-total-hero">
               <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
                 Grand total
               </dt>
-              <dd className="mt-2 text-[32px] font-semibold tracking-tight text-slate-950">
+              <dd className="mt-2 text-[34px] font-semibold tracking-[-0.03em] text-slate-950">
                 {formatCurrency(grandTotal, currency)}
               </dd>
             </div>
@@ -340,7 +340,7 @@ export default function TotalsTaxesSection({
 
           {grandTotalReferenceLabel &&
           typeof grandTotalReferenceAmount === "number" ? (
-            <p className="rounded-[14px] bg-slate-50/90 px-4 py-3 text-xs leading-5 text-slate-600 ring-1 ring-inset ring-slate-200/80">
+            <p className="rounded-[14px] bg-slate-50/96 px-4 py-3 text-[11px] leading-5 text-slate-600 ring-1 ring-inset ring-slate-200/84">
               {grandTotalReferenceLabel}:{" "}
               <span className="font-medium text-slate-900">
                 {formatCurrency(grandTotalReferenceAmount, "USD")}

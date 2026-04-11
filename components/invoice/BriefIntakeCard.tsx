@@ -194,14 +194,14 @@ export default function BriefIntakeCard({
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "overflow-hidden px-4 py-3 sm:px-5"
+          "invoice-brief-card overflow-hidden px-4 py-3 sm:px-[18px]"
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
         <div className="space-y-2.5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 max-w-3xl space-y-1.5">
+            <div className="min-w-0 max-w-3xl space-y-1">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
               </h2>
@@ -213,7 +213,7 @@ export default function BriefIntakeCard({
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               <span
                 className={cn(
-                  "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium",
+                  "inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
                   statusBadgeClass
                 )}
               >
@@ -336,10 +336,13 @@ export default function BriefIntakeCard({
                       setLastExtractionState("idle");
                     }}
                     placeholder="Agency: DesiFreelanceDocs Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
-                    className={getAppFieldClass({
-                      hasValue: Boolean(briefText),
-                      multiline: true,
-                    })}
+                    className={cn(
+                      getAppFieldClass({
+                        hasValue: Boolean(briefText),
+                        multiline: true,
+                      }),
+                      "min-h-[116px]"
+                    )}
                   />
 
                   {imageFiles.length > 0 ? (
@@ -348,7 +351,7 @@ export default function BriefIntakeCard({
                         <span
                           key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            "inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/78 px-3 py-1.5 text-[11px] font-medium text-slate-700"
+                            "inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/82 px-2.5 py-1 text-[11px] font-medium text-slate-700"
                           )}
                         >
                           <ClipboardCheckIcon className="h-3.5 w-3.5" />
@@ -358,9 +361,9 @@ export default function BriefIntakeCard({
                     </div>
                   ) : null}
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-2.5">
                     {isExtracting || lastExtractionState !== "idle" ? (
-                      <p className="text-xs leading-5 text-slate-500">
+                      <p className="text-[11px] leading-5 text-slate-500">
                         {statusCopy}
                       </p>
                     ) : <div />}

@@ -209,8 +209,8 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_116px] xl:items-start">
-          <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_96px] xl:items-start">
+          <div className="space-y-4">
             <div>
               <label className={appFieldLabelClass}>
                 Business / Trade Name *
@@ -241,7 +241,7 @@ export default function AgencyDetailsSection({
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[190px_minmax(0,1fr)_120px]">
+              <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-[176px_minmax(0,1fr)_112px]">
                 <div className="md:col-span-2 lg:col-span-3">
                   <label className={appFieldLabelClass}>
                     Address Line 1 *
@@ -350,11 +350,11 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
-              <p className="text-sm font-medium text-slate-900">
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3.5 px-4 py-3.5")}>
+              <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
                 Agency Compliance
               </p>
-              <div className="max-w-[360px]">
+              <div className="max-w-[332px]">
                 <label className={appFieldLabelClass}>
                   GST Registration Status
                 </label>
@@ -389,11 +389,11 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-slate-200/80 pt-3.5">
                       <label className={appFieldLabelClass}>
                         GSTIN
                       </label>
-                      <div className="max-w-[280px]">
+                      <div className="max-w-[248px]">
                         <input
                           suppressHydrationWarning
                           type="text"
@@ -437,7 +437,7 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-slate-200/80 pt-3.5">
                       <label className={appFieldLabelClass}>
                         Valid LUT for current financial year?
                       </label>
@@ -471,7 +471,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className="max-w-[260px] border-t border-gray-200 pt-4">
+                            <div className="max-w-[220px] border-t border-slate-200/80 pt-3.5">
                               <label className={appFieldLabelClass}>
                                 LUT Number / ARN
                               </label>
@@ -503,8 +503,8 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className={cn(getAppSubtlePanelClass(), "p-4")}>
-                              <p className="text-xs leading-5 text-slate-500">
+                            <div className={cn(getAppSubtlePanelClass(), "px-3.5 py-3")}>
+                              <p className="text-[11px] leading-5 text-slate-500">
                                 This only affects export tax handling later if the client
                                 invoice is international.
                               </p>
@@ -518,7 +518,7 @@ export default function AgencyDetailsSection({
               </AnimatePresence>
             </div>
 
-            <div className="max-w-[220px]">
+            <div className="max-w-[208px]">
               <label className={appFieldLabelClass}>
                 PAN
               </label>
@@ -550,9 +550,9 @@ export default function AgencyDetailsSection({
             </div>
           </div>
 
-          <div className={cn(getAppSubtlePanelClass("muted"), "space-y-2 p-2.5 xl:self-start")}>
+          <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-2 p-2.5 xl:self-start")}>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-slate-900">Logo</p>
+              <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">Logo</p>
 
               {value.logoUrl ? (
                 <button
@@ -563,7 +563,7 @@ export default function AgencyDetailsSection({
                       variant: "destructive-lite",
                       size: "sm",
                     }),
-                    "h-8 px-3 text-xs"
+                    "h-[30px] px-2.5 text-[11px]"
                   )}
                 >
                   Remove
@@ -578,7 +578,7 @@ export default function AgencyDetailsSection({
               }}
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
-              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[88px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
+              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[74px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1.5 py-1.5 text-center text-sm ${
                 isDragOver
                   ? "app-dropzone-accept text-slate-950"
                   : "text-slate-500 hover:border-slate-400"
@@ -595,12 +595,12 @@ export default function AgencyDetailsSection({
                 <img
                   src={value.logoUrl}
                   alt="Agency logo preview"
-                  className="max-h-[48px] w-auto object-contain"
+                  className="max-h-[42px] w-auto object-contain"
                 />
               ) : (
                 <div className="space-y-1">
-                  <p className="font-medium text-slate-700">Upload</p>
-                  <p className="text-[10px] text-slate-400">PNG/JPG</p>
+                  <p className="text-[11px] font-semibold text-slate-700">Logo</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-slate-400">PNG/JPG</p>
                 </div>
               )}
             </label>
