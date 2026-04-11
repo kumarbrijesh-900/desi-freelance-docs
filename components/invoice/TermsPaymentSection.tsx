@@ -330,7 +330,7 @@ export default function TermsPaymentSection({
           </div>
         ) : null}
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {isInternational ? (
             <div className="space-y-1.5" data-testid="payment-settlement-control">
               <label className={appFieldLabelClass}>
@@ -409,7 +409,7 @@ export default function TermsPaymentSection({
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "invoice-utility-widget space-y-3 border border-slate-200/70 px-3.5 py-3"
+              "invoice-utility-widget space-y-2.5 border border-slate-200/70 px-3 py-2.5"
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -427,7 +427,7 @@ export default function TermsPaymentSection({
                 onClick={() =>
                   setIsLicenseSectionExpanded((current) => !current)
                 }
-                className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                className={getAppButtonClass({ variant: "tertiary", size: "sm" })}
               >
                 {isLicenseSectionOpen ? (
                   <ChevronUpIcon className="h-4 w-4" />
@@ -441,7 +441,7 @@ export default function TermsPaymentSection({
             </div>
 
             {isLicenseSectionOpen ? (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                   <div>
                     <label className={appFieldLabelClass}>
                       License Included?
@@ -560,8 +560,8 @@ export default function TermsPaymentSection({
           </div>
 
           {!isInternational ? (
-            <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1fr)_80px] xl:items-start">
-              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_76px] xl:items-start">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <div>
                   <label className={appFieldLabelClass}>
                     Bank Name
@@ -652,7 +652,7 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
-              <div className="invoice-utility-widget flex flex-col items-end gap-1.5 rounded-[14px] p-2">
+              <div className="invoice-utility-widget flex flex-col items-end gap-1 rounded-[14px] p-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">QR</p>
@@ -683,7 +683,7 @@ export default function TermsPaymentSection({
                   }}
                   onDragLeave={() => setIsQrDragOver(false)}
                   onDrop={handleQrDrop}
-                  className={`app-dropzone-surface flex aspect-square w-full max-w-[72px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1.5 py-1.5 text-center text-sm ${
+                  className={`app-dropzone-surface flex aspect-square w-full max-w-[64px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1 py-1 text-center text-sm ${
                     isQrDragOver
                       ? "app-dropzone-accept text-slate-950"
                       : "text-slate-500 hover:border-slate-400"
@@ -712,8 +712,8 @@ export default function TermsPaymentSection({
               </div>
             </div>
           ) : (
-            <div className="space-y-4 border-t border-slate-200/70 pt-4">
-              <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+            <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
                   <label className={appFieldLabelClass}>
                     Beneficiary Name

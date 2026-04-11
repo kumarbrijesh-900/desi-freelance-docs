@@ -209,8 +209,8 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_96px] xl:items-start">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
+          <div className="space-y-3.5">
             <div>
               <label className={appFieldLabelClass}>
                 Business / Trade Name *
@@ -241,7 +241,7 @@ export default function AgencyDetailsSection({
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-[176px_minmax(0,1fr)_112px]">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[168px_minmax(0,1fr)_104px]">
                 <div className="md:col-span-2 lg:col-span-3">
                   <label className={appFieldLabelClass}>
                     Address Line 1 *
@@ -350,7 +350,7 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3.5 px-4 py-3.5")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-3.5 py-3")}>
               <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
                 Agency Compliance
               </p>
@@ -389,7 +389,7 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-slate-200/80 pt-3.5">
+                    <div className="border-t border-slate-200/80 pt-3">
                       <label className={appFieldLabelClass}>
                         GSTIN
                       </label>
@@ -437,7 +437,7 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-slate-200/80 pt-3.5">
+                    <div className="border-t border-slate-200/80 pt-3">
                       <label className={appFieldLabelClass}>
                         Valid LUT for current financial year?
                       </label>
@@ -471,7 +471,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className="max-w-[220px] border-t border-slate-200/80 pt-3.5">
+                            <div className="max-w-[220px] border-t border-slate-200/80 pt-3">
                               <label className={appFieldLabelClass}>
                                 LUT Number / ARN
                               </label>
@@ -503,7 +503,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className={cn(getAppSubtlePanelClass(), "px-3.5 py-3")}>
+                            <div className={cn(getAppSubtlePanelClass(), "px-3 py-2.5")}>
                               <p className="text-[11px] leading-5 text-slate-500">
                                 This only affects export tax handling later if the client
                                 invoice is international.
@@ -550,7 +550,7 @@ export default function AgencyDetailsSection({
             </div>
           </div>
 
-          <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-2 p-2.5 xl:self-start")}>
+          <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:self-start")}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">Logo</p>
 
@@ -578,7 +578,7 @@ export default function AgencyDetailsSection({
               }}
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
-              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[74px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1.5 py-1.5 text-center text-sm ${
+              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1.5 py-1.5 text-center text-sm ${
                 isDragOver
                   ? "app-dropzone-accept text-slate-950"
                   : "text-slate-500 hover:border-slate-400"

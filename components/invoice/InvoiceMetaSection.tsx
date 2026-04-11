@@ -79,7 +79,7 @@ export default function InvoiceMetaSection({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-3.5 md:max-w-[560px] md:grid-cols-[minmax(0,1fr)_156px_156px] md:items-start">
+      <div className="grid grid-cols-1 gap-3 md:max-w-[548px] md:grid-cols-[minmax(0,1fr)_148px_148px] md:items-start">
         <div>
           <label className={appFieldLabelClass}>
             Invoice Number *

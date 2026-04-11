@@ -174,10 +174,10 @@ export default function TotalsTaxesSection({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_332px] xl:items-start">
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1fr)_344px] xl:items-start">
+        <div className="space-y-3.5">
           {isLocked ? (
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3.5 px-4 py-3.5")}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-1.5">
                   <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
@@ -300,7 +300,7 @@ export default function TotalsTaxesSection({
           ) : null}
         </div>
 
-        <div className={cn(getAppPanelClass("muted"), "space-y-4 px-5 py-5")}>
+        <div className={cn(getAppPanelClass(), "space-y-4 px-5 py-4.5")}>
           <div className="space-y-1.5">
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
               Final review
@@ -332,7 +332,7 @@ export default function TotalsTaxesSection({
               <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
                 Grand total
               </dt>
-              <dd className="mt-2 text-[34px] font-semibold tracking-[-0.03em] text-slate-950">
+              <dd className="mt-2 text-[36px] font-semibold tracking-[-0.03em] text-slate-950 [font-variant-numeric:tabular-nums]">
                 {formatCurrency(grandTotal, currency)}
               </dd>
             </div>

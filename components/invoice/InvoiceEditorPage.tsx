@@ -545,11 +545,11 @@ function InlineStepSection({
       data-step-section={step}
       data-step-state={isActive ? "active" : isCompleted ? "completed" : "incomplete"}
       className={cn(
-        "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-5 py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]"
+        "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-[18px] py-3.5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]"
       )}
     >
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
           <button
             type="button"
             onClick={onActivate}
@@ -567,11 +567,11 @@ function InlineStepSection({
                     : "bg-slate-300"
                 )}
               />
-              <h2 className="text-[20px] font-semibold tracking-[-0.02em] text-slate-950">
+              <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-slate-950">
                 {stepLabel}
               </h2>
             </div>
-            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500">
+            <p className="mt-0.5 max-w-2xl text-[12px] leading-5 text-slate-500">
               {detailCopy}
             </p>
           </button>
@@ -594,9 +594,9 @@ function InlineStepSection({
         <motion.div
           layout
           initial={false}
-          className="invoice-step-divider pt-3"
+          className="invoice-step-divider pt-2.5"
         >
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {children}
             {footer}
           </div>
@@ -1581,9 +1581,9 @@ export default function InvoiceEditorPage() {
       <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto grid w-full max-w-[1300px] grid-cols-1 gap-6 lg:grid-cols-[124px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-7 xl:max-w-[1376px] xl:grid-cols-[128px_minmax(0,1fr)] xl:gap-9">
-          <div className={`w-full max-w-[1072px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
-            <div className="space-y-4">
+        <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
+          <div className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
+            <div className="space-y-3.5">
               <div>
                 <BriefIntakeCard
                   key={briefIntakeResetKey}
@@ -1628,7 +1628,7 @@ export default function InvoiceEditorPage() {
                 </div>
               </div>
 
-              <div className="space-y-4 overflow-visible" data-testid="invoice-vertical-stepper">
+              <div className="space-y-3.5 overflow-visible" data-testid="invoice-vertical-stepper">
                 {orderedSteps.map((step) => {
                   const isActive = currentStep === step;
                   const isCompleted = displayStepValidityByStep[step];
@@ -1653,17 +1653,20 @@ export default function InvoiceEditorPage() {
                         onActivate={() => goToStep(step)}
                         footer={
                           getNextStep(step) ? (
-                            <div className="invoice-step-divider flex justify-end pt-3">
+                            <div className="flex justify-end pt-1.5">
                               <button
                                 type="button"
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
                                 onClick={() =>
                                   scrollToStep(getNextStep(step)!, { focus: true })
                                 }
-                                className={getAppButtonClass({
-                                  variant: "secondary",
-                                  size: "sm",
-                                })}
+                                className={cn(
+                                  getAppButtonClass({
+                                    variant: "ghost",
+                                    size: "sm",
+                                  }),
+                                  "h-8 px-2 text-[12px] font-medium text-slate-500 hover:text-slate-900"
+                                )}
                               >
                                 Continue to {getStepShortLabel(getNextStep(step)!)}
                               </button>
@@ -1682,18 +1685,18 @@ export default function InvoiceEditorPage() {
             </div>
           </div>
 
-          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[124px] lg:self-start lg:sticky lg:top-[88px] xl:w-[128px]" data-testid="desktop-support-rail">
+          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]" data-testid="desktop-support-rail">
             <div className="space-y-3">
               <MotionReveal
                 preset="fade-up"
                 delay={40}
                 className={cn(
                   getAppSubtlePanelClass("muted"),
-                  "invoice-step-rail rounded-[16px] px-2 py-2"
+                  "invoice-step-rail rounded-[16px] px-2.5 py-2.5"
                 )}
               >
-                <div className="space-y-1.5" data-testid="support-rail-section-list">
-                  <div className="invoice-step-rail-track relative space-y-1 pl-2">
+                <div className="space-y-1" data-testid="support-rail-section-list">
+                  <div className="invoice-step-rail-track relative space-y-1 pl-2.5">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = displayStepValidityByStep[step] && !isActive;
@@ -1703,6 +1706,18 @@ export default function InvoiceEditorPage() {
                         : isCompleted
                         ? "completed"
                         : "pending";
+                      const railStatus =
+                        step === "totals" && !invoiceReadyForPreview
+                          ? "Pending"
+                          : isActive
+                          ? missingFieldCountByStep[step] > 0
+                            ? `${missingFieldCountByStep[step]} left`
+                            : "Current"
+                          : isCompleted
+                          ? "Ready"
+                          : isIncomplete && missingFieldCountByStep[step] > 0
+                          ? `${missingFieldCountByStep[step]} left`
+                          : "Review";
 
                       return (
                         <button
@@ -1710,11 +1725,11 @@ export default function InvoiceEditorPage() {
                           type="button"
                           onClick={() => scrollToStep(step)}
                           data-step-state={stepState}
-                          className="invoice-step-rail-item group flex w-full items-start justify-between gap-1.5 rounded-[10px] px-1.5 py-1.5 text-left text-slate-700 transition duration-[var(--app-duration-fast)]"
+                          className="invoice-step-rail-item group flex w-full items-start gap-2.5 rounded-[12px] px-2 py-2 text-left text-slate-700 transition duration-[var(--app-duration-fast)]"
                         >
-                          <div className="flex min-w-0 items-start gap-2">
+                          <div className="flex min-w-0 items-start gap-2.5">
                             <span
-                              className={`mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full text-[9px] font-semibold ${
+                              className={`mt-0.5 inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
                                 isActive
                                   ? "bg-indigo-500 text-white"
                                   : isCompleted
@@ -1724,21 +1739,15 @@ export default function InvoiceEditorPage() {
                             >
                               {isCompleted ? "✓" : index + 1}
                             </span>
-                            <div className="min-w-0 space-y-0.5">
-                              <p className="truncate text-[11px] font-semibold tracking-[0.01em] text-slate-950">
+                            <div className="min-w-0">
+                              <p className="text-[12px] font-semibold tracking-[0.01em] leading-4 text-slate-950">
                                 {getStepShortLabel(step)}
+                              </p>
+                              <p className="mt-0.5 text-[10px] leading-4 text-slate-500">
+                                {railStatus}
                               </p>
                             </div>
                           </div>
-                          <span className="shrink-0 pt-0.5 text-[9px] font-medium uppercase tracking-[0.08em] text-slate-500">
-                            {isIncomplete && missingFieldCountByStep[step] > 0
-                              ? `${missingFieldCountByStep[step]} left`
-                              : step === "totals" && !invoiceReadyForPreview
-                              ? "Pending"
-                              : isCompleted
-                              ? "Ready"
-                              : "Review"}
-                          </span>
                         </button>
                       );
                     })}
@@ -1755,14 +1764,17 @@ export default function InvoiceEditorPage() {
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-2 border border-slate-200/80 px-2.5 py-2.5 sm:flex-row sm:flex-wrap sm:items-center"
+              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-slate-200/80 px-2 py-2 sm:flex-row sm:flex-wrap sm:items-center"
             )}
             data-testid="floating-editor-actions"
           >
             <button
               type="button"
               onClick={handleBackToHome}
-              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              className={cn(
+                getAppButtonClass({ variant: "ghost", size: "sm" }),
+                "text-slate-500 hover:text-slate-900"
+              )}
             >
               Cancel
             </button>

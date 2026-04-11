@@ -157,8 +157,8 @@ export default function ClientDetailsSection({
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,1fr)_196px] md:items-end">
+      <div className="space-y-3.5">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_188px] md:items-end">
           <div>
             <label className={appFieldLabelClass}>
               Client Name *
@@ -216,8 +216,8 @@ export default function ClientDetailsSection({
         </div>
 
         {!isInternational ? (
-          <div className="space-y-4 border-t border-slate-200/70 pt-4">
-            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,232px)_minmax(0,1fr)]">
+          <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,224px)_minmax(0,1fr)]">
               <div className="max-w-[232px]">
                 <label className={appFieldLabelClass}>
                   Client GSTIN
@@ -298,7 +298,7 @@ export default function ClientDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-[176px_minmax(0,1fr)_112px]">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[168px_minmax(0,1fr)_104px]">
               <div className="md:col-span-2 lg:col-span-3">
                 <label className={appFieldLabelClass}>
                   Address Line 1 *
@@ -412,8 +412,8 @@ export default function ClientDetailsSection({
         ) : null}
 
         {isInternational ? (
-          <div className="space-y-4 border-t border-slate-200/70 pt-4">
-            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[minmax(0,208px)_minmax(0,172px)]">
+          <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,208px)_minmax(0,168px)]">
               <div className="max-w-[208px]">
                 <label className={appFieldLabelClass}>
                   Country *
@@ -499,7 +499,7 @@ export default function ClientDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[160px_minmax(0,256px)]">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-[156px_minmax(0,244px)]">
               <div className="max-w-[160px]">
                 <label className={appFieldLabelClass}>
                   Postal Code

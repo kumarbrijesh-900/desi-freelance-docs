@@ -127,7 +127,7 @@ export default function BriefIntakeCard({
 
   if (isCollapsed) {
     return (
-      <MotionReveal className="mb-4" preset="fade-up" delay={40}>
+      <MotionReveal className="mb-3" preset="fade-up" delay={40}>
         <section
           className={cn("app-soft-panel-muted overflow-hidden rounded-[14px]")}
           aria-labelledby="brief-intake-collapsed-heading"
@@ -190,18 +190,18 @@ export default function BriefIntakeCard({
   }
 
   return (
-    <MotionReveal className="mb-4" preset="fade-up" delay={40}>
+    <MotionReveal className="mb-3" preset="fade-up" delay={40}>
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "invoice-brief-card overflow-hidden px-4 py-3 sm:px-[18px]"
+          "invoice-brief-card overflow-hidden px-4 py-2.5 sm:px-[18px]"
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
-        <div className="space-y-2.5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0 max-w-3xl space-y-1">
+        <div className="space-y-2">
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
               </h2>
@@ -272,10 +272,10 @@ export default function BriefIntakeCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-3"
+              className="space-y-2.5"
             >
               <MotionReveal preset="soft">
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <div className="flex flex-wrap items-end justify-between gap-3">
                     <label className={appFieldLabelClass}>
                       Brief
@@ -329,7 +329,7 @@ export default function BriefIntakeCard({
                   </div>
 
                   <textarea
-                    rows={5}
+                    rows={4}
                     value={briefText}
                     onChange={(e) => {
                       setBriefText(e.target.value);
@@ -341,12 +341,12 @@ export default function BriefIntakeCard({
                         hasValue: Boolean(briefText),
                         multiline: true,
                       }),
-                      "min-h-[116px]"
+                      "min-h-[104px]"
                     )}
                   />
 
                   {imageFiles.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {imageFiles.map((file) => (
                         <span
                           key={`${file.name}-${file.lastModified}`}
@@ -361,7 +361,7 @@ export default function BriefIntakeCard({
                     </div>
                   ) : null}
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-2">
                     {isExtracting || lastExtractionState !== "idle" ? (
                       <p className="text-[11px] leading-5 text-slate-500">
                         {statusCopy}

@@ -277,7 +277,7 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="mb-2 hidden lg:grid lg:grid-cols-[96px_minmax(0,4.1fr)_76px_148px_124px_112px_36px] lg:gap-2.5 lg:px-3">
+      <div className="mb-1.5 hidden lg:grid lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:gap-2 lg:px-3">
         <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
           Type
         </span>
@@ -299,7 +299,7 @@ export default function DeliverablesSection({
         <span />
       </div>
 
-      <div className="space-y-3.5 overflow-visible" data-testid="line-items-list">
+      <div className="space-y-3 overflow-visible" data-testid="line-items-list">
         {value.map((item, index) => {
           const lineTotal = item.qty * item.rate;
           const allowedUnits = allowedUnitsByType[item.type];
@@ -322,10 +322,10 @@ export default function DeliverablesSection({
               data-testid="line-item-row"
               className={cn(
                 getAppSubtlePanelClass(index === 0 ? "default" : "muted"),
-                "px-3 py-3"
+                "px-3 py-2.5"
               )}
             >
-              <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-[96px_minmax(0,4.1fr)_76px_148px_124px_112px_36px] lg:items-start lg:gap-2.5">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:items-start lg:gap-2">
                 <div>
                   <label className={compactLabelClass}>Type</label>
                   <AppSelectField
