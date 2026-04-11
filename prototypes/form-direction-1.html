@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DesiFreelanceDocs — Form Direction 1</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --surface: rgba(255, 255, 255, 0.94);
+        --surface-strong: rgba(255, 255, 255, 0.98);
+        --surface-muted: rgba(248, 250, 252, 0.92);
+        --border: rgba(148, 163, 184, 0.22);
+        --border-strong: rgba(148, 163, 184, 0.34);
+        --text: #0f172a;
+        --text-secondary: #334155;
+        --text-muted: #64748b;
+        --primary: #4338ca;
+        --primary-strong: #312e81;
+        --success: #047857;
+        --warning: #b45309;
+        --danger: #e11d48;
+        --radius-control: 12px;
+        --radius-card: 18px;
+        --radius-shell: 24px;
+        --shadow-soft:
+          0 1px 1px rgba(255, 255, 255, 0.9),
+          0 8px 24px rgba(100, 116, 139, 0.08);
+        --shadow-float:
+          0 1px 1px rgba(255, 255, 255, 0.95),
+          0 14px 36px rgba(15, 23, 42, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0) 38%),
+          linear-gradient(180deg, #fafcff 0%, #f3f6fb 100%);
+      }
+
+      .page {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 24px 24px 120px;
+      }
+
+      .frame {
+        display: grid;
+        grid-template-columns: 156px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      .rail {
+        position: sticky;
+        top: 20px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+        padding: 10px;
+      }
+
+      .rail h2 {
+        margin: 0 0 10px;
+        padding: 6px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .rail a {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        border-radius: 14px;
+        padding: 10px;
+        text-decoration: none;
+        color: var(--text-secondary);
+      }
+
+      .rail a:hover {
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .rail a.active {
+        background: var(--surface-strong);
+        color: var(--text);
+        box-shadow: 0 6px 18px rgba(100, 116, 139, 0.08);
+      }
+
+      .step-dot {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        border-radius: 999px;
+        border: 1px solid var(--border-strong);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .rail a.active .step-dot {
+        border-color: rgba(129, 140, 248, 0.34);
+        background: rgba(238, 242, 255, 0.95);
+        color: var(--primary);
+      }
+
+      .rail-label {
+        min-width: 0;
+      }
+
+      .rail-label strong {
+        display: block;
+        font-size: 11px;
+        line-height: 1.3;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .rail-label span {
+        display: block;
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .main {
+        display: grid;
+        gap: 18px;
+      }
+
+      .brief {
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+        padding: 18px 18px 16px;
+      }
+
+      .brief-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .brief h1 {
+        margin: 6px 0 4px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .brief p {
+        margin: 0;
+        color: var(--text-muted);
+        max-width: 720px;
+      }
+
+      .brief-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .button,
+      .button-primary,
+      .button-quiet {
+        min-height: 40px;
+        border-radius: 10px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(245,248,251,0.96));
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(148, 163, 184, 0.08);
+      }
+
+      .button-primary {
+        border-color: rgba(49, 46, 129, 0.96);
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+        color: #fff;
+        box-shadow: 0 14px 28px rgba(67, 56, 202, 0.24);
+      }
+
+      .button-quiet {
+        border-color: transparent;
+        background: transparent;
+        box-shadow: none;
+        color: var(--text-secondary);
+      }
+
+      .textarea {
+        min-height: 128px;
+        margin-top: 14px;
+        width: 100%;
+        border: 1px solid rgba(203, 213, 225, 0.9);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 14px 16px;
+        color: var(--text);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      }
+
+      .section {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-shell);
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section-header h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      .section-header p {
+        margin: 0;
+        color: var(--text-muted);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.86);
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+
+      .pill.success {
+        border-color: rgba(16, 185, 129, 0.22);
+        background: rgba(236, 253, 245, 0.96);
+        color: var(--success);
+      }
+
+      .section-body {
+        padding: 22px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-agency,
+      .grid-client,
+      .grid-payment {
+        display: grid;
+        gap: 14px;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(96px, 0.7fr);
+      }
+
+      .grid-agency {
+        grid-template-columns: minmax(0, 1fr) 124px;
+      }
+
+      .grid-client {
+        grid-template-columns: minmax(0, 1fr) minmax(180px, 220px) minmax(120px, 160px);
+      }
+
+      .grid-payment {
+        grid-template-columns: minmax(0, 1fr) 132px;
+      }
+
+      .field-block {
+        min-width: 0;
+      }
+
+      .field-block label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .control,
+      .select,
+      .quiet-box {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid rgba(203, 213, 225, 0.9);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 0 14px;
+        color: var(--text);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        display: flex;
+        align-items: center;
+      }
+
+      .control.multiline,
+      .quiet-box.multiline {
+        min-height: 110px;
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .control.compact {
+        max-width: 132px;
+      }
+
+      .control.code {
+        max-width: 220px;
+      }
+
+      .control.identifier {
+        max-width: 300px;
+      }
+
+      .control.medium {
+        max-width: 320px;
+      }
+
+      .helper {
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .utility {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface-muted);
+        padding: 12px;
+      }
+
+      .utility strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .dropzone {
+        aspect-ratio: 4 / 3;
+        max-height: 92px;
+        border: 1px dashed rgba(148, 163, 184, 0.55);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.82);
+        display: grid;
+        place-items: center;
+        color: var(--text-muted);
+      }
+
+      .segmented {
+        display: flex;
+        gap: 8px;
+        padding: 6px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface-muted);
+      }
+
+      .segment {
+        flex: 1;
+        min-height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.84);
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+
+      .segment.active {
+        background: rgba(238, 242, 255, 0.94);
+        border-color: rgba(129, 140, 248, 0.36);
+        color: var(--text);
+      }
+
+      .optional {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface-muted);
+        padding: 14px;
+      }
+
+      .optional-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .optional-top h3 {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .table-header,
+      .table-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 3.7fr) 76px 136px 118px 104px 40px;
+        gap: 8px;
+        align-items: start;
+      }
+
+      .table-header {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .table-card {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface-muted);
+        padding: 12px;
+      }
+
+      .total-box {
+        min-height: 48px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(248, 250, 252, 0.98);
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 14px;
+        font-weight: 600;
+      }
+
+      .summary {
+        display: grid;
+        gap: 12px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface-muted);
+        padding: 14px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--text-secondary);
+      }
+
+      .summary-row strong {
+        color: var(--text);
+      }
+
+      .continue-row {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .dock {
+        position: fixed;
+        right: 24px;
+        bottom: 20px;
+        z-index: 10;
+      }
+
+      .dock-inner {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border-strong);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-float);
+        padding: 10px;
+      }
+
+      @media (max-width: 1180px) {
+        .frame {
+          grid-template-columns: 1fr;
+        }
+
+        .rail {
+          position: static;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .grid-2,
+        .grid-3,
+        .grid-agency,
+        .grid-client,
+        .grid-payment,
+        .table-header,
+        .table-row {
+          grid-template-columns: 1fr;
+        }
+
+        .brief-top,
+        .section-header,
+        .optional-top {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .dock {
+          left: 16px;
+          right: 16px;
+        }
+
+        .dock-inner {
+          justify-content: stretch;
+        }
+
+        .dock-inner > * {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="frame">
+        <aside class="rail">
+          <h2>Sections</h2>
+          <a class="active" href="#brief">
+            <span class="step-dot">01</span>
+            <span class="rail-label"><strong>Brief</strong><span>Autofill</span></span>
+          </a>
+          <a href="#agency">
+            <span class="step-dot">02</span>
+            <span class="rail-label"><strong>Agency</strong><span>2 left</span></span>
+          </a>
+          <a href="#client">
+            <span class="step-dot">03</span>
+            <span class="rail-label"><strong>Client</strong><span>Ready</span></span>
+          </a>
+          <a href="#items">
+            <span class="step-dot">04</span>
+            <span class="rail-label"><strong>Items</strong><span>1 left</span></span>
+          </a>
+          <a href="#payment">
+            <span class="step-dot">05</span>
+            <span class="rail-label"><strong>Payment</strong><span>Optional</span></span>
+          </a>
+          <a href="#totals">
+            <span class="step-dot">06</span>
+            <span class="rail-label"><strong>Totals</strong><span>Pending</span></span>
+          </a>
+        </aside>
+
+        <main class="main">
+          <section class="brief" id="brief">
+            <div class="brief-top">
+              <div>
+                <div class="eyebrow">Invoice setup</div>
+                <h1>Start with the brief, then review the form below.</h1>
+                <p>
+                  Paste the client brief, project scope, or billing notes here. Screenshot and
+                  voice are secondary helpers once the text is in place.
+                </p>
+              </div>
+              <div class="brief-actions">
+                <button class="button">Upload screenshot</button>
+                <button class="button-quiet">Voice</button>
+                <button class="button-primary">Extract &amp; autofill</button>
+              </div>
+            </div>
+            <div class="textarea">
+Agency name is Acme Design Studio.
+Client is Moonrise Labs, 24 St. Mark Street, London NW1 6XE, United Kingdom.
+Please invoice two landing page screens, one responsive export package, and a simple illustration cleanup.
+Payment terms are Net 15. Settlement in Forex.
+            </div>
+          </section>
+
+          <section class="section" id="agency">
+            <div class="section-header">
+              <div>
+                <h2>Agency</h2>
+                <p>Add your business details for the invoice.</p>
+              </div>
+              <span class="pill">2 required</span>
+            </div>
+            <div class="section-body">
+              <div class="grid-agency">
+                <div class="grid-2">
+                  <div class="field-block">
+                    <label>Agency name</label>
+                    <div class="control medium">Acme Design Studio</div>
+                  </div>
+                  <div class="field-block">
+                    <label>PAN</label>
+                    <div class="control code">ABCDE1234F</div>
+                  </div>
+                </div>
+                <div class="utility">
+                  <strong>Logo</strong>
+                  <div class="dropzone">Upload</div>
+                  <div class="helper">Optional utility</div>
+                </div>
+              </div>
+              <div class="grid-3">
+                <div class="field-block">
+                  <label>Address line 1</label>
+                  <div class="control">14 Residency Road</div>
+                </div>
+                <div class="field-block">
+                  <label>State</label>
+                  <div class="control medium">Karnataka</div>
+                </div>
+                <div class="field-block">
+                  <label>PIN</label>
+                  <div class="control compact">560025</div>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field-block">
+                  <label>GST registration</label>
+                  <div class="segmented">
+                    <div class="segment active">Registered</div>
+                    <div class="segment">Not registered</div>
+                  </div>
+                </div>
+                <div class="field-block">
+                  <label>GSTIN</label>
+                  <div class="control identifier">29ABCDE1234F1Z5</div>
+                </div>
+              </div>
+              <div class="continue-row">
+                <a class="button" href="#client">Continue to Client</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="client">
+            <div class="section-header">
+              <div>
+                <h2>Client</h2>
+                <p>Add the client details and billing location.</p>
+              </div>
+              <span class="pill success">Ready</span>
+            </div>
+            <div class="section-body">
+              <div class="grid-2">
+                <div class="field-block">
+                  <label>Client name</label>
+                  <div class="control medium">Moonrise Labs</div>
+                </div>
+                <div class="field-block">
+                  <label>Billing location</label>
+                  <div class="segmented">
+                    <div class="segment">Domestic</div>
+                    <div class="segment active">International</div>
+                  </div>
+                </div>
+              </div>
+              <div class="field-block">
+                <label>Client address</label>
+                <div class="control multiline">24 St. Mark Street, London NW1 6XE, United Kingdom</div>
+              </div>
+              <div class="grid-client">
+                <div class="field-block">
+                  <label>Country</label>
+                  <div class="control medium">United Kingdom</div>
+                </div>
+                <div class="field-block">
+                  <label>Currency</label>
+                  <div class="control compact">GBP</div>
+                </div>
+                <div class="field-block">
+                  <label>Postal code</label>
+                  <div class="control compact">NW1 6XE</div>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field-block">
+                  <label>Tax identification number</label>
+                  <div class="control code">GB 442 3312 14</div>
+                </div>
+                <div class="field-block">
+                  <label>Client email</label>
+                  <div class="control medium">finance@moonrise.io</div>
+                </div>
+              </div>
+              <div class="continue-row">
+                <a class="button" href="#items">Continue to Items</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="items">
+            <div class="section-header">
+              <div>
+                <h2>Items</h2>
+                <p>Add the billable line items.</p>
+              </div>
+              <span class="pill">1 required</span>
+            </div>
+            <div class="section-body">
+              <div class="table-header">
+                <span>Type</span>
+                <span>Description</span>
+                <span>Qty</span>
+                <span>Rate</span>
+                <span>Unit</span>
+                <span>Total</span>
+                <span></span>
+              </div>
+
+              <div class="table-card">
+                <div class="table-row">
+                  <div class="select">UI/UX</div>
+                  <div class="control">Landing page design — desktop and responsive layout refinements</div>
+                  <div class="control compact">2</div>
+                  <div class="control medium">₹12,000</div>
+                  <div class="select">Per screen</div>
+                  <div class="total-box">₹24,000</div>
+                  <button class="button-quiet">×</button>
+                </div>
+                <div class="helper">Description stays dominant; qty stays visible and aligned.</div>
+              </div>
+
+              <div class="table-card">
+                <div class="table-row">
+                  <div class="select">Production</div>
+                  <div class="control">Responsive export package and handoff assets</div>
+                  <div class="control compact">1</div>
+                  <div class="control medium">₹8,500</div>
+                  <div class="select">Per item</div>
+                  <div class="total-box">₹8,500</div>
+                  <button class="button-quiet">×</button>
+                </div>
+              </div>
+
+              <div class="table-card">
+                <div class="table-row">
+                  <div class="select">Illustration</div>
+                  <div class="control">Illustration cleanup and export polish</div>
+                  <div class="control compact">1</div>
+                  <div class="control medium">₹4,000</div>
+                  <div class="select">Per item</div>
+                  <div class="total-box">₹4,000</div>
+                  <button class="button-quiet">×</button>
+                </div>
+              </div>
+
+              <div class="continue-row">
+                <a class="button" href="#payment">Continue to Payment</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="payment">
+            <div class="section-header">
+              <div>
+                <h2>Payment</h2>
+                <p>Add payment and bank details.</p>
+              </div>
+              <span class="pill">Optional controls</span>
+            </div>
+            <div class="section-body">
+              <div class="grid-payment">
+                <div class="field-block">
+                  <label>Settlement type</label>
+                  <div class="segmented">
+                    <div class="segment active">Forex</div>
+                    <div class="segment">INR</div>
+                    <div class="segment">Not sure</div>
+                  </div>
+                  <div class="helper">Use the settlement that matches how the client will pay.</div>
+                </div>
+                <div class="utility">
+                  <strong>QR</strong>
+                  <div class="dropzone">Upload</div>
+                  <div class="helper">Secondary utility</div>
+                </div>
+              </div>
+
+              <div class="optional">
+                <div class="optional-top">
+                  <div>
+                    <h3>License terms</h3>
+                    <div class="helper">Optional and hidden until needed.</div>
+                  </div>
+                  <button class="button">Add license terms</button>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field-block">
+                  <label>Beneficiary name</label>
+                  <div class="control medium">Acme Design Studio</div>
+                </div>
+                <div class="field-block">
+                  <label>Bank name</label>
+                  <div class="control medium">HDFC Bank</div>
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="field-block">
+                  <label>Account number</label>
+                  <div class="control identifier">50200044321098</div>
+                </div>
+                <div class="field-block">
+                  <label>SWIFT / BIC</label>
+                  <div class="control code">HDFCINBB</div>
+                </div>
+                <div class="field-block">
+                  <label>IBAN / Routing</label>
+                  <div class="control medium">N/A</div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field-block">
+                  <label>Bank address</label>
+                  <div class="control multiline">HDFC Bank, Residency Road Branch, Bengaluru 560025, India</div>
+                </div>
+                <div class="field-block">
+                  <label>Payment terms</label>
+                  <div class="control medium">Net 15</div>
+                </div>
+              </div>
+
+              <div class="continue-row">
+                <a class="button" href="#totals">Continue to Totals</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="totals">
+            <div class="section-header">
+              <div>
+                <h2>Totals</h2>
+                <p>Review the final billing summary and finish the invoice.</p>
+              </div>
+              <span class="pill">Pending</span>
+            </div>
+            <div class="section-body">
+              <div class="summary">
+                <div class="summary-row"><span>Subtotal</span><span>₹36,500</span></div>
+                <div class="summary-row"><span>FX note</span><span>Client pays in GBP</span></div>
+                <div class="summary-row"><strong>Grand total</strong><strong>₹36,500</strong></div>
+              </div>
+              <div class="field-block">
+                <label>Final notes</label>
+                <div class="control multiline">Balance due within 15 days. Final editable files and exports will be delivered after full payment.</div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="dock-inner">
+        <button class="button-quiet">Cancel</button>
+        <button class="button">Save draft</button>
+        <button class="button-primary">Preview &amp; download</button>
+      </div>
+    </div>
+  </body>
+</html>

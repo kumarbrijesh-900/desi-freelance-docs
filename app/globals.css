@@ -3,6 +3,20 @@
 :root {
   --background: #f5f7fb;
   --foreground: #0f172a;
+  --app-color-bg: #f5f7fb;
+  --app-color-surface: rgba(255, 255, 255, 0.96);
+  --app-color-surface-muted: rgba(247, 249, 252, 0.94);
+  --app-color-surface-elevated: rgba(255, 255, 255, 0.98);
+  --app-color-border: rgba(148, 163, 184, 0.22);
+  --app-color-border-strong: rgba(148, 163, 184, 0.36);
+  --app-color-text-primary: #0f172a;
+  --app-color-text-secondary: #334155;
+  --app-color-text-muted: #64748b;
+  --app-color-primary: #4338ca;
+  --app-color-primary-strong: #312e81;
+  --app-color-success: #047857;
+  --app-color-warning: #b45309;
+  --app-color-danger: #e11d48;
   --app-duration-fast: 120ms;
   --app-duration-medium: 200ms;
   --app-duration-slow: 280ms;
@@ -47,6 +61,17 @@
   --app-space-6: 32px;
   --app-space-7: 48px;
   --app-space-8: 64px;
+  --app-control-height-sm: 40px;
+  --app-control-height-md: 48px;
+  --app-control-height-lg: 56px;
+  --app-field-width-compact: 112px;
+  --app-field-width-quantity: 96px;
+  --app-field-width-postal: 128px;
+  --app-field-width-code: 168px;
+  --app-field-width-identifier: 288px;
+  --app-field-width-money: 184px;
+  --app-field-width-medium: 320px;
+  --app-field-width-content: 540px;
   --app-radius-button: 8px;
   --app-radius-control: 12px;
   --app-radius-card: 16px;
