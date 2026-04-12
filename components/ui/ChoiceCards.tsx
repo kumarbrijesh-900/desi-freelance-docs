@@ -29,14 +29,14 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `app-soft-choice-track grid gap-1 rounded-[13px] p-1 ${columns === 2 ? "sm:grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[13px] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "inline"
       ? "flex flex-wrap gap-1.5"
       : `grid gap-3.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[46px] items-center justify-between gap-2.5 rounded-[10px] border px-3 py-2.5 text-left text-[13px] font-medium transition-all duration-150 ${
+      return `flex min-h-[46px] min-w-0 items-center gap-2 rounded-[10px] border px-3.5 py-2.5 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -44,7 +44,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-9 items-center rounded-full border px-3 py-1.5 text-left text-[13px] font-medium transition-all duration-150 ${
+      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-full border px-3.5 py-1.5 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -69,7 +69,7 @@ export default function ChoiceCards<T extends string>({
           <motion.label
             key={option.value}
             htmlFor={id}
-            className="block cursor-pointer"
+            className="block min-w-0 cursor-pointer"
             whileHover={reducedMotion ? undefined : { y: -1 }}
             whileTap={reducedMotion ? undefined : { scale: 0.992 }}
             transition={
@@ -106,8 +106,20 @@ export default function ChoiceCards<T extends string>({
                 ease: [0, 0, 0.2, 1],
               }}
             >
-              <span className="block">
-                <span className="block text-[13px] font-medium leading-5">
+              <span
+                className={cn(
+                  "block min-w-0",
+                  variant === "segmented" ? "flex-1 pr-1" : ""
+                )}
+              >
+                <span
+                  className={cn(
+                    "block text-[13px] font-medium",
+                    variant === "segmented"
+                      ? "break-words leading-[1.35]"
+                      : "leading-5"
+                  )}
+                >
                   {option.label}
                 </span>
                 {option.description ? (
@@ -125,7 +137,7 @@ export default function ChoiceCards<T extends string>({
               {variant === "segmented" ? (
                 <motion.span
                   aria-hidden="true"
-                  className={`h-2.5 w-2.5 rounded-full ${
+                  className={`ml-auto h-2.5 w-2.5 shrink-0 rounded-full ${
                     isSelected ? "bg-slate-950" : "bg-slate-300"
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}

@@ -82,9 +82,11 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-slate-950 outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-slate-950 outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
     multiline ? "min-h-[112px] px-3.5 py-3" : "h-11 px-3.5",
-    isSelect ? "appearance-none pr-12 text-left" : "",
+    isSelect
+      ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
+      : "",
     "placeholder:text-slate-400/85",
     "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100/85 disabled:text-slate-400 disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",

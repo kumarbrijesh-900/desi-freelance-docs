@@ -122,6 +122,9 @@ const shortPlaceholders: Record<InvoiceLineItemType, string> = {
   Other: "Describe the deliverable",
 };
 
+const lineItemDesktopGridClass =
+  "lg:grid-cols-[minmax(156px,1.18fr)_minmax(256px,3.55fr)_minmax(72px,0.56fr)_minmax(124px,0.92fr)_minmax(172px,1.28fr)_minmax(112px,0.82fr)_32px]";
+
 let lineItemIdCounter = 0;
 
 function createLineItemId(existingItems: InvoiceLineItem[]) {
@@ -277,7 +280,7 @@ export default function DeliverablesSection({
       ) : null}
 
       <div className="invoice-line-item-workspace space-y-3.5">
-        <div className="invoice-line-item-head mb-1.5 hidden lg:grid lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:gap-2 lg:px-3 lg:py-2.5">
+        <div className={cn("invoice-line-item-head mb-1.5 hidden lg:grid lg:gap-1.5 lg:px-3 lg:py-2.5", lineItemDesktopGridClass)}>
           <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
             Type
           </span>
@@ -332,8 +335,8 @@ export default function DeliverablesSection({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:items-start lg:gap-2">
-                  <div>
+                <div className={cn("grid grid-cols-1 gap-3 lg:items-start lg:gap-1.5", lineItemDesktopGridClass)}>
+                  <div className="min-w-0">
                     <label className={compactLabelClass}>Type</label>
                     <AppSelectField
                       suppressHydrationWarning
@@ -345,6 +348,7 @@ export default function DeliverablesSection({
                         )
                       }
                       hasValue
+                      className="px-3 pr-10"
                     >
                       {typeOptions.map((option) => (
                         <option key={option} value={option}>
@@ -355,7 +359,7 @@ export default function DeliverablesSection({
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="min-w-0 space-y-1.5">
                     <label className={compactLabelClass}>Description *</label>
                     <input
                       suppressHydrationWarning
@@ -382,7 +386,7 @@ export default function DeliverablesSection({
                     </p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className={compactLabelClass}>Qty *</label>
                     <input
                       suppressHydrationWarning
@@ -411,7 +415,7 @@ export default function DeliverablesSection({
                     </p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className={compactLabelClass}>Rate</label>
                     <div className="relative">
                       <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-slate-500">
@@ -445,7 +449,7 @@ export default function DeliverablesSection({
                     </p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className={compactLabelClass}>Unit *</label>
                     <AppSelectField
                       suppressHydrationWarning
@@ -458,6 +462,7 @@ export default function DeliverablesSection({
                         )
                       }
                       hasValue
+                      className="px-3 pr-10"
                     >
                       {allowedUnits.map((unit) => (
                         <option key={unit} value={unit}>
@@ -468,7 +473,7 @@ export default function DeliverablesSection({
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <span className={compactLabelClass}>Total</span>
                     <div className="invoice-line-item-total flex h-11 items-center justify-end px-3 py-0 text-sm font-semibold text-slate-700">
                       {formatCurrency(lineTotal, currency)}
