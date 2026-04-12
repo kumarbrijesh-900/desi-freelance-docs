@@ -3,16 +3,16 @@ export function cn(...values: Array<string | false | null | undefined>) {
 }
 
 export const appSectionTitleClass =
-  "text-[1.08rem] font-semibold tracking-[-0.02em] text-slate-950";
+  "text-[1.12rem] font-semibold tracking-[-0.03em] text-slate-950";
 
 export const appSectionDescriptionClass =
-  "text-[13px] leading-5 text-slate-500";
+  "text-[11px] leading-5 text-slate-500";
 
 export const appFieldLabelClass =
   "mb-1.5 block text-[12px] font-semibold tracking-[0.01em] text-slate-700";
 
 export const appFieldHelperTextClass =
-  "mt-1.5 text-[11px] leading-[1.45] text-slate-500";
+  "mt-1.5 text-[11px] leading-[1.5] text-slate-500";
 
 export const appFieldErrorTextClass =
   "mt-1.5 text-[11px] font-semibold leading-[1.45] text-rose-600";
@@ -23,10 +23,10 @@ export function getAppSubtlePanelClass(
   return cn(
     "rounded-[var(--app-radius-card)] p-4",
     tone === "warning"
-      ? "bg-amber-50/86 ring-1 ring-inset ring-amber-200/75"
+      ? "bg-amber-50/94 ring-1 ring-inset ring-amber-200/82"
       : tone === "muted"
-      ? "bg-slate-50/74 ring-1 ring-inset ring-slate-200/68"
-      : "bg-white/88 ring-1 ring-inset ring-slate-200/72"
+      ? "bg-slate-100/86 ring-1 ring-inset ring-slate-300/72"
+      : "bg-white/97 ring-1 ring-inset ring-slate-300/74"
   );
 }
 
@@ -117,9 +117,9 @@ export function getAppStatusPillClass(
   return cn(
     "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
     tone === "success"
-      ? "border-emerald-200/90 bg-emerald-50 text-emerald-800 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
+      ? "border-emerald-200/95 bg-emerald-50/95 text-emerald-900 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
       : tone === "muted"
-      ? "border-slate-200/90 bg-white/76 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
-      : "border-slate-200/90 bg-white/88 text-slate-700 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
+      ? "border-slate-200/95 bg-slate-100/88 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
+      : "border-slate-300/95 bg-white/96 text-slate-800 shadow-[0_1px_0_rgba(255,255,255,0.86)]"
   );
 }

@@ -19,7 +19,6 @@ import {
   getAppButtonClass,
   getAppFieldClass,
   getAppPanelClass,
-  getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
 
 interface DeliverablesSectionProps {
@@ -277,240 +276,244 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="mb-1.5 hidden lg:grid lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:gap-2 lg:px-3">
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Type
-        </span>
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Description
-        </span>
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Qty
-        </span>
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Rate
-        </span>
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Unit
-        </span>
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
-          Total
-        </span>
-        <span />
-      </div>
+      <div className="invoice-line-item-workspace space-y-3.5">
+        <div className="invoice-line-item-head mb-1.5 hidden lg:grid lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:gap-2 lg:px-3 lg:py-2.5">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Type
+          </span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Description
+          </span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Qty
+          </span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Rate
+          </span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Unit
+          </span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+            Total
+          </span>
+          <span />
+        </div>
 
-      <div className="space-y-3 overflow-visible" data-testid="line-items-list">
-        {value.map((item, index) => {
-          const lineTotal = item.qty * item.rate;
-          const allowedUnits = allowedUnitsByType[item.type];
-          const rowErrors = errors?.[item.id];
-          const descriptionError = getVisibleRowError(
-            item.id,
-            "description",
-            rowErrors?.description
-          );
-          const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
-          const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
-          const compactLabelClass = cn(
-            appFieldLabelClass,
-            "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
-          );
+        <div className="space-y-3 overflow-visible" data-testid="line-items-list">
+          {value.map((item, index) => {
+            const lineTotal = item.qty * item.rate;
+            const allowedUnits = allowedUnitsByType[item.type];
+            const rowErrors = errors?.[item.id];
+            const descriptionError = getVisibleRowError(
+              item.id,
+              "description",
+              rowErrors?.description
+            );
+            const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
+            const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
+            const compactLabelClass = cn(
+              appFieldLabelClass,
+              "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
+            );
 
-          return (
-            <div
-              key={item.id}
-              data-testid="line-item-row"
-              className={cn(
-                getAppSubtlePanelClass(index === 0 ? "default" : "muted"),
-                "px-3 py-2.5"
-              )}
-            >
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:items-start lg:gap-2">
-                <div>
-                  <label className={compactLabelClass}>Type</label>
-                  <AppSelectField
-                    suppressHydrationWarning
-                    value={item.type}
-                    onChange={(e) =>
-                      handleTypeChange(
-                        item.id,
-                        e.target.value as InvoiceLineItemType
-                      )
-                    }
-                    hasValue
-                  >
-                    {typeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </AppSelectField>
-                  <div className="min-h-[18px]" />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className={compactLabelClass}>Description *</label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={item.description}
-                    onChange={(e) =>
-                      updateItem(item.id, "description", e.target.value)
-                    }
-                    onBlur={() => markTouched(item.id, "description")}
-                    placeholder={shortPlaceholders[item.type]}
-                    className={inputClass(
-                      descriptionError,
-                      Boolean(item.description)
-                    )}
-                    title={item.description || shortPlaceholders[item.type]}
-                  />
-                  <p
-                    className={cn(
-                      lineItemErrorSlotClass,
-                      descriptionError ? "" : "invisible"
-                    )}
-                  >
-                    {descriptionError ?? "Description error"}
+            return (
+              <div
+                key={item.id}
+                data-testid="line-item-row"
+                data-row-tone={index === 0 ? "default" : "muted"}
+                className="invoice-line-item-row px-3.5 py-3"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200/75 pb-2 lg:hidden">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Line {index + 1}
+                  </p>
+                  <p className="text-[11px] font-semibold text-slate-700">
+                    {formatCurrency(lineTotal, currency)}
                   </p>
                 </div>
 
-                <div>
-                  <label className={compactLabelClass}>Qty *</label>
-                  <input
-                    suppressHydrationWarning
-                    type="number"
-                    min={1}
-                    inputMode="numeric"
-                    value={item.qty}
-                    onChange={(e) =>
-                      updateItem(
-                        item.id,
-                        "qty",
-                        Math.max(0, Number(e.target.value) || 0)
-                      )
-                    }
-                    onBlur={() => markTouched(item.id, "qty")}
-                    className={inputClass(qtyError, item.qty > 0)}
-                    {...numberInputProps}
-                  />
-                  <p
-                    className={cn(
-                      lineItemErrorSlotClass,
-                      qtyError ? "" : "invisible"
-                    )}
-                  >
-                    {qtyError ?? "Quantity error"}
-                  </p>
-                </div>
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[92px_minmax(0,4.3fr)_72px_140px_118px_108px_34px] lg:items-start lg:gap-2">
+                  <div>
+                    <label className={compactLabelClass}>Type</label>
+                    <AppSelectField
+                      suppressHydrationWarning
+                      value={item.type}
+                      onChange={(e) =>
+                        handleTypeChange(
+                          item.id,
+                          e.target.value as InvoiceLineItemType
+                        )
+                      }
+                      hasValue
+                    >
+                      {typeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </AppSelectField>
+                    <div className="min-h-[18px]" />
+                  </div>
 
-                <div>
-                  <label className={compactLabelClass}>Rate</label>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-slate-500">
-                      {currencySymbol}
-                    </span>
+                  <div className="space-y-1.5">
+                    <label className={compactLabelClass}>Description *</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={item.description}
+                      onChange={(e) =>
+                        updateItem(item.id, "description", e.target.value)
+                      }
+                      onBlur={() => markTouched(item.id, "description")}
+                      placeholder={shortPlaceholders[item.type]}
+                      className={inputClass(
+                        descriptionError,
+                        Boolean(item.description)
+                      )}
+                      title={item.description || shortPlaceholders[item.type]}
+                    />
+                    <p
+                      className={cn(
+                        lineItemErrorSlotClass,
+                        descriptionError ? "" : "invisible"
+                      )}
+                    >
+                      {descriptionError ?? "Description error"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className={compactLabelClass}>Qty *</label>
                     <input
                       suppressHydrationWarning
                       type="number"
-                      min={0}
-                      inputMode="decimal"
-                      value={item.rate}
+                      min={1}
+                      inputMode="numeric"
+                      value={item.qty}
                       onChange={(e) =>
                         updateItem(
                           item.id,
-                          "rate",
+                          "qty",
                           Math.max(0, Number(e.target.value) || 0)
                         )
                       }
-                      onBlur={() => markTouched(item.id, "rate")}
-                      className={rateInputClass(rateError, item.rate > 0)}
+                      onBlur={() => markTouched(item.id, "qty")}
+                      className={inputClass(qtyError, item.qty > 0)}
                       {...numberInputProps}
                     />
-                  </div>
-                  <p
-                    className={cn(
-                      lineItemErrorSlotClass,
-                      rateError ? "" : "invisible"
-                    )}
-                  >
-                    {rateError ?? "Rate error"}
-                  </p>
-                </div>
-
-                <div>
-                  <label className={compactLabelClass}>Unit *</label>
-                  <AppSelectField
-                    suppressHydrationWarning
-                    value={item.rateUnit}
-                    onChange={(e) =>
-                      updateItem(
-                        item.id,
-                        "rateUnit",
-                        e.target.value as InvoiceRateUnit
-                      )
-                    }
-                    hasValue
-                  >
-                    {allowedUnits.map((unit) => (
-                      <option key={unit} value={unit}>
-                        {unitLabels[unit]}
-                      </option>
-                    ))}
-                  </AppSelectField>
-                  <div className="min-h-[18px]" />
-                </div>
-
-                <div>
-                  <span className={compactLabelClass}>Total</span>
-                  <div
-                    className={cn(
-                      getAppSubtlePanelClass("muted"),
-                      "flex h-11 items-center justify-end px-3 py-0 text-sm font-semibold text-slate-600"
-                    )}
-                  >
-                    {formatCurrency(lineTotal, currency)}
-                  </div>
-                  <div className="min-h-[18px]" />
-                </div>
-
-                <div className="flex justify-end lg:pt-0.5">
-                  {canDeleteRows ? (
-                    <button
-                      type="button"
-                      onClick={() => removeLineItem(item.id)}
-                      aria-label={`Remove line item ${index + 1}`}
+                    <p
                       className={cn(
-                        getAppButtonClass({
-                          variant: "ghost",
-                          size: "sm",
-                        }),
-                        "h-12 w-9 px-0 text-base text-slate-500 hover:text-slate-900"
+                        lineItemErrorSlotClass,
+                        qtyError ? "" : "invisible"
                       )}
                     >
-                      ×
-                    </button>
-                  ) : (
-                    <div className="hidden lg:block" />
-                  )}
+                      {qtyError ?? "Quantity error"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className={compactLabelClass}>Rate</label>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-slate-500">
+                        {currencySymbol}
+                      </span>
+                      <input
+                        suppressHydrationWarning
+                        type="number"
+                        min={0}
+                        inputMode="decimal"
+                        value={item.rate}
+                        onChange={(e) =>
+                          updateItem(
+                            item.id,
+                            "rate",
+                            Math.max(0, Number(e.target.value) || 0)
+                          )
+                        }
+                        onBlur={() => markTouched(item.id, "rate")}
+                        className={rateInputClass(rateError, item.rate > 0)}
+                        {...numberInputProps}
+                      />
+                    </div>
+                    <p
+                      className={cn(
+                        lineItemErrorSlotClass,
+                        rateError ? "" : "invisible"
+                      )}
+                    >
+                      {rateError ?? "Rate error"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className={compactLabelClass}>Unit *</label>
+                    <AppSelectField
+                      suppressHydrationWarning
+                      value={item.rateUnit}
+                      onChange={(e) =>
+                        updateItem(
+                          item.id,
+                          "rateUnit",
+                          e.target.value as InvoiceRateUnit
+                        )
+                      }
+                      hasValue
+                    >
+                      {allowedUnits.map((unit) => (
+                        <option key={unit} value={unit}>
+                          {unitLabels[unit]}
+                        </option>
+                      ))}
+                    </AppSelectField>
+                    <div className="min-h-[18px]" />
+                  </div>
+
+                  <div>
+                    <span className={compactLabelClass}>Total</span>
+                    <div className="invoice-line-item-total flex h-11 items-center justify-end px-3 py-0 text-sm font-semibold text-slate-700">
+                      {formatCurrency(lineTotal, currency)}
+                    </div>
+                    <div className="min-h-[18px]" />
+                  </div>
+
+                  <div className="flex justify-end lg:pt-0.5">
+                    {canDeleteRows ? (
+                      <button
+                        type="button"
+                        onClick={() => removeLineItem(item.id)}
+                        aria-label={`Remove line item ${index + 1}`}
+                        className={cn(
+                          getAppButtonClass({
+                            variant: "ghost",
+                            size: "sm",
+                          }),
+                          "h-11 w-9 px-0 text-base text-slate-500 hover:text-slate-900"
+                        )}
+                      >
+                        ×
+                      </button>
+                    ) : (
+                      <div className="hidden lg:block" />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-4 flex justify-start">
-        <button
-          type="button"
-          onClick={addLineItem}
-          className={getAppButtonClass({
-            variant: "secondary",
-            size: "md",
+            );
           })}
-        >
-          + Add New Line Item
-        </button>
+        </div>
+
+        <div className="border-t border-slate-200/80 pt-3">
+          <button
+            type="button"
+            onClick={addLineItem}
+            className={getAppButtonClass({
+              variant: "secondary",
+              size: "md",
+            })}
+          >
+            + Add line item
+          </button>
+        </div>
       </div>
     </section>
   );

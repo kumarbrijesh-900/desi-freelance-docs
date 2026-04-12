@@ -278,10 +278,10 @@ export default function TermsPaymentSection({
     value.license.licenseType === "non-exclusive-license";
   const isInternational = clientLocation === "international";
   const licenseToggleLabel = isLicenseSectionOpen
-    ? "Hide license terms"
+    ? "Hide terms"
     : hasLicenseContent
-    ? "License terms added"
-    : "Add license terms";
+    ? "Review terms"
+    : "Add terms";
 
   const inputClass = (hasError?: string, hasValue?: boolean, multiline = false) =>
     getAppFieldClass({
@@ -408,8 +408,8 @@ export default function TermsPaymentSection({
 
           <div
             className={cn(
-              getAppSubtlePanelClass("default"),
-              "invoice-utility-widget space-y-2.5 border border-slate-200/70 px-3 py-2.5"
+              getAppSubtlePanelClass("muted"),
+              "invoice-optional-zone invoice-utility-widget space-y-2.5 border border-slate-200/70 px-3 py-2.5"
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -417,8 +417,8 @@ export default function TermsPaymentSection({
                 <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-950">
                   Licensing
                 </p>
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white/78 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
-                  {hasLicenseContent ? "Enabled" : "Optional"}
+                <span className="inline-flex items-center rounded-full border border-slate-200/90 bg-white/86 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
+                  {hasLicenseContent ? "Included" : "Optional"}
                 </span>
               </div>
 

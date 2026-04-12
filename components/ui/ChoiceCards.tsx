@@ -53,7 +53,7 @@ export default function ChoiceCards<T extends string>({
 
     return `block rounded-[14px] border px-4 py-3 transition ${
       isSelected
-        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-indigo-200/70"
+        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-slate-300/75"
         : "app-soft-choice-option text-slate-700 hover:text-slate-950"
     }`;
   };
@@ -126,7 +126,7 @@ export default function ChoiceCards<T extends string>({
                 <motion.span
                   aria-hidden="true"
                   className={`h-2.5 w-2.5 rounded-full ${
-                    isSelected ? "bg-indigo-500" : "bg-slate-300"
+                    isSelected ? "bg-slate-950" : "bg-slate-300"
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
                   transition={{

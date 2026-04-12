@@ -300,14 +300,24 @@ export default function TotalsTaxesSection({
           ) : null}
         </div>
 
-        <div className={cn(getAppPanelClass(), "space-y-4 px-5 py-4.5")}>
-          <div className="space-y-1.5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
-              Final review
-            </p>
-            <h3 className="text-[1.15rem] font-semibold tracking-[-0.02em] text-slate-950">
-              Invoice totals
-            </h3>
+        <div className={cn(getAppPanelClass(), "invoice-final-review-panel space-y-4 px-5 py-4.5")}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                Final review
+              </p>
+              <h3 className="text-[1.15rem] font-semibold tracking-[-0.024em] text-slate-950">
+                Invoice totals
+              </h3>
+            </div>
+
+            <span
+              className={getAppStatusPillClass(
+                grandTotal > 0 ? "default" : "muted"
+              )}
+            >
+              {taxModeSummaryLabel}
+            </span>
           </div>
 
           <dl className="invoice-total-summary-card space-y-3 rounded-[16px] px-4 py-4">
@@ -318,14 +328,19 @@ export default function TotalsTaxesSection({
               </dd>
             </div>
 
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <dt className="text-slate-500">Tax</dt>
-              <dd className="text-right font-medium text-slate-950">
-                <span>{taxModeSummaryLabel}</span>
-                <span className="ml-2 text-slate-500">
-                  {formatCurrency(taxAmount, currency)}
-                </span>
-              </dd>
+            <div className="border-t border-slate-200/80 pt-3 text-sm">
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-slate-500">Tax</dt>
+                <dd className="text-right font-medium text-slate-950">
+                  <span>{taxModeSummaryLabel}</span>
+                  <span className="ml-2 text-slate-500">
+                    {formatCurrency(taxAmount, currency)}
+                  </span>
+                </dd>
+              </div>
+              <p className="mt-2 text-[11px] leading-5 text-slate-500">
+                {taxAmountHelperText}
+              </p>
             </div>
 
             <div className="invoice-total-hero">
@@ -340,7 +355,7 @@ export default function TotalsTaxesSection({
 
           {grandTotalReferenceLabel &&
           typeof grandTotalReferenceAmount === "number" ? (
-            <p className="rounded-[14px] bg-slate-50/96 px-4 py-3 text-[11px] leading-5 text-slate-600 ring-1 ring-inset ring-slate-200/84">
+            <p className="invoice-final-review-note rounded-[14px] px-4 py-3 text-[11px] leading-5 text-slate-600">
               {grandTotalReferenceLabel}:{" "}
               <span className="font-medium text-slate-900">
                 {formatCurrency(grandTotalReferenceAmount, "USD")}
@@ -349,7 +364,9 @@ export default function TotalsTaxesSection({
           ) : null}
 
           <p className="text-[11px] leading-5 text-slate-500">
-            Final amount payable before any offline adjustments.
+            {grandTotal > 0
+              ? "Final amount payable before any offline adjustments."
+              : "Add billable items to establish the final payable amount."}
           </p>
         </div>
       </div>
