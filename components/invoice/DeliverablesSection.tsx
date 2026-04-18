@@ -157,12 +157,12 @@ export default function DeliverablesSection({
       ...value,
       {
         id: createLineItemId(value),
-        type: "UI/UX",
+        type: "UI/UX Design",
         description: "",
         qty: 1,
         rate: 0,
-        rateUnit: invoiceDefaultUnitByType["UI/UX"],
-        sacCode: getDefaultSacCodeForType("UI/UX"),
+        rateUnit: invoiceDefaultUnitByType["UI/UX Design"],
+        sacCode: getDefaultSacCodeForType("UI/UX Design"),
       },
     ]);
   };

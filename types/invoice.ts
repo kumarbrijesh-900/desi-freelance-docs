@@ -7,6 +7,7 @@ import {
   invoiceAllowedUnitsByType,
   invoiceDefaultUnitByType,
 } from "@/lib/invoice-deliverables";
+import { normalizeInvoiceLineItemType } from "@/lib/invoice-line-item-catalog";
 import {
   composeIndianAddress,
   evaluateStateSignals,
@@ -17,10 +18,20 @@ import { derivePanFromGstin, getStateFromGstin } from "@/lib/gstin-parser";
 
 export type InvoiceLineItemType =
   | "Logo Design"
-  | "UI/UX"
+  | "Branding & Identity"
+  | "Graphic Design"
   | "Illustration"
+  | "UI/UX Design"
+  | "Animation"
+  | "Motion Graphics"
   | "Photography"
+  | "Videography"
   | "Video Editing"
+  | "Social Media Content"
+  | "Packaging Design"
+  | "Print Design"
+  | "Infographics & Presentation Design"
+  | "UI/UX"
   | "Social Media"
   | "Other";
 
@@ -192,13 +203,13 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   lineItems: [
     {
       id: "line-1",
-      type: "UI/UX",
+      type: "UI/UX Design",
       description: "",
       qty: 1,
       rate: 0,
       rateUnit: "per-screen",
       sacCode: resolveLineItemSacCode({
-        type: "UI/UX",
+        type: "UI/UX Design",
         sacCode: "",
       }),
     },
@@ -311,7 +322,8 @@ export function mergeInvoiceFormData(
   const normalizeLineItem = (
     item?: Partial<InvoiceLineItem> | null
   ): InvoiceLineItem => {
-    const nextType = item?.type ?? defaultLineItem.type;
+    const nextType =
+      normalizeInvoiceLineItemType(item?.type) ?? defaultLineItem.type;
     const nextRateUnit = invoiceAllowedUnitsByType[nextType].includes(
       item?.rateUnit ?? defaultLineItem.rateUnit
     )

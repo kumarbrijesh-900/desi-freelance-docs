@@ -29,7 +29,7 @@ test.describe("invoice deliverables intelligence", () => {
       .locator("button")
       .last();
     const mappedSuggestion = firstRow.getByRole("option", {
-      name: /product photography set with retouched selects/i,
+      name: /product photography shoot \(10-15 high-res images\)/i,
     });
 
     await expect(mappedSuggestion).toBeHidden();
@@ -44,7 +44,7 @@ test.describe("invoice deliverables intelligence", () => {
     await expect(mappedSuggestion).toBeVisible();
     await mappedSuggestion.click();
     await expect(descriptionInput).toHaveValue(
-      "Product photography set with retouched selects"
+      "Product photography shoot (10-15 high-res images)"
     );
 
     await descriptionInput.fill("Custom product photography coverage");
