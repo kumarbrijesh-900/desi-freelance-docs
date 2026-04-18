@@ -86,6 +86,14 @@ export const appSectionHeaderClass =
 
 export const appSectionBodyClass = "space-y-4 px-5 py-4";
 
+export const appFieldFullWidthStackClass = "space-y-4";
+
+export const appFieldPairGridClass =
+  "grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5";
+
+export const appFieldTripleCompactGridClass =
+  "grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_132px]";
+
 export const appStickyRailClass =
   "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface-muted)] shadow-[var(--app-elevation-soft)]";
 

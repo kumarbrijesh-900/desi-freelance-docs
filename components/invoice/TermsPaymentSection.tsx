@@ -24,6 +24,10 @@ import {
   getAppPanelClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
+import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+} from "@/lib/form-foundation";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -330,7 +334,7 @@ export default function TermsPaymentSection({
           </div>
         ) : null}
 
-        <div className="space-y-4">
+        <div className={appFieldFullWidthStackClass}>
           {isInternational ? (
             <div className="space-y-1.5" data-testid="payment-settlement-control">
               <label className={appFieldLabelClass}>
@@ -383,7 +387,7 @@ export default function TermsPaymentSection({
             </div>
           ) : null}
 
-          <div>
+          <div className="w-full md:max-w-[288px]">
             <label className={appFieldLabelClass}>
               Payment Terms *
             </label>
@@ -561,7 +565,7 @@ export default function TermsPaymentSection({
 
           {!isInternational ? (
             <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_76px] xl:items-start">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className={appFieldPairGridClass}>
                 <div>
                   <label className={appFieldLabelClass}>
                     Bank Name
@@ -713,7 +717,7 @@ export default function TermsPaymentSection({
             </div>
           ) : (
             <div className="space-y-4 border-t border-slate-200/70 pt-4">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className={appFieldPairGridClass}>
                 <div>
                   <label className={appFieldLabelClass}>
                     Beneficiary Name
@@ -806,7 +810,7 @@ export default function TermsPaymentSection({
                   ) : null}
                 </div>
 
-                <div className="md:col-span-2 md:max-w-[380px]">
+                <div className="md:col-span-2 md:max-w-[420px]">
                   <label className={appFieldLabelClass}>
                     IBAN / Routing / Sort Code
                   </label>
@@ -832,8 +836,8 @@ export default function TermsPaymentSection({
                   <label className={appFieldLabelClass}>
                     Bank Address
                   </label>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
+                  <div className={appFieldFullWidthStackClass}>
+                    <div>
                       <input
                         suppressHydrationWarning
                         type="text"
@@ -850,7 +854,7 @@ export default function TermsPaymentSection({
                       />
                     </div>
 
-                    <div className="sm:col-span-2">
+                    <div>
                       <input
                         suppressHydrationWarning
                         type="text"
@@ -867,41 +871,43 @@ export default function TermsPaymentSection({
                       />
                     </div>
 
-                    <div>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={bankAddressFields.cityRegion}
-                        onChange={(e) =>
-                          updateBankAddressField("cityRegion", e.target.value)
-                        }
-                        onBlur={() => markTouched("bankAddress")}
-                        placeholder="City / Region"
-                        className={inputClass(
-                          undefined,
-                          Boolean(bankAddressFields.cityRegion)
-                        )}
-                      />
+                    <div className={appFieldPairGridClass}>
+                      <div>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={bankAddressFields.cityRegion}
+                          onChange={(e) =>
+                            updateBankAddressField("cityRegion", e.target.value)
+                          }
+                          onBlur={() => markTouched("bankAddress")}
+                          placeholder="City / Region"
+                          className={inputClass(
+                            undefined,
+                            Boolean(bankAddressFields.cityRegion)
+                          )}
+                        />
+                      </div>
+
+                      <div>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={bankAddressFields.postalCode}
+                          onChange={(e) =>
+                            updateBankAddressField("postalCode", e.target.value)
+                          }
+                          onBlur={() => markTouched("bankAddress")}
+                          placeholder="Postal Code"
+                          className={inputClass(
+                            undefined,
+                            Boolean(bankAddressFields.postalCode)
+                          )}
+                        />
+                      </div>
                     </div>
 
                     <div>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={bankAddressFields.postalCode}
-                        onChange={(e) =>
-                          updateBankAddressField("postalCode", e.target.value)
-                        }
-                        onBlur={() => markTouched("bankAddress")}
-                        placeholder="Postal Code"
-                        className={inputClass(
-                          undefined,
-                          Boolean(bankAddressFields.postalCode)
-                        )}
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2">
                       <input
                         suppressHydrationWarning
                         type="text"

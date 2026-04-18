@@ -144,6 +144,40 @@ function testInternationalIgstLabeling() {
   );
 }
 
+function testSacDefaultsAndBackwardCompatibility() {
+  const merged = mergeInvoiceFormData({
+    lineItems: [
+      {
+        id: "legacy-uiux",
+        type: "UI/UX",
+        description: "Legacy UI item",
+        qty: 1,
+        rate: 1000,
+        rateUnit: "per-screen",
+      },
+      {
+        id: "custom-other",
+        type: "Other",
+        description: "Custom creative support",
+        qty: 1,
+        rate: 1000,
+        rateUnit: "per-day",
+      },
+    ],
+  });
+
+  assert.equal(
+    merged.lineItems[0]?.sacCode,
+    "998314",
+    "Mapped deliverable types should regain their default SAC on merge"
+  );
+  assert.equal(
+    merged.lineItems[1]?.sacCode,
+    "",
+    "Other should remain unresolved until a manual SAC is provided"
+  );
+}
+
 function testStateConflictWarning() {
   const warning = evaluateStateSignals({
     manualState: "Maharashtra",
@@ -169,6 +203,7 @@ function run() {
   testRegularDomesticTaxBranches();
   testSezTaxBranching();
   testInternationalIgstLabeling();
+  testSacDefaultsAndBackwardCompatibility();
   testStateConflictWarning();
 
   console.log("GST compliance tests passed");

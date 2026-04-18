@@ -4,10 +4,15 @@ import type {
   InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import {
+  invoiceAllowedUnitsByType,
+  invoiceDefaultUnitByType,
+} from "@/lib/invoice-deliverables";
+import {
   composeIndianAddress,
   evaluateStateSignals,
   hydrateIndianAddressFields,
 } from "@/lib/invoice-address";
+import { resolveLineItemSacCode } from "@/lib/invoice-sac";
 import { derivePanFromGstin, getStateFromGstin } from "@/lib/gstin-parser";
 
 export type InvoiceLineItemType =
@@ -38,6 +43,7 @@ export interface InvoiceLineItem {
   qty: number;
   rate: number;
   rateUnit: InvoiceRateUnit;
+  sacCode?: string;
 }
 
 export interface AgencyDetails {
@@ -191,6 +197,10 @@ export const defaultInvoiceFormData: InvoiceFormData = {
       qty: 1,
       rate: 0,
       rateUnit: "per-screen",
+      sacCode: resolveLineItemSacCode({
+        type: "UI/UX",
+        sacCode: "",
+      }),
     },
   ],
   tax: {
@@ -298,6 +308,27 @@ export function mergeInvoiceFormData(
   value?: Partial<InvoiceFormData> | null
 ): InvoiceFormData {
   const defaultLineItem = defaultInvoiceFormData.lineItems[0];
+  const normalizeLineItem = (
+    item?: Partial<InvoiceLineItem> | null
+  ): InvoiceLineItem => {
+    const nextType = item?.type ?? defaultLineItem.type;
+    const nextRateUnit = invoiceAllowedUnitsByType[nextType].includes(
+      item?.rateUnit ?? defaultLineItem.rateUnit
+    )
+      ? (item?.rateUnit ?? defaultLineItem.rateUnit)
+      : invoiceDefaultUnitByType[nextType];
+
+    return {
+      ...defaultLineItem,
+      ...item,
+      type: nextType,
+      rateUnit: nextRateUnit,
+      sacCode: resolveLineItemSacCode({
+        type: nextType,
+        sacCode: item?.sacCode,
+      }),
+    };
+  };
 
   return {
     agency: normalizeAgencyDetails({
@@ -316,11 +347,8 @@ export function mergeInvoiceFormData(
       ...value?.meta,
     },
     lineItems: Array.isArray(value?.lineItems)
-      ? value.lineItems.map((item) => ({
-          ...defaultLineItem,
-          ...item,
-        }))
-      : defaultInvoiceFormData.lineItems.map((item) => ({ ...item })),
+      ? value.lineItems.map((item) => normalizeLineItem(item))
+      : defaultInvoiceFormData.lineItems.map((item) => normalizeLineItem(item)),
     tax: {
       ...defaultInvoiceFormData.tax,
       ...value?.tax,

@@ -8,6 +8,11 @@ import {
   isInternationalClient,
   requiresExplicitExportTaxChoice,
 } from "@/lib/invoice-compliance";
+import {
+  isManualSacRequired,
+  isValidSacCode,
+  resolveLineItemSacCode,
+} from "@/lib/invoice-sac";
 
 export type InvoiceFieldErrors = {
   agency: {
@@ -36,6 +41,7 @@ export type InvoiceFieldErrors = {
       description?: string;
       qty?: string;
       rate?: string;
+      sacCode?: string;
     }
   >;
   payment: {
@@ -171,6 +177,7 @@ export function getInvoiceFieldErrors(
       description?: string;
       qty?: string;
       rate?: string;
+      sacCode?: string;
     } = {};
 
     if (isBlank(item.description)) {
@@ -183,6 +190,13 @@ export function getInvoiceFieldErrors(
 
     if (!Number.isFinite(item.rate) || item.rate <= 0) {
       itemErrors.rate = "Rate must be greater than 0.";
+    }
+
+    const resolvedSacCode = resolveLineItemSacCode(item);
+    if (isManualSacRequired(item.type) && isBlank(resolvedSacCode)) {
+      itemErrors.sacCode = "SAC code is required for custom deliverables.";
+    } else if (resolvedSacCode && !isValidSacCode(resolvedSacCode)) {
+      itemErrors.sacCode = "Enter a valid 6-digit SAC code.";
     }
 
     if (Object.keys(itemErrors).length > 0) {
@@ -316,7 +330,7 @@ export function getInvoiceStepError(
 
     case "deliverables":
       return Object.keys(errors.lineItems).length > 0
-        ? "Each line item needs a description, valid quantity, and valid rate."
+        ? "Each line item needs a description, valid quantity, valid rate, and resolved SAC code."
         : "";
 
     case "payment":

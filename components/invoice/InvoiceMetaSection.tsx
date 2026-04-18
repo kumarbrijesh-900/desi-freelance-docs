@@ -11,6 +11,10 @@ import {
   getAppFieldClass,
   getAppPanelClass,
 } from "@/lib/ui-foundation";
+import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+} from "@/lib/form-foundation";
 
 interface InvoiceMetaSectionProps {
   value: InvoiceMeta;
@@ -79,7 +83,7 @@ export default function InvoiceMetaSection({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-3 md:max-w-[548px] md:grid-cols-[minmax(0,1fr)_148px_148px] md:items-start">
+      <div className={cn(appFieldFullWidthStackClass, "md:max-w-[640px]")}>
         <div>
           <label className={appFieldLabelClass}>
             Invoice Number *
@@ -103,42 +107,47 @@ export default function InvoiceMetaSection({
           ) : null}
         </div>
 
-        <div>
-          <label className={appFieldLabelClass}>
-            Invoice Date *
-          </label>
-          <input
-            suppressHydrationWarning
-            type="date"
-            value={value.invoiceDate}
-            onChange={(e) => updateField("invoiceDate", e.target.value)}
-            onBlur={() => markTouched("invoiceDate")}
-            className={inputClass(invoiceDateError, Boolean(value.invoiceDate))}
-          />
-          {invoiceDateError ? (
-            <p className={appFieldErrorTextClass}>
-              {invoiceDateError}
-            </p>
-          ) : null}
-        </div>
+        <div className={appFieldPairGridClass}>
+          <div className="md:max-w-[190px]">
+            <label className={appFieldLabelClass}>
+              Invoice Date *
+            </label>
+            <input
+              suppressHydrationWarning
+              type="date"
+              value={value.invoiceDate}
+              onChange={(e) => updateField("invoiceDate", e.target.value)}
+              onBlur={() => markTouched("invoiceDate")}
+              className={inputClass(
+                invoiceDateError,
+                Boolean(value.invoiceDate)
+              )}
+            />
+            {invoiceDateError ? (
+              <p className={appFieldErrorTextClass}>
+                {invoiceDateError}
+              </p>
+            ) : null}
+          </div>
 
-        <div>
-          <label className={appFieldLabelClass}>
-            Due Date *
-          </label>
-          <input
-            suppressHydrationWarning
-            type="date"
-            value={value.dueDate}
-            onChange={(e) => updateField("dueDate", e.target.value)}
-            onBlur={() => markTouched("dueDate")}
-            className={inputClass(dueDateError, Boolean(value.dueDate))}
-          />
-          {dueDateError ? (
-            <p className={appFieldErrorTextClass}>
-              {dueDateError}
-            </p>
-          ) : null}
+          <div className="md:max-w-[190px]">
+            <label className={appFieldLabelClass}>
+              Due Date *
+            </label>
+            <input
+              suppressHydrationWarning
+              type="date"
+              value={value.dueDate}
+              onChange={(e) => updateField("dueDate", e.target.value)}
+              onBlur={() => markTouched("dueDate")}
+              className={inputClass(dueDateError, Boolean(value.dueDate))}
+            />
+            {dueDateError ? (
+              <p className={appFieldErrorTextClass}>
+                {dueDateError}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>

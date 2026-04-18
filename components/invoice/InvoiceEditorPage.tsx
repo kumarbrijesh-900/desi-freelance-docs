@@ -464,6 +464,7 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
     }
     if (lineItemErrors.qty) addField("deliverables", "Deliverable quantity");
     if (lineItemErrors.rate) addField("deliverables", "Deliverable rate");
+    if (lineItemErrors.sacCode) addField("deliverables", "SAC code");
   });
 
   if (
@@ -1681,6 +1682,7 @@ export default function InvoiceEditorPage() {
                               <button
                                 type="button"
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
+                                onMouseDown={(event) => event.preventDefault()}
                                 onClick={() =>
                                   scrollToStep(getNextStep(step)!, { focus: true })
                                 }

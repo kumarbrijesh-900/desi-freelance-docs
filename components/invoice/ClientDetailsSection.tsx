@@ -26,6 +26,11 @@ import {
 import { parseGstin } from "@/lib/gstin-parser";
 import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
 import { suggestSezCampus } from "@/lib/sez-lookup";
+import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+  appFieldTripleCompactGridClass,
+} from "@/lib/form-foundation";
 
 interface ClientDetailsSectionProps {
   value: ClientDetails;
@@ -157,8 +162,8 @@ export default function ClientDetailsSection({
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(260px,1fr)] md:items-end lg:grid-cols-[minmax(0,1.55fr)_minmax(296px,1fr)]">
+      <div className={appFieldFullWidthStackClass}>
+        <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
           <div>
             <label className={appFieldLabelClass}>
               Client Name *
@@ -217,7 +222,7 @@ export default function ClientDetailsSection({
 
         {!isInternational ? (
           <div className="space-y-4 border-t border-slate-200/70 pt-4">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,0.95fr)_minmax(280px,1.35fr)]">
+            <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
                   Client GSTIN
@@ -298,8 +303,8 @@ export default function ClientDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[minmax(248px,1.2fr)_minmax(180px,0.95fr)_minmax(112px,0.6fr)]">
-              <div className="md:col-span-2 lg:col-span-3">
+            <div className={appFieldFullWidthStackClass}>
+              <div>
                 <label className={appFieldLabelClass}>
                   Address Line 1 *
                 </label>
@@ -317,7 +322,7 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="md:col-span-2 lg:col-span-3">
+              <div>
                 <label className={appFieldLabelClass}>
                   Address Line 2
                 </label>
@@ -331,7 +336,8 @@ export default function ClientDetailsSection({
                 />
               </div>
 
-              <div className="min-w-0">
+              <div className={appFieldTripleCompactGridClass}>
+                <div className="min-w-0">
                 <label className={appFieldLabelClass}>
                   State *
                 </label>
@@ -354,11 +360,11 @@ export default function ClientDetailsSection({
                     <option key={stateName} value={stateName}>
                       {stateName}
                     </option>
-                  ))}
-                </AppSelectField>
-              </div>
+                    ))}
+                  </AppSelectField>
+                </div>
 
-              <div>
+                <div>
                 <label className={appFieldLabelClass}>
                   City
                 </label>
@@ -370,9 +376,9 @@ export default function ClientDetailsSection({
                   placeholder="Bengaluru"
                   className={inputClass(undefined, Boolean(value.clientCity))}
                 />
-              </div>
+                </div>
 
-              <div className="min-w-0">
+                <div className="min-w-0">
                 <label className={appFieldLabelClass}>
                   PIN Code
                 </label>
@@ -387,9 +393,10 @@ export default function ClientDetailsSection({
                       e.target.value.replace(/\D/g, "").slice(0, 6)
                     )
                   }
-                  placeholder="560048"
-                  className={inputClass(undefined, Boolean(value.clientPinCode))}
-                />
+                    placeholder="560048"
+                    className={inputClass(undefined, Boolean(value.clientPinCode))}
+                  />
+                </div>
               </div>
             </div>
 
@@ -413,7 +420,7 @@ export default function ClientDetailsSection({
 
         {isInternational ? (
           <div className="space-y-4 border-t border-slate-200/70 pt-4">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(240px,1.15fr)_minmax(210px,0.95fr)]">
+            <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
                   Country *
@@ -499,7 +506,7 @@ export default function ClientDetailsSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(160px,0.72fr)_minmax(280px,1.28fr)]">
+            <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
                   Postal Code

@@ -6,12 +6,26 @@ import type {
   InvoiceRateUnit,
 } from "@/types/invoice";
 import {
+  getInvoiceDescriptionSuggestions,
+  invoiceAllowedUnitsByType,
+  invoiceDefaultUnitByType,
+  invoiceDescriptionPlaceholderByType,
+  invoiceLineItemTypeOptions,
+  invoiceRateUnitLabels,
+} from "@/lib/invoice-deliverables";
+import {
   getCurrencySymbol,
   type InvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
+import {
+  getDefaultSacCodeForType,
+  isManualSacRequired,
+  resolveLineItemSacCode,
+} from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
 import {
   appFieldErrorTextClass,
+  appFieldHelperTextClass,
   appFieldLabelClass,
   appSectionDescriptionClass,
   appSectionTitleClass,
@@ -32,98 +46,14 @@ interface DeliverablesSectionProps {
       description?: string;
       qty?: string;
       rate?: string;
+      sacCode?: string;
     }
   >;
   showAllErrors?: boolean;
 }
 
-const typeOptions: InvoiceLineItemType[] = [
-  "Logo Design",
-  "UI/UX",
-  "Illustration",
-  "Photography",
-  "Video Editing",
-  "Social Media",
-  "Other",
-];
-
-const unitLabels: Record<InvoiceRateUnit, string> = {
-  "per-deliverable": "Per deliverable",
-  "per-item": "Per item",
-  "per-screen": "Per screen",
-  "per-hour": "Per hour",
-  "per-day": "Per day",
-  "per-revision": "Per revision",
-  "per-concept": "Per concept",
-  "per-post": "Per post",
-  "per-video": "Per video",
-  "per-image": "Per image",
-};
-
-const allowedUnitsByType: Record<InvoiceLineItemType, InvoiceRateUnit[]> = {
-  "Logo Design": [
-    "per-deliverable",
-    "per-concept",
-    "per-revision",
-    "per-item",
-  ],
-  "UI/UX": [
-    "per-screen",
-    "per-hour",
-    "per-day",
-    "per-deliverable",
-    "per-revision",
-  ],
-  Illustration: [
-    "per-item",
-    "per-deliverable",
-    "per-revision",
-    "per-concept",
-  ],
-  Photography: [
-    "per-image",
-    "per-hour",
-    "per-day",
-    "per-deliverable",
-  ],
-  "Video Editing": [
-    "per-video",
-    "per-hour",
-    "per-day",
-    "per-deliverable",
-    "per-revision",
-  ],
-  "Social Media": [
-    "per-post",
-    "per-item",
-    "per-deliverable",
-    "per-revision",
-  ],
-  Other: ["per-deliverable", "per-item", "per-hour", "per-day"],
-};
-
-const defaultUnitByType: Record<InvoiceLineItemType, InvoiceRateUnit> = {
-  "Logo Design": "per-deliverable",
-  "UI/UX": "per-screen",
-  Illustration: "per-item",
-  Photography: "per-image",
-  "Video Editing": "per-video",
-  "Social Media": "per-post",
-  Other: "per-deliverable",
-};
-
-const shortPlaceholders: Record<InvoiceLineItemType, string> = {
-  "Logo Design": "Primary logo design",
-  "UI/UX": "Landing page UI design",
-  Illustration: "Editorial illustration set",
-  Photography: "Product photography set",
-  "Video Editing": "Short-form video edits",
-  "Social Media": "Social media creative set",
-  Other: "Describe the deliverable",
-};
-
 const lineItemDesktopGridClass =
-  "lg:grid-cols-[minmax(156px,1.18fr)_minmax(256px,3.55fr)_minmax(72px,0.56fr)_minmax(124px,0.92fr)_minmax(172px,1.28fr)_minmax(112px,0.82fr)_32px]";
+  "lg:grid-cols-[minmax(168px,1.18fr)_minmax(272px,3.55fr)_minmax(72px,0.56fr)_minmax(132px,0.92fr)_minmax(176px,1.28fr)_minmax(112px,0.82fr)_32px]";
 
 let lineItemIdCounter = 0;
 
@@ -159,6 +89,9 @@ export default function DeliverablesSection({
   showAllErrors = false,
 }: DeliverablesSectionProps) {
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(
+    null
+  );
   const updateItem = <K extends keyof InvoiceLineItem>(
     id: string,
     key: K,
@@ -181,8 +114,8 @@ export default function DeliverablesSection({
       value.map((item) => {
         if (item.id !== id) return item;
 
-        const allowedUnits = allowedUnitsByType[nextType];
-        const fallbackUnit = defaultUnitByType[nextType];
+        const allowedUnits = invoiceAllowedUnitsByType[nextType];
+        const fallbackUnit = invoiceDefaultUnitByType[nextType];
         const nextRateUnit = allowedUnits.includes(item.rateUnit)
           ? item.rateUnit
           : fallbackUnit;
@@ -191,11 +124,27 @@ export default function DeliverablesSection({
           ...item,
           type: nextType,
           rateUnit: nextRateUnit,
+          sacCode: isManualSacRequired(nextType)
+            ? ""
+            : getDefaultSacCodeForType(nextType),
           // Keep any user-entered description intact when the type changes.
           description: item.description.trim() ? item.description : "",
         };
       })
     );
+  };
+
+  const applyDescriptionSuggestion = (id: string, suggestion: string) => {
+    updateItem(id, "description", suggestion);
+    setActiveDescriptionId(id);
+    setTouchedFields((prev) => ({
+      ...prev,
+      [`${id}:description`]: true,
+    }));
+  };
+
+  const updateSacCode = (id: string, nextSacCode: string) => {
+    updateItem(id, "sacCode", nextSacCode.replace(/\D/g, "").slice(0, 6));
   };
 
   const addLineItem = () => {
@@ -207,7 +156,8 @@ export default function DeliverablesSection({
         description: "",
         qty: 1,
         rate: 0,
-        rateUnit: defaultUnitByType["UI/UX"],
+        rateUnit: invoiceDefaultUnitByType["UI/UX"],
+        sacCode: getDefaultSacCodeForType("UI/UX"),
       },
     ]);
   };
@@ -240,9 +190,13 @@ export default function DeliverablesSection({
     const key = `${itemId}:${field}`;
     setTouchedFields((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
   };
+  const markSacTouched = (itemId: string) => {
+    const key = `${itemId}:sacCode`;
+    setTouchedFields((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+  };
   const getVisibleRowError = (
     itemId: string,
-    field: "description" | "qty" | "rate",
+    field: "description" | "qty" | "rate" | "sacCode",
     error?: string
   ) => {
     return showAllErrors || touchedFields[`${itemId}:${field}`]
@@ -305,7 +259,7 @@ export default function DeliverablesSection({
         <div className="space-y-3 overflow-visible" data-testid="line-items-list">
           {value.map((item, index) => {
             const lineTotal = item.qty * item.rate;
-            const allowedUnits = allowedUnitsByType[item.type];
+            const allowedUnits = invoiceAllowedUnitsByType[item.type];
             const rowErrors = errors?.[item.id];
             const descriptionError = getVisibleRowError(
               item.id,
@@ -314,6 +268,17 @@ export default function DeliverablesSection({
             );
             const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
             const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
+            const sacError = getVisibleRowError(
+              item.id,
+              "sacCode",
+              rowErrors?.sacCode
+            );
+            const descriptionSuggestions = getInvoiceDescriptionSuggestions(item.type);
+            const resolvedSacCode = resolveLineItemSacCode(item);
+            const needsManualSacEntry = isManualSacRequired(item.type);
+            const showSuggestionAssist =
+              activeDescriptionId === item.id ||
+              (!item.description.trim() && index === 0);
             const compactLabelClass = cn(
               appFieldLabelClass,
               "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
@@ -350,32 +315,99 @@ export default function DeliverablesSection({
                       hasValue
                       className="px-3 pr-10"
                     >
-                      {typeOptions.map((option) => (
+                      {invoiceLineItemTypeOptions.map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>
                       ))}
                     </AppSelectField>
-                    <div className="min-h-[18px]" />
+
+                    <div className="mt-2 min-h-[44px]">
+                      {needsManualSacEntry ? (
+                        <div className="space-y-1.5">
+                          <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            SAC Code *
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            inputMode="numeric"
+                            value={item.sacCode ?? ""}
+                            onChange={(e) =>
+                              updateSacCode(item.id, e.target.value)
+                            }
+                            onBlur={() => markSacTouched(item.id)}
+                            placeholder="6-digit SAC"
+                            className={inputClass(
+                              sacError,
+                              Boolean(item.sacCode)
+                            )}
+                          />
+                          {sacError ? (
+                            <p className={appFieldErrorTextClass}>{sacError}</p>
+                          ) : (
+                            <p className={appFieldHelperTextClass}>
+                              Enter the exact SAC for this custom service line.
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="inline-flex items-center rounded-full border border-slate-200/85 bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
+                          SAC {resolvedSacCode}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="min-w-0 space-y-1.5">
                     <label className={compactLabelClass}>Description *</label>
                     <input
+                      list={`line-item-description-suggestions-${item.id}`}
                       suppressHydrationWarning
                       type="text"
                       value={item.description}
                       onChange={(e) =>
                         updateItem(item.id, "description", e.target.value)
                       }
+                      onFocus={() => setActiveDescriptionId(item.id)}
                       onBlur={() => markTouched(item.id, "description")}
-                      placeholder={shortPlaceholders[item.type]}
+                      placeholder={invoiceDescriptionPlaceholderByType[item.type]}
                       className={inputClass(
                         descriptionError,
                         Boolean(item.description)
                       )}
-                      title={item.description || shortPlaceholders[item.type]}
+                      title={
+                        item.description ||
+                        invoiceDescriptionPlaceholderByType[item.type]
+                      }
                     />
+                    <datalist id={`line-item-description-suggestions-${item.id}`}>
+                      {descriptionSuggestions.map((suggestion) => (
+                        <option key={suggestion} value={suggestion} />
+                      ))}
+                    </datalist>
+                    {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
+                      <div className="rounded-[12px] border border-slate-200/80 bg-white/78 px-3 py-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            Suggested for {item.type}
+                          </span>
+                          {descriptionSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              type="button"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() =>
+                                applyDescriptionSuggestion(item.id, suggestion)
+                              }
+                              className="inline-flex items-center rounded-full border border-slate-200/85 bg-slate-50/90 px-2.5 py-1 text-[11px] font-medium text-slate-700 transition-colors duration-[var(--app-duration-fast)] hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     <p
                       className={cn(
                         lineItemErrorSlotClass,
@@ -466,7 +498,7 @@ export default function DeliverablesSection({
                     >
                       {allowedUnits.map((unit) => (
                         <option key={unit} value={unit}>
-                          {unitLabels[unit]}
+                          {invoiceRateUnitLabels[unit]}
                         </option>
                       ))}
                     </AppSelectField>

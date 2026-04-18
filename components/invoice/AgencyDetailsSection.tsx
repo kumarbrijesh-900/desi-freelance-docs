@@ -15,6 +15,11 @@ import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-addres
 import { parseGstin } from "@/lib/gstin-parser";
 import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
 import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+  appFieldTripleCompactGridClass,
+} from "@/lib/form-foundation";
+import {
   appFieldErrorTextClass,
   appFieldHelperTextClass,
   appFieldLabelClass,
@@ -210,7 +215,7 @@ export default function AgencyDetailsSection({
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
-          <div className="space-y-4">
+          <div className={appFieldFullWidthStackClass}>
             <div>
               <label className={appFieldLabelClass}>
                 Business / Trade Name *
@@ -241,8 +246,8 @@ export default function AgencyDetailsSection({
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[168px_minmax(0,1fr)_104px]">
-                <div className="md:col-span-2 lg:col-span-3">
+              <div className="space-y-4">
+                <div className={appFieldFullWidthStackClass}>
                   <label className={appFieldLabelClass}>
                     Address Line 1 *
                   </label>
@@ -260,7 +265,7 @@ export default function AgencyDetailsSection({
                   />
                 </div>
 
-                <div className="md:col-span-2 lg:col-span-3">
+                <div className={appFieldFullWidthStackClass}>
                   <label className={appFieldLabelClass}>
                     Address Line 2
                   </label>
@@ -274,7 +279,8 @@ export default function AgencyDetailsSection({
                   />
                 </div>
 
-                <div className="max-w-[220px]">
+                <div className={appFieldTripleCompactGridClass}>
+                  <div className="min-w-0">
                   <label className={appFieldLabelClass}>
                     State *
                   </label>
@@ -299,9 +305,9 @@ export default function AgencyDetailsSection({
                       </option>
                     ))}
                   </AppSelectField>
-                </div>
+                  </div>
 
-                <div>
+                  <div>
                   <label className={appFieldLabelClass}>
                     City
                   </label>
@@ -313,9 +319,9 @@ export default function AgencyDetailsSection({
                     placeholder="Bengaluru"
                     className={inputClass(undefined, Boolean(value.city))}
                   />
-                </div>
+                  </div>
 
-                <div className="max-w-[120px]">
+                  <div className="min-w-0">
                   <label className={appFieldLabelClass}>
                     PIN Code
                   </label>
@@ -330,6 +336,7 @@ export default function AgencyDetailsSection({
                     placeholder="560025"
                     className={inputClass(undefined, Boolean(value.pinCode))}
                   />
+                  </div>
                 </div>
               </div>
 
@@ -354,7 +361,7 @@ export default function AgencyDetailsSection({
               <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
                 Agency Compliance
               </p>
-              <div className="max-w-[332px]">
+              <div className="w-full md:max-w-[360px]">
                 <label className={appFieldLabelClass}>
                   GST Registration Status
                 </label>
@@ -390,38 +397,71 @@ export default function AgencyDetailsSection({
                     className="overflow-hidden"
                   >
                     <div className="border-t border-slate-200/80 pt-3">
-                      <label className={appFieldLabelClass}>
-                        GSTIN
-                      </label>
-                      <div className="max-w-[248px]">
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          aria-label="Agency GSTIN"
-                          value={value.gstin}
-                          onChange={(e) =>
-                            updateField(
-                              "gstin",
-                              e.target.value.toUpperCase().replace(/\s+/g, "")
-                            )
-                          }
-                          onBlur={() => markTouched("gstin")}
-                          placeholder="GSTIN"
-                          autoCapitalize="characters"
-                          spellCheck={false}
-                          className={inputClass(gstinError, Boolean(value.gstin))}
-                        />
+                      <div className={appFieldPairGridClass}>
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            GSTIN
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            aria-label="Agency GSTIN"
+                            value={value.gstin}
+                            onChange={(e) =>
+                              updateField(
+                                "gstin",
+                                e.target.value.toUpperCase().replace(/\s+/g, "")
+                              )
+                            }
+                            onBlur={() => markTouched("gstin")}
+                            placeholder="GSTIN"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            className={inputClass(gstinError, Boolean(value.gstin))}
+                          />
+                          {gstinError ? (
+                            <p className={appFieldErrorTextClass}>
+                              {gstinError}
+                            </p>
+                          ) : gstinInfo.state ? (
+                            <p className={appFieldHelperTextClass}>
+                              GSTIN state code maps to {gstinInfo.state}. PAN will
+                              be derived automatically when blank.
+                            </p>
+                          ) : null}
+                        </div>
+
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            PAN
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.pan}
+                            onChange={(e) =>
+                              updateField(
+                                "pan",
+                                e.target.value.toUpperCase().replace(/\s+/g, "")
+                              )
+                            }
+                            onBlur={() => markTouched("pan")}
+                            placeholder="PAN"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            className={inputClass(panError, Boolean(value.pan))}
+                          />
+                          {panError ? (
+                            <p className={appFieldErrorTextClass}>
+                              {panError}
+                            </p>
+                          ) : panConflictWarning ? (
+                            <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                              {panConflictWarning}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
-                      {gstinError ? (
-                        <p className={appFieldErrorTextClass}>
-                          {gstinError}
-                        </p>
-                      ) : gstinInfo.state ? (
-                        <p className={appFieldHelperTextClass}>
-                          GSTIN state code maps to {gstinInfo.state}. PAN will
-                          be derived automatically when blank.
-                        </p>
-                      ) : null}
                     </div>
                   </motion.div>
                 ) : null}
@@ -518,7 +558,8 @@ export default function AgencyDetailsSection({
               </AnimatePresence>
             </div>
 
-            <div className="max-w-[208px]">
+            {!showGstinField ? (
+              <div className="w-full md:max-w-[240px]">
               <label className={appFieldLabelClass}>
                 PAN
               </label>
@@ -548,6 +589,7 @@ export default function AgencyDetailsSection({
                 </p>
               ) : null}
             </div>
+            ) : null}
           </div>
 
           <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:self-start")}>

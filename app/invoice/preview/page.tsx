@@ -43,6 +43,7 @@ import {
   mergeInvoiceFormData,
   type InvoiceFormData,
 } from "@/types/invoice";
+import { resolveLineItemSacCode } from "@/lib/invoice-sac";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 
@@ -715,8 +716,12 @@ export default function InvoicePreviewPage() {
                             <div className="font-semibold text-black">
                               {item.description || item.type}
                             </div>
-                            <div className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-gray-500">
-                              {item.type}
+                            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                              <span>{item.type}</span>
+                              <span aria-hidden="true">•</span>
+                              <span>
+                                SAC {resolveLineItemSacCode(item) || "pending"}
+                              </span>
                             </div>
                           </td>
                           <td className="px-3 py-2.5 align-top font-medium text-black sm:px-4">
