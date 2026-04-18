@@ -36,7 +36,7 @@ export default function ChoiceCards<T extends string>({
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[46px] min-w-0 items-center gap-2 rounded-[10px] border px-3.5 py-2.5 text-left text-[13px] font-medium transition-all duration-150 ${
+      return `flex min-h-[44px] min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -44,7 +44,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-full border px-3.5 py-1.5 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+      return `inline-flex min-h-10 min-w-fit items-center justify-center rounded-full border px-3 py-2 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-slate-950"
           : "app-soft-choice-option text-slate-700 hover:text-slate-950"
@@ -97,7 +97,7 @@ export default function ChoiceCards<T extends string>({
               layout
               className={`${getCardClass(
                 isSelected
-              )} peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-400/80 peer-focus-visible:ring-offset-2 ${
+              )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--app-color-primary)] peer-focus-visible:ring-offset-2 ${
                 isSelected ? "ring-1 ring-slate-950/15" : ""
               }`}
               data-selected={isSelected ? "true" : "false"}
@@ -138,7 +138,7 @@ export default function ChoiceCards<T extends string>({
                 <motion.span
                   aria-hidden="true"
                   className={`ml-auto h-2.5 w-2.5 shrink-0 rounded-full ${
-                    isSelected ? "bg-slate-950" : "bg-slate-300"
+                    isSelected ? "bg-[color:var(--app-color-primary)]" : "bg-slate-300"
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
                   transition={{

@@ -157,7 +157,7 @@ export default function ClientDetailsSection({
         </div>
       ) : null}
 
-      <div className="space-y-3.5">
+      <div className="space-y-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(260px,1fr)] md:items-end lg:grid-cols-[minmax(0,1.55fr)_minmax(296px,1fr)]">
           <div>
             <label className={appFieldLabelClass}>
@@ -216,7 +216,7 @@ export default function ClientDetailsSection({
         </div>
 
         {!isInternational ? (
-          <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+          <div className="space-y-4 border-t border-slate-200/70 pt-4">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,0.95fr)_minmax(280px,1.35fr)]">
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
@@ -412,7 +412,7 @@ export default function ClientDetailsSection({
         ) : null}
 
         {isInternational ? (
-          <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+          <div className="space-y-4 border-t border-slate-200/70 pt-4">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(240px,1.15fr)_minmax(210px,0.95fr)]">
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>

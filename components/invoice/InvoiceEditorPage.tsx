@@ -571,8 +571,8 @@ function InlineStepSection({
         "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5"
       )}
     >
-      <div className="flex flex-col gap-2.5">
-        <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
           <button
             type="button"
             onClick={onActivate}
@@ -580,16 +580,16 @@ function InlineStepSection({
             className="min-w-0 flex-1 text-left"
           >
             <div className="flex items-start gap-3">
-              <span
-                className={cn(
-                  "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
-                  isCompleted
-                    ? "bg-emerald-600"
-                    : isActive
-                    ? "bg-slate-950"
-                    : "bg-slate-300"
-                )}
-              />
+                <span
+                  className={cn(
+                    "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
+                    isCompleted
+                      ? "bg-emerald-600"
+                      : isActive
+                      ? "bg-[color:var(--app-color-primary)]"
+                      : "bg-slate-300"
+                  )}
+                />
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                   Step {stepNumber}
@@ -597,7 +597,7 @@ function InlineStepSection({
                 <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-slate-950">
                   {stepLabel}
                 </h2>
-                <p className="mt-1.5 max-w-2xl text-[11px] leading-5 text-slate-500">
+                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-slate-500">
                   {detailCopy}
                 </p>
               </div>
@@ -618,9 +618,9 @@ function InlineStepSection({
         <motion.div
           layout
           initial={false}
-          className="invoice-step-divider pt-2.5"
+          className="invoice-step-divider pt-2"
         >
-          <div className="space-y-3.5">
+          <div className="space-y-4">
             {children}
             {footer}
           </div>
@@ -1607,8 +1607,8 @@ export default function InvoiceEditorPage() {
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
         <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
           <div className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
-            <div className="space-y-3.5">
-              <div>
+            <div className="space-y-4">
+              <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
                 <BriefIntakeCard
                   key={briefIntakeResetKey}
                   onExtract={handleBriefAutofill}
@@ -1640,9 +1640,9 @@ export default function InvoiceEditorPage() {
                       : "Ready for preview"}
                   </span>
                 </div>
-                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/80">
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/70">
                   <div
-                    className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                    className="h-full rounded-full bg-[color:var(--app-color-primary)] transition-all duration-500"
                     style={{
                       width: `${Math.round(
                         (completedStepCount / orderedSteps.length) * 100
@@ -1652,7 +1652,7 @@ export default function InvoiceEditorPage() {
                 </div>
               </div>
 
-              <div className="space-y-3.5 overflow-visible" data-testid="invoice-vertical-stepper">
+              <div className="space-y-4 overflow-visible" data-testid="invoice-vertical-stepper">
                 {orderedSteps.map((step) => {
                   const isActive = currentStep === step;
                   const isCompleted = displayStepValidityByStep[step];
@@ -1677,7 +1677,7 @@ export default function InvoiceEditorPage() {
                         onActivate={() => goToStep(step)}
                         footer={
                           getNextStep(step) ? (
-                            <div className="flex justify-end pt-1.5">
+                            <div className="flex justify-end pt-2">
                               <button
                                 type="button"
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
@@ -1716,11 +1716,11 @@ export default function InvoiceEditorPage() {
                 delay={40}
                 className={cn(
                   getAppSubtlePanelClass("muted"),
-                  "invoice-step-rail rounded-[16px] px-2.5 py-2.5"
+                  "invoice-step-rail rounded-[16px] px-3 py-3"
                 )}
               >
                 <div className="space-y-3" data-testid="support-rail-section-list">
-                  <div className="border-b border-slate-200/80 px-1 pb-2.5">
+                  <div className="border-b border-slate-200/80 px-1 pb-2">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                       Editor progress
                     </p>
@@ -1729,7 +1729,7 @@ export default function InvoiceEditorPage() {
                     </p>
                   </div>
 
-                  <div className="invoice-step-rail-track relative space-y-1 pl-2.5">
+                  <div className="invoice-step-rail-track relative space-y-1 pl-3">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
                       const isCompleted = displayStepValidityByStep[step] && !isActive;
@@ -1759,10 +1759,10 @@ export default function InvoiceEditorPage() {
                           key={step}
                           type="button"
                           onClick={() => scrollToStep(step)}
-                          data-step-state={stepState}
-                          className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-2.5 py-2.5 text-left text-slate-700 transition duration-[var(--app-duration-fast)]"
+                          data-rail-state={stepState}
+                          className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-slate-700 transition duration-[var(--app-duration-fast)]"
                         >
-                          <div className="flex min-w-0 items-start gap-2.5">
+                          <div className="flex min-w-0 items-start gap-2">
                             <span className="invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold">
                               {isCompleted ? "✓" : index + 1}
                             </span>
@@ -1791,7 +1791,7 @@ export default function InvoiceEditorPage() {
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-slate-200/80 px-2.5 py-2 sm:flex-row sm:flex-wrap sm:items-center"
+              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-2 border border-slate-200/80 px-3 py-2 sm:flex-row sm:flex-wrap sm:items-center"
             )}
             data-testid="floating-editor-actions"
           >

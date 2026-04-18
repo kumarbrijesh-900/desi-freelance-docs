@@ -3,19 +3,19 @@ export function cn(...values: Array<string | false | null | undefined>) {
 }
 
 export const appSectionTitleClass =
-  "text-[1.12rem] font-semibold tracking-[-0.03em] text-slate-950";
+  "text-[1.12rem] font-semibold tracking-[-0.03em] text-[color:var(--app-color-text-primary)]";
 
 export const appSectionDescriptionClass =
-  "text-[11px] leading-5 text-slate-500";
+  "text-[11px] leading-5 text-[color:var(--app-color-text-muted)]";
 
 export const appFieldLabelClass =
-  "mb-1.5 block text-[12px] font-semibold tracking-[0.01em] text-slate-700";
+  "mb-1 block text-[12px] font-semibold tracking-[0.01em] text-[color:var(--app-color-text-secondary)]";
 
 export const appFieldHelperTextClass =
-  "mt-1.5 text-[11px] leading-[1.5] text-slate-500";
+  "mt-1 text-[11px] leading-[1.5] text-[color:var(--app-color-text-muted)]";
 
 export const appFieldErrorTextClass =
-  "mt-1.5 text-[11px] font-semibold leading-[1.45] text-rose-600";
+  "mt-1 text-[11px] font-semibold leading-[1.45] text-rose-600";
 
 export function getAppSubtlePanelClass(
   tone: "default" | "muted" | "warning" = "default"
@@ -23,10 +23,10 @@ export function getAppSubtlePanelClass(
   return cn(
     "rounded-[var(--app-radius-card)] p-4",
     tone === "warning"
-      ? "bg-amber-50/94 ring-1 ring-inset ring-amber-200/82"
+      ? "bg-[color:var(--app-color-surface-warning)] ring-1 ring-inset ring-[color:rgba(245,158,11,0.3)]"
       : tone === "muted"
-      ? "bg-slate-100/86 ring-1 ring-inset ring-slate-300/72"
-      : "bg-white/97 ring-1 ring-inset ring-slate-300/74"
+      ? "bg-[color:var(--app-color-surface-muted)] ring-1 ring-inset ring-[color:var(--app-color-border)]"
+      : "bg-[color:var(--app-color-surface)] ring-1 ring-inset ring-[color:var(--app-color-border)]"
   );
 }
 
@@ -54,22 +54,22 @@ export function getAppButtonClass(params?: {
   return cn(
     "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-[-0.01em] text-sm transition-[background-color,border-color,box-shadow,color,opacity,transform] duration-[var(--app-duration-fast)] disabled:pointer-events-none disabled:opacity-55",
     size === "sm"
-      ? "h-[38px] px-3.5 text-[13px]"
+      ? "h-10 px-3 text-[13px]"
       : size === "lg"
-      ? "h-[46px] px-5 text-sm"
-      : "h-[42px] px-4 text-[13px]",
+      ? "h-12 px-5 text-sm"
+      : "h-11 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
       ? "app-soft-button-primary text-white hover:border-indigo-900"
       : variant === "ghost"
-      ? "app-soft-button-ghost text-slate-600 hover:text-slate-950"
+      ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
       : variant === "tertiary"
-      ? "app-soft-button-tertiary text-slate-700 hover:text-slate-950"
+      ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)]"
       : variant === "subtle"
-      ? "app-soft-button-subtle text-slate-800"
+      ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
       : variant === "destructive-lite"
       ? "app-soft-button-destructive text-rose-900 hover:border-rose-300"
-      : "app-soft-button-secondary text-slate-950 hover:border-slate-400"
+      : "app-soft-button-secondary text-[color:var(--app-color-text-primary)] hover:border-slate-400"
   );
 }
 
@@ -82,19 +82,19 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-slate-950 outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-indigo-500",
-    multiline ? "min-h-[112px] px-3.5 py-3" : "h-11 px-3.5",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-[color:var(--app-color-primary)]",
+    multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
-    "placeholder:text-slate-400/85",
+    "placeholder:text-slate-400/80",
     "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100/85 disabled:text-slate-400 disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
-      ? "app-soft-field-error border-rose-300/80 text-slate-950 focus-visible:border-rose-400"
+      ? "app-soft-field-error focus-visible:border-rose-400"
       : hasValue
-      ? "app-soft-field-filled border-slate-300/95"
-      : "border-slate-300/75"
+      ? "app-soft-field-filled"
+      : ""
   );
 }
 

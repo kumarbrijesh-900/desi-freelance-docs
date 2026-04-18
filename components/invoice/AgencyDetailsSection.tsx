@@ -209,8 +209,8 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
-          <div className="space-y-3.5">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
+          <div className="space-y-4">
             <div>
               <label className={appFieldLabelClass}>
                 Business / Trade Name *
@@ -350,7 +350,7 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
 
-            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-3.5 py-3")}>
+            <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-4 py-3")}>
               <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
                 Agency Compliance
               </p>
@@ -503,7 +503,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className={cn(getAppSubtlePanelClass(), "px-3 py-2.5")}>
+                            <div className={cn(getAppSubtlePanelClass(), "px-3 py-2")}>
                               <p className="text-[11px] leading-5 text-slate-500">
                                 This only affects export tax handling later if the client
                                 invoice is international.
@@ -563,7 +563,7 @@ export default function AgencyDetailsSection({
                       variant: "destructive-lite",
                       size: "sm",
                     }),
-                    "h-[30px] px-2.5 text-[11px]"
+                    "h-[30px] px-2 text-[11px]"
                   )}
                 >
                   Remove
@@ -578,7 +578,7 @@ export default function AgencyDetailsSection({
               }}
               onDragLeave={() => setIsDragOver(false)}
               onDrop={handleDrop}
-              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1.5 py-1.5 text-center text-sm ${
+              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
                 isDragOver
                   ? "app-dropzone-accept text-slate-950"
                   : "text-slate-500 hover:border-slate-400"

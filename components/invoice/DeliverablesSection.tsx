@@ -279,8 +279,8 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="invoice-line-item-workspace space-y-3.5">
-        <div className={cn("invoice-line-item-head mb-1.5 hidden lg:grid lg:gap-1.5 lg:px-3 lg:py-2.5", lineItemDesktopGridClass)}>
+      <div className="invoice-line-item-workspace space-y-4">
+        <div className={cn("invoice-line-item-head mb-2 hidden lg:grid lg:gap-2 lg:px-3 lg:py-3", lineItemDesktopGridClass)}>
           <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
             Type
           </span>
@@ -324,7 +324,7 @@ export default function DeliverablesSection({
                 key={item.id}
                 data-testid="line-item-row"
                 data-row-tone={index === 0 ? "default" : "muted"}
-                className="invoice-line-item-row px-3.5 py-3"
+                className="invoice-line-item-row px-4 py-3"
               >
                 <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200/75 pb-2 lg:hidden">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -335,7 +335,7 @@ export default function DeliverablesSection({
                   </p>
                 </div>
 
-                <div className={cn("grid grid-cols-1 gap-3 lg:items-start lg:gap-1.5", lineItemDesktopGridClass)}>
+                <div className={cn("grid grid-cols-1 gap-3 lg:items-start lg:gap-2", lineItemDesktopGridClass)}>
                   <div className="min-w-0">
                     <label className={compactLabelClass}>Type</label>
                     <AppSelectField

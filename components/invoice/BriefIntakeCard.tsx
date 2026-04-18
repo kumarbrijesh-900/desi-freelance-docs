@@ -140,12 +140,12 @@ export default function BriefIntakeCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="flex h-12 items-center justify-between gap-3 px-3.5 sm:px-4"
+            className="flex h-12 items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-2 overflow-hidden">
               <span
                 id="brief-intake-collapsed-heading"
-                className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
+                className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
               >
                 <ClipboardCheckIcon className="h-3.5 w-3.5" />
                 Brief
@@ -153,7 +153,7 @@ export default function BriefIntakeCard({
               <SuccessPulse active={lastExtractionState === "success"}>
                 <span
                   className={cn(
-                    "inline-flex h-7 min-w-0 items-center rounded-full border px-2.5 text-xs font-medium",
+                    "inline-flex h-7 min-w-0 items-center rounded-full border px-2 text-xs font-medium",
                     statusBadgeClass
                   )}
                 >
@@ -194,13 +194,13 @@ export default function BriefIntakeCard({
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "invoice-brief-card overflow-hidden px-4 py-2.5 sm:px-[18px]"
+          "invoice-brief-card overflow-hidden px-4 py-3 sm:px-[18px]"
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
         <div className="space-y-2">
-          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
@@ -213,7 +213,7 @@ export default function BriefIntakeCard({
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               <span
                 className={cn(
-                  "inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
+                  "inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
                   statusBadgeClass
                 )}
               >
@@ -272,7 +272,7 @@ export default function BriefIntakeCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-2.5"
+              className="space-y-3"
             >
               <MotionReveal preset="soft">
                 <div className="space-y-2">
@@ -346,12 +346,12 @@ export default function BriefIntakeCard({
                   />
 
                   {imageFiles.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {imageFiles.map((file) => (
                         <span
                           key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            "inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/82 px-2.5 py-1 text-[11px] font-medium text-slate-700"
+                            "inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/82 px-2 py-1 text-[11px] font-medium text-slate-700"
                           )}
                         >
                           <ClipboardCheckIcon className="h-3.5 w-3.5" />

@@ -330,7 +330,7 @@ export default function TermsPaymentSection({
           </div>
         ) : null}
 
-        <div className="space-y-3.5">
+        <div className="space-y-4">
           {isInternational ? (
             <div className="space-y-1.5" data-testid="payment-settlement-control">
               <label className={appFieldLabelClass}>
@@ -409,7 +409,7 @@ export default function TermsPaymentSection({
           <div
             className={cn(
               getAppSubtlePanelClass("muted"),
-              "invoice-optional-zone invoice-utility-widget space-y-2.5 border border-slate-200/70 px-3 py-2.5"
+              "invoice-optional-zone invoice-utility-widget space-y-3 border border-slate-200/70 px-3 py-3"
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -441,7 +441,7 @@ export default function TermsPaymentSection({
             </div>
 
             {isLicenseSectionOpen ? (
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                   <div>
                     <label className={appFieldLabelClass}>
                       License Included?
@@ -652,7 +652,7 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
-              <div className="invoice-utility-widget flex flex-col items-end gap-1 rounded-[14px] p-1.5">
+              <div className="invoice-utility-widget flex flex-col items-end gap-1 rounded-[14px] p-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">QR</p>
@@ -668,7 +668,7 @@ export default function TermsPaymentSection({
                           variant: "destructive-lite",
                           size: "sm",
                         }),
-                        "h-[30px] px-2.5 text-[11px]"
+                        "h-[30px] px-2 text-[11px]"
                       )}
                     >
                       Remove
@@ -712,7 +712,7 @@ export default function TermsPaymentSection({
               </div>
             </div>
           ) : (
-            <div className="space-y-3.5 border-t border-slate-200/70 pt-3.5">
+            <div className="space-y-4 border-t border-slate-200/70 pt-4">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
                   <label className={appFieldLabelClass}>

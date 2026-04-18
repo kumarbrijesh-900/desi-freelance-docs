@@ -1,19 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #eef2f7;
-  --foreground: #0f172a;
   --app-color-bg: #eef2f7;
   --app-color-surface: rgba(255, 255, 255, 0.985);
-  --app-color-surface-muted: rgba(241, 245, 249, 0.97);
+  --app-color-surface-muted: rgba(243, 246, 250, 0.97);
   --app-color-surface-elevated: rgba(255, 255, 255, 0.998);
-  --app-color-border: rgba(100, 116, 139, 0.24);
-  --app-color-border-strong: rgba(71, 85, 105, 0.36);
-  --app-color-text-primary: #0f172a;
-  --app-color-text-secondary: #334155;
-  --app-color-text-muted: #64748b;
-  --app-color-primary: #4338ca;
-  --app-color-primary-strong: #312e81;
+  --app-color-surface-success: rgba(236, 253, 245, 0.95);
+  --app-color-surface-warning: rgba(255, 251, 235, 0.96);
+  --app-color-surface-danger: rgba(255, 241, 242, 0.4);
+  --app-color-border: rgba(191, 204, 219, 0.86);
+  --app-color-border-strong: rgba(148, 163, 184, 0.92);
+  --app-color-text-primary: #0b1220;
+  --app-color-text-secondary: #1f2a3a;
+  --app-color-text-muted: #59677d;
+  --app-color-primary: #4f46e5;
+  --app-color-primary-strong: #3730a3;
+  --app-color-accent-soft: rgba(79, 70, 229, 0.08);
+  --app-color-accent-border: rgba(79, 70, 229, 0.22);
+  --background: var(--app-color-bg);
+  --foreground: var(--app-color-text-primary);
   --app-color-success: #047857;
   --app-color-warning: #b45309;
   --app-color-danger: #e11d48;
@@ -22,22 +27,22 @@
   --app-duration-slow: 280ms;
   --app-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --app-ease-emphasized: cubic-bezier(0.4, 0, 0.2, 1);
-  --app-focus-ring: rgba(79, 70, 229, 0.18);
+  --app-focus-ring: rgba(79, 70, 229, 0.16);
   --app-focus-ring-strong: rgba(79, 70, 229, 0.3);
   --app-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.045);
   --app-floating-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
   --app-floating-shadow-strong: 0 24px 64px rgba(15, 23, 42, 0.16);
-  --app-soft-background: #eef2f7;
+  --app-soft-background: var(--app-color-bg);
   --app-soft-highlight: rgba(255, 255, 255, 0.98);
   --app-soft-shadow: rgba(100, 116, 139, 0.12);
   --app-soft-shadow-strong: rgba(71, 85, 105, 0.16);
-  --app-soft-border: rgba(100, 116, 139, 0.24);
-  --app-soft-border-strong: rgba(71, 85, 105, 0.38);
-  --app-soft-surface: rgba(250, 251, 253, 0.995);
-  --app-soft-surface-muted: rgba(241, 245, 249, 0.97);
-  --app-soft-surface-elevated: rgba(255, 255, 255, 0.998);
-  --app-soft-field: rgba(252, 253, 255, 0.992);
-  --app-soft-field-hover: rgba(255, 255, 255, 1);
+  --app-soft-border: var(--app-color-border);
+  --app-soft-border-strong: var(--app-color-border-strong);
+  --app-soft-surface: var(--app-color-surface);
+  --app-soft-surface-muted: var(--app-color-surface-muted);
+  --app-soft-surface-elevated: var(--app-color-surface-elevated);
+  --app-soft-field: rgba(255, 255, 255, 0.985);
+  --app-soft-field-hover: rgba(255, 255, 255, 0.995);
   --app-soft-shadow-raised:
     0 1px 1px rgba(255, 255, 255, 0.88),
     0 12px 26px rgba(148, 163, 184, 0.12);
@@ -107,8 +112,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   background-image:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0) 36%),
-    linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+    radial-gradient(circle at 14% 8%, rgba(79, 70, 229, 0.08), rgba(79, 70, 229, 0) 54%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(180deg, #fbfcff 0%, #eef2f7 100%);
   background-attachment: fixed;
 }
 
@@ -121,7 +127,7 @@ html {
 .app-soft-panel-success,
 .app-soft-panel-warning,
 .app-soft-shell {
-  border: 1px solid rgba(191, 204, 219, 0.82);
+  border: 1px solid var(--app-color-border);
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.975),
@@ -138,27 +144,27 @@ html {
     rgba(248, 250, 252, 0.96),
     rgba(240, 244, 248, 0.96)
   );
-  border-color: rgba(191, 204, 219, 0.8);
+  border-color: var(--app-color-border);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.92),
     0 8px 18px rgba(100, 116, 139, 0.05);
 }
 
 .app-soft-panel-success {
-  border-color: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.26);
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.9),
-    rgba(236, 253, 245, 0.95)
+    var(--app-color-surface-success)
   );
 }
 
 .app-soft-panel-warning {
-  border-color: rgba(245, 158, 11, 0.26);
+  border-color: rgba(245, 158, 11, 0.3);
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.9),
-    rgba(255, 251, 235, 0.96)
+    var(--app-color-surface-warning)
   );
 }
 
@@ -172,37 +178,37 @@ html {
 }
 
 .app-soft-field {
-  border: 1px solid rgba(148, 163, 184, 0.42);
-  background: rgba(252, 253, 255, 0.992);
+  border: 1px solid rgba(148, 163, 184, 0.62);
+  background: var(--app-soft-field);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.82),
     0 1px 1px rgba(15, 23, 42, 0.03);
 }
 
 .app-soft-field:hover {
-  border-color: rgba(100, 116, 139, 0.5);
-  background: rgba(255, 255, 255, 1);
+  border-color: rgba(100, 116, 139, 0.62);
+  background: var(--app-soft-field-hover);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.88),
     0 6px 14px rgba(100, 116, 139, 0.08);
 }
 
 .app-soft-field-filled {
-  border-color: rgba(100, 116, 139, 0.52);
+  border-color: rgba(71, 85, 105, 0.62);
   background: rgba(255, 255, 255, 0.995);
   color: #0f172a;
 }
 
 .app-soft-field-error {
   border-color: rgba(251, 113, 133, 0.56);
-  background: rgba(255, 241, 242, 0.3);
+  background: var(--app-color-surface-danger);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.78),
     0 0 0 1px rgba(251, 113, 133, 0.07);
 }
 
 .app-soft-button {
-  border: 1px solid rgba(203, 213, 225, 0.9);
+  border: 1px solid var(--app-color-border);
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.97),
@@ -221,7 +227,12 @@ html {
 
 .app-soft-button-primary {
   border-color: rgba(15, 23, 42, 0.96);
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 62%, #334155 100%);
+  background: linear-gradient(
+    135deg,
+    #0b1220 0%,
+    #1e293b 58%,
+    var(--app-color-primary-strong) 112%
+  );
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.18);
 }
 
@@ -278,7 +289,7 @@ html {
 }
 
 .app-soft-choice-track {
-  border: 1px solid rgba(191, 204, 219, 0.88);
+  border: 1px solid var(--app-color-border);
   background: rgba(242, 246, 250, 0.94);
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.88),
@@ -286,13 +297,13 @@ html {
 }
 
 .app-soft-choice-option {
-  border: 1px solid rgba(191, 204, 219, 0.86);
+  border: 1px solid var(--app-color-border);
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
 .app-soft-choice-option-active {
-  border-color: rgba(100, 116, 139, 0.28);
+  border-color: var(--app-color-accent-border);
   background: rgba(255, 255, 255, 0.99);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.92),
@@ -300,14 +311,14 @@ html {
 }
 
 .app-soft-step-surface {
-  border: 1px solid rgba(226, 232, 240, 0.36);
+  border: 1px solid rgba(226, 232, 240, 0.42);
   background: rgba(255, 255, 255, 0.34);
   box-shadow: none;
 }
 
 .app-soft-step-surface[data-step-state="active"] {
-  border-color: rgba(199, 210, 254, 0.58);
-  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--app-color-accent-border);
+  background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 8px 20px rgba(148, 163, 184, 0.06);
 }
 
@@ -331,17 +342,17 @@ html {
   outline: none;
   box-shadow:
     0 0 0 3px var(--app-focus-ring-strong),
-    0 6px 16px rgba(79, 70, 229, 0.08);
+    0 8px 18px rgba(15, 23, 42, 0.1);
 }
 
 .app-dropzone-surface {
-  border-color: rgba(148, 163, 184, 0.44);
+  border-color: rgba(148, 163, 184, 0.62);
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 6px 16px rgba(148, 163, 184, 0.07);
 }
 
 .app-dropzone-accept {
-  border-color: rgba(79, 70, 229, 0.38);
+  border-color: var(--app-color-accent-border);
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.96),
@@ -353,7 +364,7 @@ html {
 }
 
 .invoice-brief-card {
-  border-color: rgba(191, 204, 219, 0.76);
+  border-color: var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.975), rgba(245, 248, 252, 0.95));
   box-shadow:
@@ -362,7 +373,7 @@ html {
 }
 
 .invoice-step-card {
-  border: 1px solid rgba(191, 204, 219, 0.84);
+  border: 1px solid var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 253, 0.985));
   box-shadow:
@@ -376,7 +387,7 @@ html {
 }
 
 .invoice-step-card[data-step-kind="final"] {
-  border-color: rgba(148, 163, 184, 0.9);
+  border-color: var(--app-color-border-strong);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.992), rgba(245, 248, 252, 0.992));
   box-shadow:
@@ -385,7 +396,7 @@ html {
 }
 
 .invoice-step-card[data-step-state="active"] {
-  border-color: rgba(100, 116, 139, 0.44);
+  border-color: var(--app-color-accent-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.992), rgba(248, 250, 253, 0.99));
   box-shadow:
@@ -394,7 +405,7 @@ html {
 }
 
 .invoice-step-card[data-step-kind="final"][data-step-state="active"] {
-  border-color: rgba(51, 65, 85, 0.34);
+  border-color: rgba(15, 23, 42, 0.22);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.996), rgba(246, 248, 252, 0.994));
   box-shadow:
@@ -403,13 +414,13 @@ html {
 }
 
 .invoice-step-card[data-step-state="completed"] {
-  border-color: rgba(191, 204, 219, 0.88);
+  border-color: var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.985), rgba(245, 250, 247, 0.985));
 }
 
 .invoice-step-divider {
-  border-top: 1px solid rgba(191, 204, 219, 0.78);
+  border-top: 1px solid var(--app-color-border);
 }
 
 .invoice-step-dot {
@@ -419,7 +430,7 @@ html {
 }
 
 .invoice-step-rail {
-  border-color: rgba(191, 204, 219, 0.84);
+  border-color: var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.965), rgba(243, 247, 251, 0.98));
   box-shadow:
@@ -428,7 +439,7 @@ html {
 }
 
 .invoice-step-rail-track {
-  border-left: 1px solid rgba(191, 204, 219, 0.76);
+  border-left: 1px solid var(--app-color-border);
 }
 
 .invoice-step-rail-item {
@@ -436,43 +447,43 @@ html {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.invoice-step-rail-item[data-step-state="active"] {
-  border-color: rgba(100, 116, 139, 0.32);
+.invoice-step-rail-item[data-rail-state="active"] {
+  border-color: var(--app-color-accent-border);
   background: rgba(255, 255, 255, 0.985);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.94),
     0 12px 22px rgba(30, 41, 59, 0.09);
 }
 
-.invoice-step-rail-item[data-step-state="completed"] {
-  border-color: rgba(191, 204, 219, 0.8);
+.invoice-step-rail-item[data-rail-state="completed"] {
+  border-color: var(--app-color-border);
   background: rgba(248, 250, 252, 0.9);
 }
 
-.invoice-step-rail-item[data-step-state="pending"] {
+.invoice-step-rail-item[data-rail-state="pending"] {
   background: rgba(255, 255, 255, 0.16);
 }
 
-.invoice-step-rail-item[data-step-state="pending"]:hover {
-  border-color: rgba(191, 204, 219, 0.5);
+.invoice-step-rail-item[data-rail-state="pending"]:hover {
+  border-color: rgba(148, 163, 184, 0.7);
   background: rgba(255, 255, 255, 0.84);
 }
 
 .invoice-step-rail-index {
-  border: 1px solid rgba(191, 204, 219, 0.9);
+  border: 1px solid var(--app-color-border);
   background: rgba(255, 255, 255, 0.98);
   color: #475569;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
-.invoice-step-rail-item[data-step-state="active"] .invoice-step-rail-index {
-  border-color: rgba(15, 23, 42, 0.96);
-  background: #0f172a;
+.invoice-step-rail-item[data-rail-state="active"] .invoice-step-rail-index {
+  border-color: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.94);
   color: white;
   box-shadow: none;
 }
 
-.invoice-step-rail-item[data-step-state="completed"] .invoice-step-rail-index {
+.invoice-step-rail-item[data-rail-state="completed"] .invoice-step-rail-index {
   border-color: rgba(167, 243, 208, 0.85);
   background: rgba(236, 253, 245, 0.96);
   color: #065f46;
@@ -480,7 +491,7 @@ html {
 }
 
 .invoice-line-item-workspace {
-  border: 1px solid rgba(191, 204, 219, 0.84);
+  border: 1px solid var(--app-color-border);
   border-radius: 18px;
   background: linear-gradient(
     180deg,
@@ -494,14 +505,14 @@ html {
 }
 
 .invoice-line-item-head {
-  border: 1px solid rgba(191, 204, 219, 0.8);
+  border: 1px solid var(--app-color-border);
   border-radius: 14px;
   background: rgba(243, 246, 250, 0.95);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
 .invoice-line-item-row {
-  border: 1px solid rgba(191, 204, 219, 0.84);
+  border: 1px solid var(--app-color-border);
   border-radius: 16px;
   background: linear-gradient(
     180deg,
@@ -522,14 +533,14 @@ html {
 }
 
 .invoice-line-item-total {
-  border: 1px solid rgba(191, 204, 219, 0.8);
+  border: 1px solid var(--app-color-border);
   border-radius: 12px;
   background: rgba(246, 249, 252, 0.98);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
 .invoice-utility-widget {
-  border-color: rgba(191, 204, 219, 0.8);
+  border-color: var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(242, 246, 250, 0.96));
   box-shadow:
@@ -543,7 +554,7 @@ html {
 }
 
 .invoice-action-dock {
-  border-color: rgba(191, 204, 219, 0.92);
+  border-color: var(--app-color-border-strong);
   background: rgba(255, 255, 255, 0.9);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.97),
@@ -552,7 +563,7 @@ html {
 }
 
 .invoice-total-summary-card {
-  border: 1px solid rgba(191, 204, 219, 0.92);
+  border: 1px solid var(--app-color-border);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.992), rgba(245, 248, 252, 0.99));
   box-shadow:
@@ -561,8 +572,7 @@ html {
 }
 
 .invoice-total-hero {
-  border: 1px solid rgba(191, 204, 219, 0.86);
-  border-top-color: rgba(191, 204, 219, 0.88);
+  border: 1px solid var(--app-color-border);
   border-radius: 14px;
   background: linear-gradient(
     180deg,
@@ -573,7 +583,7 @@ html {
 }
 
 .invoice-final-review-panel {
-  border-color: rgba(148, 163, 184, 0.46);
+  border-color: var(--app-color-border-strong);
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.996),
@@ -586,7 +596,7 @@ html {
 
 .invoice-final-review-note {
   background: rgba(245, 248, 252, 0.96);
-  border: 1px solid rgba(191, 204, 219, 0.84);
+  border: 1px solid var(--app-color-border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
