@@ -147,3 +147,13 @@ export function DocumentSparkIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function InfoCircleIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 10V16" />
+      <circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

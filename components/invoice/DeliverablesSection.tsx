@@ -23,7 +23,7 @@ import {
   resolveLineItemSacCode,
 } from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
-import { SparklesIcon } from "@/components/ui/app-icons";
+import { InfoCircleIcon, SparklesIcon } from "@/components/ui/app-icons";
 import {
   appFieldErrorTextClass,
   appFieldHelperTextClass,
@@ -57,6 +57,8 @@ const lineItemDesktopGridClass =
   "lg:grid-cols-[minmax(136px,1.08fr)_minmax(0,3.24fr)_minmax(76px,0.58fr)_minmax(116px,0.88fr)_minmax(136px,1fr)_minmax(124px,0.92fr)_48px]";
 
 let lineItemIdCounter = 0;
+const sacHelpTooltipCopy =
+  "SAC = Services Accounting Code used for GST classification of services on invoices.";
 
 function createLineItemId(existingItems: InvoiceLineItem[]) {
   const existingCounters = existingItems
@@ -93,6 +95,7 @@ export default function DeliverablesSection({
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(
     null
   );
+  const [isSacHelpOpen, setIsSacHelpOpen] = useState(false);
   const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
   const closeDescriptionAssist = (id: string) =>
@@ -283,6 +286,8 @@ export default function DeliverablesSection({
             const needsManualSacEntry = isManualSacRequired(item.type);
             const showSuggestionAssist = activeDescriptionId === item.id;
             const descriptionPanelId = `${item.id}-description-suggestions`;
+            const showSacHelpIcon = index === 0;
+            const sacTooltipId = `${item.id}-sac-help`;
             const compactLabelClass = cn(
               appFieldLabelClass,
               "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
@@ -334,9 +339,43 @@ export default function DeliverablesSection({
                     <div className="mt-2 min-h-[44px]">
                       {needsManualSacEntry ? (
                         <div className="space-y-1.5">
-                          <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                            SAC Code *
-                          </label>
+                          <div
+                            className="relative"
+                            onMouseEnter={() => setIsSacHelpOpen(true)}
+                            onMouseLeave={() => setIsSacHelpOpen(false)}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                SAC Code *
+                              </label>
+                              {showSacHelpIcon ? (
+                                <button
+                                  type="button"
+                                  aria-label="What is SAC?"
+                                  aria-expanded={isSacHelpOpen}
+                                  aria-controls={sacTooltipId}
+                                  aria-describedby={
+                                    isSacHelpOpen ? sacTooltipId : undefined
+                                  }
+                                  onFocus={() => setIsSacHelpOpen(true)}
+                                  onBlur={() => setIsSacHelpOpen(false)}
+                                  onClick={() => setIsSacHelpOpen(true)}
+                                  className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-slate-100 hover:text-slate-700"
+                                >
+                                  <InfoCircleIcon className="h-3.5 w-3.5" />
+                                </button>
+                              ) : null}
+                            </div>
+                            {showSacHelpIcon && isSacHelpOpen ? (
+                              <div
+                                id={sacTooltipId}
+                                role="tooltip"
+                                className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-slate-200/86 bg-white px-3 py-2 text-[11px] leading-4 text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                              >
+                                {sacHelpTooltipCopy}
+                              </div>
+                            ) : null}
+                          </div>
                           <input
                             suppressHydrationWarning
                             type="text"
@@ -361,13 +400,45 @@ export default function DeliverablesSection({
                           )}
                         </div>
                       ) : (
-                        <div className="flex min-h-11 items-center justify-between rounded-[12px] bg-slate-100/82 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-white/72">
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                            SAC
-                          </span>
+                        <div
+                          className="relative flex min-h-11 items-center justify-between rounded-[12px] bg-slate-100/82 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-white/72"
+                          onMouseEnter={() => setIsSacHelpOpen(true)}
+                          onMouseLeave={() => setIsSacHelpOpen(false)}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                              SAC
+                            </span>
+                            {showSacHelpIcon ? (
+                              <button
+                                type="button"
+                                aria-label="What is SAC?"
+                                aria-expanded={isSacHelpOpen}
+                                aria-controls={sacTooltipId}
+                                aria-describedby={
+                                  isSacHelpOpen ? sacTooltipId : undefined
+                                }
+                                onFocus={() => setIsSacHelpOpen(true)}
+                                onBlur={() => setIsSacHelpOpen(false)}
+                                onClick={() => setIsSacHelpOpen(true)}
+                                className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-white/80 hover:text-slate-700"
+                              >
+                                <InfoCircleIcon className="h-3.5 w-3.5" />
+                              </button>
+                            ) : null}
+                          </div>
                           <span className="text-[12px] font-semibold tracking-[0.01em] text-slate-700">
                             {resolvedSacCode}
                           </span>
+                          {showSacHelpIcon && isSacHelpOpen ? (
+                            <div
+                              id={sacTooltipId}
+                              role="tooltip"
+                              className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-slate-200/86 bg-white px-3 py-2 text-[11px] leading-4 text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                            >
+                              {sacHelpTooltipCopy}
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     </div>
