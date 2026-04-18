@@ -28,14 +28,16 @@ test.describe("invoice deliverables intelligence", () => {
       .getByTestId("floating-editor-actions")
       .locator("button")
       .last();
-    const mappedSuggestion = firstRow.getByRole("button", {
+    const mappedSuggestion = firstRow.getByRole("option", {
       name: /product photography set with retouched selects/i,
     });
 
     await expect(mappedSuggestion).toBeHidden();
 
     await firstRow.locator("select").first().selectOption("Photography");
-    await expect(firstRow.getByText("SAC 998387")).toBeVisible();
+    await expect(firstRow.getByText(/^SAC$/)).toBeVisible();
+    await expect(firstRow.getByText(/^998387$/)).toBeVisible();
+    await expect(mappedSuggestion).toBeHidden();
 
     const descriptionInput = firstRow.locator('input[type="text"]').first();
     await descriptionInput.focus();

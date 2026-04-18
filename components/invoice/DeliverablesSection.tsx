@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type {
   InvoiceLineItem,
   InvoiceLineItemType,
@@ -23,6 +23,7 @@ import {
   resolveLineItemSacCode,
 } from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
+import { SparklesIcon } from "@/components/ui/app-icons";
 import {
   appFieldErrorTextClass,
   appFieldHelperTextClass,
@@ -92,6 +93,7 @@ export default function DeliverablesSection({
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(
     null
   );
+  const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
   const closeDescriptionAssist = (id: string) =>
     setActiveDescriptionId((current) => (current === id ? null : current));
@@ -113,7 +115,6 @@ export default function DeliverablesSection({
   };
 
   const handleTypeChange = (id: string, nextType: InvoiceLineItemType) => {
-    openDescriptionAssist(id);
     onChange(
       value.map((item) => {
         if (item.id !== id) return item;
@@ -281,6 +282,7 @@ export default function DeliverablesSection({
             const resolvedSacCode = resolveLineItemSacCode(item);
             const needsManualSacEntry = isManualSacRequired(item.type);
             const showSuggestionAssist = activeDescriptionId === item.id;
+            const descriptionPanelId = `${item.id}-description-suggestions`;
             const compactLabelClass = cn(
               appFieldLabelClass,
               "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
@@ -359,67 +361,105 @@ export default function DeliverablesSection({
                           )}
                         </div>
                       ) : (
-                        <p className="inline-flex max-w-full items-center rounded-full border border-slate-200/85 bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
-                          SAC {resolvedSacCode}
-                        </p>
+                        <div className="flex min-h-11 items-center justify-between rounded-[12px] bg-slate-100/82 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-white/72">
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            SAC
+                          </span>
+                          <span className="text-[12px] font-semibold tracking-[0.01em] text-slate-700">
+                            {resolvedSacCode}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
 
                   <div className="min-w-0 space-y-1.5">
                     <label className={compactLabelClass}>Description *</label>
-                    <input
-                      list={`line-item-description-suggestions-${item.id}`}
-                      suppressHydrationWarning
-                      type="text"
-                      value={item.description}
-                      onChange={(e) => {
-                        updateItem(item.id, "description", e.target.value);
-                        openDescriptionAssist(item.id);
-                      }}
-                      onFocus={() => openDescriptionAssist(item.id)}
-                      onBlur={() => {
-                        markTouched(item.id, "description");
-                        closeDescriptionAssist(item.id);
-                      }}
-                      placeholder={invoiceDescriptionPlaceholderByType[item.type]}
-                      className={inputClass(
-                        descriptionError,
-                        Boolean(item.description)
-                      )}
-                      title={
-                        item.description ||
-                        invoiceDescriptionPlaceholderByType[item.type]
-                      }
-                    />
-                    <datalist id={`line-item-description-suggestions-${item.id}`}>
-                      {descriptionSuggestions.map((suggestion) => (
-                        <option key={suggestion} value={suggestion} />
-                      ))}
-                    </datalist>
+                    <div className="space-y-0">
+                      <div className="relative">
+                        <input
+                          ref={(node) => {
+                            descriptionInputRefs.current[item.id] = node;
+                          }}
+                          suppressHydrationWarning
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => {
+                            updateItem(item.id, "description", e.target.value);
+                            openDescriptionAssist(item.id);
+                          }}
+                          onFocus={() => openDescriptionAssist(item.id)}
+                          onBlur={() => {
+                            markTouched(item.id, "description");
+                            closeDescriptionAssist(item.id);
+                          }}
+                          placeholder={invoiceDescriptionPlaceholderByType[item.type]}
+                          className={cn(
+                            inputClass(
+                              descriptionError,
+                              Boolean(item.description)
+                            ),
+                            "pr-12",
+                            showSuggestionAssist
+                              ? "rounded-b-none border-b-transparent shadow-none"
+                              : ""
+                          )}
+                          title={
+                            item.description ||
+                            invoiceDescriptionPlaceholderByType[item.type]
+                          }
+                          aria-expanded={showSuggestionAssist}
+                          aria-controls={descriptionPanelId}
+                        />
+                        <button
+                          type="button"
+                          aria-label={`Show description suggestions for line item ${index + 1}`}
+                          aria-expanded={showSuggestionAssist}
+                          aria-controls={descriptionPanelId}
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            if (showSuggestionAssist) {
+                              closeDescriptionAssist(item.id);
+                              return;
+                            }
+
+                            openDescriptionAssist(item.id);
+                            descriptionInputRefs.current[item.id]?.focus();
+                          }}
+                          className="app-focus-ring absolute inset-y-1.5 right-1.5 inline-flex w-9 items-center justify-center rounded-[10px] border border-transparent text-slate-400 transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] hover:border-slate-200/80 hover:bg-slate-50/90 hover:text-slate-700"
+                        >
+                          <SparklesIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
                     {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
-                      <div className="rounded-[12px] border border-slate-200/80 bg-white/80 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]">
-                        <div className="flex flex-wrap items-start gap-2">
+                      <div
+                        id={descriptionPanelId}
+                        role="listbox"
+                        aria-label={`Suggested descriptions for ${item.type}`}
+                        className="-mt-px overflow-hidden rounded-b-[12px] border border-slate-200/82 bg-white/96 shadow-[0_14px_28px_rgba(15,23,42,0.07)]"
+                      >
+                        <div className="flex items-center gap-2 border-b border-slate-200/78 bg-slate-50/92 px-3 py-2">
+                          <SparklesIcon className="h-3.5 w-3.5 text-slate-500" />
                           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                            Suggested for {item.type}
+                            Suggestions for {item.type}
                           </span>
-                          <div className="max-h-28 min-w-0 flex-1 overflow-y-auto pr-1">
-                            <div className="flex flex-wrap gap-2">
-                              {descriptionSuggestions.map((suggestion) => (
-                                <button
-                                  key={suggestion}
-                                  type="button"
-                                  onMouseDown={(event) => event.preventDefault()}
-                                  onClick={() =>
-                                    applyDescriptionSuggestion(item.id, suggestion)
-                                  }
-                                  className="inline-flex max-w-full items-center rounded-full border border-slate-200/85 bg-slate-50/92 px-2.5 py-1 text-left text-[11px] font-medium text-slate-700 transition-colors duration-[var(--app-duration-fast)] hover:border-slate-300 hover:bg-white hover:text-slate-950"
-                                >
-                                  <span className="truncate">{suggestion}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                        </div>
+                        <div className="max-h-52 overflow-y-auto py-1">
+                          {descriptionSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              type="button"
+                              role="option"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() =>
+                                applyDescriptionSuggestion(item.id, suggestion)
+                              }
+                              className="block w-full px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-slate-50 hover:text-slate-950"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     ) : null}
@@ -522,8 +562,13 @@ export default function DeliverablesSection({
 
                   <div className="min-w-0 lg:min-w-[124px]">
                     <span className={compactLabelClass}>Total</span>
-                    <div className="invoice-line-item-total flex h-11 w-full min-w-0 items-center justify-end overflow-hidden px-3 py-0 text-right text-sm font-semibold text-slate-700">
-                      {formatCurrency(lineTotal, currency)}
+                    <div className="invoice-line-item-total flex h-11 w-full min-w-0 items-center justify-between gap-2 overflow-hidden px-3.5 py-0 text-right">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        Auto
+                      </span>
+                      <span className="truncate text-sm font-semibold text-slate-800">
+                        {formatCurrency(lineTotal, currency)}
+                      </span>
                     </div>
                     <div className="min-h-[18px]" />
                   </div>
@@ -536,10 +581,10 @@ export default function DeliverablesSection({
                         aria-label={`Remove line item ${index + 1}`}
                         className={cn(
                           getAppButtonClass({
-                            variant: "destructive-lite",
-                            size: "md",
+                            variant: "ghost",
+                            size: "sm",
                           }),
-                          "h-11 w-11 shrink-0 px-0 text-rose-700 hover:text-rose-950"
+                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-slate-400 hover:border-rose-200/75 hover:bg-rose-50/92 hover:text-rose-700"
                         )}
                       >
                         <span
