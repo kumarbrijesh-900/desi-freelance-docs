@@ -28,22 +28,19 @@ test.describe("invoice deliverables intelligence", () => {
       .getByTestId("floating-editor-actions")
       .locator("button")
       .last();
+    const mappedSuggestion = firstRow.getByRole("button", {
+      name: /product photography set with retouched selects/i,
+    });
+
+    await expect(mappedSuggestion).toBeHidden();
 
     await firstRow.locator("select").first().selectOption("Photography");
     await expect(firstRow.getByText("SAC 998387")).toBeVisible();
 
     const descriptionInput = firstRow.locator('input[type="text"]').first();
     await descriptionInput.focus();
-    await expect(
-      firstRow.getByRole("button", {
-        name: /product photography set with retouched selects/i,
-      })
-    ).toBeVisible();
-    await firstRow
-      .getByRole("button", {
-        name: /product photography set with retouched selects/i,
-      })
-      .click();
+    await expect(mappedSuggestion).toBeVisible();
+    await mappedSuggestion.click();
     await expect(descriptionInput).toHaveValue(
       "Product photography set with retouched selects"
     );

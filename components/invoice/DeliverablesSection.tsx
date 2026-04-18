@@ -53,7 +53,7 @@ interface DeliverablesSectionProps {
 }
 
 const lineItemDesktopGridClass =
-  "lg:grid-cols-[minmax(168px,1.18fr)_minmax(272px,3.55fr)_minmax(72px,0.56fr)_minmax(132px,0.92fr)_minmax(176px,1.28fr)_minmax(112px,0.82fr)_32px]";
+  "lg:grid-cols-[minmax(136px,1.08fr)_minmax(0,3.24fr)_minmax(76px,0.58fr)_minmax(116px,0.88fr)_minmax(136px,1fr)_minmax(124px,0.92fr)_48px]";
 
 let lineItemIdCounter = 0;
 
@@ -92,6 +92,9 @@ export default function DeliverablesSection({
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(
     null
   );
+  const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
+  const closeDescriptionAssist = (id: string) =>
+    setActiveDescriptionId((current) => (current === id ? null : current));
   const updateItem = <K extends keyof InvoiceLineItem>(
     id: string,
     key: K,
@@ -110,6 +113,7 @@ export default function DeliverablesSection({
   };
 
   const handleTypeChange = (id: string, nextType: InvoiceLineItemType) => {
+    openDescriptionAssist(id);
     onChange(
       value.map((item) => {
         if (item.id !== id) return item;
@@ -136,7 +140,7 @@ export default function DeliverablesSection({
 
   const applyDescriptionSuggestion = (id: string, suggestion: string) => {
     updateItem(id, "description", suggestion);
-    setActiveDescriptionId(id);
+    closeDescriptionAssist(id);
     setTouchedFields((prev) => ({
       ...prev,
       [`${id}:description`]: true,
@@ -276,9 +280,7 @@ export default function DeliverablesSection({
             const descriptionSuggestions = getInvoiceDescriptionSuggestions(item.type);
             const resolvedSacCode = resolveLineItemSacCode(item);
             const needsManualSacEntry = isManualSacRequired(item.type);
-            const showSuggestionAssist =
-              activeDescriptionId === item.id ||
-              (!item.description.trim() && index === 0);
+            const showSuggestionAssist = activeDescriptionId === item.id;
             const compactLabelClass = cn(
               appFieldLabelClass,
               "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
@@ -289,7 +291,7 @@ export default function DeliverablesSection({
                 key={item.id}
                 data-testid="line-item-row"
                 data-row-tone={index === 0 ? "default" : "muted"}
-                className="invoice-line-item-row px-4 py-3"
+                className="invoice-line-item-row overflow-hidden px-4 py-3"
               >
                 <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200/75 pb-2 lg:hidden">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -300,7 +302,12 @@ export default function DeliverablesSection({
                   </p>
                 </div>
 
-                <div className={cn("grid grid-cols-1 gap-3 lg:items-start lg:gap-2", lineItemDesktopGridClass)}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 gap-3 lg:items-start lg:gap-3",
+                    lineItemDesktopGridClass
+                  )}
+                >
                   <div className="min-w-0">
                     <label className={compactLabelClass}>Type</label>
                     <AppSelectField
@@ -352,7 +359,7 @@ export default function DeliverablesSection({
                           )}
                         </div>
                       ) : (
-                        <p className="inline-flex items-center rounded-full border border-slate-200/85 bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
+                        <p className="inline-flex max-w-full items-center rounded-full border border-slate-200/85 bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.78)]">
                           SAC {resolvedSacCode}
                         </p>
                       )}
@@ -366,11 +373,15 @@ export default function DeliverablesSection({
                       suppressHydrationWarning
                       type="text"
                       value={item.description}
-                      onChange={(e) =>
-                        updateItem(item.id, "description", e.target.value)
-                      }
-                      onFocus={() => setActiveDescriptionId(item.id)}
-                      onBlur={() => markTouched(item.id, "description")}
+                      onChange={(e) => {
+                        updateItem(item.id, "description", e.target.value);
+                        openDescriptionAssist(item.id);
+                      }}
+                      onFocus={() => openDescriptionAssist(item.id)}
+                      onBlur={() => {
+                        markTouched(item.id, "description");
+                        closeDescriptionAssist(item.id);
+                      }}
                       placeholder={invoiceDescriptionPlaceholderByType[item.type]}
                       className={inputClass(
                         descriptionError,
@@ -387,24 +398,28 @@ export default function DeliverablesSection({
                       ))}
                     </datalist>
                     {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
-                      <div className="rounded-[12px] border border-slate-200/80 bg-white/78 px-3 py-2">
-                        <div className="flex flex-wrap items-center gap-2">
+                      <div className="rounded-[12px] border border-slate-200/80 bg-white/80 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]">
+                        <div className="flex flex-wrap items-start gap-2">
                           <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                             Suggested for {item.type}
                           </span>
-                          {descriptionSuggestions.map((suggestion) => (
-                            <button
-                              key={suggestion}
-                              type="button"
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() =>
-                                applyDescriptionSuggestion(item.id, suggestion)
-                              }
-                              className="inline-flex items-center rounded-full border border-slate-200/85 bg-slate-50/90 px-2.5 py-1 text-[11px] font-medium text-slate-700 transition-colors duration-[var(--app-duration-fast)] hover:border-slate-300 hover:bg-white hover:text-slate-950"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
+                          <div className="max-h-28 min-w-0 flex-1 overflow-y-auto pr-1">
+                            <div className="flex flex-wrap gap-2">
+                              {descriptionSuggestions.map((suggestion) => (
+                                <button
+                                  key={suggestion}
+                                  type="button"
+                                  onMouseDown={(event) => event.preventDefault()}
+                                  onClick={() =>
+                                    applyDescriptionSuggestion(item.id, suggestion)
+                                  }
+                                  className="inline-flex max-w-full items-center rounded-full border border-slate-200/85 bg-slate-50/92 px-2.5 py-1 text-left text-[11px] font-medium text-slate-700 transition-colors duration-[var(--app-duration-fast)] hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                                >
+                                  <span className="truncate">{suggestion}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ) : null}
@@ -505,15 +520,15 @@ export default function DeliverablesSection({
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="min-w-0">
+                  <div className="min-w-0 lg:min-w-[124px]">
                     <span className={compactLabelClass}>Total</span>
-                    <div className="invoice-line-item-total flex h-11 items-center justify-end px-3 py-0 text-sm font-semibold text-slate-700">
+                    <div className="invoice-line-item-total flex h-11 w-full min-w-0 items-center justify-end overflow-hidden px-3 py-0 text-right text-sm font-semibold text-slate-700">
                       {formatCurrency(lineTotal, currency)}
                     </div>
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="flex justify-end lg:pt-0.5">
+                  <div className="flex items-start justify-end lg:pt-0.5">
                     {canDeleteRows ? (
                       <button
                         type="button"
@@ -521,13 +536,18 @@ export default function DeliverablesSection({
                         aria-label={`Remove line item ${index + 1}`}
                         className={cn(
                           getAppButtonClass({
-                            variant: "ghost",
-                            size: "sm",
+                            variant: "destructive-lite",
+                            size: "md",
                           }),
-                          "h-11 w-9 px-0 text-base text-slate-500 hover:text-slate-900"
+                          "h-11 w-11 shrink-0 px-0 text-rose-700 hover:text-rose-950"
                         )}
                       >
-                        ×
+                        <span
+                          aria-hidden="true"
+                          className="text-lg font-semibold leading-none"
+                        >
+                          ×
+                        </span>
                       </button>
                     ) : (
                       <div className="hidden lg:block" />

@@ -502,6 +502,7 @@ html {
     inset 0 1px 0 rgba(255, 255, 255, 0.92),
     0 10px 24px rgba(100, 116, 139, 0.06);
   padding: 0.875rem;
+  overflow: hidden;
 }
 
 .invoice-line-item-head {
@@ -509,6 +510,7 @@ html {
   border-radius: 14px;
   background: rgba(243, 246, 250, 0.95);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  overflow: hidden;
 }
 
 .invoice-line-item-row {
@@ -522,6 +524,7 @@ html {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.94),
     0 8px 18px rgba(100, 116, 139, 0.055);
+  overflow: hidden;
 }
 
 .invoice-line-item-row[data-row-tone="muted"] {
@@ -537,6 +540,10 @@ html {
   border-radius: 12px;
   background: rgba(246, 249, 252, 0.98);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .invoice-utility-widget {
