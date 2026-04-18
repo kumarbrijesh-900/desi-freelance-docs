@@ -36,7 +36,7 @@ export default function AppSelectField({
       >
         {children}
       </select>
-      <span className="pointer-events-none absolute inset-y-0 right-4 flex w-4 shrink-0 items-center justify-center text-slate-400 transition-[color] duration-[var(--app-duration-fast)] group-hover:text-slate-600 group-focus-within:text-indigo-600">
+      <span className="pointer-events-none absolute inset-y-0 right-4 flex w-4 shrink-0 items-center justify-center text-[color:var(--text-soft)] transition-[color] duration-[var(--app-duration-fast)] group-hover:text-[color:var(--text-secondary)] group-focus-within:text-[color:var(--focus-ring)]">
         <ChevronDownIcon className="h-4 w-4 translate-y-[0.5px] transition-transform duration-[var(--app-duration-fast)] group-focus-within:rotate-180" />
       </span>
     </div>

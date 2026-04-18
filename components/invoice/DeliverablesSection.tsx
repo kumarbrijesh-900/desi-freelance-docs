@@ -54,7 +54,7 @@ interface DeliverablesSectionProps {
 }
 
 const lineItemDesktopGridClass =
-  "lg:grid-cols-[minmax(136px,1.08fr)_minmax(0,3.24fr)_minmax(76px,0.58fr)_minmax(116px,0.88fr)_minmax(136px,1fr)_minmax(124px,0.92fr)_48px]";
+  "xl:grid-cols-[minmax(136px,1.08fr)_minmax(0,3.24fr)_minmax(76px,0.58fr)_minmax(116px,0.88fr)_minmax(136px,1fr)_minmax(124px,0.92fr)_48px]";
 
 let lineItemIdCounter = 0;
 const sacHelpTooltipCopy =
@@ -242,23 +242,23 @@ export default function DeliverablesSection({
       ) : null}
 
       <div className="invoice-line-item-workspace space-y-4">
-        <div className={cn("invoice-line-item-head mb-2 hidden lg:grid lg:gap-2 lg:px-3 lg:py-3", lineItemDesktopGridClass)}>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+        <div className={cn("invoice-line-item-head mb-2 hidden xl:grid xl:gap-2 xl:px-3 xl:py-3", lineItemDesktopGridClass)}>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Type
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Description
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Qty
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Rate
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Unit
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Total
           </span>
           <span />
@@ -290,7 +290,7 @@ export default function DeliverablesSection({
             const sacTooltipId = `${item.id}-sac-help`;
             const compactLabelClass = cn(
               appFieldLabelClass,
-              "lg:sr-only lg:absolute lg:h-px lg:w-px lg:overflow-hidden lg:whitespace-nowrap lg:border-0 lg:p-0"
+              "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0"
             );
 
             return (
@@ -298,20 +298,23 @@ export default function DeliverablesSection({
                 key={item.id}
                 data-testid="line-item-row"
                 data-row-tone={index === 0 ? "default" : "muted"}
-                className="invoice-line-item-row overflow-visible px-4 py-3"
+                className={cn(
+                  "invoice-line-item-row relative overflow-visible px-4 py-3",
+                  showSuggestionAssist ? "z-40" : "z-0"
+                )}
               >
-                <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200/75 pb-2 lg:hidden">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                <div className="mb-3 flex items-center justify-between gap-3 border-b border-[color:var(--border-subtle)] pb-2 xl:hidden">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                     Line {index + 1}
                   </p>
-                  <p className="text-[11px] font-semibold text-slate-700">
+                  <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">
                     {formatCurrency(lineTotal, currency)}
                   </p>
                 </div>
 
                 <div
                   className={cn(
-                    "grid grid-cols-1 gap-3 lg:items-start lg:gap-3",
+                    "grid grid-cols-1 gap-3 xl:items-start xl:gap-3",
                     lineItemDesktopGridClass
                   )}
                 >
@@ -345,7 +348,7 @@ export default function DeliverablesSection({
                             onMouseLeave={() => setIsSacHelpOpen(false)}
                           >
                             <div className="flex items-center gap-1.5">
-                              <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                              <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                                 SAC Code *
                               </label>
                               {showSacHelpIcon ? (
@@ -360,7 +363,7 @@ export default function DeliverablesSection({
                                   onFocus={() => setIsSacHelpOpen(true)}
                                   onBlur={() => setIsSacHelpOpen(false)}
                                   onClick={() => setIsSacHelpOpen(true)}
-                                  className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-slate-100 hover:text-slate-700"
+                                  className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-[color:var(--text-soft)] transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-secondary)]"
                                 >
                                   <InfoCircleIcon className="h-3.5 w-3.5" />
                                 </button>
@@ -370,7 +373,7 @@ export default function DeliverablesSection({
                               <div
                                 id={sacTooltipId}
                                 role="tooltip"
-                                className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-slate-200/86 bg-white px-3 py-2 text-[11px] leading-4 text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                                className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-3 py-2 text-[11px] leading-4 text-[color:var(--text-secondary)] shadow-[0_10px_24px_rgba(37,37,65,0.1)]"
                               >
                                 {sacHelpTooltipCopy}
                               </div>
@@ -401,12 +404,12 @@ export default function DeliverablesSection({
                         </div>
                       ) : (
                         <div
-                          className="relative flex min-h-11 items-center justify-between rounded-[12px] bg-slate-100/82 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-white/72"
+                          className="relative flex min-h-11 items-center justify-between rounded-[12px] bg-[color:var(--bg-surface-soft)] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-[color:var(--border-subtle)]"
                           onMouseEnter={() => setIsSacHelpOpen(true)}
                           onMouseLeave={() => setIsSacHelpOpen(false)}
                         >
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                               SAC
                             </span>
                             {showSacHelpIcon ? (
@@ -421,20 +424,20 @@ export default function DeliverablesSection({
                                 onFocus={() => setIsSacHelpOpen(true)}
                                 onBlur={() => setIsSacHelpOpen(false)}
                                 onClick={() => setIsSacHelpOpen(true)}
-                                className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-slate-400 transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-white/80 hover:text-slate-700"
+                                className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-[color:var(--text-soft)] transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-white/80 hover:text-[color:var(--text-secondary)]"
                               >
                                 <InfoCircleIcon className="h-3.5 w-3.5" />
                               </button>
                             ) : null}
                           </div>
-                          <span className="text-[12px] font-semibold tracking-[0.01em] text-slate-700">
+                          <span className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-secondary)]">
                             {resolvedSacCode}
                           </span>
                           {showSacHelpIcon && isSacHelpOpen ? (
                             <div
                               id={sacTooltipId}
                               role="tooltip"
-                              className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-slate-200/86 bg-white px-3 py-2 text-[11px] leading-4 text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                              className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-3 py-2 text-[11px] leading-4 text-[color:var(--text-secondary)] shadow-[0_10px_24px_rgba(37,37,65,0.1)]"
                             >
                               {sacHelpTooltipCopy}
                             </div>
@@ -444,7 +447,12 @@ export default function DeliverablesSection({
                     </div>
                   </div>
 
-                  <div className="min-w-0 space-y-1.5">
+                  <div
+                    className={cn(
+                      "min-w-0 space-y-1.5",
+                      showSuggestionAssist ? "relative z-30" : ""
+                    )}
+                  >
                     <label className={compactLabelClass}>Description *</label>
                     <div className="space-y-0">
                       <div className="relative">
@@ -497,43 +505,12 @@ export default function DeliverablesSection({
                             openDescriptionAssist(item.id);
                             descriptionInputRefs.current[item.id]?.focus();
                           }}
-                          className="app-focus-ring absolute inset-y-1.5 right-1.5 inline-flex w-9 items-center justify-center rounded-[10px] border border-transparent text-slate-400 transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] hover:border-slate-200/80 hover:bg-slate-50/90 hover:text-slate-700"
+                          className="app-focus-ring absolute inset-y-1.5 right-1.5 inline-flex w-9 items-center justify-center rounded-[10px] border border-transparent text-[color:var(--text-soft)] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] hover:border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-secondary)]"
                         >
                           <SparklesIcon className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
-                    {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
-                      <div
-                        id={descriptionPanelId}
-                        role="listbox"
-                        aria-label={`Suggested descriptions for ${item.type}`}
-                        className="-mt-px overflow-hidden rounded-b-[12px] border border-slate-200/82 bg-white/96 shadow-[0_14px_28px_rgba(15,23,42,0.07)]"
-                      >
-                        <div className="flex items-center gap-2 border-b border-slate-200/78 bg-slate-50/92 px-3 py-2">
-                          <SparklesIcon className="h-3.5 w-3.5 text-slate-500" />
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                            Suggestions for {item.type}
-                          </span>
-                        </div>
-                        <div className="max-h-52 overflow-y-auto py-1">
-                          {descriptionSuggestions.map((suggestion) => (
-                            <button
-                              key={suggestion}
-                              type="button"
-                              role="option"
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() =>
-                                applyDescriptionSuggestion(item.id, suggestion)
-                              }
-                              className="block w-full px-3 py-2.5 text-left text-[12px] leading-5 text-slate-700 transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-slate-50 hover:text-slate-950"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
                     <p
                       className={cn(
                         lineItemErrorSlotClass,
@@ -576,7 +553,7 @@ export default function DeliverablesSection({
                   <div className="min-w-0">
                     <label className={compactLabelClass}>Rate</label>
                     <div className="relative">
-                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-slate-500">
+                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-[color:var(--text-muted)]">
                         {currencySymbol}
                       </span>
                       <input
@@ -631,20 +608,20 @@ export default function DeliverablesSection({
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="min-w-0 lg:min-w-[124px]">
+                  <div className="min-w-0 xl:min-w-[124px]">
                     <span className={compactLabelClass}>Total</span>
                     <div className="invoice-line-item-total flex h-11 w-full min-w-0 items-center justify-between gap-2 overflow-hidden px-3.5 py-0 text-right">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                         Auto
                       </span>
-                      <span className="truncate text-sm font-semibold text-slate-800">
+                      <span className="truncate text-sm font-semibold text-[color:var(--text-primary)]">
                         {formatCurrency(lineTotal, currency)}
                       </span>
                     </div>
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="flex items-start justify-end lg:pt-0.5">
+                  <div className="flex items-start justify-end xl:pt-0.5">
                     {canDeleteRows ? (
                       <button
                         type="button"
@@ -655,7 +632,7 @@ export default function DeliverablesSection({
                             variant: "ghost",
                             size: "sm",
                           }),
-                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-slate-400 hover:border-rose-200/75 hover:bg-rose-50/92 hover:text-rose-700"
+                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-[color:var(--text-soft)] hover:border-[color:var(--state-danger-border)] hover:bg-[color:var(--state-danger-bg)] hover:text-[color:var(--state-danger-text)]"
                         )}
                       >
                         <span
@@ -666,16 +643,48 @@ export default function DeliverablesSection({
                         </span>
                       </button>
                     ) : (
-                      <div className="hidden lg:block" />
+                      <div className="hidden xl:block" />
                     )}
                   </div>
+
+                  {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
+                    <div
+                      id={descriptionPanelId}
+                      role="listbox"
+                      aria-label={`Suggested descriptions for ${item.type}`}
+                      className="relative z-50 col-span-full -mt-1 overflow-hidden border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] shadow-[0_14px_28px_rgba(37,37,65,0.09)] xl:col-start-2 xl:col-end-3 xl:row-start-2"
+                    >
+                      <div className="flex items-center gap-2 border-b border-[color:var(--border-subtle)] bg-[color:var(--state-info-bg)] px-3 py-2">
+                        <SparklesIcon className="h-3.5 w-3.5 text-[color:var(--state-info-text)]" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-info-text)]">
+                          Suggestions for {item.type}
+                        </span>
+                      </div>
+                      <div className="max-h-52 overflow-y-auto py-1">
+                        {descriptionSuggestions.map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            role="option"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() =>
+                              applyDescriptionSuggestion(item.id, suggestion)
+                            }
+                            className="block w-full px-3 py-2.5 text-left text-[12px] leading-5 text-[color:var(--text-secondary)] transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-primary)]"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="border-t border-slate-200/80 pt-3">
+        <div className="border-t border-[color:var(--border-subtle)] pt-3">
           <button
             type="button"
             onClick={addLineItem}

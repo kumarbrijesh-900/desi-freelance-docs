@@ -20,11 +20,11 @@ async function triggerExitModal(page: Parameters<typeof openInvoicePage>[0]) {
     .fill("Touched Agency");
   await editorRoot(page)
     .getByTestId("floating-editor-actions")
-    .getByRole("button", { name: /^Cancel$/i })
+    .getByRole("button", { name: /^Close$/i })
     .click();
 }
 
-test("T6.1 — Cancel button triggers exit modal when form is touched", async (
+test("T6.1 — Close button triggers exit modal when form is touched", async (
   { page },
   testInfo
 ) => {

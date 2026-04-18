@@ -93,10 +93,10 @@ export default function TotalsTaxesSection({
   const showIgstOption = allowIgstOption || value.taxMode === "igst";
   const complianceMessageClass =
     complianceVariant === "warning"
-      ? "rounded-[var(--app-radius-card)] bg-amber-50/84 px-4 py-3 text-sm leading-6 text-amber-950 ring-1 ring-inset ring-amber-200/75"
+      ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]"
       : complianceVariant === "info"
-      ? "rounded-[var(--app-radius-card)] bg-emerald-50/90 px-4 py-3 text-sm leading-6 text-emerald-950 ring-1 ring-inset ring-emerald-200/80"
-      : "rounded-[var(--app-radius-card)] bg-slate-50/90 px-4 py-3 text-sm leading-6 text-slate-600 ring-1 ring-inset ring-slate-200/80";
+      ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-success-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-success-text)] ring-1 ring-inset ring-[color:var(--state-success-border)]"
+      : "rounded-[var(--app-radius-card)] bg-[color:var(--bg-surface-soft)] px-4 py-3 text-sm leading-6 text-[color:var(--text-secondary)] ring-1 ring-inset ring-[color:var(--border-subtle)]";
   const taxAmountHelperText =
     computed.taxType === "CGST_SGST"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
@@ -134,8 +134,8 @@ export default function TotalsTaxesSection({
           </p>
         ) : null}
         {onExportTaxDecisionChange ? (
-          <div className="mt-4 rounded-[var(--app-radius-card)] bg-amber-50/80 p-4 ring-1 ring-inset ring-amber-200/80">
-            <p className="text-sm font-medium leading-6 text-amber-950">
+          <div className="mt-4 rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] p-4 ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+            <p className="text-sm font-medium leading-6 text-[color:var(--state-warning-text)]">
               No valid LUT has been provided for this international invoice.
               Export of services may require 18% IGST. Choose how you want to
               handle this invoice.
@@ -161,12 +161,12 @@ export default function TotalsTaxesSection({
             </div>
 
             {exportTaxHelperNote ? (
-              <p className="mt-3 text-xs leading-5 text-amber-900/80">
+              <p className="mt-3 text-xs leading-5 text-[color:var(--state-warning-text)] opacity-85">
                 {exportTaxHelperNote}
               </p>
             ) : null}
             {typeof estimatedIgstLiability === "number" ? (
-              <p className="mt-2 text-sm font-medium leading-6 text-amber-950">
+              <p className="mt-2 text-sm font-medium leading-6 text-[color:var(--state-warning-text)]">
                 Estimated IGST liability: {formatCurrency(estimatedIgstLiability, "INR")}
               </p>
             ) : null}
@@ -180,10 +180,10 @@ export default function TotalsTaxesSection({
             <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-1.5">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                     Tax summary
                   </p>
-                  <p className="text-[17px] font-semibold tracking-[-0.02em] text-slate-950">
+                  <p className="text-[17px] font-semibold tracking-[-0.02em] text-[color:var(--text-primary)]">
                     {taxModeSummaryLabel}
                   </p>
                 </div>
@@ -198,22 +198,22 @@ export default function TotalsTaxesSection({
                 </span>
               </div>
 
-              <dl className="space-y-3 border-t border-slate-200/70 pt-4 text-sm">
+              <dl className="space-y-3 border-t border-[color:var(--border-subtle)] pt-4 text-sm">
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-slate-500">Current outcome</dt>
-                  <dd className="max-w-[220px] text-right font-medium text-slate-950">
+                  <dt className="text-[color:var(--text-muted)]">Current outcome</dt>
+                  <dd className="max-w-[220px] text-right font-medium text-[color:var(--text-primary)]">
                     {taxModeSummaryLabel}
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-slate-500">Applied rate</dt>
-                  <dd className="text-right font-medium text-slate-950">
+                  <dt className="text-[color:var(--text-muted)]">Applied rate</dt>
+                  <dd className="text-right font-medium text-[color:var(--text-primary)]">
                     {effectiveRate}% total tax
                   </dd>
                 </div>
                 <div className="flex items-start justify-between gap-4">
-                  <dt className="text-slate-500">Breakdown</dt>
-                  <dd className="max-w-[260px] text-right leading-6 text-slate-600">
+                  <dt className="text-[color:var(--text-muted)]">Breakdown</dt>
+                  <dd className="max-w-[260px] text-right leading-6 text-[color:var(--text-secondary)]">
                     {taxAmountHelperText}
                   </dd>
                 </div>
@@ -223,7 +223,7 @@ export default function TotalsTaxesSection({
             <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                     {modeLabel}
                   </label>
 
@@ -256,7 +256,7 @@ export default function TotalsTaxesSection({
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+                  <label className="block text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                     {rateLabel}
                   </label>
 
@@ -282,7 +282,7 @@ export default function TotalsTaxesSection({
                       }),
                       "text-base",
                       isNoTax || isLocked
-                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                        ? "cursor-not-allowed border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)]"
                         : ""
                     )}
                   />
@@ -303,10 +303,10 @@ export default function TotalsTaxesSection({
         <div className={cn(getAppPanelClass(), "invoice-final-review-panel space-y-4 px-5 py-5")}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1.5">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                 Final review
               </p>
-              <h3 className="text-[1.15rem] font-semibold tracking-[-0.024em] text-slate-950">
+              <h3 className="text-[1.15rem] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
                 Invoice totals
               </h3>
             </div>
@@ -322,32 +322,32 @@ export default function TotalsTaxesSection({
 
           <dl className="invoice-total-summary-card space-y-3 rounded-[16px] px-4 py-4">
             <div className="flex items-center justify-between gap-4 text-sm">
-              <dt className="text-slate-500">Subtotal</dt>
-              <dd className="font-semibold text-slate-950">
+              <dt className="text-[color:var(--text-muted)]">Subtotal</dt>
+              <dd className="font-semibold text-[color:var(--text-primary)]">
                 {formatCurrency(subtotal, currency)}
               </dd>
             </div>
 
-            <div className="border-t border-slate-200/80 pt-3 text-sm">
+            <div className="border-t border-[color:var(--border-subtle)] pt-3 text-sm">
               <div className="flex items-center justify-between gap-4">
-                <dt className="text-slate-500">Tax</dt>
-                <dd className="text-right font-medium text-slate-950">
+                <dt className="text-[color:var(--text-muted)]">Tax</dt>
+                <dd className="text-right font-medium text-[color:var(--text-primary)]">
                   <span>{taxModeSummaryLabel}</span>
-                  <span className="ml-2 text-slate-500">
+                  <span className="ml-2 text-[color:var(--text-muted)]">
                     {formatCurrency(taxAmount, currency)}
                   </span>
                 </dd>
               </div>
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">
+              <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
                 {taxAmountHelperText}
               </p>
             </div>
 
             <div className="invoice-total-hero">
-              <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">
+              <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                 Grand total
               </dt>
-              <dd className="mt-2 text-[36px] font-semibold tracking-[-0.03em] text-slate-950 [font-variant-numeric:tabular-nums]">
+              <dd className="mt-2 text-[36px] font-semibold tracking-[-0.03em] text-[color:var(--text-primary)] [font-variant-numeric:tabular-nums]">
                 {formatCurrency(grandTotal, currency)}
               </dd>
             </div>
@@ -355,15 +355,15 @@ export default function TotalsTaxesSection({
 
           {grandTotalReferenceLabel &&
           typeof grandTotalReferenceAmount === "number" ? (
-            <p className="invoice-final-review-note rounded-[14px] px-4 py-3 text-[11px] leading-5 text-slate-600">
+            <p className="invoice-final-review-note rounded-[14px] px-4 py-3 text-[11px] leading-5 text-[color:var(--text-secondary)]">
               {grandTotalReferenceLabel}:{" "}
-              <span className="font-medium text-slate-900">
+              <span className="font-medium text-[color:var(--text-primary)]">
                 {formatCurrency(grandTotalReferenceAmount, "USD")}
               </span>
             </p>
           ) : null}
 
-          <p className="text-[11px] leading-5 text-slate-500">
+          <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
             {grandTotal > 0
               ? "Final amount payable before any offline adjustments."
               : "Add billable items to establish the final payable amount."}

@@ -211,7 +211,7 @@ test("shared field focus and dropdown affordance stay aligned", async ({
   const agencyName = root.getByPlaceholder(/Your agency or freelance brand name/i);
   await root
     .getByTestId("floating-editor-actions")
-    .getByRole("button", { name: /^Cancel$/i })
+    .getByRole("button", { name: /^Close$/i })
     .focus();
   await focusViaTabUntil(page, agencyName);
   await expect(agencyName).toBeFocused();
@@ -358,15 +358,15 @@ test("full invoice journey stays clean through floating actions and preview", as
   const actions = root.getByTestId("floating-editor-actions").first();
   await expect(actions).toHaveScreenshot("invoice-editor-floating-actions.png", screenshotOptions);
   await expect(actions.getByRole("button")).toHaveCount(3);
-  await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
-  await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Draft$/i })).toBeVisible();
   await expect(
-    actions.locator("button").filter({ hasText: /Preview & download/i }).first()
+    actions.locator("button").filter({ hasText: /^Preview$/i }).first()
   ).toBeVisible();
 
   await actions
     .locator("button")
-    .filter({ hasText: /Preview & download/i })
+    .filter({ hasText: /^Preview$/i })
     .first()
     .click();
   await expect(page).toHaveURL(/\/invoice\/preview$/);

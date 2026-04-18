@@ -77,14 +77,14 @@ export default function BriefIntakeCard({
 
   const statusBadgeClass =
     statusTone === "processing"
-      ? "border-slate-300 bg-white text-slate-700"
+      ? "border-[color:var(--border-default)] bg-[color:var(--bg-surface)] text-[color:var(--text-secondary)]"
       : statusTone === "success"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
       : statusTone === "warning"
-      ? "border-amber-200 bg-amber-50 text-amber-800"
+      ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
       : statusTone === "ready"
-      ? "border-sky-200 bg-sky-50 text-sky-800"
-      : "border-slate-200 bg-slate-100 text-slate-600";
+      ? "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+      : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]";
 
   const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
@@ -296,7 +296,7 @@ export default function BriefIntakeCard({
                         className={cn(
                           getAppButtonClass({ variant: "secondary", size: "sm" }),
                           "cursor-pointer",
-                          isDragOver ? "border-indigo-300 bg-white text-slate-950" : ""
+                          isDragOver ? "border-[color:var(--border-accent)] bg-[color:var(--bg-surface)] text-[color:var(--text-primary)]" : ""
                         )}
                       >
                         <UploadIcon className="h-4 w-4" />
@@ -351,7 +351,7 @@ export default function BriefIntakeCard({
                         <span
                           key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            "inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/82 px-2 py-1 text-[11px] font-medium text-slate-700"
+                            "inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-1 text-[11px] font-medium text-[color:var(--text-secondary)]"
                           )}
                         >
                           <ClipboardCheckIcon className="h-3.5 w-3.5" />
@@ -361,9 +361,9 @@ export default function BriefIntakeCard({
                     </div>
                   ) : null}
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border-subtle)] pt-2">
                     {isExtracting || lastExtractionState !== "idle" ? (
-                      <p className="text-[11px] leading-5 text-slate-500">
+                      <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
                         {statusCopy}
                       </p>
                     ) : <div />}

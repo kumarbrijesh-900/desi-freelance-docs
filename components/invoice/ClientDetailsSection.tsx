@@ -221,7 +221,7 @@ export default function ClientDetailsSection({
         </div>
 
         {!isInternational ? (
-          <div className="space-y-4 border-t border-slate-200/70 pt-4">
+          <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
             <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
@@ -297,7 +297,7 @@ export default function ClientDetailsSection({
                 ]}
               />
               {sezSuggestion ? (
-                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-[11px] font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
                 </p>
               ) : null}
@@ -411,7 +411,7 @@ export default function ClientDetailsSection({
               </p>
             ) : null}
             {stateSignals.warning ? (
-              <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+              <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                 {stateSignals.warning}
               </p>
             ) : null}
@@ -419,7 +419,7 @@ export default function ClientDetailsSection({
         ) : null}
 
         {isInternational ? (
-          <div className="space-y-4 border-t border-slate-200/70 pt-4">
+          <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
             <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>

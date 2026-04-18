@@ -340,7 +340,7 @@ export default function TermsPaymentSection({
               <label className={appFieldLabelClass}>
                 Settlement Type
               </label>
-              <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-slate-200/90 bg-slate-50/88 p-1">
+              <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1">
                 {[
                   { value: "forex", label: "Forex" },
                   { value: "inr", label: "INR" },
@@ -368,8 +368,8 @@ export default function TermsPaymentSection({
                         className={cn(
                           "flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
                           isSelected
-                            ? "app-soft-choice-option-active text-slate-950"
-                            : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+                            ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
+                            : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
                         )}
                       >
                         {option.label}
@@ -380,7 +380,7 @@ export default function TermsPaymentSection({
               </div>
               {value.paymentSettlementType &&
               value.paymentSettlementType !== "forex" ? (
-                <p className="text-[11px] leading-5 text-slate-500">
+                <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
                   Confirm the settlement route before final delivery.
                 </p>
               ) : null}
@@ -413,15 +413,15 @@ export default function TermsPaymentSection({
           <div
             className={cn(
               getAppSubtlePanelClass("muted"),
-              "invoice-optional-zone invoice-utility-widget space-y-3 border border-slate-200/70 px-3 py-3"
+              "invoice-optional-zone invoice-utility-widget space-y-3 border border-[color:var(--border-subtle)] px-3 py-3"
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-2">
-                <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-950">
+                <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
                   Licensing
                 </p>
-                <span className="inline-flex items-center rounded-full border border-slate-200/90 bg-white/86 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
+                <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                   {hasLicenseContent ? "Included" : "Optional"}
                 </span>
               </div>
@@ -541,7 +541,7 @@ export default function TermsPaymentSection({
                     </div>
                   ) : null}
                 {showLicenseFields && value.license.licenseType ? (
-                  <p className="text-[11px] leading-5 text-slate-500">
+                  <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
                     {licenseExplanation}
                   </p>
                 ) : null}
@@ -659,8 +659,8 @@ export default function TermsPaymentSection({
               <div className="invoice-utility-widget flex flex-col items-end gap-1 rounded-[14px] p-2">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">QR</p>
-                    <p className="mt-0.5 text-[10px] leading-4 text-slate-500">Optional</p>
+                    <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">QR</p>
+                    <p className="mt-0.5 text-[10px] leading-4 text-[color:var(--text-muted)]">Optional</p>
                   </div>
 
                   {value.qrCodeUrl ? (
@@ -689,8 +689,8 @@ export default function TermsPaymentSection({
                   onDrop={handleQrDrop}
                   className={`app-dropzone-surface flex aspect-square w-full max-w-[64px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1 py-1 text-center text-sm ${
                     isQrDragOver
-                      ? "app-dropzone-accept text-slate-950"
-                      : "text-slate-500 hover:border-slate-400"
+                      ? "app-dropzone-accept text-[color:var(--text-primary)]"
+                      : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
                   }`}
                 >
                   <input
@@ -708,15 +708,15 @@ export default function TermsPaymentSection({
                     />
                   ) : (
                     <div className="space-y-1">
-                      <p className="text-[11px] font-semibold text-slate-700">QR</p>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-400">Upload</p>
+                      <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">QR</p>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">Upload</p>
                     </div>
                   )}
                 </label>
               </div>
             </div>
           ) : (
-            <div className="space-y-4 border-t border-slate-200/70 pt-4">
+            <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
               <div className={appFieldPairGridClass}>
                 <div>
                   <label className={appFieldLabelClass}>

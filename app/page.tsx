@@ -48,15 +48,15 @@ export default function Home() {
             preset="fade-up"
             className={`${appReadableContentClass} text-center`}
           >
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
             Freelance document workflow
           </p>
 
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-black sm:text-5xl">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-5xl">
             Create invoices and scope documents faster
           </h1>
 
-          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-gray-600 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[color:var(--text-secondary)] sm:text-lg">
             Turn a raw client brief into structured freelance documents with
             guided inputs, licensing controls, and quick generation flows.
           </p>

@@ -358,14 +358,14 @@ export default function InvoicePreviewPage() {
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-secondary)]">
                     <DocumentSparkIcon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-slate-950">
+                    <p className="text-sm font-semibold text-[color:var(--text-primary)]">
                       Preparing preview
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                       Loading the invoice sheet and export actions.
                     </p>
                   </div>
@@ -385,8 +385,8 @@ export default function InvoicePreviewPage() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
-                <p className="mt-3 text-sm text-gray-600">
+                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">Invoice Preview</h1>
+                <p className="mt-3 text-sm text-[color:var(--text-secondary)]">
                   No invoice data found. Go back to the editor and click Preview
                   Invoice again.
                 </p>
@@ -414,8 +414,8 @@ export default function InvoicePreviewPage() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-black">Invoice Preview</h1>
-                <p className="mt-3 text-sm leading-6 text-gray-600">
+                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">Invoice Preview</h1>
+                <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
                   This international invoice still needs an explicit export tax
                   choice in Totals &amp; Taxes before preview or PDF export.
                 </p>
@@ -481,29 +481,29 @@ export default function InvoicePreviewPage() {
         <MotionReveal className="mb-6 print:hidden" preset="fade-up">
           <div
             data-testid="invoice-preview-toolbar"
-            className={`${appCardClass} border-slate-200/90 px-5 py-5 sm:px-6`}
+            className={`${appCardClass} border-[color:var(--border-default)] px-5 py-5 sm:px-6`}
           >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
                     <DocumentSparkIcon className="h-4 w-4" />
                     Preview & Download
                   </span>
-                  <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-800">
+                  <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
                     Ready to export
                   </span>
                   {saveState === "saved" ? (
-                    <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-800">
+                    <span className="inline-flex items-center rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
                       Draft saved
                     </span>
                   ) : null}
                 </div>
 
-                <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 sm:text-[30px]">
+                <h1 className="mt-3 text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[30px]">
                   {invoiceNumber?.trim() || "Invoice Preview"}
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--text-secondary)]">
                   Review the final invoice sheet, save a draft if you need another pass, or export a clean PDF for delivery.
                 </p>
               </div>

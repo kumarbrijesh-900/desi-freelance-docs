@@ -22,10 +22,10 @@ const InvoiceEditorPage = dynamic(
           <div className="mx-auto w-full max-w-[1120px]">
             <div className={getAppSubtlePanelClass("muted")}>
               <div className="space-y-2 px-6 py-7">
-                <p className="text-sm font-medium text-slate-950">
+                <p className="text-sm font-medium text-[color:var(--text-primary)]">
                   Loading invoice editor...
                 </p>
-                <p className="text-sm leading-6 text-slate-600">
+                <p className="text-sm leading-6 text-[color:var(--text-secondary)]">
                   Restoring your saved invoice context and preparing the form.
                 </p>
               </div>

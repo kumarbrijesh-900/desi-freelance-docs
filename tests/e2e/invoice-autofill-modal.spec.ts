@@ -243,7 +243,7 @@ test("the editor layout stays within the viewport without horizontal scrolling",
   await expectNoHorizontalOverflow(page);
 });
 
-test("floating action cluster shows only Cancel, Save Draft, and Preview & Download", async ({
+test("floating action cluster shows only Close, Draft, and Preview", async ({
   page,
 }) => {
   await loadDemoData(page);
@@ -252,10 +252,10 @@ test("floating action cluster shows only Cancel, Save Draft, and Preview & Downl
 
   const actions = root.getByTestId("floating-editor-actions");
   await expect(actions.getByRole("button")).toHaveCount(3);
-  await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
-  await expect(actions.getByRole("button", { name: /^Save Draft$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Draft$/i })).toBeVisible();
   await expect(
-    actions.locator("button").filter({ hasText: /Preview & download/i }).first()
+    actions.locator("button").filter({ hasText: /^Preview$/i }).first()
   ).toBeVisible();
   await expect(actions.getByRole("button", { name: /^Back$/i })).toHaveCount(0);
   await expect(actions.getByRole("button", { name: /^Continue$/i })).toHaveCount(0);
@@ -299,7 +299,7 @@ test("Preview & Download from the editor opens the formal preview flow with the 
   await root
     .getByTestId("floating-editor-actions")
     .locator("button")
-    .filter({ hasText: /Preview & download/i })
+    .filter({ hasText: /^Preview$/i })
     .first()
     .click();
   await expect(page).toHaveURL(/\/invoice\/preview$/);

@@ -343,15 +343,15 @@ function ExitConfirmModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-slate-950/20 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4 backdrop-blur-sm">
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
-        <h2 className="text-xl font-semibold tracking-tight text-slate-950">
+        <h2 className="text-xl font-semibold tracking-tight text-[color:var(--text-primary)]">
           Leave invoice editor?
         </h2>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
+        <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
           You have unsaved progress. Choose{" "}
-          <span className="font-medium text-slate-950">Save Draft</span> to keep
-          your work, or <span className="font-medium text-slate-950">Skip</span>{" "}
+          <span className="font-medium text-[color:var(--text-primary)]">Save Draft</span> to keep
+          your work, or <span className="font-medium text-[color:var(--text-primary)]">Skip</span>{" "}
           to leave without saving.
         </p>
 
@@ -585,20 +585,20 @@ function InlineStepSection({
                   className={cn(
                     "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
                     isCompleted
-                      ? "bg-emerald-600"
+                      ? "bg-[color:var(--interactive-secondary)]"
                       : isActive
-                      ? "bg-[color:var(--app-color-primary)]"
-                      : "bg-slate-300"
+                      ? "bg-[color:var(--interactive-primary)]"
+                      : "bg-[color:var(--border-strong)]"
                   )}
                 />
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                   Step {stepNumber}
                 </p>
-                <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-slate-950">
+                <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
                   {stepLabel}
                 </h2>
-                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-slate-500">
+                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--text-muted)]">
                   {detailCopy}
                 </p>
               </div>
@@ -1628,10 +1628,10 @@ export default function InvoiceEditorPage() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                       Progress
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-950">
+                    <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
                       {completedStepCount} of {orderedSteps.length} sections ready
                     </p>
                   </div>
@@ -1641,9 +1641,9 @@ export default function InvoiceEditorPage() {
                       : "Ready for preview"}
                   </span>
                 </div>
-                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/70">
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[color:var(--border-subtle)]">
                   <div
-                    className="h-full rounded-full bg-[color:var(--app-color-primary)] transition-all duration-500"
+                    className="h-full rounded-full bg-[color:var(--interactive-secondary)] transition-all duration-500"
                     style={{
                       width: `${Math.round(
                         (completedStepCount / orderedSteps.length) * 100
@@ -1691,7 +1691,7 @@ export default function InvoiceEditorPage() {
                                     variant: "ghost",
                                     size: "sm",
                                   }),
-                                  "h-8 px-2 text-[12px] font-medium text-slate-500 hover:text-slate-900"
+                                  "h-8 px-2 text-[12px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
                                 )}
                               >
                                 Continue to {getStepShortLabel(getNextStep(step)!)}
@@ -1722,11 +1722,11 @@ export default function InvoiceEditorPage() {
                 )}
               >
                 <div className="space-y-3" data-testid="support-rail-section-list">
-                  <div className="border-b border-slate-200/80 px-1 pb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                       Editor progress
                     </p>
-                    <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-slate-950">
+                    <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
                       {completedStepCount} of {orderedSteps.length} ready
                     </p>
                   </div>
@@ -1762,17 +1762,17 @@ export default function InvoiceEditorPage() {
                           type="button"
                           onClick={() => scrollToStep(step)}
                           data-rail-state={stepState}
-                          className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-slate-700 transition duration-[var(--app-duration-fast)]"
+                          className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
                         >
                           <div className="flex min-w-0 items-start gap-2">
                             <span className="invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold">
                               {isCompleted ? "✓" : index + 1}
                             </span>
                             <div className="min-w-0 space-y-1">
-                              <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-slate-950">
+                              <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
                                 {getStepShortLabel(step)}
                               </p>
-                              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-500">
+                              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                                 {railStatus}
                               </p>
                             </div>
@@ -1793,7 +1793,7 @@ export default function InvoiceEditorPage() {
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-slate-200/80 px-2 py-2"
+              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-[color:var(--border-default)] px-2 py-2"
             )}
             data-testid="floating-editor-actions"
           >
@@ -1802,7 +1802,7 @@ export default function InvoiceEditorPage() {
               onClick={handleBackToHome}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-2.5 text-slate-500 hover:text-slate-900"
+                "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
               )}
             >
               Close

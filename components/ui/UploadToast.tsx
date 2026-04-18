@@ -36,10 +36,10 @@ export default function UploadToast({
               "shadow-[var(--app-elevation-raised)]"
             )}
           >
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white shadow-[0_1px_0_rgba(255,255,255,0.4)]">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--interactive-secondary)] text-[color:var(--text-on-dark)] shadow-[0_1px_0_rgba(255,255,255,0.4)]">
               <CheckIcon className="h-3.5 w-3.5" />
             </span>
-            <span className="text-sm font-medium text-slate-900">{message}</span>
+            <span className="text-sm font-medium text-[color:var(--text-primary)]">{message}</span>
           </div>
         </motion.div>
       ) : null}

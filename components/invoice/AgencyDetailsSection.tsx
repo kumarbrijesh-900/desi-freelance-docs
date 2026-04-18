@@ -217,7 +217,7 @@ export default function AgencyDetailsSection({
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
           <div className={appFieldFullWidthStackClass}>
             <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-4 py-3")}>
-              <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
+              <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
                 Agency Compliance
               </p>
               <div className="w-full md:max-w-[360px]">
@@ -255,7 +255,7 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-slate-200/80 pt-3">
+                    <div className="border-t border-[color:var(--border-subtle)] pt-3">
                       <div className={appFieldPairGridClass}>
                         <div>
                           <label className={appFieldLabelClass}>
@@ -315,7 +315,7 @@ export default function AgencyDetailsSection({
                               {panError}
                             </p>
                           ) : panConflictWarning ? (
-                            <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                            <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                               {panConflictWarning}
                             </p>
                           ) : null}
@@ -336,7 +336,7 @@ export default function AgencyDetailsSection({
                     transition={expandableSectionTransition}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-slate-200/80 pt-3">
+                    <div className="border-t border-[color:var(--border-subtle)] pt-3">
                       <label className={appFieldLabelClass}>
                         Valid LUT for current financial year?
                       </label>
@@ -370,7 +370,7 @@ export default function AgencyDetailsSection({
                             transition={expandableSectionTransition}
                             className="overflow-hidden"
                           >
-                            <div className="max-w-[220px] border-t border-slate-200/80 pt-3">
+                            <div className="max-w-[220px] border-t border-[color:var(--border-subtle)] pt-3">
                               <label className={appFieldLabelClass}>
                                 LUT Number / ARN
                               </label>
@@ -403,7 +403,7 @@ export default function AgencyDetailsSection({
                             className="overflow-hidden"
                           >
                             <div className={cn(getAppSubtlePanelClass(), "px-3 py-2")}>
-                              <p className="text-[11px] leading-5 text-slate-500">
+                              <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
                                 This only affects export tax handling later if the client
                                 invoice is international.
                               </p>
@@ -443,7 +443,7 @@ export default function AgencyDetailsSection({
                   {panError}
                 </p>
               ) : panConflictWarning ? (
-                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   {panConflictWarning}
                 </p>
               ) : null}
@@ -585,7 +585,7 @@ export default function AgencyDetailsSection({
                 </p>
               ) : null}
               {stateSignals.warning ? (
-                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   {stateSignals.warning}
                 </p>
               ) : null}
@@ -594,7 +594,7 @@ export default function AgencyDetailsSection({
 
           <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:self-start")}>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[12px] font-semibold tracking-[0.01em] text-slate-900">Logo</p>
+              <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Logo</p>
 
               {value.logoUrl ? (
                 <button
@@ -622,8 +622,8 @@ export default function AgencyDetailsSection({
               onDrop={handleDrop}
               className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
                 isDragOver
-                  ? "app-dropzone-accept text-slate-950"
-                  : "text-slate-500 hover:border-slate-400"
+                  ? "app-dropzone-accept text-[color:var(--text-primary)]"
+                  : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
               }`}
             >
               <input
@@ -641,8 +641,8 @@ export default function AgencyDetailsSection({
                 />
               ) : (
                 <div className="space-y-1">
-                  <p className="text-[11px] font-semibold text-slate-700">Logo</p>
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-slate-400">PNG/JPG</p>
+                  <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">Logo</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">PNG/JPG</p>
                 </div>
               )}
             </label>

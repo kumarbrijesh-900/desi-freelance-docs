@@ -110,7 +110,7 @@ test("T5.3 — Preview button aria-label is contextual", async (
     editorRoot(page)
       .getByTestId("floating-editor-actions")
       .locator("button")
-      .filter({ hasText: /Preview & download/i })
+      .filter({ hasText: /^Preview$/i })
       .first()
   ).toHaveAttribute("aria-label", /Complete/i);
 });
@@ -122,7 +122,7 @@ test("T5.4 — No keyboard trap exists", async ({ page }, testInfo) => {
 
   const firstFocusable = editorRoot(page)
     .getByTestId("floating-editor-actions")
-    .getByRole("button", { name: /^Cancel$/i });
+    .getByRole("button", { name: /^Close$/i });
   await firstFocusable.focus();
 
   const getSignature = () =>

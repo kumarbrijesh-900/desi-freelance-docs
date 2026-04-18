@@ -17,23 +17,23 @@ export default function LoginPage() {
     <main className="min-h-screen px-6 py-16">
       <div className="mx-auto flex min-h-[80vh] max-w-5xl flex-col items-center justify-center gap-10 text-center">
         <div className="max-w-3xl">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
             DesiFreelanceDocs
           </p>
 
-          <h1 className="mt-4 text-5xl font-bold tracking-tight text-black">
+          <h1 className="mt-4 text-5xl font-bold tracking-tight text-[color:var(--text-primary)]">
             Turn messy client briefs into clean freelance documents.
           </h1>
 
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-[color:var(--text-secondary)]">
             Create invoices, scope documents, and structured project details in
             one guided workflow.
           </p>
         </div>
 
         <div className={`w-full max-w-md ${getAppPanelClass()}`}>
-          <h2 className="text-2xl font-bold text-black">Login</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-[color:var(--text-primary)]">Login</h2>
+          <p className="mt-2 text-sm text-[color:var(--text-secondary)]">
             Sign in with Google to continue.
           </p>
 

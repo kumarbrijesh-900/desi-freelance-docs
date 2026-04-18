@@ -24,13 +24,13 @@ test("T1.1 — Sticky toolbar exists and has exactly 3 buttons", async ({
   const actions = root.getByTestId("floating-editor-actions").first();
   const previewButton = actions
     .locator("button")
-    .filter({ hasText: /Preview & download/i })
+    .filter({ hasText: /^Preview$/i })
     .first();
   await expect(actions).toBeVisible();
   await expect(actions.getByRole("button")).toHaveCount(3);
-  await expect(actions.getByRole("button", { name: /^Cancel$/i })).toBeVisible();
+  await expect(actions.getByRole("button", { name: /^Close$/i })).toBeVisible();
   await expect(
-    actions.getByRole("button", { name: /^Save draft$/i })
+    actions.getByRole("button", { name: /^Draft$/i })
   ).toBeVisible();
   await expect(previewButton).toBeVisible();
   await expect(root.getByRole("button", { name: /^Load Demo Data$/i })).toHaveCount(0);
@@ -74,8 +74,9 @@ test("T1.2 — Sticky toolbar stays visible on scroll", async (
   const viewport = page.viewportSize();
 
   expect(afterBox?.x ?? 0).toBeGreaterThan((viewport?.width ?? 0) - ((afterBox?.width ?? 0) + 48));
-  expect((afterBox?.y ?? 0) + (afterBox?.height ?? 0)).toBeGreaterThanOrEqual(
-    (viewport?.height ?? 0) - 72
+  expect(afterBox?.y ?? 0).toBeGreaterThan(80);
+  expect((afterBox?.y ?? 0) + (afterBox?.height ?? 0)).toBeLessThan(
+    (viewport?.height ?? 0) - 80
   );
   expect(Math.abs((afterBox?.y ?? 0) - (beforeBox?.y ?? 0))).toBeLessThanOrEqual(8);
 });
@@ -139,7 +140,7 @@ test("T1.5 — Compact progress summary visible on mobile", async (
   await expect(progressFill).toHaveAttribute("style", /width:\s*\d+%/i);
 });
 
-test("T1.6 — Preview & download button is disabled on fresh load", async (
+test("T1.6 — Preview button is disabled on fresh load", async (
   { page },
   testInfo
 ) => {
@@ -150,7 +151,7 @@ test("T1.6 — Preview & download button is disabled on fresh load", async (
   const previewButton = editorRoot(page)
     .getByTestId("floating-editor-actions")
     .locator("button")
-    .filter({ hasText: /Preview & download/i })
+    .filter({ hasText: /^Preview$/i })
     .first();
 
   await expect(previewButton).toBeDisabled();

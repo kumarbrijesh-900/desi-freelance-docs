@@ -38,23 +38,23 @@ export default function ChoiceCards<T extends string>({
     if (variant === "segmented") {
       return `flex min-h-[44px] min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
-          ? "app-soft-choice-option-active text-slate-950"
-          : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+          ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
+          : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
       }`;
     }
 
     if (variant === "inline") {
       return `inline-flex min-h-10 min-w-fit items-center justify-center rounded-full border px-3 py-2 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
         isSelected
-          ? "app-soft-choice-option-active text-slate-950"
-          : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+          ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
+          : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
       }`;
     }
 
     return `block rounded-[14px] border px-4 py-3 transition ${
       isSelected
-        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-[color:var(--app-color-accent-border)]"
-        : "app-soft-choice-option text-slate-700 hover:text-slate-950"
+        ? "app-soft-choice-option-active text-[color:var(--text-primary)] ring-1 ring-[color:var(--app-color-accent-border)]"
+        : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
     }`;
   };
 
@@ -97,7 +97,7 @@ export default function ChoiceCards<T extends string>({
               layout
               className={`${getCardClass(
                 isSelected
-              )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--app-color-primary)] peer-focus-visible:ring-offset-1 ${
+              )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1 ${
                 isSelected ? "ring-1 ring-[color:var(--app-color-accent-border)]" : ""
               }`}
               data-selected={isSelected ? "true" : "false"}
@@ -127,7 +127,9 @@ export default function ChoiceCards<T extends string>({
                     id={descriptionId}
                     className={cn(
                       "mt-1 block text-[11px] leading-5",
-                      isSelected ? "text-slate-600" : "text-slate-500"
+                      isSelected
+                        ? "text-[color:var(--text-secondary)]"
+                        : "text-[color:var(--text-muted)]"
                     )}
                   >
                     {option.description}
@@ -138,7 +140,9 @@ export default function ChoiceCards<T extends string>({
                 <motion.span
                   aria-hidden="true"
                   className={`ml-auto h-2.5 w-2.5 shrink-0 rounded-full ${
-                    isSelected ? "bg-[color:var(--app-color-primary)]" : "bg-slate-300"
+                    isSelected
+                      ? "bg-[color:var(--interactive-secondary)]"
+                      : "bg-[color:var(--border-strong)]"
                   }`}
                   animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
                   transition={{

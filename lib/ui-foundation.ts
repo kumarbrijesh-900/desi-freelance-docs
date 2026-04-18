@@ -15,7 +15,7 @@ export const appFieldHelperTextClass =
   "mt-1 text-[11px] leading-[1.5] text-[color:var(--app-color-text-muted)]";
 
 export const appFieldErrorTextClass =
-  "mt-1 text-[11px] font-semibold leading-[1.45] text-rose-600";
+  "mt-1 text-[11px] font-semibold leading-[1.45] text-[color:var(--state-danger-text)]";
 
 export function getAppSubtlePanelClass(
   tone: "default" | "muted" | "warning" = "default"
@@ -23,7 +23,7 @@ export function getAppSubtlePanelClass(
   return cn(
     "rounded-[var(--app-radius-card)] p-4",
     tone === "warning"
-      ? "bg-[color:var(--app-color-surface-warning)] ring-1 ring-inset ring-[color:rgba(245,158,11,0.3)]"
+      ? "bg-[color:var(--state-warning-bg)] ring-1 ring-inset ring-[color:var(--state-warning-border)]"
       : tone === "muted"
       ? "bg-[color:var(--app-color-surface-muted)] ring-1 ring-inset ring-[color:var(--app-color-border)]"
       : "bg-[color:var(--app-color-surface)] ring-1 ring-inset ring-[color:var(--app-color-border)]"
@@ -60,7 +60,7 @@ export function getAppButtonClass(params?: {
       : "h-11 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "app-soft-button-primary text-white hover:border-indigo-900"
+      ? "app-soft-button-primary text-[color:var(--text-on-accent)] hover:border-[color:var(--interactive-primary-hover)]"
       : variant === "ghost"
       ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
       : variant === "tertiary"
@@ -68,8 +68,8 @@ export function getAppButtonClass(params?: {
       : variant === "subtle"
       ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
       : variant === "destructive-lite"
-      ? "app-soft-button-destructive text-rose-900 hover:border-rose-300"
-      : "app-soft-button-secondary text-[color:var(--app-color-text-primary)] hover:border-slate-400"
+      ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)]"
+      : "app-soft-button-secondary text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]"
   );
 }
 
@@ -82,16 +82,16 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-[color:var(--app-color-primary)]",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--app-duration-fast)] focus-visible:border-[color:var(--focus-ring)]",
     multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
-    "placeholder:text-slate-400/80",
-    "disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100/85 disabled:text-slate-400 disabled:shadow-none",
+    "placeholder:text-[color:var(--text-soft)]",
+    "disabled:cursor-not-allowed disabled:border-[color:var(--border-subtle)] disabled:bg-[color:var(--bg-surface-soft)] disabled:text-[color:var(--text-soft)] disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
-      ? "app-soft-field-error focus-visible:border-rose-400"
+      ? "app-soft-field-error focus-visible:border-[color:var(--state-danger-border)]"
       : hasValue
       ? "app-soft-field-filled"
       : ""
@@ -119,9 +119,9 @@ export function getAppStatusPillClass(
   return cn(
     "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]",
     tone === "success"
-      ? "border-emerald-200/95 bg-emerald-50/95 text-emerald-900 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
+      ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] shadow-[0_1px_0_rgba(255,255,255,0.82)]"
       : tone === "muted"
-      ? "border-slate-200/95 bg-slate-100/88 text-slate-600 shadow-[0_1px_0_rgba(255,255,255,0.82)]"
-      : "border-slate-300/95 bg-white/96 text-slate-800 shadow-[0_1px_0_rgba(255,255,255,0.86)]"
+      ? "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)] shadow-[0_1px_0_rgba(255,255,255,0.82)]"
+      : "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)] shadow-[0_1px_0_rgba(255,255,255,0.86)]"
   );
 }
