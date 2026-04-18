@@ -216,147 +216,6 @@ export default function AgencyDetailsSection({
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
           <div className={appFieldFullWidthStackClass}>
-            <div>
-              <label className={appFieldLabelClass}>
-                Business / Trade Name *
-              </label>
-              <input
-                suppressHydrationWarning
-                type="text"
-                value={value.agencyName}
-                onChange={(e) => updateField("agencyName", e.target.value)}
-                onBlur={() => markTouched("agencyName")}
-                placeholder="Your agency or freelance brand name"
-                className={inputClass(
-                  agencyNameError,
-                  Boolean(value.agencyName)
-                )}
-              />
-              {agencyNameError ? (
-                <p className={appFieldErrorTextClass}>
-                  {agencyNameError}
-                </p>
-              ) : null}
-            </div>
-
-            <div>
-              <div className="mb-2">
-                <label className={appFieldLabelClass}>
-                  Registered Address *
-                </label>
-              </div>
-
-              <div className="space-y-4">
-                <div className={appFieldFullWidthStackClass}>
-                  <label className={appFieldLabelClass}>
-                    Address Line 1 *
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.addressLine1}
-                    onChange={(e) => updateField("addressLine1", e.target.value)}
-                    onBlur={() => markTouched("address")}
-                    placeholder="Building, street, or area"
-                    className={inputClass(
-                      addressError,
-                      Boolean(value.addressLine1)
-                    )}
-                  />
-                </div>
-
-                <div className={appFieldFullWidthStackClass}>
-                  <label className={appFieldLabelClass}>
-                    Address Line 2
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.addressLine2}
-                    onChange={(e) => updateField("addressLine2", e.target.value)}
-                    placeholder="Suite, floor, landmark, or optional line"
-                    className={inputClass(undefined, Boolean(value.addressLine2))}
-                  />
-                </div>
-
-                <div className={appFieldTripleCompactGridClass}>
-                  <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    State *
-                  </label>
-                  <AppSelectField
-                    suppressHydrationWarning
-                    aria-label="Agency state"
-                    value={value.agencyState}
-                    onChange={(e) =>
-                      updateField(
-                        "agencyState",
-                        e.target.value as AgencyDetails["agencyState"]
-                      )
-                    }
-                    onBlur={() => markTouched("agencyState")}
-                    hasError={agencyStateError}
-                    hasValue={Boolean(value.agencyState)}
-                  >
-                    <option value="">Select state or union territory</option>
-                    {INDIA_STATE_OPTIONS.map((stateName) => (
-                      <option key={stateName} value={stateName}>
-                        {stateName}
-                      </option>
-                    ))}
-                  </AppSelectField>
-                  </div>
-
-                  <div>
-                  <label className={appFieldLabelClass}>
-                    City
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.city}
-                    onChange={(e) => updateField("city", e.target.value)}
-                    placeholder="Bengaluru"
-                    className={inputClass(undefined, Boolean(value.city))}
-                  />
-                  </div>
-
-                  <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    PIN Code
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    inputMode="numeric"
-                    value={value.pinCode}
-                    onChange={(e) =>
-                      updateField("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
-                    placeholder="560025"
-                    className={inputClass(undefined, Boolean(value.pinCode))}
-                  />
-                  </div>
-                </div>
-              </div>
-
-              {addressError ? (
-                <p className={appFieldErrorTextClass}>
-                  {addressError}
-                </p>
-              ) : null}
-              {agencyStateError ? (
-                <p className={appFieldErrorTextClass}>
-                  {agencyStateError}
-                </p>
-              ) : null}
-              {stateSignals.warning ? (
-                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
-                  {stateSignals.warning}
-                </p>
-              ) : null}
-            </div>
-
             <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-4 py-3")}>
               <p className="text-[13px] font-semibold tracking-[0.01em] text-slate-900">
                 Agency Compliance
@@ -590,6 +449,147 @@ export default function AgencyDetailsSection({
               ) : null}
             </div>
             ) : null}
+
+            <div>
+              <label className={appFieldLabelClass}>
+                Business / Trade Name *
+              </label>
+              <input
+                suppressHydrationWarning
+                type="text"
+                value={value.agencyName}
+                onChange={(e) => updateField("agencyName", e.target.value)}
+                onBlur={() => markTouched("agencyName")}
+                placeholder="Your agency or freelance brand name"
+                className={inputClass(
+                  agencyNameError,
+                  Boolean(value.agencyName)
+                )}
+              />
+              {agencyNameError ? (
+                <p className={appFieldErrorTextClass}>
+                  {agencyNameError}
+                </p>
+              ) : null}
+            </div>
+
+            <div>
+              <div className="mb-2">
+                <label className={appFieldLabelClass}>
+                  Registered Address *
+                </label>
+              </div>
+
+              <div className="space-y-4">
+                <div className={appFieldFullWidthStackClass}>
+                  <label className={appFieldLabelClass}>
+                    Address Line 1 *
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.addressLine1}
+                    onChange={(e) => updateField("addressLine1", e.target.value)}
+                    onBlur={() => markTouched("address")}
+                    placeholder="Building, street, or area"
+                    className={inputClass(
+                      addressError,
+                      Boolean(value.addressLine1)
+                    )}
+                  />
+                </div>
+
+                <div className={appFieldFullWidthStackClass}>
+                  <label className={appFieldLabelClass}>
+                    Address Line 2
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.addressLine2}
+                    onChange={(e) => updateField("addressLine2", e.target.value)}
+                    placeholder="Suite, floor, landmark, or optional line"
+                    className={inputClass(undefined, Boolean(value.addressLine2))}
+                  />
+                </div>
+
+                <div className={appFieldTripleCompactGridClass}>
+                  <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    State *
+                  </label>
+                  <AppSelectField
+                    suppressHydrationWarning
+                    aria-label="Agency state"
+                    value={value.agencyState}
+                    onChange={(e) =>
+                      updateField(
+                        "agencyState",
+                        e.target.value as AgencyDetails["agencyState"]
+                      )
+                    }
+                    onBlur={() => markTouched("agencyState")}
+                    hasError={agencyStateError}
+                    hasValue={Boolean(value.agencyState)}
+                  >
+                    <option value="">Select state or union territory</option>
+                    {INDIA_STATE_OPTIONS.map((stateName) => (
+                      <option key={stateName} value={stateName}>
+                        {stateName}
+                      </option>
+                    ))}
+                  </AppSelectField>
+                  </div>
+
+                  <div>
+                  <label className={appFieldLabelClass}>
+                    City
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.city}
+                    onChange={(e) => updateField("city", e.target.value)}
+                    placeholder="Bengaluru"
+                    className={inputClass(undefined, Boolean(value.city))}
+                  />
+                  </div>
+
+                  <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    PIN Code
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    inputMode="numeric"
+                    value={value.pinCode}
+                    onChange={(e) =>
+                      updateField("pinCode", e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    placeholder="560025"
+                    className={inputClass(undefined, Boolean(value.pinCode))}
+                  />
+                  </div>
+                </div>
+              </div>
+
+              {addressError ? (
+                <p className={appFieldErrorTextClass}>
+                  {addressError}
+                </p>
+              ) : null}
+              {agencyStateError ? (
+                <p className={appFieldErrorTextClass}>
+                  {agencyStateError}
+                </p>
+              ) : null}
+              {stateSignals.warning ? (
+                <p className="mt-2 rounded-xl bg-amber-50/80 px-3 py-2 text-xs font-medium leading-5 text-amber-900 ring-1 ring-inset ring-amber-200/80">
+                  {stateSignals.warning}
+                </p>
+              ) : null}
+            </div>
           </div>
 
           <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:self-start")}>

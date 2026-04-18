@@ -13,10 +13,10 @@
   --app-color-text-primary: #0b1220;
   --app-color-text-secondary: #1f2a3a;
   --app-color-text-muted: #59677d;
-  --app-color-primary: #4f46e5;
-  --app-color-primary-strong: #3730a3;
-  --app-color-accent-soft: rgba(79, 70, 229, 0.08);
-  --app-color-accent-border: rgba(79, 70, 229, 0.22);
+  --app-color-primary: #2563eb;
+  --app-color-primary-strong: #1d4ed8;
+  --app-color-accent-soft: rgba(37, 99, 235, 0.08);
+  --app-color-accent-border: rgba(37, 99, 235, 0.28);
   --background: var(--app-color-bg);
   --foreground: var(--app-color-text-primary);
   --app-color-success: #047857;
@@ -27,8 +27,8 @@
   --app-duration-slow: 280ms;
   --app-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --app-ease-emphasized: cubic-bezier(0.4, 0, 0.2, 1);
-  --app-focus-ring: rgba(79, 70, 229, 0.16);
-  --app-focus-ring-strong: rgba(79, 70, 229, 0.3);
+  --app-focus-ring: rgba(37, 99, 235, 0.1);
+  --app-focus-ring-strong: rgba(37, 99, 235, 0.18);
   --app-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.045);
   --app-floating-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
   --app-floating-shadow-strong: 0 24px 64px rgba(15, 23, 42, 0.16);
@@ -77,10 +77,10 @@
   --app-field-width-money: 184px;
   --app-field-width-medium: 320px;
   --app-field-width-content: 540px;
-  --app-radius-button: 8px;
-  --app-radius-control: 12px;
-  --app-radius-card: 16px;
-  --app-radius-shell: 20px;
+  --app-radius-button: 0px;
+  --app-radius-control: 0px;
+  --app-radius-card: 0px;
+  --app-radius-shell: 0px;
   --app-elevation-flat: none;
   --app-elevation-soft:
     0 1px 0 rgba(255, 255, 255, 0.95),
@@ -120,6 +120,34 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+:where(
+  [class*=" border"],
+  [class^="border"],
+  [class*="border-"],
+  .app-soft-panel,
+  .app-soft-panel-muted,
+  .app-soft-panel-success,
+  .app-soft-panel-warning,
+  .app-soft-shell,
+  .app-soft-field,
+  .app-soft-button,
+  .app-soft-choice-track,
+  .app-soft-choice-option,
+  .app-soft-step-surface,
+  .app-dropzone-surface,
+  .invoice-line-item-workspace,
+  .invoice-line-item-head,
+  .invoice-line-item-row,
+  .invoice-line-item-total,
+  .invoice-utility-widget,
+  .invoice-action-dock,
+  .invoice-total-summary-card,
+  .invoice-total-hero,
+  .invoice-final-review-note
+) {
+  border-radius: 0 !important;
 }
 
 .app-soft-panel,
@@ -303,9 +331,10 @@ html {
 }
 
 .app-soft-choice-option-active {
-  border-color: var(--app-color-accent-border);
+  border-color: var(--app-color-primary);
   background: rgba(255, 255, 255, 0.99);
   box-shadow:
+    inset 0 0 0 1px rgba(37, 99, 235, 0.08),
     0 1px 0 rgba(255, 255, 255, 0.92),
     0 10px 20px rgba(71, 85, 105, 0.08);
 }
@@ -341,8 +370,8 @@ html {
 .app-focus-ring:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 3px var(--app-focus-ring-strong),
-    0 8px 18px rgba(15, 23, 42, 0.1);
+    0 0 0 2px var(--app-focus-ring-strong),
+    0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
 .app-dropzone-surface {
@@ -492,7 +521,7 @@ html {
 
 .invoice-line-item-workspace {
   border: 1px solid var(--app-color-border);
-  border-radius: 18px;
+  border-radius: 0;
   background: linear-gradient(
     180deg,
     rgba(250, 251, 253, 0.98),
@@ -507,7 +536,7 @@ html {
 
 .invoice-line-item-head {
   border: 1px solid rgba(203, 213, 225, 0.72);
-  border-radius: 14px;
+  border-radius: 0;
   background: rgba(246, 248, 251, 0.92);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   overflow: hidden;
@@ -515,7 +544,7 @@ html {
 
 .invoice-line-item-row {
   border: 1px solid rgba(203, 213, 225, 0.76);
-  border-radius: 16px;
+  border-radius: 0;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.985),
@@ -537,7 +566,7 @@ html {
 
 .invoice-line-item-total {
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 0;
   background: linear-gradient(
     180deg,
     rgba(243, 246, 250, 0.98),
@@ -593,7 +622,7 @@ html {
 
 .invoice-total-hero {
   border: 1px solid var(--app-color-border);
-  border-radius: 14px;
+  border-radius: 0;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.995),

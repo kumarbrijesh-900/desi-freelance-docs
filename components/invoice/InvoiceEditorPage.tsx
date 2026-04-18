@@ -66,7 +66,7 @@ import {
   getAppStatusPillClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
-import { DownloadIcon, SaveIcon } from "@/components/ui/app-icons";
+import { EyeIcon, SaveIcon } from "@/components/ui/app-icons";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -1788,12 +1788,12 @@ export default function InvoiceEditorPage() {
         </div>
       </section>
 
-      <div className="pointer-events-none fixed bottom-4 left-1/2 z-30 w-[calc(100%-1.25rem)] max-w-[1360px] -translate-x-1/2 sm:w-[calc(100%-2rem)] lg:w-[calc(100%-3rem)]">
+      <div className="pointer-events-none fixed bottom-4 right-4 z-30 w-[min(176px,calc(100%-1.25rem))] sm:w-[176px] lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2">
         <div className="flex justify-end">
           <div
             className={cn(
               getAppSubtlePanelClass("default"),
-              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-2 border border-slate-200/80 px-3 py-2 sm:flex-row sm:flex-wrap sm:items-center"
+              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-slate-200/80 px-2 py-2"
             )}
             data-testid="floating-editor-actions"
           >
@@ -1802,18 +1802,21 @@ export default function InvoiceEditorPage() {
               onClick={handleBackToHome}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "text-slate-500 hover:text-slate-900"
+                "h-9 px-2.5 text-slate-500 hover:text-slate-900"
               )}
             >
-              Cancel
+              Close
             </button>
             <button
               type="button"
               onClick={handleSaveDraft}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+              className={cn(
+                getAppButtonClass({ variant: "secondary", size: "sm" }),
+                "h-9 px-3"
+              )}
             >
               <SaveIcon className="h-4 w-4" />
-              Save draft
+              Draft
             </button>
             <button
               type="button"
@@ -1826,10 +1829,13 @@ export default function InvoiceEditorPage() {
                   ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
                   : "Complete all sections to preview"
               }
-              className={getAppButtonClass({ variant: "primary", size: "sm" })}
+              className={cn(
+                getAppButtonClass({ variant: "primary", size: "sm" }),
+                "h-9 px-3.5"
+              )}
             >
-              <DownloadIcon className="h-4 w-4" />
-              Preview & download
+              <EyeIcon className="h-4 w-4" />
+              Preview
             </button>
           </div>
         </div>

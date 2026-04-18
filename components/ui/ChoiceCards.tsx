@@ -53,7 +53,7 @@ export default function ChoiceCards<T extends string>({
 
     return `block rounded-[14px] border px-4 py-3 transition ${
       isSelected
-        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-slate-300/75"
+        ? "app-soft-choice-option-active text-slate-950 ring-1 ring-[color:var(--app-color-accent-border)]"
         : "app-soft-choice-option text-slate-700 hover:text-slate-950"
     }`;
   };
@@ -97,8 +97,8 @@ export default function ChoiceCards<T extends string>({
               layout
               className={`${getCardClass(
                 isSelected
-              )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--app-color-primary)] peer-focus-visible:ring-offset-2 ${
-                isSelected ? "ring-1 ring-slate-950/15" : ""
+              )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--app-color-primary)] peer-focus-visible:ring-offset-1 ${
+                isSelected ? "ring-1 ring-[color:var(--app-color-accent-border)]" : ""
               }`}
               data-selected={isSelected ? "true" : "false"}
               transition={{
