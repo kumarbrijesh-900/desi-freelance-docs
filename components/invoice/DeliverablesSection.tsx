@@ -298,7 +298,7 @@ export default function DeliverablesSection({
                 key={item.id}
                 data-testid="line-item-row"
                 data-row-tone={index === 0 ? "default" : "muted"}
-                className="invoice-line-item-row overflow-hidden px-4 py-3"
+                className="invoice-line-item-row overflow-visible px-4 py-3"
               >
                 <div className="mb-3 flex items-center justify-between gap-3 border-b border-slate-200/75 pb-2 lg:hidden">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
