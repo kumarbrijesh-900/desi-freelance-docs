@@ -7,7 +7,12 @@ import type {
 } from "./types.ts";
 
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const SAC_REGEX = /^\d{6}$/;
+const PLACEHOLDER_REGEX =
+  /\b(?:unknown|unclear|not sure|to be confirmed|tbd|n\/a|placeholder|sample|dummy|example)\b/i;
+const TEAM_ALIAS_REGEX =
+  /\b(?:finance|billing|accounts?|payables?|ap|procurement|admin)\s+(?:team|dept|department|desk|office)\b/i;
 
 const typeToSac: Record<string, string> = {
   "Logo Design": "998391",
@@ -72,6 +77,25 @@ function cleanString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+function cleanEntityName(value: unknown) {
+  const cleaned = cleanString(value);
+
+  if (!cleaned) {
+    return null;
+  }
+
+  if (
+    PLACEHOLDER_REGEX.test(cleaned) ||
+    TEAM_ALIAS_REGEX.test(cleaned) ||
+    /^(?:not|yes|no|gst|gst registered|registered under gst|not registered)$/i.test(cleaned) ||
+    /\b(?:gstin|pan|lut|payment terms?|invoice date|due date)\b/i.test(cleaned)
+  ) {
+    return null;
+  }
+
+  return cleaned;
+}
+
 function cleanNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
@@ -106,6 +130,40 @@ function normalizeGstin(value: unknown, warnings: string[]) {
   if (!GSTIN_REGEX.test(cleaned)) {
     warnings.push("GSTIN was present but did not match the standard format.");
     return cleaned;
+  }
+
+  return cleaned;
+}
+
+function normalizeClientTaxId(params: {
+  value: unknown;
+  agencyGstin: string | null;
+  agencyPan: string | null;
+  clientLocation: "domestic" | "international" | null;
+  warnings: string[];
+}) {
+  const cleaned = cleanString(params.value)?.toUpperCase() ?? null;
+
+  if (!cleaned || PLACEHOLDER_REGEX.test(cleaned)) {
+    return null;
+  }
+
+  if (PAN_REGEX.test(cleaned)) {
+    params.warnings.push("Ignored PAN-shaped value in client GSTIN / tax ID.");
+    return null;
+  }
+
+  if (
+    cleaned === params.agencyGstin ||
+    (params.agencyPan && cleaned === params.agencyPan)
+  ) {
+    params.warnings.push("Ignored agency identifier in client tax field.");
+    return null;
+  }
+
+  if (params.clientLocation === "domestic" && !GSTIN_REGEX.test(cleaned)) {
+    params.warnings.push("Client domestic tax ID was present but not a GSTIN.");
+    return null;
   }
 
   return cleaned;
@@ -330,7 +388,7 @@ export function postProcessProviderOutput(
 
   const extraction: NormalizedExtraction = {
     agency: {
-      businessName: cleanString(agency.businessName),
+      businessName: cleanEntityName(agency.businessName),
       gstRegistered: cleanBoolean(agency.gstRegistered),
       gstin: normalizeGstin(agency.gstin, warnings),
       pan: cleanString(agency.pan)?.toUpperCase() ?? null,
@@ -344,7 +402,7 @@ export function postProcessProviderOutput(
       country: cleanString(agency.country),
     },
     client: {
-      name: cleanString(client.name),
+      name: cleanEntityName(client.name),
       email: cleanString(client.email),
       location:
         client.location === "domestic" || client.location === "international"
@@ -352,7 +410,18 @@ export function postProcessProviderOutput(
           : hasInternationalHint(bundle.combinedText)
           ? "international"
           : null,
-      gstinOrTaxId: normalizeGstin(client.gstinOrTaxId, warnings),
+      gstinOrTaxId: normalizeClientTaxId({
+        value: client.gstinOrTaxId,
+        agencyGstin: normalizeGstin(agency.gstin, warnings),
+        agencyPan: cleanString(agency.pan)?.toUpperCase() ?? null,
+        clientLocation:
+          client.location === "domestic" || client.location === "international"
+            ? client.location
+            : hasInternationalHint(bundle.combinedText)
+            ? "international"
+            : null,
+        warnings,
+      }),
       isSezUnit: cleanBoolean(client.isSezUnit),
       country: cleanString(client.country),
       addressLine1: cleanString(client.addressLine1),
@@ -411,6 +480,16 @@ export function postProcessProviderOutput(
 
   if (extraction.taxHints.domesticOrInternational && !extraction.client.location) {
     extraction.client.location = extraction.taxHints.domesticOrInternational;
+  }
+
+  if (
+    extraction.taxHints.sezMentioned === true &&
+    extraction.client.isSezUnit === null
+  ) {
+    extraction.taxHints.treatment = null;
+    extraction.taxHints.ambiguity =
+      extraction.taxHints.ambiguity ||
+      "SEZ was mentioned, but authorised-operations status is unresolved.";
   }
 
   const missingFields = collectMissingFields(extraction);

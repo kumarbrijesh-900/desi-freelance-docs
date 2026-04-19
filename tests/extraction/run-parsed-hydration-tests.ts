@@ -23,7 +23,7 @@ function createParserResponse(
       },
       client: {
         name: "Globex Media LLC",
-        email: "finance@globex.example",
+        email: "finance@globex.ae",
         location: "international",
         gstinOrTaxId: "VAT-7788",
         country: "United Arab Emirates",
@@ -102,7 +102,7 @@ function testHydratesEmptyInvoiceForm() {
   assert.equal(nextFormData.agency.agencyState, "Karnataka");
   assert.equal(nextFormData.client.clientLocation, "international");
   assert.equal(nextFormData.client.clientName, "Globex Media LLC");
-  assert.equal(nextFormData.client.clientEmail, "finance@globex.example");
+  assert.equal(nextFormData.client.clientEmail, "finance@globex.ae");
   assert.equal(nextFormData.client.clientCountry, "United Arab Emirates");
   assert.equal(nextFormData.client.isClientSezUnit, "not-sure");
   assert.equal(nextFormData.client.clientCurrency, "AED");
@@ -172,10 +172,63 @@ function testLowConfidenceToggleStaysUnresolved() {
   assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
 }
 
+function testOwnershipAndPlaceholderGuardrails() {
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: createParserResponse({
+      normalizedExtraction: {
+        ...createParserResponse().normalizedExtraction,
+        agency: {
+          ...createParserResponse().normalizedExtraction.agency,
+          businessName: "GST registered",
+          pan: "ABCDE1234F",
+        },
+        client: {
+          ...createParserResponse().normalizedExtraction.client,
+          name: "finance team",
+          email: "finance@example.com",
+          location: "domestic",
+          gstinOrTaxId: "ABCDE1234F",
+        },
+      },
+    }),
+  });
+
+  assert.equal(result.nextFormData.agency.agencyName, "");
+  assert.equal(result.nextFormData.client.clientName, "");
+  assert.equal(result.nextFormData.client.clientEmail, "");
+  assert.equal(result.nextFormData.client.clientGstin, "");
+  assert.equal(result.nextFormData.agency.pan, "ABCDE1234F");
+}
+
+function testDerivedDueDateFromNetTerms() {
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: createParserResponse({
+      normalizedExtraction: {
+        ...createParserResponse().normalizedExtraction,
+        payment: {
+          ...createParserResponse().normalizedExtraction.payment,
+          terms: "Net 7",
+        },
+        meta: {
+          ...createParserResponse().normalizedExtraction.meta,
+          invoiceDate: "2026-04-20",
+          dueDate: null,
+        },
+      },
+    }),
+  });
+
+  assert.equal(result.nextFormData.meta.dueDate, "2026-04-27");
+}
+
 function run() {
   testHydratesEmptyInvoiceForm();
   testPreservesExistingUserEnteredData();
   testLowConfidenceToggleStaysUnresolved();
+  testOwnershipAndPlaceholderGuardrails();
+  testDerivedDueDateFromNetTerms();
   console.log("Parsed extraction hydration tests passed");
 }
 

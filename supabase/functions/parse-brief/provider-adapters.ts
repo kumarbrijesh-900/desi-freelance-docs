@@ -281,7 +281,7 @@ export function callGroqLlama(bundle: NormalizedParserBundle) {
     provider: "groq-llama",
     apiKeyName: "GROQ_API_KEY",
     modelName: "GROQ_LLAMA_MODEL",
-    defaultModel: "llama-3.1-70b-versatile",
+    defaultModel: "llama-3.3-70b-versatile",
     url: "https://api.groq.com/openai/v1/chat/completions",
     bundle,
   });

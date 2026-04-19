@@ -1,6 +1,13 @@
 export type InferredNameConfidence = "high" | "medium" | "low";
 export type InferredEntityKind = "person" | "company" | "unknown";
 export type InferredRole = "agency" | "client";
+export type InferredContextRole =
+  | InferredRole
+  | "billing-team"
+  | "contact-person"
+  | "sender"
+  | "recipient"
+  | "third-party";
 
 export type InferredRoleName = {
   value: string;
@@ -46,6 +53,10 @@ const companySuffixPattern =
 
 const deliverableNoisePattern =
   /\b(?:landing page|homepage|home page|ui\/?\s*ux|wireframes?|design system|dashboard|campaign launch|project fee|deliverables?|illustrations?|images?|reels?|screens?|banners?|posts?|videos?|retouched|editing|payment terms?|net\s*\d+|due on receipt)\b/i;
+const teamOrContactPattern =
+  /\b(?:finance|billing|accounts?|payables?|ap|procurement|admin)\s+(?:team|dept|department|desk|office)\b|\b(?:contact person|point of contact|poc|sender|recipient)\b/i;
+const ambiguityTextPattern =
+  /\b(?:unclear|ambiguous|not sure|please confirm|confirm whether|which one|can't determine|cannot determine|unknown|not provided)\b/i;
 
 function cleanValue(value?: string | null) {
   return (value ?? "")
@@ -124,10 +135,35 @@ function normalizeContextLine(line: string) {
     .trim();
 }
 
+export function sanitizeEntityNameCandidate(value?: string | null) {
+  const cleaned = normalizeContextLine(value ?? "")
+    .replace(/\b(?:gst registered|registered under gst|not registered under gst|gstin|pan|lut)\b.*$/i, "")
+    .trim();
+
+  if (!looksLikeNameCandidate(cleaned)) {
+    return "";
+  }
+
+  return cleaned;
+}
+
+export function looksLikeNonLegalEntityRole(value?: string | null) {
+  const cleaned = cleanValue(value);
+  return Boolean(cleaned && teamOrContactPattern.test(cleaned));
+}
+
 function looksLikeNameCandidate(value: string) {
   const cleaned = normalizeContextLine(value);
 
   if (!cleaned || cleaned.length < 2) {
+    return false;
+  }
+
+  if (ambiguityTextPattern.test(cleaned) || teamOrContactPattern.test(cleaned)) {
+    return false;
+  }
+
+  if (/^(?:not|yes|no|gst|gst registered|registered under gst|not registered)$/i.test(cleaned)) {
     return false;
   }
 
@@ -239,7 +275,7 @@ function buildRoleCandidate(
   confidence: InferredNameConfidence,
   reason: string
 ): InferredRoleName | undefined {
-  const cleaned = normalizeContextLine(value);
+  const cleaned = sanitizeEntityNameCandidate(value);
 
   if (!looksLikeNameCandidate(cleaned)) {
     return undefined;
@@ -285,6 +321,7 @@ function inferClientName(text: string): InferredRoleName | undefined {
 
   const inferred = findFirstMatch(text, [
     /\bbill to\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
+    /\bplease\s+invoice\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
     /\binvoice\s+(?:for|to)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,
     /\binvoice\b[^.\n]{0,40}\bfor\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|landing|homepage|logo|illustration|screens?|banners?|rate|currency|payment|bank)\b|$)/i,
     /\b(?:client|recipient)\s+(?:is\s+)?([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:address|country|state|invoice|project|work|rate|currency|payment|bank)\b|$)/i,

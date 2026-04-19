@@ -76,8 +76,12 @@ async function runProviderRouting(bundle: NormalizedParserBundle) {
   let selectedAttempt: ProviderAttempt | null = null;
   let selectedResult: PostProcessResult | null = null;
 
+  console.log("Brief parser provider attempt: gemini-flash");
   const geminiAttempt = await callGeminiFlash(bundle);
   attempts.push(geminiAttempt);
+  console.log("Brief parser provider result: gemini-flash", {
+    ok: geminiAttempt.ok,
+  });
 
   if (geminiAttempt.ok) {
     const result = postProcessProviderOutput(geminiAttempt.rawJson, bundle);
@@ -89,8 +93,12 @@ async function runProviderRouting(bundle: NormalizedParserBundle) {
     }
   }
 
+  console.log("Brief parser provider attempt: groq-llama");
   const groqAttempt = await callGroqLlama(bundle);
   attempts.push(groqAttempt);
+  console.log("Brief parser provider result: groq-llama", {
+    ok: groqAttempt.ok,
+  });
 
   if (groqAttempt.ok) {
     const result = postProcessProviderOutput(groqAttempt.rawJson, bundle);
@@ -106,8 +114,12 @@ async function runProviderRouting(bundle: NormalizedParserBundle) {
     return { attempts, selectedAttempt, selectedResult };
   }
 
+  console.log("Brief parser provider attempt: grok");
   const grokAttempt = await callGrok(bundle);
   attempts.push(grokAttempt);
+  console.log("Brief parser provider result: grok", {
+    ok: grokAttempt.ok,
+  });
 
   if (grokAttempt.ok) {
     selectedAttempt = grokAttempt;
@@ -158,6 +170,10 @@ Deno.serve(async (request) => {
   const providerUsed = selectedAttempt?.ok
     ? (selectedAttempt.provider as ProviderName)
     : null;
+
+  console.log("Brief parser provider selected:", providerUsed ?? "none", {
+    fallbackPath,
+  });
 
   const initialResponse: ParserResponse = {
     normalizedExtraction: selectedResult.extraction,

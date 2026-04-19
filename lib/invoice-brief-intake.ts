@@ -8,6 +8,8 @@ import {
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
 import { buildBriefClarificationSuggestions } from "@/lib/invoice-clarifications";
+import { inferCommercialTermsFromText } from "@/lib/commercial-terms-inference";
+import { inferDeliverablesFromText } from "@/lib/deliverable-inference";
 import {
   detectCurrencyFromText,
   parseFlexibleAmount,
@@ -30,7 +32,12 @@ import {
 import {
   collectRoleContextFromText,
   inferNameRolesFromText,
+  sanitizeEntityNameCandidate,
 } from "@/lib/name-role-inference";
+import {
+  sanitizeHydrationString,
+  sanitizeOwnedIdentifier,
+} from "@/lib/invoice-field-ownership";
 import { normalizeOcrText } from "@/lib/ocr-normalization";
 import {
   type AgencyDetails,
@@ -916,6 +923,24 @@ function makeStringCandidate(
   return cleaned ? makeCandidate(cleaned, confidence, source) : undefined;
 }
 
+function sanitizeCandidate<T extends string>(
+  candidate: Candidate<T> | undefined,
+  kind: Parameters<typeof sanitizeHydrationString>[0]["kind"] = "general"
+) {
+  if (!candidate) {
+    return undefined;
+  }
+
+  const sanitized = sanitizeHydrationString({
+    value: candidate.value,
+    kind,
+  }) as T;
+
+  return sanitized
+    ? makeCandidate(sanitized, candidate.confidence, candidate.source)
+    : undefined;
+}
+
 function getConfidenceScore(confidence: BriefExtractionConfidence) {
   switch (confidence) {
     case "high":
@@ -1412,9 +1437,9 @@ export function normalizeExtractedData(
   const agencyContext = roleInferences.agencyContext || collectRoleContextFromText(rawText, "agency");
   const clientContext = roleInferences.clientContext || collectRoleContextFromText(rawText, "client");
   const fallbackAgencyName =
-    cleanValue(extraction.agencyName.value) ||
-    cleanValue(roleInferences.agency?.value) ||
-    cleanValue(extraction.payment.accountName.value) ||
+    sanitizeEntityNameCandidate(extraction.agencyName.value) ||
+    sanitizeEntityNameCandidate(roleInferences.agency?.value) ||
+    sanitizeEntityNameCandidate(extraction.payment.accountName.value) ||
     "";
   const agencyAddressValue =
     extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
@@ -1550,6 +1575,10 @@ export function normalizeExtractedData(
     gstRegistrationStatus: agencyGstStatus?.value,
     lutAvailability: agencyLutAvailability?.value,
   });
+  const invoiceDateValue = formatDateCandidate(extraction.timeline.invoiceDate.value);
+  const commercialTerms = inferCommercialTermsFromText(rawText, {
+    invoiceDate: invoiceDateValue,
+  });
   const paymentScheduleText = formatAiPaymentSchedule(extraction);
   const paymentTermsCandidate =
     createAiCandidate(
@@ -1558,8 +1587,14 @@ export function normalizeExtractedData(
     ) ??
     (paymentScheduleText
       ? makeCandidate(normalizePaymentTermsValue(paymentScheduleText), "medium", "ai")
+      : undefined) ??
+    (commercialTerms.paymentTerms
+      ? makeCandidate(
+          normalizePaymentTermsValue(commercialTerms.paymentTerms),
+          commercialTerms.confidence,
+          "inference"
+        )
       : undefined);
-  const invoiceDateValue = formatDateCandidate(extraction.timeline.invoiceDate.value);
   const dueDateValue = formatDateCandidate(extraction.timeline.dueDate.value);
   const agencyAddressCandidate = createAiCandidate(
     cleanAddressBlockValue(agencyAddressValue),
@@ -1655,7 +1690,9 @@ export function normalizeExtractedData(
       extraction.gst.lutNumber.confidence
     ),
     clientName: createAiCandidate(
-      cleanValue(extraction.clientName.value ?? roleInferences.client?.value ?? ""),
+      sanitizeEntityNameCandidate(
+        extraction.clientName.value ?? roleInferences.client?.value ?? ""
+      ),
       extraction.clientName.value
         ? extraction.clientName.confidence
         : roleInferences.client?.confidence
@@ -1716,9 +1753,16 @@ export function normalizeExtractedData(
       : undefined,
     clientLocation: clientLocationCandidate,
     clientGstin: createAiClassifiedCandidate(
-      extraction.clientTaxId.value,
+      sanitizeOwnedIdentifier({
+        value: extraction.clientTaxId.value,
+        owner: "client",
+        kind: "tax-id",
+        agencyGstin: extraction.gst.gstin.value,
+        agencyPan: extraction.gst.pan.value || agencyPanFromGstin,
+        clientLocation: clientLocationCandidate?.value ?? null,
+      }),
       extraction.clientTaxId.confidence,
-      ["gstin", "pan", "unknown-alphanumeric-code"],
+      ["gstin", "unknown-alphanumeric-code"],
       "client tax id"
     ),
     clientCurrency:
@@ -1802,11 +1846,11 @@ export function normalizeExtractedData(
           "ai"
         )
       : undefined,
-    dueDate: dueDateValue
+    dueDate: dueDateValue || commercialTerms.dueDate
       ? makeCandidate(
-          dueDateValue,
-          extraction.timeline.dueDate.confidence,
-          "ai"
+          dueDateValue || commercialTerms.dueDate,
+          dueDateValue ? extraction.timeline.dueDate.confidence : commercialTerms.confidence,
+          dueDateValue ? "ai" : "inference"
         )
       : undefined,
     timeline: createAiCandidate(
@@ -3108,6 +3152,22 @@ function buildScalarLineItemFallback(params: {
 }
 
 function extractHeuristicLineItems(text: string) {
+  const inferredItems = inferDeliverablesFromText(text).map((item) => ({
+    type: makeCandidate(item.type, item.confidence, "inference"),
+    description: makeCandidate(item.description, item.confidence, "inference"),
+    qty: item.quantity
+      ? makeCandidate(item.quantity, item.confidence, "inference")
+      : undefined,
+    rate: item.rate && item.rate > 0
+      ? makeCandidate(item.rate, item.confidence, "inference")
+      : undefined,
+    rateUnit: makeCandidate(item.unit, item.confidence, "inference"),
+  }));
+
+  if (inferredItems.length > 0) {
+    return inferredItems;
+  }
+
   const matchers: Array<{
     pattern: RegExp;
     type: InvoiceLineItemType;
@@ -3274,7 +3334,21 @@ export function extractInvoiceBriefSchema(
   const clientCurrency = getCurrencyFromText(text);
   const agencyGstin = extractAgencyGstin(text);
   const agencyPan = extractAgencyPan(text);
-  const clientGstin = extractClientTaxId(text);
+  const rawClientGstin = extractClientTaxId(text);
+  const clientGstin = rawClientGstin
+    ? makeIdentifierCandidate(
+        classifyIdentifier(
+          sanitizeOwnedIdentifier({
+            value: rawClientGstin.value,
+            owner: "client",
+            kind: "tax-id",
+            agencyGstin: agencyGstin?.value,
+            agencyPan: agencyPan?.value,
+          }),
+          "client tax id"
+        )
+      )
+    : undefined;
   const explicitAgencyGstStatus = extractAgencyGstRegistrationStatus(text);
   const explicitLutAvailability = extractAgencyLutAvailability(text);
   const invoiceDate = extractDateCandidate(text, [
@@ -3282,11 +3356,20 @@ export function extractInvoiceBriefSchema(
     "dated",
     "date",
   ]);
-  const dueDate = extractDateCandidate(text, [
+  const commercialTerms = inferCommercialTermsFromText(text, {
+    invoiceDate: invoiceDate?.value,
+  });
+  const rawDueDate = extractDateCandidate(text, [
     "due date",
     "payment due",
     "due by",
   ]);
+  const dueDate =
+    rawDueDate && !(rawDueDate.source === "pattern" && rawDueDate.value === invoiceDate?.value)
+      ? rawDueDate
+      : commercialTerms.dueDate
+      ? makeCandidate(commercialTerms.dueDate, commercialTerms.confidence, "inference")
+      : undefined;
   const explicitClientCountry = extractPaymentField(text, [
     "client country",
     "country",
@@ -3517,7 +3600,7 @@ export function extractInvoiceBriefSchema(
   const primaryLineItem = combinedLineItems[0];
 
   return {
-    agencyName,
+    agencyName: sanitizeCandidate(agencyName, "name"),
     agencyAddress,
     agencyAddressLine1: agencyAddress
       ? makeStringCandidate(
@@ -3553,7 +3636,7 @@ export function extractInvoiceBriefSchema(
     agencyPan,
     agencyLutAvailability: derivedLutAvailability,
     agencyLutNumber: extractAgencyLutNumber(text),
-    clientName,
+    clientName: sanitizeCandidate(clientName, "name"),
     clientAddress,
     clientAddressLine1: clientAddress
       ? makeStringCandidate(
@@ -3594,7 +3677,7 @@ export function extractInvoiceBriefSchema(
     clientCountry,
     clientLocation,
     clientCurrency,
-    clientGstin,
+    clientGstin: sanitizeCandidate(clientGstin, "tax-id"),
     invoiceIsInternational,
     invoiceCurrencyCode: clientCurrency,
     invoiceTotalAmount,
@@ -3607,7 +3690,15 @@ export function extractInvoiceBriefSchema(
     rate: primaryLineItem?.rate ?? extractedRate,
     rateUnit: primaryLineItem?.rateUnit ?? extractedRateUnit,
     licenseType: extractLicenseType(text),
-    paymentTerms: extractPaymentTerms(text),
+    paymentTerms:
+      extractPaymentTerms(text) ??
+      (commercialTerms.paymentTerms
+        ? makeCandidate(
+            normalizePaymentTermsValue(commercialTerms.paymentTerms),
+            commercialTerms.confidence,
+            "inference"
+          )
+        : undefined),
     paymentMode,
     paymentAccountName,
     paymentBankName: extractPaymentField(text, ["bank name"]),

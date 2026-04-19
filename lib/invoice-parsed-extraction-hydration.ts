@@ -14,6 +14,13 @@ import {
   invoiceDefaultUnitByType,
   invoiceLineItemTypeOptions,
 } from "@/lib/invoice-deliverables";
+import { inferCommercialTermsFromText } from "@/lib/commercial-terms-inference";
+import { inferDeliverablesFromText } from "@/lib/deliverable-inference";
+import {
+  sanitizeHydrationString,
+  sanitizeOwnedIdentifier,
+  type InvoiceFieldKind,
+} from "@/lib/invoice-field-ownership";
 import { normalizeInvoiceLineItemType } from "@/lib/invoice-line-item-catalog";
 import {
   isManualSacRequired,
@@ -102,8 +109,12 @@ function applyStringField(params: {
   originalValue: string;
   defaultValue: string;
   assign: (value: string) => void;
+  kind?: InvoiceFieldKind;
 }) {
-  const incoming = normalizeString(params.incoming);
+  const incoming = sanitizeHydrationString({
+    value: params.incoming,
+    kind: params.kind ?? "general",
+  });
   if (!incoming) return;
 
   const confidence = getConfidence(params.ctx.parserResponse, params.path);
@@ -263,9 +274,34 @@ function hasLineItemSignal(item: NormalizedBriefLineItem) {
   return Boolean(item.type || item.description || item.quantity || item.rate || item.unit || item.sacCode);
 }
 
+function expandExtractedLineItems(items: NormalizedBriefLineItem[]) {
+  if (items.length !== 1) {
+    return items;
+  }
+
+  const [item] = items;
+  const inferred = inferDeliverablesFromText(
+    [item.type ?? "", item.description ?? ""].join(" ")
+  );
+
+  if (inferred.length <= 1) {
+    return items;
+  }
+
+  return inferred.map((inferredItem) => ({
+    type: inferredItem.type,
+    description: inferredItem.description,
+    quantity: inferredItem.quantity,
+    rate: inferredItem.pricingSignal === "rate" ? inferredItem.rate : null,
+    unit: inferredItem.unit,
+    sacCode: inferredItem.sacCode,
+  }));
+}
+
 function hydrateLineItems(ctx: HydrationContext) {
-  const extractedItems =
-    ctx.parserResponse.normalizedExtraction.deliverables.filter(hasLineItemSignal);
+  const extractedItems = expandExtractedLineItems(
+    ctx.parserResponse.normalizedExtraction.deliverables.filter(hasLineItemSignal)
+  );
 
   if (extractedItems.length === 0) {
     return;
@@ -454,13 +490,19 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.agency.agencyName = value;
     },
+    kind: "name",
   });
 
   applyStringField({
     ctx,
     path: "agency.gstin",
     label: "Agency GSTIN",
-    incoming: agency.gstin,
+    incoming: sanitizeOwnedIdentifier({
+      value: agency.gstin,
+      owner: "agency",
+      kind: "gstin",
+      clientGstinOrTaxId: client.gstinOrTaxId,
+    }),
     currentValue: nextFormData.agency.gstin,
     originalValue: ctx.originalFormData.agency.gstin,
     defaultValue: defaultInvoiceFormData.agency.gstin,
@@ -473,7 +515,12 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     ctx,
     path: "agency.pan",
     label: "Agency PAN",
-    incoming: agency.pan,
+    incoming: sanitizeOwnedIdentifier({
+      value: agency.pan,
+      owner: "agency",
+      kind: "pan",
+      clientGstinOrTaxId: client.gstinOrTaxId,
+    }),
     currentValue: nextFormData.agency.pan,
     originalValue: ctx.originalFormData.agency.pan,
     defaultValue: defaultInvoiceFormData.agency.pan,
@@ -604,6 +651,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.client.clientName = value;
     },
+    kind: "name",
   });
 
   applyStringField({
@@ -617,13 +665,21 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     assign: (value) => {
       nextFormData.client.clientEmail = value;
     },
+    kind: "email",
   });
 
   applyStringField({
     ctx,
     path: "client.gstinOrTaxId",
     label: "Client GSTIN / Tax ID",
-    incoming: client.gstinOrTaxId,
+    incoming: sanitizeOwnedIdentifier({
+      value: client.gstinOrTaxId,
+      owner: "client",
+      kind: "tax-id",
+      agencyGstin: agency.gstin,
+      agencyPan: agency.pan,
+      clientLocation: client.location ?? taxHints.domesticOrInternational ?? null,
+    }),
     currentValue: nextFormData.client.clientGstin,
     originalValue: ctx.originalFormData.client.clientGstin,
     defaultValue: defaultInvoiceFormData.client.clientGstin,
@@ -903,6 +959,27 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       nextFormData.meta.dueDate = value;
     },
   });
+
+  if (
+    isBlank(nextFormData.meta.dueDate) &&
+    nextFormData.meta.invoiceDate &&
+    nextFormData.meta.paymentTerms
+  ) {
+    const inferredTerms = inferCommercialTermsFromText(
+      nextFormData.meta.paymentTerms,
+      { invoiceDate: nextFormData.meta.invoiceDate }
+    );
+
+    if (inferredTerms.dueDate) {
+      nextFormData.meta.dueDate = inferredTerms.dueDate;
+      recordHydration(
+        ctx.hydratedFields,
+        "meta.dueDate",
+        "Due date",
+        inferredTerms.confidence
+      );
+    }
+  }
 
   if (taxHints.ambiguity) {
     ctx.unresolvedFields.push("taxHints.ambiguity");
