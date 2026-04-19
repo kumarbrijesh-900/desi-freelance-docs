@@ -254,6 +254,31 @@ function collectMissingFields(extraction: NormalizedExtraction) {
   return missing;
 }
 
+function hasDeliverableSignal(item: NormalizedLineItem) {
+  return Boolean(item.type || item.description || item.quantity || item.rate);
+}
+
+function hasUsableCoreExtraction(extraction: NormalizedExtraction) {
+  return (
+    Boolean(extraction.client.name) &&
+    extraction.deliverables.some(hasDeliverableSignal)
+  );
+}
+
+function hasStrongPartialExtraction(extraction: NormalizedExtraction) {
+  return (
+    Boolean(extraction.client.name) ||
+    extraction.deliverables.some(hasDeliverableSignal)
+  );
+}
+
+function hasStructuralGap(result: PostProcessResult) {
+  return (
+    !hasStrongPartialExtraction(result.extraction) ||
+    result.missingFields.includes("deliverables")
+  );
+}
+
 function buildClarifications(missingFields: string[], hardAmbiguity: boolean) {
   const questions: string[] = [];
 
@@ -424,24 +449,23 @@ export function postProcessProviderOutput(
         : []),
     ],
     hardAmbiguity,
-    valid: missingFields.length === 0 && confidence.overall !== "low",
+    valid: hasUsableCoreExtraction(extraction) && !hardAmbiguity,
   };
 }
 
 export function shouldFallbackToGroq(result: PostProcessResult) {
   return (
-    !result.valid ||
-    result.confidence.overall === "low" ||
-    result.missingFields.includes("client.name") ||
-    result.missingFields.includes("deliverables")
+    result.hardAmbiguity ||
+    hasStructuralGap(result) ||
+    (result.confidence.overall === "low" &&
+      !hasStrongPartialExtraction(result.extraction))
   );
 }
 
 export function shouldEscalateToGrok(result: PostProcessResult) {
   return (
     result.hardAmbiguity ||
-    result.confidence.overall === "low" ||
-    result.missingFields.includes("client.name") ||
-    result.missingFields.includes("deliverables")
+    !hasStrongPartialExtraction(result.extraction) ||
+    (result.confidence.overall === "low" && hasStructuralGap(result))
   );
 }
