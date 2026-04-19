@@ -214,6 +214,7 @@ export type BriefAutofillMappingResult = {
 
 export type BriefIntakeInput = {
   text: string;
+  ocrText?: string;
   imageFiles?: File[];
   voiceTranscript?: string;
 };
@@ -3756,7 +3757,11 @@ function applyCandidateToForm<T>({
 
 export function normalizeBriefIntake(input: BriefIntakeInput) {
   return normalizeBriefText(
-    [input.text.trim(), input.voiceTranscript?.trim() ?? ""]
+    [
+      input.text.trim(),
+      input.ocrText?.trim() ?? "",
+      input.voiceTranscript?.trim() ?? "",
+    ]
       .filter(Boolean)
       .join("\n\n")
   );

@@ -38,6 +38,7 @@ import {
   runBriefAutofill,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
+import { supabase } from "@/lib/supabase/client";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -85,6 +86,7 @@ type StoredDraft = {
   formData: InvoiceFormData;
   currentStep: InvoiceStepperStep;
   savedAt: string;
+  documentId?: string | null;
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -644,6 +646,7 @@ export default function InvoiceEditorPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
+  const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
 
@@ -686,6 +689,7 @@ export default function InvoiceEditorPage() {
     let frameId = 0;
     let nextFormData: InvoiceFormData | null = null;
     let nextStep: InvoiceStepperStep = "agency";
+    let nextDocumentId: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
@@ -701,6 +705,7 @@ export default function InvoiceEditorPage() {
           ) {
             nextFormData = mergeInvoiceFormData(parsedDraft.formData);
             nextStep = parsedDraft.currentStep;
+            nextDocumentId = parsedDraft.documentId ?? null;
             shouldShowRestoreToast = true;
           }
         }
@@ -724,6 +729,7 @@ export default function InvoiceEditorPage() {
 
       setFormData(nextFormData);
       setCurrentStep(nextStep);
+      setParserDocumentId(nextDocumentId);
     } catch (error) {
       console.error("Failed to initialize invoice editor:", error);
 
@@ -1242,6 +1248,7 @@ export default function InvoiceEditorPage() {
         formData,
         currentStep,
         savedAt: new Date().toISOString(),
+        documentId: parserDocumentId,
       } satisfies StoredDraft)
     );
   };
@@ -1313,6 +1320,7 @@ export default function InvoiceEditorPage() {
     setFormData(mergeInvoiceFormData(freshInvoiceData));
     setShowAllValidationErrors(false);
     guideToSection("agency", { focus: true });
+    setParserDocumentId(null);
     setShowExitModal(false);
     setIsBriefIntakeCollapsed(false);
     setBriefIntakeResetKey((prev) => prev + 1);
@@ -1348,28 +1356,52 @@ export default function InvoiceEditorPage() {
 
     const normalizedInput = {
       ...input,
-      text: [input.text.trim(), ocrText].filter(Boolean).join("\n\n"),
+      ocrText,
     };
 
     let aiExtraction: AiBriefExtraction | null = null;
 
-    if (normalizedInput.text.trim()) {
+    if (
+      normalizedInput.text.trim() ||
+      normalizedInput.ocrText.trim() ||
+      normalizedInput.voiceTranscript?.trim()
+    ) {
       try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         const response = await fetch("/api/brief-extract", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(session?.access_token
+              ? { Authorization: `Bearer ${session.access_token}` }
+              : {}),
           },
           body: JSON.stringify({
-            text: normalizedInput.text,
+            briefText: normalizedInput.text,
+            ocrText: normalizedInput.ocrText,
+            voiceTranscript: normalizedInput.voiceTranscript ?? "",
+            documentId: parserDocumentId,
+            sourceMetadata: {
+              attachmentNames: input.imageFiles?.map((file) => file.name),
+              attachmentTypes: input.imageFiles?.map((file) => file.type),
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
           }),
         });
 
         if (response.ok) {
           const payload = (await response.json()) as {
             extraction?: AiBriefExtraction | null;
+            parser?: {
+              documentId?: string | null;
+            } | null;
           };
           aiExtraction = payload.extraction ?? null;
+          if (payload.parser?.documentId) {
+            setParserDocumentId(payload.parser.documentId);
+          }
         }
       } catch (error) {
         console.error("AI brief extraction request failed:", error);
