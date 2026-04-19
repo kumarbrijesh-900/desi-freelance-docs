@@ -276,26 +276,58 @@ export default function ClientDetailsSection({
               <label className={appFieldLabelClass}>
                 SEZ Unit
               </label>
-              <ChoiceCards
-                name="client-sez-unit"
-                value={value.isClientSezUnit}
-                onChange={(nextValue) => updateField("isClientSezUnit", nextValue)}
-                variant="inline"
-                options={[
-                  {
-                    value: "yes",
-                    label: "Yes",
-                  },
-                  {
-                    value: "no",
-                    label: "No",
-                  },
-                  {
-                    value: "not-sure",
-                    label: "Not sure",
-                  },
-                ]}
-              />
+              <div className="max-w-[420px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {(["yes", "no"] as const).map((option) => {
+                    const isSelected = value.isClientSezUnit === option;
+                    return (
+                      <label key={option} className="min-w-[92px] flex-1 cursor-pointer sm:flex-none">
+                        <input
+                          type="radio"
+                          name="client-sez-unit"
+                          value={option}
+                          checked={isSelected}
+                          onChange={() => updateField("isClientSezUnit", option)}
+                          className="peer sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "app-focus-ring block border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+                            isSelected
+                              ? "border-[color:var(--focus-ring)] bg-white text-[color:var(--text-primary)] shadow-[0_8px_16px_rgba(37,37,65,0.07)]"
+                              : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white"
+                          )}
+                        >
+                          {option === "yes" ? "Yes" : "No"}
+                        </span>
+                      </label>
+                    );
+                  })}
+                  <label className="cursor-pointer">
+                    <input
+                      type="radio"
+                      name="client-sez-unit"
+                      value="not-sure"
+                      checked={value.isClientSezUnit === "not-sure"}
+                      onChange={() => updateField("isClientSezUnit", "not-sure")}
+                      className="peer sr-only"
+                    />
+                    <span
+                      className={cn(
+                        "app-focus-ring inline-flex min-h-9 items-center border px-3 text-[12px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+                        value.isClientSezUnit === "not-sure"
+                          ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
+                          : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]"
+                      )}
+                    >
+                      Not sure
+                    </span>
+                  </label>
+                </div>
+                <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
+                  This affects GST treatment for SEZ supplies.
+                </p>
+              </div>
               {sezSuggestion ? (
                 <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.

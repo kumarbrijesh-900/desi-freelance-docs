@@ -480,7 +480,7 @@ export default function DeliverablesSection({
                             ),
                             "pr-12",
                             showSuggestionAssist
-                              ? "rounded-b-none border-b-transparent shadow-none"
+                              ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]"
                               : ""
                           )}
                           title={
@@ -509,6 +509,37 @@ export default function DeliverablesSection({
                         >
                           <SparklesIcon className="h-4 w-4" />
                         </button>
+                        {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
+                          <div
+                            id={descriptionPanelId}
+                            role="listbox"
+                            aria-label={`Suggested descriptions for ${item.type}`}
+                            className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] shadow-[0_14px_28px_rgba(37,37,65,0.12)]"
+                          >
+                            <div className="flex items-center gap-2 border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-1.5">
+                              <SparklesIcon className="h-3.5 w-3.5 text-[color:var(--state-info-text)]" />
+                              <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-info-text)]">
+                                Suggestions for {item.type}
+                              </span>
+                            </div>
+                            <div className="max-h-48 overflow-y-auto py-1">
+                              {descriptionSuggestions.map((suggestion) => (
+                                <button
+                                  key={suggestion}
+                                  type="button"
+                                  role="option"
+                                  onMouseDown={(event) => event.preventDefault()}
+                                  onClick={() =>
+                                    applyDescriptionSuggestion(item.id, suggestion)
+                                  }
+                                  className="block w-full px-3 py-2 text-left text-[12px] leading-5 text-[color:var(--text-secondary)] transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-primary)]"
+                                >
+                                  {suggestion}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                     <p
@@ -646,38 +677,6 @@ export default function DeliverablesSection({
                       <div className="hidden xl:block" />
                     )}
                   </div>
-
-                  {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
-                    <div
-                      id={descriptionPanelId}
-                      role="listbox"
-                      aria-label={`Suggested descriptions for ${item.type}`}
-                      className="relative z-50 col-span-full -mt-1 overflow-hidden border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] shadow-[0_14px_28px_rgba(37,37,65,0.09)] xl:col-start-2 xl:col-end-3 xl:row-start-2"
-                    >
-                      <div className="flex items-center gap-2 border-b border-[color:var(--border-subtle)] bg-[color:var(--state-info-bg)] px-3 py-2">
-                        <SparklesIcon className="h-3.5 w-3.5 text-[color:var(--state-info-text)]" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-info-text)]">
-                          Suggestions for {item.type}
-                        </span>
-                      </div>
-                      <div className="max-h-52 overflow-y-auto py-1">
-                        {descriptionSuggestions.map((suggestion) => (
-                          <button
-                            key={suggestion}
-                            type="button"
-                            role="option"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() =>
-                              applyDescriptionSuggestion(item.id, suggestion)
-                            }
-                            className="block w-full px-3 py-2.5 text-left text-[12px] leading-5 text-[color:var(--text-secondary)] transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-primary)]"
-                          >
-                            {suggestion}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
                 </div>
               </div>
             );
