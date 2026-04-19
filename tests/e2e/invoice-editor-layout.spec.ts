@@ -73,10 +73,11 @@ test("T1.2 — Sticky toolbar stays visible on scroll", async (
   const afterBox = await actions.boundingBox();
   const viewport = page.viewportSize();
 
-  expect(afterBox?.x ?? 0).toBeGreaterThan((viewport?.width ?? 0) - ((afterBox?.width ?? 0) + 48));
-  expect(afterBox?.y ?? 0).toBeGreaterThan(80);
-  expect((afterBox?.y ?? 0) + (afterBox?.height ?? 0)).toBeLessThan(
-    (viewport?.height ?? 0) - 80
+  expect(afterBox?.x ?? 0).toBeGreaterThan(
+    (viewport?.width ?? 0) - ((afterBox?.width ?? 0) + 48)
+  );
+  expect((afterBox?.y ?? 0) + (afterBox?.height ?? 0)).toBeGreaterThanOrEqual(
+    (viewport?.height ?? 0) - 72
   );
   expect(Math.abs((afterBox?.y ?? 0) - (beforeBox?.y ?? 0))).toBeLessThanOrEqual(8);
 });

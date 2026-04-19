@@ -1788,12 +1788,11 @@ export default function InvoiceEditorPage() {
         </div>
       </section>
 
-      <div className="pointer-events-none fixed bottom-4 right-4 z-30 w-[min(176px,calc(100%-1.25rem))] sm:w-[176px] lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2">
+      <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:left-auto sm:right-5 sm:w-auto">
         <div className="flex justify-end">
           <div
             className={cn(
-              getAppSubtlePanelClass("default"),
-              "invoice-action-dock pointer-events-auto flex flex-col items-stretch gap-1.5 border border-[color:var(--border-default)] px-2 py-2"
+              "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto"
             )}
             data-testid="floating-editor-actions"
           >

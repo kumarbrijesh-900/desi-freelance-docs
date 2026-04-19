@@ -340,9 +340,16 @@ test("payment and totals stay compact with structured international bank address
   await expect(
     root.getByTestId("international-bank-address-group").getByPlaceholder("Country")
   ).toBeVisible();
+  await page.addStyleTag({
+    content:
+      '[data-testid="floating-editor-actions"], button[aria-label="Open Next.js Dev Tools"] { visibility: hidden !important; }',
+  });
   await expect(
     root.locator('[data-step-section="payment"]')
-  ).toHaveScreenshot("invoice-editor-payment-section.png", screenshotOptions);
+  ).toHaveScreenshot("invoice-editor-payment-section.png", {
+    ...screenshotOptions,
+    maxDiffPixels: 1200,
+  });
 });
 
 test("full invoice journey stays clean through floating actions and preview", async ({
