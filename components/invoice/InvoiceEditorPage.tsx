@@ -38,6 +38,11 @@ import {
   runBriefAutofill,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
+import {
+  hydrateInvoiceFormFromParsedExtraction,
+  type ParsedInvoiceHydrationResult,
+} from "@/lib/invoice-parsed-extraction-hydration";
+import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
 import {
   convertInrToApproximateUsd,
@@ -1360,6 +1365,7 @@ export default function InvoiceEditorPage() {
     };
 
     let aiExtraction: AiBriefExtraction | null = null;
+    let parserResponse: BriefParserResponse | null = null;
 
     if (
       normalizedInput.text.trim() ||
@@ -1394,11 +1400,10 @@ export default function InvoiceEditorPage() {
         if (response.ok) {
           const payload = (await response.json()) as {
             extraction?: AiBriefExtraction | null;
-            parser?: {
-              documentId?: string | null;
-            } | null;
+            parser?: BriefParserResponse | null;
           };
           aiExtraction = payload.extraction ?? null;
+          parserResponse = payload.parser ?? null;
           if (payload.parser?.documentId) {
             setParserDocumentId(payload.parser.documentId);
           }
@@ -1413,6 +1418,7 @@ export default function InvoiceEditorPage() {
       input: normalizedInput,
       aiExtraction,
     });
+    let parserHydration: ParsedInvoiceHydrationResult | null = null;
 
     if (!result.normalizedText.trim()) {
       triggerToast(
@@ -1423,21 +1429,35 @@ export default function InvoiceEditorPage() {
       return false;
     }
 
+    if (parserResponse) {
+      parserHydration = hydrateInvoiceFormFromParsedExtraction({
+        currentFormData: formData,
+        baseFormData: result.nextFormData,
+        parserResponse,
+      });
+    }
+
+    const hydratedFormData = parserHydration?.nextFormData ?? result.nextFormData;
+    const totalFilledFields = [
+      ...result.filledFields,
+      ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
+    ];
+
     const nextSuggestedDueDate = getSuggestedDueDate(
-      result.nextFormData.meta.paymentTerms,
-      result.nextFormData.meta.invoiceDate
+      hydratedFormData.meta.paymentTerms,
+      hydratedFormData.meta.invoiceDate
     );
 
     const nextFormData =
-      !result.nextFormData.meta.dueDate && nextSuggestedDueDate
+      !hydratedFormData.meta.dueDate && nextSuggestedDueDate
         ? {
-            ...result.nextFormData,
+            ...hydratedFormData,
             meta: {
-              ...result.nextFormData.meta,
+              ...hydratedFormData.meta,
               dueDate: nextSuggestedDueDate,
             },
           }
-        : result.nextFormData;
+        : hydratedFormData;
 
     lastAutoDueDateRef.current = nextSuggestedDueDate;
     dueDateAutoManagedRef.current =
@@ -1451,10 +1471,12 @@ export default function InvoiceEditorPage() {
     guideToSection(recommendedStep, { focus: true });
 
     triggerToast(
-      result.filledFields.length > 0
-        ? `Autofilled ${result.filledFields.length} field${
-            result.filledFields.length === 1 ? "" : "s"
+      totalFilledFields.length > 0
+        ? `Autofilled ${totalFilledFields.length} field${
+            totalFilledFields.length === 1 ? "" : "s"
           }. Review the highlighted step inline.`
+        : parserHydration?.clarificationQuestions.length
+        ? "Autofill found partial details. Review the unresolved items and finish the missing fields inline."
         : result.lowConfidenceFieldSummaries.length > 0
         ? "Autofill landed in the form. Review the highlighted section and finish the missing fields inline."
         : "Autofill landed in the form. Review the highlighted section and continue."
