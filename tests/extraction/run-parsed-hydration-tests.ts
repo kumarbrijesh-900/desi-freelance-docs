@@ -289,6 +289,81 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
   assert.equal(totals.subtotal, 18000);
 }
 
+function testPerFieldLowConfidenceDoesNotBlockScalarsWhenOverallHigh() {
+  const base = createParserResponse();
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: {
+      ...base,
+      confidence: {
+        overall: "high",
+        fields: {
+          "agency.businessName": "low",
+          "deliverables.0.rate": "low",
+          "deliverables.0.quantity": "low",
+          "deliverables.0.unit": "low",
+          "client.pinCode": "low",
+          "client.city": "low",
+          "client.state": "low",
+          "client.isSezUnit": "low",
+        },
+      },
+      normalizedExtraction: {
+        ...base.normalizedExtraction,
+        agency: {
+          ...base.normalizedExtraction.agency,
+          businessName: "DesiFreelanceDocs Studio",
+          gstRegistered: true,
+          gstin: "29ABCDE1234F1Z5",
+        },
+        client: {
+          name: "Metro Shoes Pvt Ltd",
+          email: null,
+          location: "domestic",
+          gstinOrTaxId: null,
+          isSezUnit: true,
+          country: null,
+          addressLine1: null,
+          addressLine2: null,
+          city: "Bengaluru",
+          state: null,
+          pinCode: "560048",
+          postalCode: null,
+        },
+        deliverables: [
+          {
+            type: "Logo Design",
+            description: "Logo design",
+            quantity: 1,
+            rate: 18000,
+            unit: "per-deliverable",
+            sacCode: "998391",
+          },
+        ],
+        payment: {
+          ...base.normalizedExtraction.payment,
+          terms: "Net 15",
+        },
+        meta: {
+          ...base.normalizedExtraction.meta,
+          totalAmount: 18000,
+        },
+        taxHints: {
+          ...base.normalizedExtraction.taxHints,
+          domesticOrInternational: "domestic",
+        },
+      },
+    },
+  });
+
+  assert.equal(result.nextFormData.agency.agencyName, "DesiFreelanceDocs Studio");
+  assert.equal(result.nextFormData.client.clientState, "Karnataka");
+  assert.equal(result.nextFormData.client.clientPinCode, "560048");
+  assert.equal(result.nextFormData.lineItems[0]?.rate, 18000);
+  assert.equal(result.nextFormData.client.isClientSezUnit, "");
+  assert.ok(result.unresolvedFields.includes("client.isSezUnit"));
+}
+
 function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {
   const parsed = normalizeBriefParserResponse({
     normalizedExtraction: {
@@ -437,6 +512,7 @@ function run() {
   testLowConfidenceToggleStaysUnresolved();
   testOwnershipAndPlaceholderGuardrails();
   testGeminiLogoFixedFeeHydratesCanonicalFields();
+  testPerFieldLowConfidenceDoesNotBlockScalarsWhenOverallHigh();
   testGatewayCoercesStringNumbersSoHydrationKeepsRate();
   testExpandDeliverableInferencePreservesParserLineRate();
   testDerivedDueDateFromNetTerms();

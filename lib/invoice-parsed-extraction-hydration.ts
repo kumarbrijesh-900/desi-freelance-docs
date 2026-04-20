@@ -82,11 +82,49 @@ function isUnsetToggle(currentValue: string, defaultValue: string) {
   return !currentValue || currentValue === defaultValue;
 }
 
+/**
+ * Paths where an explicit per-field "low" from the model must win over a
+ * stronger overall score (tax, identity, location mode, SEZ, settlement).
+ */
+const STRICT_LOW_FIELD_PATHS = new Set<string>([
+  "agency.gstRegistered",
+  "agency.gstin",
+  "agency.pan",
+  "agency.lutEnabled",
+  "client.location",
+  "client.gstinOrTaxId",
+  "client.isSezUnit",
+  "client.email",
+  "payment.mode",
+  "meta.currency",
+]);
+
+function maxParserConfidence(
+  a: BriefParserConfidence,
+  b: BriefParserConfidence
+): BriefParserConfidence {
+  const order: Record<BriefParserConfidence, number> = { low: 0, medium: 1, high: 2 };
+  return order[a] >= order[b] ? a : b;
+}
+
 function getConfidence(
   parserResponse: BriefParserResponse,
   path: string
 ): BriefParserConfidence {
-  return parserResponse.confidence.fields[path] ?? parserResponse.confidence.overall;
+  const fields = parserResponse.confidence.fields;
+  const overall = parserResponse.confidence.overall;
+  const hasExplicit = Object.prototype.hasOwnProperty.call(fields, path);
+  const field = hasExplicit ? fields[path] : undefined;
+
+  if (hasExplicit && field === "low" && STRICT_LOW_FIELD_PATHS.has(path)) {
+    return "low";
+  }
+
+  if (hasExplicit && field === "low") {
+    return maxParserConfidence(field, overall);
+  }
+
+  return field ?? overall;
 }
 
 function shouldHydrate(confidence: BriefParserConfidence) {
