@@ -8,11 +8,7 @@ import type {
 } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@/components/ui/app-icons";
+
 import {
   appFieldErrorTextClass,
   appFieldLabelClass,
@@ -150,10 +146,7 @@ export default function TermsPaymentSection({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
-  const [isLicenseSectionExpanded, setIsLicenseSectionExpanded] = useState(
-    value.license.isLicenseIncluded ||
-      Boolean(value.license.licenseType || value.license.licenseDuration)
-  );
+
   const [bankAddressFields, setBankAddressFields] =
     useState<StructuredBankAddressFields>(() =>
       parseStructuredBankAddress(value.bankAddress)
@@ -269,23 +262,12 @@ export default function TermsPaymentSection({
   const licenseExplanation = getLicenseExplanation(
     value.license.licenseType
   );
-  const hasLicenseContent = Boolean(
-    value.license.isLicenseIncluded ||
-      value.license.licenseType ||
-      value.license.licenseDuration
-  );
-  const isLicenseSectionOpen = isLicenseSectionExpanded;
 
   const showLicenseFields = value.license.isLicenseIncluded;
   const showLicenseDuration =
     value.license.licenseType === "exclusive-license" ||
     value.license.licenseType === "non-exclusive-license";
   const isInternational = clientLocation === "international";
-  const licenseToggleLabel = isLicenseSectionOpen
-    ? "Hide terms"
-    : hasLicenseContent
-    ? "Review terms"
-    : "Add terms";
 
   const inputClass = (hasError?: string, hasValue?: boolean, multiline = false) =>
     getAppFieldClass({
@@ -410,142 +392,93 @@ export default function TermsPaymentSection({
             ) : null}
           </div>
 
-          <div
-            className={cn(
-              getAppSubtlePanelClass("muted"),
-              "invoice-optional-zone invoice-utility-widget space-y-3 border border-[color:var(--border-subtle)] px-3 py-3"
-            )}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-2">
-                <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
-                  Licensing
-                </p>
-                <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                  {hasLicenseContent ? "Included" : "Optional"}
-                </span>
-              </div>
+          {/* ── Licensing (flat layout) ── */}
+          <div className="space-y-3">
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
+              Licensing
+            </p>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setIsLicenseSectionExpanded((current) => !current)
-                }
-                className={getAppButtonClass({ variant: "tertiary", size: "sm" })}
-              >
-                {isLicenseSectionOpen ? (
-                  <ChevronUpIcon className="h-4 w-4" />
-                ) : hasLicenseContent ? (
-                  <CheckIcon className="h-4 w-4" />
-                ) : (
-                  <ChevronDownIcon className="h-4 w-4" />
-                )}
-                {licenseToggleLabel}
-              </button>
+            <div>
+              <label className={appFieldLabelClass}>
+                License Included?
+              </label>
+              <ChoiceCards
+                name="license-included"
+                value={value.license.isLicenseIncluded ? "yes" : "no"}
+                onChange={(nextValue) => {
+                  if (nextValue === "yes") {
+                    updateLicenseField("isLicenseIncluded", true);
+                    return;
+                  }
+                  onChange({
+                    ...value,
+                    license: {
+                      isLicenseIncluded: false,
+                      licenseType: "",
+                      licenseDuration: "",
+                    },
+                  });
+                }}
+                variant="inline"
+                options={[
+                  { value: "yes", label: "Yes" },
+                  { value: "no", label: "No" },
+                ]}
+              />
             </div>
 
-            {isLicenseSectionOpen ? (
-              <div className="space-y-3">
-                  <div>
-                    <label className={appFieldLabelClass}>
-                      License Included?
-                    </label>
+            {showLicenseFields ? (
+              <div>
+                <label className={appFieldLabelClass}>
+                  License Type *
+                </label>
+                <ChoiceCards
+                  name="license-type"
+                  value={value.license.licenseType}
+                  onChange={(nextValue) =>
+                    updateLicenseField("licenseType", nextValue as LicenseType)
+                  }
+                  variant="inline"
+                  options={[
+                    { label: "Full assignment", value: "full-assignment" },
+                    { label: "Exclusive", value: "exclusive-license" },
+                    { label: "Non-exclusive", value: "non-exclusive-license" },
+                  ]}
+                />
+              </div>
+            ) : null}
 
-                      <ChoiceCards
-                        name="license-included"
-                        value={value.license.isLicenseIncluded ? "yes" : "no"}
-                      onChange={(nextValue) => {
-                        if (nextValue === "yes") {
-                          updateLicenseField("isLicenseIncluded", true);
-                          return;
-                        }
-
-                        onChange({
-                          ...value,
-                          license: {
-                            isLicenseIncluded: false,
-                            licenseType: "",
-                            licenseDuration: "",
-                          },
-                        });
-                      }}
-                        variant="inline"
-                        options={[
-                          {
-                            value: "yes",
-                          label: "Yes",
-                        },
-                        {
-                          value: "no",
-                          label: "No",
-                        },
-                      ]}
-                    />
-                  </div>
-
-                  {showLicenseFields ? (
-                    <div>
-                      <label className={appFieldLabelClass}>
-                        License Type *
-                      </label>
-
-                      <ChoiceCards
-                        name="license-type"
-                        value={value.license.licenseType}
-                        onChange={(nextValue) =>
-                          updateLicenseField("licenseType", nextValue as LicenseType)
-                        }
-                        variant="inline"
-                        options={[
-                          {
-                            label: "Full assignment",
-                            value: "full-assignment",
-                          },
-                          {
-                            label: "Exclusive",
-                            value: "exclusive-license",
-                          },
-                          {
-                            label: "Non-exclusive",
-                            value: "non-exclusive-license",
-                          },
-                        ]}
-                      />
-                    </div>
-                  ) : null}
-
-                  {showLicenseFields && showLicenseDuration ? (
-                    <div className="max-w-[260px]">
-                      <label className={appFieldLabelClass}>
-                        License Duration *
-                      </label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={value.license.licenseDuration}
-                        onChange={(e) =>
-                          updateLicenseField("licenseDuration", e.target.value)
-                        }
-                        onBlur={() => markTouched("licenseDuration")}
-                        placeholder="Example: 3 years"
-                        className={inputClass(
-                          licenseDurationError,
-                          Boolean(value.license.licenseDuration)
-                        )}
-                      />
-                      {licenseDurationError ? (
-                        <p className={appFieldErrorTextClass}>
-                          {licenseDurationError}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                {showLicenseFields && value.license.licenseType ? (
-                  <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                    {licenseExplanation}
+            {showLicenseFields && showLicenseDuration ? (
+              <div className="max-w-[260px]">
+                <label className={appFieldLabelClass}>
+                  License Duration *
+                </label>
+                <input
+                  suppressHydrationWarning
+                  type="text"
+                  value={value.license.licenseDuration}
+                  onChange={(e) =>
+                    updateLicenseField("licenseDuration", e.target.value)
+                  }
+                  onBlur={() => markTouched("licenseDuration")}
+                  placeholder="Example: 3 years"
+                  className={inputClass(
+                    licenseDurationError,
+                    Boolean(value.license.licenseDuration)
+                  )}
+                />
+                {licenseDurationError ? (
+                  <p className={appFieldErrorTextClass}>
+                    {licenseDurationError}
                   </p>
                 ) : null}
               </div>
+            ) : null}
+
+            {showLicenseFields && value.license.licenseType ? (
+              <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
+                {licenseExplanation}
+              </p>
             ) : null}
           </div>
 

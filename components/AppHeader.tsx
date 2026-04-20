@@ -13,12 +13,17 @@ export default function AppHeader({
   leftSlot,
 }: AppHeaderProps) {
   return (
-    <header className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)]">
-      <div className={`${appPageContainerClass} flex items-center justify-between py-4`}>
+    <header className="border-b border-[color:var(--border-subtle)] bg-white/90 backdrop-blur-md">
+      <div className={`${appPageContainerClass} flex items-center justify-between py-3.5`}>
         <div className="flex items-center gap-3">
           {leftSlot}
-          <Link href="/" className="text-xl font-bold text-[color:var(--text-primary)]">
-            DesiFreelanceDocs
+          <Link href="/" className="group flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+              K
+            </span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+              Klapped
+            </span>
           </Link>
         </div>
 

@@ -12,28 +12,28 @@ import { cn } from "@/lib/ui-foundation";
 
 export { AnimatePresence, motion };
 
-type MotionPreset = "fade-in" | "fade-up" | "scale-in" | "modal" | "soft";
+type MotionPreset = "fade-in" | "fade-up" | "scale-in" | "modal" | "soft" | "blur-in" | "slide-spring";
 
 export const appEaseStandard: [number, number, number, number] = [
-  0.4,
-  0,
-  0.2,
+  0.16,
+  1,
+  0.3,
   1,
 ];
 export const appEaseGentle: [number, number, number, number] = [
-  0.4,
-  0,
-  0.2,
+  0.22,
+  1,
+  0.36,
   1,
 ];
 
 export const appSpringTransition = {
-  duration: 0.2,
+  duration: 0.18,
   ease: appEaseStandard,
 };
 
 export const appStepTransition = {
-  duration: 0.22,
+  duration: 0.2,
   ease: appEaseStandard,
 };
 
@@ -44,24 +44,34 @@ const revealVariants: Record<MotionPreset, Variants> = {
     exit: { opacity: 0 },
   },
   "fade-up": {
-    hidden: { opacity: 0, y: 8, scale: 0.995 },
+    hidden: { opacity: 0, y: 12, scale: 0.995 },
     visible: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: 6, scale: 0.995 },
+    exit: { opacity: 0, y: 8, scale: 0.995 },
   },
   "scale-in": {
-    hidden: { opacity: 0, scale: 0.985 },
+    hidden: { opacity: 0, scale: 0.98 },
     visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.985 },
+    exit: { opacity: 0, scale: 0.98 },
   },
   modal: {
-    hidden: { opacity: 0, y: 18, scale: 0.982 },
+    hidden: { opacity: 0, y: 20, scale: 0.975 },
     visible: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: 12, scale: 0.988 },
+    exit: { opacity: 0, y: 14, scale: 0.985 },
   },
   soft: {
     hidden: { opacity: 0, y: 8 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 4 },
+  },
+  "blur-in": {
+    hidden: { opacity: 0, filter: "blur(8px)", y: 6 },
+    visible: { opacity: 1, filter: "blur(0px)", y: 0 },
+    exit: { opacity: 0, filter: "blur(4px)", y: 4 },
+  },
+  "slide-spring": {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 12 },
   },
 };
 

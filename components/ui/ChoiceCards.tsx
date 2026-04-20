@@ -29,14 +29,14 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[13px] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[8px] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "inline"
       ? "flex flex-wrap gap-1.5"
-      : `grid gap-3.5 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
+      : `grid gap-3 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[44px] min-w-0 items-center gap-2 rounded-[10px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
+      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-[6px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
           : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
@@ -44,16 +44,16 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-10 min-w-fit items-center justify-center rounded-full border px-3 py-2 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-full border px-3 py-1.5 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
           : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
       }`;
     }
 
-    return `block rounded-[14px] border px-4 py-3 transition ${
+    return `block rounded-[var(--app-radius-card)] border px-4 py-3 transition ${
       isSelected
-        ? "app-soft-choice-option-active text-[color:var(--text-primary)] ring-1 ring-[color:var(--app-color-accent-border)]"
+        ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
         : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
     }`;
   };
@@ -76,8 +76,8 @@ export default function ChoiceCards<T extends string>({
               reducedMotion
                 ? undefined
                 : {
-                    duration: 0.18,
-                    ease: [0, 0, 0.2, 1],
+                    duration: 0.15,
+                    ease: [0.16, 1, 0.3, 1],
                   }
             }
           >
@@ -98,12 +98,12 @@ export default function ChoiceCards<T extends string>({
               className={`${getCardClass(
                 isSelected
               )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1 ${
-                isSelected ? "ring-1 ring-[color:var(--app-color-accent-border)]" : ""
+                isSelected ? "ring-1 ring-[color:var(--color-lime-300)]" : ""
               }`}
               data-selected={isSelected ? "true" : "false"}
               transition={{
-                duration: 0.2,
-                ease: [0, 0, 0.2, 1],
+                duration: 0.15,
+                ease: [0.16, 1, 0.3, 1],
               }}
             >
               <span
@@ -139,15 +139,15 @@ export default function ChoiceCards<T extends string>({
               {variant === "segmented" ? (
                 <motion.span
                   aria-hidden="true"
-                  className={`ml-auto h-2.5 w-2.5 shrink-0 rounded-full ${
+                  className={`ml-auto h-2 w-2 shrink-0 rounded-full ${
                     isSelected
-                      ? "bg-[color:var(--interactive-secondary)]"
+                      ? "bg-[color:var(--color-lime-500)]"
                       : "bg-[color:var(--border-strong)]"
                   }`}
-                  animate={reducedMotion ? undefined : { scale: isSelected ? 1.18 : 1 }}
+                  animate={reducedMotion ? undefined : { scale: isSelected ? 1.15 : 1 }}
                   transition={{
-                    duration: 0.18,
-                    ease: [0, 0, 0.2, 1],
+                    duration: 0.15,
+                    ease: [0.16, 1, 0.3, 1],
                   }}
                 />
               ) : null}
