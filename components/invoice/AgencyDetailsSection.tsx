@@ -5,11 +5,7 @@ import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
-import {
-  AnimatePresence,
-  appEaseStandard,
-  motion,
-} from "@/components/ui/motion-primitives";
+// No motion primitives needed here anymore
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { composeIndianAddress, evaluateStateSignals } from "@/lib/invoice-address";
 import { parseGstin } from "@/lib/gstin-parser";
@@ -165,10 +161,7 @@ export default function AgencyDetailsSection({
       hasValue,
       multiline,
     });
-  const expandableSectionTransition = {
-    duration: 0.18,
-    ease: appEaseStandard,
-  } as const;
+  // Expansion animation removed due to choppiness
 
   const showGstinField = value.gstRegistrationStatus === "registered";
   const showLutSection = showGstinField;
@@ -245,176 +238,132 @@ export default function AgencyDetailsSection({
               />
               </div>
 
-              <AnimatePresence initial={false}>
-                {showGstinField ? (
-                  <motion.div
-                    key="agency-gstin-field"
-                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                    animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                    transition={expandableSectionTransition}
-                    className="overflow-hidden"
-                  >
-                    <div className="border-t border-[color:var(--border-subtle)] pt-3">
-                      <div className={appFieldPairGridClass}>
-                        <div>
-                          <label className={appFieldLabelClass}>
-                            GSTIN
-                          </label>
-                          <input
-                            suppressHydrationWarning
-                            type="text"
-                            aria-label="Agency GSTIN"
-                            value={value.gstin}
-                            onChange={(e) =>
-                              updateField(
-                                "gstin",
-                                e.target.value.toUpperCase().replace(/\s+/g, "")
-                              )
-                            }
-                            onBlur={() => markTouched("gstin")}
-                            placeholder="GSTIN"
-                            autoCapitalize="characters"
-                            spellCheck={false}
-                            className={inputClass(gstinError, Boolean(value.gstin))}
-                          />
-                          {gstinError ? (
-                            <p className={appFieldErrorTextClass}>
-                              {gstinError}
-                            </p>
-                          ) : gstinInfo.state ? (
-                            <p className={appFieldHelperTextClass}>
-                              GSTIN state code maps to {gstinInfo.state}. PAN will
-                              be derived automatically when blank.
-                            </p>
-                          ) : null}
-                        </div>
-
-                        <div>
-                          <label className={appFieldLabelClass}>
-                            PAN
-                          </label>
-                          <input
-                            suppressHydrationWarning
-                            type="text"
-                            value={value.pan}
-                            onChange={(e) =>
-                              updateField(
-                                "pan",
-                                e.target.value.toUpperCase().replace(/\s+/g, "")
-                              )
-                            }
-                            onBlur={() => markTouched("pan")}
-                            placeholder="PAN"
-                            autoCapitalize="characters"
-                            spellCheck={false}
-                            className={inputClass(panError, Boolean(value.pan))}
-                          />
-                          {panError ? (
-                            <p className={appFieldErrorTextClass}>
-                              {panError}
-                            </p>
-                          ) : panConflictWarning ? (
-                            <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                              {panConflictWarning}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-
-              <AnimatePresence initial={false}>
-                {showLutSection ? (
-                  <motion.div
-                    key="agency-lut-section"
-                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                    animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                    transition={expandableSectionTransition}
-                    className="overflow-hidden"
-                  >
-                    <div className="border-t border-[color:var(--border-subtle)] pt-3">
+              {showGstinField && (
+                <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-3">
+                  <div className={appFieldPairGridClass}>
+                    <div>
                       <label className={appFieldLabelClass}>
-                        Valid LUT for current financial year?
+                        GSTIN
                       </label>
-                      <ChoiceCards
-                        name="agency-lut-availability"
-                        value={value.lutAvailability}
-                        onChange={(nextValue) =>
-                          updateField("lutAvailability", nextValue)
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        aria-label="Agency GSTIN"
+                        value={value.gstin}
+                        onChange={(e) =>
+                          updateField(
+                            "gstin",
+                            e.target.value.toUpperCase().replace(/\s+/g, "")
+                          )
                         }
-                        variant="segmented"
-                        columns={2}
-                        options={[
-                          {
-                            value: "yes",
-                            label: "Yes",
-                          },
-                          {
-                            value: "no",
-                            label: "No",
-                          },
-                        ]}
+                        onBlur={() => markTouched("gstin")}
+                        placeholder="GSTIN"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        className={inputClass(gstinError, Boolean(value.gstin))}
                       />
-
-                      <AnimatePresence initial={false}>
-                        {value.lutAvailability === "yes" ? (
-                          <motion.div
-                            key="agency-lut-number"
-                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                            transition={expandableSectionTransition}
-                            className="overflow-hidden"
-                          >
-                            <div className="max-w-[220px] border-t border-[color:var(--border-subtle)] pt-3">
-                              <label className={appFieldLabelClass}>
-                                LUT Number / ARN
-                              </label>
-                              <input
-                                suppressHydrationWarning
-                                type="text"
-                                value={value.lutNumber}
-                                onChange={(e) =>
-                                  updateField("lutNumber", e.target.value)
-                                }
-                                placeholder="Recommended, not mandatory"
-                                className={inputClass(
-                                  undefined,
-                                  Boolean(value.lutNumber)
-                                )}
-                              />
-                            </div>
-                          </motion.div>
-                        ) : null}
-                      </AnimatePresence>
-
-                      <AnimatePresence initial={false}>
-                        {showNoLutTotalsNote ? (
-                          <motion.div
-                            key="agency-lut-note"
-                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                            transition={expandableSectionTransition}
-                            className="overflow-hidden"
-                          >
-                            <div className={cn(getAppSubtlePanelClass(), "px-3 py-2")}>
-                              <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                                This only affects export tax handling later if the client
-                                invoice is international.
-                              </p>
-                            </div>
-                          </motion.div>
-                        ) : null}
-                      </AnimatePresence>
+                      {gstinError ? (
+                        <p className={appFieldErrorTextClass}>
+                          {gstinError}
+                        </p>
+                      ) : gstinInfo.state ? (
+                        <p className={appFieldHelperTextClass}>
+                          GSTIN state code maps to {gstinInfo.state}. PAN will
+                          be derived automatically when blank.
+                        </p>
+                      ) : null}
                     </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+
+                    <div>
+                      <label className={appFieldLabelClass}>
+                        PAN
+                      </label>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={value.pan}
+                        onChange={(e) =>
+                          updateField(
+                            "pan",
+                            e.target.value.toUpperCase().replace(/\s+/g, "")
+                          )
+                        }
+                        onBlur={() => markTouched("pan")}
+                        placeholder="PAN"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        className={inputClass(panError, Boolean(value.pan))}
+                      />
+                      {panError ? (
+                        <p className={appFieldErrorTextClass}>
+                          {panError}
+                        </p>
+                      ) : panConflictWarning ? (
+                        <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                          {panConflictWarning}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showLutSection && (
+                <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-3">
+                  <label className={appFieldLabelClass}>
+                    Valid LUT for current financial year?
+                  </label>
+                  <ChoiceCards
+                    name="agency-lut-availability"
+                    value={value.lutAvailability}
+                    onChange={(nextValue) =>
+                      updateField("lutAvailability", nextValue)
+                    }
+                    variant="segmented"
+                    columns={2}
+                    options={[
+                      {
+                        value: "yes",
+                        label: "Yes",
+                      },
+                      {
+                        value: "no",
+                        label: "No",
+                      },
+                    ]}
+                  />
+
+                  {value.lutAvailability === "yes" && (
+                    <div className="mt-4 max-w-[220px] border-t border-[color:var(--border-subtle)] pt-3">
+                      <label className={appFieldLabelClass}>
+                        LUT Number / ARN
+                      </label>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={value.lutNumber}
+                        onChange={(e) =>
+                          updateField("lutNumber", e.target.value)
+                        }
+                        placeholder="Recommended, not mandatory"
+                        className={inputClass(
+                          undefined,
+                          Boolean(value.lutNumber)
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {showNoLutTotalsNote && (
+                    <div className={cn(getAppSubtlePanelClass(), "mt-4 px-3 py-2")}>
+                      <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
+                        This only affects export tax handling later if the client
+                        invoice is international.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {!showGstinField ? (

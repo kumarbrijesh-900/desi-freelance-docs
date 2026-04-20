@@ -60,7 +60,7 @@ export function getAppButtonClass(params?: {
       : "h-11 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "app-soft-button-primary text-[color:var(--text-on-accent)] hover:border-[color:var(--interactive-primary-hover)]"
+      ? "app-soft-button-primary text-white hover:border-[color:var(--interactive-primary-hover)]"
       : variant === "ghost"
       ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
       : variant === "tertiary"

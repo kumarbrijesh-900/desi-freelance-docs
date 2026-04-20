@@ -13,6 +13,7 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
 import {
+  AnimatePresence,
   MotionReveal,
   motion,
 } from "@/components/ui/motion-primitives";
@@ -654,6 +655,7 @@ export default function InvoiceEditorPage() {
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
+  const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -1335,169 +1337,185 @@ export default function InvoiceEditorPage() {
   void handleClearDemoData;
 
   const handleBriefAutofill = async (input: BriefIntakeInput) => {
-    let ocrText = "";
+    setIsProcessingAutofill(true);
+    try {
+      let ocrText = "";
 
-    if (input.imageFiles?.length) {
-      const extractedChunks: string[] = [];
+      if (input.imageFiles?.length) {
+        const extractedChunks: string[] = [];
 
-      for (const file of input.imageFiles) {
+        for (const file of input.imageFiles) {
+          try {
+            const extractedText = await extractTextFromImage(file);
+
+            if (extractedText.trim()) {
+              console.log(
+                `[Brief Intake OCR] Extracted text from ${file.name}:`,
+                extractedText
+              );
+              extractedChunks.push(extractedText.trim());
+            }
+          } catch (error) {
+            console.error(`Failed OCR for ${file.name}:`, error);
+          }
+        }
+
+        ocrText = extractedChunks.join("\n\n");
+      }
+
+      const normalizedInput = {
+        ...input,
+        ocrText,
+      };
+
+      let aiExtraction: AiBriefExtraction | null = null;
+      let parserResponse: BriefParserResponse | null = null;
+
+      if (
+        normalizedInput.text.trim() ||
+        normalizedInput.ocrText.trim() ||
+        normalizedInput.voiceTranscript?.trim()
+      ) {
         try {
-          const extractedText = await extractTextFromImage(file);
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          const response = await fetch("/api/brief-extract", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(session?.access_token
+                ? { Authorization: `Bearer ${session.access_token}` }
+                : {}),
+            },
+            body: JSON.stringify({
+              briefText: normalizedInput.text,
+              ocrText: normalizedInput.ocrText,
+              voiceTranscript: normalizedInput.voiceTranscript ?? "",
+              documentId: parserDocumentId,
+              sourceMetadata: {
+                attachmentNames: input.imageFiles?.map((file) => file.name),
+                attachmentTypes: input.imageFiles?.map((file) => file.type),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              },
+            }),
+          });
 
-          if (extractedText.trim()) {
-            console.log(
-              `[Brief Intake OCR] Extracted text from ${file.name}:`,
-              extractedText
-            );
-            extractedChunks.push(extractedText.trim());
+          if (response.ok) {
+            const payload = (await response.json()) as {
+              extraction?: AiBriefExtraction | null;
+              parser?: BriefParserResponse | null;
+            };
+            aiExtraction = payload.extraction ?? null;
+            parserResponse = payload.parser ?? null;
+            if (payload.parser?.documentId) {
+              setParserDocumentId(payload.parser.documentId);
+            }
           }
         } catch (error) {
-          console.error(`Failed OCR for ${file.name}:`, error);
+          console.error("AI brief extraction request failed:", error);
         }
       }
 
-      ocrText = extractedChunks.join("\n\n");
-    }
-
-    const normalizedInput = {
-      ...input,
-      ocrText,
-    };
-
-    let aiExtraction: AiBriefExtraction | null = null;
-    let parserResponse: BriefParserResponse | null = null;
-
-    if (
-      normalizedInput.text.trim() ||
-      normalizedInput.ocrText.trim() ||
-      normalizedInput.voiceTranscript?.trim()
-    ) {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const response = await fetch("/api/brief-extract", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(session?.access_token
-              ? { Authorization: `Bearer ${session.access_token}` }
-              : {}),
-          },
-          body: JSON.stringify({
-            briefText: normalizedInput.text,
-            ocrText: normalizedInput.ocrText,
-            voiceTranscript: normalizedInput.voiceTranscript ?? "",
-            documentId: parserDocumentId,
-            sourceMetadata: {
-              attachmentNames: input.imageFiles?.map((file) => file.name),
-              attachmentTypes: input.imageFiles?.map((file) => file.type),
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            },
-          }),
-        });
-
-        if (response.ok) {
-          const payload = (await response.json()) as {
-            extraction?: AiBriefExtraction | null;
-            parser?: BriefParserResponse | null;
-          };
-          aiExtraction = payload.extraction ?? null;
-          parserResponse = payload.parser ?? null;
-          if (payload.parser?.documentId) {
-            setParserDocumentId(payload.parser.documentId);
-          }
-        }
-      } catch (error) {
-        console.error("AI brief extraction request failed:", error);
-      }
-    }
-
-    const result = runBriefAutofill({
-      currentFormData: formData,
-      input: normalizedInput,
-      aiExtraction,
-    });
-    let parserHydration: ParsedInvoiceHydrationResult | null = null;
-
-    if (!result.normalizedText.trim()) {
-      triggerToast(
-        input.imageFiles?.length
-          ? "Could not extract text clearly. Try uploading a clearer image or paste text."
-          : "Add a text brief first to extract invoice details."
-      );
-      return false;
-    }
-
-    if (parserResponse) {
-      parserHydration = hydrateInvoiceFormFromParsedExtraction({
+      const result = runBriefAutofill({
         currentFormData: formData,
-        baseFormData: result.nextFormData,
-        parserResponse,
+        input: normalizedInput,
+        aiExtraction,
       });
-      console.log("=== PARSER HYDRATION SUCCESS ===", parserHydration.nextFormData.lineItems[0]);
-    } else {
-      console.log("=== PARSER RESPONSE IS NULL ===");
+      let parserHydration: ParsedInvoiceHydrationResult | null = null;
+
+      if (!result.normalizedText.trim()) {
+        triggerToast(
+          input.imageFiles?.length
+            ? "Could not extract text clearly. Try uploading a clearer image or paste text."
+            : "Add a text brief first to extract invoice details."
+        );
+        return false;
+      }
+
+      if (parserResponse) {
+        parserHydration = hydrateInvoiceFormFromParsedExtraction({
+          currentFormData: formData,
+          baseFormData: result.nextFormData,
+          parserResponse,
+        });
+        console.log("=== PARSER HYDRATION SUCCESS ===", parserHydration.nextFormData.lineItems[0]);
+      } else {
+        console.log("=== PARSER RESPONSE IS NULL ===");
+      }
+
+      const hydratedFormData = parserHydration?.nextFormData ?? result.nextFormData;
+      console.log("=== HYDRATED FORM DATA MERGE ===", hydratedFormData.lineItems[0]);
+
+      const totalFilledFields = [
+        ...result.filledFields,
+        ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
+      ];
+
+      const nextSuggestedDueDate = getSuggestedDueDate(
+        hydratedFormData.meta.paymentTerms,
+        hydratedFormData.meta.invoiceDate
+      );
+
+      const nextFormData =
+        !hydratedFormData.meta.dueDate && nextSuggestedDueDate
+          ? {
+              ...hydratedFormData,
+              meta: {
+                ...hydratedFormData.meta,
+                dueDate: nextSuggestedDueDate,
+              },
+            }
+          : hydratedFormData;
+
+      const mergedToSet = mergeInvoiceFormData(nextFormData);
+      console.log("=== AFTER MERGE INVOICE FORM DATA ===", mergedToSet.lineItems[0], mergedToSet.agency.agencyName);
+
+      lastAutoDueDateRef.current = nextSuggestedDueDate;
+      dueDateAutoManagedRef.current =
+        !nextFormData.meta.dueDate ||
+        nextFormData.meta.dueDate === nextSuggestedDueDate;
+
+      const missingStep = getFirstInvalidStep(nextFormData);
+      const recommendedStep = missingStep ?? "totals";
+
+      setFormData(mergeInvoiceFormData(nextFormData));
+      setShowAllValidationErrors(true);
+      guideToSection(recommendedStep, { focus: true });
+
+      triggerToast(
+        totalFilledFields.length > 0
+          ? `Autofilled ${totalFilledFields.length} field${
+              totalFilledFields.length === 1 ? "" : "s"
+            }. Review the highlighted step inline.`
+          : parserHydration?.clarificationQuestions.length
+          ? "Autofill found partial details. Review the unresolved items and finish the missing fields inline."
+          : result.lowConfidenceFieldSummaries.length > 0
+          ? "Autofill landed in the form. Review the highlighted section and finish the missing fields inline."
+          : "Autofill landed in the form. Review the highlighted section and continue."
+      );
+
+      setIsBriefIntakeCollapsed(true);
+      return true;
+    } finally {
+      setIsProcessingAutofill(false);
     }
-
-    const hydratedFormData = parserHydration?.nextFormData ?? result.nextFormData;
-    console.log("=== HYDRATED FORM DATA MERGE ===", hydratedFormData.lineItems[0]);
-
-    const totalFilledFields = [
-      ...result.filledFields,
-      ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
-    ];
-
-    const nextSuggestedDueDate = getSuggestedDueDate(
-      hydratedFormData.meta.paymentTerms,
-      hydratedFormData.meta.invoiceDate
-    );
-
-    const nextFormData =
-      !hydratedFormData.meta.dueDate && nextSuggestedDueDate
-        ? {
-            ...hydratedFormData,
-            meta: {
-              ...hydratedFormData.meta,
-              dueDate: nextSuggestedDueDate,
-            },
-          }
-        : hydratedFormData;
-
-    const mergedToSet = mergeInvoiceFormData(nextFormData);
-    console.log("=== AFTER MERGE INVOICE FORM DATA ===", mergedToSet.lineItems[0], mergedToSet.agency.agencyName);
-
-    lastAutoDueDateRef.current = nextSuggestedDueDate;
-    dueDateAutoManagedRef.current =
-      !nextFormData.meta.dueDate ||
-      nextFormData.meta.dueDate === nextSuggestedDueDate;
-
-    const missingStep = getFirstInvalidStep(nextFormData);
-    const recommendedStep = missingStep ?? "totals";
-
-    setFormData(mergeInvoiceFormData(nextFormData));
-    guideToSection(recommendedStep, { focus: true });
-
-    triggerToast(
-      totalFilledFields.length > 0
-        ? `Autofilled ${totalFilledFields.length} field${
-            totalFilledFields.length === 1 ? "" : "s"
-          }. Review the highlighted step inline.`
-        : parserHydration?.clarificationQuestions.length
-        ? "Autofill found partial details. Review the unresolved items and finish the missing fields inline."
-        : result.lowConfidenceFieldSummaries.length > 0
-        ? "Autofill landed in the form. Review the highlighted section and finish the missing fields inline."
-        : "Autofill landed in the form. Review the highlighted section and continue."
-    );
-
-    setIsBriefIntakeCollapsed(true);
-    return true;
   };
 
   const handleBackToHome = () => {
     if (shouldConfirmExit) {
       setShowExitModal(true);
       return;
+    }
+    handleDiscardChanges();
+  };
+
+  const handleDiscardChanges = () => {
+    try {
+      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
+    } catch (e) {
+      console.error("Could not clear specific draft keys:", e);
     }
     router.push("/");
   };
@@ -1670,6 +1688,30 @@ export default function InvoiceEditorPage() {
 
   return (
     <main suppressHydrationWarning className={appPageShellClass}>
+      <AnimatePresence>
+        {isProcessingAutofill && (
+          <motion.div
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--bg-canvas)]/60"
+          >
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative flex h-24 w-24 items-center justify-center">
+                <div className="absolute inset-0 animate-ping rounded-full bg-[color:var(--interactive-primary)] opacity-20 duration-1000"></div>
+                <div className="absolute inset-2 animate-pulse rounded-full bg-[color:var(--interactive-secondary)] opacity-40 duration-700"></div>
+                <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">Scanning & Translating</h2>
+                <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
+                  Our AI engine is processing your brief to structure the invoice...
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <UploadToast message={toastMessage} visible={showToast} />
 
       <AppHeader rightSlot={<LogoutButton />} />
@@ -1738,13 +1780,14 @@ export default function InvoiceEditorPage() {
                           setCurrentStep(step);
                         }
                       }}
+                      style={{ display: isActive ? 'block' : 'none' }}
                     >
                       <InlineStepSection
                         step={step}
                         isActive={isActive}
                         isCompleted={isCompleted}
                         issueCount={missingFieldCountByStep[step]}
-                        onActivate={() => goToStep(step)}
+                        onActivate={() => guideToSection(step)}
                         footer={
                           getNextStep(step) ? (
                             <div className="flex justify-end pt-2">
@@ -1753,14 +1796,14 @@ export default function InvoiceEditorPage() {
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() =>
-                                  scrollToStep(getNextStep(step)!, { focus: true })
+                                  guideToSection(getNextStep(step)!, { focus: true })
                                 }
                                 className={cn(
                                   getAppButtonClass({
-                                    variant: "ghost",
-                                    size: "sm",
+                                    variant: "primary",
+                                    size: "md",
                                   }),
-                                  "h-8 px-2 text-[12px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                                  "h-10 px-6 font-semibold"
                                 )}
                               >
                                 Continue to {getStepShortLabel(getNextStep(step)!)}
@@ -1912,7 +1955,7 @@ export default function InvoiceEditorPage() {
       {showExitModal && (
         <ExitConfirmModal
           onClose={() => setShowExitModal(false)}
-          onSkip={() => router.push("/")}
+          onSkip={handleDiscardChanges}
           onSaveDraft={handleSaveDraft}
         />
       )}
