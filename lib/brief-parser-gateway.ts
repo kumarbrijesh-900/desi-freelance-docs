@@ -159,18 +159,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function confidenceFromValue(value: unknown): BriefParserConfidence {
+function fieldConfidenceFromValue(value: unknown): BriefParserConfidence {
   return value === "high" || value === "medium" || value === "low"
     ? value
     : "low";
+}
+
+function overallConfidenceFromValue(value: unknown): BriefParserConfidence {
+  return value === "high" || value === "medium" || value === "low"
+    ? value
+    : "medium";
 }
 
 function stringOrNull(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+/**
+ * Accepts finite numbers and common JSON string forms so gateway normalization
+ * matches live model output (strings are not uncommon from LLM JSON).
+ */
 function numberOrNull(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim().replace(/,/g, "");
+    if (!trimmed) {
+      return null;
+    }
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
 }
 
 function booleanOrNull(value: unknown) {
@@ -291,11 +312,11 @@ export function normalizeBriefParserResponse(
       ? (value.legacyExtraction as AiBriefExtraction)
       : null,
     confidence: {
-      overall: confidenceFromValue(confidence.overall),
+      overall: overallConfidenceFromValue(confidence.overall),
       fields: Object.fromEntries(
-        Object.entries(fields).map(([key, fieldConfidence]) => [
+        Object.entries(fields).map(([key, fieldEntry]) => [
           key,
-          confidenceFromValue(fieldConfidence),
+          fieldConfidenceFromValue(fieldEntry),
         ])
       ),
     },

@@ -289,11 +289,19 @@ function expandExtractedLineItems(items: NormalizedBriefLineItem[]) {
     return items;
   }
 
+  const parentRate =
+    item.rate && item.rate > 0
+      ? item.rate
+      : null;
+
   return inferred.map((inferredItem) => ({
     type: inferredItem.type,
     description: inferredItem.description,
     quantity: inferredItem.quantity,
-    rate: inferredItem.pricingSignal === "rate" ? inferredItem.rate : null,
+    rate:
+      inferredItem.pricingSignal === "rate" && inferredItem.rate && inferredItem.rate > 0
+        ? inferredItem.rate
+        : parentRate,
     unit: inferredItem.unit,
     sacCode: inferredItem.sacCode,
   }));

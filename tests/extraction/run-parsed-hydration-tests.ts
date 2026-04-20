@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
+import {
+  normalizeBriefParserResponse,
+  type BriefParserResponse,
+} from "@/lib/brief-parser-gateway";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import { hydrateInvoiceFormFromParsedExtraction } from "@/lib/invoice-parsed-extraction-hydration";
 import { getDefaultSacCodeForType } from "@/lib/invoice-sac";
@@ -286,6 +289,126 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
   assert.equal(totals.subtotal, 18000);
 }
 
+function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {
+  const parsed = normalizeBriefParserResponse({
+    normalizedExtraction: {
+      agency: {
+        businessName: "DesiFreelanceDocs Studio",
+        gstRegistered: true,
+        gstin: "29ABCDE1234F1Z5",
+      },
+      client: {
+        name: "Metro Shoes Pvt Ltd",
+        location: "domestic",
+        city: "Bengaluru",
+        pinCode: "560048",
+      },
+      deliverables: [
+        {
+          type: "Logo Design",
+          description: "Logo design",
+          quantity: "1",
+          rate: "18,000",
+          unit: "per-deliverable",
+          sacCode: "998391",
+        },
+      ],
+      payment: { terms: "Net 15" },
+      meta: { totalAmount: "18000" },
+      taxHints: { domesticOrInternational: "domestic" },
+    },
+    confidence: { fields: {} },
+    missingFields: [],
+    clarificationQuestions: [],
+    providerUsed: "gemini-flash",
+    fallbackUsed: false,
+    fallbackPath: [],
+    rawStored: false,
+    warnings: [],
+    parserVersion: "parse-brief-v1",
+    parsedAt: "2026-04-20T00:00:00.000Z",
+  });
+
+  assert.ok(parsed);
+  assert.equal(parsed.confidence.overall, "medium");
+  assert.equal(parsed.normalizedExtraction.deliverables[0]?.rate, 18000);
+  assert.equal(parsed.normalizedExtraction.deliverables[0]?.quantity, 1);
+  assert.equal(parsed.normalizedExtraction.meta.totalAmount, 18000);
+
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: parsed,
+  });
+
+  assert.equal(result.nextFormData.agency.agencyName, "DesiFreelanceDocs Studio");
+  assert.equal(result.nextFormData.client.clientName, "Metro Shoes Pvt Ltd");
+  assert.equal(result.nextFormData.client.clientState, "Karnataka");
+  assert.equal(result.nextFormData.lineItems[0]?.rate, 18000);
+  assert.equal(result.nextFormData.meta.paymentTerms, "Net 15");
+}
+
+function testExpandDeliverableInferencePreservesParserLineRate() {
+  const base = createParserResponse();
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: {
+      ...base,
+      normalizedExtraction: {
+        ...base.normalizedExtraction,
+        agency: {
+          ...base.normalizedExtraction.agency,
+          businessName: "DesiFreelanceDocs Studio",
+          gstRegistered: true,
+          gstin: "29ABCDE1234F1Z5",
+        },
+        client: {
+          name: "Metro Shoes Pvt Ltd",
+          email: null,
+          location: "domestic",
+          gstinOrTaxId: null,
+          isSezUnit: null,
+          country: null,
+          addressLine1: null,
+          addressLine2: null,
+          city: "Bengaluru",
+          state: null,
+          pinCode: "560048",
+          postalCode: null,
+        },
+        deliverables: [
+          {
+            type: "Logo Design",
+            description: "3 logos and 5 illustrations for campaign",
+            quantity: 1,
+            rate: 18000,
+            unit: "per-deliverable",
+            sacCode: "998391",
+          },
+        ],
+        payment: {
+          ...base.normalizedExtraction.payment,
+          terms: "Net 15",
+        },
+        meta: {
+          ...base.normalizedExtraction.meta,
+          totalAmount: 18000,
+        },
+        taxHints: {
+          ...base.normalizedExtraction.taxHints,
+          domesticOrInternational: "domestic",
+        },
+      },
+    },
+  });
+
+  assert.ok(result.nextFormData.lineItems.length >= 2);
+  assert.ok(
+    result.nextFormData.lineItems.every(
+      (line) => line.rate === 18000 && line.rate > 0
+    )
+  );
+}
+
 function testDerivedDueDateFromNetTerms() {
   const result = hydrateInvoiceFormFromParsedExtraction({
     currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
@@ -314,6 +437,8 @@ function run() {
   testLowConfidenceToggleStaysUnresolved();
   testOwnershipAndPlaceholderGuardrails();
   testGeminiLogoFixedFeeHydratesCanonicalFields();
+  testGatewayCoercesStringNumbersSoHydrationKeepsRate();
+  testExpandDeliverableInferencePreservesParserLineRate();
   testDerivedDueDateFromNetTerms();
   console.log("Parsed extraction hydration tests passed");
 }

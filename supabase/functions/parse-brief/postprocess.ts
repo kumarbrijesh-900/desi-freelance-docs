@@ -116,7 +116,18 @@ function cleanEmail(value: unknown) {
 }
 
 function cleanNumber(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim().replace(/,/g, "");
+    if (!trimmed) {
+      return null;
+    }
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
 }
 
 function cleanBoolean(value: unknown) {
@@ -127,6 +138,12 @@ function fieldConfidence(value: unknown): Confidence {
   return value === "high" || value === "medium" || value === "low"
     ? value
     : "low";
+}
+
+function overallConfidence(value: unknown): Confidence {
+  return value === "high" || value === "medium" || value === "low"
+    ? value
+    : "medium";
 }
 
 function normalizeState(value: unknown) {
@@ -516,7 +533,7 @@ export function postProcessProviderOutput(
   const missingFields = collectMissingFields(extraction);
   const hardAmbiguity = detectHardAmbiguity(bundle, extraction);
   const confidence = {
-    overall: fieldConfidence(confidenceRoot.overall),
+    overall: overallConfidence(confidenceRoot.overall),
     fields: Object.fromEntries(
       Object.entries(confidenceFields).map(([key, value]) => [
         key,
