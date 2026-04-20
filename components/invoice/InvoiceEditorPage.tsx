@@ -1653,6 +1653,13 @@ export default function InvoiceEditorPage() {
     }
   };
 
+  console.log("=== FINAL RENDER FORM DATA ===", {
+    agencyName: formData.agency.agencyName,
+    clientState: formData.client.clientState,
+    lineItemsRate: formData.lineItems[0]?.rate,
+    computedSubtotal: computedTotals.subtotal,
+  });
+
   return (
     <main suppressHydrationWarning className={appPageShellClass}>
       <UploadToast message={toastMessage} visible={showToast} />
