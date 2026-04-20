@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
+import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import { hydrateInvoiceFormFromParsedExtraction } from "@/lib/invoice-parsed-extraction-hydration";
+import { getDefaultSacCodeForType } from "@/lib/invoice-sac";
 import { defaultInvoiceFormData, mergeInvoiceFormData } from "@/types/invoice";
 
 function createParserResponse(
@@ -186,7 +188,7 @@ function testOwnershipAndPlaceholderGuardrails() {
         client: {
           ...createParserResponse().normalizedExtraction.client,
           name: "finance team",
-          email: "finance@example.com",
+          email: "billing@client.com",
           location: "domestic",
           gstinOrTaxId: "ABCDE1234F",
         },
@@ -199,6 +201,89 @@ function testOwnershipAndPlaceholderGuardrails() {
   assert.equal(result.nextFormData.client.clientEmail, "");
   assert.equal(result.nextFormData.client.clientGstin, "");
   assert.equal(result.nextFormData.agency.pan, "ABCDE1234F");
+}
+
+function testGeminiLogoFixedFeeHydratesCanonicalFields() {
+  const result = hydrateInvoiceFormFromParsedExtraction({
+    currentFormData: mergeInvoiceFormData(defaultInvoiceFormData),
+    parserResponse: createParserResponse({
+      normalizedExtraction: {
+        agency: {
+          businessName: "DesiFreelanceDocs Studio",
+          gstRegistered: true,
+          gstin: "29ABCDE1234F1Z5",
+        },
+        client: {
+          name: "Metro Shoes Pvt Ltd",
+          email: "billing@client.com",
+          location: "domestic",
+          city: "Bengaluru",
+          pinCode: "560048",
+        },
+        deliverables: [
+          {
+            type: "Logo Design",
+            description: "Logo design",
+            quantity: 1,
+            rate: 18000,
+            unit: "per-deliverable",
+            sacCode: "998361",
+          },
+        ],
+        payment: {
+          terms: "Net 15",
+        },
+        meta: {
+          totalAmount: 18000,
+        },
+        taxHints: {
+          domesticOrInternational: "domestic",
+        },
+      },
+      confidence: {
+        overall: "high",
+        fields: {
+          "agency.businessName": "high",
+          "deliverables.0.rate": "high",
+          "deliverables.0.type": "high",
+        },
+      },
+      missingFields: ["client.gstinOrTaxId", "client.addressLine1"],
+      clarificationQuestions: [
+        "What is the client's GSTIN, if applicable?",
+        "What is the client's billing address?",
+      ],
+    }),
+  });
+  const lineItem = result.nextFormData.lineItems[0];
+
+  assert.equal(result.nextFormData.agency.agencyName, "DesiFreelanceDocs Studio");
+  assert.equal(result.nextFormData.client.clientEmail, "");
+  assert.equal(result.nextFormData.client.clientState, "Karnataka");
+  assert.equal(lineItem?.type, "Logo Design");
+  assert.equal(lineItem?.rate, 18000);
+  assert.equal(lineItem?.qty, 1);
+  assert.equal(lineItem?.rateUnit, "per-deliverable");
+  assert.equal(lineItem?.sacCode, getDefaultSacCodeForType("Logo Design"));
+  assert.equal(lineItem?.sacCode, "998391");
+  assert.ok(result.unresolvedFields.includes("client.gstinOrTaxId"));
+  assert.deepEqual(result.clarificationQuestions, [
+    "What is the client's GSTIN, if applicable?",
+    "What is the client's billing address?",
+  ]);
+
+  const totals = calculateInvoiceTotals({
+    lineItems: result.nextFormData.lineItems,
+    agencyState: result.nextFormData.agency.agencyState,
+    clientState: result.nextFormData.client.clientState,
+    isInternational: false,
+    isClientSezUnit: false,
+    gstRegistered: true,
+    lutAvailability: "",
+    noLutTaxHandling: "",
+  });
+
+  assert.equal(totals.subtotal, 18000);
 }
 
 function testDerivedDueDateFromNetTerms() {
@@ -228,6 +313,7 @@ function run() {
   testPreservesExistingUserEnteredData();
   testLowConfidenceToggleStaysUnresolved();
   testOwnershipAndPlaceholderGuardrails();
+  testGeminiLogoFixedFeeHydratesCanonicalFields();
   testDerivedDueDateFromNetTerms();
   console.log("Parsed extraction hydration tests passed");
 }

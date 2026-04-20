@@ -11,6 +11,7 @@ const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const SAC_REGEX = /^\d{6}$/;
 const PLACEHOLDER_REGEX =
   /\b(?:unknown|unclear|not sure|to be confirmed|tbd|n\/a|placeholder|sample|dummy|example)\b/i;
+const PLACEHOLDER_EMAIL_REGEX = /^(?:billing|finance|accounts?|hello|test|client)@client\./i;
 const TEAM_ALIAS_REGEX =
   /\b(?:finance|billing|accounts?|payables?|ap|procurement|admin)\s+(?:team|dept|department|desk|office)\b/i;
 
@@ -94,6 +95,24 @@ function cleanEntityName(value: unknown) {
   }
 
   return cleaned;
+}
+
+function cleanEmail(value: unknown) {
+  const cleaned = cleanString(value);
+
+  if (!cleaned) {
+    return null;
+  }
+
+  if (
+    PLACEHOLDER_REGEX.test(cleaned) ||
+    PLACEHOLDER_EMAIL_REGEX.test(cleaned) ||
+    /^[^@\s]+@(?:example|test|invalid|localhost)\./i.test(cleaned)
+  ) {
+    return null;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned) ? cleaned : null;
 }
 
 function cleanNumber(value: unknown) {
@@ -223,10 +242,12 @@ function normalizeLineItem(
   const type = normalizeType(value.type, description);
   const rawSac = cleanString(value.sacCode);
   const mappedSac = type && type !== "Other" ? typeToSac[type] ?? null : null;
-  const sacCode = rawSac && SAC_REGEX.test(rawSac) ? rawSac : mappedSac;
+  const sacCode = mappedSac ?? (rawSac && SAC_REGEX.test(rawSac) ? rawSac : null);
 
   if (rawSac && !SAC_REGEX.test(rawSac)) {
     warnings.push(`Ignored invalid SAC "${rawSac}" from model output.`);
+  } else if (rawSac && mappedSac && rawSac !== mappedSac) {
+    warnings.push(`Replaced model SAC "${rawSac}" with canonical SAC "${mappedSac}" for ${type}.`);
   }
 
   return {
@@ -403,7 +424,7 @@ export function postProcessProviderOutput(
     },
     client: {
       name: cleanEntityName(client.name),
-      email: cleanString(client.email),
+      email: cleanEmail(client.email),
       location:
         client.location === "domestic" || client.location === "international"
           ? client.location

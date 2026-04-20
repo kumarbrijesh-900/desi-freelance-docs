@@ -266,7 +266,7 @@ export default function ClientDetailsSection({
                   type="email"
                   value={value.clientEmail}
                   onChange={(e) => updateField("clientEmail", e.target.value)}
-                  placeholder="billing@client.com"
+                  placeholder="Email address"
                   className={inputClass(undefined, Boolean(value.clientEmail))}
                 />
               </div>

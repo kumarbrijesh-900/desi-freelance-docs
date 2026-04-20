@@ -60,6 +60,10 @@ export function isPlaceholderLikeValue(value?: string | null) {
     return true;
   }
 
+  if (/^(?:billing|finance|accounts?|hello|test|client)@client\./i.test(cleaned)) {
+    return true;
+  }
+
   return false;
 }
 

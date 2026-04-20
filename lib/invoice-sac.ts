@@ -41,6 +41,10 @@ export function getDefaultSacCodeForType(type: InvoiceLineItemType) {
 export function resolveLineItemSacCode(
   item: Pick<InvoiceLineItem, "type" | "sacCode">
 ) {
+  if (!isManualSacRequired(item.type)) {
+    return getDefaultSacCodeForType(item.type);
+  }
+
   const manualCode = item.sacCode?.trim() ?? "";
 
   if (manualCode) {

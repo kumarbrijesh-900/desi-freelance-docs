@@ -10,6 +10,8 @@ import {
   type InternationalCountryOption,
   type InternationalCurrencyCode,
 } from "@/lib/international-billing-options";
+import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
+import { inferLocationDetailsFromText } from "@/lib/location-inference";
 import {
   invoiceDefaultUnitByType,
   invoiceLineItemTypeOptions,
@@ -264,8 +266,7 @@ function hasMeaningfulLineItems(lineItems: InvoiceLineItem[]) {
         item.qty !== defaultLineItem.qty ||
         item.rate !== defaultLineItem.rate ||
         item.type !== defaultLineItem.type ||
-        item.rateUnit !== defaultLineItem.rateUnit ||
-        item.sacCode !== defaultLineItem.sacCode
+        item.rateUnit !== defaultLineItem.rateUnit
     )
   );
 }
@@ -319,10 +320,12 @@ function hydrateLineItems(ctx: HydrationContext) {
         invoiceDefaultUnitByType[type] ||
         defaultInvoiceFormData.lineItems[0].rateUnit;
       const manualSac = normalizeString(item.sacCode);
-      const sacCode =
-        manualSac && isValidSacCode(manualSac)
+      const sacCode = resolveLineItemSacCode({
+        type,
+        sacCode: isManualSacRequired(type) && isValidSacCode(manualSac)
           ? manualSac
-          : resolveLineItemSacCode({ type, sacCode: "" });
+          : "",
+      });
 
       return {
         ...defaultInvoiceFormData.lineItems[0],
@@ -330,7 +333,14 @@ function hydrateLineItems(ctx: HydrationContext) {
         type: invoiceLineItemTypeOptions.includes(type) ? type : "Other",
         description: normalizeString(item.description),
         qty: item.quantity && item.quantity > 0 ? item.quantity : 1,
-        rate: item.rate && item.rate > 0 ? item.rate : 0,
+        rate:
+          item.rate && item.rate > 0
+            ? item.rate
+            : extractedItems.length === 1 &&
+              ctx.parserResponse.normalizedExtraction.meta.totalAmount &&
+              ctx.parserResponse.normalizedExtraction.meta.totalAmount > 0
+            ? ctx.parserResponse.normalizedExtraction.meta.totalAmount
+            : 0,
         rateUnit: unit,
         sacCode,
       };
@@ -395,12 +405,17 @@ function hydrateLineItems(ctx: HydrationContext) {
 
     const rateConfidence = getConfidence(ctx.parserResponse, `deliverables.${index}.rate`);
     if (
-      item.rate &&
-      item.rate > 0 &&
+      ((item.rate && item.rate > 0) ||
+        (extractedItems.length === 1 &&
+          ctx.parserResponse.normalizedExtraction.meta.totalAmount &&
+          ctx.parserResponse.normalizedExtraction.meta.totalAmount > 0)) &&
       shouldHydrate(rateConfidence) &&
       originalItem.rate === defaultInvoiceFormData.lineItems[0].rate
     ) {
-      currentItem.rate = item.rate;
+      currentItem.rate =
+        item.rate && item.rate > 0
+          ? item.rate
+          : ctx.parserResponse.normalizedExtraction.meta.totalAmount ?? 0;
       recordHydration(ctx.hydratedFields, `deliverables.${index}.rate`, `Line item ${index + 1} rate`, rateConfidence);
     }
 
@@ -416,16 +431,29 @@ function hydrateLineItems(ctx: HydrationContext) {
     }
 
     const manualSac = normalizeString(item.sacCode);
-    if (!currentItem.sacCode && manualSac && isValidSacCode(manualSac)) {
-      currentItem.sacCode = manualSac;
-    } else if (!currentItem.sacCode) {
-      currentItem.sacCode = resolveLineItemSacCode(currentItem);
-    }
+    currentItem.sacCode = resolveLineItemSacCode({
+      type: currentItem.type,
+      sacCode: isManualSacRequired(currentItem.type) && isValidSacCode(manualSac)
+        ? manualSac
+        : currentItem.sacCode ?? "",
+    });
 
     if (isManualSacRequired(currentItem.type) && !currentItem.sacCode) {
       ctx.unresolvedFields.push(`deliverables.${index}.sacCode`);
     }
   });
+}
+
+function inferDomesticStateFromClientFields(params: {
+  city?: string | null;
+  pinCode?: string | null;
+}) {
+  const pinLocation = inferIndianLocationFromPinCode(params.pinCode);
+  if (pinLocation.state) {
+    return pinLocation.state;
+  }
+
+  return inferLocationDetailsFromText(params.city ?? "").state;
 }
 
 function mapPaymentSettlementType(mode?: string | null) {
@@ -709,7 +737,14 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     },
   });
 
-  const clientState = normalizeState(client.state);
+  const clientState =
+    normalizeState(client.state) ||
+    (client.location !== "international"
+      ? inferDomesticStateFromClientFields({
+          city: client.city,
+          pinCode: client.pinCode,
+        })
+      : "");
   const clientCountry = normalizeCountry(client.country);
   applyStringField({
     ctx,
