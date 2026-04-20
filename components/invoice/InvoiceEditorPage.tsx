@@ -1435,9 +1435,14 @@ export default function InvoiceEditorPage() {
         baseFormData: result.nextFormData,
         parserResponse,
       });
+      console.log("=== PARSER HYDRATION SUCCESS ===", parserHydration.nextFormData.lineItems[0]);
+    } else {
+      console.log("=== PARSER RESPONSE IS NULL ===");
     }
 
     const hydratedFormData = parserHydration?.nextFormData ?? result.nextFormData;
+    console.log("=== HYDRATED FORM DATA MERGE ===", hydratedFormData.lineItems[0]);
+
     const totalFilledFields = [
       ...result.filledFields,
       ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
@@ -1458,6 +1463,9 @@ export default function InvoiceEditorPage() {
             },
           }
         : hydratedFormData;
+
+    const mergedToSet = mergeInvoiceFormData(nextFormData);
+    console.log("=== AFTER MERGE INVOICE FORM DATA ===", mergedToSet.lineItems[0], mergedToSet.agency.agencyName);
 
     lastAutoDueDateRef.current = nextSuggestedDueDate;
     dueDateAutoManagedRef.current =

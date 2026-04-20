@@ -155,7 +155,12 @@ function applyStringField(params: {
     value: params.incoming,
     kind: params.kind ?? "general",
   });
-  if (!incoming) return;
+  if (!incoming) {
+    if (params.currentValue !== params.originalValue) {
+      params.assign(params.originalValue);
+    }
+    return;
+  }
 
   const confidence = getConfidence(params.ctx.parserResponse, params.path);
   if (!shouldHydrate(confidence)) {
@@ -198,7 +203,12 @@ function applyToggleField<T extends string>(params: {
   assign: (value: T) => void;
   allowDefaultOverride?: boolean;
 }) {
-  if (!params.incoming) return;
+  if (!params.incoming) {
+    if (params.currentValue !== params.originalValue) {
+      params.assign(params.originalValue);
+    }
+    return;
+  }
 
   const confidence = getConfidence(params.ctx.parserResponse, params.path);
   if (!shouldHydrate(confidence)) {
@@ -1060,6 +1070,25 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
         inferredTerms.confidence
       );
     }
+  }
+
+  if (
+    ctx.hydratedFields.some(
+      (f) => f.path === "agency.city" || f.path === "agency.state"
+    ) &&
+    !ctx.hydratedFields.some((f) => f.path === "agency.pinCode")
+  ) {
+    nextFormData.agency.pinCode = "";
+  }
+
+  if (
+    ctx.hydratedFields.some(
+      (f) => f.path === "client.city" || f.path === "client.state"
+    ) &&
+    !ctx.hydratedFields.some((f) => f.path === "client.pinCode" || f.path === "client.postalCode")
+  ) {
+    nextFormData.client.clientPinCode = "";
+    nextFormData.client.clientPostalCode = "";
   }
 
   if (taxHints.ambiguity) {

@@ -6,11 +6,14 @@ import type {
   ProviderName,
 } from "./types.ts";
 
-const PROVIDER_TIMEOUT_MS = 8500;
+const GEMINI_TIMEOUT_MS = 30000;
+const GROQ_TIMEOUT_MS = 30000;
+const GROK_TIMEOUT_MS = 30000;
 
 const JSON_SCHEMA_DESCRIPTION = `
-Return strict JSON with this shape:
+Return strict JSON with this shape. ALWAYS output the _scratchpad field first to reason through the data before filling the remaining fields!
 {
+  "_scratchpad": "string (Think step-by-step about locations, tax rules, exact numbers from colloquial Indian slang, missing data, and ambiguities)",
   "normalizedExtraction": {
     "agency": {
       "businessName": string|null,
@@ -91,24 +94,28 @@ Return strict JSON with this shape:
 
 function createPrompt(bundle: NormalizedParserBundle, resolverMode = false) {
   return `
-You are a GST-aware freelance invoice brief parser.
+You are a highly intelligent, GST-aware freelance invoice parser trained for the Indian context.
 
-Parse the input bundle into invoice-ready structured data. Return JSON only.
+Parse the input bundle into invoice-ready structured data. Return JSON only. You must always use the _scratchpad first to reason about the extraction.
 
 Rules:
-- Extract only grounded values.
-- Never invent GSTIN, SAC, tax treatment, dates, or prices.
+- Extract only grounded values. Never invent GSTIN, SAC, tax treatment, dates, or prices.
+- **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun. NEVER extract entire sentences or action phases (e.g., skip "doing a total of dedh lakh...").
+- **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
+- **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
+- **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity (e.g., "Pune" and "Gurgaon" for the client), DO NOT guess or merge them. Leave both location fields completely blank and ask a 'clarificationQuestion' asking which is correct.
+- **Net Payment Terms**: If a client says "Net 15" or "pay me in a couple weeks", log "Net 15" or "14 Days" into payment.terms.
 - If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
 - If a client is outside India, mark client.location as international.
-- If SEZ is mentioned vaguely, set sezMentioned true, keep isSezUnit null unless explicit, and ask a clarification.
 - Split multiple deliverables into separate line items.
-- SAC is a hint only. Use a 6-digit SAC if strongly implied by the service type; otherwise null.
-- For "Other" or unclear deliverables, leave sacCode null.
-- Use "ZERO_RATED" for export/LUT hints, but only when supported.
-- Use "IGST" for interstate domestic or SEZ-without-LUT hints.
-- Use "CGST_SGST" only when same-state domestic supply is supported.
-- Model output is not final business logic. Prefer unresolved questions over false certainty.
-${resolverMode ? "- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing." : ""}
+- SAC is a hint only. Use a 6-digit SAC if accurately matched; otherwise null.
+- Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
+
+Few-Shot Example Context:
+If input is: "I did a logo design for Metro Shoes in Bangalore for athraa hazaar. My agency is in Karnataka."
+Your _scratchpad should be: "Agency is in Karnataka. Client Metro Shoes is in Bangalore, which is also Karnataka. Same state means intra-state supply, so CGST_SGST applies. Rate is 'athraa hazaar' which translates to 18000 INR."
+
+${resolverMode ? '- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing.' : ""}
 
 ${JSON_SCHEMA_DESCRIPTION}
 
@@ -127,11 +134,7 @@ function parseJsonFromText(text: string): unknown {
   return JSON.parse(cleaned);
 }
 
-async function fetchJsonWithTimeout(
-  url: string,
-  init: RequestInit,
-  timeoutMs = PROVIDER_TIMEOUT_MS
-) {
+async function fetchJsonWithTimeout(url: string, init: RequestInit, timeoutMs: number) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -188,11 +191,14 @@ export async function callGeminiFlash(
             responseMimeType: "application/json",
           },
         }),
-      }
+      },
+      GEMINI_TIMEOUT_MS
     );
 
     if (!response.ok) {
-      throw new Error(`Gemini returned ${response.status}: ${await response.text()}`);
+      throw new Error(
+        `Gemini returned ${response.status}: ${await response.text()}`
+      );
     }
 
     const payload = await response.json();
@@ -220,6 +226,7 @@ async function callOpenAiCompatibleProvider(params: {
   url: string;
   bundle: NormalizedParserBundle;
   resolverMode?: boolean;
+  timeoutMs: number;
 }): Promise<ProviderAttempt> {
   const apiKey = Deno.env.get(params.apiKeyName);
   const model = Deno.env.get(params.modelName) || params.defaultModel;
@@ -232,29 +239,33 @@ async function callOpenAiCompatibleProvider(params: {
   }
 
   try {
-    const response = await fetchJsonWithTimeout(params.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+    const response = await fetchJsonWithTimeout(
+      params.url,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.1,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You return strict JSON only. You are careful with GST, SAC, SEZ, export, and pricing ambiguity.",
+            },
+            {
+              role: "user",
+              content: createPrompt(params.bundle, params.resolverMode),
+            },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        model,
-        temperature: 0.1,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content:
-              "You return strict JSON only. You are careful with GST, SAC, SEZ, export, and pricing ambiguity.",
-          },
-          {
-            role: "user",
-            content: createPrompt(params.bundle, params.resolverMode),
-          },
-        ],
-      }),
-    });
+      params.timeoutMs
+    );
 
     if (!response.ok) {
       throw new Error(
@@ -284,6 +295,7 @@ export function callGroqLlama(bundle: NormalizedParserBundle) {
     defaultModel: "llama-3.3-70b-versatile",
     url: "https://api.groq.com/openai/v1/chat/completions",
     bundle,
+    timeoutMs: GROQ_TIMEOUT_MS,
   });
 }
 
@@ -292,9 +304,10 @@ export function callGrok(bundle: NormalizedParserBundle) {
     provider: "grok",
     apiKeyName: "GROK_API_KEY",
     modelName: "GROK_MODEL",
-    defaultModel: "grok-2-latest",
+    defaultModel: "grok-4.20-reasoning",
     url: "https://api.x.ai/v1/chat/completions",
     bundle,
     resolverMode: true,
+    timeoutMs: GROK_TIMEOUT_MS,
   });
 }

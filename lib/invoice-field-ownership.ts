@@ -90,6 +90,21 @@ export function isUnsafeEntityName(value?: string | null) {
     return true;
   }
 
+  // Reject hallucinated conversational sentences (e.g. "doing a total of dedh lakh...")
+  if (
+    cleaned.length > 30 &&
+    /\b(?:we are|they are|doing|total of|lakh|rupees|dollars|send it out|usually they|for the|redesign of|project|client is|agency is)\b/i.test(
+      cleaned
+    )
+  ) {
+    return true;
+  }
+
+  // Absolute fallback: no legitimate business name is an 80+ character paragraph
+  if (cleaned.length > 80) {
+    return true;
+  }
+
   return false;
 }
 

@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     });
 
     if (!parserResult.ok) {
+      console.error("=== EDGE FUNCTION GATEWAY FAILED ===", parserResult);
       return NextResponse.json(
         {
           extraction: null,
