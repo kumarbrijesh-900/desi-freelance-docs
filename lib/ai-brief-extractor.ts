@@ -362,18 +362,26 @@ IMPORTANT RULES:
 - Separate agency details from client details from payment details
 - Treat sender/self-referential phrases like "we are", "I'm", "from", "our studio", and beneficiary/account-name details as agency clues
 - Treat phrases like "invoice for", "bill to", "client", "brand", and "your company" as client clues
-- Treat AI output as an intelligent assistant interpretation, not a literal regex dump
 - If any grounded signal exists for a schema field, try to map it instead of leaving the field empty
 - Favor role-based extraction: agency, client, invoice, deliverables, compliance, payment, timeline
 - If GSTIN is present, strongly lean toward GST registration being true
 - If export or LUT signals exist, strongly consider ZERO tax treatment unless IGST is explicitly stated
 - If multiple deliverables are present, keep them as separate deliverable objects instead of collapsing them
 
+PLACEHOLDER DETECTION (CRITICAL):
+- If a field value is wrapped in brackets like [Amount], [Name], [Date], [e.g., ...], treat it as UNFILLED
+- Return null for such placeholder fields, NOT 0, NOT the bracket content
+- Common placeholder patterns: ₹[Amount], [Client Name], [Date], [e.g., Logo Design], [Your Details], [Client Details]
+- Text after "e.g.," inside brackets is an EXAMPLE, not an actual value — return null
+- Template markers like "Item 01:", "Item 02:" with placeholder amounts should still create separate deliverables, but with null rates
+- If a template has real data mixed with placeholders (e.g., "Ashok" is real but "[Client Name]" is placeholder), extract the real data and null the placeholders
+
 INTERPRETATION RULES:
 - Amount detection:
   - Detect project budgets, fees, costs, quoted amounts, and currency symbols like ₹, $, €, £
   - Use totalAmount for overall project fee when that seems most likely
   - If a single amount might be a line-item rate instead of the full project fee, still return the best guess and lower confidence
+  - ₹[Amount] or $[Amount] with bracket placeholders → return null, NOT 0
 - GST logic:
   - If the brief suggests same-state billing, prefer CGST_SGST
   - If the brief suggests interstate billing, prefer IGST
@@ -381,17 +389,50 @@ INTERPRETATION RULES:
   - If GSTIN is present, treat the agency as likely GST registered
 - Location inference:
   - Infer domestic vs international from city names, country names, or payment context
-  - Map Indian cities like Bangalore/Bengaluru -> Karnataka, Mumbai -> Maharashtra, Delhi -> Delhi
+  - Map Indian cities to states:
+    - Bangalore/Bengaluru → Karnataka
+    - Mumbai/Bombay → Maharashtra
+    - Delhi/New Delhi → Delhi
+    - Chennai/Madras → Tamil Nadu
+    - Hyderabad → Telangana
+    - Pune → Maharashtra
+    - Kolkata/Calcutta → West Bengal
+    - Ahmedabad → Gujarat
+    - Jaipur → Rajasthan
+    - Lucknow → Uttar Pradesh
+    - Kochi/Cochin → Kerala
+    - Chandigarh → Chandigarh
+    - Goa → Goa
+  - Indian neighborhood names are location clues:
+    - Indiranagar, Koramangala, Whitefield, HSR Layout, Jayanagar → Bengaluru → Karnataka
+    - Bandra, Andheri, Powai, Lower Parel → Mumbai → Maharashtra
+    - Connaught Place, Hauz Khas, Saket → Delhi → Delhi
+  - "Place of Supply: Karnataka (29)" → state = Karnataka, GST state code = 29
+  - Numeric GST state codes (01-37) should be mapped to Indian states:
+    - 29 = Karnataka, 27 = Maharashtra, 07 = Delhi, 33 = Tamil Nadu, 06 = Haryana, 36 = Telangana
   - Map foreign cities like London, New York, San Francisco, Dubai, Singapore as international clues
 - Deliverables:
   - Split multiple deliverables into separate array items when the brief says things like "40 images + 5 reels"
+  - When items are labeled "Item 01", "Item 02", etc., split into SEPARATE deliverable objects
+  - Preserve the description even when amounts are missing — use null for rate if the amount is a placeholder
   - Preserve quantity, type, description, rate, and unit when possible
   - Understand common freelance wording like landing page, homepage, logo, illustration, banner, brand film, reel, shorts, shots, videos, and screens
+  - "Logo Design & Brand Color Palette" is ONE deliverable, not two
+  - "5 Social Media Creative Templates" → quantity = 5, type = "Social Media"
 - Payment terms:
   - Detect Net 15 / Net 30 / Due on receipt
   - Detect milestone schedules like 50% advance, 40% booking, balance on delivery
+  - "50% to commence work, 50% upon approval" → combine into a single payment terms string
+  - "prior to file handover" implies final payment must be cleared before delivery
 - Timeline:
   - Extract invoice dates, due dates, explicit deadlines, and delivery durations
+  - "Delivery Date: [Date]" with placeholder → return null
+  - Infer due date from payment terms when possible (e.g., Net 15 → due date = invoice date + 15 days)
+- License detection:
+  - "commercial usage rights", "IP transfer", "full rights", "copyright assignment" → infer license is included
+  - "full commercial usage rights for the designs will be transferred" → license type: full-assignment
+  - "rights transferred on payment" or "upon approval" → conditional license transfer
+  - Note: license fields are not in the schema yet, but include any license signals in the paymentTerms field as context
 - Mixed language and OCR:
   - Be resilient to shorthand, broken spacing, OCR noise, and conversational phrasing
 
@@ -400,7 +441,7 @@ STRICT OUTPUT RULES:
 - Follow the schema exactly
 - Every field object must include value and confidence
 - confidenceScore should summarize the overall extraction quality
-- Use null only when there is no grounded guess at all
+- Use null only when there is no grounded guess at all OR when the value is a template placeholder
 `.trim();
 
 function extractOutputText(payload: unknown) {

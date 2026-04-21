@@ -19,10 +19,10 @@ export default function AppHeader({
           {leftSlot}
           <Link href="/" className="group flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
-              K
+              L
             </span>
             <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-              Klapped
+              Lance
             </span>
           </Link>
         </div>

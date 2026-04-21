@@ -335,7 +335,7 @@ export default function BriefIntakeCard({
                       setBriefText(e.target.value);
                       setLastExtractionState("idle");
                     }}
-                    placeholder="Agency: DesiFreelanceDocs Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
+                    placeholder="Agency: Ashok Creative Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
                     className={cn(
                       getAppFieldClass({
                         hasValue: Boolean(briefText),

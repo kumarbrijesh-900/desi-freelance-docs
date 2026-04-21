@@ -24,18 +24,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Klapped — AI Invoice Generator for Indian Freelancers",
+  title: "Lance — Smart Invoice Generator for Indian Freelancers",
   description:
-    "Turn a client brief into a GST-compliant invoice in under 10 seconds. AI-powered extraction, CGST/SGST/IGST calculations, and one-click PDF export.",
+    "Turn a client brief into a GST-compliant invoice in under 10 seconds. Smart extraction, CGST/SGST/IGST calculations, and one-click PDF export.",
   keywords: [
     "invoice generator",
     "freelance invoice",
     "GST invoice",
     "Indian freelancer",
-    "AI invoice",
+    "smart invoice",
   ],
   openGraph: {
-    title: "Klapped — Invoices in 10 Seconds",
+    title: "Lance — Invoices in 10 Seconds",
     description:
       "Describe your project. Get a perfect, tax-compliant invoice. Built for Indian freelancers.",
     type: "website",

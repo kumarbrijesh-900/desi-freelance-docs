@@ -173,7 +173,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
 
   return {
     agency: {
-      agencyName: "DesiFreelanceDocs Studio",
+      agencyName: "Ashok Creative Studio",
       address: "2nd Floor, 14 Residency Road, Bengaluru, Karnataka 560025",
       addressLine1: "2nd Floor, 14 Residency Road",
       addressLine2: "",
@@ -242,7 +242,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
       paymentSettlementType: "",
-      accountName: "DesiFreelanceDocs Studio",
+      accountName: "Ashok Creative Studio",
       bankName: "HDFC Bank",
       bankAddress: "",
       accountNumber: "50200044321098",
@@ -1705,7 +1705,7 @@ export default function InvoiceEditorPage() {
               <div className="flex flex-col items-center gap-2">
                 <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">Scanning & Translating</h2>
                 <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
-                  Our AI engine is processing your brief to structure the invoice...
+                  Lance is scanning your brief to structure the invoice...
                 </p>
               </div>
             </div>

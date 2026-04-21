@@ -55,7 +55,7 @@ export default function LoginPage() {
             </h1>
 
             <p className="mt-5 text-[15px] leading-7 text-[color:var(--text-muted)]">
-              AI-powered GST invoicing for Indian freelancers.
+              Fast GST invoicing for Indian freelancers.
               <br className="hidden sm:block" />
               Paste a brief, get an invoice in seconds.
             </p>

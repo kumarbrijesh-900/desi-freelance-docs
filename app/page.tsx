@@ -23,7 +23,7 @@ const TRUST_ITEMS = [
   },
   {
     icon: "sparkle",
-    title: "AI-Powered",
+    title: "Instant Extraction",
     desc: "One brief fills every field in seconds",
   },
   {
@@ -37,12 +37,12 @@ const FEATURES = [
   {
     icon: MicrophoneIcon,
     title: "Speak or type your brief",
-    desc: "Just describe the project naturally — the AI understands context, amounts, and parties.",
+    desc: "Just describe the project naturally — the engine understands context, amounts, and parties.",
     accent: "var(--color-coral-400)",
   },
   {
     icon: SparklesIcon,
-    title: "AI fills every field",
+    title: "Every field, filled instantly",
     desc: "Tax codes, addresses, line items, payment terms — extracted and validated instantly.",
     accent: "var(--color-lime-500)",
   },
@@ -120,7 +120,7 @@ export default function Home() {
           <MotionReveal preset="fade-up" delay={0}>
             <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-lime-700)]">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)] animate-pulse" />
-              AI-Powered Invoice Engine
+              Smart Invoice Engine
             </p>
           </MotionReveal>
 
@@ -270,7 +270,7 @@ export default function Home() {
               Start invoicing smarter
             </h2>
             <p className="relative mx-auto mt-3 max-w-md text-sm leading-6 text-[#111118]/60">
-              No credit card. No setup. Just describe your project and let the AI do the rest.
+              No credit card. No setup. Just describe your project and let Lance handle the rest.
             </p>
             <div className="relative mt-8">
               <MotionButton
@@ -290,7 +290,7 @@ export default function Home() {
       <footer className="border-t border-[color:var(--border-subtle)]">
         <div className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}>
           <p className="text-xs font-medium text-[color:var(--text-muted)]">
-            © {new Date().getFullYear()} Klapped. Built for Indian freelancers.
+            © {new Date().getFullYear()} Lance. Built for Indian freelancers.
           </p>
           <div className="flex gap-6 text-xs text-[color:var(--text-soft)]">
             <a href="#" className="hover:text-[color:var(--text-primary)] transition-colors">Terms</a>
