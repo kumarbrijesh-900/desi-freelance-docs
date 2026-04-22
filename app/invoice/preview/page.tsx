@@ -46,6 +46,8 @@ import {
 import { resolveLineItemSacCode } from "@/lib/invoice-sac";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
+import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
+import type { InvoiceStatus } from "@/lib/supabase/invoices";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -127,8 +129,9 @@ function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE") {
 export default function InvoicePreviewPage() {
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saved">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved">("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -286,11 +289,11 @@ export default function InvoicePreviewPage() {
   }, [previewTitle]);
 
   useEffect(() => {
-    if (saveState !== "saved") return;
+    if (saveState !== "saved" && saveState !== "cloud-saved") return;
 
     const timer = window.setTimeout(() => {
       setSaveState("idle");
-    }, 1800);
+    }, 2400);
 
     return () => window.clearTimeout(timer);
   }, [saveState]);
@@ -323,21 +326,56 @@ export default function InvoicePreviewPage() {
     persistDraft();
   };
 
-  const handleSaveDraft = () => {
-    const didPersist = persistDraft();
+  const handleSaveDraft = async () => {
+    if (!data) return;
+    setSaveState("saving");
 
-    if (!didPersist) {
-      return;
+    // Always persist to localStorage as offline fallback
+    persistDraft();
+
+    // Attempt cloud save for authenticated users
+    const userId = await getCurrentUserId();
+    if (userId) {
+      const { data: saved, error } = await saveInvoice({
+        formData: data,
+        status: "draft" as InvoiceStatus,
+        existingId: cloudInvoiceId ?? undefined,
+      });
+
+      if (!error && saved) {
+        setCloudInvoiceId(saved.id);
+        setSaveState("cloud-saved");
+        playInteractionCue("saveSuccess");
+        return;
+      }
+      // Fall through to local-only save on error
+      console.warn("Cloud save failed, using local storage:", error);
     }
 
     setSaveState("saved");
     playInteractionCue("saveSuccess");
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     setIsExportingPdf(true);
     exportTitleRef.current = pdfTitle;
     document.title = pdfTitle;
+
+    // Finalize to Supabase for authenticated users
+    if (data) {
+      const userId = await getCurrentUserId();
+      if (userId) {
+        const { data: saved } = await saveInvoice({
+          formData: data,
+          status: "finalized" as InvoiceStatus,
+          existingId: cloudInvoiceId ?? undefined,
+        });
+        if (saved) {
+          setCloudInvoiceId(saved.id);
+        }
+      }
+    }
+
     window.print();
 
     // Fallback for environments where `afterprint` is unreliable.
@@ -500,9 +538,17 @@ export default function InvoicePreviewPage() {
                   <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
                     Ready to export
                   </span>
-                  {saveState === "saved" ? (
+                  {saveState === "saving" ? (
+                    <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                      Saving…
+                    </span>
+                  ) : saveState === "cloud-saved" ? (
+                    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
+                      ☁ Saved to cloud
+                    </span>
+                  ) : saveState === "saved" ? (
                     <span className="inline-flex items-center rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
-                      Draft saved
+                      Draft saved locally
                     </span>
                   ) : null}
                 </div>

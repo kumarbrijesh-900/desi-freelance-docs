@@ -164,12 +164,24 @@ export default function Home() {
                   <ArrowRightIcon className="h-4 w-4" />
                 </span>
               </Link>
-              <a
-                href="#how-it-works"
-                className={getAppButtonClass({ variant: "ghost", size: "lg" })}
-              >
-                See how it works
-              </a>
+              {isLoggedIn ? (
+                <Link
+                  href="/invoices"
+                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <DocumentSparkIcon className="h-4 w-4" />
+                    Your Invoices
+                  </span>
+                </Link>
+              ) : (
+                <a
+                  href="#how-it-works"
+                  className={getAppButtonClass({ variant: "ghost", size: "lg" })}
+                >
+                  See how it works
+                </a>
+              )}
             </div>
           </MotionReveal>
 
