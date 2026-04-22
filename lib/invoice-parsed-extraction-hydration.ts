@@ -1095,6 +1095,65 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     ctx.unresolvedFields.push("taxHints.ambiguity");
   }
 
+  // ─── License hydration ──────────────────────────────────────
+  const { license } = normalizedExtraction;
+
+  if (license.isIncluded === true) {
+    applyToggleField({
+      ctx,
+      path: "payment.license.isLicenseIncluded",
+      label: "License included",
+      incoming: "yes",
+      currentValue: nextFormData.payment.license.isLicenseIncluded ? "yes" : "no",
+      originalValue: ctx.originalFormData.payment.license.isLicenseIncluded ? "yes" : "no",
+      defaultValue: "no",
+      assign: () => {
+        nextFormData.payment.license.isLicenseIncluded = true;
+      },
+    });
+  }
+
+  if (license.type) {
+    const mappedLicenseType =
+      license.type === "full-assignment"
+        ? "full-assignment"
+        : license.type === "exclusive-license"
+        ? "exclusive-license"
+        : license.type === "non-exclusive-license"
+        ? "non-exclusive-license"
+        : null;
+
+    if (mappedLicenseType) {
+      applyToggleField({
+        ctx,
+        path: "payment.license.licenseType",
+        label: "License type",
+        incoming: mappedLicenseType,
+        currentValue: nextFormData.payment.license.licenseType || "",
+        originalValue: ctx.originalFormData.payment.license.licenseType || "",
+        defaultValue: "",
+        assign: (value) => {
+          nextFormData.payment.license.licenseType = value as typeof mappedLicenseType;
+        },
+      });
+    }
+  }
+
+  if (license.duration) {
+    applyStringField({
+      ctx,
+      path: "payment.license.licenseDuration",
+      label: "License duration",
+      incoming: license.duration,
+      currentValue: nextFormData.payment.license.licenseDuration,
+      originalValue: ctx.originalFormData.payment.license.licenseDuration,
+      defaultValue: defaultInvoiceFormData.payment.license.licenseDuration,
+      assign: (value) => {
+        nextFormData.payment.license.licenseDuration = value;
+      },
+    });
+  }
+
   return {
     nextFormData: mergeInvoiceFormData(nextFormData),
     hydratedFields: ctx.hydratedFields,

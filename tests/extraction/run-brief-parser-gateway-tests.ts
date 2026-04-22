@@ -55,6 +55,7 @@ function testGatewayResponseNormalizationAndLegacyAdapter() {
         rate: 18,
         domesticOrInternational: "domestic",
       },
+      license: {},
     },
     confidence: {
       overall: "high",

@@ -92,6 +92,11 @@ export type NormalizedBriefExtraction = {
     lutMentioned?: boolean | null;
     ambiguity?: string | null;
   };
+  license: {
+    isIncluded?: boolean | null;
+    type?: "full-assignment" | "exclusive-license" | "non-exclusive-license" | null;
+    duration?: string | null;
+  };
 };
 
 export type BriefParserConfidenceReport = {
@@ -228,6 +233,7 @@ export function normalizeBriefParserResponse(
   const payment = isRecord(extraction.payment) ? extraction.payment : {};
   const meta = isRecord(extraction.meta) ? extraction.meta : {};
   const taxHints = isRecord(extraction.taxHints) ? extraction.taxHints : {};
+  const license = isRecord(extraction.license) ? extraction.license : {};
   const confidence = isRecord(value.confidence) ? value.confidence : {};
   const fields = isRecord(confidence.fields) ? confidence.fields : {};
 
@@ -306,6 +312,16 @@ export function normalizeBriefParserResponse(
         sezMentioned: booleanOrNull(taxHints.sezMentioned),
         lutMentioned: booleanOrNull(taxHints.lutMentioned),
         ambiguity: stringOrNull(taxHints.ambiguity),
+      },
+      license: {
+        isIncluded: booleanOrNull(license.isIncluded),
+        type:
+          license.type === "full-assignment" ||
+          license.type === "exclusive-license" ||
+          license.type === "non-exclusive-license"
+            ? license.type
+            : null,
+        duration: stringOrNull(license.duration),
       },
     },
     legacyExtraction: isRecord(value.legacyExtraction)
@@ -587,6 +603,20 @@ export function toLegacyAiBriefExtraction(
       inferredType: createField(
         mapLocationType(normalizedExtraction.client.location),
         getFieldConfidence(response, "client.location")
+      ),
+    },
+    license: {
+      isIncluded: createField(
+        normalizedExtraction.license.isIncluded,
+        getFieldConfidence(response, "license.isIncluded")
+      ),
+      type: createField(
+        normalizedExtraction.license.type,
+        getFieldConfidence(response, "license.type")
+      ),
+      duration: createField(
+        normalizedExtraction.license.duration,
+        getFieldConfidence(response, "license.duration")
       ),
     },
     confidenceScore: response.confidence.overall,

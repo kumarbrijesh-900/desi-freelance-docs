@@ -87,6 +87,7 @@ function testSezAmbiguityStaysUnresolved() {
           sezMentioned: true,
           ambiguity: "SEZ mentioned but authorised operations status is unclear.",
         },
+        license: {},
       },
       confidence: { overall: "medium", fields: {} },
       missingFields: ["client.isSezUnit"],

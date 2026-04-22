@@ -74,6 +74,7 @@ function createParserResponse(
         sezMentioned: true,
         lutMentioned: true,
       },
+      license: {},
     },
     confidence: {
       overall: "high",
@@ -242,6 +243,7 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
         taxHints: {
           domesticOrInternational: "domestic",
         },
+        license: {},
       },
       confidence: {
         overall: "high",
@@ -391,6 +393,7 @@ function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {
       payment: { terms: "Net 15" },
       meta: { totalAmount: "18000" },
       taxHints: { domesticOrInternational: "domestic" },
+      license: {},
     },
     confidence: { fields: {} },
     missingFields: [],

@@ -61,6 +61,11 @@ export type AiBriefExtraction = {
     client: AiBriefField<string>;
     inferredType: AiBriefField<AiBriefLocationType>;
   };
+  license: {
+    isIncluded: AiBriefField<boolean>;
+    type: AiBriefField<string>;
+    duration: AiBriefField<string>;
+  };
   confidenceScore: AiBriefConfidence;
 };
 
@@ -316,6 +321,23 @@ const AI_EXTRACTION_SCHEMA = {
       },
       required: ["agency", "client", "inferredType"],
     },
+    license: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        isIncluded: createNullableBooleanFieldSchema(
+          "True when the brief mentions any form of license, usage rights, IP transfer, or copyright assignment."
+        ),
+        type: createNullableEnumFieldSchema(
+          "The type of license or rights transfer mentioned.",
+          ["full-assignment", "exclusive-license", "non-exclusive-license"] as const
+        ),
+        duration: createNullableStringFieldSchema(
+          "License duration if mentioned, such as '3 years', 'perpetual', 'lifetime', '1 year'."
+        ),
+      },
+      required: ["isIncluded", "type", "duration"],
+    },
     confidenceScore: {
       type: "string",
       enum: ["high", "medium", "low"],
@@ -340,6 +362,7 @@ const AI_EXTRACTION_SCHEMA = {
     "payment",
     "timeline",
     "locations",
+    "license",
     "confidenceScore",
   ],
 } as const;
@@ -429,10 +452,15 @@ INTERPRETATION RULES:
   - "Delivery Date: [Date]" with placeholder → return null
   - Infer due date from payment terms when possible (e.g., Net 15 → due date = invoice date + 15 days)
 - License detection:
-  - "commercial usage rights", "IP transfer", "full rights", "copyright assignment" → infer license is included
-  - "full commercial usage rights for the designs will be transferred" → license type: full-assignment
-  - "rights transferred on payment" or "upon approval" → conditional license transfer
-  - Note: license fields are not in the schema yet, but include any license signals in the paymentTerms field as context
+  - "commercial usage rights", "IP transfer", "full rights", "copyright assignment" → license.isIncluded = true
+  - "full commercial usage rights for the designs will be transferred" → license.type = "full-assignment"
+  - "exclusive rights" or "exclusive license" → license.type = "exclusive-license"
+  - "non-exclusive usage" or "limited license" → license.type = "non-exclusive-license"
+  - "rights transferred on payment" or "upon full payment" → conditional license transfer, still mark isIncluded = true
+  - "3 years", "perpetual", "lifetime", "1 year usage rights" → license.duration = the stated duration
+  - "IP ownership remains with studio" → license.isIncluded = false or non-exclusive
+  - If NO license language is found anywhere in the brief, set license.isIncluded to null (not false)
+  - Also note any license signals in the paymentTerms field as additional context
 - Mixed language and OCR:
   - Be resilient to shorthand, broken spacing, OCR noise, and conversational phrasing
 
