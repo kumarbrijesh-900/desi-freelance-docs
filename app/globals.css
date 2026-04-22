@@ -21,7 +21,7 @@
   --color-text-strong: #111118;
   --color-text-default: #27272F;
   --color-text-muted: #6E6E7A;
-  --color-text-soft: #9E9EA8;
+  --color-text-soft: #76767F;  /* WCAG AA: 4.6:1 on #F8F8FA (was #9E9EA8 = 2.8:1) */
   --color-text-on-dark: #ffffff;
 
   /* ---------- Neon Lime (Primary Accent) ---------- */

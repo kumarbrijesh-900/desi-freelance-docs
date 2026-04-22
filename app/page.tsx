@@ -305,8 +305,8 @@ export default function Home() {
             © {new Date().getFullYear()} Lance. Built for Indian freelancers.
           </p>
           <div className="flex gap-6 text-xs text-[color:var(--text-soft)]">
-            <a href="#" className="hover:text-[color:var(--text-primary)] transition-colors">Terms</a>
-            <a href="#" className="hover:text-[color:var(--text-primary)] transition-colors">Privacy</a>
+            <Link href="/terms" className="hover:text-[color:var(--text-primary)] transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-[color:var(--text-primary)] transition-colors">Privacy</Link>
           </div>
         </div>
       </footer>
