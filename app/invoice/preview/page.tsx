@@ -609,19 +609,25 @@ export default function InvoicePreviewPage() {
           </div>
         </MotionReveal>
 
-        {/* ─── Template Picker ────────────────────────────── */}
-        <MotionReveal className="mb-6 print:hidden" preset="fade-up" delay={20}>
-          <div
-            className="rounded-lg border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-6"
-          >
-            <TemplatePicker
-              selectedId={selectedTemplate}
-              onSelect={setSelectedTemplate}
-              userTier="free"
-            />
-          </div>
-        </MotionReveal>
+        {/* ─── Invoice + Template Side Panel ────────────── */}
+        <div className="flex gap-4 print:block">
+          {/* Side Panel — Template Thumbnails */}
+          <aside className="hidden w-[140px] shrink-0 lg:block print:!hidden">
+            <div className="sticky top-6">
+              <MotionReveal preset="fade-up" delay={20}>
+                <div className="rounded-lg border border-[color:var(--border-default)] bg-white p-2.5 shadow-[var(--app-floating-shadow)]">
+                  <TemplatePicker
+                    selectedId={selectedTemplate}
+                    onSelect={setSelectedTemplate}
+                    userTier="free"
+                  />
+                </div>
+              </MotionReveal>
+            </div>
+          </aside>
 
+          {/* Invoice Sheet — Primary Content */}
+          <div className="min-w-0 flex-1">
         <MotionReveal
           className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
           preset="scale-in"
@@ -1084,6 +1090,8 @@ export default function InvoicePreviewPage() {
             </aside>
           </section>
         </MotionReveal>
+          </div>{/* end invoice sheet wrapper */}
+        </div>{/* end flex (side panel + invoice) */}
         </div>
         </div>
         </section>

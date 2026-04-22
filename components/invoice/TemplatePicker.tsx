@@ -9,7 +9,7 @@ import {
 
 /* ─── Icons ────────────────────────────────────────── */
 
-function LockIcon({ className = "h-4 w-4" }: { className?: string }) {
+function LockIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -26,7 +26,7 @@ function LockIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function CheckIcon({ className = "h-4 w-4" }: { className?: string }) {
+function CheckIcon({ className = "h-3 w-3" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -42,14 +42,19 @@ function CheckIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function StarIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+function StarIcon({ className = "h-2.5 w-2.5" }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-    >
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
+}
+
+function PanelIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 3v18" />
     </svg>
   );
 }
@@ -57,120 +62,80 @@ function StarIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 /* ─── Types ─────────────────────────────────────────── */
 
 export interface TemplatePickerProps {
-  /** Currently selected template ID */
   selectedId: string;
-  /** Callback when user selects a template */
   onSelect: (templateId: string) => void;
-  /** User's current tier for access gating */
   userTier: "visitor" | "free" | "pro";
 }
 
-/* ─── Mini Invoice Preview ────────────────────────── */
+/* ─── Mini Invoice Thumbnail ──────────────────────── */
 
-function MiniInvoicePreview({
-  template,
-}: {
-  template: TemplateMetadata;
-}) {
+function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
   const { primary, secondary, text } = template.palette;
+  const isDark = template.id === "neon-atelier" || template.id === "midnight";
+  const barText = isDark ? secondary : "#FFFFFF";
 
   return (
     <div
-      className="flex h-full w-full flex-col overflow-hidden rounded-[3px]"
+      className="flex h-full w-full flex-col overflow-hidden rounded-[2px]"
       style={{ backgroundColor: secondary }}
     >
       {/* Header bar */}
       <div
-        className="flex items-center justify-between px-3 py-2"
+        className="flex items-center justify-between px-1.5 py-1"
         style={{ backgroundColor: primary }}
       >
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div
-            className="h-3 w-3 rounded-[2px]"
-            style={{
-              backgroundColor:
-                template.id === "neon-atelier" ? "#111118" : secondary,
-              opacity: 0.6,
-            }}
+            className="h-1.5 w-1.5 rounded-[1px]"
+            style={{ backgroundColor: barText, opacity: 0.5 }}
           />
           <div
-            className="h-1.5 w-10 rounded-full"
-            style={{
-              backgroundColor:
-                template.id === "neon-atelier" ? "#111118" : secondary,
-              opacity: 0.5,
-            }}
+            className="h-[3px] w-5 rounded-full"
+            style={{ backgroundColor: barText, opacity: 0.4 }}
           />
         </div>
         <div
-          className="h-1.5 w-8 rounded-full"
-          style={{
-            backgroundColor:
-              template.id === "neon-atelier" ? "#111118" : secondary,
-            opacity: 0.4,
-          }}
+          className="h-[3px] w-4 rounded-full"
+          style={{ backgroundColor: barText, opacity: 0.3 }}
         />
       </div>
 
       {/* Content skeleton */}
-      <div className="flex flex-1 flex-col gap-2 px-3 py-2.5">
-        {/* Title line */}
+      <div className="flex flex-1 flex-col gap-[3px] px-1.5 py-1.5">
         <div
-          className="h-2 w-16 rounded-full"
-          style={{ backgroundColor: text, opacity: 0.7 }}
+          className="h-[3px] w-8 rounded-full"
+          style={{ backgroundColor: text, opacity: 0.6 }}
         />
         <div
-          className="h-1.5 w-24 rounded-full"
-          style={{ backgroundColor: text, opacity: 0.25 }}
+          className="h-[2px] w-12 rounded-full"
+          style={{ backgroundColor: text, opacity: 0.2 }}
         />
-
-        {/* Divider */}
-        <div
-          className="my-1 h-px w-full"
-          style={{ backgroundColor: text, opacity: 0.1 }}
-        />
-
-        {/* Table rows */}
-        {[0.6, 0.8, 0.5].map((w, i) => (
+        <div className="my-[2px] h-px w-full" style={{ backgroundColor: text, opacity: 0.08 }} />
+        {[0.7, 0.5, 0.6].map((w, i) => (
           <div key={i} className="flex items-center justify-between">
             <div
-              className="h-1.5 rounded-full"
-              style={{
-                backgroundColor: text,
-                opacity: 0.2,
-                width: `${w * 60}%`,
-              }}
+              className="h-[2px] rounded-full"
+              style={{ backgroundColor: text, opacity: 0.15, width: `${w * 55}%` }}
             />
             <div
-              className="h-1.5 w-6 rounded-full"
-              style={{ backgroundColor: text, opacity: 0.3 }}
+              className="h-[2px] w-3 rounded-full"
+              style={{ backgroundColor: text, opacity: 0.2 }}
             />
           </div>
         ))}
-
-        {/* Total */}
-        <div
-          className="mt-auto h-px w-full"
-          style={{ backgroundColor: text, opacity: 0.1 }}
-        />
+        <div className="mt-auto h-px w-full" style={{ backgroundColor: text, opacity: 0.08 }} />
         <div className="flex items-center justify-between">
-          <div
-            className="h-1.5 w-8 rounded-full"
-            style={{ backgroundColor: text, opacity: 0.35 }}
-          />
-          <div
-            className="h-2 w-10 rounded-full"
-            style={{ backgroundColor: primary, opacity: 0.8 }}
-          />
+          <div className="h-[2px] w-4 rounded-full" style={{ backgroundColor: text, opacity: 0.25 }} />
+          <div className="h-[3px] w-5 rounded-full" style={{ backgroundColor: primary, opacity: 0.7 }} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── Template Card ───────────────────────────────── */
+/* ─── Thumbnail Card ──────────────────────────────── */
 
-function TemplateCard({
+function ThumbnailCard({
   template,
   isSelected,
   lockState,
@@ -188,68 +153,63 @@ function TemplateCard({
       type="button"
       onClick={isClickable ? onSelect : undefined}
       className={`
-        group relative flex w-full flex-col overflow-hidden rounded-lg border
+        group relative flex w-full flex-col overflow-hidden rounded-md border
         transition-all duration-200
         ${
           isSelected
-            ? "border-[color:var(--color-lime-700)] ring-2 ring-[color:var(--color-lime-700)]/20 shadow-md"
+            ? "border-[color:var(--color-lime-700)] ring-2 ring-[color:var(--color-lime-700)]/20 shadow-sm"
             : isClickable
               ? "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)] hover:shadow-sm"
-              : "border-[color:var(--border-subtle)] opacity-90"
+              : "border-[color:var(--border-subtle)]"
         }
         ${isClickable ? "cursor-pointer" : "cursor-default"}
       `}
+      title={`${template.name}${lockState !== "unlocked" ? " (Pro)" : ""}`}
     >
-      {/* Preview area */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[color:var(--bg-surface-muted)]">
-        <div className={`h-full w-full ${lockState === "blurred" ? "blur-[6px] scale-105" : ""}`}>
-          <MiniInvoicePreview template={template} />
+      {/* Preview area — compact aspect ratio */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[color:var(--bg-surface-muted)]">
+        <div className={`h-full w-full ${lockState === "blurred" ? "blur-[4px] scale-110" : ""}`}>
+          <MiniInvoiceThumbnail template={template} />
         </div>
 
-        {/* Lock overlay for visitors (blurred) */}
+        {/* Visitor overlay (blurred) */}
         {lockState === "blurred" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 backdrop-blur-[2px]">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg">
-              <LockIcon className="h-5 w-5 text-gray-600" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow">
+              <LockIcon className="h-3 w-3 text-gray-500" />
             </div>
-            <p className="mt-2 text-[11px] font-semibold text-white drop-shadow-md">
-              Sign up to preview
-            </p>
           </div>
         )}
 
-        {/* Lock badge for free-tier registered users */}
+        {/* Free-tier overlay (visible but locked) */}
         {lockState === "locked" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-lg ring-1 ring-black/5">
-              <LockIcon className="h-5 w-5 text-[color:var(--text-muted)]" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-black/5">
+              <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
             </div>
-            <p className="mt-2 text-[11px] font-semibold text-[color:var(--text-secondary)] drop-shadow-sm">
-              Upgrade to Pro
-            </p>
           </div>
         )}
 
         {/* Selected check */}
         {isSelected && (
-          <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-700)] shadow-sm">
-            <CheckIcon className="h-3.5 w-3.5 text-white" />
+          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--color-lime-700)] shadow-sm">
+            <CheckIcon className="h-2.5 w-2.5 text-white" />
           </div>
         )}
 
         {/* Pro badge */}
         {template.tier === "pro" && (
-          <div className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-            <StarIcon className="h-2.5 w-2.5" />
-            Pro
+          <div className="absolute left-1 top-1 flex items-center gap-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-1.5 py-[1px] text-[7px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <StarIcon className="h-[7px] w-[7px]" />
+            PRO
           </div>
         )}
       </div>
 
-      {/* Label area */}
-      <div className="flex flex-col gap-0.5 px-3 py-2.5">
+      {/* Label — compact */}
+      <div className="px-1.5 py-1.5">
         <p
-          className={`text-[13px] font-semibold tracking-[-0.01em] ${
+          className={`text-[10px] font-semibold leading-tight ${
             isSelected
               ? "text-[color:var(--color-lime-700)]"
               : "text-[color:var(--text-primary)]"
@@ -257,75 +217,56 @@ function TemplateCard({
         >
           {template.name}
         </p>
-        <p className="text-[11px] leading-4 text-[color:var(--text-muted)]">
-          {template.description}
-        </p>
       </div>
     </button>
   );
 }
 
-/* ─── Template Picker ─────────────────────────────── */
+/* ─── Template Picker (Side Panel Mode) ───────────── */
 
 export default function TemplatePicker({
   selectedId,
   onSelect,
   userTier,
 }: TemplatePickerProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
   const sortedTemplates = [...TEMPLATE_REGISTRY].sort(
     (a, b) => a.order - b.order
   );
 
-  const freeCount = sortedTemplates.filter((t) => t.tier === "free").length;
-  const proCount = sortedTemplates.filter((t) => t.tier === "pro").length;
-
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-2">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-            Choose Template
-          </h3>
-          <p className="mt-0.5 text-sm text-[color:var(--text-muted)]">
-            {freeCount} free · {proCount} premium
-          </p>
-        </div>
-
-        {userTier !== "pro" && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 px-3 py-1 text-[11px] font-semibold text-amber-700">
-            <StarIcon className="h-3 w-3" />
-            Upgrade to unlock all
-          </span>
-        )}
+      <div className="flex items-center gap-1.5 px-1">
+        <PanelIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)]" />
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+          Templates
+        </span>
       </div>
 
-      {/* Template Grid */}
-      <div
-        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
-        onMouseLeave={() => setHoveredId(null)}
-      >
+      {/* Thumbnail Grid — 2 columns for side panel */}
+      <div className="grid grid-cols-2 gap-1.5">
         {sortedTemplates.map((template) => {
           const lockState = getTemplateLockState(template.id, userTier);
-          const isSelected = selectedId === template.id;
-
           return (
-            <div
+            <ThumbnailCard
               key={template.id}
-              onMouseEnter={() => setHoveredId(template.id)}
-            >
-              <TemplateCard
-                template={template}
-                isSelected={isSelected}
-                lockState={lockState}
-                onSelect={() => onSelect(template.id)}
-              />
-            </div>
+              template={template}
+              isSelected={selectedId === template.id}
+              lockState={lockState}
+              onSelect={() => onSelect(template.id)}
+            />
           );
         })}
       </div>
+
+      {/* Upgrade hint */}
+      {userTier !== "pro" && (
+        <div className="mt-1 rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center">
+          <p className="text-[9px] font-semibold text-amber-700">
+            ✦ Upgrade to unlock all templates
+          </p>
+        </div>
+      )}
     </div>
   );
 }
