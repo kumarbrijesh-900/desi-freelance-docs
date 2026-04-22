@@ -2,19 +2,13 @@
 
 ## Canonical product direction
 
-This repo is converging on an **invoice-first architecture**.
+This repo runs an **invoice-first architecture**.
 
 Canonical product flow:
 
 - `/invoice/new`
 - `/invoice/preview`
 - `/api/brief-extract`
-
-Legacy product flow:
-
-- `/create`
-- `/api/extract`
-- the document-wizard stack in `components/flow/*`
 
 ## Canonical folders and files
 
@@ -38,6 +32,8 @@ These are the canonical areas for new product work:
 - `app/api/brief-extract/route.ts`
 - `lib/invoice-brief-intake.ts`
 - `lib/ai-brief-extractor.ts`
+- `lib/brief-parser-gateway.ts`
+- `lib/invoice-parsed-extraction-hydration.ts`
 - related invoice inference and normalization helpers under `lib/`
 
 ### Shared UI primitives
@@ -48,34 +44,20 @@ These are the canonical areas for new product work:
 - `lib/ui-foundation.ts`
 - `lib/layout-foundation.ts`
 
-## Legacy folders and files
+## Legacy code
 
-These areas are frozen and should not receive new feature work:
+Legacy code has been archived to `_archived/` (2026-04-23).
+See `_archived/README.md` for details.
 
-- `app/create/page.tsx`
-- `components/flow/*`
-- `components/documents/*`
-- `app/api/extract/route.ts`
-- `lib/extract-document-data.ts`
-- `types/document.ts`
+Do not import from `_archived/` in production code.
 
 ## Boundary rules
 
 1. New product work must target the canonical invoice-first flow.
-2. Do not add new features to the `/create` route or document-wizard stack.
-3. Do not build new invoice behavior on top of `types/document.ts`.
-4. Do not add new extraction behavior to `/api/extract`; invoice extraction belongs in `/api/brief-extract`.
-5. Shared primitives in `components/ui/*` may be reused by both stacks, but business logic should not cross the canonical/legacy boundary.
+2. Shared primitives in `components/ui/*` may be reused, but business logic must not cross into archived code.
+3. The extraction pipeline lives exclusively under `/api/brief-extract` and the `lib/` extraction modules.
 
-## Cross-dependency note
+## Related docs
 
-Current audit status:
-
-- No canonical invoice flow files were found importing `components/flow/*`, `components/documents/*`, `types/document.ts`, or `lib/extract-document-data.ts`.
-- The legacy stack is currently self-contained enough to freeze safely.
-
-## Related audit docs
-
-- `audits/architecture-convergence-audit.md`
-- `audits/canonical-architecture-blueprint.md`
-- `audits/migration-todo-map.md`
+- `KT.md` — Knowledge transfer document
+- `audits/` — Architecture audit history
