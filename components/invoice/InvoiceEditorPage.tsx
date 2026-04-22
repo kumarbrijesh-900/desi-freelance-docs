@@ -51,6 +51,11 @@ import {
 } from "@/lib/international-billing-options";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import {
+  loadProfile,
+  profileToAgencyDetails,
+  profileToPaymentDefaults,
+} from "@/lib/supabase/profiles";
+import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
@@ -778,6 +783,35 @@ export default function InvoiceEditorPage() {
       }
     };
   }, []);
+
+  /* ── Profile auto-fill: load saved agency when starting fresh ── */
+  useEffect(() => {
+    if (!isBootstrapped) return;
+    // Only auto-fill if agency name is empty (fresh form, not a restored draft)
+    if (formData.agency.agencyName.trim()) return;
+
+    let cancelled = false;
+    async function applyProfile() {
+      const { data: profile } = await loadProfile();
+      if (cancelled || !profile || !profile.agency_name.trim()) return;
+
+      setFormData((prev) => {
+        // Double-check the form is still blank (user might have typed)
+        if (prev.agency.agencyName.trim()) return prev;
+
+        const agencyFromProfile = profileToAgencyDetails(profile);
+        const paymentFromProfile = profileToPaymentDefaults(profile);
+
+        return {
+          ...prev,
+          agency: { ...prev.agency, ...agencyFromProfile },
+          payment: { ...prev.payment, ...paymentFromProfile },
+        };
+      });
+    }
+    applyProfile();
+    return () => { cancelled = true; };
+  }, [isBootstrapped]);
 
   useEffect(() => {
     if (!hasInitializedRef.current) return;
