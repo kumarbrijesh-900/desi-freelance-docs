@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import TemplatePicker from "@/components/invoice/TemplatePicker";
+import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
 import Link from "next/link";
 import {
   ChevronLeftIcon,
@@ -132,6 +134,7 @@ export default function InvoicePreviewPage() {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved">("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -603,6 +606,19 @@ export default function InvoicePreviewPage() {
                 </SuccessPulse>
               </MotionStagger>
             </div>
+          </div>
+        </MotionReveal>
+
+        {/* ─── Template Picker ────────────────────────────── */}
+        <MotionReveal className="mb-6 print:hidden" preset="fade-up" delay={20}>
+          <div
+            className="rounded-lg border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-6"
+          >
+            <TemplatePicker
+              selectedId={selectedTemplate}
+              onSelect={setSelectedTemplate}
+              userTier="free"
+            />
           </div>
         </MotionReveal>
 
