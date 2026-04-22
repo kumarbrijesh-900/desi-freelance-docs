@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-21 (Session: Neon Atelier redesign + Lance rebrand)
+> **Last Updated:** 2026-04-23 (Session: Phases 1–6 complete — persistence, extraction upgrade, hardening)
 > **Branch:** `design-system-foundation`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 
@@ -59,11 +59,12 @@ app/
 ├── invoice/
 │   ├── new/page.tsx            # Invoice editor (stepper)
 │   └── preview/page.tsx        # Invoice preview (PDF-ready view)
-├── create/                     # ⚠️ DEPRECATED — legacy document wizard (frozen)
+├── invoices/page.tsx           # Invoice history (auth-gated, cloud-saved)
+├── terms/page.tsx              # Terms of Service
+├── privacy/page.tsx            # Privacy Policy
 ├── internal/design-system/     # Internal design system reference page
 ├── api/
-│   ├── brief-extract/route.ts  # Edge function: brief → structured extraction
-│   └── extract/route.ts        # Legacy extraction endpoint (deprecated)
+│   └── brief-extract/route.ts  # Brief → structured extraction (rate-limited)
 ├── layout.tsx                  # Root layout (Syne + DM Sans fonts, metadata)
 └── globals.css                 # Design system tokens + component styles
 ```
