@@ -229,10 +229,10 @@ export default function InvoicePreviewPage() {
     ? hasInternationalPaymentDetails
     : hasDomesticPaymentDetails;
   const sectionLabelClass =
-    "text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500";
-  const metaLabelClass = "text-[10px] uppercase tracking-[0.16em] text-gray-500";
-  const documentBlockClass = "avoid-break border border-gray-200 px-4 py-3";
-  const compactTextClass = "text-[13px] leading-5 text-gray-700";
+    "text-[10px] font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)] print:text-gray-500";
+  const metaLabelClass = "text-[10px] uppercase tracking-[0.16em] text-[color:var(--text-muted)] print:text-gray-500";
+  const documentBlockClass = "avoid-break border border-[color:var(--border-subtle)] px-4 py-3 print:border-gray-200";
+  const compactTextClass = "text-[13px] leading-5 text-[color:var(--text-secondary)] print:text-gray-700";
   const invoiceNumber = data?.meta?.invoiceNumber;
   const previewTitle = getInvoiceTitle(invoiceNumber);
   const pdfTitle = getPdfTitle(invoiceNumber);
@@ -452,6 +452,13 @@ export default function InvoicePreviewPage() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
+          /* Reset design system tokens to clean print values */
+          :root {
+            --text-primary: #111118;
+            --text-secondary: #27272F;
+            --text-muted: #6E6E7A;
+            --border-subtle: #E2E2EA;
+          }
         }
 
         .invoice-sheet {
@@ -554,11 +561,11 @@ export default function InvoicePreviewPage() {
         </MotionReveal>
 
         <MotionReveal
-          className="invoice-sheet mx-auto w-full max-w-[210mm] border border-stone-300 bg-white px-5 py-5 shadow-[0_28px_70px_rgba(15,23,42,0.12)] sm:px-7 sm:py-6 print:max-w-none print:border-0 print:px-0 print:py-0 print:shadow-none"
+          className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
           preset="scale-in"
           delay={35}
         >
-          <header className="grid gap-5 border-b border-gray-300 pb-4 lg:grid-cols-[minmax(0,1fr)_270px] print:gap-4">
+          <header className="grid gap-5 border-b border-[color:var(--border-default)] pb-4 lg:grid-cols-[minmax(0,1fr)_270px] print:border-gray-300 print:gap-4">
             <div className="min-w-0">
               {data.agency?.logoUrl ? (
                 <img
@@ -569,7 +576,7 @@ export default function InvoicePreviewPage() {
               ) : null}
 
               <p className={sectionLabelClass}>Issued By</p>
-              <h1 className="mt-2 text-[28px] font-bold leading-none tracking-tight text-black sm:text-[32px]">
+              <h1 className="mt-2 text-[28px] font-bold leading-none tracking-tight text-[color:var(--text-primary)] sm:text-[32px] print:text-black">
                 {data.agency?.agencyName || "Your Agency Name"}
               </h1>
 
@@ -578,7 +585,7 @@ export default function InvoicePreviewPage() {
               </p>
 
               {hasAgencyTax ? (
-                <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px] leading-5 text-gray-600">
+                <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12px] leading-5 text-[color:var(--text-muted)] print:text-gray-600">
                   {data.agency?.agencyState ? (
                     <p>State: {data.agency.agencyState}</p>
                   ) : null}
@@ -588,7 +595,7 @@ export default function InvoicePreviewPage() {
                   {data.agency?.pan ? <p>PAN: {data.agency.pan}</p> : null}
                 </div>
               ) : data.agency?.agencyState ? (
-                <div className="mt-2 text-[12px] leading-5 text-gray-600">
+                <div className="mt-2 text-[12px] leading-5 text-[color:var(--text-muted)] print:text-gray-600">
                   <p>State: {data.agency.agencyState}</p>
                 </div>
               ) : null}
@@ -596,7 +603,7 @@ export default function InvoicePreviewPage() {
 
             <div className={`${documentBlockClass} self-start`}>
               <p className={sectionLabelClass}>Invoice</p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-black">
+              <p className="mt-2 text-2xl font-bold tracking-tight text-[color:var(--text-primary)] print:text-black">
                 {data.meta?.invoiceNumber || "—"}
               </p>
 
@@ -634,7 +641,7 @@ export default function InvoicePreviewPage() {
             </div>
           </header>
 
-          <section className="grid gap-4 border-b border-gray-300 py-4 md:grid-cols-2">
+          <section className="grid gap-4 border-b border-[color:var(--border-default)] py-4 md:grid-cols-2 print:border-gray-300">
             <div className={documentBlockClass}>
               <p className={sectionLabelClass}>From</p>
               <p className="mt-2 text-[15px] font-semibold text-black">
@@ -676,7 +683,7 @@ export default function InvoicePreviewPage() {
             </div>
           </section>
 
-          <section className="border-b border-gray-300 py-4">
+          <section className="border-b border-[color:var(--border-default)] py-4 print:border-gray-300">
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className={sectionLabelClass}>Line Items</p>
@@ -690,7 +697,8 @@ export default function InvoicePreviewPage() {
               </p>
             </div>
 
-            <div className="overflow-hidden border border-gray-200">
+            <div className="overflow-x-auto -mx-1 px-1">
+            <div className="min-w-[560px] overflow-hidden border border-[color:var(--border-subtle)] print:border-gray-200">
               <table className="invoice-table min-w-full border-collapse text-left">
                 <thead className="bg-gray-50">
                   <tr className="text-[10px] uppercase tracking-[0.16em] text-gray-500">
@@ -748,6 +756,7 @@ export default function InvoicePreviewPage() {
                   )}
                 </tbody>
               </table>
+            </div>
             </div>
           </section>
 
