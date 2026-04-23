@@ -1744,6 +1744,7 @@ function EditorContent() {
             errors={fieldErrors.client}
             showAllErrors={showAllValidationErrors}
             savedClients={savedClients}
+            agency={formData.agency}
           />
         );
       case "deliverables":

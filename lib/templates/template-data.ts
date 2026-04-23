@@ -111,7 +111,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
   });
 
   const showGstin = shouldShowAgencyGstin(formData.agency);
-  const clientTaxLabel = getClientTaxIdLabel(formData.client);
+  const clientTaxLabel = getClientTaxIdLabel(formData.client, formData.agency);
 
   const clientAddress = international
     ? composeInternationalAddress({

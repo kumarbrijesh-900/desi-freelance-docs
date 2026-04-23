@@ -31,6 +31,11 @@ import {
   appFieldPairGridClass,
   appFieldTripleCompactGridClass,
 } from "@/lib/form-foundation";
+import {
+  getClientTaxIdLabel,
+  getClientTaxIdPlaceholder,
+} from "@/lib/invoice-compliance";
+import type { AgencyDetails } from "@/types/invoice";
 
 import {
   listClients,
@@ -51,6 +56,7 @@ interface ClientDetailsSectionProps {
   };
   showAllErrors?: boolean;
   savedClients?: SavedClient[];
+  agency?: AgencyDetails;
 }
 
 export default function ClientDetailsSection({
@@ -60,6 +66,7 @@ export default function ClientDetailsSection({
   errors,
   showAllErrors = false,
   savedClients,
+  agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
@@ -330,7 +337,7 @@ export default function ClientDetailsSection({
             <div className={appFieldPairGridClass}>
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
-                  Client GSTIN
+                  {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
                 </label>
                 <input
                   suppressHydrationWarning
@@ -343,7 +350,7 @@ export default function ClientDetailsSection({
                     )
                   }
                   onBlur={() => markTouched("clientGstin")}
-                  placeholder="Client GSTIN"
+                  placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
                   autoCapitalize="characters"
                   spellCheck={false}
                   className={inputClass(
@@ -660,7 +667,7 @@ export default function ClientDetailsSection({
 
               <div className="min-w-0">
                 <label className={appFieldLabelClass}>
-                  Tax Identification Number
+                  {agency ? getClientTaxIdLabel(value, agency) : "Tax Identification Number"}
                 </label>
                 <input
                   suppressHydrationWarning
@@ -668,7 +675,7 @@ export default function ClientDetailsSection({
                   value={value.clientGstin}
                   onChange={(e) => updateField("clientGstin", e.target.value)}
                   onBlur={() => markTouched("clientGstin")}
-                  placeholder="VAT / EIN / tax ID"
+                  placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / EIN / tax ID"}
                   className={inputClass(
                     clientGstinError,
                     Boolean(value.clientGstin)

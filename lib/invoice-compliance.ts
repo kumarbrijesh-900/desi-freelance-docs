@@ -41,16 +41,24 @@ export function hasExplicitExportTaxChoice(agency: AgencyDetails) {
   );
 }
 
-export function getClientTaxIdLabel(client: ClientDetails) {
-  return isInternationalClient(client)
-    ? "Client Tax ID / VAT No. (Optional)"
-    : "Client GSTIN";
+export function getClientTaxIdLabel(client: ClientDetails, agency: AgencyDetails) {
+  if (isInternationalClient(client)) {
+    return "Client Tax ID / VAT No. (Optional)";
+  }
+  if (!isAgencyGstRegistered(agency)) {
+    return "Client GSTIN (Optional)";
+  }
+  return "Client GSTIN";
 }
 
-export function getClientTaxIdPlaceholder(client: ClientDetails) {
-  return isInternationalClient(client)
-    ? "Client tax ID or VAT number"
-    : "Client GSTIN";
+export function getClientTaxIdPlaceholder(client: ClientDetails, agency: AgencyDetails) {
+  if (isInternationalClient(client)) {
+    return "Client tax ID or VAT number";
+  }
+  if (!isAgencyGstRegistered(agency)) {
+    return "Not required (Agency not GST registered)";
+  }
+  return "Client GSTIN";
 }
 
 export function getEffectiveExportTaxHandling(agency: AgencyDetails) {
