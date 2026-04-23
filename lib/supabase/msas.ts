@@ -38,6 +38,27 @@ export async function listClientMsas(
   return { data: (data ?? []) as ClientMsa[], error: null };
 }
 
+/* ─── List all MSAs for current user (across clients) ─ */
+
+export async function listAllUserMsas(): Promise<{
+  data: ClientMsa[];
+  error: string | null;
+}> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { data: [], error: "Not authenticated" };
+
+  const { data, error } = await supabase
+    .from("client_msas")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) return { data: [], error: error.message };
+  return { data: (data ?? []) as ClientMsa[], error: null };
+}
+
 /* ─── Get Single MSA ──────────────────────────────── */
 
 export async function getMsa(

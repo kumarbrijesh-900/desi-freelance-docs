@@ -22,6 +22,8 @@ export interface SavedInvoice {
   share_token: string | null;
   shared_at: string | null;
   template_id: string | null;
+  msa_id: string | null;
+  msa_accepted_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -249,3 +251,67 @@ export async function getReadReceipts(
     lastViewed: data?.[0]?.viewed_at ?? null,
   };
 }
+
+/* ─── MSA Gating ───────────────────────────────────── */
+
+/** Attach an MSA to a shared invoice (called by invoice owner) */
+export async function attachMsaToInvoice(
+  invoiceId: string,
+  msaId: string
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({ msa_id: msaId })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
+
+  return { error: error?.message ?? null };
+}
+
+/** Remove MSA from a shared invoice */
+export async function detachMsaFromInvoice(
+  invoiceId: string
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({ msa_id: null, msa_accepted_at: null })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
+
+  return { error: error?.message ?? null };
+}
+
+/** Load the MSA content for a shared invoice (public — uses RLS) */
+export async function loadMsaForSharedInvoice(
+  invoiceId: string,
+  msaId: string
+): Promise<{ title: string; content: string } | null> {
+  const { data } = await supabase
+    .from("client_msas")
+    .select("title, content")
+    .eq("id", msaId)
+    .single();
+
+  if (!data) return null;
+  return { title: data.title, content: data.content };
+}
+
+/** Accept MSA on a shared invoice (public — anon user) */
+export async function acceptMsaOnInvoice(
+  shareToken: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from("invoices")
+    .update({ msa_accepted_at: new Date().toISOString() })
+    .eq("share_token", shareToken)
+    .not("msa_id", "is", null);
+
+  return { error: error?.message ?? null };
+}
+

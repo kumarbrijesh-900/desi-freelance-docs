@@ -63,6 +63,8 @@ export default function InvoicePreviewPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
+  const [msaAcceptedAt, setMsaAcceptedAt] = useState<string | null>(null);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -477,6 +479,8 @@ export default function InvoicePreviewPage() {
         <ShareLinkModal
           invoiceId={cloudInvoiceId}
           existingToken={shareToken}
+          currentMsaId={currentMsaId}
+          msaAcceptedAt={msaAcceptedAt}
           onClose={() => setShowShareModal(false)}
           onShared={(token) => setShareToken(token)}
         />
