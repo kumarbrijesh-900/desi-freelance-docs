@@ -429,6 +429,7 @@ export default function InvoicePreviewPage() {
                   Save Draft
                 </MotionButton>
 
+                {/* Hiding Share for now as requested
                 <MotionButton
                   type="button"
                   onClick={async () => {
@@ -446,6 +447,7 @@ export default function InvoicePreviewPage() {
                   <ShareIcon className="h-4 w-4" />
                   Share
                 </MotionButton>
+                */}
 
                 <MotionButton
                   type="button"
