@@ -1,9 +1,9 @@
 /**
  * ─── Client Directory Page ─────────────────────────
  *
- * Auth-gated page listing all saved clients with
- * search, add, edit, and delete. Clients are auto-saved
- * after invoice generation and can be re-used.
+ * Auth-gated page listing all saved clients in a
+ * professional table view with inline add/edit via
+ * a slide-down form panel.
  */
 
 "use client";
@@ -11,7 +11,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import { MotionReveal, MotionButton, MotionStagger } from "@/components/ui/motion-primitives";
+import { MotionReveal, MotionButton, AnimatePresence, motion } from "@/components/ui/motion-primitives";
 import {
   appGridClass,
   appPageContainerClass,
@@ -29,117 +29,211 @@ import {
 import { ChevronLeftIcon } from "@/components/ui/app-icons";
 import {
   listClients,
+  upsertClient,
   deleteClient,
   type SavedClient,
 } from "@/lib/supabase/clients";
 import { supabase } from "@/lib/supabase/client";
 import { playInteractionCue } from "@/lib/interaction-feedback";
+import type { ClientDetails } from "@/types/invoice";
+import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
-/* ─── Client Card ─────────────────────────────────── */
+/* ─── Add / Edit Client Form ─────────────────────── */
 
-function ClientCard({
-  client,
-  onDelete,
+function ClientForm({
+  initial,
+  onSave,
+  onCancel,
 }: {
-  client: SavedClient;
-  onDelete: (id: string) => void;
+  initial?: SavedClient | null;
+  onSave: (client: SavedClient) => void;
+  onCancel: () => void;
 }) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const isInternational = client.client_location === "international";
+  const [name, setName] = useState(initial?.client_name || "");
+  const [email, setEmail] = useState(initial?.client_email || "");
+  const [address, setAddress] = useState(initial?.client_address || "");
+  const [city, setCity] = useState(initial?.client_city || "");
+  const [state, setState] = useState(initial?.client_state || "");
+  const [gstin, setGstin] = useState(initial?.client_gstin || "");
+  const [location, setLocation] = useState(initial?.client_location || "domestic");
+  const [country, setCountry] = useState(initial?.client_country || "");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleDelete = async () => {
-    if (!confirm(`Delete "${client.client_name}"? This also removes their MSAs.`)) return;
-    setIsDeleting(true);
-    const { error } = await deleteClient(client.id);
-    if (!error) {
+  const fc = getAppFieldClass;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    setIsSaving(true);
+    const details: ClientDetails = {
+      clientName: name.trim(),
+      clientEmail: email.trim(),
+      clientAddress: address.trim(),
+      clientAddressLine1: "",
+      clientAddressLine2: "",
+      clientCity: city.trim(),
+      clientPinCode: "",
+      clientPostalCode: "",
+      clientState: state as ClientDetails["clientState"],
+      clientCountry: country as ClientDetails["clientCountry"],
+      clientCurrency: "",
+      clientGstin: gstin.trim(),
+      clientLocation: location as ClientDetails["clientLocation"],
+      isClientSezUnit: "",
+    };
+
+    const { data, error } = await upsertClient(details, initial?.id);
+    if (data) {
       playInteractionCue("saveSuccess");
-      onDelete(client.id);
+      onSave(data);
     }
-    setIsDeleting(false);
+    setIsSaving(false);
   };
 
   return (
-    <div className={`${getAppPanelClass()} group relative`}>
-      {/* Location badge */}
-      <div className="mb-3 flex items-center justify-between">
-        <span
-          className={getAppStatusPillClass(isInternational ? "muted" : "default")}
-        >
-          {isInternational ? "🌍 International" : "🇮🇳 Domestic"}
-        </span>
-        {client.invoice_count > 0 && (
-          <span className="text-[10px] font-medium text-[color:var(--text-muted)]">
-            {client.invoice_count} invoice{client.invoice_count !== 1 ? "s" : ""}
-          </span>
-        )}
-      </div>
-
-      {/* Client info */}
-      <h3 className="text-[15px] font-semibold text-[color:var(--text-primary)]">
-        {client.client_name || "Unnamed Client"}
-      </h3>
-
-      {client.client_email && (
-        <p className="mt-1 text-[12px] text-[color:var(--text-muted)]">
-          {client.client_email}
-        </p>
-      )}
-
-      <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-[color:var(--text-secondary)]">
-        {client.client_address || "No address"}
-      </p>
-
-      {(client.client_state || client.client_country) && (
-        <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">
-          {isInternational ? client.client_country : `State: ${client.client_state}`}
-        </p>
-      )}
-
-      {client.client_gstin && (
-        <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">
-          GSTIN: {client.client_gstin}
-        </p>
-      )}
-
-      {/* Actions */}
-      <div className="mt-4 flex items-center gap-2 border-t border-[color:var(--border-subtle)] pt-3">
-        <Link
-          href={`/clients/${client.id}`}
-          className={getAppButtonClass({ variant: "subtle", size: "sm" })}
-        >
-          View & Edit
-        </Link>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
-        >
-          {isDeleting ? "…" : "Delete"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Empty State ─────────────────────────────────── */
-
-function EmptyState() {
-  return (
-    <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-      <div className="mb-4 text-[48px]">📋</div>
-      <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">No clients yet</h2>
-      <p className="mt-1.5 max-w-sm text-[13px] text-[color:var(--text-muted)]">
-        Clients are automatically saved when you create invoices.
-        You can also add them manually.
-      </p>
-      <Link
-        href="/invoice/new"
-        className={`mt-4 ${getAppButtonClass({ variant: "primary" })}`}
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className="overflow-hidden"
+    >
+      <form
+        onSubmit={handleSubmit}
+        className={`${getAppPanelClass()} mb-5 border-l-[3px] border-l-[color:var(--color-lime-400)]`}
       >
-        Create an Invoice
-      </Link>
-    </div>
+        <h3 className="mb-4 text-[15px] font-semibold text-[color:var(--text-primary)]">
+          {initial ? "Edit Client" : "Add New Client"}
+        </h3>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Name — required */}
+          <div>
+            <label className={appFieldLabelClass}>Client / Company Name *</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Acme Studios"
+              required
+              className={fc({ hasValue: Boolean(name) })}
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className={appFieldLabelClass}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="contact@acme.com"
+              className={fc({ hasValue: Boolean(email) })}
+            />
+          </div>
+
+          {/* Location type */}
+          <div>
+            <label className={appFieldLabelClass}>Location</label>
+            <select
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className={fc({ hasValue: true, isSelect: true })}
+            >
+              <option value="domestic">🇮🇳 Domestic (India)</option>
+              <option value="international">🌍 International</option>
+            </select>
+          </div>
+
+          {/* Address */}
+          <div className="sm:col-span-2 lg:col-span-2">
+            <label className={appFieldLabelClass}>Address</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Full address"
+              className={fc({ hasValue: Boolean(address) })}
+            />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className={appFieldLabelClass}>City</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="e.g. Mumbai"
+              className={fc({ hasValue: Boolean(city) })}
+            />
+          </div>
+
+          {/* Conditional: Domestic fields */}
+          {location === "domestic" && (
+            <>
+              <div>
+                <label className={appFieldLabelClass}>State</label>
+                <select
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className={fc({ hasValue: Boolean(state), isSelect: true })}
+                >
+                  <option value="">Select state</option>
+                  {INDIA_STATE_OPTIONS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={appFieldLabelClass}>GSTIN</label>
+                <input
+                  type="text"
+                  value={gstin}
+                  onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                  placeholder="e.g. 27AAACR5055K1ZK"
+                  maxLength={15}
+                  className={fc({ hasValue: Boolean(gstin) })}
+                />
+              </div>
+            </>
+          )}
+
+          {/* Conditional: International field */}
+          {location === "international" && (
+            <div>
+              <label className={appFieldLabelClass}>Country</label>
+              <input
+                type="text"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="e.g. United States"
+                className={fc({ hasValue: Boolean(country) })}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="mt-4 flex items-center gap-2">
+          <MotionButton
+            type="submit"
+            disabled={isSaving || !name.trim()}
+            className={getAppButtonClass({ variant: "primary", size: "sm" })}
+          >
+            {isSaving ? "Saving…" : initial ? "Update Client" : "Save Client"}
+          </MotionButton>
+          <button
+            type="button"
+            onClick={onCancel}
+            className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </motion.div>
   );
 }
 
@@ -154,6 +248,38 @@ function SearchIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+/* ─── Plus Icon ───────────────────────────────────── */
+
+function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+/* ─── Edit Icon ───────────────────────────────────── */
+
+function EditIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+/* ─── Trash Icon ──────────────────────────────────── */
+
+function TrashIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
 /* ─── Main Page ───────────────────────────────────── */
 
 export default function ClientsPage() {
@@ -161,6 +287,8 @@ export default function ClientsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [clients, setClients] = useState<SavedClient[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -171,7 +299,6 @@ export default function ClientsPage() {
         return;
       }
       setIsAuthenticated(true);
-
       const { data } = await listClients();
       setClients(data);
       setIsLoading(false);
@@ -186,12 +313,44 @@ export default function ClientsPage() {
       (c) =>
         c.client_name.toLowerCase().includes(q) ||
         c.client_email.toLowerCase().includes(q) ||
-        c.client_address.toLowerCase().includes(q)
+        c.client_city.toLowerCase().includes(q) ||
+        c.client_gstin.toLowerCase().includes(q)
     );
   }, [clients, searchQuery]);
 
-  const handleDelete = (id: string) => {
-    setClients((prev) => prev.filter((c) => c.id !== id));
+  const handleSave = (saved: SavedClient) => {
+    setClients((prev) => {
+      const exists = prev.find((c) => c.id === saved.id);
+      if (exists) return prev.map((c) => (c.id === saved.id ? saved : c));
+      return [saved, ...prev];
+    });
+    setShowForm(false);
+    setEditingClient(null);
+  };
+
+  const handleEdit = (client: SavedClient) => {
+    setEditingClient(client);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (client: SavedClient) => {
+    if (!confirm(`Delete "${client.client_name}"? This also removes their MSAs.`)) return;
+    const { error } = await deleteClient(client.id);
+    if (!error) {
+      playInteractionCue("saveSuccess");
+      setClients((prev) => prev.filter((c) => c.id !== client.id));
+    }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingClient(null);
+  };
+
+  const handleAddNew = () => {
+    setEditingClient(null);
+    setShowForm(true);
   };
 
   if (isLoading) {
@@ -210,7 +369,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">Sign in to view your clients</p>
+          <p className="text-lg font-semibold text-[color:var(--text-primary)]">Sign in to manage your clients</p>
           <Link href="/login" className={getAppButtonClass({ variant: "primary" })}>
             Sign In
           </Link>
@@ -228,7 +387,7 @@ export default function ClientsPage() {
           <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
             {/* Header */}
             <MotionReveal preset="fade-up">
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <Link
                     href="/"
@@ -245,44 +404,190 @@ export default function ClientsPage() {
                   </p>
                 </div>
 
-                {clients.length > 0 && (
-                  <div className="relative w-full sm:w-64">
-                    <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--text-muted)]" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search clients…"
-                      className={`${getAppFieldClass()} !pl-9`}
-                    />
-                  </div>
-                )}
+                <div className="flex items-center gap-3">
+                  {clients.length > 0 && (
+                    <div className="relative w-full sm:w-56">
+                      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--text-muted)]" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search…"
+                        className={`${getAppFieldClass()} !pl-9`}
+                      />
+                    </div>
+                  )}
+                  <MotionButton
+                    onClick={handleAddNew}
+                    className={getAppButtonClass({ variant: "primary" })}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Add Client
+                  </MotionButton>
+                </div>
               </div>
             </MotionReveal>
 
-            {/* Content */}
-            {clients.length === 0 ? (
-              <MotionReveal preset="fade-up" delay={10}>
-                <EmptyState />
-              </MotionReveal>
-            ) : (
-              <MotionStagger>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredClients.map((client) => (
-                    <ClientCard
-                      key={client.id}
-                      client={client}
-                      onDelete={handleDelete}
-                    />
-                  ))}
+            {/* Add / Edit Form */}
+            <AnimatePresence>
+              {showForm && (
+                <ClientForm
+                  key={editingClient?.id ?? "new"}
+                  initial={editingClient}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                />
+              )}
+            </AnimatePresence>
+
+            {/* Table */}
+            <MotionReveal preset="fade-up" delay={10}>
+              {clients.length === 0 && !showForm ? (
+                /* Empty state */
+                <div className={`${getAppPanelClass("muted")} flex flex-col items-center justify-center py-16 text-center`}>
+                  <div className="mb-3 text-[40px]">👥</div>
+                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
+                    No clients yet
+                  </h2>
+                  <p className="mt-1.5 max-w-md text-[13px] text-[color:var(--text-muted)]">
+                    Add your clients here to quickly fill their details when creating invoices.
+                  </p>
+                  <MotionButton
+                    onClick={handleAddNew}
+                    className={`mt-5 ${getAppButtonClass({ variant: "primary" })}`}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Add Your First Client
+                  </MotionButton>
                 </div>
-                {filteredClients.length === 0 && searchQuery && (
-                  <div className="mt-8 text-center text-[13px] text-[color:var(--text-muted)]">
-                    No clients matching &ldquo;{searchQuery}&rdquo;
+              ) : clients.length > 0 ? (
+                /* Client table */
+                <div className="overflow-hidden rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)]">
+                          <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                            Client Name
+                          </th>
+                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] sm:table-cell">
+                            Email
+                          </th>
+                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
+                            City
+                          </th>
+                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
+                            GSTIN
+                          </th>
+                          <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                            Type
+                          </th>
+                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] lg:table-cell">
+                            Invoices
+                          </th>
+                          <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredClients.map((client, idx) => (
+                          <tr
+                            key={client.id}
+                            className={cn(
+                              "group transition-colors hover:bg-[color:var(--bg-surface-muted)]",
+                              idx < filteredClients.length - 1 && "border-b border-[color:var(--border-subtle)]"
+                            )}
+                          >
+                            {/* Name */}
+                            <td className="px-4 py-3">
+                              <Link
+                                href={`/clients/${client.id}`}
+                                className="text-[13px] font-semibold text-[color:var(--text-primary)] hover:text-[color:var(--color-lime-600)] transition-colors"
+                              >
+                                {client.client_name || "Unnamed"}
+                              </Link>
+                              {/* Mobile: show email below name */}
+                              {client.client_email && (
+                                <p className="mt-0.5 text-[11px] text-[color:var(--text-muted)] sm:hidden">
+                                  {client.client_email}
+                                </p>
+                              )}
+                            </td>
+
+                            {/* Email */}
+                            <td className="hidden px-4 py-3 text-[12px] text-[color:var(--text-secondary)] sm:table-cell">
+                              {client.client_email || "—"}
+                            </td>
+
+                            {/* City */}
+                            <td className="hidden px-4 py-3 text-[12px] text-[color:var(--text-secondary)] md:table-cell">
+                              {client.client_city || client.client_state || "—"}
+                            </td>
+
+                            {/* GSTIN */}
+                            <td className="hidden px-4 py-3 md:table-cell">
+                              {client.client_gstin ? (
+                                <span className="rounded bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] text-[color:var(--text-secondary)]">
+                                  {client.client_gstin}
+                                </span>
+                              ) : (
+                                <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
+                              )}
+                            </td>
+
+                            {/* Location badge */}
+                            <td className="px-4 py-3">
+                              <span
+                                className={getAppStatusPillClass(
+                                  client.client_location === "international" ? "muted" : "default"
+                                )}
+                              >
+                                {client.client_location === "international" ? "Intl" : "India"}
+                              </span>
+                            </td>
+
+                            {/* Invoice count */}
+                            <td className="hidden px-4 py-3 text-center text-[12px] text-[color:var(--text-secondary)] lg:table-cell">
+                              {client.invoice_count || 0}
+                            </td>
+
+                            {/* Actions */}
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEdit(client)}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
+                                  title="Edit"
+                                >
+                                  <EditIcon />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDelete(client)}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                                  title="Delete"
+                                >
+                                  <TrashIcon />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )}
-              </MotionStagger>
-            )}
+
+                  {/* No search results */}
+                  {filteredClients.length === 0 && searchQuery && (
+                    <div className="border-t border-[color:var(--border-subtle)] px-4 py-8 text-center text-[13px] text-[color:var(--text-muted)]">
+                      No clients matching &ldquo;{searchQuery}&rdquo;
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </MotionReveal>
           </div>
         </div>
       </section>
