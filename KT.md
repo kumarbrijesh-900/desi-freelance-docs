@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phases 1–9b.2 complete — preview redesign, email sharing, MSA accept/reject)
+> **Last Updated:** 2026-04-23 (Session: Phases 1–9c complete — invoices dashboard, auth-gated saving)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -358,14 +358,21 @@ tests/
 
 ## 10. Pending Roadmap
 
-### Phase 9c — Invoices Dashboard (Next)
-| Task | Description | Effort |
-|------|-------------|--------|
-| Invoices data table | Professional table replacing current list | M |
-| Table columns | Invoice No., Date, Client, Deliverable, Read Receipt, MSA Status, Due Date | M |
-| Filters | Filter by: Client, Work Type, Rejected Status | M |
-| Sorting | Sort by: Latest, Alphabetically | S |
-| Notification badge | Bell icon on Invoices nav tab with unread count | S |
+### Phase 9c — Invoices Dashboard
+- **Professional data table:** 9 columns (Invoice #, Date/Due, Client, Work Type, Amount, Status, MSA, Views, Actions)
+- **Search & Filters:** Real-time search + Status (Draft/Finalized) and MSA (Pending/Accepted/Rejected) filters
+- **Sorting:** Sort by Date (Latest/Oldest) and Amount (High/Low)
+- **Stat Cards:** Dashboard overview showing Total, Finalized, MSA Pending, and Total Views
+- **Read Receipts:** Batch-loaded for performance; tooltip shows exact last-viewed date
+- **MSA Rejection Alert:** Proactive banner shown if any client rejects an MSA
+- **Inline Delete:** Secure confirmation ("Yes/No") with no screen flicker
+- **Batch Service:** `getReadReceiptsBatch()` for N+1 safe loading of view counts
+
+### Phase 9d — Auth-Gated Save Draft (Bonus)
+- **Unauthenticated Save:** If unlogged user clicks "Save Draft" in editor, draft is persisted to `localStorage` and user redirected to login
+- **State Restoration:** Login page carries `?next` param through OAuth; editor detects `?restore=1` and auto-restores then cloud-saves
+- **Contextual Login:** Login card shows "Your draft is safe" message when redirected from the editor
+- **Suspense Fix:** Wrapped login card in `Suspense` for Next.js 16 build compliance
 
 ### Known Issues
 - **Reverse Charge toggle:** Currently hardcoded to "No" — needs a toggle in the Tax/Payment section for edge cases
