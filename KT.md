@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phases 1–9b complete — preview redesign, invoice sharing, read receipts)
+> **Last Updated:** 2026-04-23 (Session: Phases 1–9b.1 complete — preview redesign, invoice sharing, MSA gating)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -344,14 +344,20 @@ tests/
 
 ## 10. Pending Roadmap
 
-### Phase 9b.1 — MSA Gating (Follow-up)
-| Task | Description | Effort |
-|------|-------------|--------|
-| MSA acceptance form | Client-facing accept/reject form on public view | M |
-| MSA gating logic | Blur invoice until MSA is accepted | M |
-| MSA status badge | Show MSA acceptance status in share modal | S |
+### Phase 9b.1 — MSA Gating
+- **MSA gate screen:** `/view/[token]` shows MSA text with blurred invoice preview when MSA is attached but not accepted
+- **MSA acceptance:** Client clicks "Accept & View Invoice" to unlock the full invoice
+- **ShareLinkModal MSA section:** Lists all user MSAs, radio-select to attach/detach, status badges (Pending / Client Accepted)
+- **Service functions:** `attachMsaToInvoice`, `detachMsaFromInvoice`, `acceptMsaOnInvoice`, `loadMsaForSharedInvoice`
+- **listAllUserMsas:** Cross-client MSA listing for the share modal
+- **Supabase migration:** `msa_id`, `msa_accepted_at` columns + RLS policies for public MSA read and acceptance
+- **MSA Accepted badge:** Green pill badge shown in public view header after acceptance
 
-### Phase 9c — Invoices Dashboard
+---
+
+## 10. Pending Roadmap
+
+### Phase 9c — Invoices Dashboard (Next)
 | Task | Description | Effort |
 |------|-------------|--------|
 | Invoices data table | Professional table replacing current list | M |
@@ -406,12 +412,15 @@ tests/
 | `share_token` | text | UNIQUE, 12-char token for public sharing |
 | `shared_at` | timestamptz | When share link was generated |
 | `template_id` | text | Template used (default: `classic`) |
+| `msa_id` | uuid | FK to client_msas (SET NULL on delete) |
+| `msa_accepted_at` | timestamptz | When client accepted the MSA |
 | `created_at` | timestamptz | Auto |
 | `updated_at` | timestamptz | Auto |
 
 **RLS Policies:**
 - Owner can SELECT/INSERT/UPDATE/DELETE own invoices
 - `invoices_select_by_share_token` — public SELECT when `share_token IS NOT NULL`
+- `invoices_update_msa_acceptance` — public UPDATE for MSA acceptance on shared invoices
 
 ### `read_receipts` Table
 | Column | Type | Notes |
