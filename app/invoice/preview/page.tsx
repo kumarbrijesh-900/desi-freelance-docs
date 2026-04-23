@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
 import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
 import TemplateRenderer from "@/lib/templates/renderer";
@@ -38,6 +38,8 @@ import {
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
+import { syncProfileFromInvoice } from "@/lib/supabase/profiles";
+import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 
@@ -56,7 +58,16 @@ function getPdfTitle(invoiceNumber?: string) {
 
 
 export default function InvoicePreviewPage() {
+  return (
+    <Suspense fallback={<div>Loading preview...</div>}>
+      <PreviewContent />
+    </Suspense>
+  );
+}
+
+function PreviewContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved">("idle");
@@ -67,8 +78,24 @@ export default function InvoicePreviewPage() {
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
+
+  const triggerToast = (message: string) => {
+    setToastMessage(message);
+    setShowToast(false);
+    requestAnimationFrame(() => {
+      setShowToast(true);
+    });
+  };
+
+  useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => setShowToast(false), 3000);
+    return () => clearTimeout(timer);
+  }, [showToast]);
 
   useEffect(() => {
     try {
@@ -128,6 +155,40 @@ export default function InvoicePreviewPage() {
 
     return () => window.clearTimeout(timer);
   }, [saveState]);
+
+  /* ── Auto cloud-save after login redirect (restore=1) ── */
+  useEffect(() => {
+    if (!data) return;
+    if (searchParams.get("restore") !== "1") return;
+
+    async function autoCloudSave() {
+      const currentData = data;
+      if (!currentData) return;
+      
+      const userId = await getCurrentUserId();
+      if (!userId) return;
+
+      const { error } = await saveInvoice({
+        formData: currentData,
+        status: "draft" as InvoiceStatus,
+        existingId: undefined,
+      });
+
+      if (!error) {
+        // Sync profile details from this restored draft
+        await syncProfileFromInvoice(currentData);
+
+        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        playInteractionCue("saveSuccess");
+        // Clean up URL without reloading
+        const url = new URL(window.location.href);
+        url.searchParams.delete("restore");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+
+    void autoCloudSave();
+  }, [data, searchParams]);
 
   const persistDraft = () => {
     if (!data) return false;
@@ -511,6 +572,8 @@ export default function InvoicePreviewPage() {
           onShared={(token) => setShareToken(token)}
         />
       )}
+
+      <UploadToast message={toastMessage} visible={showToast} />
     </>
   );
 }

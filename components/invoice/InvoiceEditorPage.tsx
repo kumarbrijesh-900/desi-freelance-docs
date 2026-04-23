@@ -7,6 +7,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
+  Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
@@ -56,6 +57,7 @@ import {
   loadProfile,
   profileToAgencyDetails,
   profileToPaymentDefaults,
+  syncProfileFromInvoice,
 } from "@/lib/supabase/profiles";
 import {
   getInvoiceFieldErrors,
@@ -647,6 +649,14 @@ function InlineStepSection({
 }
 
 export default function InvoiceEditorPage() {
+  return (
+    <Suspense fallback={<div>Loading editor...</div>}>
+      <EditorContent />
+    </Suspense>
+  );
+}
+
+function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -803,6 +813,9 @@ export default function InvoiceEditorPage() {
       });
 
       if (!error) {
+        // NEW: Sync profile details from this restored draft
+        await syncProfileFromInvoice(formData);
+        
         triggerToast("Draft saved to cloud ☁ Welcome back!");
         playInteractionCue("saveSuccess");
         // Clean up URL without reloading

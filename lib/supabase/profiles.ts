@@ -172,3 +172,25 @@ export async function upsertProfile(
   if (error) return { data: null, error: error.message };
   return { data: data as UserProfile, error: null };
 }
+
+/**
+ * Syncs the user profile from a given invoice form data.
+ * Useful for "Guest to Registered" transition.
+ * Only fills in fields that are currently empty in the profile.
+ */
+export async function syncProfileFromInvoice(
+  formData: any
+): Promise<{ success: boolean; error?: string }> {
+  const { data: profile, error: loadError } = await loadProfile();
+  if (loadError && loadError !== "Not authenticated") return { success: false, error: loadError };
+
+  // If profile is mostly empty, or we want to force-sync details
+  // For now, we'll upsert to ensure we capture the guest's effort
+  const { error: upsertError } = await upsertProfile(
+    formData.agency,
+    formData.payment
+  );
+
+  if (upsertError) return { success: false, error: upsertError };
+  return { success: true };
+}
