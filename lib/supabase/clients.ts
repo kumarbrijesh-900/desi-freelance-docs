@@ -74,7 +74,7 @@ export function clientDetailsToRow(
     client_currency: details.clientCurrency || "",
     gstin: details.clientGstin || "",
     client_type: details.clientLocation || "domestic",
-    sez_status: details.isClientSezUnit || "",
+    sez_status: details.isClientSezUnit || "no",
     updated_at: new Date().toISOString(),
   };
 }
