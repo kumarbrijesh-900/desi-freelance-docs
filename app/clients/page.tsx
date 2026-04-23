@@ -446,10 +446,13 @@ export default function ClientsPage() {
   const handleDelete = async (client: SavedClient) => {
     if (!confirm(`Delete "${client.client_name}"? This also removes their MSAs.`)) return;
     const { error } = await deleteClient(client.id);
-    if (!error) {
-      playInteractionCue("saveSuccess");
-      setClients((prev) => prev.filter((c) => c.id !== client.id));
+    if (error) {
+      console.error("Failed to delete client:", error);
+      alert(`Delete failed: ${error}`);
+      return;
     }
+    playInteractionCue("saveSuccess");
+    setClients((prev) => prev.filter((c) => c.id !== client.id));
   };
 
   const handleCancel = () => {
