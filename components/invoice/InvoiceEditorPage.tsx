@@ -2128,7 +2128,7 @@ function EditorContent() {
             <button
               type="button"
               onClick={handlePreviewInvoice}
-              disabled={!invoiceReadyForPreview}
+              disabled={false}
               aria-label={
                 invoiceReadyForPreview
                   ? "Preview and download your invoice"

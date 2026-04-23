@@ -125,9 +125,10 @@ export function getInvoiceFieldErrors(
 
   if (
     !isInternationalClient(formData.client) &&
+    isAgencyGstRegistered(formData.agency) &&
     isBlank(formData.client.clientState)
   ) {
-    errors.client.clientState = "Client state is required for domestic invoices.";
+    errors.client.clientState = "Client state is required for domestic GST invoices.";
   }
 
   if (
