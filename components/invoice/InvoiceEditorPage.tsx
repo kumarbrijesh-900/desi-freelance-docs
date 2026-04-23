@@ -8,7 +8,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
@@ -45,6 +45,8 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
+import { getCurrentUserId, saveInvoice } from "@/lib/supabase/invoices";
+import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import {
   convertInrToApproximateUsd,
   getInvoiceDisplayCurrency,
@@ -646,6 +648,7 @@ function InlineStepSection({
 
 export default function InvoiceEditorPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState<InvoiceFormData>(() =>
     mergeInvoiceFormData(defaultInvoiceFormData)
@@ -783,6 +786,35 @@ export default function InvoiceEditorPage() {
       }
     };
   }, []);
+
+  /* ── Auto cloud-save after login redirect (restore=1) ── */
+  useEffect(() => {
+    if (!isBootstrapped) return;
+    if (searchParams.get("restore") !== "1") return;
+
+    async function autoCloudSave() {
+      const userId = await getCurrentUserId();
+      if (!userId) return;
+
+      const { error } = await saveInvoice({
+        formData,
+        status: "draft" as InvoiceStatus,
+        existingId: undefined,
+      });
+
+      if (!error) {
+        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        playInteractionCue("saveSuccess");
+        // Clean up URL without reloading
+        const url = new URL(window.location.href);
+        url.searchParams.delete("restore");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+
+    void autoCloudSave();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBootstrapped]);
 
   /* ── Profile auto-fill: load saved agency when starting fresh ── */
   useEffect(() => {
@@ -1314,8 +1346,36 @@ export default function InvoiceEditorPage() {
     }
   };
 
-  const handleSaveDraft = () => {
-    performSaveDraft();
+  const handleSaveDraft = async () => {
+    // Always persist locally first — survives login redirect
+    persistDraft();
+
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      // Not logged in — send to login with restore flag
+      const returnUrl = `/invoice/new?restore=1`;
+      router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+
+    // Logged in — cloud-save as draft
+    try {
+      const { error } = await saveInvoice({
+        formData,
+        status: "draft" as InvoiceStatus,
+        existingId: undefined,
+      });
+      if (!error) {
+        triggerToast("Draft saved to cloud ☁");
+        playInteractionCue("saveSuccess");
+      } else {
+        triggerToast("Saved locally (cloud save failed)");
+        playInteractionCue("saveSuccess");
+      }
+    } catch {
+      triggerToast("Saved locally");
+    }
   };
 
   const handleLoadDemoData = () => {

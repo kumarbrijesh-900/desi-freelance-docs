@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { MotionReveal, motion } from "@/components/ui/motion-primitives";
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
@@ -15,16 +17,53 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export default function LoginPage() {
+/* ─── Inner component reads search params ─── */
+function LoginCard() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/";
+  const isRestoring = next.includes("restore");
+
   const handleGoogleLogin = async () => {
+    const redirectTo = `${window.location.origin}${next}`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}`,
-      },
+      options: { redirectTo },
     });
   };
 
+  return (
+    <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
+      <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+        {isRestoring ? "Your draft is safe" : "Get started"}
+      </h2>
+      <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
+        {isRestoring
+          ? "Sign in to save your draft to the cloud. We'll restore exactly where you left off."
+          : "Sign in to create your first invoice."}
+      </p>
+
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        className={`mt-6 ${getAppButtonClass({
+          variant: "secondary",
+          size: "lg",
+          fullWidth: true,
+        })} hover:!border-[color:var(--border-strong)] hover:!shadow-[0_4px_16px_rgba(17,17,24,0.06)]`}
+      >
+        <GoogleIcon className="h-5 w-5" />
+        Continue with Google
+      </button>
+
+      <p className="mt-4 text-[11px] leading-4 text-[color:var(--text-soft)]">
+        By continuing, you agree to our Terms and Privacy Policy.
+      </p>
+    </div>
+  );
+}
+
+/* ─── Page ─── */
+export default function LoginPage() {
   return (
     <main className="relative min-h-screen overflow-hidden">
       {/* Subtle gradient accent */}
@@ -63,31 +102,16 @@ export default function LoginPage() {
         </MotionReveal>
 
         <MotionReveal preset="fade-up" delay={200}>
-          <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
-            <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
-              Get started
-            </h2>
-            <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
-              Sign in to create your first invoice.
-            </p>
-
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              className={`mt-6 ${getAppButtonClass({
-                variant: "secondary",
-                size: "lg",
-                fullWidth: true,
-              })} hover:!border-[color:var(--border-strong)] hover:!shadow-[0_4px_16px_rgba(17,17,24,0.06)]`}
-            >
-              <GoogleIcon className="h-5 w-5" />
-              Continue with Google
-            </button>
-
-            <p className="mt-4 text-[11px] leading-4 text-[color:var(--text-soft)]">
-              By continuing, you agree to our Terms and Privacy Policy.
-            </p>
-          </div>
+          {/* Suspense required because useSearchParams needs it during SSR */}
+          <Suspense fallback={
+            <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
+              <h2 className="text-lg font-bold text-[color:var(--text-primary)]">Get started</h2>
+              <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">Sign in to create your first invoice.</p>
+              <div className="mt-6 h-11 rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
+            </div>
+          }>
+            <LoginCard />
+          </Suspense>
         </MotionReveal>
       </div>
     </main>
