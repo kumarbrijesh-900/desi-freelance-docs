@@ -316,14 +316,7 @@ function ClientForm({
         )}
 
         {/* Actions */}
-        <div className="mt-4 flex items-center gap-2">
-          <MotionButton
-            type="submit"
-            disabled={isSaving || !name.trim()}
-            className={getAppButtonClass({ variant: "primary", size: "sm" })}
-          >
-            {isSaving ? "Saving…" : initial ? "Update Client" : "Save Client"}
-          </MotionButton>
+        <div className="mt-4 flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
@@ -331,6 +324,13 @@ function ClientForm({
           >
             Cancel
           </button>
+          <MotionButton
+            type="submit"
+            disabled={isSaving || !name.trim()}
+            className={getAppButtonClass({ variant: "primary", size: "sm" })}
+          >
+            {isSaving ? "Saving…" : initial ? "Update Client" : "Save Client"}
+          </MotionButton>
         </div>
       </form>
     </motion.div>
@@ -550,15 +550,8 @@ export default function ClientsPage() {
                     No clients yet
                   </h2>
                   <p className="mt-1.5 max-w-md text-[13px] text-[color:var(--text-muted)]">
-                    Add your clients here to quickly fill their details when creating invoices.
+                    Add your clients here to quickly fill their details when creating invoices. Click <strong>&ldquo;Add Client&rdquo;</strong> above to get started.
                   </p>
-                  <MotionButton
-                    onClick={handleAddNew}
-                    className={`mt-5 ${getAppButtonClass({ variant: "primary" })}`}
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Add Your First Client
-                  </MotionButton>
                 </div>
               ) : clients.length > 0 ? (
                 /* Client table */
