@@ -41,7 +41,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           </p>
           {(data.showAgencyGstin || data.agencyPan) && (
             <div className="mt-1.5 flex gap-4 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
-              {data.agencyState && <span>{data.agencyState}</span>}
+              {data.agencyState && <span>{data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</span>}
               {data.showAgencyGstin && <span>GSTIN {data.agencyGstin}</span>}
               {data.agencyPan && <span>PAN {data.agencyPan}</span>}
             </div>
@@ -206,6 +206,24 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           {data.taxComplianceNote && (
             <p className="mt-1.5 text-[9px] text-[#A8DADC]">{data.taxComplianceNote}</p>
           )}
+        </div>
+      </section>
+
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="grid gap-4 border-t-[2px] border-t-[#1D3557] pt-3 lg:grid-cols-2 print:border-t-black">
+        {data.grandTotalRaw > 0 && (
+          <div>
+            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Amount in Words</p>
+            <p className="mt-1.5 text-[11px] font-semibold text-[#1D3557]">{data.amountInWords}</p>
+            <p className="mt-1 text-[9px] text-[#A8DADC]">Reverse Charge (RCM): <strong className="text-[#1D3557]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+          </div>
+        )}
+        <div>
+          <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Authorized Signatory</p>
+          <div className="mt-5 border-b-2 border-[#1D3557] pb-1">
+            <p className="text-[11px] font-medium text-[#457B9D]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[9px] text-[#A8DADC]">Signature</p>
         </div>
       </section>
     </div>

@@ -168,6 +168,24 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           )}
         </div>
       </section>
+
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="mt-4 grid gap-4 border-t border-[#E8E8F0] pt-4 lg:grid-cols-2">
+        {data.grandTotalRaw > 0 && (
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">Amount in Words</p>
+            <p className="mt-1.5 text-[12px] font-semibold text-[#1A1A2E]">{data.amountInWords}</p>
+            <p className="mt-1 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#1A1A2E]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+          </div>
+        )}
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">Authorized Signatory</p>
+          <div className="mt-6 border-b border-[#1A1A2E] pb-1">
+            <p className="text-[12px] font-medium text-[#666]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[10px] text-[#999]">Signature</p>
+        </div>
+      </section>
     </div>
   );
 }

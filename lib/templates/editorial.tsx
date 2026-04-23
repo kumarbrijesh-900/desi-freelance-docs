@@ -203,6 +203,24 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
           )}
         </div>
       </section>
+
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="mt-4 grid gap-4 border-t border-[#E0E0E0] pt-4 lg:grid-cols-2">
+        {data.grandTotalRaw > 0 && (
+          <div>
+            <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">Total Amount in Words</p>
+            <p className="mt-1 text-[12px] font-medium text-[#27272F]">{data.amountInWords}</p>
+            <p className="mt-1.5 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#27272F]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+          </div>
+        )}
+        <div>
+          <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">Authorized Signatory</p>
+          <div className="mt-6 border-b border-[#27272F] pb-1">
+            <p className="text-[12px] font-medium text-[#555]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[10px] text-[#999]">Signature</p>
+        </div>
+      </section>
     </div>
   );
 }

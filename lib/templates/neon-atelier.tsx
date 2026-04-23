@@ -47,7 +47,7 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
             </p>
             {(data.agencyState || data.showAgencyGstin) && (
               <div className="mt-2 flex gap-4 text-[10px] text-white/40 print:text-[#999]">
-                {data.agencyState && <span>State: {data.agencyState}</span>}
+                {data.agencyState && <span>State: {data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</span>}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
                 {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
               </div>
@@ -186,6 +186,24 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
           {data.taxComplianceNote && (
             <p className="mt-2 text-[10px] text-[#999]">{data.taxComplianceNote}</p>
           )}
+        </div>
+      </section>
+
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="grid gap-4 border-t border-[#E2E2EA] px-5 py-4 lg:grid-cols-2">
+        {data.grandTotalRaw > 0 && (
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Amount in Words</p>
+            <p className="mt-1.5 text-[12px] font-semibold text-[#111118]">{data.amountInWords}</p>
+            <p className="mt-1.5 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#111118]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+          </div>
+        )}
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Authorized Signatory</p>
+          <div className="mt-6 border-b border-[#111118] pb-1">
+            <p className="text-[12px] font-medium text-[#666]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[10px] text-[#999]">Signature</p>
         </div>
       </section>
     </div>

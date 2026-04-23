@@ -40,7 +40,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             </p>
             {(data.agencyState || data.showAgencyGstin) && (
               <div className="mt-1.5 flex flex-wrap gap-3 text-[10px] text-[#B09080]">
-                {data.agencyState && <span>State: {data.agencyState}</span>}
+                {data.agencyState && <span>State: {data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</span>}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
                 {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
               </div>
@@ -166,7 +166,25 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         </div>
       </section>
 
-      {/* ── Warm footer ──────────────────────── */}
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="mt-4 grid gap-3 lg:grid-cols-2">
+        {data.grandTotalRaw > 0 && (
+          <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Amount in Words</p>
+            <p className="mt-1.5 text-[12px] font-semibold text-[#3D2517]">{data.amountInWords}</p>
+            <p className="mt-1.5 text-[10px] text-[#B09080]">Reverse Charge (RCM): <strong className="text-[#3D2517]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+          </div>
+        )}
+        <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Authorized Signatory</p>
+          <div className="mt-5 border-b border-[#3D2517] pb-1">
+            <p className="text-[12px] font-medium text-[#8B6F5E]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[10px] text-[#B09080]">Signature</p>
+        </div>
+      </section>
+
+      {/* ── Warm footer ────────────────────── */}
       <div className="mt-5 text-center text-[11px] italic text-[#C9B5A5]">
         Thank you for your patronage ✦
       </div>

@@ -43,7 +43,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           </p>
           {(data.agencyState || data.showAgencyGstin || data.agencyPan) && (
             <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[#888]">
-              {data.agencyState && <span>State: {data.agencyState}</span>}
+              {data.agencyState && <span>State: {data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</span>}
               {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
               {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
             </div>
@@ -87,7 +87,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1.5 text-[15px] font-semibold">{data.agencyName}</p>
           <p className="mt-1.5 whitespace-pre-line text-[13px] leading-5 text-[#555]">{data.agencyAddress}</p>
           {data.agencyState && (
-            <p className="mt-1.5 text-[11px] text-[#888]">State: {data.agencyState}</p>
+            <p className="mt-1.5 text-[11px] text-[#888]">State: {data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</p>
           )}
         </div>
 
@@ -96,7 +96,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1.5 text-[15px] font-semibold">{data.clientName}</p>
           <p className="mt-1.5 whitespace-pre-line text-[13px] leading-5 text-[#555]">{data.clientAddress}</p>
           {!data.isInternational && data.clientState && (
-            <p className="mt-1.5 text-[11px] text-[#888]">State: {data.clientState}</p>
+            <p className="mt-1.5 text-[11px] text-[#888]">State: {data.clientState}{data.clientStateCode ? ` (${data.clientStateCode})` : ""}</p>
           )}
           {data.isInternational && data.clientCountry && (
             <p className="mt-1.5 text-[11px] text-[#888]">Country: {data.clientCountry}</p>
@@ -233,6 +233,29 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               <p className="border-t border-[#E2E2EA] pt-2 text-[11px] text-[#888]">{data.taxComplianceNote}</p>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* ── Compliance Footer ──────────────────── */}
+      <section className="grid gap-4 border-t border-[#E2E2EA] py-4 lg:grid-cols-2 lg:items-start">
+        {/* Amount in Words */}
+        {data.grandTotalRaw > 0 && (
+          <div className="border border-[#E2E2EA] px-4 py-3">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#6E6E7A]">Total Amount in Words</p>
+            <p className="mt-1.5 text-[13px] font-semibold leading-5 text-[#111118]">{data.amountInWords}</p>
+            <div className="mt-2 flex items-center gap-3 border-t border-[#F0F0F2] pt-2 text-[11px] text-[#888]">
+              <span>Reverse Charge (RCM): <strong className="font-semibold text-[#111118]">{data.reverseCharge ? "Yes" : "No"}</strong></span>
+            </div>
+          </div>
+        )}
+
+        {/* Authorized Signatory */}
+        <div className="border border-[#E2E2EA] px-4 py-3">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#6E6E7A]">Authorized Signatory</p>
+          <div className="mt-6 border-b border-[#111118] pb-1">
+            <p className="text-[13px] font-medium text-[#555]">{data.authorizedSignatory || data.agencyName}</p>
+          </div>
+          <p className="mt-1 text-[10px] text-[#888]">Signature</p>
         </div>
       </section>
     </div>
