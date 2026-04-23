@@ -252,6 +252,10 @@ function PreviewContent() {
       if (!error && saved) {
         setCloudInvoiceId(saved.id);
         setSaveState("cloud-saved");
+
+        // Sync profile details from this draft
+        await syncProfileFromInvoice(data);
+
         playInteractionCue("saveSuccess");
         return;
       }

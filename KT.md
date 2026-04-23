@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phase 9e complete — Digital Signature, Profile Sync, Onboarding Banner)
+> **Last Updated:** 2026-04-23 (Session: Phase 9f complete — File Uploads, Supabase Storage Integration)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -389,6 +389,12 @@ tests/
 - **Auto-Population:** Profile assets are now automatically pulled into the "New Invoice" form and all template renders.
 - **Complete Profile Banner:** Added an onboarding banner in the Invoice Editor and Preview screens for logged-in users who are missing professional assets.
 - **Database Schema Extension:** Added `signature_url` to the `user_profiles` table logic.
+
+### Phase 9f — Supabase Storage & File Uploads
+- **Direct File Uploads:** Replaced URL-only fields in the Profile Dashboard with `ImageUploadField` components.
+- **Supabase Storage Integration:** Implemented `lib/supabase/storage.ts` to handle binary uploads to the `professional-assets` bucket.
+- **Automatic Profile Sync:** Updated `handleSaveDraft` in the Preview page to automatically sync the user's master profile whenever they save an invoice draft, ensuring professional assets are captured immediately.
+- **Unified Asset Management:** Logo, Signature, and QR codes now support both direct URL entry and native file selection with automatic cloud hosting.
 
 ### Known Issues
 - **Share Button:** Temporarily hidden in Preview (requires subscription/billing logic implementation).

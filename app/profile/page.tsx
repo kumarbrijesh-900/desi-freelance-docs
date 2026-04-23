@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import { MotionReveal, MotionButton, SuccessPulse } from "@/components/ui/motion-primitives";
@@ -34,6 +34,7 @@ import {
 } from "@/lib/supabase/profiles";
 import { supabase } from "@/lib/supabase/client";
 import { playInteractionCue } from "@/lib/interaction-feedback";
+import { uploadProfessionalAsset } from "@/lib/supabase/storage";
 import type { AgencyDetails, PaymentDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 
@@ -84,9 +85,10 @@ function FieldRow({
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "success">("idle");
+  const [userId, setUserId] = useState<string>("");
 
-  // Agency fields
+  // Form Fields - Agency fields
   const [agencyName, setAgencyName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
@@ -118,6 +120,7 @@ export default function ProfilePage() {
         return;
       }
       setIsAuthenticated(true);
+      setUserId(user.id);
 
       const { data: profile } = await loadProfile();
       if (profile) {
@@ -144,6 +147,98 @@ export default function ProfilePage() {
     }
     init();
   }, []);
+
+  const fc = getAppFieldClass;
+
+  /* ── Image Upload Helper ────────────────────────── */
+  const ImageUploadField = ({ 
+    label, 
+    helper, 
+    value, 
+    onUrlChange, 
+    folder 
+  }: { 
+    label: string; 
+    helper: string; 
+    value: string; 
+    onUrlChange: (url: string) => void;
+    folder: string;
+  }) => {
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !userId) return;
+
+      setIsUploading(true);
+      const fileName = `${folder}/${userId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+      const { url, error } = await uploadProfessionalAsset(file, fileName);
+      
+      if (url) {
+        onUrlChange(url);
+      } else if (error) {
+        alert("Upload failed: " + error);
+      }
+      setIsUploading(false);
+    };
+
+    return (
+      <div className="sm:col-span-2">
+        <FieldRow label={label} helper={helper}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="url"
+                  value={value}
+                  onChange={(e) => onUrlChange(e.target.value)}
+                  placeholder="Paste URL or upload image"
+                  className={fc({ hasValue: Boolean(value) })}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex h-[42px] shrink-0 items-center justify-center gap-2 rounded-md border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-4 text-sm font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-surface-soft)] transition-colors disabled:opacity-50"
+              >
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
+                    <span>Uploading...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>Upload File</span>
+                  </>
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+            {value && (
+              <div className="relative group w-20 h-20 rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] overflow-hidden transition-all hover:border-[color:var(--interactive-primary)]">
+                <img src={value} alt={label} className="w-full h-full object-contain" />
+                <button 
+                  type="button"
+                  onClick={() => onUrlChange("")}
+                  className="absolute top-1 right-1 bg-[color:var(--bg-canvas)]/80 text-[color:var(--text-primary)] rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+        </FieldRow>
+      </div>
+    );
+  };
 
   const handleSave = async () => {
     setSaveState("saving");
@@ -185,7 +280,7 @@ export default function ProfilePage() {
       return;
     }
 
-    setSaveState("saved");
+    setSaveState("success");
     playInteractionCue("saveSuccess");
     setTimeout(() => setSaveState("idle"), 2500);
   };
@@ -216,8 +311,6 @@ export default function ProfilePage() {
     );
   }
 
-  const fc = getAppFieldClass;
-
   return (
     <main className={appPageShellClass}>
       <AppHeader
@@ -229,7 +322,7 @@ export default function ProfilePage() {
           >
             {saveState === "saving" ? (
               "Saving…"
-            ) : saveState === "saved" ? (
+            ) : saveState === "success" ? (
               <SuccessPulse>✓ Saved!</SuccessPulse>
             ) : (
               <>
@@ -373,29 +466,21 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
 
-                  <div className="sm:col-span-2">
-                    <FieldRow label="Logo URL" helper="Direct link to your logo image (PNG, SVG, 1:1 recommended)">
-                      <input
-                        type="url"
-                        value={logoUrl}
-                        onChange={(e) => setLogoUrl(e.target.value)}
-                        placeholder="https://example.com/logo.png"
-                        className={fc({ hasValue: Boolean(logoUrl) })}
-                      />
-                    </FieldRow>
-                  </div>
+                  <ImageUploadField 
+                    label="Logo" 
+                    helper="Direct link or upload your logo (PNG, SVG, 1:1 recommended)"
+                    value={logoUrl}
+                    onUrlChange={setLogoUrl}
+                    folder="logos"
+                  />
 
-                  <div className="sm:col-span-2">
-                    <FieldRow label="Digital Signature URL" helper="Link to your signature image (PNG with transparent background recommended)">
-                      <input
-                        type="url"
-                        value={signatureUrl}
-                        onChange={(e) => setSignatureUrl(e.target.value)}
-                        placeholder="https://example.com/signature.png"
-                        className={fc({ hasValue: Boolean(signatureUrl) })}
-                      />
-                    </FieldRow>
-                  </div>
+                  <ImageUploadField 
+                    label="Digital Signature" 
+                    helper="Direct link or upload your signature image (PNG with transparent background recommended)"
+                    value={signatureUrl}
+                    onUrlChange={setSignatureUrl}
+                    folder="signatures"
+                  />
                 </div>
               </div>
             </MotionReveal>
@@ -450,6 +535,14 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
 
+                  <ImageUploadField 
+                    label="Payment QR Code" 
+                    helper="Direct link or upload your UPI / Payment QR code image"
+                    value={qrCodeUrl}
+                    onUrlChange={setQrCodeUrl}
+                    folder="qrcodes"
+                  />
+
                   <div className="sm:col-span-2">
                     <FieldRow label="Bank Address" helper="For international payments (SWIFT transfers)">
                       <input
@@ -471,16 +564,6 @@ export default function ProfilePage() {
                       className={fc({ hasValue: Boolean(swiftBicCode) })}
                     />
                   </FieldRow>
-
-                  <FieldRow label="UPI / QR Code URL" helper="Link to your UPI QR image">
-                    <input
-                      type="url"
-                      value={qrCodeUrl}
-                      onChange={(e) => setQrCodeUrl(e.target.value)}
-                      placeholder="https://..."
-                      className={fc({ hasValue: Boolean(qrCodeUrl) })}
-                    />
-                  </FieldRow>
                 </div>
               </div>
             </MotionReveal>
@@ -493,7 +576,7 @@ export default function ProfilePage() {
                   disabled={saveState === "saving"}
                   className={getAppButtonClass({ variant: "primary", fullWidth: true })}
                 >
-                  {saveState === "saving" ? "Saving…" : saveState === "saved" ? "✓ Saved!" : "Save Profile"}
+                  {saveState === "saving" ? "Saving…" : saveState === "success" ? "✓ Saved!" : "Save Profile"}
                 </MotionButton>
               </div>
             </MotionReveal>
