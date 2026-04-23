@@ -69,18 +69,19 @@ export default function ClientDetailsSection({
   const effectiveClients = savedClients && savedClients.length > 0 ? savedClients : internalClients;
 
   // Fetch clients if none were passed in (fallback)
-  useEffect(() => {
-    if (!savedClients || savedClients.length === 0) {
-      listClients().then(({ data, error }) => {
-        if (error) {
-          console.error("CLIENT_FETCH_ERROR:", error);
-        }
-        if (data) {
-          console.log("CLIENT_FETCH_SUCCESS: Found", data.length, "clients");
-          setInternalClients(data);
-        }
-      });
+  const performSafetyFetch = async () => {
+    if (effectiveClients.length === 0) {
+      const { data, error } = await listClients();
+      if (error) console.error("🚨 DROPDOWN_ERROR:", error);
+      if (data && data.length > 0) {
+        console.log("🚨 DROPDOWN_DEBUG: Safety fetch found", data.length, "clients");
+        setInternalClients(data);
+      }
     }
+  };
+
+  useEffect(() => {
+    performSafetyFetch();
   }, [savedClients]);
 
   const filteredClients = effectiveClients.filter((c) =>
@@ -219,7 +220,10 @@ export default function ClientDetailsSection({
                 // Delay hiding suggestions so click can register
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
-              onFocus={() => setShowSuggestions(true)}
+              onFocus={() => {
+                setShowSuggestions(true);
+                performSafetyFetch();
+              }}
               placeholder="Client or company name"
               className={inputClass(
                 clientNameError,
