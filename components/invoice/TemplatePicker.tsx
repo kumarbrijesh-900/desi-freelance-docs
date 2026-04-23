@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   TEMPLATE_REGISTRY,
   getTemplateLockState,
@@ -148,25 +149,27 @@ function ThumbnailCard({
   lockState: "unlocked" | "blurred" | "locked";
   onSelect: () => void;
 }) {
-  const isClickable = lockState === "unlocked";
+  const isBlurred = lockState === "blurred";
+  const isLocked = lockState === "locked";
+  const isClickable = !isBlurred && !isLocked;
 
   return (
     <button
       type="button"
-      onClick={isClickable ? onSelect : undefined}
+      onClick={onSelect}
       className={`
         group relative flex w-full flex-col overflow-hidden rounded-md border
         transition-all duration-200
         ${
           isSelected
             ? "border-[color:var(--color-lime-700)] ring-2 ring-[color:var(--color-lime-700)]/20 shadow-sm"
-            : isClickable
+            : !isBlurred && !isLocked
               ? "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)] hover:shadow-sm"
               : "border-[color:var(--border-subtle)]"
         }
-        ${isClickable ? "cursor-pointer" : "cursor-default"}
+        cursor-pointer
       `}
-      title={`${template.name}${lockState !== "unlocked" ? " (Pro)" : ""}`}
+      title={`${template.name}${lockState !== "unlocked" ? " (Requires Login)" : ""}`}
     >
       {/* Preview area — compact aspect ratio */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-[color:var(--bg-surface-muted)]">
@@ -232,9 +235,20 @@ export default function TemplatePicker({
   userTier,
   layout = "vertical",
 }: TemplatePickerProps) {
+  const router = useRouter();
   const sortedTemplates = [...TEMPLATE_REGISTRY].sort(
     (a, b) => a.order - b.order
   );
+
+  const handleTemplateClick = (templateId: string, lockState: string) => {
+    if (lockState === "blurred" || lockState === "locked") {
+      // Redirect to login if user clicks a locked template
+      const returnUrl = window.location.pathname + window.location.search;
+      router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+    onSelect(templateId);
+  };
 
   const isHorizontal = layout === "horizontal";
 
@@ -267,7 +281,7 @@ export default function TemplatePicker({
                 template={template}
                 isSelected={selectedId === template.id}
                 lockState={lockState}
-                onSelect={() => onSelect(template.id)}
+                onSelect={() => handleTemplateClick(template.id, lockState)}
               />
             </div>
           );
@@ -275,10 +289,10 @@ export default function TemplatePicker({
       </div>
 
       {/* Upgrade hint */}
-      {userTier !== "pro" && (
+      {userTier === "visitor" && (
         <div className={`rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}>
           <p className="text-[9px] font-semibold text-amber-700">
-            ✦ Upgrade to unlock all templates
+            ✦ Sign in to unlock all templates
           </p>
         </div>
       )}

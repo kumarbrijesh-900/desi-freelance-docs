@@ -7,8 +7,7 @@
  *
  * Access tiers:
  * - "free"    → available to everyone
- * - "pro"     → locked for visitors (blurred), visible but locked for
- *               free-tier registered users, unlocked for pro subscribers
+ * - "pro"    → locked for visitors (blurred), unlocked for all registered users (Free or Pro)
  */
 
 export type TemplateTier = "free" | "pro";
@@ -102,7 +101,7 @@ export function isTemplateLocked(
   const template = getTemplateById(templateId);
   if (!template) return true;
   if (template.tier === "free") return false;
-  return userTier !== "pro";
+  return userTier === "visitor";
 }
 
 export function getTemplateLockState(
@@ -115,9 +114,8 @@ export function getTemplateLockState(
 
   switch (userTier) {
     case "pro":
-      return "unlocked";
     case "free":
-      return "locked"; // visible but locked (can see but not use)
+      return "unlocked";
     case "visitor":
       return "blurred"; // blurred preview
     default:
