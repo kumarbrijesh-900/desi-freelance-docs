@@ -1712,6 +1712,18 @@ function EditorContent() {
     }));
   };
 
+  const updateFormSection = <K extends keyof InvoiceFormData>(
+    section: K,
+    data: InvoiceFormData[K]
+  ) => {
+    setFormData((prev) =>
+      mergeInvoiceFormData({
+        ...prev,
+        [section]: data,
+      })
+    );
+  };
+
   const renderStepContent = (step: InvoiceStepperStep) => {
     switch (step) {
       case "agency":
@@ -1719,14 +1731,7 @@ function EditorContent() {
           <AgencyDetailsSection
             embedded
             value={formData.agency}
-            onChange={(agency) =>
-              setFormData((prev) =>
-                mergeInvoiceFormData({
-                  ...prev,
-                  agency,
-                })
-              )
-            }
+            onChange={(agency) => updateFormSection("agency", agency)}
             errors={fieldErrors.agency}
             showAllErrors={showAllValidationErrors}
           />
