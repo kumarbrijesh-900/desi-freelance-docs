@@ -1,0 +1,256 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Inter:wght@400;600&display=swap');
+  
+  .studio-pro {
+    background: #FAF9F6;
+    color: #111118;
+    font-family: 'Inter', sans-serif;
+    padding: 60px;
+    max-width: 850px;
+    margin: 0 auto;
+    position: relative;
+    border: 1px solid #e8e6e1;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+
+  .outfit { font-family: 'Outfit', sans-serif; }
+  
+  /* Geometric Power Accents */
+  .header-corner {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 380px;
+    height: 240px;
+    background: #2D5BFF; /* Electric Cobalt */
+    transform: rotate(2deg);
+    z-index: 0;
+  }
+
+  .accent-line-coral {
+    width: 80px;
+    height: 8px;
+    background: #FF725E; /* Vivid Coral */
+    margin-bottom: 20px;
+  }
+
+  .floating-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #00C896; /* Modern Teal */
+    position: absolute;
+    top: 60px;
+    left: 40px;
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+
+  .invoice-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 85px;
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    color: #111118;
+    margin-bottom: 10px;
+  }
+
+  .tag-obsidian {
+    background: #111118;
+    color: white;
+    padding: 8px 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    display: inline-block;
+  }
+
+  .party-card {
+    background: white;
+    border: 1px solid #eee;
+    padding: 30px;
+    border-left: 6px solid #00C896; /* Teal accent */
+  }
+
+  .label-mono {
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-weight: 800;
+    color: #A8A08E;
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  .item-table th {
+    text-align: left;
+    padding: 20px 15px;
+    background: #111118;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  .item-table td {
+    padding: 25px 15px;
+    border-bottom: 2px solid #f0f0f5;
+    font-size: 14px;
+  }
+
+  .total-block {
+    background: #2D5BFF;
+    color: white;
+    padding: 40px;
+    min-width: 350px;
+    text-align: right;
+    position: relative;
+  }
+
+  .total-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+    transform: translate(30%, 30%);
+  }
+
+  .grand-total {
+    font-family: 'Outfit', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 15px;
+    letter-spacing: -0.02em;
+  }
+</style>
+
+<h2>Design Direction: Studio Pro</h2>
+<p class="subtitle">Elevating the Geometric look with a vibrant "Creative Agency" color palette and modern bento-style highlights.</p>
+
+<div class="studio-pro">
+  <div class="header-corner"></div>
+  <div class="floating-dot"></div>
+
+  <div class="content-wrapper">
+    <!-- Top Nav-like Header -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 120px; align-items: flex-start;">
+      <div>
+        <div class="accent-line-coral"></div>
+        <div class="outfit" style="font-size: 38px; font-weight: 900; line-height: 1; color: #111118;">LANCE<br>STUDIO.</div>
+        <p style="font-size: 12px; color: #666; margin-top: 15px; max-width: 250px; line-height: 1.6;">
+          Creative Production & Strategy<br>
+          GSTIN: 29AAAAA0000A1Z5 · Bengaluru, KA
+        </p>
+      </div>
+      <div style="text-align: right; color: white; padding-top: 20px;">
+        <span class="label-mono" style="color: rgba(255,255,255,0.5);">Invoice Cycle</span>
+        <div class="outfit" style="font-size: 20px; font-weight: 700; letter-spacing: 0.05em;">APR 2026 / Q2</div>
+        <div style="margin-top: 25px; background: rgba(0,0,0,0.1); padding: 10px 15px; display: inline-block;">
+          <span class="label-mono" style="color: rgba(255,255,255,0.7); margin-bottom: 5px;">Payment Due</span>
+          <div class="outfit" style="font-size: 16px; font-weight: 700;">MAY 08, 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Impact Title -->
+    <div style="margin-bottom: 70px;">
+      <h1 class="invoice-label">INVOICE.</h1>
+      <div class="tag-obsidian">REF: #2026-046-PRO</div>
+    </div>
+
+    <!-- Parties Grid -->
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; margin-bottom: 70px;">
+      <div class="party-card">
+        <span class="label-mono">Billed to Client</span>
+        <div class="outfit" style="font-size: 28px; font-weight: 800; color: #111118; margin-bottom: 8px;">Acme Corporation</div>
+        <p style="font-size: 13px; color: #666; line-height: 1.6;">
+          99 Corporate Way, Tech Park North<br>
+          San Francisco, California 94105, USA
+        </p>
+      </div>
+      <div style="padding-top: 30px;">
+        <div style="border-top: 4px solid #111118; padding-top: 20px;">
+          <span class="label-mono">Project Milestone</span>
+          <div class="outfit" style="font-size: 18px; font-weight: 700; color: #2D5BFF;">Identity System v2.0</div>
+          <p style="font-size: 12px; color: #999; margin-top: 5px;">Contract DS-2026-ALPHA</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 50px;" class="item-table">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Deliverable</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="outfit" style="font-weight: 800; font-size: 18px;">Visual Identity & Strategy</div>
+            <div style="font-size: 11px; color: #888; margin-top: 6px;">Includes full asset library and brand guidelines PDF.</div>
+          </td>
+          <td style="text-align: center; font-weight: 700; font-family: monospace;">1.0</td>
+          <td style="text-align: right; font-weight: 800; font-size: 18px;">₹1,30,000.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Totals Area -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+       <div style="font-size: 11px; color: #666; padding-bottom: 10px;">
+          <span class="label-mono">Payment Logic</span>
+          Reverse Charge (RCM): <strong style="color: #111118;">No</strong><br>
+          Status: <strong style="color: #FF725E;">DRAFT</strong>
+       </div>
+       <div style="display: flex; align-items: stretch;">
+          <div style="text-align: right; background: #f8f8fa; padding: 30px 40px; border: 1px solid #eee;">
+            <div style="font-size: 13px; color: #888; margin-bottom: 10px;">Subtotal: ₹1,30,000</div>
+            <div style="font-size: 13px; color: #888;">Tax (18%): ₹23,400</div>
+          </div>
+          <div class="total-block">
+            <span class="label-mono" style="color: rgba(255,255,255,0.4);">Amount Due</span>
+            <div class="grand-total">₹1,53,400</div>
+          </div>
+       </div>
+    </div>
+
+    <!-- Final Footer -->
+    <div style="margin-top: 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
+      <div style="background: white; border: 1px solid #eee; padding: 20px; border-top: 4px solid #FF725E;">
+        <span class="label-mono" style="color: #FF725E;">Direct Transfer</span>
+        <div style="font-size: 12px; color: #555; margin-top: 8px;">
+          <strong style="color: #111118;">HDFC BANK LTD</strong><br>
+          A/C: 50200012345678 · IFSC: HDFC0000001
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="margin-bottom: 15px;">
+           <span class="label-mono">Authorized Signatory</span>
+           <div class="outfit" style="font-size: 26px; font-weight: 900; letter-spacing: -0.04em;">B Kumar</div>
+        </div>
+        <p style="font-size: 9px; color: #bbb; text-transform: uppercase; letter-spacing: 0.15em;">© 2026 Lance Creative Studio. All Rights Reserved.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="text-align: center; margin-top: 40px;">
+  <button class="mock-button" onclick="toggleSelect(this)" data-choice="approve-pro">THIS IS IT. THE PERFECT DESIGN.</button>
+</div>

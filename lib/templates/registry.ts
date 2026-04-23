@@ -50,10 +50,10 @@ export const TEMPLATE_REGISTRY: TemplateMetadata[] = [
   },
   {
     id: "neon-atelier",
-    name: "Neon Atelier",
-    description: "Fluorescent lime on dark — the signature Lance look",
+    name: "Studio Pro",
+    description: "Contemporary geometric design with architectural accents",
     tier: "pro",
-    palette: { primary: "#BEFF00", secondary: "#111118", text: "#F8F8FA" },
+    palette: { primary: "#2D5BFF", secondary: "#FAF9F6", text: "#111118" },
     order: 3,
   },
   {

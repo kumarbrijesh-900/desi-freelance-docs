@@ -91,6 +91,10 @@ export interface TemplateData {
   reverseCharge: boolean;
   authorizedSignatory: string;
   signatureUrl: string;
+
+  /* ── Extra UI Meta ──────────────────────── */
+  isDraft: boolean;
+  projectName: string;
 }
 
 /* ─── Template component interface ───────────────── */

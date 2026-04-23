@@ -1,0 +1,228 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Inter:wght@400;600&display=swap');
+  
+  .studio-pro-a4 {
+    background: #FFF;
+    color: #111118;
+    font-family: 'Inter', sans-serif;
+    width: 210mm; /* A4 Width */
+    min-height: 297mm; /* A4 Height */
+    padding: 20mm; /* Standard Print Margins */
+    margin: 20px auto;
+    position: relative;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  .outfit { font-family: 'Outfit', sans-serif; }
+  
+  /* A4-Optimized Geometry (No Bleed) */
+  .header-accent {
+    position: absolute;
+    top: 0;
+    right: 20mm;
+    width: 280px;
+    height: 180px;
+    background: #2D5BFF;
+    z-index: 0;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .coral-bar {
+    width: 60px;
+    height: 6px;
+    background: #FF725E;
+    margin-bottom: 15px;
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+
+  .invoice-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    color: #111118;
+    margin-bottom: 8px;
+  }
+
+  .tag-black {
+    background: #111118;
+    color: white;
+    padding: 6px 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    display: inline-block;
+  }
+
+  .party-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30mm;
+    margin-bottom: 50px;
+  }
+
+  .label-mono {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-weight: 800;
+    color: #A8A08E;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .item-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+  }
+
+  .item-table th {
+    text-align: left;
+    padding: 15px;
+    background: #111118;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+
+  .item-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+  }
+
+  .total-card-a4 {
+    background: #2D5BFF;
+    color: white;
+    padding: 30px;
+    text-align: right;
+    min-width: 250px;
+  }
+
+  .grand-total {
+    font-family: 'Outfit', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 10px;
+  }
+</style>
+
+<h2>Final Design: Studio Pro (A4 Optimized)</h2>
+<p class="subtitle">Ensuring the modern geometric design fits perfectly within standard A4 dimensions for perfect printing and PDF export.</p>
+
+<div class="studio-pro-a4">
+  <div class="header-accent"></div>
+
+  <div class="content-wrapper">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 80px;">
+      <div>
+        <div class="coral-bar"></div>
+        <div class="outfit" style="font-size: 32px; font-weight: 900; line-height: 1;">LANCE<br>STUDIO.</div>
+        <p style="font-size: 11px; color: #666; margin-top: 12px; line-height: 1.5; max-width: 200px;">
+          Digital Production Agency<br>
+          GSTIN: 29AAAAA0000A1Z5<br>
+          Bengaluru, India
+        </p>
+      </div>
+      <div style="text-align: right; color: white; padding-top: 15px;">
+        <span class="label-mono" style="color: rgba(255,255,255,0.5);">Reference</span>
+        <div class="outfit" style="font-size: 16px; font-weight: 700;">INV-2026-046</div>
+        <div style="margin-top: 20px;">
+          <span class="label-mono" style="color: rgba(255,255,255,0.5);">Payment Due</span>
+          <div class="outfit" style="font-size: 16px; font-weight: 700;">MAY 08, 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Impact ID -->
+    <div style="margin-bottom: 60px;">
+      <h1 class="invoice-label">INVOICE.</h1>
+      <div class="tag-black">STATUS: DRAFT</div>
+    </div>
+
+    <!-- Parties -->
+    <div class="party-grid">
+      <div style="border-left: 4px solid #00C896; padding-left: 20px;">
+        <span class="label-mono">Bill To</span>
+        <div class="outfit" style="font-size: 24px; font-weight: 800;">Acme Corporation</div>
+        <p style="font-size: 12px; color: #666; margin-top: 5px; line-height: 1.5;">
+          99 Corporate Way, Tech Park<br>
+          San Francisco, CA 94105
+        </p>
+      </div>
+      <div style="text-align: right;">
+        <span class="label-mono">Project</span>
+        <div class="outfit" style="font-size: 16px; font-weight: 700; color: #2D5BFF;">Identity System v2.0</div>
+        <p style="font-size: 11px; color: #999; margin-top: 4px;">Milestone: Final Delivery</p>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <table class="item-table">
+      <thead>
+        <tr>
+          <th style="width: 70%;">Deliverable Description</th>
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="outfit" style="font-weight: 800; font-size: 16px;">Visual Identity & Brand Strategy</div>
+            <div style="font-size: 11px; color: #888; margin-top: 4px;">Full asset library, Typography systems, and style guide.</div>
+          </td>
+          <td style="text-align: right; font-weight: 800; font-size: 16px;">₹1,30,000.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div style="display: flex; justify-content: flex-end; align-items: stretch;">
+      <div style="text-align: right; margin-right: 30px; padding-top: 15px;">
+        <div style="font-size: 12px; color: #888; margin-bottom: 5px;">Subtotal: ₹1,30,000</div>
+        <div style="font-size: 12px; color: #888;">GST (18%): ₹23,400</div>
+      </div>
+      <div class="total-card-a4">
+        <span class="label-mono" style="color: rgba(255,255,255,0.4);">Grand Total</span>
+        <div class="grand-total">₹1,53,400</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 60px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: flex-end;">
+      <div style="padding: 15px; border: 1px solid #eee; border-top: 4px solid #FF725E;">
+        <span class="label-mono" style="color: #FF725E;">Payment Method</span>
+        <div style="font-size: 11px; color: #555; margin-top: 5px;">
+          <strong style="color: #111;">HDFC BANK LTD</strong><br>
+          A/C: 50200012345678 · IFSC: HDFC0000001
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="margin-bottom: 15px;">
+           <span class="label-mono">Authorized</span>
+           <div class="outfit" style="font-size: 24px; font-weight: 900;">B Kumar</div>
+        </div>
+        <p style="font-size: 8px; color: #ccc; text-transform: uppercase; letter-spacing: 0.1em;">© 2026 Lance Creative Studio.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="text-align: center; margin-top: 40px;">
+  <button class="mock-button" onclick="toggleSelect(this)" data-choice="approve-a4">Final Approval: Let's ship it!</button>
+</div>

@@ -219,5 +219,8 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     reverseCharge: false,
     authorizedSignatory: formData.agency?.agencyName || "",
     signatureUrl: formData.agency?.signatureUrl || "",
+
+    isDraft: false,
+    projectName: formData.lineItems[0]?.description || "Project Invoice",
   };
 }

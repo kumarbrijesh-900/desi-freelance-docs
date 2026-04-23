@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Syne, DM_Sans, JetBrains_Mono, Outfit, Inter } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
@@ -7,6 +7,20 @@ const syne = Syne({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const dmSans = DM_Sans({
@@ -51,7 +65,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${syne.variable} ${outfit.variable} ${inter.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <head>
         <meta name="theme-color" content="#F8F8FA" />

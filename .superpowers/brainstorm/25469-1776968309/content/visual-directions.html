@@ -1,0 +1,64 @@
+<h2>Design Direction: Studio Ink</h2>
+<p class="subtitle">Replacing Neon Atelier with a high-contrast, WCAG-compliant, and print-friendly aesthetic.</p>
+
+<div class="options">
+  <div class="option" data-choice="precision" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Precision Mono</h3>
+      <p>Technical, authoritative, and clean. Uses structured grid lines and professional monospace for all data. Optimized for high-density information.</p>
+      <div class="mockup" style="background: white; padding: 20px; border: 1px solid #eee; margin-top: 15px;">
+        <div style="border-left: 4px solid #111; padding-left: 15px;">
+          <div style="font-family: monospace; font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.1em;">Invoice Number</div>
+          <div style="font-family: monospace; font-size: 24px; font-weight: bold; color: #111;">INV-2026-001</div>
+        </div>
+        <div style="margin-top: 20px; border-top: 1px solid #111; border-bottom: 1px solid #111; padding: 10px 0;">
+          <div style="display: flex; justify-content: space-between; font-family: monospace; font-size: 12px;">
+            <span>Consulting Services</span>
+            <span style="font-weight: bold;">₹45,000.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="architect" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>The Architect</h3>
+      <p>Sophisticated and airy. Combines a premium serif for headers with a clean sans-serif for body text. Feels like a high-end agency document.</p>
+      <div class="mockup" style="background: white; padding: 20px; border: 1px solid #eee; margin-top: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <h1 style="font-family: serif; font-size: 28px; margin: 0; color: #111;">Invoice</h1>
+          <div style="font-size: 12px; color: #666;">No. 2026-001</div>
+        </div>
+        <div style="margin-top: 20px; border-bottom: 2px solid #111; padding-bottom: 8px;">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: #888;">Deliverables</div>
+        </div>
+        <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 14px;">
+          <span>Identity System Design</span>
+          <span style="font-family: monospace; font-weight: bold;">₹45,000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Common Success Criteria</h4>
+      <ul>
+        <li><strong>WCAG AA/AAA</strong>: Maximum contrast (Black on White).</li>
+        <li><strong>Ink Efficiency</strong>: No large dark backgrounds.</li>
+        <li><strong>Structural Clarity</strong>: Uses hierarchy and lines instead of colors.</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Trade-offs</h4>
+      <ul>
+        <li><strong>Minimalist</strong>: Less "vibrant" than Neon Atelier.</li>
+        <li><strong>Formal</strong>: Focuses on authority over "creative flair."</li>
+      </ul>
+    </div>
+</div>
