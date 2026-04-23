@@ -1741,7 +1741,7 @@ function EditorContent() {
           <ClientDetailsSection
             value={formData.client}
             onChange={(client) => updateFormSection("client", client)}
-            errors={validationErrors}
+            errors={fieldErrors.client}
             showAllErrors={showAllValidationErrors}
             savedClients={savedClients}
           />
