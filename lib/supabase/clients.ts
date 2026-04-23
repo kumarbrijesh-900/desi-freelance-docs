@@ -17,17 +17,17 @@ export interface SavedClient {
   client_name: string;
   client_email: string;
   client_address: string;
-  client_address_line1: string;
-  client_address_line2: string;
-  client_city: string;
-  client_pin_code: string;
+  address_line_1: string;
+  address_line_2: string;
+  city: string;
+  pin_code: string;
   client_postal_code: string;
-  client_state: string;
-  client_country: string;
+  state: string;
+  country: string;
   client_currency: string;
-  client_gstin: string;
-  client_location: string;
-  is_client_sez_unit: string;
+  gstin: string;
+  client_type: string;
+  sez_status: string;
   invoice_count: number;
   last_invoiced_at: string | null;
   created_at: string;
@@ -41,18 +41,18 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
   return {
     clientName: c.client_name,
     clientAddress: c.client_address,
-    clientAddressLine1: c.client_address_line1,
-    clientAddressLine2: c.client_address_line2,
-    clientCity: c.client_city,
-    clientPinCode: c.client_pin_code,
+    clientAddressLine1: c.address_line_1,
+    clientAddressLine2: c.address_line_2,
+    clientCity: c.city,
+    clientPinCode: c.pin_code,
     clientPostalCode: c.client_postal_code,
     clientEmail: c.client_email,
-    clientState: c.client_state as ClientDetails["clientState"],
-    clientCountry: c.client_country as ClientDetails["clientCountry"],
+    clientState: c.state as ClientDetails["clientState"],
+    clientCountry: c.country as ClientDetails["clientCountry"],
     clientCurrency: c.client_currency as ClientDetails["clientCurrency"],
-    clientGstin: c.client_gstin,
-    clientLocation: (c.client_location || "domestic") as ClientDetails["clientLocation"],
-    isClientSezUnit: c.is_client_sez_unit as ClientDetails["isClientSezUnit"],
+    clientGstin: c.gstin,
+    clientLocation: (c.client_type || "domestic") as ClientDetails["clientLocation"],
+    isClientSezUnit: c.sez_status as ClientDetails["isClientSezUnit"],
   };
 }
 
@@ -64,17 +64,17 @@ export function clientDetailsToRow(
     client_name: details.clientName,
     client_email: details.clientEmail || "",
     client_address: details.clientAddress,
-    client_address_line1: details.clientAddressLine1 || "",
-    client_address_line2: details.clientAddressLine2 || "",
-    client_city: details.clientCity || "",
-    client_pin_code: details.clientPinCode || "",
+    address_line_1: details.clientAddressLine1 || "",
+    address_line_2: details.clientAddressLine2 || "",
+    city: details.clientCity || "",
+    pin_code: details.clientPinCode || "",
     client_postal_code: details.clientPostalCode || "",
-    client_state: details.clientState || "",
-    client_country: details.clientCountry || "",
+    state: details.clientState || "",
+    country: details.clientCountry || "",
     client_currency: details.clientCurrency || "",
-    client_gstin: details.clientGstin || "",
-    client_location: details.clientLocation || "domestic",
-    is_client_sez_unit: details.isClientSezUnit || "",
+    gstin: details.clientGstin || "",
+    client_type: details.clientLocation || "domestic",
+    sez_status: details.isClientSezUnit || "",
     updated_at: new Date().toISOString(),
   };
 }

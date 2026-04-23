@@ -233,9 +233,9 @@ export default function ClientDetailPage() {
         setClientName(c.client_name);
         setClientEmail(c.client_email);
         setClientAddress(c.client_address);
-        setClientState(c.client_state);
-        setClientGstin(c.client_gstin);
-        setClientLocation(c.client_location);
+        setClientState(c.state);
+        setClientGstin(c.gstin);
+        setClientLocation(c.client_type);
       }
       setMsas(msaRes.data);
       setIsLoading(false);

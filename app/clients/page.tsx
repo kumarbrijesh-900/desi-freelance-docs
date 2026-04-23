@@ -54,11 +54,11 @@ function ClientForm({
   const [name, setName] = useState(initial?.client_name || "");
   const [email, setEmail] = useState(initial?.client_email || "");
   const [address, setAddress] = useState(initial?.client_address || "");
-  const [city, setCity] = useState(initial?.client_city || "");
-  const [state, setState] = useState(initial?.client_state || "");
-  const [gstin, setGstin] = useState(initial?.client_gstin || "");
-  const [location, setLocation] = useState(initial?.client_location || "domestic");
-  const [country, setCountry] = useState(initial?.client_country || "");
+  const [city, setCity] = useState(initial?.city || "");
+  const [state, setState] = useState(initial?.state || "");
+  const [gstin, setGstin] = useState(initial?.gstin || "");
+  const [location, setLocation] = useState(initial?.client_type || "domestic");
+  const [country, setCountry] = useState(initial?.country || "");
   const [msaContent, setMsaContent] = useState("");
   const [showMsa, setShowMsa] = useState(false);
   const [showMsaTooltip, setShowMsaTooltip] = useState(false);
@@ -422,8 +422,8 @@ export default function ClientsPage() {
       (c) =>
         c.client_name.toLowerCase().includes(q) ||
         c.client_email.toLowerCase().includes(q) ||
-        c.client_city.toLowerCase().includes(q) ||
-        c.client_gstin.toLowerCase().includes(q)
+        c.city.toLowerCase().includes(q) ||
+        c.gstin.toLowerCase().includes(q)
     );
   }, [clients, searchQuery]);
 
@@ -626,14 +626,14 @@ export default function ClientsPage() {
 
                             {/* City */}
                             <td className="hidden px-4 py-3 text-[12px] text-[color:var(--text-secondary)] md:table-cell">
-                              {client.client_city || client.client_state || "—"}
+                              {client.city || client.state || "—"}
                             </td>
 
                             {/* GSTIN */}
                             <td className="hidden px-4 py-3 md:table-cell">
-                              {client.client_gstin ? (
+                              {client.gstin ? (
                                 <span className="rounded bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] text-[color:var(--text-secondary)]">
-                                  {client.client_gstin}
+                                  {client.gstin}
                                 </span>
                               ) : (
                                 <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
@@ -644,10 +644,10 @@ export default function ClientsPage() {
                             <td className="px-4 py-3">
                               <span
                                 className={getAppStatusPillClass(
-                                  client.client_location === "international" ? "muted" : "default"
+                                  client.client_type === "international" ? "muted" : "default"
                                 )}
                               >
-                                {client.client_location === "international" ? "Intl" : "India"}
+                                {client.client_type === "international" ? "Intl" : "India"}
                               </span>
                             </td>
 
