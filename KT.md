@@ -1,8 +1,9 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phases 1–6 complete — persistence, extraction upgrade, hardening)
-> **Branch:** `design-system-foundation`
+> **Last Updated:** 2026-04-23 (Session: Phases 1–9a complete — GST compliance, client management, editor layout)
+> **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
+> **Deployment:** Vercel → `lanceinvoice.vercel.app`
 
 ---
 
@@ -60,6 +61,10 @@ app/
 │   ├── new/page.tsx            # Invoice editor (stepper)
 │   └── preview/page.tsx        # Invoice preview (PDF-ready view)
 ├── invoices/page.tsx           # Invoice history (auth-gated, cloud-saved)
+├── clients/
+│   ├── page.tsx                # Client directory (data table + inline form)
+│   └── [id]/page.tsx           # Client detail / MSA management
+├── profile/page.tsx            # User profile
 ├── terms/page.tsx              # Terms of Service
 ├── privacy/page.tsx            # Privacy Policy
 ├── internal/design-system/     # Internal design system reference page
@@ -72,17 +77,18 @@ app/
 ### Component Map
 ```
 components/
-├── AppHeader.tsx               # Global header — L logomark + Lance wordmark
+├── AppHeader.tsx               # Global header — sticky, L logomark + Lance wordmark + nav
 ├── LogoutButton.tsx            # Supabase logout
 ├── invoice/
 │   ├── InvoiceEditorPage.tsx   # Main editor orchestrator (stepper, state, extraction)
 │   ├── BriefIntakeCard.tsx     # Brief text/image/voice input card
-│   ├── AgencyDetailsSection.tsx # Step 1: Agency name, address, GST, PAN, LUT
+│   ├── AgencyDetailsSection.tsx # Step 1: Agency name, address, GST, PAN, LUT, Logo (inline)
 │   ├── ClientDetailsSection.tsx # Step 2: Client name, location, GSTIN, SEZ
 │   ├── DeliverablesSection.tsx  # Step 3: Line items, SAC codes, rates
 │   ├── TermsPaymentSection.tsx  # Step 4: Payment terms, licensing, bank details
 │   ├── InvoiceMetaSection.tsx   # Step 5: Invoice number, dates
-│   └── TotalsTaxesSection.tsx   # Step 6: Tax calculations, totals
+│   ├── TotalsTaxesSection.tsx   # Step 6: Tax calculations, totals, Amount in Words, RCM
+│   └── TemplatePicker.tsx       # Template selection grid
 ├── ui/
 │   ├── ChoiceCards.tsx         # Yes/No/Option cards (lime selection ring)
 │   ├── motion-primitives.tsx   # Framer Motion presets, easing, transitions
@@ -123,6 +129,8 @@ lib/
 ├── invoice-field-ownership.ts  # Field source tracking (user vs extracted)
 ├── invoice-clarifications.ts   # Post-extraction clarification prompts
 │
+├── gst-state-codes.ts          # Official 2-digit GST state codes (37 states/UTs)
+├── amount-to-words.ts          # Indian number system (lakh/crore) amount → words
 ├── identifier-classifier.ts   # GSTIN/PAN/TIN classification
 ├── gstin-parser.ts             # GSTIN format validator
 ├── gstin-state-map.ts          # GSTIN prefix → state mapping
@@ -139,7 +147,18 @@ lib/
 ├── ocr-normalization.ts        # OCR output cleanup
 │
 ├── supabase/
-│   └── client.ts               # Supabase client singleton
+│   ├── client.ts               # Supabase client singleton
+│   └── clients.ts              # Client CRUD operations (list, create, update, delete)
+├── templates/
+│   ├── template-types.ts       # TemplateData interface (inc. GST compliance fields)
+│   ├── template-data.ts        # Form → TemplateData transformer
+│   ├── renderer.tsx            # Template renderer (lazy loading)
+│   ├── classic.tsx             # Classic template (black & white, legal)
+│   ├── neon-atelier.tsx        # Neon Atelier template (dark header, lime accents)
+│   ├── swiss-grid.tsx          # Swiss Grid template (red bar, navy headings)
+│   ├── terracotta.tsx          # Terracotta template (warm earth tones)
+│   ├── editorial.tsx           # Editorial template (serif, magazine-style)
+│   └── midnight.tsx            # Midnight template (violet accents)
 ├── brief-intake-fixtures.ts    # Test fixtures for brief parsing
 └── international-billing-options.ts # International currency/country options
 ```
@@ -269,47 +288,103 @@ tests/
 
 ## 8. Git History & Branch Strategy
 
-**Active branch:** `design-system-foundation`
+**Active branch:** `main` (deployed to Vercel)
 
 **Recent commits (newest first):**
 | Hash | Description |
 |------|-------------|
+| `90075d2` | GST compliance on all 6 invoice templates (state codes, amount in words, RCM, signatory) |
+| `a292677` | Phase 9a — Editor layout + GST compliance utilities |
+| `1f52d64` | Sticky header + softer placeholders |
+| `68b1bbe` | Inline delete confirmation for clients (replaced flickering confirm dialog) |
 | `a6d3b94` | Lance rebrand + extraction intelligence upgrade |
 | `6fa478c` | Neon Atelier redesign — fluorescent lime, Syne+DM Sans, sharper radii |
-| `93a8f84` | Update KT with comprehensive project history and roadmap |
-| `5239c4c` | Draft discard flow, syntax polish, and KT document |
-| `029deb4` | Fix invoice form choppiness: strip expansion layer animations |
-| `fded495` | Intelligent hydration overriding regex heuristics |
-| `b269411` | Trace and repair final rendered form state for parsed fields |
 
 ---
 
-## 9. Pending Roadmap & Known Issues
+## 9. Completed Phases
 
-### High Priority
-1. **Invoice Preview Redesign** — The preview page (`/invoice/preview`) still uses old styling. It needs the Neon Atelier treatment while ensuring the generated PDF representation looks correct on white paper.
+### Phase 8 — Client Management & MSA Integration
+- **Client directory:** Professional data table at `/clients` with search, inline add/edit/delete
+- **Inline form:** Slide-down form for creating clients with MSA textarea + tooltip
+- **Database alignment:** Synchronized `clients` service with pre-existing Supabase table (legacy column names: `city` not `client_city`, `gstin` not `client_gstin`, etc.)
+- **Constraint fix:** Defaulted `sez_status` to `'no'` to satisfy `clients_sez_status_check`
+- **RLS policies:** Added missing DELETE policy for authenticated users
+- **Inline delete:** State-based confirmation ("Delete? [Yes] [No]") replacing flickering native `confirm()`
 
-2. **Legacy Cleanup** — The `/create` route and `components/flow/*` directory are frozen/deprecated. They should be archived and removed to reduce repo bloat.
-
-3. **Supabase Invoice Persistence** — Currently invoices exist only in localStorage. Need Supabase schema migrations to save finalized invoice blobs when user clicks "Finalize & Export."
-
-### Medium Priority
-4. **License Schema in Extraction** — The `AiBriefExtraction` type doesn't have a `license` field yet. License signals are currently routed to `paymentTerms` as a stopgap. A proper `license` object should be added to the schema and wired through `invoice-parsed-extraction-hydration.ts`.
-
-5. **Extraction Testing** — Run the same template brief through the updated extraction prompt to verify placeholder detection and multi-deliverable splitting work as expected.
-
-6. **WCAG Contrast Audit** — Verify lime-on-white accent elements meet AA contrast ratios. The fluorescent lime (`#BEFF00`) on white (`#F8F8FA`) may need a darker text companion.
-
-### Low Priority
-7. **Voice Input** — `BriefIntakeCard.tsx` has a Voice button that's still a placeholder. Web Audio API hooks for speech-to-text are a future bet.
-
-8. **Deploy Pipeline** — Validate `.env.production` on Vercel for `OPENAI_API_KEY` and Supabase keys. Local `.env` is solid but cloud provisioning needs regression testing.
-
-9. **Legal Pages** — Terms & Privacy pages are placeholder links in the footer.
+### Phase 9a — GST Compliance + Editor Layout
+- **Sticky header:** `sticky top-0 z-50` with backdrop blur
+- **Softer placeholders:** 13px, 50% opacity
+- **Logo repositioned:** Moved inline next to "Business / Trade Name" field (was top-right corner)
+- **Action buttons:** Vertical stack on right side (desktop), horizontal bottom (mobile)
+- **Amount in Words:** Auto-generated Indian format (e.g. "Rupees Three Thousand Only") — uses lakh/crore system
+- **State Codes:** All 37 state/UT 2-digit GST codes displayed alongside state names (e.g. "Karnataka (29)")
+- **Reverse Charge (RCM):** Yes/No indicator on all templates
+- **Authorized Signatory:** Signature line with agency name on all 6 templates
+- **Template data pipeline:** Extended `TemplateData` with `agencyStateCode`, `clientStateCode`, `amountInWords`, `reverseCharge`, `authorizedSignatory`
 
 ---
 
-## 10. Critical Files Quick Reference
+## 10. Pending Roadmap
+
+### Phase 9b — Preview Redesign + Invoice Sharing (Next)
+| Task | Description | Effort |
+|------|-------------|--------|
+| Single-column templates | Switch from 2-column grid to single-column card list | S |
+| Preview header compact | Reduce height — arrange contents linearly | S |
+| Share Invoice Link | Generate unique shareable link for invoices | M |
+| `/view/[invoice_id]` route | Public route that renders the invoice for clients | L |
+| MSA gating | Client must accept MSA before viewing invoice | L |
+| Read receipts table | `read_receipts` Supabase table: track when client opens link | M |
+| Share link popup | Modal with copyable link + MSA status warning | S |
+
+### Phase 9c — Invoices Dashboard
+| Task | Description | Effort |
+|------|-------------|--------|
+| Invoices data table | Professional table replacing current list | M |
+| Table columns | Invoice No., Date, Client, Deliverable, Read Receipt, MSA Status, Due Date | M |
+| Filters | Filter by: Client, Work Type, Rejected Status | M |
+| Sorting | Sort by: Latest, Alphabetically | S |
+| Notification badge | Bell icon on Invoices nav tab with unread count | S |
+
+### Known Issues
+- **Reverse Charge toggle:** Currently hardcoded to "No" — needs a toggle in the Tax/Payment section for edge cases
+- **Authorized Signature:** Currently text-only — future: upload image or canvas drawing
+- **Voice Input:** `BriefIntakeCard.tsx` has a Voice button that's still a placeholder
+
+---
+
+## 11. Supabase Schema Notes
+
+### `clients` Table (Pre-existing)
+⚠️ **Uses non-standard/legacy column naming.** Any future changes must use `ALTER TABLE`.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `user_id` | uuid | FK to auth.users |
+| `client_name` | text | Required |
+| `client_email` | text | Required |
+| `city` | text | NOT `client_city` |
+| `state` | text | NOT `client_state` |
+| `gstin` | text | NOT `client_gstin` |
+| `client_type` | text | `domestic` or `international` |
+| `sez_status` | text | CHECK constraint: `yes`, `no`, `not_sure` |
+| `client_address` | text | Added via ALTER TABLE |
+| `client_postal_code` | text | Added via ALTER TABLE |
+| `client_currency` | text | Added via ALTER TABLE |
+| `client_msa` | text | MSA content |
+| `msa_status` | text | `draft`, `accepted`, `rejected` |
+
+**RLS Policies:**
+- `clients_select_own` — SELECT for authenticated users (user_id match)
+- `clients_insert_own` — INSERT for authenticated users
+- `clients_update_own` — UPDATE for authenticated users (user_id match)
+- `clients_delete_own` — DELETE for authenticated users (user_id match)
+
+---
+
+## 12. Critical Files Quick Reference
 
 | Need to... | Look at... |
 |---|---|
@@ -324,12 +399,17 @@ tests/
 | Change motion/animation | `components/ui/motion-primitives.tsx` |
 | Change field/button styling | `lib/ui-foundation.ts` |
 | Change tax calculations | `lib/invoice-calculations.ts`, `lib/invoice-tax.ts` |
+| Change GST state codes | `lib/gst-state-codes.ts` |
+| Change amount-in-words | `lib/amount-to-words.ts` |
+| Change invoice templates | `lib/templates/{classic,neon-atelier,swiss-grid,terracotta,editorial,midnight}.tsx` |
+| Change template data pipeline | `lib/templates/template-data.ts`, `lib/templates/template-types.ts` |
+| Manage clients | `app/clients/page.tsx`, `lib/supabase/clients.ts` |
 | Add tests | `tests/extraction/` or `tests/e2e/` |
 | Check GST compliance | `lib/invoice-compliance.ts`, `lib/gstin-parser.ts` |
 
 ---
 
-## 11. Environment Variables Required
+## 13. Environment Variables Required
 
 ```env
 # Supabase
@@ -343,4 +423,4 @@ OPENAI_BRIEF_EXTRACTION_MODEL=gpt-4o-mini  # optional, defaults to gpt-4o-mini
 
 ---
 
-*This KT is authoritative. If you are an AI agent reading this repo, start here. The canonical branch is `design-system-foundation`. The product is called Lance. Never use "AI" in user-facing copy.*
+*This KT is authoritative. If you are an AI agent reading this repo, start here. The canonical branch is `main`. The product is called Lance. Never use "AI" in user-facing copy.*
