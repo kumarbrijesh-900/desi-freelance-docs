@@ -398,6 +398,7 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
+  const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -443,16 +444,26 @@ export default function ClientsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async (client: SavedClient) => {
-    if (!confirm(`Delete "${client.client_name}"? This also removes their MSAs.`)) return;
-    const { error } = await deleteClient(client.id);
+  const handleDeleteRequest = (clientId: string) => {
+    setDeletingClientId(clientId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingClientId) return;
+    const { error } = await deleteClient(deletingClientId);
     if (error) {
       console.error("Failed to delete client:", error);
       alert(`Delete failed: ${error}`);
+      setDeletingClientId(null);
       return;
     }
     playInteractionCue("saveSuccess");
-    setClients((prev) => prev.filter((c) => c.id !== client.id));
+    setClients((prev) => prev.filter((c) => c.id !== deletingClientId));
+    setDeletingClientId(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingClientId(null);
   };
 
   const handleCancel = () => {
@@ -661,24 +672,44 @@ export default function ClientsPage() {
 
                             {/* Actions */}
                             <td className="px-4 py-3 text-right">
-                              <div className="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-                                <button
-                                  type="button"
-                                  onClick={() => handleEdit(client)}
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
-                                  title="Edit"
-                                >
-                                  <EditIcon />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDelete(client)}
-                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
-                                  title="Delete"
-                                >
-                                  <TrashIcon />
-                                </button>
-                              </div>
+                              {deletingClientId === client.id ? (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <span className="text-[11px] text-red-500 font-medium mr-1">Delete?</span>
+                                  <button
+                                    type="button"
+                                    onClick={handleDeleteConfirm}
+                                    className="inline-flex h-7 items-center justify-center rounded-md bg-red-500 px-2.5 text-[11px] font-semibold text-white transition-colors hover:bg-red-600"
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleDeleteCancel}
+                                    className="inline-flex h-7 items-center justify-center rounded-md border border-[color:var(--border-subtle)] px-2.5 text-[11px] font-medium text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEdit(client)}
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
+                                    title="Edit"
+                                  >
+                                    <EditIcon />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteRequest(client.id)}
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                                    title="Delete"
+                                  >
+                                    <TrashIcon />
+                                  </button>
+                                </div>
+                              )}
                             </td>
                           </tr>
                         ))}
