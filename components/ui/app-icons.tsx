@@ -157,3 +157,31 @@ export function InfoCircleIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ShareIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M4 12V20C4 20.53 4.21 21.04 4.59 21.41C4.96 21.79 5.47 22 6 22H18C18.53 22 19.04 21.79 19.41 21.41C19.79 21.04 20 20.53 20 20V12" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+export function LinkCopyIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4C3.47 15 2.96 14.79 2.59 14.41C2.21 14.04 2 13.53 2 13V4C2 3.47 2.21 2.96 2.59 2.59C2.96 2.21 3.47 2 4 2H13C13.53 2 14.04 2.21 14.41 2.59C14.79 2.96 15 3.47 15 4V5" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M22 11.08V12C21.99 14.15 21.28 16.24 19.97 17.95C18.66 19.66 16.83 20.87 14.77 21.41C12.71 21.94 10.53 21.76 8.59 20.9C6.64 20.05 5.04 18.57 4 16.67" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}

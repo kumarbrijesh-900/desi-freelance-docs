@@ -11,6 +11,7 @@ import {
   DownloadIcon,
   PrinterIcon,
   SaveIcon,
+  ShareIcon,
 } from "@/components/ui/app-icons";
 import {
   MotionButton,
@@ -37,6 +38,7 @@ import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
+import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -59,6 +61,8 @@ export default function InvoicePreviewPage() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -162,6 +166,7 @@ export default function InvoicePreviewPage() {
       const { data: saved, error } = await saveInvoice({
         formData: data,
         status: "draft" as InvoiceStatus,
+        templateId: selectedTemplate,
         existingId: cloudInvoiceId ?? undefined,
       });
 
@@ -191,6 +196,7 @@ export default function InvoicePreviewPage() {
         const { data: saved } = await saveInvoice({
           formData: data,
           status: "finalized" as InvoiceStatus,
+          templateId: selectedTemplate,
           existingId: cloudInvoiceId ?? undefined,
         });
         if (saved) {
@@ -346,12 +352,12 @@ export default function InvoicePreviewPage() {
         <section className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}>
         <div className={`${appGridClass} print:block`}>
         <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-        <MotionReveal className="mb-6 print:hidden" preset="fade-up">
+        <MotionReveal className="mb-5 print:hidden" preset="fade-up">
           <div
             data-testid="invoice-preview-toolbar"
-            className={`${appCardClass} border-[color:var(--border-default)] px-5 py-5 sm:px-6`}
+            className={`${appCardClass} border-[color:var(--border-default)] px-5 py-3.5 sm:px-5`}
           >
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
@@ -376,11 +382,11 @@ export default function InvoicePreviewPage() {
                   ) : null}
                 </div>
 
-                <h1 className="mt-3 text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[30px]">
+                <h1 className="mt-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-2xl">
                   {invoiceNumber?.trim() || "Invoice Preview"}
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[color:var(--text-secondary)]">
-                  Review the final invoice sheet, save a draft if you need another pass, or export a clean PDF for delivery.
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[color:var(--text-secondary)]">
+                  Review, save a draft, or export a clean PDF for delivery.
                 </p>
               </div>
 
@@ -407,6 +413,17 @@ export default function InvoicePreviewPage() {
 
                 <MotionButton
                   type="button"
+                  onClick={() => setShowShareModal(true)}
+                  disabled={!cloudInvoiceId}
+                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                  title={!cloudInvoiceId ? "Save the invoice first to share" : "Share invoice link"}
+                >
+                  <ShareIcon className="h-4 w-4" />
+                  Share
+                </MotionButton>
+
+                <MotionButton
+                  type="button"
                   onClick={handlePrint}
                   className={getAppButtonClass({ variant: "tertiary", size: "sm" })}
                 >
@@ -429,25 +446,21 @@ export default function InvoicePreviewPage() {
           </div>
         </MotionReveal>
 
-        {/* ─── Invoice + Template Side Panel ────────────── */}
-        <div className="flex gap-4 print:block">
-          {/* Side Panel — Template Thumbnails */}
-          <aside className="hidden w-[140px] shrink-0 lg:block print:!hidden">
-            <div className="sticky top-6">
-              <MotionReveal preset="fade-up" delay={20}>
-                <div className="rounded-lg border border-[color:var(--border-default)] bg-white p-2.5 shadow-[var(--app-floating-shadow)]">
-                  <TemplatePicker
-                    selectedId={selectedTemplate}
-                    onSelect={setSelectedTemplate}
-                    userTier="free"
-                  />
-                </div>
-              </MotionReveal>
+        {/* ─── Template Picker — Inline above invoice ──── */}
+        <MotionReveal className="mb-4 print:hidden" preset="fade-up" delay={15}>
+          <div className="mx-auto w-full max-w-[210mm]">
+            <div className="rounded-lg border border-[color:var(--border-default)] bg-white p-2.5 shadow-[var(--app-floating-shadow)]">
+              <TemplatePicker
+                selectedId={selectedTemplate}
+                onSelect={setSelectedTemplate}
+                userTier="free"
+                layout="horizontal"
+              />
             </div>
-          </aside>
+          </div>
+        </MotionReveal>
 
-          {/* Invoice Sheet — Primary Content */}
-          <div className="min-w-0 flex-1">
+        {/* ─── Invoice Sheet ──────────────────────────── */}
         <MotionReveal
           className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
           preset="scale-in"
@@ -455,12 +468,19 @@ export default function InvoicePreviewPage() {
         >
           <TemplateRenderer formData={data} templateId={selectedTemplate} />
         </MotionReveal>
-          </div>{/* end invoice sheet wrapper */}
-        </div>{/* end flex (side panel + invoice) */}
         </div>
         </div>
         </section>
       </main>
+
+      {showShareModal && cloudInvoiceId && (
+        <ShareLinkModal
+          invoiceId={cloudInvoiceId}
+          existingToken={shareToken}
+          onClose={() => setShowShareModal(false)}
+          onShared={(token) => setShareToken(token)}
+        />
+      )}
     </>
   );
 }

@@ -65,6 +65,8 @@ export interface TemplatePickerProps {
   selectedId: string;
   onSelect: (templateId: string) => void;
   userTier: "visitor" | "free" | "pro";
+  /** "vertical" = 2-col grid (side panel), "horizontal" = scrollable row (inline) */
+  layout?: "vertical" | "horizontal";
 }
 
 /* ─── Mini Invoice Thumbnail ──────────────────────── */
@@ -228,13 +230,16 @@ export default function TemplatePicker({
   selectedId,
   onSelect,
   userTier,
+  layout = "vertical",
 }: TemplatePickerProps) {
   const sortedTemplates = [...TEMPLATE_REGISTRY].sort(
     (a, b) => a.order - b.order
   );
 
+  const isHorizontal = layout === "horizontal";
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className={isHorizontal ? "flex flex-col gap-2" : "flex flex-col gap-2"}>
       {/* Header */}
       <div className="flex items-center gap-1.5 px-1">
         <PanelIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)]" />
@@ -243,25 +248,35 @@ export default function TemplatePicker({
         </span>
       </div>
 
-      {/* Thumbnail Grid — 2 columns for side panel */}
-      <div className="grid grid-cols-2 gap-1.5">
+      {/* Thumbnail Grid / Row */}
+      <div
+        className={
+          isHorizontal
+            ? "flex gap-2 overflow-x-auto pb-1"
+            : "grid grid-cols-2 gap-1.5"
+        }
+      >
         {sortedTemplates.map((template) => {
           const lockState = getTemplateLockState(template.id, userTier);
           return (
-            <ThumbnailCard
+            <div
               key={template.id}
-              template={template}
-              isSelected={selectedId === template.id}
-              lockState={lockState}
-              onSelect={() => onSelect(template.id)}
-            />
+              className={isHorizontal ? "w-[90px] shrink-0" : ""}
+            >
+              <ThumbnailCard
+                template={template}
+                isSelected={selectedId === template.id}
+                lockState={lockState}
+                onSelect={() => onSelect(template.id)}
+              />
+            </div>
           );
         })}
       </div>
 
       {/* Upgrade hint */}
       {userTier !== "pro" && (
-        <div className="mt-1 rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center">
+        <div className={`rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}>
           <p className="text-[9px] font-semibold text-amber-700">
             ✦ Upgrade to unlock all templates
           </p>
