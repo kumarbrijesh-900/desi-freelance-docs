@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ClientDetails } from "@/types/invoice";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
@@ -59,6 +59,7 @@ export default function ClientDetailsSection({
   embedded = false,
   errors,
   showAllErrors = false,
+  savedClients,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
