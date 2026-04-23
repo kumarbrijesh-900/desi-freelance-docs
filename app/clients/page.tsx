@@ -89,15 +89,24 @@ function ClientForm({
     };
 
     const { data, error } = await upsertClient(details, initial?.id);
+    if (error) {
+      console.error("Failed to save client:", error);
+      alert(`Save failed: ${error}`);
+      setIsSaving(false);
+      return;
+    }
     if (data) {
       // Create MSA if content was provided (only for new clients)
       if (msaContent.trim() && !initial) {
-        await createMsa({
+        const msaResult = await createMsa({
           clientId: data.id,
           title: "Master Service Agreement",
           content: msaContent.trim(),
           status: "draft",
         });
+        if (msaResult.error) {
+          console.error("MSA creation failed:", msaResult.error);
+        }
       }
       playInteractionCue("saveSuccess");
       onSave(data);
@@ -517,13 +526,15 @@ export default function ClientsPage() {
                       />
                     </div>
                   )}
-                  <MotionButton
-                    onClick={handleAddNew}
-                    className={getAppButtonClass({ variant: "primary" })}
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Add Client
-                  </MotionButton>
+                  {!showForm && (
+                    <MotionButton
+                      onClick={handleAddNew}
+                      className={getAppButtonClass({ variant: "primary" })}
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                      Add Client
+                    </MotionButton>
+                  )}
                 </div>
               </div>
             </MotionReveal>
