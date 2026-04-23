@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
 import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
 import TemplateRenderer from "@/lib/templates/renderer";
@@ -55,6 +56,7 @@ function getPdfTitle(invoiceNumber?: string) {
 
 
 export default function InvoicePreviewPage() {
+  const router = useRouter();
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved">("idle");
@@ -147,7 +149,13 @@ export default function InvoicePreviewPage() {
     }
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      persistDraft();
+      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      return;
+    }
     window.print();
   };
 
@@ -180,6 +188,10 @@ export default function InvoicePreviewPage() {
       }
       // Fall through to local-only save on error
       console.warn("Cloud save failed, using local storage:", error);
+    } else {
+      // Redirect to login if not authenticated
+      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      return;
     }
 
     setSaveState("saved");
@@ -187,23 +199,27 @@ export default function InvoicePreviewPage() {
   };
 
   const handleDownloadPdf = async () => {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+      persistDraft();
+      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      return;
+    }
+
     setIsExportingPdf(true);
     exportTitleRef.current = pdfTitle;
     document.title = pdfTitle;
 
     // Finalize to Supabase for authenticated users
     if (data) {
-      const userId = await getCurrentUserId();
-      if (userId) {
-        const { data: saved } = await saveInvoice({
-          formData: data,
-          status: "finalized" as InvoiceStatus,
-          templateId: selectedTemplate,
-          existingId: cloudInvoiceId ?? undefined,
-        });
-        if (saved) {
-          setCloudInvoiceId(saved.id);
-        }
+      const { data: saved } = await saveInvoice({
+        formData: data,
+        status: "finalized" as InvoiceStatus,
+        templateId: selectedTemplate,
+        existingId: cloudInvoiceId ?? undefined,
+      });
+      if (saved) {
+        setCloudInvoiceId(saved.id);
       }
     }
 
@@ -415,8 +431,15 @@ export default function InvoicePreviewPage() {
 
                 <MotionButton
                   type="button"
-                  onClick={() => setShowShareModal(true)}
-                  disabled={!cloudInvoiceId}
+                  onClick={async () => {
+                    const userId = await getCurrentUserId();
+                    if (!userId) {
+                      persistDraft();
+                      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+                      return;
+                    }
+                    setShowShareModal(true);
+                  }}
                   className={getAppButtonClass({ variant: "secondary", size: "sm" })}
                   title={!cloudInvoiceId ? "Save the invoice first to share" : "Share invoice link"}
                 >

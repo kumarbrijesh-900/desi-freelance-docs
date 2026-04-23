@@ -16,6 +16,7 @@
  */
 
 import type { InvoiceTemplateProps } from "./template-types";
+import { InvoiceWatermark } from "./Watermark";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -186,6 +187,8 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1 text-[10px] text-[#999]">Signature</p>
         </div>
       </section>
+
+      <InvoiceWatermark />
     </div>
   );
 }

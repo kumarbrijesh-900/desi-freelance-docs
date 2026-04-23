@@ -1,20 +1,9 @@
 /**
  * ─── CLASSIC TEMPLATE ──────────────────────────────
- *
- * Design: The "no-nonsense professional."
- * Inspired by legal documents and traditional accounting.
- * Black & white with perfect typographic hierarchy.
- * Maximally print-friendly — zero wasted ink.
- *
- * Key elements:
- * • Bold 2pt black rule at top (authority, weight)
- * • Large, confident invoice number
- * • Two-column header with generous spacing
- * • Clean table with subtle zebra striping
- * • Bottom: payment + totals side by side
  */
 
 import type { InvoiceTemplateProps } from "./template-types";
+import { InvoiceWatermark } from "./Watermark";
 
 export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -258,6 +247,8 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1 text-[10px] text-[#888]">Signature</p>
         </div>
       </section>
+
+      <InvoiceWatermark />
     </div>
   );
 }

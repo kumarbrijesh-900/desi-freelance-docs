@@ -17,6 +17,7 @@
  */
 
 import type { InvoiceTemplateProps } from "./template-types";
+import { InvoiceWatermark } from "./Watermark";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -188,6 +189,8 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       <div className="mt-5 text-center text-[11px] italic text-[#C9B5A5]">
         Thank you for your patronage ✦
       </div>
+
+      <InvoiceWatermark />
     </div>
   );
 }
