@@ -86,7 +86,7 @@ export default function AppHeader({
   }, []);
 
   return (
-    <header className="border-b border-[color:var(--border-subtle)] bg-white/90 backdrop-blur-md print:hidden">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--border-subtle)] bg-white/90 backdrop-blur-md print:hidden">
       <div className={`${appPageContainerClass} flex items-center justify-between py-3.5`}>
         <div className="flex items-center gap-3">
           {leftSlot}

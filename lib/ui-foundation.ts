@@ -87,7 +87,7 @@ export function getAppFieldClass(params?: {
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
-    "placeholder:text-[color:var(--text-soft)]",
+    "placeholder:text-[color:var(--text-soft)] placeholder:text-[13px] placeholder:opacity-50",
     "disabled:cursor-not-allowed disabled:border-[color:var(--border-subtle)] disabled:bg-[color:var(--bg-surface-muted)] disabled:text-[color:var(--text-soft)] disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
