@@ -20,6 +20,8 @@ import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 
 export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
+  const neonOutline = { textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000" };
+
   return (
     <div className="font-['DM_Sans',_sans-serif] text-[#111118]">
       {/* ── Lime accent line at very top ────── */}
@@ -56,7 +58,7 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
           </div>
 
           <div className="shrink-0 text-right">
-            <p className="font-mono text-[32px] font-bold leading-none tracking-tight text-[#BEFF00] print:text-[#333]">
+            <p className="font-mono text-[32px] font-bold leading-none tracking-tight text-[#BEFF00] print:text-[#333]" style={neonOutline}>
               {data.invoiceNumber}
             </p>
             <div className="mt-3 space-y-1 text-[11px] text-white/50 print:text-[#888]">
@@ -74,12 +76,12 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Parties ───────────────────────────── */}
       <section className="grid gap-4 border-b border-[#E2E2EA] px-5 py-4 md:grid-cols-2">
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">From</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>From</p>
           <p className="mt-1.5 text-[14px] font-semibold">{data.agencyName}</p>
           <p className="mt-1 whitespace-pre-line text-[12px] text-[#666]">{data.agencyAddress}</p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Bill To</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Bill To</p>
           <p className="mt-1.5 text-[14px] font-semibold">{data.clientName}</p>
           <p className="mt-1 whitespace-pre-line text-[12px] text-[#666]">{data.clientAddress}</p>
           {data.clientTaxId && (
@@ -90,7 +92,7 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
 
       {/* ── Line Items — Lime accent borders ── */}
       <section className="px-5 py-4">
-        <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">
+        <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>
           Deliverables
         </p>
 
@@ -131,19 +133,19 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
         <div className="space-y-3 text-[12px] text-[#666]">
           {data.hasNotes && (
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Notes</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Notes</p>
               <p className="mt-1.5 whitespace-pre-line">{data.notes}</p>
             </div>
           )}
           {data.hasLicense && (
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">License</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>License</p>
               <p className="mt-1.5">{data.licenseType}{data.licenseDuration ? ` · ${data.licenseDuration}` : ""}</p>
             </div>
           )}
           {data.hasBankDetails && (
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Payment</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Payment</p>
               <div className="mt-1.5 space-y-0.5">
                 {!data.isInternational ? (
                   <>
@@ -163,7 +165,7 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
           )}
           {data.hasQrCode && (
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Scan to Pay</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Scan to Pay</p>
               <img src={data.qrCodeUrl} alt="QR" className="mt-2 max-h-24 w-auto" />
             </div>
           )}
@@ -177,7 +179,7 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
           </div>
           <div className="mt-3 rounded-md bg-[#111118] px-4 py-3 text-right print:bg-[#f0f0f0]">
             <p className="text-[9px] uppercase tracking-[0.2em] text-white/40 print:text-[#999]">Total Due</p>
-            <p className="mt-1 font-mono text-[24px] font-bold text-[#BEFF00] print:text-[#111]">
+            <p className="mt-1 font-mono text-[24px] font-bold text-[#BEFF00] print:text-[#111]" style={neonOutline}>
               {data.grandTotalFormatted}
             </p>
           </div>
@@ -194,13 +196,13 @@ export default function NeonAtelierTemplate({ data }: InvoiceTemplateProps) {
       <section className="grid gap-4 border-t border-[#E2E2EA] px-5 py-4 lg:grid-cols-2">
         {data.grandTotalRaw > 0 && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Amount in Words</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Amount in Words</p>
             <p className="mt-1.5 text-[12px] font-semibold text-[#111118]">{data.amountInWords}</p>
             <p className="mt-1.5 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#111118]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
           </div>
         )}
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]">Authorized Signatory</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#BEFF00] print:text-[#888]" style={neonOutline}>Authorized Signatory</p>
           <div className="mt-4 flex flex-col items-start">
             {data.signatureUrl ? (
               <div className="flex flex-col items-start gap-1">
