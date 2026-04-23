@@ -439,169 +439,155 @@ function PreviewContent() {
         }
       `}</style>
 
-      <main className={`${appPageShellClass} print:bg-white print:p-0`}>
+      <main className={`${appPageShellClass} print:bg-white print:p-0 min-h-screen pb-32`}>
         <section className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}>
-        <div className={`${appGridClass} print:block`}>
-        <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-        <MotionReveal className="mb-5 print:hidden" preset="fade-up">
-          <div
-            data-testid="invoice-preview-toolbar"
-            className={`${appCardClass} border-[color:var(--border-default)] px-5 py-3.5 sm:px-5`}
-          >
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
-                    <DocumentSparkIcon className="h-4 w-4" />
-                    Preview & Download
-                  </span>
-                  <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
-                    Ready to export
-                  </span>
-                  {saveState === "saving" ? (
-                    <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                      Saving…
+          <div className="mx-auto w-full max-w-[1328px]">
+            {/* Minimal Header */}
+            <MotionReveal className="mb-8 print:hidden" preset="fade-up">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
+                      <DocumentSparkIcon className="h-4 w-4" />
+                      Preview Mode
                     </span>
-                  ) : saveState === "cloud-saved" ? (
                     <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
-                      ☁ Saved to cloud
+                      Ready to export
                     </span>
-                  ) : saveState === "saved" ? (
-                    <span className="inline-flex items-center rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
-                      Draft saved locally
-                    </span>
-                  ) : null}
+                  </div>
+                  <h1 className="mt-2 text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
+                    {invoiceNumber?.trim() || "New Invoice"}
+                  </h1>
                 </div>
+              </div>
+            </MotionReveal>
 
-                <h1 className="mt-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-2xl">
-                  {invoiceNumber?.trim() || "Invoice Preview"}
-                </h1>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-[color:var(--text-secondary)]">
-                  Review, save a draft, or export a clean PDF for delivery.
-                </p>
+            {/* Profile Completion Prompt */}
+            {showProfilePrompt && (
+              <MotionReveal preset="fade-up" className="mb-8 print:hidden">
+                <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
+                      ✨
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
+                      <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setShowProfilePrompt(false)}
+                      className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
+                    >
+                      Later
+                    </button>
+                    <Link 
+                      href="/profile"
+                      className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                    >
+                      Finish Profile
+                    </Link>
+                  </div>
+                </div>
+              </MotionReveal>
+            )}
+
+            {/* Main Layout Grid: Invoice (Left) + Templates (Right) */}
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_260px] print:block">
+              {/* ─── Invoice Sheet (Left) ─── */}
+              <div className="min-w-0">
+                <MotionReveal
+                  className="invoice-sheet w-full rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
+                  preset="scale-in"
+                  delay={10}
+                >
+                  <TemplateRenderer formData={data} templateId={selectedTemplate} />
+                </MotionReveal>
               </div>
 
-              <MotionStagger className="flex flex-wrap items-center justify-start gap-3 lg:justify-end">
-                <Link
-                  href="/invoice/new"
-                  onClick={handleBackToEdit}
-                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <ChevronLeftIcon className="h-4 w-4" />
-                    Back to Edit
-                  </span>
-                </Link>
-
-                <MotionButton
-                  type="button"
-                  onClick={handleSaveDraft}
-                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                >
-                  <SaveIcon className="h-4 w-4" />
-                  Save Draft
-                </MotionButton>
-
-                {/* Hiding Share for now as requested
-                <MotionButton
-                  type="button"
-                  onClick={async () => {
-                    const userId = await getCurrentUserId();
-                    if (!userId) {
-                      persistDraft();
-                      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
-                      return;
-                    }
-                    setShowShareModal(true);
-                  }}
-                  className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                  title={!cloudInvoiceId ? "Save the invoice first to share" : "Share invoice link"}
-                >
-                  <ShareIcon className="h-4 w-4" />
-                  Share
-                </MotionButton>
-                */}
-
-                <MotionButton
-                  type="button"
-                  onClick={handlePrint}
-                  className={getAppButtonClass({ variant: "tertiary", size: "sm" })}
-                >
-                  <PrinterIcon className="h-4 w-4" />
-                  Print
-                </MotionButton>
-
-                <SuccessPulse active={!isExportingPdf}>
-                  <MotionButton
-                    type="button"
-                    onClick={handleDownloadPdf}
-                    className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                  >
-                    <DownloadIcon className="h-4 w-4" />
-                    {isExportingPdf ? "Preparing PDF..." : "Export PDF"}
-                  </MotionButton>
-                </SuccessPulse>
-              </MotionStagger>
+              {/* ─── Vertical Template Picker (Right Sidebar) ─── */}
+              <aside className="print:hidden">
+                <div className="sticky top-24 space-y-4">
+                  <MotionReveal preset="fade-up" delay={20}>
+                    <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-[var(--app-floating-shadow)]">
+                      <TemplatePicker
+                        selectedId={selectedTemplate}
+                        onSelect={setSelectedTemplate}
+                        userTier="free"
+                        layout="vertical"
+                      />
+                    </div>
+                  </MotionReveal>
+                  
+                  <div className="rounded-xl bg-[color:var(--bg-surface-muted)] p-4 text-center">
+                    <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
+                      Pro templates come with premium layout options and zero branding.
+                    </p>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
-        </MotionReveal>
-
-        {/* Profile Completion Prompt */}
-        {showProfilePrompt && (
-          <MotionReveal preset="fade-up" className="mx-auto mb-6 w-full max-w-[210mm] print:hidden">
-            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
-              <div className="flex items-center gap-3 text-left">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
-                  ✨
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
-                  <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setShowProfilePrompt(false)}
-                  className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
-                >
-                  Later
-                </button>
-                <Link 
-                  href="/profile"
-                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                >
-                  Finish Profile
-                </Link>
-              </div>
-            </div>
-          </MotionReveal>
-        )}
-
-        {/* ─── Template Picker — Inline above invoice ──── */}
-        <MotionReveal className="mb-4 print:hidden" preset="fade-up" delay={15}>
-          <div className="mx-auto w-full max-w-[210mm]">
-            <div className="rounded-lg border border-[color:var(--border-default)] bg-white p-2.5 shadow-[var(--app-floating-shadow)]">
-              <TemplatePicker
-                selectedId={selectedTemplate}
-                onSelect={setSelectedTemplate}
-                userTier="free"
-                layout="horizontal"
-              />
-            </div>
-          </div>
-        </MotionReveal>
-
-        {/* ─── Invoice Sheet ──────────────────────────── */}
-        <MotionReveal
-          className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
-          preset="scale-in"
-          delay={35}
-        >
-          <TemplateRenderer formData={data} templateId={selectedTemplate} />
-        </MotionReveal>
-        </div>
-        </div>
         </section>
+
+        {/* ─── Sticky Bottom Action Bar ─── */}
+        <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--border-subtle)] bg-white/80 px-4 py-4 backdrop-blur-xl print:hidden">
+          <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/invoice/new"
+                onClick={handleBackToEdit}
+                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+                Edit Invoice
+              </Link>
+              <div className="h-4 w-px bg-[color:var(--border-subtle)]" />
+              {saveState === "saving" ? (
+                <span className="text-xs font-medium text-[color:var(--text-muted)]">Saving…</span>
+              ) : saveState === "cloud-saved" || saveState === "saved" ? (
+                <span className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--state-success-text)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--state-success-text)]" />
+                  All changes saved
+                </span>
+              ) : (
+                <span className="text-xs text-[color:var(--text-muted)]">Draft unsaved</span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <MotionButton
+                type="button"
+                onClick={handleSaveDraft}
+                className={getAppButtonClass({ variant: "secondary", size: "md" })}
+              >
+                <SaveIcon className="h-4 w-4" />
+                Save Draft
+              </MotionButton>
+
+              <MotionButton
+                type="button"
+                onClick={handlePrint}
+                className={getAppButtonClass({ variant: "secondary", size: "md" })}
+              >
+                <PrinterIcon className="h-4 w-4" />
+                Print
+              </MotionButton>
+
+              <SuccessPulse active={!isExportingPdf}>
+                <MotionButton
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  className={getAppButtonClass({ variant: "primary", size: "md" })}
+                >
+                  <DownloadIcon className="h-4 w-4" />
+                  {isExportingPdf ? "Exporting..." : "Export PDF"}
+                </MotionButton>
+              </SuccessPulse>
+            </div>
+          </div>
+        </div>
       </main>
 
       {showShareModal && cloudInvoiceId && (
