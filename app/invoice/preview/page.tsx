@@ -38,7 +38,7 @@ import {
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
-import { syncProfileFromInvoice } from "@/lib/supabase/profiles";
+import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
 import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
@@ -80,6 +80,7 @@ function PreviewContent() {
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -177,6 +178,13 @@ function PreviewContent() {
       if (!error) {
         // Sync profile details from this restored draft
         await syncProfileFromInvoice(currentData);
+        
+        // Check if assets are missing to show prompt
+        const { data: profile } = await loadProfile();
+        if (profile) {
+          const hasAssets = Boolean(profile.logo_url && profile.qr_code_url && profile.signature_url);
+          setShowProfilePrompt(!hasAssets);
+        }
 
         triggerToast("Draft saved to cloud ☁ Welcome back!");
         playInteractionCue("saveSuccess");
@@ -533,6 +541,37 @@ function PreviewContent() {
             </div>
           </div>
         </MotionReveal>
+
+        {/* Profile Completion Prompt */}
+        {showProfilePrompt && (
+          <MotionReveal preset="fade-up" className="mx-auto mb-6 w-full max-w-[210mm] print:hidden">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
+              <div className="flex items-center gap-3 text-left">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
+                  ✨
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
+                  <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowProfilePrompt(false)}
+                  className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
+                >
+                  Later
+                </button>
+                <Link 
+                  href="/profile"
+                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                >
+                  Finish Profile
+                </Link>
+              </div>
+            </div>
+          </MotionReveal>
+        )}
 
         {/* ─── Template Picker — Inline above invoice ──── */}
         <MotionReveal className="mb-4 print:hidden" preset="fade-up" delay={15}>

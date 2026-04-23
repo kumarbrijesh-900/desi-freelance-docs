@@ -218,5 +218,6 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     amountInWords: amountToWords(totals.grandTotal, displayCurrency),
     reverseCharge: false,
     authorizedSignatory: formData.agency?.agencyName || "",
+    signatureUrl: formData.agency?.signatureUrl || "",
   };
 }

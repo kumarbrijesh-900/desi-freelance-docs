@@ -10,6 +10,7 @@ import {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
@@ -196,6 +197,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       lutAvailability: "",
       lutNumber: "",
       noLutTaxHandling: "",
+      signatureUrl: "",
     },
     client: {
       clientName: "Metro Shoes Pvt. Ltd.",
@@ -670,6 +672,7 @@ function EditorContent() {
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
@@ -856,6 +859,24 @@ function EditorContent() {
     }
     applyProfile();
     return () => { cancelled = true; };
+  }, [isBootstrapped]);
+
+  /* ── Check for missing profile assets (Logo, QR, Signature) ── */
+  useEffect(() => {
+    if (!isBootstrapped) return;
+    
+    async function checkAssets() {
+      const { data: profile } = await loadProfile();
+      if (profile) {
+        const hasAssets = Boolean(
+          profile.logo_url && 
+          profile.qr_code_url && 
+          profile.signature_url
+        );
+        setShowProfilePrompt(!hasAssets);
+      }
+    }
+    void checkAssets();
   }, [isBootstrapped]);
 
   useEffect(() => {
@@ -1822,8 +1843,40 @@ function EditorContent() {
       <UploadToast message={toastMessage} visible={showToast} />
 
       <AppHeader rightSlot={<LogoutButton />} />
-
+      
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+        <div className="mx-auto w-full max-w-[1328px]">
+          {/* Profile Completion Prompt */}
+          {showProfilePrompt && (
+            <MotionReveal preset="fade-up" className="mb-6">
+              <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
+                    ✨
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
+                    <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setShowProfilePrompt(false)}
+                    className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
+                  >
+                    Later
+                  </button>
+                  <Link 
+                    href="/profile"
+                    className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                  >
+                    Finish Profile
+                  </Link>
+                </div>
+              </div>
+            </MotionReveal>
+          )}
+        </div>
         <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
           <div className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
             <div className="space-y-4">

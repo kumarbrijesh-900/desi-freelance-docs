@@ -72,6 +72,7 @@ export interface AgencyDetails {
   lutAvailability: "" | "yes" | "no";
   lutNumber: string;
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
+  signatureUrl: string;
 }
 
 export interface ClientDetails {
@@ -177,6 +178,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     lutAvailability: "",
     lutNumber: "",
     noLutTaxHandling: "",
+    signatureUrl: "",
   },
   client: {
     clientName: "",

@@ -90,6 +90,7 @@ export interface TemplateData {
   amountInWords: string;
   reverseCharge: boolean;
   authorizedSignatory: string;
+  signatureUrl: string;
 }
 
 /* ─── Template component interface ───────────────── */

@@ -181,10 +181,19 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         )}
         <div>
           <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">Authorized Signatory</p>
-          <div className="mt-6 border-b border-[#1A1A2E] pb-1">
-            <p className="text-[12px] font-medium text-[#666]">{data.authorizedSignatory || data.agencyName}</p>
+          <div className="mt-4 flex flex-col items-start">
+            {data.signatureUrl ? (
+              <div className="flex flex-col items-start gap-1">
+                <img src={data.signatureUrl} alt="Signature" className="h-10 w-auto object-contain brightness-0" />
+                <p className="text-[8px] italic text-[#999]">Digitally Signed</p>
+              </div>
+            ) : (
+              <div className="mt-2 w-full border-b border-[#1A1A2E] pb-1">
+                <p className="text-[12px] font-medium text-[#666]">{data.authorizedSignatory || data.agencyName}</p>
+              </div>
+            )}
+            <p className="mt-1 text-[10px] text-[#999]">Signature</p>
           </div>
-          <p className="mt-1 text-[10px] text-[#999]">Signature</p>
         </div>
       </section>
 

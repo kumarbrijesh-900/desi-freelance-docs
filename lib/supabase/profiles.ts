@@ -36,6 +36,7 @@ export interface UserProfile {
   swift_bic_code: string;
   iban_routing_code: string;
   qr_code_url: string;
+  signature_url: string;
   created_at: string;
   updated_at: string;
 }
@@ -59,6 +60,7 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     lutAvailability: p.lut_availability as AgencyDetails["lutAvailability"],
     lutNumber: p.lut_number,
     noLutTaxHandling: p.no_lut_tax_handling as AgencyDetails["noLutTaxHandling"],
+    signatureUrl: p.signature_url,
   };
 }
 
@@ -104,6 +106,7 @@ export function agencyToProfileRow(
     swift_bic_code: payment?.swiftBicCode || "",
     iban_routing_code: payment?.ibanRoutingCode || "",
     qr_code_url: payment?.qrCodeUrl || "",
+    signature_url: agency.signatureUrl || "",
     updated_at: new Date().toISOString(),
   };
 }

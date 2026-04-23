@@ -178,10 +178,19 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         )}
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Authorized Signatory</p>
-          <div className="mt-5 border-b border-[#3D2517] pb-1">
-            <p className="text-[12px] font-medium text-[#8B6F5E]">{data.authorizedSignatory || data.agencyName}</p>
+          <div className="mt-4 flex flex-col items-center">
+            {data.signatureUrl ? (
+              <div className="flex flex-col items-center gap-1">
+                <img src={data.signatureUrl} alt="Signature" className="h-10 w-auto object-contain brightness-0 opacity-80" />
+                <p className="text-[8px] italic text-[#B09080]">Digitally Signed</p>
+              </div>
+            ) : (
+              <div className="mt-2 w-full border-b border-[#3D2517] pb-1 text-center">
+                <p className="text-[12px] font-medium text-[#8B6F5E]">{data.authorizedSignatory || data.agencyName}</p>
+              </div>
+            )}
+            <p className="mt-1 text-[10px] text-[#B09080]">Signature</p>
           </div>
-          <p className="mt-1 text-[10px] text-[#B09080]">Signature</p>
         </div>
       </section>
 

@@ -106,6 +106,7 @@ export default function ProfilePage() {
   const [bankAddress, setBankAddress] = useState("");
   const [swiftBicCode, setSwiftBicCode] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [signatureUrl, setSignatureUrl] = useState("");
 
   // Load auth + profile
   useEffect(() => {
@@ -137,6 +138,7 @@ export default function ProfilePage() {
         setBankAddress(profile.bank_address);
         setSwiftBicCode(profile.swift_bic_code);
         setQrCodeUrl(profile.qr_code_url);
+        setSignatureUrl(profile.signature_url || "");
       }
       setIsLoading(false);
     }
@@ -162,6 +164,7 @@ export default function ProfilePage() {
       lutAvailability: "",
       lutNumber: "",
       noLutTaxHandling: "",
+      signatureUrl,
     };
 
     const payment: Partial<PaymentDetails> = {
@@ -371,13 +374,25 @@ export default function ProfilePage() {
                   </FieldRow>
 
                   <div className="sm:col-span-2">
-                    <FieldRow label="Logo URL" helper="Direct link to your logo image (PNG, SVG)">
+                    <FieldRow label="Logo URL" helper="Direct link to your logo image (PNG, SVG, 1:1 recommended)">
                       <input
                         type="url"
                         value={logoUrl}
                         onChange={(e) => setLogoUrl(e.target.value)}
                         placeholder="https://example.com/logo.png"
                         className={fc({ hasValue: Boolean(logoUrl) })}
+                      />
+                    </FieldRow>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <FieldRow label="Digital Signature URL" helper="Link to your signature image (PNG with transparent background recommended)">
+                      <input
+                        type="url"
+                        value={signatureUrl}
+                        onChange={(e) => setSignatureUrl(e.target.value)}
+                        placeholder="https://example.com/signature.png"
+                        className={fc({ hasValue: Boolean(signatureUrl) })}
                       />
                     </FieldRow>
                   </div>

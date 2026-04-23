@@ -221,10 +221,19 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
         )}
         <div>
           <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Authorized Signatory</p>
-          <div className="mt-5 border-b-2 border-[#1D3557] pb-1">
-            <p className="text-[11px] font-medium text-[#457B9D]">{data.authorizedSignatory || data.agencyName}</p>
+          <div className="mt-4 flex flex-col items-start">
+            {data.signatureUrl ? (
+              <div className="flex flex-col items-start gap-1">
+                <img src={data.signatureUrl} alt="Signature" className="h-10 w-auto object-contain brightness-0" />
+                <p className="text-[8px] italic text-[#A8DADC]">Digitally Signed</p>
+              </div>
+            ) : (
+              <div className="mt-2 w-full border-b-2 border-[#1D3557] pb-1">
+                <p className="text-[11px] font-medium text-[#457B9D]">{data.authorizedSignatory || data.agencyName}</p>
+              </div>
+            )}
+            <p className="mt-1 text-[9px] text-[#A8DADC]">Signature</p>
           </div>
-          <p className="mt-1 text-[9px] text-[#A8DADC]">Signature</p>
         </div>
       </section>
 

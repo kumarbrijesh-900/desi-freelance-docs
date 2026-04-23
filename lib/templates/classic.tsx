@@ -241,10 +241,19 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
         {/* Authorized Signatory */}
         <div className="border border-[#E2E2EA] px-4 py-3">
           <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#6E6E7A]">Authorized Signatory</p>
-          <div className="mt-6 border-b border-[#111118] pb-1">
-            <p className="text-[13px] font-medium text-[#555]">{data.authorizedSignatory || data.agencyName}</p>
+          <div className="mt-4 flex flex-col items-center">
+            {data.signatureUrl ? (
+              <div className="flex flex-col items-center gap-1">
+                <img src={data.signatureUrl} alt="Signature" className="h-12 w-auto object-contain" />
+                <p className="text-[8px] italic text-[#888]">Digitally Signed</p>
+              </div>
+            ) : (
+              <div className="mt-2 w-full border-b border-[#111118] pb-1 text-center">
+                <p className="text-[13px] font-medium text-[#555]">{data.authorizedSignatory || data.agencyName}</p>
+              </div>
+            )}
+            <p className="mt-1 text-[10px] text-[#888]">Signature</p>
           </div>
-          <p className="mt-1 text-[10px] text-[#888]">Signature</p>
         </div>
       </section>
 
