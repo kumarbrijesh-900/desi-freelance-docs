@@ -64,16 +64,23 @@ export default function ClientDetailsSection({
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [internalClients, setInternalClients] = useState<SavedClient[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Use provided clients or fetch them if needed
   const effectiveClients = savedClients && savedClients.length > 0 ? savedClients : internalClients;
 
   // Fetch clients if none were passed in (fallback)
   const performSafetyFetch = async () => {
-    if (effectiveClients.length === 0) {
+    if (effectiveClients.length === 0 && !isLoading) {
+      setIsLoading(true);
+      console.log("🚨 DROPDOWN_DEBUG: Starting safety fetch...");
       const { data, error } = await listClients();
-      if (error) console.error("🚨 DROPDOWN_ERROR:", error);
-      if (data && data.length > 0) {
+      setIsLoading(false);
+      
+      if (error) {
+        console.error("🚨 DROPDOWN_ERROR:", error);
+      }
+      if (data) {
         console.log("🚨 DROPDOWN_DEBUG: Safety fetch found", data.length, "clients");
         setInternalClients(data);
       }
@@ -232,34 +239,48 @@ export default function ClientDetailsSection({
             />
             
             {/* Suggestion Tray */}
-            {showSuggestions && filteredClients.length > 0 && (
+            {showSuggestions && (isLoading || effectiveClients.length > 0) && (
               <div 
                 className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200"
                 style={{ top: '100%' }}
               >
-                <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">
-                    Saved Clients
-                  </span>
-                  <span className="text-[10px] font-medium text-[color:var(--color-lime-600)]">
-                    {filteredClients.length} found
-                  </span>
-                </div>
-                {filteredClients.map((client) => (
-                  <button
-                    key={client.id}
-                    type="button"
-                    onClick={() => handleSelectClient(client)}
-                    className="flex w-full flex-col items-start rounded-lg px-3 py-2 text-left transition-colors hover:bg-[color:var(--bg-surface-muted)]"
-                  >
-                    <span className="text-sm font-semibold text-[color:var(--text-primary)]">
-                      {client.client_name}
-                    </span>
-                    <span className="text-xs text-[color:var(--text-muted)] line-clamp-1">
-                      {client.client_email || client.city || "No details"}
-                    </span>
-                  </button>
-                ))}
+                {isLoading ? (
+                  <div className="px-3 py-4 text-center">
+                    <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">
+                        {filteredClients.length === 0 ? "No matches found" : "Saved Clients"}
+                      </span>
+                      <span className="text-[10px] font-medium text-[color:var(--color-lime-600)]">
+                        {effectiveClients.length} in directory
+                      </span>
+                    </div>
+                    {filteredClients.map((client) => (
+                      <button
+                        key={client.id}
+                        type="button"
+                        onClick={() => handleSelectClient(client)}
+                        className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
+                      >
+                        <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">
+                          {client.client_name}
+                        </span>
+                        <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
+                          <span>{client.client_email}</span>
+                          {client.city && <span>• {client.city}</span>}
+                        </div>
+                      </button>
+                    ))}
+                    {filteredClients.length === 0 && (
+                      <div className="px-3 py-4 text-center">
+                        <p className="text-[12px] text-[color:var(--text-soft)]">No clients match your search.</p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
 
