@@ -33,10 +33,12 @@ import {
   deleteClient,
   type SavedClient,
 } from "@/lib/supabase/clients";
+import { createMsa } from "@/lib/supabase/msas";
 import { supabase } from "@/lib/supabase/client";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { ClientDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 
 /* ─── Add / Edit Client Form ─────────────────────── */
 
@@ -57,6 +59,9 @@ function ClientForm({
   const [gstin, setGstin] = useState(initial?.client_gstin || "");
   const [location, setLocation] = useState(initial?.client_location || "domestic");
   const [country, setCountry] = useState(initial?.client_country || "");
+  const [msaContent, setMsaContent] = useState("");
+  const [showMsa, setShowMsa] = useState(false);
+  const [showMsaTooltip, setShowMsaTooltip] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const fc = getAppFieldClass;
@@ -85,6 +90,15 @@ function ClientForm({
 
     const { data, error } = await upsertClient(details, initial?.id);
     if (data) {
+      // Create MSA if content was provided (only for new clients)
+      if (msaContent.trim() && !initial) {
+        await createMsa({
+          clientId: data.id,
+          title: "Master Service Agreement",
+          content: msaContent.trim(),
+          status: "draft",
+        });
+      }
       playInteractionCue("saveSuccess");
       onSave(data);
     }
@@ -214,6 +228,92 @@ function ClientForm({
             </div>
           )}
         </div>
+
+        {/* MSA Section — collapsible */}
+        {!initial && (
+          <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMsa(!showMsa)}
+                className="flex items-center gap-1.5 text-[13px] font-medium text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
+              >
+                <svg
+                  className={cn("h-3.5 w-3.5 transition-transform duration-200", showMsa && "rotate-90")}
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+                📄 Attach MSA (Master Service Agreement)
+              </button>
+
+              {/* Info tooltip */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onMouseEnter={() => setShowMsaTooltip(true)}
+                  onMouseLeave={() => setShowMsaTooltip(false)}
+                  onClick={() => setShowMsaTooltip(!showMsaTooltip)}
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] font-bold text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)] hover:text-[color:var(--text-primary)] transition-colors"
+                >
+                  ?
+                </button>
+
+                <AnimatePresence>
+                  {showMsaTooltip && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2 rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-lg"
+                    >
+                      <p className="text-[12px] font-semibold text-[color:var(--text-primary)]">
+                        What is an MSA?
+                      </p>
+                      <p className="mt-1 text-[11px] leading-[1.6] text-[color:var(--text-secondary)]">
+                        A <strong>Master Service Agreement</strong> defines the terms of your working relationship — scope, payment terms, IP rights, liability, etc.
+                      </p>
+                      <p className="mt-2 text-[11px] leading-[1.6] text-[color:var(--text-secondary)]">
+                        <strong>Why it&apos;s useful:</strong> When you share an invoice link, the client must accept the MSA before viewing it. This gives you a digital paper trail that they agreed to your terms.
+                      </p>
+                      <div className="mt-2 rounded-md bg-[color:var(--color-lime-50)] px-2 py-1.5">
+                        <p className="text-[10px] font-medium text-[color:var(--color-lime-700)]">
+                          💡 Pro tip: You can always add or edit MSAs later from the client detail page.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {showMsa && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3">
+                    <textarea
+                      value={msaContent}
+                      onChange={(e) => setMsaContent(e.target.value)}
+                      rows={6}
+                      placeholder={`Example:\n\n1. Scope of Work: [Agency] will provide design services as detailed in individual invoices.\n2. Payment Terms: Net 15 from invoice date. Late payments incur 1.5% monthly interest.\n3. Intellectual Property: Full ownership transfers upon complete payment.\n4. Confidentiality: Both parties agree to keep project details confidential.\n5. Revisions: Up to 2 rounds included; additional revisions billed at hourly rate.`}
+                      className={fc({ hasValue: Boolean(msaContent), multiline: true })}
+                    />
+                    <p className={appFieldHelperTextClass}>
+                      Optional. Paste your standard terms or type a simple agreement. Saved as draft — activate it from the client detail page.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-4 flex items-center gap-2">
