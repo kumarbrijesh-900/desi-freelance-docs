@@ -122,26 +122,33 @@ export default function ProfilePage() {
       setIsAuthenticated(true);
       setUserId(user.id);
 
-      const { data: profile } = await loadProfile();
+      const { data: profile, error: loadError } = await loadProfile();
+      if (loadError) {
+        console.error("PROFILE_INIT_ERROR:", loadError);
+      }
+      
       if (profile) {
-        setAgencyName(profile.agency_name);
-        setAddressLine1(profile.address_line1);
-        setAddressLine2(profile.address_line2);
-        setCity(profile.city);
-        setPinCode(profile.pin_code);
-        setAgencyState(profile.state);
-        setGstin(profile.gstin);
-        setPan(profile.pan);
-        setLogoUrl(profile.logo_url);
+        console.log("PROFILE_INIT_SUCCESS: Setting fields for", profile.agency_name);
+        setAgencyName(profile.agency_name || "");
+        setAddressLine1(profile.address_line1 || "");
+        setAddressLine2(profile.address_line2 || "");
+        setCity(profile.city || "");
+        setPinCode(profile.pin_code || "");
+        setAgencyState(profile.state || "");
+        setGstin(profile.gstin || "");
+        setPan(profile.pan || "");
+        setLogoUrl(profile.logo_url || "");
         setGstStatus(profile.gst_registration_status || "not-registered");
-        setBankName(profile.bank_name);
-        setAccountName(profile.account_name);
-        setAccountNumber(profile.account_number);
-        setIfscCode(profile.ifsc_code);
-        setBankAddress(profile.bank_address);
-        setSwiftBicCode(profile.swift_bic_code);
-        setQrCodeUrl(profile.qr_code_url);
+        setBankName(profile.bank_name || "");
+        setAccountName(profile.account_name || "");
+        setAccountNumber(profile.account_number || "");
+        setIfscCode(profile.ifsc_code || "");
+        setBankAddress(profile.bank_address || "");
+        setSwiftBicCode(profile.swift_bic_code || "");
+        setQrCodeUrl(profile.qr_code_url || "");
         setSignatureUrl(profile.signature_url || "");
+      } else {
+        console.log("PROFILE_INIT_INFO: No profile data to apply.");
       }
       setIsLoading(false);
     }

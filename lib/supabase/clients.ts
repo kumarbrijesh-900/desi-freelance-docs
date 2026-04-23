@@ -86,8 +86,9 @@ export async function listClients(): Promise<{
   error: string | null;
 }> {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) return { data: [], error: "Not authenticated" };
 
   const { data, error } = await supabase

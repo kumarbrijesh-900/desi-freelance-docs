@@ -61,6 +61,11 @@ import {
   syncProfileFromInvoice,
 } from "@/lib/supabase/profiles";
 import {
+  listClients,
+  savedClientToClientDetails,
+  type SavedClient,
+} from "@/lib/supabase/clients";
+import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
@@ -677,6 +682,7 @@ function EditorContent() {
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
+  const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -862,6 +868,36 @@ function EditorContent() {
     }
     applyProfile();
     return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBootstrapped]);
+
+  /* ── Client auto-fill: load saved clients and handle single-client case ── */
+  useEffect(() => {
+    if (!isBootstrapped) return;
+    
+    let cancelled = false;
+    async function fetchClients() {
+      const { data: clients } = await listClients();
+      if (cancelled) return;
+      
+      console.log("CLIENT_LOAD: Found", clients?.length || 0, "saved clients");
+      setSavedClients(clients || []);
+
+      // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
+      const isFresh = searchParams.get("fresh") === "1";
+      if (clients.length === 1 && (!formData.client.clientName.trim() || isFresh)) {
+        const clientDetails = savedClientToClientDetails(clients[0]);
+        setFormData(prev => ({
+          ...prev,
+          client: clientDetails
+        }));
+        console.log("CLIENT_AUTOFILL: Applied unique client", clients[0].client_name);
+      }
+    }
+
+    void fetchClients();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBootstrapped]);
 
   /* ── Check for missing profile assets (Logo, QR, Signature) ── */
@@ -1698,18 +1734,11 @@ function EditorContent() {
       case "client":
         return (
           <ClientDetailsSection
-            embedded
             value={formData.client}
-            onChange={(client) =>
-              setFormData((prev) =>
-                mergeInvoiceFormData({
-                  ...prev,
-                  client,
-                })
-              )
-            }
-            errors={fieldErrors.client}
+            onChange={(client) => updateFormSection("client", client)}
+            errors={validationErrors}
             showAllErrors={showAllValidationErrors}
+            savedClients={savedClients}
           />
         );
       case "deliverables":

@@ -32,6 +32,12 @@ import {
   appFieldTripleCompactGridClass,
 } from "@/lib/form-foundation";
 
+import {
+  listClients,
+  SavedClient,
+  savedClientToClientDetails,
+} from "@/lib/supabase/clients";
+
 interface ClientDetailsSectionProps {
   value: ClientDetails;
   onChange: (value: ClientDetails) => void;
@@ -44,6 +50,7 @@ interface ClientDetailsSectionProps {
     clientGstin?: string;
   };
   showAllErrors?: boolean;
+  savedClients?: SavedClient[];
 }
 
 export default function ClientDetailsSection({
@@ -55,6 +62,36 @@ export default function ClientDetailsSection({
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [internalClients, setInternalClients] = useState<SavedClient[]>([]);
+
+  // Use provided clients or fetch them if needed
+  const effectiveClients = savedClients && savedClients.length > 0 ? savedClients : internalClients;
+
+  // Fetch clients if none were passed in (fallback)
+  useEffect(() => {
+    if (!savedClients || savedClients.length === 0) {
+      listClients().then(({ data, error }) => {
+        if (error) {
+          console.error("CLIENT_FETCH_ERROR:", error);
+        }
+        if (data) {
+          console.log("CLIENT_FETCH_SUCCESS: Found", data.length, "clients");
+          setInternalClients(data);
+        }
+      });
+    }
+  }, [savedClients]);
+
+  const filteredClients = effectiveClients.filter((c) =>
+    c.client_name.toLowerCase().includes(value.clientName.toLowerCase())
+  );
+
+  const handleSelectClient = (client: SavedClient) => {
+    const details = savedClientToClientDetails(client);
+    onChange(details);
+    setShowSuggestions(false);
+  };
 
   const syncClientDetails = (nextValue: ClientDetails) => {
     if (nextValue.clientLocation === "international") {
@@ -148,6 +185,7 @@ export default function ClientDetailsSection({
   return (
     <section
       className={cn(
+        "overflow-visible",
         embedded
           ? "rounded-none border-0 bg-transparent p-0 shadow-none"
           : getAppPanelClass()
@@ -164,7 +202,7 @@ export default function ClientDetailsSection({
 
       <div className={appFieldFullWidthStackClass}>
         <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div>
+          <div className="relative">
             <label className={appFieldLabelClass}>
               Client Name *
             </label>
@@ -172,14 +210,55 @@ export default function ClientDetailsSection({
               suppressHydrationWarning
               type="text"
               value={value.clientName}
-              onChange={(e) => updateField("clientName", e.target.value)}
-              onBlur={() => markTouched("clientName")}
+              onChange={(e) => {
+                updateField("clientName", e.target.value);
+                setShowSuggestions(true);
+              }}
+              onBlur={() => {
+                markTouched("clientName");
+                // Delay hiding suggestions so click can register
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              onFocus={() => setShowSuggestions(true)}
               placeholder="Client or company name"
               className={inputClass(
                 clientNameError,
                 Boolean(value.clientName)
               )}
             />
+            
+            {/* Suggestion Tray */}
+            {showSuggestions && filteredClients.length > 0 && (
+              <div 
+                className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200"
+                style={{ top: '100%' }}
+              >
+                <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">
+                    Saved Clients
+                  </span>
+                  <span className="text-[10px] font-medium text-[color:var(--color-lime-600)]">
+                    {filteredClients.length} found
+                  </span>
+                </div>
+                {filteredClients.map((client) => (
+                  <button
+                    key={client.id}
+                    type="button"
+                    onClick={() => handleSelectClient(client)}
+                    className="flex w-full flex-col items-start rounded-lg px-3 py-2 text-left transition-colors hover:bg-[color:var(--bg-surface-muted)]"
+                  >
+                    <span className="text-sm font-semibold text-[color:var(--text-primary)]">
+                      {client.client_name}
+                    </span>
+                    <span className="text-xs text-[color:var(--text-muted)] line-clamp-1">
+                      {client.client_email || client.city || "No details"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             {clientNameError ? (
               <p className={appFieldErrorTextClass}>
                 {clientNameError}

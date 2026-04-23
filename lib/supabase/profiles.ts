@@ -117,10 +117,12 @@ export async function loadProfile(): Promise<{
   data: UserProfile | null;
   error: string | null;
 }> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { data: null, error: "Not authenticated" };
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    console.warn("loadProfile: No session found");
+    return { data: null, error: "Not authenticated" };
+  }
+  const user = session.user;
 
   const { data, error } = await supabase
     .from("user_profiles")
@@ -128,7 +130,17 @@ export async function loadProfile(): Promise<{
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) return { data: null, error: error.message };
+  if (error) {
+    console.error("SUPABASE_LOAD_ERROR:", error.message);
+    return { data: null, error: error.message };
+  }
+  
+  if (!data) {
+    console.log("SUPABASE_LOAD_INFO: No profile row found for user_id:", user.id);
+  } else {
+    console.log("SUPABASE_LOAD_SUCCESS: Profile found for agency:", data.agency_name);
+  }
+
   return { data: data as UserProfile | null, error: null };
 }
 
@@ -163,7 +175,10 @@ export async function upsertProfile(
       .select()
       .single();
 
-    if (error) return { data: null, error: error.message };
+    if (error) {
+      console.error("SUPABASE_UPDATE_ERROR:", error.message);
+      return { data: null, error: error.message };
+    }
     return { data: data as UserProfile, error: null };
   }
 
@@ -173,7 +188,10 @@ export async function upsertProfile(
     .select()
     .single();
 
-  if (error) return { data: null, error: error.message };
+  if (error) {
+    console.error("SUPABASE_INSERT_ERROR:", error.message);
+    return { data: null, error: error.message };
+  }
   return { data: data as UserProfile, error: null };
 }
 

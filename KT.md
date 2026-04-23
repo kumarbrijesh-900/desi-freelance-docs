@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phase 9f complete — File Uploads, Supabase Storage Integration)
+> **Last Updated:** 2026-04-23 (Session: Phase 9g complete — Smart Client Auto-fill & Suggestion Tray)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -293,8 +293,7 @@ tests/
 **Active branch:** `main` (deployed to Vercel)
 
 **Recent commits (newest first):**
-| Hash | Description |
-|------|-------------|
+| `3b12a48` | Phase 9g — Smart Client Auto-fill & Suggestion Tray + Unique-client auto-population |
 | `90075d2` | GST compliance on all 6 invoice templates (state codes, amount in words, RCM, signatory) |
 | `a292677` | Phase 9a — Editor layout + GST compliance utilities |
 | `1f52d64` | Sticky header + softer placeholders |
@@ -395,6 +394,14 @@ tests/
 - **Supabase Storage Integration:** Implemented `lib/supabase/storage.ts` to handle binary uploads to the `professional-assets` bucket.
 - **Automatic Profile Sync:** Updated `handleSaveDraft` in the Preview page to automatically sync the user's master profile whenever they save an invoice draft, ensuring professional assets are captured immediately.
 - **Unified Asset Management:** Logo, Signature, and QR codes now support both direct URL entry and native file selection with automatic cloud hosting.
+
+### Phase 9g — Smart Client Auto-fill & Suggestion Tray
+- **Searchable Dropdown:** Implemented a high-visibility suggestion tray (`z-[9999]`) in the Client Name field that filters saved clients as the user types.
+- **One-Click Zap:** Selecting a client from the tray automatically "zaps" all related details (Email, GSTIN, Address, SEZ status) into the form.
+- **Unique-Client Rule:** If a user has exactly one client in their directory, the form automatically pre-fills that client's details when starting a fresh invoice.
+- **Self-Fetching Fallback:** Added a `useEffect` fallback in the Client Section to independently fetch clients if parent state fails, ensuring the tray works even in complex navigation scenarios.
+- **Unified Auth Service:** Switched to `getSession` in `lib/supabase/clients.ts` for faster, more reliable client loading.
+- **KT Persistence:** Established a "Commit → Push → Verify on Vercel → Update KT" workflow for all subsequent implementations.
 
 ### Known Issues
 - **Share Button:** Temporarily hidden in Preview (requires subscription/billing logic implementation).
