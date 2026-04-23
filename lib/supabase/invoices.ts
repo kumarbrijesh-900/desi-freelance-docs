@@ -13,6 +13,8 @@ import type { InvoiceFormData } from "@/types/invoice";
 
 export type InvoiceStatus = "draft" | "finalized";
 
+export type MsaResponse = "pending" | "accepted" | "rejected";
+
 export interface SavedInvoice {
   id: string;
   user_id: string;
@@ -21,9 +23,12 @@ export interface SavedInvoice {
   status: InvoiceStatus;
   share_token: string | null;
   shared_at: string | null;
+  shared_to_email: string | null;
   template_id: string | null;
   msa_id: string | null;
   msa_accepted_at: string | null;
+  msa_response: MsaResponse;
+  msa_responded_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -280,7 +285,7 @@ export async function detachMsaFromInvoice(
 
   const { error } = await supabase
     .from("invoices")
-    .update({ msa_id: null, msa_accepted_at: null })
+    .update({ msa_id: null, msa_accepted_at: null, msa_response: "pending", msa_responded_at: null })
     .eq("id", invoiceId)
     .eq("user_id", userId);
 
@@ -302,15 +307,43 @@ export async function loadMsaForSharedInvoice(
   return { title: data.title, content: data.content };
 }
 
-/** Accept MSA on a shared invoice (public — anon user) */
-export async function acceptMsaOnInvoice(
-  shareToken: string
+/** Respond to MSA on a shared invoice (public — anon user) */
+export async function respondToMsa(
+  shareToken: string,
+  response: "accepted" | "rejected"
 ): Promise<{ error: string | null }> {
+  const now = new Date().toISOString();
+  const updateFields: Record<string, unknown> = {
+    msa_response: response,
+    msa_responded_at: now,
+  };
+  // Also set legacy msa_accepted_at for backward compat
+  if (response === "accepted") {
+    updateFields.msa_accepted_at = now;
+  }
+
   const { error } = await supabase
     .from("invoices")
-    .update({ msa_accepted_at: new Date().toISOString() })
+    .update(updateFields)
     .eq("share_token", shareToken)
     .not("msa_id", "is", null);
+
+  return { error: error?.message ?? null };
+}
+
+/** Update the shared_to_email on an invoice */
+export async function setSharedToEmail(
+  invoiceId: string,
+  email: string
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({ shared_to_email: email })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
 
   return { error: error?.message ?? null };
 }

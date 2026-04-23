@@ -9,8 +9,9 @@ import {
   loadInvoiceByToken,
   recordView,
   loadMsaForSharedInvoice,
-  acceptMsaOnInvoice,
+  respondToMsa,
 } from "@/lib/supabase/invoices";
+import type { MsaResponse } from "@/lib/supabase/invoices";
 import Link from "next/link";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 
@@ -32,9 +33,12 @@ export default function PublicInvoiceViewPage({
 
   // MSA gating state
   const [msaRequired, setMsaRequired] = useState(false);
-  const [msaAccepted, setMsaAccepted] = useState(false);
+  const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [msaData, setMsaData] = useState<MsaData | null>(null);
-  const [msaAccepting, setMsaAccepting] = useState(false);
+  const [msaSubmitting, setMsaSubmitting] = useState(false);
+
+  // Agency name for rejection message
+  const [agencyName, setAgencyName] = useState("The agency");
 
   useEffect(() => {
     async function load() {
@@ -45,19 +49,26 @@ export default function PublicInvoiceViewPage({
         return;
       }
 
-      setFormData(mergeInvoiceFormData(data.form_data));
+      const fd = mergeInvoiceFormData(data.form_data);
+      setFormData(fd);
       setTemplateId(data.template_id || "classic");
 
+      // Extract agency name for messaging
+      if (fd.agency?.agencyName) {
+        setAgencyName(fd.agency.agencyName);
+      }
+
       // Check MSA gating
-      if (data.msa_id && !data.msa_accepted_at) {
-        setMsaRequired(true);
-        // Load MSA content for display
-        const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
-        if (msa) {
-          setMsaData(msa);
+      const response = data.msa_response || "pending";
+      setMsaResponse(response);
+
+      if (data.msa_id) {
+        if (response === "pending") {
+          setMsaRequired(true);
+          const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
+          if (msa) setMsaData(msa);
         }
-      } else if (data.msa_id && data.msa_accepted_at) {
-        setMsaAccepted(true);
+        // If already accepted or rejected, msaRequired stays false
       }
 
       // Record the view (fire-and-forget)
@@ -68,14 +79,16 @@ export default function PublicInvoiceViewPage({
     load();
   }, [token]);
 
-  const handleAcceptMsa = async () => {
-    setMsaAccepting(true);
-    const { error } = await acceptMsaOnInvoice(token);
+  const handleMsaRespond = async (response: "accepted" | "rejected") => {
+    setMsaSubmitting(true);
+    const { error } = await respondToMsa(token, response);
     if (!error) {
-      setMsaRequired(false);
-      setMsaAccepted(true);
+      setMsaResponse(response);
+      if (response === "accepted") {
+        setMsaRequired(false);
+      }
     }
-    setMsaAccepting(false);
+    setMsaSubmitting(false);
   };
 
   /* ─── Loading ──────────────────────────────────────── */
@@ -122,27 +135,62 @@ export default function PublicInvoiceViewPage({
     );
   }
 
-  /* ─── MSA Gate ─────────────────────────────────────── */
+  /* ─── MSA Rejected ─────────────────────────────────── */
 
-  if (msaRequired && !msaAccepted) {
+  if (msaResponse === "rejected") {
+    return (
+      <main className="min-h-screen bg-[color:var(--bg-canvas)] py-8">
+        <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+          </Link>
+        </div>
+
+        <MotionReveal preset="fade-up">
+          <div className="mx-auto max-w-md px-4">
+            <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 border border-amber-200">
+                <svg className="h-7 w-7 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </div>
+
+              <h1 className="text-lg font-bold text-[color:var(--text-primary)]">
+                MSA Declined
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
+                <strong>{agencyName}</strong> has been notified of your decision. They will contact you soon to discuss the terms.
+              </p>
+              <p className="mt-4 text-xs text-[color:var(--text-muted)]">
+                If you declined by mistake, please contact the agency directly.
+              </p>
+            </div>
+          </div>
+        </MotionReveal>
+      </main>
+    );
+  }
+
+  /* ─── MSA Gate (pending) ───────────────────────────── */
+
+  if (msaRequired && msaResponse === "pending") {
     return (
       <main className="min-h-screen bg-[color:var(--bg-canvas)] py-8">
         {/* Branding header */}
         <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
-              L
-            </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-              Lance
-            </span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
           </Link>
         </div>
 
         <MotionReveal preset="fade-up">
           <div className="mx-auto max-w-2xl px-4">
             <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-lg overflow-hidden">
-              {/* Header */}
+              {/* MSA Header */}
               <div className="border-b border-[color:var(--border-subtle)] bg-gradient-to-r from-[color:var(--color-lime-50)] to-white px-6 py-5">
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-lime-100)]">
@@ -153,7 +201,7 @@ export default function PublicInvoiceViewPage({
                       Master Service Agreement
                     </h1>
                     <p className="text-sm text-[color:var(--text-secondary)]">
-                      Please review and accept before viewing the invoice.
+                      Review the terms below before viewing the invoice from <strong>{agencyName}</strong>.
                     </p>
                   </div>
                 </div>
@@ -175,26 +223,34 @@ export default function PublicInvoiceViewPage({
                 ) : (
                   <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4">
                     <p className="text-sm text-[color:var(--text-muted)]">
-                      The service provider has attached an MSA to this invoice.
-                      Please accept to continue.
+                      {agencyName} has attached a Master Service Agreement to this invoice.
+                      Please review and respond below.
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* Action footer */}
+              {/* Action footer — Accept or Reject */}
               <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-4">
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-xs text-[color:var(--text-muted)]">
-                    By clicking &quot;Accept&quot;, you agree to the terms outlined above.
-                  </p>
+                <p className="mb-3 text-xs text-[color:var(--text-muted)]">
+                  By clicking &quot;Accept&quot;, you agree to the terms outlined above. If you have concerns, click &quot;Reject&quot; and the agency will reach out to discuss.
+                </p>
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={handleAcceptMsa}
-                    disabled={msaAccepting}
+                    onClick={() => handleMsaRespond("accepted")}
+                    disabled={msaSubmitting}
                     className={getAppButtonClass({ variant: "primary", size: "md" })}
                   >
-                    {msaAccepting ? "Accepting…" : "Accept & View Invoice"}
+                    {msaSubmitting ? "Processing…" : "Accept MSA"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMsaRespond("rejected")}
+                    disabled={msaSubmitting}
+                    className={`${getAppButtonClass({ variant: "ghost", size: "md" })} !text-red-600 hover:!bg-red-50`}
+                  >
+                    Reject MSA
                   </button>
                 </div>
               </div>
@@ -238,15 +294,11 @@ export default function PublicInvoiceViewPage({
         {/* Minimal branding header */}
         <div className="mx-auto mb-5 flex max-w-[210mm] items-center justify-between px-4 print:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
-              L
-            </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-              Lance
-            </span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
           </Link>
           <div className="flex items-center gap-3">
-            {msaAccepted && (
+            {msaResponse === "accepted" && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
                 <CheckCircleIcon className="h-3.5 w-3.5" />
                 MSA Accepted

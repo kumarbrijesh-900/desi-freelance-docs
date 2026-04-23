@@ -37,7 +37,7 @@ import {
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
-import type { InvoiceStatus } from "@/lib/supabase/invoices";
+import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 
 const STORAGE_KEY = "invoice-preview-data";
@@ -64,7 +64,7 @@ export default function InvoicePreviewPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
-  const [msaAcceptedAt, setMsaAcceptedAt] = useState<string | null>(null);
+  const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
 
@@ -479,8 +479,9 @@ export default function InvoicePreviewPage() {
         <ShareLinkModal
           invoiceId={cloudInvoiceId}
           existingToken={shareToken}
+          clientEmail={data?.client?.clientEmail || ""}
           currentMsaId={currentMsaId}
-          msaAcceptedAt={msaAcceptedAt}
+          msaResponse={msaResponse}
           onClose={() => setShowShareModal(false)}
           onShared={(token) => setShareToken(token)}
         />
