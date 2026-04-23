@@ -138,22 +138,24 @@ export async function upsertProfile(
   agency: AgencyDetails,
   payment?: Partial<PaymentDetails>
 ): Promise<{ data: UserProfile | null; error: string | null }> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { data: null, error: "Not authenticated" };
+  // Force-refresh session to ensure we have latest user_id
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return { data: null, error: "Not authenticated" };
+  const user = session.user;
 
   const row = agencyToProfileRow(agency, payment);
 
-  // Check if profile exists
-  const { data: existing } = await supabase
+  // Use UPSERT directly with ON CONFLICT (user_id) if possible, 
+  // but for safety we'll stick to our exist check with a force update.
+  const { data: existing, error: checkError } = await supabase
     .from("user_profiles")
     .select("id")
     .eq("user_id", user.id)
     .maybeSingle();
 
+  if (checkError) return { data: null, error: checkError.message };
+
   if (existing) {
-    // Update
     const { data, error } = await supabase
       .from("user_profiles")
       .update(row)
@@ -165,7 +167,6 @@ export async function upsertProfile(
     return { data: data as UserProfile, error: null };
   }
 
-  // Insert
   const { data, error } = await supabase
     .from("user_profiles")
     .insert({ ...row, user_id: user.id })

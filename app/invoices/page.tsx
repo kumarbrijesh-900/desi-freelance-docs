@@ -452,7 +452,7 @@ export default function InvoiceHistoryPage() {
                   <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
                     Create your first invoice using the smart brief extraction flow.
                   </p>
-                  <Link href="/invoice/new" className={getAppButtonClass({ variant: "primary", size: "md" })}>
+                  <Link href="/invoice/new?fresh=1" className={getAppButtonClass({ variant: "primary", size: "md" })}>
                     Create Invoice
                   </Link>
                 </div>

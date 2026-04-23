@@ -154,33 +154,39 @@ export default function Home() {
 
           <MotionReveal preset="fade-up" delay={900}>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link
-                href={isLoggedIn ? "/invoice/new" : "/login"}
-                className={getAppButtonClass({ variant: "primary", size: "lg" })}
-              >
-                <span className="inline-flex items-center gap-2.5">
-                  <SparklesIcon className="h-4 w-4" />
-                  Create Invoice
-                  <ArrowRightIcon className="h-4 w-4" />
-                </span>
-              </Link>
               {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/invoice/new?fresh=1"
+                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2.5">
+                      <SparklesIcon className="h-4 w-4" />
+                      Create Invoice
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </span>
+                  </Link>
+                  <Link
+                    href="/invoices"
+                    className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <DocumentSparkIcon className="h-4 w-4" />
+                      Your Invoices
+                    </span>
+                  </Link>
+                </>
+              ) : (
                 <Link
-                  href="/invoices"
-                  className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                  href="/login"
+                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <DocumentSparkIcon className="h-4 w-4" />
-                    Your Invoices
+                  <span className="inline-flex items-center gap-2.5">
+                    <SparklesIcon className="h-4 w-4" />
+                    Create Invoice
+                    <ArrowRightIcon className="h-4 w-4" />
                   </span>
                 </Link>
-              ) : (
-                <a
-                  href="#how-it-works"
-                  className={getAppButtonClass({ variant: "ghost", size: "lg" })}
-                >
-                  See how it works
-                </a>
               )}
             </div>
           </MotionReveal>

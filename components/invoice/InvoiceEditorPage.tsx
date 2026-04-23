@@ -723,7 +723,9 @@ function EditorContent() {
 
     try {
       try {
-        const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+        const isFresh = window.location.search.includes("fresh=1");
+        const rawDraft = !isFresh ? window.localStorage.getItem(DRAFT_STORAGE_KEY) : null;
+        
         if (rawDraft) {
           const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
           if (
@@ -835,8 +837,9 @@ function EditorContent() {
   /* ── Profile auto-fill: load saved agency when starting fresh ── */
   useEffect(() => {
     if (!isBootstrapped) return;
-    // Only auto-fill if agency name is empty (fresh form, not a restored draft)
-    if (formData.agency.agencyName.trim()) return;
+    const isFresh = searchParams.get("fresh") === "1";
+    // Only auto-fill if agency name is empty (fresh form, not a restored draft) OR if explicitly fresh
+    if (formData.agency.agencyName.trim() && !isFresh) return;
 
     let cancelled = false;
     async function applyProfile() {
