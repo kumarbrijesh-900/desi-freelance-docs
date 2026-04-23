@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phases 1–9b.1 complete — preview redesign, invoice sharing, MSA gating)
+> **Last Updated:** 2026-04-23 (Session: Phases 1–9b.2 complete — preview redesign, email sharing, MSA accept/reject)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -324,34 +324,35 @@ tests/
 - **Authorized Signatory:** Signature line with agency name on all 6 templates
 - **Template data pipeline:** Extended `TemplateData` with `agencyStateCode`, `clientStateCode`, `amountInWords`, `reverseCharge`, `authorizedSignatory`
 
----
-
-## 10. Pending Roadmap
-
 ### Phase 9b — Preview Redesign + Invoice Sharing
 - **Single-column preview:** Removed side-panel layout, template picker now renders inline above invoice in horizontal mode
 - **Compact toolbar:** Reduced padding, shorter description copy, tighter gap
 - **TemplatePicker horizontal mode:** New `layout` prop ("vertical" | "horizontal") for flexible rendering
 - **Share invoice link system:** 12-char unique share tokens stored in `invoices.share_token`
-- **ShareLinkModal:** Modal with generate + copy-to-clipboard, feedback cues
 - **Public view route:** `/view/[token]` renders shared invoice with Lance branding header and print support
 - **Read receipts:** `read_receipts` table tracks view count + timestamp + user agent
 - **Template persistence:** `template_id` saved with invoice for consistent rendering on public view
 - **New icons:** `ShareIcon`, `LinkCopyIcon`, `CheckCircleIcon` in app-icons
-- **Supabase migration:** `share_token`, `shared_at`, `template_id` columns + `read_receipts` table + RLS policies
-
----
-
-## 10. Pending Roadmap
 
 ### Phase 9b.1 — MSA Gating
 - **MSA gate screen:** `/view/[token]` shows MSA text with blurred invoice preview when MSA is attached but not accepted
-- **MSA acceptance:** Client clicks "Accept & View Invoice" to unlock the full invoice
-- **ShareLinkModal MSA section:** Lists all user MSAs, radio-select to attach/detach, status badges (Pending / Client Accepted)
-- **Service functions:** `attachMsaToInvoice`, `detachMsaFromInvoice`, `acceptMsaOnInvoice`, `loadMsaForSharedInvoice`
+- **ShareLinkModal MSA section:** Lists all user MSAs, radio-select to attach/detach
+- **Service functions:** `attachMsaToInvoice`, `detachMsaFromInvoice`, `loadMsaForSharedInvoice`
 - **listAllUserMsas:** Cross-client MSA listing for the share modal
-- **Supabase migration:** `msa_id`, `msa_accepted_at` columns + RLS policies for public MSA read and acceptance
-- **MSA Accepted badge:** Green pill badge shown in public view header after acceptance
+- **Supabase migration:** `msa_id`, `msa_accepted_at` columns + RLS policies
+
+### Phase 9b.2 — MSA Accept/Reject + Email-Only Sharing
+- **Email-only sharing:** Replaced copy-paste link with `mailto:` to client email (prevents self-acceptance loophole)
+- **Client email validation:** Share button requires client email to be present in form data
+- **MSA Accept/Reject:** Client sees both "Accept MSA" and "Reject MSA" buttons
+  - **Accept:** Unlocks invoice, green "MSA Accepted" badge shown in header
+  - **Reject:** Shows "Agency notified, they will contact you soon" message, invoice stays locked
+- **MSA response tracking:** `msa_response` enum (pending/accepted/rejected) + `msa_responded_at` timestamp
+- **Default MSA template:** 9-clause professional MSA (IP Rights, Payments, Revisions, Liability, Confidentiality, Termination) auto-created when no MSAs exist
+- **MSA Tooltip:** "Why you need an MSA" — educational tooltip covering IP Rights, Scope & Payments, Liability, Termination
+- **Offline sharing note:** PDF export assumes agency and client have an existing accord
+- **Agency name personalization:** Rejection and MSA screens show agency name from form_data
+- **Supabase migration:** `msa_response`, `msa_responded_at`, `shared_to_email` columns
 
 ---
 
@@ -411,9 +412,12 @@ tests/
 | `status` | text | `draft` or `finalized` |
 | `share_token` | text | UNIQUE, 12-char token for public sharing |
 | `shared_at` | timestamptz | When share link was generated |
+| `shared_to_email` | text | Client email the link was sent to |
 | `template_id` | text | Template used (default: `classic`) |
 | `msa_id` | uuid | FK to client_msas (SET NULL on delete) |
-| `msa_accepted_at` | timestamptz | When client accepted the MSA |
+| `msa_accepted_at` | timestamptz | Legacy — when client accepted (backward compat) |
+| `msa_response` | text | `pending`, `accepted`, `rejected` (CHECK constraint) |
+| `msa_responded_at` | timestamptz | When client responded to MSA |
 | `created_at` | timestamptz | Auto |
 | `updated_at` | timestamptz | Auto |
 
@@ -460,6 +464,9 @@ tests/
 | Share invoices | `components/invoice/ShareLinkModal.tsx`, `lib/supabase/invoices.ts` |
 | View shared invoices | `app/view/[token]/page.tsx` |
 | Check read receipts | `lib/supabase/invoices.ts` → `getReadReceipts()` |
+| Change default MSA template | `lib/default-msa.ts` |
+| Change MSA tooltip copy | `lib/default-msa.ts` → `MSA_TOOLTIP_CONTENT` |
+| Manage MSAs | `lib/supabase/msas.ts` |
 | Add tests | `tests/extraction/` or `tests/e2e/` |
 | Check GST compliance | `lib/invoice-compliance.ts`, `lib/gstin-parser.ts` |
 
