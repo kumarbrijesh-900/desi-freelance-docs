@@ -9,6 +9,8 @@
 import type { InvoiceFormData } from "@/types/invoice";
 import type { TemplateData, TemplateLineItem } from "./template-types";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { getGstStateCode } from "@/lib/gst-state-codes";
+import { amountToWords } from "@/lib/amount-to-words";
 import {
   getClientFacingTaxComplianceNote,
   getClientTaxIdLabel,
@@ -210,5 +212,11 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     hasLicense: Boolean(formData.payment?.license?.isLicenseIncluded),
     licenseType: getLicenseLabel(formData.payment?.license?.licenseType),
     licenseDuration: formData.payment?.license?.licenseDuration || "",
+
+    agencyStateCode: getGstStateCode(formData.agency?.agencyState || ""),
+    clientStateCode: getGstStateCode(formData.client?.clientState || ""),
+    amountInWords: amountToWords(totals.grandTotal, displayCurrency),
+    reverseCharge: false,
+    authorizedSignatory: formData.agency?.agencyName || "",
   };
 }

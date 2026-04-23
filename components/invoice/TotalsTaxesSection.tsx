@@ -2,6 +2,7 @@
 
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
+import { amountToWords } from "@/lib/amount-to-words";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
 import {
@@ -362,6 +363,26 @@ export default function TotalsTaxesSection({
               </span>
             </p>
           ) : null}
+
+          {grandTotal > 0 ? (
+            <div className="rounded-[12px] bg-[color:var(--bg-surface-muted)] px-4 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                Amount in words
+              </p>
+              <p className="mt-1 text-[12px] font-semibold leading-5 text-[color:var(--text-primary)]">
+                {amountToWords(grandTotal, currency)}
+              </p>
+            </div>
+          ) : null}
+
+          <div className="flex items-center justify-between rounded-[12px] bg-[color:var(--bg-surface-muted)] px-4 py-2.5">
+            <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
+              Reverse Charge (RCM)
+            </p>
+            <span className={getAppStatusPillClass("muted")}>
+              No
+            </span>
+          </div>
 
           <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
             {grandTotal > 0

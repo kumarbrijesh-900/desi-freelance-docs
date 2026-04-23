@@ -1934,11 +1934,10 @@ export default function InvoiceEditorPage() {
         </div>
       </section>
 
-      <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:left-auto sm:right-5 sm:w-auto">
-        <div className="flex justify-end">
+      <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:bottom-auto sm:left-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2 sm:w-auto">
           <div
             className={cn(
-              "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto"
+              "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3"
             )}
             data-testid="floating-editor-actions"
           >
@@ -1947,7 +1946,7 @@ export default function InvoiceEditorPage() {
               onClick={handleBackToHome}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
               )}
             >
               Close
@@ -1957,7 +1956,7 @@ export default function InvoiceEditorPage() {
               onClick={handleSaveDraft}
               className={cn(
                 getAppButtonClass({ variant: "secondary", size: "sm" }),
-                "h-9 px-3"
+                "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
               )}
             >
               <SaveIcon className="h-4 w-4" />
@@ -1976,14 +1975,13 @@ export default function InvoiceEditorPage() {
               }
               className={cn(
                 getAppButtonClass({ variant: "primary", size: "sm" }),
-                "h-9 px-3.5"
+                "h-9 px-3.5 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
               )}
             >
               <EyeIcon className="h-4 w-4" />
               Preview
             </button>
           </div>
-        </div>
       </div>
 
       {showExitModal && (

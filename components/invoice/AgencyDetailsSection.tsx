@@ -207,8 +207,7 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_88px] xl:items-start">
-          <div className={appFieldFullWidthStackClass}>
+        <div className="space-y-4">
             <div className={cn(getAppSubtlePanelClass("muted"), "space-y-3 px-4 py-3")}>
               <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
                 Agency Compliance
@@ -399,27 +398,84 @@ export default function AgencyDetailsSection({
             </div>
             ) : null}
 
-            <div>
-              <label className={appFieldLabelClass}>
-                Business / Trade Name *
-              </label>
-              <input
-                suppressHydrationWarning
-                type="text"
-                value={value.agencyName}
-                onChange={(e) => updateField("agencyName", e.target.value)}
-                onBlur={() => markTouched("agencyName")}
-                placeholder="Your agency or freelance brand name"
-                className={inputClass(
-                  agencyNameError,
-                  Boolean(value.agencyName)
-                )}
-              />
-              {agencyNameError ? (
-                <p className={appFieldErrorTextClass}>
-                  {agencyNameError}
-                </p>
-              ) : null}
+            {/* Business Name + Logo inline */}
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
+              <div>
+                <label className={appFieldLabelClass}>
+                  Business / Trade Name *
+                </label>
+                <input
+                  suppressHydrationWarning
+                  type="text"
+                  value={value.agencyName}
+                  onChange={(e) => updateField("agencyName", e.target.value)}
+                  onBlur={() => markTouched("agencyName")}
+                  placeholder="Your agency or freelance brand name"
+                  className={inputClass(
+                    agencyNameError,
+                    Boolean(value.agencyName)
+                  )}
+                />
+                {agencyNameError ? (
+                  <p className={appFieldErrorTextClass}>
+                    {agencyNameError}
+                  </p>
+                ) : null}
+              </div>
+
+              {/* Logo widget — inline with Business Name */}
+              <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:mb-0")}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Logo</p>
+                  {value.logoUrl ? (
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className={cn(
+                        getAppButtonClass({
+                          variant: "destructive-lite",
+                          size: "sm",
+                        }),
+                        "h-[30px] px-2 text-[11px]"
+                      )}
+                    >
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragOver(true);
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={handleDrop}
+                  className={`app-dropzone-surface flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
+                    isDragOver
+                      ? "app-dropzone-accept text-[color:var(--text-primary)]"
+                      : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+                  {value.logoUrl ? (
+                    <img
+                      src={value.logoUrl}
+                      alt="Agency logo preview"
+                      className="max-h-[42px] w-auto object-contain"
+                    />
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">Logo</p>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">PNG/JPG</p>
+                    </div>
+                  )}
+                </label>
+              </div>
             </div>
 
             <div>
@@ -538,63 +594,6 @@ export default function AgencyDetailsSection({
                   {stateSignals.warning}
                 </p>
               ) : null}
-            </div>
-          </div>
-
-          <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:self-start")}>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Logo</p>
-
-              {value.logoUrl ? (
-                <button
-                  type="button"
-                  onClick={removeLogo}
-                  className={cn(
-                    getAppButtonClass({
-                      variant: "destructive-lite",
-                      size: "sm",
-                    }),
-                    "h-[30px] px-2 text-[11px]"
-                  )}
-                >
-                  Remove
-                </button>
-              ) : null}
-            </div>
-
-            <label
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragOver(true);
-              }}
-              onDragLeave={() => setIsDragOver(false)}
-              onDrop={handleDrop}
-              className={`app-dropzone-surface ml-auto flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
-                isDragOver
-                  ? "app-dropzone-accept text-[color:var(--text-primary)]"
-                  : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
-              }`}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-
-              {value.logoUrl ? (
-                <img
-                  src={value.logoUrl}
-                  alt="Agency logo preview"
-                  className="max-h-[42px] w-auto object-contain"
-                />
-              ) : (
-                <div className="space-y-1">
-                  <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">Logo</p>
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">PNG/JPG</p>
-                </div>
-              )}
-            </label>
           </div>
         </div>
       </section>

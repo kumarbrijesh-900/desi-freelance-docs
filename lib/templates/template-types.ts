@@ -83,6 +83,13 @@ export interface TemplateData {
   hasLicense: boolean;
   licenseType: string;
   licenseDuration: string;
+
+  /* ── GST Compliance ─────────────────────── */
+  agencyStateCode: string;
+  clientStateCode: string;
+  amountInWords: string;
+  reverseCharge: boolean;
+  authorizedSignatory: string;
 }
 
 /* ─── Template component interface ───────────────── */
