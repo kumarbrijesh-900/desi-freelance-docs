@@ -1,147 +1,369 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MotionReveal, MotionStagger } from "@/components/ui/motion-primitives";
-import {
-  DocumentSparkIcon,
-  ChevronLeftIcon,
-} from "@/components/ui/app-icons";
-import {
-  appCardClass,
-  appGridClass,
-  appPageContainerClass,
-  appPageSectionClass,
-  appPageShellClass,
-} from "@/lib/layout-foundation";
+import { MotionReveal } from "@/components/ui/motion-primitives";
+import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
+import { appPageContainerClass, appPageSectionClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import {
   listInvoices,
   deleteInvoice,
   getCurrentUserId,
+  getReadReceiptsBatch,
   type SavedInvoice,
+  type MsaResponse,
 } from "@/lib/supabase/invoices";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 
-const PREVIEW_STORAGE_KEY = "invoice-preview-data";
+/* ─── Helpers ────────────────────────────────────── */
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-  return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+const PREVIEW_KEY = "invoice-preview-data";
+
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function formatTime(dateString: string) {
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function fmtAmount(inv: SavedInvoice) {
+  const items = inv.form_data?.lineItems ?? [];
+  const subtotal = items.reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+  if (!subtotal) return "—";
+  const currency = inv.form_data?.client?.clientCurrency || "INR";
+  const symbol = currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "₹";
+  return `${symbol}${subtotal.toLocaleString("en-IN")}`;
 }
 
-function getStatusBadge(status: string) {
-  if (status === "finalized") {
-    return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
-        Finalized
-      </span>
-    );
-  }
+function getWorkType(inv: SavedInvoice) {
+  const items = inv.form_data?.lineItems ?? [];
+  if (!items.length) return "—";
+  const types = [...new Set(items.map((i) => i.type).filter(Boolean))];
+  return types.slice(0, 2).join(", ") + (types.length > 2 ? " …" : "");
+}
+
+/* ─── Badge components ─────────────────────────── */
+
+function StatusBadge({ status }: { status: string }) {
+  const fin = status === "finalized";
   return (
-    <span className="inline-flex items-center rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
-      Draft
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+      fin
+        ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
+        : "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+    }`}>
+      {fin ? "Finalized" : "Draft"}
     </span>
   );
 }
 
+function MsaBadge({ msaId, response }: { msaId: string | null; response: MsaResponse }) {
+  if (!msaId) return <span className="text-[12px] text-[color:var(--text-muted)]">—</span>;
+  if (response === "accepted") return (
+    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">✓ Accepted</span>
+  );
+  if (response === "rejected") return (
+    <span className="inline-flex items-center rounded-full border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-warning-text)]">✕ Rejected</span>
+  );
+  return (
+    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">Pending</span>
+  );
+}
+
+function ViewsBadge({ count, lastViewed }: { count: number; lastViewed: string | null }) {
+  if (!count) return <span className="text-[12px] text-[color:var(--text-muted)]">—</span>;
+  return (
+    <span title={lastViewed ? `Last viewed ${fmtDate(lastViewed)}` : undefined}
+      className="inline-flex items-center gap-1 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--text-secondary)]">
+      👁 {count}
+    </span>
+  );
+}
+
+/* ─── Filter/Sort bar ──────────────────────────── */
+
+type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
+type StatusFilter = "all" | "draft" | "finalized";
+type MsaFilter = "all" | "pending" | "accepted" | "rejected" | "none";
+
+function FilterBar({
+  statusFilter, setStatusFilter,
+  msaFilter, setMsaFilter,
+  sortKey, setSortKey,
+  search, setSearch,
+  total,
+}: {
+  statusFilter: StatusFilter; setStatusFilter: (v: StatusFilter) => void;
+  msaFilter: MsaFilter; setMsaFilter: (v: MsaFilter) => void;
+  sortKey: SortKey; setSortKey: (v: SortKey) => void;
+  search: string; setSearch: (v: string) => void;
+  total: number;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-3">
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search client, invoice #…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="h-8 flex-1 min-w-[180px] rounded-md border border-[color:var(--border-default)] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:border-[color:var(--color-lime-700)] transition-colors"
+      />
+
+      {/* Status filter */}
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+      >
+        <option value="all">All Status</option>
+        <option value="draft">Draft</option>
+        <option value="finalized">Finalized</option>
+      </select>
+
+      {/* MSA filter */}
+      <select
+        value={msaFilter}
+        onChange={(e) => setMsaFilter(e.target.value as MsaFilter)}
+        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+      >
+        <option value="all">All MSA</option>
+        <option value="none">No MSA</option>
+        <option value="pending">MSA Pending</option>
+        <option value="accepted">MSA Accepted</option>
+        <option value="rejected">MSA Rejected</option>
+      </select>
+
+      {/* Sort */}
+      <select
+        value={sortKey}
+        onChange={(e) => setSortKey(e.target.value as SortKey)}
+        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+      >
+        <option value="date-desc">Newest First</option>
+        <option value="date-asc">Oldest First</option>
+        <option value="amount-desc">Amount ↓</option>
+        <option value="amount-asc">Amount ↑</option>
+      </select>
+
+      <span className="text-[12px] text-[color:var(--text-muted)]">{total} result{total !== 1 ? "s" : ""}</span>
+    </div>
+  );
+}
+
+/* ─── Table row ────────────────────────────────── */
+
+function InvoiceRow({
+  invoice, viewCount, lastViewed, onView, onDelete, deletingId,
+}: {
+  invoice: SavedInvoice;
+  viewCount: number;
+  lastViewed: string | null;
+  onView: (inv: SavedInvoice) => void;
+  onDelete: (id: string) => void;
+  deletingId: string | null;
+}) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  return (
+    <tr className="border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group">
+      {/* Invoice # */}
+      <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
+        {invoice.invoice_number}
+      </td>
+
+      {/* Date */}
+      <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] whitespace-nowrap">
+        {fmtDate(invoice.created_at)}
+        {invoice.form_data?.meta?.dueDate ? (
+          <div className="text-[11px] text-[color:var(--text-muted)]">Due {fmtDate(invoice.form_data.meta.dueDate)}</div>
+        ) : null}
+      </td>
+
+      {/* Client */}
+      <td className="px-4 py-3">
+        <div className="text-[13px] font-medium text-[color:var(--text-primary)] truncate max-w-[160px]">
+          {invoice.form_data?.client?.clientName || <span className="text-[color:var(--text-muted)]">—</span>}
+        </div>
+        {invoice.shared_to_email && (
+          <div className="text-[11px] text-[color:var(--text-muted)] truncate max-w-[160px]">{invoice.shared_to_email}</div>
+        )}
+      </td>
+
+      {/* Work Type */}
+      <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] max-w-[140px]">
+        <span className="truncate block">{getWorkType(invoice)}</span>
+      </td>
+
+      {/* Amount */}
+      <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap tabular-nums">
+        {fmtAmount(invoice)}
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <StatusBadge status={invoice.status} />
+      </td>
+
+      {/* MSA Status */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <MsaBadge msaId={invoice.msa_id} response={invoice.msa_response ?? "pending"} />
+      </td>
+
+      {/* Views */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <ViewsBadge count={viewCount} lastViewed={lastViewed} />
+      </td>
+
+      {/* Actions */}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            type="button"
+            onClick={() => onView(invoice)}
+            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+          >
+            View
+          </button>
+
+          {confirmDelete ? (
+            <span className="inline-flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => { onDelete(invoice.id); setConfirmDelete(false); }}
+                disabled={deletingId === invoice.id}
+                className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--state-warning-text)] hover:bg-[color:var(--state-warning-bg)] transition-colors"
+              >
+                {deletingId === invoice.id ? "…" : "Yes"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)] transition-colors"
+              >
+                No
+              </button>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+/* ─── Page ─────────────────────────────────────── */
+
 export default function InvoiceHistoryPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState<SavedInvoice[]>([]);
+  const [receipts, setReceipts] = useState<Record<string, { count: number; lastViewed: string | null }>>({});
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Filters
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [msaFilter, setMsaFilter] = useState<MsaFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("date-desc");
+
   useEffect(() => {
     async function init() {
       const userId = await getCurrentUserId();
-      if (!userId) {
-        setAuthenticated(false);
-        setLoading(false);
-        return;
-      }
+      if (!userId) { setAuthenticated(false); setLoading(false); return; }
       setAuthenticated(true);
 
-      const { data, error } = await listInvoices();
-      if (!error) {
-        setInvoices(data);
+      const { data } = await listInvoices();
+      setInvoices(data);
+
+      // Batch-load read receipts
+      const sharedIds = data.filter((i) => i.share_token).map((i) => i.id);
+      if (sharedIds.length) {
+        const batch = await getReadReceiptsBatch(sharedIds);
+        setReceipts(batch);
       }
       setLoading(false);
     }
-
     init();
   }, []);
 
-  const handleViewInvoice = (invoice: SavedInvoice) => {
-    // Load form data into localStorage for the preview page
+  const handleView = (inv: SavedInvoice) => {
     try {
-      window.localStorage.setItem(
-        PREVIEW_STORAGE_KEY,
-        JSON.stringify(invoice.form_data)
-      );
+      window.localStorage.setItem(PREVIEW_KEY, JSON.stringify(inv.form_data));
       router.push("/invoice/preview");
-    } catch (error) {
-      console.error("Failed to load invoice for preview:", error);
-    }
+    } catch {}
   };
 
-  const handleDelete = async (invoiceId: string) => {
-    if (!window.confirm("Delete this invoice? This action cannot be undone.")) {
-      return;
-    }
-
-    setDeletingId(invoiceId);
-    const { error } = await deleteInvoice(invoiceId);
-    if (!error) {
-      setInvoices((prev) => prev.filter((inv) => inv.id !== invoiceId));
-    }
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    const { error } = await deleteInvoice(id);
+    if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
   };
 
-  // ─── Not authenticated ────────────────────────────────────
+  // Filtered + sorted
+  const filtered = useMemo(() => {
+    let list = [...invoices];
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((i) =>
+        i.invoice_number?.toLowerCase().includes(q) ||
+        i.form_data?.client?.clientName?.toLowerCase().includes(q) ||
+        i.shared_to_email?.toLowerCase().includes(q)
+      );
+    }
+
+    if (statusFilter !== "all") list = list.filter((i) => i.status === statusFilter);
+
+    if (msaFilter !== "all") {
+      if (msaFilter === "none") list = list.filter((i) => !i.msa_id);
+      else list = list.filter((i) => i.msa_id && (i.msa_response ?? "pending") === msaFilter);
+    }
+
+    list.sort((a, b) => {
+      if (sortKey === "date-desc") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortKey === "date-asc") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      const amtA = (a.form_data?.lineItems ?? []).reduce((s, i) => s + i.qty * i.rate, 0);
+      const amtB = (b.form_data?.lineItems ?? []).reduce((s, i) => s + i.qty * i.rate, 0);
+      return sortKey === "amount-desc" ? amtB - amtA : amtA - amtB;
+    });
+
+    return list;
+  }, [invoices, search, statusFilter, msaFilter, sortKey]);
+
+  // Stats
+  const stats = useMemo(() => ({
+    total: invoices.length,
+    finalized: invoices.filter((i) => i.status === "finalized").length,
+    msaPending: invoices.filter((i) => i.msa_id && (i.msa_response ?? "pending") === "pending").length,
+    msaRejected: invoices.filter((i) => i.msa_response === "rejected").length,
+    totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
+  }), [invoices, receipts]);
+
+  /* ── Unauthenticated ── */
   if (authenticated === false) {
     return (
       <main className={appPageShellClass}>
         <AppHeader rightSlot={<LogoutButton />} />
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-          <div className={appGridClass}>
-            <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <div className="flex flex-col items-center gap-5 text-center">
-                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
-                    <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
-                  </span>
-                  <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">
-                    Sign in to view your invoices
-                  </h1>
-                  <p className="max-w-md text-sm leading-6 text-[color:var(--text-secondary)]">
-                    Your saved invoices are stored securely in the cloud. Please log in to access your invoice history.
-                  </p>
-                  <Link
-                    href="/login"
-                    className={getAppButtonClass({ variant: "primary", size: "md" })}
-                  >
-                    Log in
-                  </Link>
-                </div>
-              </MotionReveal>
-            </div>
+          <div className="mx-auto max-w-lg px-4 pt-16 text-center">
+            <MotionReveal preset="fade-up">
+              <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
+                <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
+              </span>
+              <h1 className="mt-5 text-2xl font-bold text-[color:var(--text-primary)]">Sign in to view your invoices</h1>
+              <p className="mt-2 text-sm text-[color:var(--text-secondary)]">Your invoices are stored securely. Please log in to access your history.</p>
+              <Link href="/login" className={`mt-5 inline-block ${getAppButtonClass({ variant: "primary", size: "md" })}`}>Log in</Link>
+            </MotionReveal>
           </div>
         </section>
       </main>
@@ -153,122 +375,136 @@ export default function InvoiceHistoryPage() {
       <AppHeader rightSlot={<LogoutButton />} />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            {/* Header */}
-            <MotionReveal className="mb-6" preset="fade-up">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[30px]">
-                    Your Invoices
-                  </h1>
-                  <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
-                    {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} saved
-                  </p>
+        <div className="mx-auto max-w-[1200px] px-4">
+
+          {/* Header */}
+          <MotionReveal className="mb-6" preset="fade-up">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[28px]">Invoices</h1>
+                <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+                  {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
+                </p>
+              </div>
+              <Link href="/invoice/new" className={getAppButtonClass({ variant: "primary", size: "sm" })}>
+                + New Invoice
+              </Link>
+            </div>
+          </MotionReveal>
+
+          {/* Stat cards */}
+          {!loading && invoices.length > 0 && (
+            <MotionReveal className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4" preset="fade-up">
+              {[
+                { label: "Total", value: stats.total, color: "text-[color:var(--text-primary)]" },
+                { label: "Finalized", value: stats.finalized, color: "text-[color:var(--state-success-text)]" },
+                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-700" },
+                { label: "Views (All)", value: stats.totalViews, color: "text-[color:var(--text-secondary)]" },
+              ].map((s) => (
+                <div key={s.label} className="rounded-lg border border-[color:var(--border-subtle)] bg-white p-4 shadow-sm">
+                  <div className={`text-2xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
+                  <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">{s.label}</div>
                 </div>
-                <Link
-                  href="/invoice/new"
-                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                >
-                  + New Invoice
-                </Link>
+              ))}
+            </MotionReveal>
+          )}
+
+          {/* MSA rejection notification */}
+          {stats.msaRejected > 0 && (
+            <MotionReveal className="mb-4" preset="fade-up">
+              <div className="flex items-center gap-3 rounded-lg border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-4 py-3">
+                <span className="text-lg">⚠️</span>
+                <p className="text-sm font-medium text-[color:var(--state-warning-text)]">
+                  {stats.msaRejected} invoice{stats.msaRejected !== 1 ? "s have" : " has"} a rejected MSA — reach out to your client.
+                </p>
               </div>
             </MotionReveal>
+          )}
 
-            {/* Loading state */}
-            {loading ? (
-              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-secondary)]">
-                    <DocumentSparkIcon className="h-5 w-5" />
-                  </span>
-                  <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                    Loading invoices…
-                  </p>
+          {/* Table */}
+          <MotionReveal preset="fade-up">
+            <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden">
+
+              {/* Filter bar */}
+              {invoices.length > 0 && (
+                <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
+                  <FilterBar
+                    statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+                    msaFilter={msaFilter} setMsaFilter={setMsaFilter}
+                    sortKey={sortKey} setSortKey={setSortKey}
+                    search={search} setSearch={setSearch}
+                    total={filtered.length}
+                  />
                 </div>
-              </MotionReveal>
-            ) : invoices.length === 0 ? (
-              /* Empty state */
-              <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <div className="flex flex-col items-center gap-5 text-center">
+              )}
+
+              {loading ? (
+                <div className="flex items-center gap-3 px-6 py-10">
+                  <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-muted)]" />
+                  <p className="text-sm text-[color:var(--text-secondary)]">Loading invoices…</p>
+                </div>
+              ) : invoices.length === 0 ? (
+                <div className="flex flex-col items-center gap-5 px-6 py-16 text-center">
                   <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
                     <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
                   </span>
-                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
-                    No invoices yet
-                  </h2>
-                  <p className="max-w-md text-sm leading-6 text-[color:var(--text-secondary)]">
-                    Create your first invoice using the smart brief extraction flow, then save or export it to see it here.
+                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">No invoices yet</h2>
+                  <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
+                    Create your first invoice using the smart brief extraction flow.
                   </p>
-                  <Link
-                    href="/invoice/new"
-                    className={getAppButtonClass({ variant: "primary", size: "md" })}
-                  >
+                  <Link href="/invoice/new" className={getAppButtonClass({ variant: "primary", size: "md" })}>
                     Create Invoice
                   </Link>
                 </div>
-              </MotionReveal>
-            ) : (
-              /* Invoice list */
-              <MotionStagger className="space-y-3">
-                {invoices.map((invoice) => (
-                  <MotionReveal key={invoice.id} preset="fade-up">
-                    <div className={`${appCardClass} flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between`}>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="truncate text-base font-semibold text-[color:var(--text-primary)]">
-                            {invoice.invoice_number}
-                          </h3>
-                          {getStatusBadge(invoice.status)}
-                        </div>
+              ) : filtered.length === 0 ? (
+                <div className="px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
+                  No invoices match your filters.{" "}
+                  <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setMsaFilter("all"); }}
+                    className="font-semibold text-[color:var(--text-secondary)] hover:underline">
+                    Clear filters
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[900px]">
+                    <thead>
+                      <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
+                        {["Invoice #", "Date / Due", "Client", "Work Type", "Amount", "Status", "MSA", "Views", ""].map((h) => (
+                          <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((inv) => (
+                        <InvoiceRow
+                          key={inv.id}
+                          invoice={inv}
+                          viewCount={receipts[inv.id]?.count ?? 0}
+                          lastViewed={receipts[inv.id]?.lastViewed ?? null}
+                          onView={handleView}
+                          onDelete={handleDelete}
+                          deletingId={deletingId}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </MotionReveal>
 
-                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-[color:var(--text-muted)]">
-                          {invoice.form_data?.client?.clientName ? (
-                            <span>Client: {invoice.form_data.client.clientName}</span>
-                          ) : null}
-                          <span>Created {formatDate(invoice.created_at)} {formatTime(invoice.created_at)}</span>
-                          {invoice.updated_at !== invoice.created_at ? (
-                            <span>Updated {formatDate(invoice.updated_at)}</span>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleViewInvoice(invoice)}
-                          className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-                        >
-                          View
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(invoice.id)}
-                          disabled={deletingId === invoice.id}
-                          className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                        >
-                          {deletingId === invoice.id ? "Deleting…" : "Delete"}
-                        </button>
-                      </div>
-                    </div>
-                  </MotionReveal>
-                ))}
-              </MotionStagger>
-            )}
-
-            {/* Back to home */}
-            <MotionReveal className="mt-8" preset="fade-up" delay={20}>
-              <Link
-                href="/"
-                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-              >
-                <span className="inline-flex items-center gap-2">
-                  <ChevronLeftIcon className="h-4 w-4" />
-                  Back to Home
-                </span>
-              </Link>
-            </MotionReveal>
+          {/* Back */}
+          <div className="mt-6">
+            <Link href="/" className={getAppButtonClass({ variant: "ghost", size: "sm" })}>
+              <span className="inline-flex items-center gap-2">
+                <ChevronLeftIcon className="h-4 w-4" />
+                Back to Home
+              </span>
+            </Link>
           </div>
+
         </div>
       </section>
     </main>

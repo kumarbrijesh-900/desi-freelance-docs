@@ -257,6 +257,31 @@ export async function getReadReceipts(
   };
 }
 
+/** Batch-load read receipt counts for multiple invoices (for dashboard) */
+export async function getReadReceiptsBatch(
+  invoiceIds: string[]
+): Promise<Record<string, { count: number; lastViewed: string | null }>> {
+  if (!invoiceIds.length) return {};
+
+  const { data } = await supabase
+    .from("read_receipts")
+    .select("invoice_id, viewed_at")
+    .in("invoice_id", invoiceIds)
+    .order("viewed_at", { ascending: false });
+
+  const result: Record<string, { count: number; lastViewed: string | null }> = {};
+  for (const row of data ?? []) {
+    if (!result[row.invoice_id]) {
+      result[row.invoice_id] = { count: 0, lastViewed: null };
+    }
+    result[row.invoice_id].count += 1;
+    if (!result[row.invoice_id].lastViewed) {
+      result[row.invoice_id].lastViewed = row.viewed_at;
+    }
+  }
+  return result;
+}
+
 /* ─── MSA Gating ───────────────────────────────────── */
 
 /** Attach an MSA to a shared invoice (called by invoice owner) */
