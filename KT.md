@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phases 1–9a complete — GST compliance, client management, editor layout)
+> **Last Updated:** 2026-04-23 (Session: Phases 1–9b complete — preview redesign, invoice sharing, read receipts)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -59,8 +59,9 @@ app/
 ├── login/page.tsx              # Auth — Google OAuth via Supabase
 ├── invoice/
 │   ├── new/page.tsx            # Invoice editor (stepper)
-│   └── preview/page.tsx        # Invoice preview (PDF-ready view)
+│   └── preview/page.tsx        # Invoice preview (single-column, inline template picker)
 ├── invoices/page.tsx           # Invoice history (auth-gated, cloud-saved)
+├── view/[token]/page.tsx       # Public shared invoice view (read receipts tracked)
 ├── clients/
 │   ├── page.tsx                # Client directory (data table + inline form)
 │   └── [id]/page.tsx           # Client detail / MSA management
@@ -327,16 +328,28 @@ tests/
 
 ## 10. Pending Roadmap
 
-### Phase 9b — Preview Redesign + Invoice Sharing (Next)
+### Phase 9b — Preview Redesign + Invoice Sharing
+- **Single-column preview:** Removed side-panel layout, template picker now renders inline above invoice in horizontal mode
+- **Compact toolbar:** Reduced padding, shorter description copy, tighter gap
+- **TemplatePicker horizontal mode:** New `layout` prop ("vertical" | "horizontal") for flexible rendering
+- **Share invoice link system:** 12-char unique share tokens stored in `invoices.share_token`
+- **ShareLinkModal:** Modal with generate + copy-to-clipboard, feedback cues
+- **Public view route:** `/view/[token]` renders shared invoice with Lance branding header and print support
+- **Read receipts:** `read_receipts` table tracks view count + timestamp + user agent
+- **Template persistence:** `template_id` saved with invoice for consistent rendering on public view
+- **New icons:** `ShareIcon`, `LinkCopyIcon`, `CheckCircleIcon` in app-icons
+- **Supabase migration:** `share_token`, `shared_at`, `template_id` columns + `read_receipts` table + RLS policies
+
+---
+
+## 10. Pending Roadmap
+
+### Phase 9b.1 — MSA Gating (Follow-up)
 | Task | Description | Effort |
 |------|-------------|--------|
-| Single-column templates | Switch from 2-column grid to single-column card list | S |
-| Preview header compact | Reduce height — arrange contents linearly | S |
-| Share Invoice Link | Generate unique shareable link for invoices | M |
-| `/view/[invoice_id]` route | Public route that renders the invoice for clients | L |
-| MSA gating | Client must accept MSA before viewing invoice | L |
-| Read receipts table | `read_receipts` Supabase table: track when client opens link | M |
-| Share link popup | Modal with copyable link + MSA status warning | S |
+| MSA acceptance form | Client-facing accept/reject form on public view | M |
+| MSA gating logic | Blur invoice until MSA is accepted | M |
+| MSA status badge | Show MSA acceptance status in share modal | S |
 
 ### Phase 9c — Invoices Dashboard
 | Task | Description | Effort |
@@ -382,6 +395,37 @@ tests/
 - `clients_update_own` — UPDATE for authenticated users (user_id match)
 - `clients_delete_own` — DELETE for authenticated users (user_id match)
 
+### `invoices` Table
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `user_id` | uuid | FK to auth.users |
+| `invoice_number` | text | Auto-generated or user-set |
+| `form_data` | jsonb | Full InvoiceFormData blob |
+| `status` | text | `draft` or `finalized` |
+| `share_token` | text | UNIQUE, 12-char token for public sharing |
+| `shared_at` | timestamptz | When share link was generated |
+| `template_id` | text | Template used (default: `classic`) |
+| `created_at` | timestamptz | Auto |
+| `updated_at` | timestamptz | Auto |
+
+**RLS Policies:**
+- Owner can SELECT/INSERT/UPDATE/DELETE own invoices
+- `invoices_select_by_share_token` — public SELECT when `share_token IS NOT NULL`
+
+### `read_receipts` Table
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `invoice_id` | uuid | FK to invoices (CASCADE delete) |
+| `viewed_at` | timestamptz | Default: `now()` |
+| `viewer_ip` | text | Optional |
+| `viewer_ua` | text | User agent string |
+
+**RLS Policies:**
+- `read_receipts_select_owner` — invoice owner can view their receipts
+- `read_receipts_insert_public` — anyone can insert (for public view tracking)
+
 ---
 
 ## 12. Critical Files Quick Reference
@@ -404,6 +448,9 @@ tests/
 | Change invoice templates | `lib/templates/{classic,neon-atelier,swiss-grid,terracotta,editorial,midnight}.tsx` |
 | Change template data pipeline | `lib/templates/template-data.ts`, `lib/templates/template-types.ts` |
 | Manage clients | `app/clients/page.tsx`, `lib/supabase/clients.ts` |
+| Share invoices | `components/invoice/ShareLinkModal.tsx`, `lib/supabase/invoices.ts` |
+| View shared invoices | `app/view/[token]/page.tsx` |
+| Check read receipts | `lib/supabase/invoices.ts` → `getReadReceipts()` |
 | Add tests | `tests/extraction/` or `tests/e2e/` |
 | Check GST compliance | `lib/invoice-compliance.ts`, `lib/gstin-parser.ts` |
 
