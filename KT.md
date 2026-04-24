@@ -450,15 +450,16 @@ tests/
 | `user_id` | uuid | FK to auth.users |
 | `invoice_number` | text | Auto-generated or user-set |
 | `form_data` | jsonb | Full InvoiceFormData blob |
-| `status` | text | `draft` or `finalized` |
+| `status` | text | `draft`, `finalized`, `settled`, or `overdue` |
 | `share_token` | text | UNIQUE, 12-char token for public sharing |
 | `shared_at` | timestamptz | When share link was generated |
 | `shared_to_email` | text | Client email the link was sent to |
 | `template_id` | text | Template used (default: `classic`) |
 | `msa_id` | uuid | FK to client_msas (SET NULL on delete) |
 | `msa_accepted_at` | timestamptz | Legacy — when client accepted (backward compat) |
-| `msa_response` | text | `pending`, `accepted`, `rejected` (CHECK constraint) |
+| `msa_response` | text | `pending`, `accepted`, `rejected`, `negotiating` (CHECK constraint) |
 | `msa_responded_at` | timestamptz | When client responded to MSA |
+| `client_msa_note` | text | Client's proposed changes/negotiation note |
 | `applied_payment_terms` | integer | MSA Override for this specific invoice |
 | `applied_late_fee_rate` | numeric | MSA Override for this specific invoice |
 | `applied_license_type` | text | MSA Override for this specific invoice |

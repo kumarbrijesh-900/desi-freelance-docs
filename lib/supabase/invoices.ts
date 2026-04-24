@@ -11,9 +11,9 @@ import type { InvoiceFormData } from "@/types/invoice";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
-export type InvoiceStatus = "draft" | "finalized";
+export type InvoiceStatus = "draft" | "finalized" | "settled" | "overdue";
 
-export type MsaResponse = "pending" | "accepted" | "rejected";
+export type MsaResponse = "pending" | "accepted" | "rejected" | "negotiating";
 
 export interface SavedInvoice {
   id: string;
@@ -29,6 +29,7 @@ export interface SavedInvoice {
   msa_accepted_at: string | null;
   msa_response: MsaResponse;
   msa_responded_at: string | null;
+  client_msa_note: string | null;
   applied_payment_terms: string | null;
   applied_late_fee_rate: number | null;
   applied_license_type: string | null;
@@ -377,4 +378,66 @@ export async function setSharedToEmail(
 
   return { error: error?.message ?? null };
 }
+
+/* ─── Order-to-Cash Workflow ────────────────────────── */
+
+/** Client proposes changes to the MSA (public — anon user) */
+export async function proposeMsaChanges(
+  invoiceId: string,
+  noteText: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from("invoices")
+    .update({
+      msa_response: "negotiating" as MsaResponse,
+      client_msa_note: noteText,
+      msa_responded_at: new Date().toISOString(),
+    })
+    .eq("id", invoiceId);
+
+  return { error: error?.message ?? null };
+}
+
+/** Mark an invoice as fully paid/settled (freelancer action) */
+export async function markInvoiceSettled(
+  invoiceId: string
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({ status: "settled" as InvoiceStatus })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
+
+  return { error: error?.message ?? null };
+}
+
+/** Reissue an invoice after negotiation (freelancer action) */
+export async function reissueNegotiatedInvoice(
+  invoiceId: string,
+  newFormData: InvoiceFormData
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({
+      form_data: newFormData as unknown as Record<string, unknown>,
+      client_msa_note: null,
+      msa_response: "pending" as MsaResponse,
+      msa_responded_at: null,
+      msa_accepted_at: null,
+      applied_payment_terms: newFormData.meta?.paymentTerms || null,
+      applied_late_fee_rate: newFormData.client?.msaLateFeeRate || null,
+      applied_license_type: newFormData.payment?.license?.licenseType || null,
+    })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
+
+  return { error: error?.message ?? null };
+}
+
 
