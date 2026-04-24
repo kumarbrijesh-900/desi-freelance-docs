@@ -21,7 +21,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
     <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:m-0 print:border-none">
       {/* ── A4 Header Accent (No Bleed) ────── */}
-      <div className="absolute top-0 right-[20mm] w-[280px] h-[180px] bg-[#2D5BFF] z-0 rounded-b-[20px] print:right-0" />
+      <div className="absolute top-0 right-[20mm] w-[280px] h-[280px] bg-[#2D5BFF] z-0 rounded-b-[20px] print:right-0" />
 
       {/* ── Content Wrapper ─────────────────── */}
       <div className="relative z-10 p-[20mm] box-border min-h-[297mm] flex flex-col">
