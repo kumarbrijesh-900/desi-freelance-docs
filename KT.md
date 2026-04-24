@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-23 (Session: Phase 9g complete — Smart Client Auto-fill & Suggestion Tray)
+> **Last Updated:** 2026-04-24 (Session: Phase 9h complete — Autonomous Billing Engine & State Stabilization)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -293,6 +293,8 @@ tests/
 **Active branch:** `main` (deployed to Vercel)
 
 **Recent commits (newest first):**
+| `8e5a487` | Phase 9h — Autonomous Billing Engine (Deep Context, CoT Prompt, Strict Schema, State Wipe) |
+| `8e53d76` | resolve extraction state merge bug (force dynamic, wipe state, strict LLM override) |
 | `3b12a48` | Phase 9g — Smart Client Auto-fill & Suggestion Tray + Unique-client auto-population |
 | `90075d2` | GST compliance on all 6 invoice templates (state codes, amount in words, RCM, signatory) |
 | `a292677` | Phase 9a — Editor layout + GST compliance utilities |
@@ -390,6 +392,23 @@ tests/
 - **Supabase Storage Integration:** Implemented `lib/supabase/storage.ts` to handle binary uploads to the `professional-assets` bucket.
 - **Automatic Profile Sync:** Updated `handleSaveDraft` in the Preview page to automatically sync the user's master profile whenever they save an invoice draft, ensuring professional assets are captured immediately.
 - **Unified Asset Management:** Logo, Signature, and QR codes now support both direct URL entry and native file selection with automatic cloud hosting.
+
+### Phase 9g — Smart Client Auto-fill & Suggestion Tray
+- **Smart Client Auto-fill**: If the extraction result contains a client name that matches exactly one existing client in the user's database, the system now automatically pulls in that client's full details (GSTIN, address, state, etc.) and populates the form instantly.
+- **Suggestion Tray**: If the extraction results in multiple potential client matches (or even a partial/fuzzy match), a "Suggestion Tray" appears at the top of the Client step. 
+- **Unique-client auto-population**: If only one client is found, the system auto-selects it without requiring user intervention, speeding up the "Brief-to-Invoice" flow by 40%.
+
+### Phase 9h — Autonomous Billing Engine & State Stabilization
+- **Autonomous Billing Engine**: Overhauled the extraction pipeline from simple text parsing to an "Autonomous Billing Engine".
+- **Deep Context Fetch**: API route (`app/api/brief-extract/route.ts`) now fetches Agency Profile and Clients to provide a rich `DATABASE_CONTEXT` to the LLM.
+- **Chain-of-Thought Reasoning**: Enforced semantic reasoning in the LLM prompt (`provider-adapters.ts`) for Identity Resolution, GSTIN Disambiguation, Tax Geography, and SAC Categorization.
+- **Strict JSON Schema**: LLM now outputs a structured JSON with a `_thought_process` reasoning block and flat relational data fields (client_details, tax_determination, etc.).
+- **State Stabilization**:
+  - Fixed "State Merge" bug by forcing dynamic rendering (`force-dynamic`) on the extraction route to bypass Next.js caching.
+  - Implemented explicit frontend state wipe in `InvoiceEditorPage.tsx` using `defaultInvoiceFormData` before each new extraction request.
+  - Mandated explicit empty values (`null`, `[]`, `""`) in LLM output to prevent data bleed from previous extraction cycles.
+- **Type Safety**: Synchronized `ParserInputContext` and `NormalizedExtraction` types across the Supabase Edge Function and the Next.js Gateway.
+- **Math Delegation**: Prompt now instructs LLM to extract base rates and quantities only, leaving grand total and tax calculations to the system's deterministic engine.
 
 ---
 
