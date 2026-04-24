@@ -6,35 +6,9 @@ import {
   type BriefParserInputBundle,
 } from "@/lib/brief-parser-gateway";
 
-// ─── Simple in-memory rate limiter ────────────────────────────
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // per IP per window
+import { ratelimit } from "@/lib/upstash";
+
 const MAX_INPUT_BYTES = 10_240; // 10 KB max brief size
-
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitStore.get(ip);
-
-  if (!entry || now >= entry.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX_REQUESTS;
-}
-
-// Periodic cleanup to prevent memory leak (every 5 minutes)
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimitStore) {
-    if (now >= entry.resetAt) {
-      rateLimitStore.delete(ip);
-    }
-  }
-}, 5 * 60_000);
 
 function getClientIp(request: Request): string {
   return (
@@ -47,7 +21,9 @@ function getClientIp(request: Request): string {
 export async function POST(request: Request) {
   // ─── Rate limiting ────────────────────────────────────────
   const clientIp = getClientIp(request);
-  if (isRateLimited(clientIp)) {
+  const { success } = await ratelimit.limit(clientIp);
+
+  if (!success) {
     return NextResponse.json(
       {
         extraction: null,

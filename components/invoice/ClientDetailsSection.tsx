@@ -56,6 +56,7 @@ interface ClientDetailsSectionProps {
   };
   showAllErrors?: boolean;
   savedClients?: SavedClient[];
+  onClientSelect?: (client: SavedClient) => void;
   agency?: AgencyDetails;
 }
 
@@ -66,6 +67,7 @@ export default function ClientDetailsSection({
   errors,
   showAllErrors = false,
   savedClients,
+  onClientSelect,
   agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
@@ -107,6 +109,9 @@ export default function ClientDetailsSection({
     const details = savedClientToClientDetails(client);
     onChange(details);
     setShowSuggestions(false);
+    if (onClientSelect) {
+      onClientSelect(client);
+    }
   };
 
   const syncClientDetails = (nextValue: ClientDetails) => {

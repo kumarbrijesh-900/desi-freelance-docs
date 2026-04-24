@@ -58,9 +58,18 @@ function ClientForm({
   const [state, setState] = useState(initial?.state || "");
   const [gstin, setGstin] = useState(initial?.gstin || "");
   const [location, setLocation] = useState(initial?.client_type || "domestic");
+  const [clientEntityType, setClientEntityType] = useState<"agency" | "freelancer">(
+    (initial?.client_entity_type as "agency" | "freelancer") || "agency"
+  );
   const [country, setCountry] = useState(initial?.country || "");
-  const [msaContent, setMsaContent] = useState("");
-  const [showMsa, setShowMsa] = useState(false);
+  const [msaEffectiveDate, setMsaEffectiveDate] = useState(initial?.msa_effective_date || "");
+  const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(initial?.msa_payment_terms_days || 20);
+  const [msaLateFeeRate, setMsaLateFeeRate] = useState(initial?.msa_late_fee_rate || 1.5);
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState(initial?.msa_ip_trigger_type || "upon_payment");
+  const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(initial?.msa_jurisdiction_city || "Bangalore");
+  const [msaVersionLabel, setMsaVersionLabel] = useState(initial?.msa_version_label || "Standard MSA v1.2");
+  const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState(initial?.msa_notes_boilerplate || "");
+  const [showMsa, setShowMsa] = useState(Boolean(initial?.msa_notes_boilerplate));
   const [showMsaTooltip, setShowMsaTooltip] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -85,7 +94,15 @@ function ClientForm({
       clientCurrency: "",
       clientGstin: gstin.trim(),
       clientLocation: location as ClientDetails["clientLocation"],
+      clientType: clientEntityType,
       isClientSezUnit: "",
+      msaEffectiveDate: msaEffectiveDate || undefined,
+      msaPaymentTermsDays: Number(msaPaymentTermsDays),
+      msaLateFeeRate: Number(msaLateFeeRate),
+      msaIpTriggerType,
+      msaJurisdictionCity,
+      msaVersionLabel,
+      msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,
     };
 
     const { data, error } = await upsertClient(details, initial?.id);
@@ -96,12 +113,12 @@ function ClientForm({
       return;
     }
     if (data) {
-      // Create MSA if content was provided (only for new clients)
-      if (msaContent.trim() && !initial) {
+      // Create MSA if boilerplate was provided (only for new clients)
+      if (msaNotesBoilerplate.trim() && !initial) {
         const msaResult = await createMsa({
           clientId: data.id,
           title: "Master Service Agreement",
-          content: msaContent.trim(),
+          content: msaNotesBoilerplate.trim(),
           status: "draft",
         });
         if (msaResult.error) {
@@ -169,6 +186,37 @@ function ClientForm({
             </select>
           </div>
 
+          {/* Client Entity Type — Agency vs Freelancer */}
+          <div>
+            <label className={appFieldLabelClass}>Entity Type</label>
+            <div className="flex p-0.5 bg-[color:var(--bg-secondary)] rounded-lg border border-[color:var(--border-subtle)]">
+              <button
+                type="button"
+                onClick={() => setClientEntityType("agency")}
+                className={cn(
+                  "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
+                  clientEntityType === "agency" 
+                    ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
+                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                )}
+              >
+                Agency / Biz
+              </button>
+              <button
+                type="button"
+                onClick={() => setClientEntityType("freelancer")}
+                className={cn(
+                  "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
+                  clientEntityType === "freelancer" 
+                    ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
+                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                )}
+              >
+                Individual
+              </button>
+            </div>
+          </div>
+
           {/* Address */}
           <div className="sm:col-span-2 lg:col-span-2">
             <label className={appFieldLabelClass}>Address</label>
@@ -210,15 +258,23 @@ function ClientForm({
                 </select>
               </div>
               <div>
-                <label className={appFieldLabelClass}>GSTIN</label>
+                <label className={appFieldLabelClass}>
+                  GSTIN {clientEntityType === "agency" && "*"}
+                </label>
                 <input
                   type="text"
                   value={gstin}
                   onChange={(e) => setGstin(e.target.value.toUpperCase())}
                   placeholder="e.g. 27AAACR5055K1ZK"
                   maxLength={15}
+                  required={clientEntityType === "agency"}
                   className={fc({ hasValue: Boolean(gstin) })}
                 />
+                {clientEntityType === "freelancer" && (
+                  <p className="mt-1 text-[10px] text-[color:var(--text-muted)]">
+                    Optional for individuals
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -238,91 +294,152 @@ function ClientForm({
           )}
         </div>
 
-        {/* MSA Section — collapsible */}
-        {!initial && (
-          <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
+        {/* Relationship Blueprint Section */}
+        <div className="mt-6 border-t border-[color:var(--border-subtle)] pt-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowMsa(!showMsa)}
-                className="flex items-center gap-1.5 text-[13px] font-medium text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
-              >
-                <svg
-                  className={cn("h-3.5 w-3.5 transition-transform duration-200", showMsa && "rotate-90")}
-                  viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-                📄 Attach MSA (Master Service Agreement)
-              </button>
-
-              {/* Info tooltip */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onMouseEnter={() => setShowMsaTooltip(true)}
-                  onMouseLeave={() => setShowMsaTooltip(false)}
-                  onClick={() => setShowMsaTooltip(!showMsaTooltip)}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] font-bold text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)] hover:text-[color:var(--text-primary)] transition-colors"
-                >
-                  ?
-                </button>
-
-                <AnimatePresence>
-                  {showMsaTooltip && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 4 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-1/2 top-full z-50 mt-2 w-72 -translate-x-1/2 rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-lg"
-                    >
-                      <p className="text-[12px] font-semibold text-[color:var(--text-primary)]">
-                        What is an MSA?
-                      </p>
-                      <p className="mt-1 text-[11px] leading-[1.6] text-[color:var(--text-secondary)]">
-                        A <strong>Master Service Agreement</strong> defines the terms of your working relationship — scope, payment terms, IP rights, liability, etc.
-                      </p>
-                      <p className="mt-2 text-[11px] leading-[1.6] text-[color:var(--text-secondary)]">
-                        <strong>Why it&apos;s useful:</strong> When you share an invoice link, the client must accept the MSA before viewing it. This gives you a digital paper trail that they agreed to your terms.
-                      </p>
-                      <div className="mt-2 rounded-md bg-[color:var(--color-lime-50)] px-2 py-1.5">
-                        <p className="text-[10px] font-medium text-[color:var(--color-lime-700)]">
-                          💡 Pro tip: You can always add or edit MSAs later from the client detail page.
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <h4 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+                Relationship Blueprint
+              </h4>
+              <span className="rounded-full bg-[color:var(--color-lime-100)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-lime-700)]">
+                MSA Automation
+              </span>
             </div>
 
-            <AnimatePresence>
-              {showMsa && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="mt-3">
-                    <textarea
-                      value={msaContent}
-                      onChange={(e) => setMsaContent(e.target.value)}
-                      rows={6}
-                      placeholder={`Example:\n\n1. Scope of Work: [Agency] will provide design services as detailed in individual invoices.\n2. Payment Terms: Net 15 from invoice date. Late payments incur 1.5% monthly interest.\n3. Intellectual Property: Full ownership transfers upon complete payment.\n4. Confidentiality: Both parties agree to keep project details confidential.\n5. Revisions: Up to 2 rounds included; additional revisions billed at hourly rate.`}
-                      className={fc({ hasValue: Boolean(msaContent), multiline: true })}
-                    />
-                    <p className={appFieldHelperTextClass}>
-                      Optional. Paste your standard terms or type a simple agreement. Saved as draft — activate it from the client detail page.
+            <div className="relative">
+              <button
+                type="button"
+                onMouseEnter={() => setShowMsaTooltip(true)}
+                onMouseLeave={() => setShowMsaTooltip(false)}
+                className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] font-bold text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)] hover:text-[color:var(--text-primary)] transition-colors"
+              >
+                ?
+              </button>
+              <AnimatePresence>
+                {showMsaTooltip && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                    className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-[color:var(--border-subtle)] bg-white p-4 shadow-2xl"
+                  >
+                    <p className="text-[13px] font-bold text-[color:var(--text-primary)] mb-1">Source of Truth</p>
+                    <p className="text-[11px] leading-relaxed text-[color:var(--text-secondary)]">
+                      These settings act as defaults for every invoice you create for this client. 
+                      They ensure legal consistency and automate payment logic like Net terms and late fees.
                     </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        )}
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Effective Date */}
+            <div>
+              <label className={appFieldLabelClass}>MSA Effective Date</label>
+              <input
+                type="date"
+                value={msaEffectiveDate}
+                onChange={(e) => setMsaEffectiveDate(e.target.value)}
+                className={fc({ hasValue: Boolean(msaEffectiveDate) })}
+              />
+            </div>
+
+            {/* Payment Terms */}
+            <div>
+              <label className={appFieldLabelClass}>Payment Terms (Net Days)</label>
+              <select
+                value={msaPaymentTermsDays}
+                onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                className={fc({ hasValue: true, isSelect: true })}
+              >
+                <option value={0}>Due on Receipt</option>
+                <option value={7}>Net 7</option>
+                <option value={15}>Net 15</option>
+                <option value={20}>Net 20 (Standard)</option>
+                <option value={30}>Net 30</option>
+                <option value={45}>Net 45</option>
+              </select>
+            </div>
+
+            {/* Late Fee Rate */}
+            <div>
+              <label className={appFieldLabelClass}>Late Fee (% Monthly)</label>
+              <input
+                type="number"
+                step="0.1"
+                value={msaLateFeeRate}
+                onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                placeholder="1.5"
+                className={fc({ hasValue: true })}
+              />
+            </div>
+
+            {/* IP Trigger */}
+            <div>
+              <label className={appFieldLabelClass}>IP Transfer Trigger</label>
+              <select
+                value={msaIpTriggerType}
+                onChange={(e) => setMsaIpTriggerType(e.target.value)}
+                className={fc({ hasValue: true, isSelect: true })}
+              >
+                <option value="upon_payment">Upon Full Payment</option>
+                <option value="immediate">Immediate Assignment</option>
+                <option value="signing">Upon MSA Signing</option>
+                <option value="manual">Manual Release</option>
+              </select>
+            </div>
+
+            {/* Jurisdiction */}
+            <div className="sm:col-span-1">
+              <label className={appFieldLabelClass}>Jurisdiction City</label>
+              <input
+                type="text"
+                value={msaJurisdictionCity}
+                onChange={(e) => setMsaJurisdictionCity(e.target.value)}
+                placeholder="Bangalore"
+                className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+              />
+            </div>
+
+            {/* Version Label */}
+            <div className="sm:col-span-1">
+              <label className={appFieldLabelClass}>Contract Version</label>
+              <input
+                type="text"
+                value={msaVersionLabel}
+                onChange={(e) => setMsaVersionLabel(e.target.value)}
+                placeholder="v1.2"
+                className={fc({ hasValue: Boolean(msaVersionLabel) })}
+              />
+            </div>
+
+            {/* Boilerplate / Notes */}
+            <div className="sm:col-span-2 lg:col-span-4">
+              <div className="flex items-center justify-between mb-2">
+                <label className={appFieldLabelClass + " mb-0"}>Legal Boilerplate / Default Notes</label>
+                <button
+                  type="button"
+                  onClick={() => setMsaNotesBoilerplate("")}
+                  className="text-[10px] font-medium text-red-500 hover:underline"
+                >
+                  Clear Notes
+                </button>
+              </div>
+              <textarea
+                value={msaNotesBoilerplate}
+                onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
+                rows={4}
+                placeholder="These notes will be pre-filled in the invoice editor..."
+                className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
+              />
+              <p className={appFieldHelperTextClass}>
+                Paste specific clauses from your MSA here. They will auto-hydrate into the &quot;Notes&quot; section of every invoice.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Actions */}
         <div className="mt-4 flex items-center justify-end gap-2">

@@ -79,10 +79,11 @@ function getLicenseLabel(type?: string): string {
   return type ? map[type] ?? type : "—";
 }
 
-function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE"): string {
+function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE", rate: number): string {
+  const percentage = Math.round(rate * 100);
   switch (taxType) {
-    case "CGST_SGST": return "CGST + SGST (18%)";
-    case "IGST": return "IGST (18%)";
+    case "CGST_SGST": return `CGST + SGST (${percentage}%)`;
+    case "IGST": return `IGST (${percentage}%)`;
     default: return "Tax (0%)";
   }
 }
@@ -108,6 +109,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     gstRegistered,
     lutAvailability: formData.agency.lutAvailability,
     noLutTaxHandling: exportTaxHandling,
+    taxRate: formData.tax?.taxRate,
   });
 
   const showGstin = shouldShowAgencyGstin(formData.agency);
@@ -189,7 +191,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     itemCount: lineItems.length,
 
     subtotalFormatted: formatCurrency(totals.subtotal, displayCurrency),
-    taxLabel: getTaxLineLabel(totals.taxType),
+    taxLabel: getTaxLineLabel(totals.taxType, (formData.tax?.taxRate ?? 18) / 100),
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
     grandTotalFormatted: formatCurrency(totals.grandTotal, displayCurrency),
     grandTotalRaw: totals.grandTotal,

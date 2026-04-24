@@ -1022,6 +1022,7 @@ function EditorContent() {
         gstRegistered: agencyIsGstRegistered,
         lutAvailability: formData.agency.lutAvailability,
         noLutTaxHandling: effectiveExportTaxDecision,
+        taxRate: formData.tax.taxRate,
       }),
     [
       formData.lineItems,
@@ -1031,20 +1032,22 @@ function EditorContent() {
       agencyIsGstRegistered,
       formData.agency.lutAvailability,
       effectiveExportTaxDecision,
+      formData.tax.taxRate,
     ]
   );
 
   const derivedTaxConfig = useMemo(() => {
+    const currentRate = formData.tax.taxRate ?? 18;
     switch (computedTotals.taxType) {
       case "CGST_SGST":
         return {
           taxMode: "gst" as const,
-          taxRate: 18,
+          taxRate: currentRate,
         };
       case "IGST":
         return {
           taxMode: "igst" as const,
-          taxRate: 18,
+          taxRate: currentRate,
         };
       default:
         return {
@@ -1052,7 +1055,7 @@ function EditorContent() {
           taxRate: 0,
         };
     }
-  }, [computedTotals.taxType]);
+  }, [computedTotals.taxType, formData.tax.taxRate]);
 
   const totalsComplianceMessage = useMemo(() => {
     const settlementWarning = getSettlementComplianceWarning({
@@ -1068,7 +1071,7 @@ function EditorContent() {
       }
 
       if (effectiveExportTaxDecision === "add-igst") {
-        return ["International export without LUT: IGST 18% applies.", settlementWarning]
+        return [`International export without LUT: IGST ${formData.tax.taxRate}% applies.`, settlementWarning]
           .filter(Boolean)
           .join(" ");
       }
@@ -1083,7 +1086,7 @@ function EditorContent() {
           : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
       }
 
-      return "Domestic SEZ supply without LUT: IGST 18% applies even if the client is in the same state.";
+      return `Domestic SEZ supply without LUT: IGST ${formData.tax.taxRate}% applies even if the client is in the same state.`;
     }
 
     if (clientIsInternational && !agencyIsGstRegistered) {
@@ -1096,11 +1099,12 @@ function EditorContent() {
     }
 
     if (computedTotals.taxType === "CGST_SGST") {
-      return "Domestic same-state billing: tax is split into CGST 9% and SGST 9%.";
+      const halfRate = (formData.tax.taxRate ?? 18) / 2;
+      return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
     }
 
     if (computedTotals.taxType === "IGST") {
-      return "Domestic interstate billing: IGST 18% applies to this invoice.";
+      return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
     }
 
     if (!agencyIsGstRegistered) {
@@ -1723,6 +1727,12 @@ function EditorContent() {
       })
     );
   };
+  
+  const handleClientSelect = (client: SavedClient) => {
+    const syncedData = syncMsaToInvoice(formData, client);
+    setFormData(syncedData);
+    playInteractionCue("selectionChange");
+  };
 
   const renderStepContent = (step: InvoiceStepperStep) => {
     switch (step) {
@@ -1741,6 +1751,7 @@ function EditorContent() {
           <ClientDetailsSection
             value={formData.client}
             onChange={(client) => updateFormSection("client", client)}
+            onClientSelect={handleClientSelect}
             errors={fieldErrors.client}
             showAllErrors={showAllValidationErrors}
             savedClients={savedClients}

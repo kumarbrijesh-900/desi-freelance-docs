@@ -29,6 +29,9 @@ export interface SavedInvoice {
   msa_accepted_at: string | null;
   msa_response: MsaResponse;
   msa_responded_at: string | null;
+  applied_payment_terms: string | null;
+  applied_late_fee_rate: number | null;
+  applied_license_type: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -69,16 +72,21 @@ export async function saveInvoice(
   const invoiceNumber = getInvoiceNumber(input.formData);
   const status = input.status ?? "draft";
 
+  const row = {
+    invoice_number: invoiceNumber,
+    form_data: input.formData as unknown as Record<string, unknown>,
+    status,
+    template_id: input.templateId ?? "classic",
+    applied_payment_terms: input.formData.meta?.paymentTerms || null,
+    applied_late_fee_rate: input.formData.client?.msaLateFeeRate || null,
+    applied_license_type: input.formData.payment?.license?.licenseType || null,
+  };
+
   if (input.existingId) {
     // Update existing
     const { data, error } = await supabase
       .from("invoices")
-      .update({
-        invoice_number: invoiceNumber,
-        form_data: input.formData as unknown as Record<string, unknown>,
-        status,
-        template_id: input.templateId ?? "classic",
-      })
+      .update(row)
       .eq("id", input.existingId)
       .eq("user_id", userId)
       .select()
@@ -94,11 +102,8 @@ export async function saveInvoice(
   const { data, error } = await supabase
     .from("invoices")
     .insert({
+      ...row,
       user_id: userId,
-      invoice_number: invoiceNumber,
-      form_data: input.formData as unknown as Record<string, unknown>,
-      status,
-      template_id: input.templateId ?? "classic",
     })
     .select()
     .single();

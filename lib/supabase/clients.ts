@@ -27,9 +27,17 @@ export interface SavedClient {
   client_currency: string;
   gstin: string;
   client_type: string;
+  client_entity_type: string; // new field for agency vs freelancer
   sez_status: string;
   invoice_count: number;
   last_invoiced_at: string | null;
+  msa_effective_date: string | null;
+  msa_payment_terms_days: number;
+  msa_late_fee_rate: number;
+  msa_ip_trigger_type: string;
+  msa_jurisdiction_city: string;
+  msa_version_label: string;
+  msa_notes_boilerplate: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,7 +60,15 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     clientCurrency: c.client_currency as ClientDetails["clientCurrency"],
     clientGstin: c.gstin,
     clientLocation: (c.client_type || "domestic") as ClientDetails["clientLocation"],
+    clientType: (c.client_entity_type || "agency") as ClientDetails["clientType"],
     isClientSezUnit: c.sez_status as ClientDetails["isClientSezUnit"],
+    msaEffectiveDate: c.msa_effective_date || undefined,
+    msaPaymentTermsDays: c.msa_payment_terms_days,
+    msaLateFeeRate: c.msa_late_fee_rate,
+    msaIpTriggerType: c.msa_ip_trigger_type,
+    msaJurisdictionCity: c.msa_jurisdiction_city,
+    msaVersionLabel: c.msa_version_label,
+    msaNotesBoilerplate: c.msa_notes_boilerplate || undefined,
   };
 }
 
@@ -74,7 +90,15 @@ export function clientDetailsToRow(
     client_currency: details.clientCurrency || "",
     gstin: details.clientGstin || "",
     client_type: details.clientLocation || "domestic",
+    client_entity_type: details.clientType || "agency",
     sez_status: details.isClientSezUnit || "no",
+    msa_effective_date: details.msaEffectiveDate || null,
+    msa_payment_terms_days: details.msaPaymentTermsDays ?? 20,
+    msa_late_fee_rate: details.msaLateFeeRate ?? 1.5,
+    msa_ip_trigger_type: details.msaIpTriggerType || "upon_payment",
+    msa_jurisdiction_city: details.msaJurisdictionCity || "Bangalore",
+    msa_version_label: details.msaVersionLabel || "Standard Lance MSA v1.2",
+    msa_notes_boilerplate: details.msaNotesBoilerplate || null,
     updated_at: new Date().toISOString(),
   };
 }

@@ -286,6 +286,7 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
     gstRegistered: true,
     lutAvailability: "",
     noLutTaxHandling: "",
+    taxRate: result.nextFormData.tax.taxRate,
   });
 
   assert.equal(totals.subtotal, 18000);

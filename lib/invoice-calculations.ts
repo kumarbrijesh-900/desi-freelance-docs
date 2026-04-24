@@ -14,6 +14,7 @@ type CalculateInvoiceTotalsInput = {
   gstRegistered: boolean;
   lutAvailability: "" | "yes" | "no";
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
+  taxRate?: number;
 };
 
 export function calculateInvoiceTotals({
@@ -25,6 +26,7 @@ export function calculateInvoiceTotals({
   gstRegistered,
   lutAvailability,
   noLutTaxHandling,
+  taxRate,
 }: CalculateInvoiceTotalsInput): InvoiceComputedValues {
   const subtotal = lineItems.reduce((sum, item) => {
     const qty = Number(item.qty) || 0;
@@ -41,6 +43,7 @@ export function calculateInvoiceTotals({
       gstRegistered,
       lutAvailability,
       noLutTaxHandling,
+      taxRate,
   });
 
   return {

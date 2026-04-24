@@ -89,7 +89,16 @@ export interface ClientDetails {
   clientCurrency: InternationalCurrencyCode | "";
   clientGstin: string;
   clientLocation: "domestic" | "international";
+  clientType?: "agency" | "freelancer";
   isClientSezUnit: "" | "yes" | "no" | "not-sure";
+  // MSA Blueprint fields
+  msaEffectiveDate?: string;
+  msaPaymentTermsDays?: number;
+  msaLateFeeRate?: number;
+  msaIpTriggerType?: string;
+  msaJurisdictionCity?: string;
+  msaVersionLabel?: string;
+  msaNotesBoilerplate?: string;
 }
 
 export interface InvoiceMeta {

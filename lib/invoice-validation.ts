@@ -283,10 +283,14 @@ export function isInvoiceStepValid(
 
   switch (step) {
     case "agency":
-      return !hasAnyErrors(errors.agency);
+      // Optimistic: Only require name and address for the rail to show "Ready"
+      return !isBlank(formData.agency.agencyName) && 
+             (!isBlank(formData.agency.address) || !isBlank(formData.agency.addressLine1));
 
     case "client":
-      return !hasAnyErrors(errors.client);
+      // Optimistic: Only require name and address/location core for the rail
+      return !isBlank(formData.client.clientName) && 
+             (!isBlank(formData.client.clientAddress) || !isBlank(formData.client.clientAddressLine1));
 
     case "deliverables":
       return Object.keys(errors.lineItems).length === 0;

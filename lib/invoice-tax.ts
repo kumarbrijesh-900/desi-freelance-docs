@@ -10,6 +10,7 @@ type CalculateTaxInput = {
   gstRegistered: boolean;
   lutAvailability: "" | "yes" | "no";
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
+  taxRate?: number;
 };
 
 export function calculateTax({
@@ -21,7 +22,10 @@ export function calculateTax({
   gstRegistered,
   lutAvailability,
   noLutTaxHandling,
+  taxRate = 18,
 }: CalculateTaxInput): InvoiceTaxBreakdown {
+  const rate = taxRate / 100;
+
   if (!gstRegistered) {
     return {
       totalTax: 0,
@@ -38,7 +42,7 @@ export function calculateTax({
     }
 
     if (noLutTaxHandling === "add-igst") {
-      const igst = subtotal * 0.18;
+      const igst = subtotal * rate;
 
       return {
         igst,
@@ -61,7 +65,7 @@ export function calculateTax({
       };
     }
 
-    const igst = subtotal * 0.18;
+    const igst = subtotal * rate;
 
     return {
       igst,
@@ -78,8 +82,8 @@ export function calculateTax({
   }
 
   if (agencyState === clientState) {
-    const cgst = subtotal * 0.09;
-    const sgst = subtotal * 0.09;
+    const cgst = subtotal * (rate / 2);
+    const sgst = subtotal * (rate / 2);
 
     return {
       cgst,
@@ -89,7 +93,7 @@ export function calculateTax({
     };
   }
 
-  const igst = subtotal * 0.18;
+  const igst = subtotal * rate;
 
   return {
     igst,
