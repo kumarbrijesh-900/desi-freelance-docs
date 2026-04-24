@@ -294,15 +294,15 @@ function ClientForm({
           )}
         </div>
 
-        {/* Relationship Blueprint Section */}
+        {/* Master Services Agreement (MSA) Defaults Section */}
         <div className="mt-6 border-t border-[color:var(--border-subtle)] pt-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h4 className="text-[14px] font-bold text-[color:var(--text-primary)]">
-                Relationship Blueprint
+                Master Services Agreement (MSA) Defaults
               </h4>
               <span className="rounded-full bg-[color:var(--color-lime-100)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-lime-700)]">
-                MSA Automation
+                Contract-First Flow
               </span>
             </div>
 
@@ -335,43 +335,25 @@ function ClientForm({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Effective Date */}
-            <div>
-              <label className={appFieldLabelClass}>MSA Effective Date</label>
-              <input
-                type="date"
-                value={msaEffectiveDate}
-                onChange={(e) => setMsaEffectiveDate(e.target.value)}
-                className={fc({ hasValue: Boolean(msaEffectiveDate) })}
-              />
-            </div>
-
             {/* Payment Terms */}
             <div>
-              <label className={appFieldLabelClass}>Payment Terms (Net Days)</label>
-              <select
+              <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+              <input
+                type="number"
                 value={msaPaymentTermsDays}
                 onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
-                className={fc({ hasValue: true, isSelect: true })}
-              >
-                <option value={0}>Due on Receipt</option>
-                <option value={7}>Net 7</option>
-                <option value={15}>Net 15</option>
-                <option value={20}>Net 20 (Standard)</option>
-                <option value={30}>Net 30</option>
-                <option value={45}>Net 45</option>
-              </select>
+                className={fc({ hasValue: true })}
+              />
             </div>
 
             {/* Late Fee Rate */}
             <div>
-              <label className={appFieldLabelClass}>Late Fee (% Monthly)</label>
+              <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
               <input
                 type="number"
                 step="0.1"
                 value={msaLateFeeRate}
                 onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                placeholder="1.5"
                 className={fc({ hasValue: true })}
               />
             </div>
@@ -384,49 +366,50 @@ function ClientForm({
                 onChange={(e) => setMsaIpTriggerType(e.target.value)}
                 className={fc({ hasValue: true, isSelect: true })}
               >
-                <option value="upon_payment">Upon Full Payment</option>
-                <option value="immediate">Immediate Assignment</option>
-                <option value="signing">Upon MSA Signing</option>
-                <option value="manual">Manual Release</option>
+                <option value="upon_payment">upon_payment</option>
+                <option value="upon_delivery">upon_delivery</option>
+                <option value="retained">retained</option>
               </select>
             </div>
 
             {/* Jurisdiction */}
-            <div className="sm:col-span-1">
-              <label className={appFieldLabelClass}>Jurisdiction City</label>
+            <div>
+              <label className={appFieldLabelClass}>Jurisdiction</label>
               <input
                 type="text"
                 value={msaJurisdictionCity}
                 onChange={(e) => setMsaJurisdictionCity(e.target.value)}
-                placeholder="Bangalore"
+                placeholder="e.g. Bangalore"
                 className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
               />
             </div>
 
+            {/* Effective Date */}
+            <div>
+              <label className={appFieldLabelClass}>MSA Effective Date</label>
+              <input
+                type="date"
+                value={msaEffectiveDate}
+                onChange={(e) => setMsaEffectiveDate(e.target.value)}
+                className={fc({ hasValue: Boolean(msaEffectiveDate) })}
+              />
+            </div>
+
             {/* Version Label */}
-            <div className="sm:col-span-1">
+            <div>
               <label className={appFieldLabelClass}>Contract Version</label>
               <input
                 type="text"
                 value={msaVersionLabel}
                 onChange={(e) => setMsaVersionLabel(e.target.value)}
-                placeholder="v1.2"
+                placeholder="Standard MSA v1.2"
                 className={fc({ hasValue: Boolean(msaVersionLabel) })}
               />
             </div>
 
             {/* Boilerplate / Notes */}
             <div className="sm:col-span-2 lg:col-span-4">
-              <div className="flex items-center justify-between mb-2">
-                <label className={appFieldLabelClass + " mb-0"}>Legal Boilerplate / Default Notes</label>
-                <button
-                  type="button"
-                  onClick={() => setMsaNotesBoilerplate("")}
-                  className="text-[10px] font-medium text-red-500 hover:underline"
-                >
-                  Clear Notes
-                </button>
-              </div>
+              <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
               <textarea
                 value={msaNotesBoilerplate}
                 onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
@@ -434,9 +417,6 @@ function ClientForm({
                 placeholder="These notes will be pre-filled in the invoice editor..."
                 className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
               />
-              <p className={appFieldHelperTextClass}>
-                Paste specific clauses from your MSA here. They will auto-hydrate into the &quot;Notes&quot; section of every invoice.
-              </p>
             </div>
           </div>
         </div>

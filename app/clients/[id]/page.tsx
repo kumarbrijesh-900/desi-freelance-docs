@@ -214,6 +214,13 @@ export default function ClientDetailPage() {
   const [clientState, setClientState] = useState("");
   const [clientGstin, setClientGstin] = useState("");
   const [clientLocation, setClientLocation] = useState("domestic");
+  const [msaEffectiveDate, setMsaEffectiveDate] = useState("");
+  const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
+  const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_payment");
+  const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
+  const [msaVersionLabel, setMsaVersionLabel] = useState("Standard Lance MSA v1.2");
+  const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -236,6 +243,13 @@ export default function ClientDetailPage() {
         setClientState(c.state);
         setClientGstin(c.gstin);
         setClientLocation(c.client_type);
+        setMsaEffectiveDate(c.msa_effective_date || "");
+        setMsaPaymentTermsDays(c.msa_payment_terms_days);
+        setMsaLateFeeRate(c.msa_late_fee_rate);
+        setMsaIpTriggerType(c.msa_ip_trigger_type);
+        setMsaJurisdictionCity(c.msa_jurisdiction_city);
+        setMsaVersionLabel(c.msa_version_label);
+        setMsaNotesBoilerplate(c.msa_notes_boilerplate || "");
       }
       setMsas(msaRes.data);
       setIsLoading(false);
@@ -263,6 +277,13 @@ export default function ClientDetailPage() {
       clientGstin,
       clientLocation: clientLocation as ClientDetails["clientLocation"],
       isClientSezUnit: "",
+      msaEffectiveDate: msaEffectiveDate || undefined,
+      msaPaymentTermsDays: Number(msaPaymentTermsDays),
+      msaLateFeeRate: Number(msaLateFeeRate),
+      msaIpTriggerType,
+      msaJurisdictionCity,
+      msaVersionLabel,
+      msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,
     };
 
     const { data, error } = await upsertClient(details, client.id);
@@ -442,6 +463,102 @@ export default function ClientDetailPage() {
                     </>
                   )}
                 </div>
+
+                {/* Master Services Agreement (MSA) Defaults Section */}
+                <div className="mt-8 border-t border-[color:var(--border-subtle)] pt-6">
+                  <div className="mb-4">
+                    <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+                      Master Services Agreement (MSA) Defaults
+                    </h3>
+                    <p className="text-[11px] text-[color:var(--text-muted)]">
+                      Contract-First Flow
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Payment Terms */}
+                    <div>
+                      <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+                      <input
+                        type="number"
+                        value={msaPaymentTermsDays}
+                        onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                        className={fc({ hasValue: true })}
+                      />
+                    </div>
+
+                    {/* Late Fee Rate */}
+                    <div>
+                      <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={msaLateFeeRate}
+                        onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                        className={fc({ hasValue: true })}
+                      />
+                    </div>
+
+                    {/* IP Trigger */}
+                    <div>
+                      <label className={appFieldLabelClass}>IP Transfer Trigger</label>
+                      <select
+                        value={msaIpTriggerType}
+                        onChange={(e) => setMsaIpTriggerType(e.target.value)}
+                        className={fc({ hasValue: true, isSelect: true })}
+                      >
+                        <option value="upon_payment">upon_payment</option>
+                        <option value="upon_delivery">upon_delivery</option>
+                        <option value="retained">retained</option>
+                      </select>
+                    </div>
+
+                    {/* Jurisdiction */}
+                    <div>
+                      <label className={appFieldLabelClass}>Jurisdiction</label>
+                      <input
+                        type="text"
+                        value={msaJurisdictionCity}
+                        onChange={(e) => setMsaJurisdictionCity(e.target.value)}
+                        placeholder="e.g. Bangalore"
+                        className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                      />
+                    </div>
+
+                    {/* Effective Date */}
+                    <div>
+                      <label className={appFieldLabelClass}>MSA Effective Date</label>
+                      <input
+                        type="date"
+                        value={msaEffectiveDate}
+                        onChange={(e) => setMsaEffectiveDate(e.target.value)}
+                        className={fc({ hasValue: Boolean(msaEffectiveDate) })}
+                      />
+                    </div>
+
+                    {/* Version Label */}
+                    <div>
+                      <label className={appFieldLabelClass}>Contract Version</label>
+                      <input
+                        type="text"
+                        value={msaVersionLabel}
+                        onChange={(e) => setMsaVersionLabel(e.target.value)}
+                        placeholder="Standard MSA v1.2"
+                        className={fc({ hasValue: Boolean(msaVersionLabel) })}
+                      />
+                    </div>
+
+                    {/* Boilerplate / Notes */}
+                    <div className="sm:col-span-2 lg:col-span-4">
+                      <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+                      <textarea
+                        value={msaNotesBoilerplate}
+                        onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
+                        rows={3}
+                        placeholder="These notes will be pre-filled in the invoice editor..."
+                        className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
+                      />
+                    </div>
               </div>
             </MotionReveal>
 

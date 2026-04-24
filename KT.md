@@ -430,7 +430,13 @@ tests/
 | `client_address` | text | Added via ALTER TABLE |
 | `client_postal_code` | text | Added via ALTER TABLE |
 | `client_currency` | text | Added via ALTER TABLE |
-| `client_msa` | text | MSA content |
+| `msa_effective_date` | date | Relationship Blueprint |
+| `msa_payment_terms_days` | integer | Relationship Blueprint |
+| `msa_late_fee_rate` | numeric | Relationship Blueprint |
+| `msa_ip_trigger_type` | text | Relationship Blueprint |
+| `msa_jurisdiction_city` | text | Relationship Blueprint |
+| `msa_version_label` | text | Relationship Blueprint |
+| `msa_notes_boilerplate` | text | Legal boilerplate for invoices |
 | `msa_status` | text | `draft`, `accepted`, `rejected` |
 
 **RLS Policies:**

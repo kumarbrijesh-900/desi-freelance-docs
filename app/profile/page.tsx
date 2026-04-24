@@ -110,6 +110,12 @@ export default function ProfilePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [signatureUrl, setSignatureUrl] = useState("");
 
+  // MSA Defaults
+  const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
+  const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_payment");
+  const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
+
   // Load auth + profile
   useEffect(() => {
     async function init() {
@@ -147,6 +153,12 @@ export default function ProfilePage() {
         setSwiftBicCode(profile.swift_bic_code || "");
         setQrCodeUrl(profile.qr_code_url || "");
         setSignatureUrl(profile.signature_url || "");
+        
+        // MSA Defaults
+        setMsaPaymentTermsDays(profile.msa_payment_terms_days ?? 20);
+        setMsaLateFeeRate(profile.msa_late_fee_rate ?? 1.5);
+        setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_payment");
+        setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bangalore");
       } else {
         console.log("PROFILE_INIT_INFO: No profile data to apply.");
       }
@@ -267,6 +279,10 @@ export default function ProfilePage() {
       lutNumber: "",
       noLutTaxHandling: "",
       signatureUrl,
+      msaPaymentTermsDays,
+      msaLateFeeRate,
+      msaIpTriggerType,
+      msaJurisdictionCity,
     };
 
     const payment: Partial<PaymentDetails> = {
@@ -569,6 +585,60 @@ export default function ProfilePage() {
                       onChange={(e) => setSwiftBicCode(e.target.value.toUpperCase())}
                       placeholder="e.g. HDFCINBB"
                       className={fc({ hasValue: Boolean(swiftBicCode) })}
+                    />
+                  </FieldRow>
+                </div>
+              </div>
+            </MotionReveal>
+
+            {/* MSA Defaults */}
+            <MotionReveal preset="fade-up" delay={25}>
+              <div className={`${getAppPanelClass()} mb-4`}>
+                <SectionLabel
+                  icon="⚖️"
+                  title="Global Contract Defaults"
+                  description="Your Master Services Agreement (MSA) blueprint for new clients."
+                />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FieldRow label="Default Payment Terms (Days)">
+                    <input
+                      type="number"
+                      value={msaPaymentTermsDays}
+                      onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                      className={fc({ hasValue: true })}
+                    />
+                  </FieldRow>
+
+                  <FieldRow label="Late Fee Rate (%)">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={msaLateFeeRate}
+                      onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                      className={fc({ hasValue: true })}
+                    />
+                  </FieldRow>
+
+                  <FieldRow label="IP Transfer Trigger">
+                    <select
+                      value={msaIpTriggerType}
+                      onChange={(e) => setMsaIpTriggerType(e.target.value)}
+                      className={fc({ hasValue: true, isSelect: true })}
+                    >
+                      <option value="upon_payment">upon_payment</option>
+                      <option value="upon_delivery">upon_delivery</option>
+                      <option value="retained">retained</option>
+                    </select>
+                  </FieldRow>
+
+                  <FieldRow label="Jurisdiction">
+                    <input
+                      type="text"
+                      value={msaJurisdictionCity}
+                      onChange={(e) => setMsaJurisdictionCity(e.target.value)}
+                      placeholder="e.g. Bangalore"
+                      className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
                     />
                   </FieldRow>
                 </div>

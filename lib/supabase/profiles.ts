@@ -37,6 +37,11 @@ export interface UserProfile {
   iban_routing_code: string;
   qr_code_url: string;
   signature_url: string;
+  // MSA Defaults (Global)
+  msa_payment_terms_days: number;
+  msa_late_fee_rate: number;
+  msa_ip_trigger_type: string;
+  msa_jurisdiction_city: string;
   created_at: string;
   updated_at: string;
 }
@@ -61,6 +66,11 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     lutNumber: p.lut_number,
     noLutTaxHandling: p.no_lut_tax_handling as AgencyDetails["noLutTaxHandling"],
     signatureUrl: p.signature_url,
+    // Add MSA defaults to agency details if we need them in the editor
+    msaPaymentTermsDays: p.msa_payment_terms_days,
+    msaLateFeeRate: p.msa_late_fee_rate,
+    msaIpTriggerType: p.msa_ip_trigger_type,
+    msaJurisdictionCity: p.msa_jurisdiction_city,
   };
 }
 
@@ -80,7 +90,12 @@ export function profileToPaymentDefaults(p: UserProfile): Partial<PaymentDetails
 
 /** Convert AgencyDetails + payment back to DB columns for upsert */
 export function agencyToProfileRow(
-  agency: AgencyDetails,
+  agency: AgencyDetails & {
+    msaPaymentTermsDays?: number;
+    msaLateFeeRate?: number;
+    msaIpTriggerType?: string;
+    msaJurisdictionCity?: string;
+  },
   payment?: Partial<PaymentDetails>
 ): Record<string, unknown> {
   return {
@@ -107,6 +122,11 @@ export function agencyToProfileRow(
     iban_routing_code: payment?.ibanRoutingCode || "",
     qr_code_url: payment?.qrCodeUrl || "",
     signature_url: agency.signatureUrl || "",
+    // MSA Defaults
+    msa_payment_terms_days: agency.msaPaymentTermsDays ?? 20,
+    msa_late_fee_rate: agency.msaLateFeeRate ?? 1.5,
+    msa_ip_trigger_type: agency.msaIpTriggerType || "upon_payment",
+    msa_jurisdiction_city: agency.msaJurisdictionCity || "Bangalore",
     updated_at: new Date().toISOString(),
   };
 }

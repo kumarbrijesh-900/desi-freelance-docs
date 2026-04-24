@@ -695,6 +695,64 @@ export default function ClientDetailsSection({
             </div>
           </div>
         ) : null}
+        {/* Master Services Agreement (MSA) Defaults */}
+        <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+          <div className="mb-2">
+            <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+              Master Services Agreement (MSA) Defaults
+            </h3>
+            <p className="text-[11px] text-[color:var(--text-muted)]">
+              Transaction-specific overrides for this client relationship.
+            </p>
+          </div>
+
+          <div className={appFieldPairGridClass}>
+            <div>
+              <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+              <input
+                type="number"
+                value={value.msaPaymentTermsDays ?? 20}
+                onChange={(e) => updateField("msaPaymentTermsDays", Number(e.target.value))}
+                className={inputClass(undefined, true)}
+              />
+            </div>
+
+            <div>
+              <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                value={value.msaLateFeeRate ?? 1.5}
+                onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
+                className={inputClass(undefined, true)}
+              />
+            </div>
+
+            <div>
+              <label className={appFieldLabelClass}>IP Transfer Trigger</label>
+              <select
+                value={value.msaIpTriggerType || "upon_payment"}
+                onChange={(e) => updateField("msaIpTriggerType", e.target.value)}
+                className={inputClass(undefined, true)}
+              >
+                <option value="upon_payment">upon_payment</option>
+                <option value="upon_delivery">upon_delivery</option>
+                <option value="retained">retained</option>
+              </select>
+            </div>
+
+            <div>
+              <label className={appFieldLabelClass}>Jurisdiction</label>
+              <input
+                type="text"
+                value={value.msaJurisdictionCity || ""}
+                onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
+                placeholder="e.g. Bangalore"
+                className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
