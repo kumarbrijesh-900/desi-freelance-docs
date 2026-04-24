@@ -41,6 +41,8 @@ import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from
 import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from "@/lib/image-crop-utils";
 
+import SubmitFeedback from "@/components/feedback/SubmitFeedback";
+
 /* ─── Section Label Component ─────────────────────── */
 
 function SectionLabel({
@@ -836,6 +838,13 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
                 </div>
+              </div>
+            </MotionReveal>
+
+            {/* Feedback Loop */}
+            <MotionReveal preset="fade-up" delay={35}>
+              <div className="mt-12 pt-12 border-t border-gray-100">
+                <SubmitFeedback />
               </div>
             </MotionReveal>
 

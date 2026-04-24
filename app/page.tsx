@@ -177,16 +177,26 @@ export default function Home() {
                   </Link>
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                >
-                  <span className="inline-flex items-center gap-2.5">
-                    <SparklesIcon className="h-4 w-4" />
-                    Create Invoice
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </span>
-                </Link>
+                <>
+                  <Link
+                    href="/login"
+                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2.5">
+                      <SparklesIcon className="h-4 w-4" />
+                      Get Started Free
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </span>
+                  </Link>
+                  <Link
+                    href="/sandbox"
+                    className={getAppButtonClass({ variant: "ghost", size: "lg" })}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      Try the Magic Extract (Guest)
+                    </span>
+                  </Link>
+                </>
               )}
             </div>
           </MotionReveal>
