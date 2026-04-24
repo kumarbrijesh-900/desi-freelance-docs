@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-24 (Session: Phase 9i complete — MSA Defaults & AI Identity Anchoring)
+> **Last Updated:** 2026-04-24 (Session: Phase 10a complete — High-Fidelity UI/UX Polish)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -293,6 +293,7 @@ tests/
 **Active branch:** `main` (deployed to Vercel)
 
 **Recent commits (newest first):**
+| `882a475` | UI/UX Polish: Standardized stepper contrast, button hierarchy, media upload grid, and template refinements with smart bounding boxes. |
 | `2c65b37` | fix: restore date visibility in Studio Pro template by extending header accent |
 | `5840c5d` | style: redesign Classic template with premium boutique aesthetic |
 | `779ecc2` | style: refactor template picker to 1-column fixed sidebar in preview |
@@ -426,6 +427,26 @@ tests/
   - High-contrast headers, refined typography, and removal of heavy grey boxing.
 - **Studio Pro Visibility Fix**: Restored date visibility in the "Studio Pro" template by extending the cobalt header accent to cover all metadata fields.
 - **Zero-Error Vercel Protocol**: Achieved 100% build stability with strict union types for MSA enums and zero TypeScript `any` leaks.
+
+### Phase 10a — High-Fidelity UI/UX Polish
+- **Stepper Contrast**: Redefined visual states for the editor rail:
+  - **ACTIVE**: Solid lime-green border (1.5px), pure white background, bold text.
+  - **COMPLETED**: Ghost background, subtle gray outline, gray checkmark.
+  - **PENDING**: Ghosted text, transparent background.
+- **Button Hierarchy**:
+  - Enforced "One Primary CTA" rule: Preview (dock) and Add line item (ledger) refactored to secondary/ghost variants.
+  - "Add line item" now uses a high-contrast dashed outline aesthetic.
+- **Media Upload Grid**: Consolidated Profile Master uploads (Logo, Signature, QR) into a unified, symmetrical 2-column grid to eliminate layout-breaking vertical stacking.
+- **Template Standardization**:
+  - **Smart Bounding Boxes**: All 6 templates updated with strict `object-contain` containers to preserve logo/QR aspect ratios.
+  - **Background Textures**: Injected premium design elements across the registry:
+    - `Classic`: Stardust patterns.
+    - `Editorial`: Dotted grids.
+    - `Studio Pro`: Technical grid points.
+    - `Midnight`: Violet radial glows.
+    - `Terracotta`: Handmade paper & artisan dots.
+    - `Swiss Grid`: Blueprint-style grids & crosshairs.
+- **Contrast Overhaul**: Increased contrast for unselected options in `ChoiceCards` and sharpened ledger input focus states.
 
 ---
 
