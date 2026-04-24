@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-24 (Session: Phase 10a complete — High-Fidelity UI/UX Polish)
+> **Last Updated:** 2026-04-24 (Session: Phase 11a complete — Support & Feedback Ecosystem)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -447,26 +447,68 @@ tests/
     - `Terracotta`: Handmade paper & artisan dots.
     - `Swiss Grid`: Blueprint-style grids & crosshairs.
 - **Contrast Overhaul**: Increased contrast for unselected options in `ChoiceCards` and sharpened ledger input focus states.
+- **Interactive RCM & Totals Rebalance (Phase 10b)**:
+  - **Interactive Reverse Charge (RCM)**: Replaced static display with a sleek interactive toggle.
+  - **Dynamic Math**: Grand Total now strictly excludes tax when RCM is enabled, shifting liability to the client while preserving compliance breakdown lines.
+  - **Column Rebalancing**: Relocated "Amount in Words" and "RCM" blocks to the left column to resolve visual weight imbalance in Step 6.
+  - **Educational Tooltips**: Integrated `InfoCircleIcon` with detailed RCM liability explanations.
+
+### Phase 11a — Support & Feedback Infrastructure
+- **FAQ System**: Created a public, SEO-optimized `/support` hub with categorized FAQs and smooth CSS Grid transitions.
+- **User Feedback Loop**: Implemented a context-preserving `FeedbackModal` triggered from the User Menu.
+- **Top Navigation Polish**:
+  - **User Menu Dropdown**: Unified Profile, Feedback, and Logout actions into a single avatar dropdown.
+  - **Global FAQ Entry**: Added a persistent "FAQ" link to the primary navigation bar.
+- **Accessibility Fix**: Upgraded FAQ category headers to high-contrast `gray-900` with brand-aligned lime-green accents.
+- **Guest Mode CTA**: Added "Try the Magic Extract (Guest)" secondary button to the landing page.
+- **Server-Side Supabase**: Implemented `lib/supabase/server.ts` for RSC/SSR compatibility.
 
 ---
 
 ## 10. Pending Roadmap
 
-### Phase 10 — Advanced Compliance & Analytics
-- **Reverse Charge toggle:** Add a toggle in the Totals/Taxes section for RCM edge cases.
+### Phase 12 — Advanced Compliance & Analytics
 - **Voice Input:** Activate voice-to-brief extraction in `BriefIntakeCard.tsx`.
 - **Engagement Analytics:** Real-time dashboard for invoice views, duration, and conversion rates.
 - **Subscription Engine:** Implement billing to gate the "Share" button and advanced templates.
+- **Sandbox Mode:** Build the full guest-extraction sandbox logic for the "Try the Magic Extract" CTA.
 
 ### Known Issues
 - **Share Button:** Temporarily hidden in Preview (requires subscription/billing logic implementation).
 - **Authorized Signature:** Fully implemented with image support + text fallback + digital signature compliance note.
-- **Reverse Charge toggle:** Currently hardcoded to "No" — needs a toggle in the Tax/Payment section for edge cases.
 - **Voice Input:** `BriefIntakeCard.tsx` has a Voice button that's still a placeholder.
 
 ---
 
 ## 11. Supabase Schema Notes
+
+### `faqs` Table
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `category` | text | FAQ category grouping |
+| `question` | text | |
+| `answer` | text | |
+| `is_published` | boolean | Default: `false` |
+| `created_at` | timestamptz | Auto |
+
+**RLS Policies:**
+- `faqs_public_read` — Anyone can SELECT where `is_published = true`.
+
+### `user_feedback` Table
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `user_id` | uuid | FK to auth.users |
+| `type` | feedback_type | `bug`, `feature`, `general` (Enum) |
+| `message` | text | |
+| `status` | feedback_status | `new`, `reviewed` (Enum) |
+| `created_at` | timestamptz | Auto |
+
+**RLS Policies:**
+- `feedback_insert_own` — Authenticated users can INSERT their own feedback.
+
+---
 
 ### `clients` Table (Pre-existing)
 ⚠️ **Uses non-standard/legacy column naming.** Any future changes must use `ALTER TABLE`.
