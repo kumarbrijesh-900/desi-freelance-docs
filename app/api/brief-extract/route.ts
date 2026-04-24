@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       // Fetch Agency Profile
       const { data: profile } = await supabase
         .from("user_profiles")
-        .select("agency_name, city, state, gstin")
+        .select("agency_name, full_name, city, state, gstin")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -95,8 +95,10 @@ export async function POST(request: Request) {
 
       databaseContext = {
         user_state: "registered",
-        agency: {
-          name: profile?.agency_name || null,
+        sender_agency_data: {
+          business_name: profile?.agency_name || null,
+          full_name: profile?.full_name || null,
+          id: session.user.id,
           location: profile?.state || profile?.city || null,
           gstin: profile?.gstin || null,
         },

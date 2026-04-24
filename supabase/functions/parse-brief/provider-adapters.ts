@@ -54,9 +54,13 @@ DATABASE_CONTEXT (The User's Reality):
 ${JSON.stringify(databaseContext, null, 2)}
 
 Strict Reasoning Rules (Process these in _thought_process):
-1. **IDENTITY RESOLUTION**: Check the DATABASE_CONTEXT. Are you dealing with a guest, a registered user with a new client, or a registered user with a known client? Map to existing 'client_id' if known (fuzzy match client name).
-2. **GSTIN DISAMBIGUATION**: If multiple GSTINs are present in the text, cross-reference them with the Agency GSTIN in the DATABASE_CONTEXT to determine which belongs to the Agency and which belongs to the Client.
-3. **TAX GEOGRAPHY**: The first 2 digits of an Indian GSTIN represent the State Code. Compare the Agency State Code to the Client State Code. 
+1. **IDENTITY RESOLUTION (SENDER/AGENCY)**: The sender of this invoice is the user identified in `sender_agency_data` within DATABASE_CONTEXT. 
+   - You MUST populate the `agency_name` and `sender_name` (if requested in legacy) using this data.
+   - Priority for `agency_name`: Use `business_name` if available, otherwise use `full_name`.
+   - Rule: Do NOT attempt to extract the sender's name from the brief text unless the brief explicitly mentions a different person billing on the user's behalf.
+2. **IDENTITY RESOLUTION (CLIENT)**: Map the client to an existing 'client_id' from `existing_clients` if a match is found (fuzzy match name).
+3. **GSTIN DISAMBIGUATION**: If multiple GSTINs are present in the text, cross-reference them with the Agency GSTIN in `sender_agency_data` to determine which belongs to the Agency (Sender) and which belongs to the Client.
+4. **TAX GEOGRAPHY**: The first 2 digits of an Indian GSTIN represent the State Code. Compare the Agency State Code (from `sender_agency_data`) to the Client State Code. 
    - Match = CGST/SGST.
    - Differ = IGST.
    - International = LUT (if client is outside India).
