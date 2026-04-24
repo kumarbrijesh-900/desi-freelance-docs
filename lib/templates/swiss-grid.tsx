@@ -26,6 +26,12 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#1D3557 1px, transparent 1px), linear-gradient(90deg, #1D3557 1px, transparent 1px)', backgroundSize: '10mm 10mm' }} />
       
+      {/* Technical Cross-hatch in corners */}
+      <div className="absolute top-0 left-0 w-40 h-40 opacity-[0.04] pointer-events-none z-0"
+           style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #E63946 0, #E63946 1px, transparent 0, transparent 4px)' }} />
+      <div className="absolute bottom-0 right-0 w-60 h-60 opacity-[0.04] pointer-events-none z-0"
+           style={{ backgroundImage: 'repeating-linear-gradient(45deg, #1D3557 0, #1D3557 1px, transparent 0, transparent 4px)' }} />
+      
       <div className="absolute top-[15%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">01</div>
       <div className="absolute top-[45%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">02</div>
       <div className="absolute top-[75%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">03</div>

@@ -25,6 +25,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[#27272F]/[0.02] -rotate-12 z-0">
         INV
       </div>
+      
+      {/* Linen Cross-hatch Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'repeating-linear-gradient(45deg, #27272F 0, #27272F 1px, transparent 0, transparent 50%)', backgroundSize: '3px 3px' }} />
+      
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply" 
            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }} />
 

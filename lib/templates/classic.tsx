@@ -123,8 +123,11 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {/* ── Totals ────────────────────────────── */}
-      <section className="flex justify-end mb-20">
-        <div className="w-[320px] space-y-3">
+      <section className="flex justify-end mb-20 relative">
+        <div className="absolute -inset-4 z-0 pointer-events-none opacity-[0.03]" 
+             style={{ backgroundImage: 'repeating-linear-gradient(45deg, #111118 0, #111118 1px, transparent 0, transparent 8px)' }} />
+        
+        <div className="relative z-10 w-[320px] space-y-3">
           <div className="flex justify-between text-[13px] text-[#555]">
             <span>Subtotal</span>
             <span className="font-medium text-[#111118]">{data.subtotalFormatted}</span>
