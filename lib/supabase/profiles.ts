@@ -40,7 +40,12 @@ export interface UserProfile {
   // MSA Defaults (Global)
   msa_payment_terms_days: number;
   msa_late_fee_rate: number;
-  msa_ip_trigger_type: string;
+  msa_ip_trigger_type:
+    | "upon_full_payment"
+    | "upon_signing"
+    | "upon_delivery"
+    | "proportional_transfer"
+    | "retained_by_creator";
   msa_jurisdiction_city: string;
   created_at: string;
   updated_at: string;
@@ -90,12 +95,7 @@ export function profileToPaymentDefaults(p: UserProfile): Partial<PaymentDetails
 
 /** Convert AgencyDetails + payment back to DB columns for upsert */
 export function agencyToProfileRow(
-  agency: AgencyDetails & {
-    msaPaymentTermsDays?: number;
-    msaLateFeeRate?: number;
-    msaIpTriggerType?: string;
-    msaJurisdictionCity?: string;
-  },
+  agency: AgencyDetails,
   payment?: Partial<PaymentDetails>
 ): Record<string, unknown> {
   return {
@@ -125,7 +125,7 @@ export function agencyToProfileRow(
     // MSA Defaults
     msa_payment_terms_days: agency.msaPaymentTermsDays ?? 20,
     msa_late_fee_rate: agency.msaLateFeeRate ?? 1.5,
-    msa_ip_trigger_type: agency.msaIpTriggerType || "upon_payment",
+    msa_ip_trigger_type: agency.msaIpTriggerType || "upon_full_payment",
     msa_jurisdiction_city: agency.msaJurisdictionCity || "Bangalore",
     updated_at: new Date().toISOString(),
   };
