@@ -683,6 +683,8 @@ function EditorContent() {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
+  const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
+  const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
@@ -858,7 +860,12 @@ function EditorContent() {
     let cancelled = false;
     async function applyProfile() {
       const { data: profile } = await loadProfile();
-      if (cancelled || !profile || !profile.agency_name.trim()) return;
+      if (cancelled || !profile) return;
+
+      if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
+      if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
+
+      if (!profile.agency_name.trim()) return;
 
       setFormData((prev) => {
         // Double-check the form is still blank (user might have typed)
@@ -1766,7 +1773,7 @@ function EditorContent() {
         return (
           <AgencyDetailsSection
             embedded
-            value={formData.agency}
+            value={{ ...formData.agency, profileLogoUrl }}
             onChange={(agency) => updateFormSection("agency", agency)}
             errors={fieldErrors.agency}
             showAllErrors={showAllValidationErrors}
@@ -1804,7 +1811,7 @@ function EditorContent() {
         return (
           <TermsPaymentSection
             embedded
-            value={formData.payment}
+            value={{ ...formData.payment, profileQrUrl }}
             meta={formData.meta}
             clientLocation={formData.client.clientLocation}
             onChange={(payment) =>

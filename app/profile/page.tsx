@@ -257,55 +257,82 @@ export default function ProfilePage() {
     return (
       <div className="col-span-1">
         <FieldRow label={label} helper={helper}>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <input
-                  type="url"
-                  value={value}
-                  onChange={(e) => onUrlChange(e.target.value)}
-                  placeholder="Paste URL or upload image"
-                  className={fc({ hasValue: Boolean(value) })}
-                />
+          <div className="mt-1">
+            {value ? (
+              <div className="flex items-center justify-between rounded-md bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                    <img
+                      src={value}
+                      alt={label}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0 overflow-hidden">
+                    <p className="truncate text-[13px] font-medium text-[color:var(--text-primary)]">
+                      {label} Attached
+                    </p>
+                    <p className="truncate text-[11px] text-[color:var(--text-muted)]">
+                      Optimized for invoice placement
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-canvas)] hover:text-[color:var(--text-primary)]"
+                    title="Change image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUrlChange("")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                    title="Remove"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
+            ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex h-[42px] shrink-0 items-center justify-center gap-2 rounded-md border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-4 text-sm font-medium text-[color:var(--text-primary)] hover:bg-[color:var(--bg-surface-soft)] transition-colors disabled:opacity-50"
+                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-[color:var(--border-subtle)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--bg-surface-soft)] disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span>Processing...</span>
+                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">Processing...</span>
                   </div>
                 ) : (
                   <>
-                    <span>Upload File</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <span className="text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[color:var(--text-primary)]">
+                      Upload {label}
+                    </span>
                   </>
                 )}
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                onClick={(e) => (e.currentTarget.value = "")}
-              />
-            </div>
-            {value && (
-              <div className="relative group w-20 h-20 rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] overflow-hidden transition-all hover:border-[color:var(--interactive-primary)]">
-                <img src={value} alt={label} className="w-full h-full object-contain" />
-                <button 
-                  type="button"
-                  onClick={() => onUrlChange("")}
-                  className="absolute top-1 right-1 bg-[color:var(--bg-canvas)]/80 text-[color:var(--text-primary)] rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                >
-                  ✕
-                </button>
-              </div>
             )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              onClick={(e) => (e.currentTarget.value = "")}
+            />
           </div>
         </FieldRow>
 

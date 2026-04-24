@@ -398,84 +398,106 @@ export default function AgencyDetailsSection({
             </div>
             ) : null}
 
-            {/* Business Name + Logo inline */}
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
-              <div>
-                <label className={appFieldLabelClass}>
-                  Business / Trade Name *
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.agencyName}
-                  onChange={(e) => updateField("agencyName", e.target.value)}
-                  onBlur={() => markTouched("agencyName")}
-                  placeholder="Your agency or freelance brand name"
-                  className={inputClass(
-                    agencyNameError,
-                    Boolean(value.agencyName)
-                  )}
-                />
-                {agencyNameError ? (
-                  <p className={appFieldErrorTextClass}>
-                    {agencyNameError}
-                  </p>
-                ) : null}
-              </div>
+            {/* Business Name */}
+            <div>
+              <label className={appFieldLabelClass}>
+                Business / Trade Name *
+              </label>
+              <input
+                suppressHydrationWarning
+                type="text"
+                value={value.agencyName}
+                onChange={(e) => updateField("agencyName", e.target.value)}
+                onBlur={() => markTouched("agencyName")}
+                placeholder="Your agency or freelance brand name"
+                className={inputClass(
+                  agencyNameError,
+                  Boolean(value.agencyName)
+                )}
+              />
+              {agencyNameError ? (
+                <p className={appFieldErrorTextClass}>
+                  {agencyNameError}
+                </p>
+              ) : null}
+            </div>
 
-              {/* Logo widget — inline with Business Name */}
-              <div className={cn(getAppSubtlePanelClass("muted"), "invoice-utility-widget space-y-1.5 p-2 xl:mb-0")}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Logo</p>
-                  {value.logoUrl ? (
-                    <button
-                      type="button"
-                      onClick={removeLogo}
-                      className={cn(
-                        getAppButtonClass({
-                          variant: "destructive-lite",
-                          size: "sm",
-                        }),
-                        "h-[30px] px-2 text-[11px]"
-                      )}
+            {/* Logo Upload Section */}
+            <div className="space-y-2">
+              <label className={appFieldLabelClass}>Agency Logo</label>
+              {value.logoUrl ? (
+                <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 ring-1 ring-inset ring-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                      <img
+                        src={value.logoUrl}
+                        alt="Logo"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-medium text-gray-900">
+                        Agency Logo Attached
+                        {value.logoUrl === value.profileLogoUrl && value.logoUrl !== "" && (
+                          <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
+                            Synced from Profile
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-[11px] text-gray-500">
+                        Will appear on the top of the invoice
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeLogo}
+                    className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                    title="Remove Logo"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      Remove
-                    </button>
-                  ) : null}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                <label
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(true);
-                  }}
-                  onDragLeave={() => setIsDragOver(false)}
-                  onDrop={handleDrop}
-                  className={`app-dropzone-surface flex aspect-square w-full max-w-[68px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-2 py-2 text-center text-sm ${
-                    isDragOver
-                      ? "app-dropzone-accept text-[color:var(--text-primary)]"
-                      : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
-                  }`}
-                >
+              ) : (
+                <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
                     className="hidden"
                   />
-                  {value.logoUrl ? (
-                    <img
-                      src={value.logoUrl}
-                      alt="Agency logo preview"
-                      className="max-h-[42px] w-auto object-contain"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                     />
-                  ) : (
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">Logo</p>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">PNG/JPG</p>
-                    </div>
-                  )}
+                  </svg>
+                  <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
+                    Upload Agency Logo
+                  </span>
                 </label>
-              </div>
+              )}
             </div>
 
             <div>

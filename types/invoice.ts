@@ -74,6 +74,7 @@ export interface AgencyDetails {
   lutValidity: string;
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
   signatureUrl: string;
+  profileLogoUrl?: string;
   // MSA Defaults
   msaPaymentTermsDays?: number;
   msaLateFeeRate?: number;
@@ -164,6 +165,7 @@ export interface PaymentDetails {
   swiftBicCode: string;
   ibanRoutingCode: string;
   qrCodeUrl: string;
+  profileQrUrl?: string;
 }
 
 export interface InvoiceFormData {

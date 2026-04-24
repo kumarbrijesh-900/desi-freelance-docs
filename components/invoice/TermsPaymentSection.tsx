@@ -497,7 +497,7 @@ export default function TermsPaymentSection({
           </div>
 
           {!isInternational ? (
-            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_76px] xl:items-start">
+            <div className="space-y-4">
               <div className={appFieldPairGridClass}>
                 <div>
                   <label className={appFieldLabelClass}>
@@ -589,63 +589,84 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
-              <div className="invoice-utility-widget flex flex-col items-end gap-1 rounded-[14px] p-2">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">QR</p>
-                    <p className="mt-0.5 text-[10px] leading-4 text-[color:var(--text-muted)]">Optional</p>
-                  </div>
-
-                  {value.qrCodeUrl ? (
+              {/* QR Upload Section */}
+              <div className="space-y-2">
+                <label className={appFieldLabelClass}>
+                  Payment QR Code <span className="text-[color:var(--text-soft)]">(Optional)</span>
+                </label>
+                {value.qrCodeUrl ? (
+                  <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 ring-1 ring-inset ring-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                        <img
+                          src={value.qrCodeUrl}
+                          alt="QR"
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-medium text-gray-900">
+                          QR Code Attached
+                          {value.qrCodeUrl === value.profileQrUrl && value.qrCodeUrl !== "" && (
+                            <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
+                              Synced from Profile
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-[11px] text-gray-500">
+                          Used for instant UPI/Bank transfers
+                        </p>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={removeQr}
-                      className={cn(
-                        getAppButtonClass({
-                          variant: "destructive-lite",
-                          size: "sm",
-                        }),
-                        "h-[30px] px-2 text-[11px]"
-                      )}
+                      className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                      title="Remove QR"
                     >
-                      Remove
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
                     </button>
-                  ) : null}
-                </div>
-
-                <label
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsQrDragOver(true);
-                  }}
-                  onDragLeave={() => setIsQrDragOver(false)}
-                  onDrop={handleQrDrop}
-                  className={`app-dropzone-surface flex aspect-square w-full max-w-[64px] cursor-pointer items-center justify-center rounded-[12px] border-2 border-dashed px-1 py-1 text-center text-sm ${
-                    isQrDragOver
-                      ? "app-dropzone-accept text-[color:var(--text-primary)]"
-                      : "text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)]"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleQrUpload}
-                    className="hidden"
-                  />
-
-                  {value.qrCodeUrl ? (
-                    <img
-                      src={value.qrCodeUrl}
-                      alt="Payment QR preview"
-                      className="max-h-[50px] w-auto object-contain"
+                  </div>
+                ) : (
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrUpload}
+                      className="hidden"
                     />
-                  ) : (
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold text-[color:var(--text-secondary)]">QR</p>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-[color:var(--text-soft)]">Upload</p>
-                    </div>
-                  )}
-                </label>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
+                      Upload Payment QR (Optional)
+                    </span>
+                  </label>
+                )}
               </div>
             </div>
           ) : (
