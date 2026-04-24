@@ -6,6 +6,7 @@
  * cloud persistence for logged-in users.
  */
 
+/** Last updated: 2026-04-24 19:01 (IST) */
 import { supabase } from "@/lib/supabase/client";
 import type { InvoiceFormData } from "@/types/invoice";
 
