@@ -15,6 +15,18 @@ export type BriefParserSourceMetadata = {
   attachmentTypes?: string[];
 };
 
+export type ParserInputContext = {
+  isGuest: boolean;
+  existingClients?: Array<{
+    id: string;
+    name: string;
+    msaPaymentTermsDays: number;
+    msaLateFeeRate: number;
+    msaIpTriggerType: string;
+    msaJurisdictionCity: string;
+  }>;
+};
+
 export type BriefParserInputBundle = {
   briefText?: string;
   ocrText?: string;
@@ -22,6 +34,7 @@ export type BriefParserInputBundle = {
   attachmentSummary?: string;
   userId?: string;
   documentId?: string;
+  context?: ParserInputContext;
   sourceMetadata?: BriefParserSourceMetadata;
 };
 

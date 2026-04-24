@@ -1,6 +1,18 @@
 export type ProviderName = "gemini-flash" | "groq-llama" | "grok";
 export type Confidence = "high" | "medium" | "low";
 
+export type ParserInputContext = {
+  isGuest: boolean;
+  existingClients?: Array<{
+    id: string;
+    name: string;
+    msaPaymentTermsDays: number;
+    msaLateFeeRate: number;
+    msaIpTriggerType: string;
+    msaJurisdictionCity: string;
+  }>;
+};
+
 export type ParserInputBundle = {
   briefText?: string;
   ocrText?: string;
@@ -8,6 +20,7 @@ export type ParserInputBundle = {
   attachmentSummary?: string;
   userId?: string;
   documentId?: string;
+  context?: ParserInputContext;
   sourceMetadata?: {
     locale?: string;
     timezone?: string;

@@ -93,12 +93,35 @@ Return strict JSON with this shape. ALWAYS output the _scratchpad field first to
 `;
 
 function createPrompt(bundle: NormalizedParserBundle, resolverMode = false) {
+  const { context } = bundle;
+  const isGuest = context?.isGuest ?? true;
+  const existingClients = context?.existingClients ?? [];
+
+  let contextInstructions = "";
+  if (isGuest) {
+    contextInstructions = `
+- **GUEST MODE ACTIVE**: Extract the invoice details. Apply standard generic MSA defaults (e.g., Net 15, retained IP).
+- You MUST include this flag in your internal reasoning and ensure the final JSON has metadata indicating guest mode if applicable (though the schema is strict).
+    `;
+  } else {
+    contextInstructions = `
+- **CONTEXT-AWARE HYDRATION ACTIVE**: You are provided with a list of the user's existing clients and their MSA defaults:
+${JSON.stringify(existingClients, null, 2)}
+- **Cross-Reference**: Compare the extracted client name against this list.
+- **Match Found**: If a match is found (even partial or fuzzy), return that exact Client ID in a 'clientId' field (if you can add it to the schema, or just note it in _scratchpad) and apply their specific MSA rules (Payment Terms, Late Fee, etc.).
+- **New Client**: If the client is not in the list, flag this in your _scratchpad as "is_new_client: true" and output standard default MSA terms.
+    `;
+  }
+
   return `
 You are a highly intelligent, GST-aware freelance invoice parser trained for the Indian context.
 
 Parse the input bundle into invoice-ready structured data. Return JSON only. You must always use the _scratchpad first to reason about the extraction.
 
-Rules:
+Context Instructions:
+${contextInstructions}
+
+General Rules:
 - Extract only grounded values. Never invent GSTIN, SAC, tax treatment, dates, or prices.
 - **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun. NEVER extract entire sentences or action phases (e.g., skip "doing a total of dedh lakh...").
 - **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
@@ -115,7 +138,7 @@ Few-Shot Example Context:
 If input is: "I did a logo design for Metro Shoes in Bangalore for athraa hazaar. My agency is in Karnataka."
 Your _scratchpad should be: "Agency is in Karnataka. Client Metro Shoes is in Bangalore, which is also Karnataka. Same state means intra-state supply, so CGST_SGST applies. Rate is 'athraa hazaar' which translates to 18000 INR."
 
-${resolverMode ? '- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing.' : ""}
+${resolverMode ? "- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing." : ""}
 
 ${JSON_SCHEMA_DESCRIPTION}
 
