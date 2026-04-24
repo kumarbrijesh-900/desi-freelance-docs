@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-24 (Session: Phase 9h complete — Autonomous Billing Engine & State Stabilization)
+> **Last Updated:** 2026-04-24 (Session: Phase 9i complete — MSA Defaults & AI Identity Anchoring)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -293,8 +293,12 @@ tests/
 **Active branch:** `main` (deployed to Vercel)
 
 **Recent commits (newest first):**
+| `2c65b37` | fix: restore date visibility in Studio Pro template by extending header accent |
+| `5840c5d` | style: redesign Classic template with premium boutique aesthetic |
+| `779ecc2` | style: refactor template picker to 1-column fixed sidebar in preview |
+| `93e839a` | feat: anchor AI identity by injecting sender context into brief extraction prompt |
+| `9bb04a3` | final: stable msa defaults and boilerplate logic |
 | `8e5a487` | Phase 9h — Autonomous Billing Engine (Deep Context, CoT Prompt, Strict Schema, State Wipe) |
-| `8e53d76` | resolve extraction state merge bug (force dynamic, wipe state, strict LLM override) |
 | `3b12a48` | Phase 9g — Smart Client Auto-fill & Suggestion Tray + Unique-client auto-population |
 | `90075d2` | GST compliance on all 6 invoice templates (state codes, amount in words, RCM, signatory) |
 | `a292677` | Phase 9a — Editor layout + GST compliance utilities |
@@ -409,6 +413,19 @@ tests/
   - Mandated explicit empty values (`null`, `[]`, `""`) in LLM output to prevent data bleed from previous extraction cycles.
 - **Type Safety**: Synchronized `ParserInputContext` and `NormalizedExtraction` types across the Supabase Edge Function and the Next.js Gateway.
 - **Math Delegation**: Prompt now instructs LLM to extract base rates and quantities only, leaving grand total and tax calculations to the system's deterministic engine.
+
+### Phase 9i — MSA Defaults, AI Identity & Premium Refinement
+- **MSA Defaults Overhaul**: Standardized late fee units (`monthly`, `annually`, `daily`) and IP transfer triggers across Client details and Profile masters.
+- **Smart Template Generator**: Implemented a "Generate Smart Template" ghost button that synthesizes dynamic contract boilerplate based on selected MSA settings.
+- **AI Identity Anchoring**: Refactored the extraction pipeline to fetch and inject the authenticated user's `SENDER_AGENCY_DATA` into the LLM system prompt. 
+  - **Identity Resolution**: AI now treats the user profile as the definitive source of truth for "Sender/Agency" identity, preventing hallucinated extraction from briefs.
+- **Template Selection Redesign**:
+  - **1-Column Sidebar**: Refactored the template picker to a single-column layout for better legibility.
+  - **Fixed Side Panel**: Transformed the picker container in the Preview page into a `sticky` fixed-height side panel with independent internal scrolling.
+- **Classic Template Glow-up**: Redesigned the "Classic" template from a basic form to a premium "Boutique" aesthetic:
+  - High-contrast headers, refined typography, and removal of heavy grey boxing.
+- **Studio Pro Visibility Fix**: Restored date visibility in the "Studio Pro" template by extending the cobalt header accent to cover all metadata fields.
+- **Zero-Error Vercel Protocol**: Achieved 100% build stability with strict union types for MSA enums and zero TypeScript `any` leaks.
 
 ---
 
