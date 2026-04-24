@@ -148,7 +148,7 @@ export default function BriefIntakeCard({
                 className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
               >
                 <ClipboardCheckIcon className="h-3.5 w-3.5" />
-                Brief
+                Brief Parsing Engine
               </span>
               <SuccessPulse active={lastExtractionState === "success"}>
                 <span
@@ -181,7 +181,6 @@ export default function BriefIntakeCard({
               )}
             >
               <ChevronDownIcon className="h-3.5 w-3.5" />
-              Brief
             </MotionButton>
           </motion.div>
         </section>

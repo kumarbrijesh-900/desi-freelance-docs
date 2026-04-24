@@ -678,7 +678,7 @@ function EditorContent() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
-  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
+  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
