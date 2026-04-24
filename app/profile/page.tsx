@@ -623,12 +623,14 @@ export default function ProfilePage() {
                   <FieldRow label="IP Transfer Trigger">
                     <select
                       value={msaIpTriggerType}
-                      onChange={(e) => setMsaIpTriggerType(e.target.value)}
+                      onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
                       className={fc({ hasValue: true, isSelect: true })}
                     >
-                      <option value="upon_payment">upon_payment</option>
-                      <option value="upon_delivery">upon_delivery</option>
-                      <option value="retained">retained</option>
+                      <option value="upon_full_payment">Upon Full Payment</option>
+                      <option value="upon_signing">Upon Signing</option>
+                      <option value="upon_delivery">Upon Delivery</option>
+                      <option value="proportional_transfer">Proportional (Per Milestone)</option>
+                      <option value="retained_by_creator">Retained by Creator (License Only)</option>
                     </select>
                   </FieldRow>
 
