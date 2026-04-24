@@ -16,6 +16,7 @@
 
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
+import { LegalDisclaimer } from "./LegalDisclaimer";
 
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -231,6 +232,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         </section>
       </div>
 
+      <LegalDisclaimer />
       <InvoiceWatermark />
     </div>
   );

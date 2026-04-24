@@ -17,6 +17,7 @@
 
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
+import { LegalDisclaimer } from "./LegalDisclaimer";
 
 export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -259,6 +260,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         </div>
       </section>
 
+      <LegalDisclaimer />
       <InvoiceWatermark />
     </div>
   );

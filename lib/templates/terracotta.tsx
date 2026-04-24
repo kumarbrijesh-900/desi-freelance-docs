@@ -18,6 +18,7 @@
 
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
+import { LegalDisclaimer } from "./LegalDisclaimer";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -223,6 +224,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         Thank you for your patronage ✦
       </div>
 
+      <LegalDisclaimer />
       <InvoiceWatermark />
     </div>
   );
