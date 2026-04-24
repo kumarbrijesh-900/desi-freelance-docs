@@ -559,8 +559,10 @@ export default function ClientDetailPage() {
                         className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
                       />
                     </div>
-              </div>
-            </MotionReveal>
+                  </div>
+                  </div>
+                </div>
+              </MotionReveal>
 
             {/* MSA Section */}
             <MotionReveal preset="fade-up" delay={20}>
