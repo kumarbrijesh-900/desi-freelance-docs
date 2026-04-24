@@ -123,14 +123,17 @@ ${contextInstructions}
 
 General Rules:
 - Extract only grounded values. Never invent GSTIN, SAC, tax treatment, dates, or prices.
-- **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun. NEVER extract entire sentences or action phases (e.g., skip "doing a total of dedh lakh...").
+- **Client Name**: Extract ONLY the official proper noun or registered business name. Ignore conversational descriptors like "their parent company", "the client", or "the agency".
+- **Line Items**: You MUST meticulously separate distinct deliverables into individual objects in the 'deliverables' array. Look for commas, semicolons, or "and" as separators for distinct work items.
+- **Quantities vs. Terms**: NEVER confuse payment term days (e.g., Net 15, 30 days) with item quantities. If a quantity is not explicitly stated for a deliverable, DEFAULT 'quantity' to 1. 
+- **Financial Accuracy**: Ensure the 'rate' maps perfectly to its specific deliverable description. If a lump sum is provided for multiple items, note this in the _scratchpad and distribute fairly or ask a clarification question.
+- **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun.
 - **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
 - **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
-- **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity (e.g., "Pune" and "Gurgaon" for the client), DO NOT guess or merge them. Leave both location fields completely blank and ask a 'clarificationQuestion' asking which is correct.
+- **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity, leave location fields blank and ask a 'clarificationQuestion'.
 - **Net Payment Terms**: If a client says "Net 15" or "pay me in a couple weeks", log "Net 15" or "14 Days" into payment.terms.
 - If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
 - If a client is outside India, mark client.location as international.
-- Split multiple deliverables into separate line items.
 - SAC is a hint only. Use a 6-digit SAC if accurately matched; otherwise null.
 - Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
 
