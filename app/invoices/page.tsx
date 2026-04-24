@@ -10,6 +10,7 @@ import { getAppButtonClass } from "@/lib/ui-foundation";
 import {
   listInvoices,
   deleteInvoice,
+  markInvoiceSettled,
   getCurrentUserId,
   getReadReceiptsBatch,
   type SavedInvoice,
@@ -46,6 +47,21 @@ function getWorkType(inv: SavedInvoice) {
 
 function StatusBadge({ status }: { status: string }) {
   const fin = status === "finalized";
+  const set = status === "settled";
+  const ovr = status === "overdue";
+  
+  if (set) return (
+    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      Settled
+    </span>
+  );
+  
+  if (ovr) return (
+    <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
+      Overdue
+    </span>
+  );
+
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
       fin
@@ -59,6 +75,13 @@ function StatusBadge({ status }: { status: string }) {
 
 function MsaBadge({ msaId, response }: { msaId: string | null; response: MsaResponse }) {
   if (!msaId) return <span className="text-[12px] text-[color:var(--text-muted)]">—</span>;
+  
+  if (response === "negotiating") return (
+    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
+      Action Required
+    </span>
+  );
+
   if (response === "accepted") return (
     <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">✓ Accepted</span>
   );
@@ -83,8 +106,8 @@ function ViewsBadge({ count, lastViewed }: { count: number; lastViewed: string |
 /* ─── Filter/Sort bar ──────────────────────────── */
 
 type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
-type StatusFilter = "all" | "draft" | "finalized";
-type MsaFilter = "all" | "pending" | "accepted" | "rejected" | "none";
+type StatusFilter = "all" | "draft" | "finalized" | "settled" | "overdue";
+type MsaFilter = "all" | "pending" | "accepted" | "rejected" | "negotiating" | "none";
 
 function FilterBar({
   statusFilter, setStatusFilter,
@@ -119,6 +142,8 @@ function FilterBar({
         <option value="all">All Status</option>
         <option value="draft">Draft</option>
         <option value="finalized">Finalized</option>
+        <option value="settled">Settled</option>
+        <option value="overdue">Overdue</option>
       </select>
 
       {/* MSA filter */}
@@ -132,6 +157,7 @@ function FilterBar({
         <option value="pending">MSA Pending</option>
         <option value="accepted">MSA Accepted</option>
         <option value="rejected">MSA Rejected</option>
+        <option value="negotiating">Negotiating</option>
       </select>
 
       {/* Sort */}
@@ -154,16 +180,20 @@ function FilterBar({
 /* ─── Table row ────────────────────────────────── */
 
 function InvoiceRow({
-  invoice, viewCount, lastViewed, onView, onDelete, deletingId,
+  invoice, viewCount, lastViewed, onView, onEdit, onDelete, onMarkSettled, deletingId, settlingId,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
   lastViewed: string | null;
   onView: (inv: SavedInvoice) => void;
+  onEdit: (inv: SavedInvoice) => void;
   onDelete: (id: string) => void;
+  onMarkSettled: (id: string) => void;
   deletingId: string | null;
+  settlingId: string | null;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const canSettle = invoice.status === "finalized" && invoice.msa_response === "accepted";
 
   return (
     <tr className="border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group">
@@ -202,7 +232,12 @@ function InvoiceRow({
 
       {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <StatusBadge status={invoice.status} />
+        <div className="flex flex-col gap-1 items-start">
+          <StatusBadge status={invoice.status} />
+          {invoice.msa_response === "negotiating" && (
+            <span className="text-[10px] font-medium text-amber-600">Client proposing changes</span>
+          )}
+        </div>
       </td>
 
       {/* MSA Status */}
@@ -218,6 +253,25 @@ function InvoiceRow({
       {/* Actions */}
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {canSettle && (
+            <button
+              type="button"
+              onClick={() => onMarkSettled(invoice.id)}
+              disabled={settlingId === invoice.id}
+              className={getAppButtonClass({ variant: "primary", size: "sm" })}
+            >
+              {settlingId === invoice.id ? "…" : "Mark Settled"}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onEdit(invoice)}
+            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+          >
+            Edit
+          </button>
+
           <button
             type="button"
             onClick={() => onView(invoice)}
@@ -225,6 +279,7 @@ function InvoiceRow({
           >
             View
           </button>
+
 
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1">
@@ -268,6 +323,7 @@ export default function InvoiceHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [settlingId, setSettlingId] = useState<string | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -302,11 +358,38 @@ export default function InvoiceHistoryPage() {
     } catch {}
   };
 
+  const handleEdit = (inv: SavedInvoice) => {
+    try {
+      // Save to editor draft storage
+      window.localStorage.setItem("invoice-editor-draft", JSON.stringify({
+        formData: inv.form_data,
+        currentStep: "totals",
+        savedAt: new Date().toISOString(),
+        documentId: inv.id, // Re-use ID to track which invoice to update
+        clientMsaNote: inv.client_msa_note, // NEW: metadata for editor
+      }));
+      router.push("/invoice/new?fresh=0"); // Use fresh=0 to avoid auto-filling profile over this
+    } catch {}
+  };
+
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     const { error } = await deleteInvoice(id);
     if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
+  };
+
+  const handleMarkSettled = async (id: string) => {
+    setSettlingId(id);
+    const { error } = await markInvoiceSettled(id);
+    if (!error) {
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          inv.id === id ? { ...inv, status: "settled" as any } : inv
+        )
+      );
+    }
+    setSettlingId(null);
   };
 
   // Filtered + sorted
@@ -345,6 +428,7 @@ export default function InvoiceHistoryPage() {
     total: invoices.length,
     finalized: invoices.filter((i) => i.status === "finalized").length,
     msaPending: invoices.filter((i) => i.msa_id && (i.msa_response ?? "pending") === "pending").length,
+    msaNegotiating: invoices.filter((i) => i.msa_response === "negotiating").length,
     msaRejected: invoices.filter((i) => i.msa_response === "rejected").length,
     totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
   }), [invoices, receipts]);
@@ -398,7 +482,8 @@ export default function InvoiceHistoryPage() {
               {[
                 { label: "Total", value: stats.total, color: "text-[color:var(--text-primary)]" },
                 { label: "Finalized", value: stats.finalized, color: "text-[color:var(--state-success-text)]" },
-                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-700" },
+                { label: "Action Required", value: stats.msaNegotiating, color: "text-amber-700 font-bold" },
+                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-600" },
                 { label: "Views (All)", value: stats.totalViews, color: "text-[color:var(--text-secondary)]" },
               ].map((s) => (
                 <div key={s.label} className="rounded-lg border border-[color:var(--border-subtle)] bg-white p-4 shadow-sm">
@@ -484,8 +569,11 @@ export default function InvoiceHistoryPage() {
                           viewCount={receipts[inv.id]?.count ?? 0}
                           lastViewed={receipts[inv.id]?.lastViewed ?? null}
                           onView={handleView}
+                          onEdit={handleEdit}
                           onDelete={handleDelete}
+                          onMarkSettled={handleMarkSettled}
                           deletingId={deletingId}
+                          settlingId={settlingId}
                         />
                       ))}
                     </tbody>

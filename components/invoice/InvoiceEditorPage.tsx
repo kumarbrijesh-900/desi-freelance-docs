@@ -47,7 +47,7 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
-import { getCurrentUserId, saveInvoice } from "@/lib/supabase/invoices";
+import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice } from "@/lib/supabase/invoices";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import {
   convertInrToApproximateUsd,
@@ -108,6 +108,7 @@ type StoredDraft = {
   currentStep: InvoiceStepperStep;
   savedAt: string;
   documentId?: string | null;
+  clientMsaNote?: string | null;
 };
 
 type InvoiceSequenceMap = Record<string, number>;
@@ -724,6 +725,7 @@ function EditorContent() {
     let nextFormData: InvoiceFormData | null = null;
     let nextStep: InvoiceStepperStep = "agency";
     let nextDocumentId: string | null = null;
+    let nextMsaNote: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
@@ -742,6 +744,7 @@ function EditorContent() {
             nextFormData = mergeInvoiceFormData(parsedDraft.formData);
             nextStep = parsedDraft.currentStep;
             nextDocumentId = parsedDraft.documentId ?? null;
+            nextMsaNote = parsedDraft.clientMsaNote ?? null;
             shouldShowRestoreToast = true;
           }
         }
@@ -766,6 +769,7 @@ function EditorContent() {
       setFormData(nextFormData);
       setCurrentStep(nextStep);
       setParserDocumentId(nextDocumentId);
+      setClientMsaNote(nextMsaNote);
     } catch (error) {
       console.error("Failed to initialize invoice editor:", error);
 
@@ -785,6 +789,7 @@ function EditorContent() {
 
       setFormData(fallbackFormData);
       setCurrentStep("agency");
+      setClientMsaNote(null);
       shouldShowFallbackToast = true;
     } finally {
       hasInitializedRef.current = true;
@@ -1374,12 +1379,14 @@ function EditorContent() {
         PREVIEW_STORAGE_KEY,
         JSON.stringify(previewFormData)
       );
-      window.localStorage.setItem(
+       window.localStorage.setItem(
         DRAFT_STORAGE_KEY,
         JSON.stringify({
           formData,
           currentStep: "totals",
           savedAt: new Date().toISOString(),
+          documentId: parserDocumentId,
+          clientMsaNote,
         } satisfies StoredDraft)
       );
       triggerToast("Preview ready");
@@ -1438,13 +1445,27 @@ function EditorContent() {
 
     // Logged in — cloud-save as draft
     try {
-      const { error } = await saveInvoice({
-        formData,
-        status: "draft" as InvoiceStatus,
-        existingId: undefined,
-      });
-      if (!error) {
-        triggerToast("Draft saved to cloud ☁");
+      let result;
+      if (clientMsaNote && parserDocumentId) {
+        // Re-issuing after negotiation
+        result = await reissueNegotiatedInvoice(parserDocumentId, formData);
+        if (!result.error) {
+          setClientMsaNote(null); // Clear local note state
+        }
+      } else {
+        // Regular save
+        result = await saveInvoice({
+          formData,
+          status: "draft" as InvoiceStatus,
+          existingId: parserDocumentId ?? undefined,
+        });
+        if (!result.error && result.data) {
+          setParserDocumentId(result.data.id);
+        }
+      }
+
+      if (!result.error) {
+        triggerToast(clientMsaNote ? "Reissued & saved to cloud ☁" : "Draft saved to cloud ☁");
         playInteractionCue("saveSuccess");
       } else {
         triggerToast("Saved locally (cloud save failed)");
@@ -1929,6 +1950,31 @@ function EditorContent() {
         <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
           <div className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
             <div className="space-y-4">
+              {clientMsaNote && (
+                <MotionReveal preset="fade-up" className="mb-2">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                          Client Negotiation Note
+                        </h4>
+                        <p className="mt-1 text-sm leading-relaxed text-amber-900 font-medium">
+                          &quot;{clientMsaNote}&quot;
+                        </p>
+                        <p className="mt-2 text-[11px] text-amber-700">
+                          Please update the invoice details based on the client&apos;s request above.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </MotionReveal>
+              )}
+
               <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
                 <BriefIntakeCard
                   key={briefIntakeResetKey}

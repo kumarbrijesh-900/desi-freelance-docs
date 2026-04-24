@@ -37,6 +37,10 @@ export default function PublicInvoiceViewPage({
   const [msaData, setMsaData] = useState<MsaData | null>(null);
   const [msaSubmitting, setMsaSubmitting] = useState(false);
 
+  // Negotiation state
+  const [showProposalForm, setShowProposalForm] = useState(false);
+  const [proposalText, setProposalText] = useState("");
+
   // Agency name for rejection message
   const [agencyName, setAgencyName] = useState("The agency");
 
@@ -63,12 +67,11 @@ export default function PublicInvoiceViewPage({
       setMsaResponse(response);
 
       if (data.msa_id) {
-        if (response === "pending") {
+        if (response === "pending" || response === "negotiating") {
           setMsaRequired(true);
-          const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
-          if (msa) setMsaData(msa);
+          const msaContent = await loadMsaForSharedInvoice(data.id, data.msa_id);
+          if (msaContent) setMsaData(msaContent);
         }
-        // If already accepted or rejected, msaRequired stays false
       }
 
       // Record the view (fire-and-forget)
@@ -86,6 +89,22 @@ export default function PublicInvoiceViewPage({
       setMsaResponse(response);
       if (response === "accepted") {
         setMsaRequired(false);
+      }
+    }
+    setMsaSubmitting(false);
+  };
+
+  const handleProposeChanges = async () => {
+    if (!proposalText.trim() || !formData) return;
+    setMsaSubmitting(true);
+    
+    // We need the raw invoice ID, which we can get from the share token lookup
+    const { data } = await loadInvoiceByToken(token);
+    if (data) {
+      const { error } = await proposeMsaChanges(data.id, proposalText);
+      if (!error) {
+        setMsaResponse("negotiating");
+        setShowProposalForm(false);
       }
     }
     setMsaSubmitting(false);
@@ -174,6 +193,44 @@ export default function PublicInvoiceViewPage({
     );
   }
 
+  /* ─── MSA Negotiating (New Loop) ───────────────────── */
+
+  if (msaResponse === "negotiating") {
+    return (
+      <main className="min-h-screen bg-[color:var(--bg-canvas)] py-8">
+        <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+          </Link>
+        </div>
+
+        <MotionReveal preset="fade-up">
+          <div className="mx-auto max-w-md px-4">
+            <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-50 border border-cyan-200">
+                <svg className="h-7 w-7 text-cyan-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+
+              <h1 className="text-lg font-bold text-[color:var(--text-primary)]">
+                Proposal Sent
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
+                Your proposed changes have been sent to <strong>{agencyName}</strong> for review.
+              </p>
+              <p className="mt-4 text-xs text-[color:var(--text-muted)]">
+                The agency will contact you shortly to confirm the updated terms.
+              </p>
+            </div>
+          </div>
+        </MotionReveal>
+      </main>
+    );
+  }
+
+
   /* ─── MSA Gate (pending) ───────────────────────────── */
 
   if (msaRequired && msaResponse === "pending") {
@@ -230,29 +287,61 @@ export default function PublicInvoiceViewPage({
                 )}
               </div>
 
-              {/* Action footer — Accept or Reject */}
+              {/* Action footer — Accept or Propose Changes */}
               <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-4">
                 <p className="mb-3 text-xs text-[color:var(--text-muted)]">
-                  By clicking &quot;Accept&quot;, you agree to the terms outlined above. If you have concerns, click &quot;Reject&quot; and the agency will reach out to discuss.
+                  By clicking &quot;Accept&quot;, you agree to the terms outlined above. If you have specific change requests, click &quot;Propose Changes&quot; to notify the agency.
                 </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleMsaRespond("accepted")}
-                    disabled={msaSubmitting}
-                    className={getAppButtonClass({ variant: "primary", size: "md" })}
-                  >
-                    {msaSubmitting ? "Processing…" : "Accept MSA"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleMsaRespond("rejected")}
-                    disabled={msaSubmitting}
-                    className={`${getAppButtonClass({ variant: "ghost", size: "md" })} !text-red-600 hover:!bg-red-50`}
-                  >
-                    Reject MSA
-                  </button>
-                </div>
+                
+                {!showProposalForm ? (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleMsaRespond("accepted")}
+                      disabled={msaSubmitting}
+                      className={getAppButtonClass({ variant: "primary", size: "md" })}
+                    >
+                      {msaSubmitting ? "Processing…" : "Accept MSA"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowProposalForm(true)}
+                      disabled={msaSubmitting}
+                      className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                    >
+                      Propose Changes
+                    </button>
+                  </div>
+                ) : (
+                  <MotionReveal preset="fade-up" delay={0}>
+                    <div className="space-y-3">
+                      <textarea
+                        value={proposalText}
+                        onChange={(e) => setProposalText(e.target.value)}
+                        placeholder="Describe the terms you would like to change (e.g. 'Requesting Net 30 instead of Net 15')..."
+                        className="w-full rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 text-sm text-[color:var(--text-primary)] focus:border-[color:var(--color-lime-400)] focus:ring-1 focus:ring-[color:var(--color-lime-400)] min-h-[100px]"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleProposeChanges}
+                          disabled={msaSubmitting || !proposalText.trim()}
+                          className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                        >
+                          {msaSubmitting ? "Sending…" : "Send Proposal"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowProposalForm(false)}
+                          disabled={msaSubmitting}
+                          className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </MotionReveal>
+                )}
               </div>
             </div>
 
