@@ -37,6 +37,9 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import { uploadProfessionalAsset } from "@/lib/supabase/storage";
 import type { AgencyDetails, PaymentDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import { getCroppedImg } from "@/lib/image-crop-utils";
 
 /* ─── Section Label Component ─────────────────────── */
 
@@ -187,22 +190,68 @@ export default function ProfilePage() {
     folder: string;
   }) => {
     const [isUploading, setIsUploading] = useState(false);
+    const [cropModalOpen, setCropModalOpen] = useState(false);
+    const [tempImgSrc, setTempImgSrc] = useState("");
+    const [crop, setCrop] = useState<Crop>();
+    const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+    const imgRef = useRef<HTMLImageElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+      const { width, height } = e.currentTarget;
+      const aspect = label.toLowerCase().includes("qr") ? 1 : undefined;
+      const initialCrop = centerCrop(
+        makeAspectCrop(
+          { unit: '%', width: 90 },
+          aspect || (width / height),
+          width,
+          height
+        ),
+        width,
+        height
+      );
+      setCrop(initialCrop);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (!file || !userId) return;
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setTempImgSrc(reader.result?.toString() || "");
+        setCropModalOpen(true);
+      });
+      reader.readAsDataURL(file);
+    };
+
+    const handleCropComplete = async () => {
+      if (!imgRef.current || !completedCrop || !userId) return;
 
       setIsUploading(true);
-      const fileName = `${folder}/${userId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-      const { url, error } = await uploadProfessionalAsset(file, fileName);
-      
-      if (url) {
-        onUrlChange(url);
-      } else if (error) {
-        alert("Upload failed: " + error);
+      setCropModalOpen(false);
+
+      try {
+        const croppedFile = await getCroppedImg(
+          imgRef.current,
+          completedCrop,
+          `cropped-${Date.now()}.png`
+        );
+
+        const fileName = `${folder}/${userId}-${Date.now()}-cropped.png`;
+        const { url, error } = await uploadProfessionalAsset(croppedFile, fileName);
+        
+        if (url) {
+          onUrlChange(url);
+        } else if (error) {
+          alert("Upload failed: " + error);
+        }
+      } catch (err) {
+        console.error("Cropping error:", err);
+      } finally {
+        setIsUploading(false);
+        setTempImgSrc("");
       }
-      setIsUploading(false);
     };
 
     return (
@@ -228,7 +277,7 @@ export default function ProfilePage() {
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span>Uploading...</span>
+                    <span>Processing...</span>
                   </div>
                 ) : (
                   <>
@@ -242,6 +291,7 @@ export default function ProfilePage() {
                 accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
+                onClick={(e) => (e.currentTarget.value = "")}
               />
             </div>
             {value && (
@@ -258,6 +308,52 @@ export default function ProfilePage() {
             )}
           </div>
         </FieldRow>
+
+        {/* Cropper Modal */}
+        {cropModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <MotionReveal preset="fade-up" className="w-full max-w-2xl overflow-hidden rounded-2xl bg-[color:var(--bg-surface)] shadow-2xl">
+              <div className="border-b border-[color:var(--border-subtle)] p-4 flex justify-between items-center bg-[color:var(--bg-surface-soft)]">
+                <h3 className="font-bold text-[color:var(--text-primary)]">Optimize Your {label}</h3>
+                <button onClick={() => setCropModalOpen(false)} className="text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]">✕</button>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
+                <p className="mb-4 text-[13px] text-[color:var(--text-muted)] text-center">
+                  Crop your image to remove unnecessary margins for a perfect fit on the invoice.
+                </p>
+                <ReactCrop
+                  crop={crop}
+                  onChange={(c) => setCrop(c)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={label.toLowerCase().includes("qr") ? 1 : undefined}
+                  className="max-h-[50vh]"
+                >
+                  <img
+                    ref={imgRef}
+                    src={tempImgSrc}
+                    onLoad={onImageLoad}
+                    alt="To Crop"
+                    style={{ maxWidth: '100%', maxHeight: '50vh' }}
+                  />
+                </ReactCrop>
+              </div>
+              <div className="border-t border-[color:var(--border-subtle)] p-4 bg-[color:var(--bg-surface-soft)] flex justify-end gap-3">
+                <button
+                  onClick={() => setCropModalOpen(false)}
+                  className="px-4 py-2 text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCropComplete}
+                  className={getAppButtonClass({ variant: "primary" })}
+                >
+                  Save & Upload
+                </button>
+              </div>
+            </MotionReveal>
+          </div>
+        )}
       </div>
     );
   };

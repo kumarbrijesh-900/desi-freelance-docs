@@ -42,13 +42,15 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header — Strict grid ─────────────── */}
       <header className="mt-4 grid gap-4 pb-4 md:grid-cols-[minmax(0,1fr)_200px]">
         <div className="min-w-0">
-          {data.agencyLogoUrl ? (
-            <img src={data.agencyLogoUrl} alt="Logo" className="mb-2 max-h-9 w-auto object-contain" />
-          ) : (
-            <div className="mb-2 w-24 h-9 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
-              Logo
-            </div>
-          )}
+          <div className="flex items-center justify-start h-20 w-64 mb-2">
+            {data.agencyLogoUrl ? (
+              <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left" />
+            ) : (
+              <div className="w-24 h-9 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+                Logo
+              </div>
+            )}
+          </div>
           <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-[#E63946] print:text-[#666]">
             Invoice From
           </p>
@@ -195,13 +197,15 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Scan</p>
-            {data.hasQrCode ? (
-              <img src={data.qrCodeUrl} alt="QR" className="mt-1.5 max-h-24 w-auto" />
-            ) : (
-              <div className="mt-1.5 w-24 h-24 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
-                QR
-              </div>
-            )}
+            <div className="mt-1.5 h-24 w-24 flex items-center justify-center">
+              {data.hasQrCode ? (
+                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+              ) : (
+                <div className="w-full h-full border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+                  QR
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

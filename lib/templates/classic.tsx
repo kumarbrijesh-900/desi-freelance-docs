@@ -20,17 +20,19 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header ────────────────────────────── */}
       <header className="flex justify-between items-start mb-16">
         <div className="max-w-[400px]">
-          {data.agencyLogoUrl ? (
-            <img
-              src={data.agencyLogoUrl}
-              alt="Logo"
-              className="mb-6 max-h-12 w-auto object-contain"
-            />
-          ) : (
-            <div className="mb-6 w-32 h-12 border-2 border-dashed border-[#F0F0F2] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
-              Logo
-            </div>
-          )}
+          <div className="flex items-center justify-start h-20 w-64 mb-6">
+            {data.agencyLogoUrl ? (
+              <img
+                src={data.agencyLogoUrl}
+                alt="Logo"
+                className="max-h-full max-w-full object-contain object-left"
+              />
+            ) : (
+              <div className="w-32 h-12 border-2 border-dashed border-[#F0F0F2] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
+                Logo
+              </div>
+            )}
+          </div>
           <div className="text-[12px] leading-relaxed text-[#555] space-y-1">
             <p className="font-bold text-[#111118] text-[14px] mb-1">{data.agencyName}</p>
             <p className="whitespace-pre-line max-w-[280px]">{data.agencyAddress}</p>
@@ -183,14 +185,16 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
 
           <div className="mt-8">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-3">Payment QR</p>
-            {data.hasQrCode ? (
-              <img src={data.qrCodeUrl} alt="QR Code" className="w-24 h-24 object-contain" />
-            ) : (
-              <div className="w-24 h-24 border-2 border-dashed border-[#F0F0F2] flex flex-col items-center justify-center gap-1">
-                <div className="w-8 h-8 opacity-20 border-2 border-[#111118]" />
-                <span className="text-[8px] font-bold text-[#A8A08E] uppercase tracking-widest">QR Code</span>
-              </div>
-            )}
+            <div className="h-24 w-24 flex items-center justify-center">
+              {data.hasQrCode ? (
+                <img src={data.qrCodeUrl} alt="QR Code" className="max-h-full max-w-full object-contain object-center" />
+              ) : (
+                <div className="w-full h-full border-2 border-dashed border-[#F0F0F2] flex flex-col items-center justify-center gap-1">
+                  <div className="w-8 h-8 opacity-20 border-2 border-[#111118]" />
+                  <span className="text-[8px] font-bold text-[#A8A08E] uppercase tracking-widest">QR Code</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

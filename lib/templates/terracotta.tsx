@@ -39,13 +39,15 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       <header className="rounded-b-lg bg-[#FFF8F3] px-5 py-5 print:bg-[#fafafa]">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            {data.agencyLogoUrl ? (
-              <img src={data.agencyLogoUrl} alt="Logo" className="mb-3 max-h-10 w-auto object-contain" />
-            ) : (
-              <div className="mb-3 w-32 h-10 border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
-                Logo
-              </div>
-            )}
+            <div className="flex items-center justify-start h-20 w-64 mb-3">
+              {data.agencyLogoUrl ? (
+                <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left" />
+              ) : (
+                <div className="w-32 h-10 border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                  Logo
+                </div>
+              )}
+            </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Studio</p>
             <h1 className="mt-1 text-[24px] font-bold leading-none tracking-tight text-[#3D2517]">
               {data.agencyName}
@@ -153,13 +155,15 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Scan to Pay</p>
-            {data.hasQrCode ? (
-              <img src={data.qrCodeUrl} alt="QR" className="mt-2 max-h-24 w-auto" />
-            ) : (
-              <div className="mt-2 w-24 h-24 border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
-                QR
-              </div>
-            )}
+            <div className="mt-2 h-24 w-24 flex items-center justify-center">
+              {data.hasQrCode ? (
+                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+              ) : (
+                <div className="w-full h-full border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                  QR
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

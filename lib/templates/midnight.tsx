@@ -38,13 +38,15 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
       <header className="bg-[#1A1A2E] px-5 py-5 print:bg-[#f0f0f5] print:text-[#111]">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            {data.agencyLogoUrl ? (
-              <img src={data.agencyLogoUrl} alt="Logo" className="mb-3 max-h-10 w-auto brightness-0 invert print:brightness-100 print:invert-0" />
-            ) : (
-              <div className="mb-3 w-32 h-10 border border-dashed border-[#6C63FF]/30 flex items-center justify-center text-[9px] uppercase tracking-[0.3em] text-[#6C63FF]">
-                Logo
-              </div>
-            )}
+            <div className="flex items-center justify-start h-20 w-64 mb-3">
+              {data.agencyLogoUrl ? (
+                <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left brightness-0 invert print:brightness-100 print:invert-0" />
+              ) : (
+                <div className="w-32 h-10 border border-dashed border-[#6C63FF]/30 flex items-center justify-center text-[9px] uppercase tracking-[0.3em] text-[#6C63FF]">
+                  Logo
+                </div>
+              )}
+            </div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#6C63FF] print:text-[#666]">From</p>
             <h1 className="mt-1 text-[22px] font-bold leading-none tracking-tight text-[#F0F0F5] print:text-[#111]">
               {data.agencyName}
@@ -159,13 +161,15 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">Scan to Pay</p>
-            {data.hasQrCode ? (
-              <img src={data.qrCodeUrl} alt="QR" className="mt-2 max-h-24 w-auto" />
-            ) : (
-              <div className="mt-2 w-24 h-24 border border-dashed border-[#6C63FF]/20 flex items-center justify-center text-[9px] uppercase tracking-[0.2em] text-[#6C63FF]/40">
-                QR
-              </div>
-            )}
+            <div className="mt-2 h-24 w-24 flex items-center justify-center">
+              {data.hasQrCode ? (
+                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+              ) : (
+                <div className="w-full h-full border border-dashed border-[#6C63FF]/20 flex items-center justify-center text-[9px] uppercase tracking-[0.2em] text-[#6C63FF]/40">
+                  QR
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

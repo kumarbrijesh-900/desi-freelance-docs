@@ -47,17 +47,19 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         <header className="flex justify-between mb-20">
           <div className="max-w-[250px]">
             <div className="w-[60px] h-[6px] bg-[#FF725E] mb-4" />
-            {data.agencyLogoUrl ? (
-              <img
-                src={data.agencyLogoUrl}
-                alt="Logo"
-                className="mb-4 max-h-12 w-auto object-contain"
-              />
-            ) : (
-              <div className="mb-4 w-32 h-12 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
-                Logo
-              </div>
-            )}
+            <div className="flex items-center justify-start h-20 w-64 mb-4">
+              {data.agencyLogoUrl ? (
+                <img
+                  src={data.agencyLogoUrl}
+                  alt="Logo"
+                  className="max-h-full max-w-full object-contain object-left"
+                />
+              ) : (
+                <div className="w-32 h-12 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
+                  Logo
+                </div>
+              )}
+            </div>
             <div className="text-[11px] text-[#666] leading-relaxed space-y-1">
               <p className="font-semibold text-[#111118]">{data.agencyName}</p>
               <p className="whitespace-pre-line">{data.agencyAddress}</p>
@@ -187,13 +189,15 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   )}
                   <div>
                     <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">Scan to Pay</p>
-                    {data.hasQrCode ? (
-                      <img src={data.qrCodeUrl} alt="QR" className="mt-1 max-h-16 w-auto" />
-                    ) : (
-                      <div className="w-16 h-16 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[8px] font-bold text-[#A8A08E] uppercase">
-                        QR
-                      </div>
-                    )}
+                    <div className="h-16 w-16 flex items-center justify-center">
+                      {data.hasQrCode ? (
+                        <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                      ) : (
+                        <div className="w-full h-full border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[8px] font-bold text-[#A8A08E] uppercase">
+                          QR
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
