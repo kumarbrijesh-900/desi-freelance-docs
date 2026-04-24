@@ -73,6 +73,11 @@ export interface AgencyDetails {
   lutNumber: string;
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
   signatureUrl: string;
+  // MSA Defaults
+  msaPaymentTermsDays?: number;
+  msaLateFeeRate?: number;
+  msaIpTriggerType?: string;
+  msaJurisdictionCity?: string;
 }
 
 export interface ClientDetails {

@@ -69,6 +69,7 @@ import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
 } from "@/lib/invoice-validation";
+import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import {
   appPageContainerClass,
   appPageSectionClass,
@@ -680,6 +681,7 @@ function EditorContent() {
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
+  const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
@@ -1752,7 +1754,7 @@ function EditorContent() {
   const handleClientSelect = (client: SavedClient) => {
     const syncedData = syncMsaToInvoice(formData, client);
     setFormData(syncedData);
-    playInteractionCue("selectionChange");
+    playInteractionCue("stepComplete");
   };
 
   const renderStepContent = (step: InvoiceStepperStep) => {

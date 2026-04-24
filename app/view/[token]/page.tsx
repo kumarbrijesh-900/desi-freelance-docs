@@ -10,6 +10,7 @@ import {
   recordView,
   loadMsaForSharedInvoice,
   respondToMsa,
+  proposeMsaChanges,
 } from "@/lib/supabase/invoices";
 import type { MsaResponse } from "@/lib/supabase/invoices";
 import Link from "next/link";

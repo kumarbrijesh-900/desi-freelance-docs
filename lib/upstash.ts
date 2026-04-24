@@ -1,13 +1,16 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-  throw new Error("Missing Upstash Redis environment variables");
+const url = process.env.UPSTASH_REDIS_REST_URL;
+const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (!url || !token) {
+  console.warn("⚠️ Upstash Redis environment variables are missing. Ratelimiting will be disabled.");
 }
 
 export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  url: url || "https://dummy.upstash.io",
+  token: token || "dummy",
 });
 
 export const ratelimit = new Ratelimit({
