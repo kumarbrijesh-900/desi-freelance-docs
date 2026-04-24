@@ -83,15 +83,13 @@ export default function ClientDetailsSection({
   const performSafetyFetch = async () => {
     if (effectiveClients.length === 0 && !isLoading) {
       setIsLoading(true);
-      console.log("🚨 DROPDOWN_DEBUG: Starting safety fetch...");
       const { data, error } = await listClients();
       setIsLoading(false);
       
       if (error) {
-        console.error("🚨 DROPDOWN_ERROR:", error);
+        console.error(error);
       }
       if (data) {
-        console.log("🚨 DROPDOWN_DEBUG: Safety fetch found", data.length, "clients");
         setInternalClients(data);
       }
     }

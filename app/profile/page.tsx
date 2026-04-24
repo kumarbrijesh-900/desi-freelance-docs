@@ -135,7 +135,6 @@ export default function ProfilePage() {
       }
       
       if (profile) {
-        console.log("PROFILE_INIT_SUCCESS: Setting fields for", profile.agency_name);
         setAgencyName(profile.agency_name || "");
         setAddressLine1(profile.address_line1 || "");
         setAddressLine2(profile.address_line2 || "");
@@ -161,8 +160,6 @@ export default function ProfilePage() {
         setMsaLateFeeUnit((profile.msa_late_fee_unit as any) || "monthly");
         setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_full_payment");
         setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bangalore");
-      } else {
-        console.log("PROFILE_INIT_INFO: No profile data to apply.");
       }
       setIsLoading(false);
     }
