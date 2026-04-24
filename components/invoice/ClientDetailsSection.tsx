@@ -698,9 +698,20 @@ export default function ClientDetailsSection({
         {/* Master Services Agreement (MSA) Defaults */}
         <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
           <div className="mb-2">
-            <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
-              Master Services Agreement (MSA) Defaults
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+                Master Services Agreement (MSA) Defaults
+              </h3>
+              <div className="group relative">
+                <span className="flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-[color:var(--bg-surface-muted)] text-[10px] font-bold text-[color:var(--text-muted)] ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                  ?
+                </span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                  Note: Invoice-specific briefs will override these default MSA values during AI extraction.
+                  <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
+                </div>
+              </div>
+            </div>
             <p className="text-[11px] text-[color:var(--text-muted)]">
               Transaction-specific overrides for this client relationship.
             </p>
@@ -718,27 +729,34 @@ export default function ClientDetailsSection({
             </div>
 
             <div>
-              <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={value.msaLateFeeRate ?? 1.5}
-                onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
-                className={inputClass(undefined, true)}
-              />
+              <label className={appFieldLabelClass}>Late Fee Rate</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={value.msaLateFeeRate ?? 1.5}
+                  onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
+                  className={inputClass(undefined, true)}
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <span className="text-[11px] font-medium text-[color:var(--text-muted)]">% per month</span>
+                </div>
+              </div>
             </div>
 
             <div>
               <label className={appFieldLabelClass}>IP Transfer Trigger</label>
-              <select
-                value={value.msaIpTriggerType || "upon_payment"}
-                onChange={(e) => updateField("msaIpTriggerType", e.target.value)}
-                className={inputClass(undefined, true)}
+              <AppSelectField
+                value={value.msaIpTriggerType || "upon_full_payment"}
+                onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)}
+                hasValue={true}
               >
-                <option value="upon_payment">upon_payment</option>
-                <option value="upon_delivery">upon_delivery</option>
-                <option value="retained">retained</option>
-              </select>
+                <option value="upon_full_payment">Upon Full Payment</option>
+                <option value="upon_signing">Upon Signing</option>
+                <option value="upon_delivery">Upon Delivery</option>
+                <option value="proportional_transfer">Proportional (Per Milestone)</option>
+                <option value="retained_by_creator">Retained by Creator (License Only)</option>
+              </AppSelectField>
             </div>
 
             <div>
@@ -751,6 +769,42 @@ export default function ClientDetailsSection({
                 className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
               />
             </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={appFieldLabelClass}>Notes / MSA Boilerplate</label>
+              {!value.msaNotesBoilerplate && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ipLabel = {
+                      upon_full_payment: "upon full payment",
+                      upon_signing: "upon signing",
+                      upon_delivery: "upon delivery",
+                      proportional_transfer: "proportionally per milestone",
+                      retained_by_creator: "retained by the creator (limited license)",
+                    }[value.msaIpTriggerType || "upon_full_payment"];
+                    
+                    const template = `1. Intellectual Property (IP) transfers to the client ${ipLabel}. 
+2. A late fee of ${value.msaLateFeeRate ?? 1.5}% per month applies to all payments delayed beyond ${value.msaPaymentTermsDays ?? 20} days.
+3. All disputes are subject to ${value.msaJurisdictionCity || "local"} jurisdiction.`;
+                    
+                    updateField("msaNotesBoilerplate", template);
+                  }}
+                  className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                >
+                  + Generate Standard Template
+                </button>
+              )}
+            </div>
+            <textarea
+              rows={4}
+              value={value.msaNotesBoilerplate || ""}
+              onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)}
+              placeholder="Custom terms or additional MSA boilerplate for this client..."
+              className={inputClass(undefined, Boolean(value.msaNotesBoilerplate), true)}
+            />
           </div>
         </div>
       </div>
