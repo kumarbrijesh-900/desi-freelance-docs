@@ -251,6 +251,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
     tax: {
       taxMode: "gst" as const,
       taxRate: 18,
+      isRcmEnabled: false,
     },
     payment: {
       license: {
@@ -1038,6 +1039,7 @@ function EditorContent() {
         lutAvailability: formData.agency.lutAvailability,
         noLutTaxHandling: effectiveExportTaxDecision,
         taxRate: formData.tax.taxRate,
+        isRcmEnabled: formData.tax.isRcmEnabled,
       }),
     [
       formData.lineItems,
@@ -1048,29 +1050,34 @@ function EditorContent() {
       formData.agency.lutAvailability,
       effectiveExportTaxDecision,
       formData.tax.taxRate,
+      formData.tax.isRcmEnabled,
     ]
   );
 
   const derivedTaxConfig = useMemo(() => {
     const currentRate = formData.tax.taxRate ?? 18;
+    const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
     switch (computedTotals.taxType) {
       case "CGST_SGST":
         return {
           taxMode: "gst" as const,
           taxRate: currentRate,
+          isRcmEnabled,
         };
       case "IGST":
         return {
           taxMode: "igst" as const,
           taxRate: currentRate,
+          isRcmEnabled,
         };
       default:
         return {
           taxMode: "none" as const,
           taxRate: 0,
+          isRcmEnabled,
         };
     }
-  }, [computedTotals.taxType, formData.tax.taxRate]);
+  }, [computedTotals.taxType, formData.tax.taxRate, formData.tax.isRcmEnabled]);
 
   const totalsComplianceMessage = useMemo(() => {
     const settlementWarning = getSettlementComplianceWarning({

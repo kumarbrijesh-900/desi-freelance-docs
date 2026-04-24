@@ -15,6 +15,7 @@ type CalculateInvoiceTotalsInput = {
   lutAvailability: "" | "yes" | "no";
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
   taxRate?: number;
+  isRcmEnabled?: boolean;
 };
 
 export function calculateInvoiceTotals({
@@ -27,6 +28,7 @@ export function calculateInvoiceTotals({
   lutAvailability,
   noLutTaxHandling,
   taxRate,
+  isRcmEnabled = false,
 }: CalculateInvoiceTotalsInput): InvoiceComputedValues {
   const subtotal = lineItems.reduce((sum, item) => {
     const qty = Number(item.qty) || 0;
@@ -49,7 +51,8 @@ export function calculateInvoiceTotals({
   return {
     subtotal,
     taxAmount: taxBreakdown.totalTax,
-    grandTotal: subtotal + taxBreakdown.totalTax,
+    grandTotal: subtotal + (isRcmEnabled ? 0 : taxBreakdown.totalTax),
+    isRcmEnabled,
     ...taxBreakdown,
   };
 }

@@ -130,6 +130,7 @@ export interface InvoiceMeta {
 export interface TaxConfig {
   taxMode: "none" | "gst" | "igst";
   taxRate: number;
+  isRcmEnabled: boolean;
 }
 
 export type InvoiceTaxType = "CGST_SGST" | "IGST" | "NONE";
@@ -181,6 +182,7 @@ export interface InvoiceComputedValues extends InvoiceTaxBreakdown {
   subtotal: number;
   taxAmount: number;
   grandTotal: number;
+  isRcmEnabled: boolean;
 }
 
 export type InvoiceStepperStep =
@@ -249,6 +251,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
   tax: {
     taxMode: "gst",
     taxRate: 18,
+    isRcmEnabled: false,
   },
   payment: {
     license: {

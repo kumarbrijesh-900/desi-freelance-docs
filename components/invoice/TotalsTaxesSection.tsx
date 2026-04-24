@@ -5,6 +5,8 @@ import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options
 import { amountToWords } from "@/lib/amount-to-words";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
+import AppSwitch from "@/components/ui/AppSwitch";
+import { InfoCircleIcon } from "@/components/ui/app-icons";
 import {
   appFieldHelperTextClass,
   appSectionDescriptionClass,
@@ -80,6 +82,7 @@ export default function TotalsTaxesSection({
   const subtotal = computed.subtotal;
   const taxAmount = computed.taxAmount;
   const grandTotal = computed.grandTotal;
+  const isRcmEnabled = value.isRcmEnabled;
 
   const updateField = <K extends keyof TaxConfig>(
     key: K,
@@ -327,13 +330,23 @@ export default function TotalsTaxesSection({
               </div>
             ) : null}
 
-            <div className="flex items-center justify-between rounded-[14px] border border-[color:var(--border-subtle)] bg-white px-5 py-3 shadow-sm">
-              <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
-                Reverse Charge (RCM)
-              </p>
-              <span className={getAppStatusPillClass("muted")}>
-                No
-              </span>
+            <div className="flex items-center justify-between rounded-[14px] border border-[color:var(--border-subtle)] bg-gray-50 px-5 py-3 shadow-sm transition-colors duration-200 focus-within:bg-white">
+              <div className="flex items-center gap-2">
+                <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
+                  Reverse Charge (RCM)
+                </p>
+                <div className="group relative">
+                  <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
+                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
+                    Reverse Charge Mechanism (RCM) shifts the GST payment liability to your client. If enabled, tax is calculated for compliance but is NOT added to your Grand Total payable.
+                    <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
+                  </div>
+                </div>
+              </div>
+              <AppSwitch 
+                checked={isRcmEnabled}
+                onChange={(checked) => updateField("isRcmEnabled", checked)}
+              />
             </div>
           </div>
         </div>
@@ -371,9 +384,16 @@ export default function TotalsTaxesSection({
                 <dt className="text-[color:var(--text-muted)]">Tax</dt>
                 <dd className="text-right font-medium text-[color:var(--text-primary)]">
                   <span>{taxModeSummaryLabel}</span>
-                  <span className="ml-2 text-[color:var(--text-muted)]">
-                    {formatCurrency(taxAmount, currency)}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[color:var(--text-muted)]">
+                      {formatCurrency(taxAmount, currency)}
+                    </span>
+                    {isRcmEnabled && (
+                      <span className="text-[10px] font-medium text-[color:var(--state-warning-text)] opacity-80">
+                        (Payable by Client under RCM)
+                      </span>
+                    )}
+                  </div>
                 </dd>
               </div>
               <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
@@ -385,7 +405,10 @@ export default function TotalsTaxesSection({
               <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                 Grand total
               </dt>
-              <dd className="mt-2 text-[36px] font-semibold tracking-[-0.03em] text-[color:var(--text-primary)] [font-variant-numeric:tabular-nums]">
+              <dd className={cn(
+                "mt-2 text-[36px] font-semibold tracking-[-0.03em] [font-variant-numeric:tabular-nums]",
+                isRcmEnabled ? "text-[color:var(--interactive-secondary)]" : "text-[color:var(--text-primary)]"
+              )}>
                 {formatCurrency(grandTotal, currency)}
               </dd>
             </div>
@@ -403,7 +426,9 @@ export default function TotalsTaxesSection({
 
           <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
             {grandTotal > 0
-              ? "Final amount payable before any offline adjustments."
+              ? isRcmEnabled 
+                ? "Tax is calculated for compliance but excluded from your payable amount under RCM."
+                : "Final amount payable before any offline adjustments."
               : "Add billable items to establish the final payable amount."}
           </p>
         </div>
