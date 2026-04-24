@@ -255,7 +255,7 @@ export default function ProfilePage() {
     };
 
     return (
-      <div className="sm:col-span-2">
+      <div className="col-span-1">
         <FieldRow label={label} helper={helper}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -605,6 +605,14 @@ export default function ProfilePage() {
                     onUrlChange={setSignatureUrl}
                     folder="signatures"
                   />
+
+                  <ImageUploadField 
+                    label="Payment QR Code" 
+                    helper="Direct link or upload your UPI / Payment QR code image"
+                    value={qrCodeUrl}
+                    onUrlChange={setQrCodeUrl}
+                    folder="qrcodes"
+                  />
                 </div>
               </div>
             </MotionReveal>
@@ -707,13 +715,7 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
 
-                  <ImageUploadField 
-                    label="Payment QR Code" 
-                    helper="Direct link or upload your UPI / Payment QR code image"
-                    value={qrCodeUrl}
-                    onUrlChange={setQrCodeUrl}
-                    folder="qrcodes"
-                  />
+
 
                   <div className="sm:col-span-2">
                     <FieldRow label="Bank Address" helper="For international payments (SWIFT transfers)">

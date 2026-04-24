@@ -22,8 +22,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
     <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.03] rounded-full blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.04] rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.04] rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.05] rounded-full blur-[100px] pointer-events-none z-0" />
+      
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#6C63FF 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       
       <svg className="absolute top-0 right-0 w-[400px] h-[400px] text-[#6C63FF]/[0.02] pointer-events-none z-0" viewBox="0 0 400 400">
         <path d="M0,100 C150,200 250,0 400,100 V400 H0 Z" fill="currentColor" />
@@ -38,11 +41,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
       <header className="bg-[#1A1A2E] px-5 py-5 print:bg-[#f0f0f5] print:text-[#111]">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <div className="flex items-center justify-start h-20 w-64 mb-3">
+            <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-3 overflow-hidden">
               {data.agencyLogoUrl ? (
-                <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left brightness-0 invert print:brightness-100 print:invert-0" />
+                <img src={data.agencyLogoUrl} alt="Agency Logo" className="max-h-full max-w-full object-contain object-left brightness-0 invert print:brightness-100 print:invert-0" />
               ) : (
-                <div className="w-32 h-10 border border-dashed border-[#6C63FF]/30 flex items-center justify-center text-[9px] uppercase tracking-[0.3em] text-[#6C63FF]">
+                <div className="w-full h-full border border-dashed border-[#6C63FF]/30 bg-[#6C63FF]/5 flex items-center justify-center text-[8px] uppercase tracking-[0.3em] text-[#6C63FF] font-bold">
                   Logo
                 </div>
               )}
@@ -161,11 +164,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">Scan to Pay</p>
-            <div className="mt-2 h-24 w-24 flex items-center justify-center">
+            <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
               ) : (
-                <div className="w-full h-full border border-dashed border-[#6C63FF]/20 flex items-center justify-center text-[9px] uppercase tracking-[0.2em] text-[#6C63FF]/40">
+                <div className="w-full h-full border border-dashed border-[#6C63FF]/20 bg-[#6C63FF]/5 flex items-center justify-center text-[8px] uppercase tracking-[0.2em] text-[#6C63FF] font-bold">
                   QR
                 </div>
               )}

@@ -687,12 +687,16 @@ export default function DeliverablesSection({
           <button
             type="button"
             onClick={addLineItem}
-            className={getAppButtonClass({
-              variant: "secondary",
-              size: "md",
-            })}
+            className={cn(
+              getAppButtonClass({
+                variant: "ghost",
+                size: "md",
+              }),
+              "w-full border-2 border-dashed border-[color:var(--border-subtle)] font-bold tracking-[0.01em] hover:border-[color:var(--border-strong)] hover:bg-gray-50/50"
+            )}
           >
-            + Add line item
+            <span className="mr-2 text-lg">+</span>
+            Add line item
           </button>
         </div>
       </div>

@@ -10,9 +10,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
     <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
       {/* ── Background Patterns ────────────────── */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
-           style={{ backgroundImage: 'radial-gradient(#111118 0.5px, transparent 0.5px)', backgroundSize: '16px 16px' }} />
+           style={{ backgroundImage: 'radial-gradient(#111118 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
       
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'repeating-linear-gradient(45deg, #111118 0, #111118 1px, transparent 0, transparent 10px)' }} />
+
       <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#F0F0F2] rounded-full blur-3xl opacity-20 z-0 pointer-events-none" />
+      <div className="absolute bottom-40 -left-10 w-64 h-64 bg-[#E0E0E5] rounded-full blur-[100px] opacity-15 z-0 pointer-events-none" />
 
       {/* ── Top Accent ──────────────────────────── */}
       <div className="relative z-10 h-1 w-full bg-[#111118] mb-12" />
@@ -20,16 +24,16 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header ────────────────────────────── */}
       <header className="flex justify-between items-start mb-16">
         <div className="max-w-[400px]">
-          <div className="flex items-center justify-start h-20 w-64 mb-6">
+          <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-6 overflow-hidden">
             {data.agencyLogoUrl ? (
               <img
                 src={data.agencyLogoUrl}
-                alt="Logo"
+                alt="Agency Logo"
                 className="max-h-full max-w-full object-contain object-left"
               />
             ) : (
-              <div className="w-32 h-12 border-2 border-dashed border-[#F0F0F2] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
-                Logo
+              <div className="w-full h-full border border-dashed border-[#D1D1D6] bg-gray-50/30 flex items-center justify-center text-[9px] font-bold text-[#A8A08E] uppercase tracking-[0.2em]">
+                Agency Logo
               </div>
             )}
           </div>
@@ -185,13 +189,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
 
           <div className="mt-8">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-3">Payment QR</p>
-            <div className="h-24 w-24 flex items-center justify-center">
+            <div className="h-20 w-20 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="QR Code" className="max-h-full max-w-full object-contain object-center" />
+                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
               ) : (
-                <div className="w-full h-full border-2 border-dashed border-[#F0F0F2] flex flex-col items-center justify-center gap-1">
-                  <div className="w-8 h-8 opacity-20 border-2 border-[#111118]" />
-                  <span className="text-[8px] font-bold text-[#A8A08E] uppercase tracking-widest">QR Code</span>
+                <div className="w-full h-full border border-dashed border-[#D1D1D6] bg-gray-50/30 flex flex-col items-center justify-center gap-1">
+                  <div className="w-6 h-6 opacity-10 border border-[#111118]" />
+                  <span className="text-[7px] font-bold text-[#A8A08E] uppercase tracking-widest">QR Code</span>
                 </div>
               )}
             </div>

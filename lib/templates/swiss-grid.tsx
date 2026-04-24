@@ -23,18 +23,21 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
     <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.04]" 
            style={{ backgroundImage: 'linear-gradient(#1D3557 1px, transparent 1px), linear-gradient(90deg, #1D3557 1px, transparent 1px)', backgroundSize: '10mm 10mm' }} />
       
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#1D3557 1px, transparent 1px)', backgroundSize: '25mm 25mm' }} />
+
       {/* Technical Cross-hatch in corners */}
       <div className="absolute top-0 left-0 w-40 h-40 opacity-[0.04] pointer-events-none z-0"
            style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #E63946 0, #E63946 1px, transparent 0, transparent 4px)' }} />
       <div className="absolute bottom-0 right-0 w-60 h-60 opacity-[0.04] pointer-events-none z-0"
            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #1D3557 0, #1D3557 1px, transparent 0, transparent 4px)' }} />
       
-      <div className="absolute top-[15%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">01</div>
-      <div className="absolute top-[45%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">02</div>
-      <div className="absolute top-[75%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">03</div>
+      <div className="absolute top-[15%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">01</div>
+      <div className="absolute top-[45%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">02</div>
+      <div className="absolute top-[75%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">03</div>
 
       {/* ── Red bar — Swiss poster authority ──── */}
       <div className="relative z-10 h-[6px] w-full bg-[#E63946] print:bg-[#666]" />
@@ -42,11 +45,11 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header — Strict grid ─────────────── */}
       <header className="mt-4 grid gap-4 pb-4 md:grid-cols-[minmax(0,1fr)_200px]">
         <div className="min-w-0">
-          <div className="flex items-center justify-start h-20 w-64 mb-2">
+          <div className="relative z-10 flex items-center justify-start h-12 w-32 mb-2 overflow-hidden">
             {data.agencyLogoUrl ? (
-              <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left" />
+              <img src={data.agencyLogoUrl} alt="Agency Logo" className="max-h-full max-w-full object-contain object-left" />
             ) : (
-              <div className="w-24 h-9 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+              <div className="w-full h-full border border-dashed border-[#A8DADC] bg-[#f9fafa] flex items-center justify-center text-[7px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
                 Logo
               </div>
             )}
@@ -197,11 +200,11 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Scan</p>
-            <div className="mt-1.5 h-24 w-24 flex items-center justify-center">
+            <div className="mt-1.5 h-16 w-16 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
               ) : (
-                <div className="w-full h-full border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+                <div className="w-full h-full border border-dashed border-[#A8DADC] bg-[#f9fafa] flex items-center justify-center text-[7px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
                   QR
                 </div>
               )}

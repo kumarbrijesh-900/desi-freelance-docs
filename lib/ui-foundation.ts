@@ -69,7 +69,7 @@ export function getAppButtonClass(params?: {
       ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
       : variant === "destructive-lite"
       ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)]"
-      : "app-soft-button-secondary text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]"
+      : "app-soft-button-secondary border-[color:var(--border-subtle)] text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]"
   );
 }
 
@@ -82,12 +82,12 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[border-color,box-shadow] duration-[var(--app-duration-fast)] ease-[var(--app-ease-standard)] focus-visible:border-[color:var(--focus-ring)]",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[border-color,box-shadow] duration-[var(--app-duration-fast)] ease-[var(--app-ease-standard)] focus-visible:ring-2 focus-visible:ring-[#D4FF00] focus-visible:border-transparent",
     multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
-    "placeholder:text-[color:var(--text-soft)] placeholder:text-[13px] placeholder:opacity-50",
+    "placeholder:text-gray-400 placeholder:text-[13px] placeholder:opacity-100",
     "disabled:cursor-not-allowed disabled:border-[color:var(--border-subtle)] disabled:bg-[color:var(--bg-surface-muted)] disabled:text-[color:var(--text-soft)] disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError

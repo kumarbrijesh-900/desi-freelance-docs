@@ -21,8 +21,11 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
     <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:m-0 print:border-none">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
-           style={{ backgroundImage: 'radial-gradient(#111118 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#111118 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.01]" 
+           style={{ backgroundImage: 'repeating-linear-gradient(0deg, #111118 0, #111118 1px, transparent 0, transparent 40px)' }} />
       
       <div className="absolute top-[40%] -right-20 select-none pointer-events-none text-[320px] font-outfit font-black text-[#111118]/[0.01] -rotate-12 z-0">
         STUDIO
@@ -47,15 +50,15 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         <header className="flex justify-between mb-20">
           <div className="max-w-[250px]">
             <div className="w-[60px] h-[6px] bg-[#FF725E] mb-4" />
-            <div className="flex items-center justify-start h-20 w-64 mb-4">
+            <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-4 overflow-hidden">
               {data.agencyLogoUrl ? (
                 <img
                   src={data.agencyLogoUrl}
-                  alt="Logo"
+                  alt="Agency Logo"
                   className="max-h-full max-w-full object-contain object-left"
                 />
               ) : (
-                <div className="w-32 h-12 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
+                <div className="w-full h-full border border-dashed border-[#e8e6e1] bg-white/50 flex items-center justify-center text-[8px] font-extrabold text-[#A8A08E] uppercase tracking-[0.2em]">
                   Logo
                 </div>
               )}
@@ -189,11 +192,11 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   )}
                   <div>
                     <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">Scan to Pay</p>
-                    <div className="h-16 w-16 flex items-center justify-center">
+                    <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
                       {data.hasQrCode ? (
-                        <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                        <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
                       ) : (
-                        <div className="w-full h-full border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[8px] font-bold text-[#A8A08E] uppercase">
+                        <div className="w-full h-full border border-dashed border-[#e8e6e1] bg-[#FAF9F6] flex items-center justify-center text-[8px] font-extrabold text-[#A8A08E] uppercase tracking-widest">
                           QR
                         </div>
                       )}

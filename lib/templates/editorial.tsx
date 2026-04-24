@@ -30,6 +30,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'repeating-linear-gradient(45deg, #27272F 0, #27272F 1px, transparent 0, transparent 50%)', backgroundSize: '3px 3px' }} />
       
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#27272F 0.8px, transparent 0.8px)', backgroundSize: '20px 20px' }} />
+
+      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] bg-[#EEEBE5] rounded-full blur-[120px] opacity-20 z-0 pointer-events-none" />
+
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply" 
            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }} />
 
@@ -40,11 +45,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <header className="pb-6 pt-6">
         <div className="flex items-start justify-between gap-8">
           <div className="min-w-0">
-            <div className="flex items-center justify-start h-20 w-64 mb-4">
+            <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-4 overflow-hidden">
               {data.agencyLogoUrl ? (
-                <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left" />
+                <img src={data.agencyLogoUrl} alt="Agency Logo" className="max-h-full max-w-full object-contain object-left" />
               ) : (
-                <div className="w-32 h-10 border border-dashed border-[#D8D5CE] flex items-center justify-center text-[9px] uppercase tracking-[0.3em] text-[#999]">
+                <div className="w-full h-full border border-dashed border-[#D8D5CE] bg-white/40 flex items-center justify-center text-[8px] uppercase tracking-[0.3em] text-[#999] font-bold">
                   Logo
                 </div>
               )}
@@ -184,11 +189,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
 
           <div>
             <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">Scan to Pay</p>
-            <div className="mt-2 h-24 w-24 flex items-center justify-center">
+            <div className="mt-2 h-20 w-20 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
               ) : (
-                <div className="w-full h-full border border-dashed border-[#D8D5CE] flex items-center justify-center text-[9px] uppercase tracking-[0.2em] text-[#999]">
+                <div className="w-full h-full border border-dashed border-[#D8D5CE] bg-white/40 flex items-center justify-center text-[8px] uppercase tracking-[0.2em] text-[#999] font-bold">
                   QR
                 </div>
               )}

@@ -2200,7 +2200,7 @@ function EditorContent() {
                   : "Complete all sections to preview"
               }
               className={cn(
-                getAppButtonClass({ variant: "primary", size: "sm" }),
+                getAppButtonClass({ variant: "secondary", size: "sm" }),
                 "h-9 px-3.5 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
               )}
             >

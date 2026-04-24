@@ -39,7 +39,7 @@ export default function ChoiceCards<T extends string>({
       return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-[6px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
-          : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
+          : "app-soft-choice-option text-[color:var(--text-primary)] opacity-65 hover:opacity-100"
       }`;
     }
 
@@ -47,14 +47,14 @@ export default function ChoiceCards<T extends string>({
       return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-full border px-3 py-1.5 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
-          : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
+          : "app-soft-choice-option text-[color:var(--text-primary)] opacity-65 hover:opacity-100"
       }`;
     }
 
     return `block rounded-[var(--app-radius-card)] border px-4 py-3 transition ${
       isSelected
         ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
-        : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
+        : "app-soft-choice-option text-[color:var(--text-primary)] opacity-65 hover:opacity-100"
     }`;
   };
 

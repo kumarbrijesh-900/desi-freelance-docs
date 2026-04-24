@@ -29,8 +29,10 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")' }} />
       
-      <div className="absolute top-[40%] left-0 w-full h-[300px] opacity-[0.015] pointer-events-none z-0"
-           style={{ backgroundImage: 'radial-gradient(#C75B39 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#C75B39 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+      <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#C75B39]/[0.02] rounded-full blur-[140px] pointer-events-none z-0" />
 
       {/* ── Terracotta bar ────────────────────── */}
       <div className="relative z-10 h-[5px] w-full rounded-t-sm bg-[#C75B39] print:bg-[#999]" />
@@ -39,11 +41,11 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       <header className="rounded-b-lg bg-[#FFF8F3] px-5 py-5 print:bg-[#fafafa]">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <div className="flex items-center justify-start h-20 w-64 mb-3">
+            <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-3 overflow-hidden">
               {data.agencyLogoUrl ? (
-                <img src={data.agencyLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain object-left" />
+                <img src={data.agencyLogoUrl} alt="Agency Logo" className="max-h-full max-w-full object-contain object-left" />
               ) : (
-                <div className="w-32 h-10 border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
                   Logo
                 </div>
               )}
@@ -155,11 +157,11 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           )}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Scan to Pay</p>
-            <div className="mt-2 h-24 w-24 flex items-center justify-center">
+            <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="QR" className="max-h-full max-w-full object-contain object-center" />
+                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
               ) : (
-                <div className="w-full h-full border border-dashed border-[#E8D5C4] flex items-center justify-center text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
                   QR
                 </div>
               )}
