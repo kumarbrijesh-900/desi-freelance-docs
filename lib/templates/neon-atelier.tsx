@@ -54,8 +54,8 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 className="mb-4 max-h-12 w-auto object-contain"
               />
             ) : (
-              <div className="font-outfit text-[32px] font-black leading-none mb-3 tracking-tight">
-                {data.agencyName.toUpperCase()}
+              <div className="mb-4 w-32 h-12 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[10px] font-bold text-[#A8A08E] uppercase tracking-widest">
+                Logo
               </div>
             )}
             <div className="text-[11px] text-[#666] leading-relaxed space-y-1">
@@ -185,9 +185,16 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                       )}
                     </div>
                   )}
-                  {data.hasQrCode && (
-                    <img src={data.qrCodeUrl} alt="QR" className="mt-3 max-h-16 w-auto" />
-                  )}
+                  <div>
+                    <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">Scan to Pay</p>
+                    {data.hasQrCode ? (
+                      <img src={data.qrCodeUrl} alt="QR" className="mt-1 max-h-16 w-auto" />
+                    ) : (
+                      <div className="w-16 h-16 border-2 border-dashed border-[#e8e6e1] flex items-center justify-center text-[8px] font-bold text-[#A8A08E] uppercase">
+                        QR
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="mt-4">

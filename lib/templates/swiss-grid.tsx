@@ -42,8 +42,12 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header — Strict grid ─────────────── */}
       <header className="mt-4 grid gap-4 pb-4 md:grid-cols-[minmax(0,1fr)_200px]">
         <div className="min-w-0">
-          {data.agencyLogoUrl && (
+          {data.agencyLogoUrl ? (
             <img src={data.agencyLogoUrl} alt="Logo" className="mb-2 max-h-9 w-auto object-contain" />
+          ) : (
+            <div className="mb-2 w-24 h-9 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+              Logo
+            </div>
           )}
           <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-[#E63946] print:text-[#666]">
             Invoice From
@@ -189,12 +193,16 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
           )}
-          {data.hasQrCode && (
-            <div>
-              <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Scan</p>
+          <div>
+            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Scan</p>
+            {data.hasQrCode ? (
               <img src={data.qrCodeUrl} alt="QR" className="mt-1.5 max-h-24 w-auto" />
-            </div>
-          )}
+            ) : (
+              <div className="mt-1.5 w-24 h-24 border border-dashed border-[#A8DADC] flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+                QR
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Totals — precise alignment */}

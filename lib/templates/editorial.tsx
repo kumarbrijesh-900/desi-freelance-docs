@@ -43,7 +43,9 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
             {data.agencyLogoUrl ? (
               <img src={data.agencyLogoUrl} alt="Logo" className="mb-4 max-h-10 w-auto object-contain" />
             ) : (
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#999]">Invoice</p>
+              <div className="mb-4 w-32 h-10 border border-dashed border-[#D8D5CE] flex items-center justify-center text-[9px] uppercase tracking-[0.3em] text-[#999]">
+                Logo
+              </div>
             )}
             <p className="text-[11px] uppercase tracking-[0.25em] text-[#999]">Issued by</p>
             <h1 className="mt-1 font-['Georgia',_serif] text-[22px] font-normal italic leading-tight text-[#27272F]">
@@ -178,12 +180,16 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
             </div>
           )}
 
-          {data.hasQrCode && (
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">Scan to Pay</p>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">Scan to Pay</p>
+            {data.hasQrCode ? (
               <img src={data.qrCodeUrl} alt="QR" className="mt-2 max-h-24 w-auto" />
-            </div>
-          )}
+            ) : (
+              <div className="mt-2 w-24 h-24 border border-dashed border-[#D8D5CE] flex items-center justify-center text-[9px] uppercase tracking-[0.2em] text-[#999]">
+                QR
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right: Totals */}
