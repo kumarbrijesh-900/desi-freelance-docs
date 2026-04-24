@@ -102,7 +102,7 @@ export default function Home() {
 
   return (
     <main className={appPageShellClass}>
-      <AppHeader rightSlot={isLoggedIn ? <LogoutButton /> : null} />
+      <AppHeader />
 
       {/* ─── Hero ─── */}
       <section className={`${appPageContainerClass} relative overflow-hidden pt-20 pb-16 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32`}>
