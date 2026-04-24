@@ -209,41 +209,7 @@ export default function BriefIntakeCard({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-              <span
-                className={cn(
-                  "inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
-                  statusBadgeClass
-                )}
-              >
-                <motion.span
-                  aria-hidden="true"
-                  className="mr-1 inline-flex"
-                  animate={
-                    isExtracting
-                      ? { rotate: [0, 12, -10, 0], scale: [1, 1.08, 1] }
-                      : lastExtractionState === "success"
-                      ? { scale: [1, 1.08, 1] }
-                      : undefined
-                  }
-                  transition={{
-                    duration: isExtracting ? 0.9 : 0.55,
-                    repeat: isExtracting ? Number.POSITIVE_INFINITY : 0,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                >
-                  <SparklesIcon className="h-3.5 w-3.5" />
-                </motion.span>
-                {isExtracting
-                  ? "Extracting"
-                  : lastExtractionState === "success"
-                  ? "Autofill ready"
-                  : lastExtractionState === "error"
-                  ? "Needs more detail"
-                  : canExtract
-                  ? "Ready to extract"
-                  : "Waiting for input"}
-              </span>
+
 
               {!isCollapsed ? (
                 <MotionButton
@@ -257,7 +223,6 @@ export default function BriefIntakeCard({
                   )}
                 >
                   <ChevronUpIcon className="h-3.5 w-3.5" />
-                  Hide
                 </MotionButton>
               ) : null}
             </div>
@@ -275,11 +240,42 @@ export default function BriefIntakeCard({
             >
               <MotionReveal preset="soft">
                 <div className="space-y-2">
-                  <div className="flex flex-wrap items-end justify-between gap-3">
-                    <label className={appFieldLabelClass}>
-                      Brief
-                    </label>
 
+
+                  <textarea
+                    rows={4}
+                    value={briefText}
+                    onChange={(e) => {
+                      setBriefText(e.target.value);
+                      setLastExtractionState("idle");
+                    }}
+                    placeholder="Agency: Ashok Creative Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
+                    className={cn(
+                      getAppFieldClass({
+                        hasValue: Boolean(briefText),
+                        multiline: true,
+                      }),
+                      "min-h-[104px]"
+                    )}
+                  />
+
+                  {imageFiles.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {imageFiles.map((file) => (
+                        <span
+                          key={`${file.name}-${file.lastModified}`}
+                          className={cn(
+                            "inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-1 text-[11px] font-medium text-[color:var(--text-secondary)]"
+                          )}
+                        >
+                          <ClipboardCheckIcon className="h-3.5 w-3.5" />
+                          {file.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border-subtle)] pt-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <label
                         onDragOver={(event) => {
@@ -324,48 +320,13 @@ export default function BriefIntakeCard({
                         <MicrophoneIcon className="h-4 w-4" />
                         Voice
                       </MotionButton>
+
+                      {isExtracting || lastExtractionState !== "idle" ? (
+                        <p className="ml-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
+                          {statusCopy}
+                        </p>
+                      ) : null}
                     </div>
-                  </div>
-
-                  <textarea
-                    rows={4}
-                    value={briefText}
-                    onChange={(e) => {
-                      setBriefText(e.target.value);
-                      setLastExtractionState("idle");
-                    }}
-                    placeholder="Agency: Ashok Creative Studio. Client: Metro Shoes. Deliverable: Landing page UI design. Qty: 3. Rate: INR 12000 per screen. Payment terms: Net 15."
-                    className={cn(
-                      getAppFieldClass({
-                        hasValue: Boolean(briefText),
-                        multiline: true,
-                      }),
-                      "min-h-[104px]"
-                    )}
-                  />
-
-                  {imageFiles.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {imageFiles.map((file) => (
-                        <span
-                          key={`${file.name}-${file.lastModified}`}
-                          className={cn(
-                            "inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-1 text-[11px] font-medium text-[color:var(--text-secondary)]"
-                          )}
-                        >
-                          <ClipboardCheckIcon className="h-3.5 w-3.5" />
-                          {file.name}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border-subtle)] pt-2">
-                    {isExtracting || lastExtractionState !== "idle" ? (
-                      <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                        {statusCopy}
-                      </p>
-                    ) : <div />}
 
                     <MotionButton
                       type="button"
