@@ -135,6 +135,7 @@ General Rules:
 - If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
 - If a client is outside India, mark client.location as international.
 - SAC is a hint only. Use a 6-digit SAC if accurately matched; otherwise null.
+- **Strict Schema Adherence**: You MUST return the full JSON structure. If a field has no data, return `null` or `""` as appropriate. If no deliverables are found, you MUST return an empty array `[]` for 'deliverables'. NEVER omit keys from the JSON.
 - Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
 
 Few-Shot Example Context:

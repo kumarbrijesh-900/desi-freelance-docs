@@ -1531,6 +1531,8 @@ function EditorContent() {
   void handleClearDemoData;
 
   const handleBriefAutofill = async (input: BriefIntakeInput) => {
+    // 1. Wipe state immediately to prevent hybrid merge between subsequent extractions
+    setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
     setIsProcessingAutofill(true);
     try {
       let ocrText = "";
