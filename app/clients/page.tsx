@@ -65,7 +65,7 @@ function ClientForm({
   const [msaEffectiveDate, setMsaEffectiveDate] = useState(initial?.msa_effective_date || "");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(initial?.msa_payment_terms_days || 20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(initial?.msa_late_fee_rate || 1.5);
-  const [msaIpTriggerType, setMsaIpTriggerType] = useState(initial?.msa_ip_trigger_type || "upon_payment");
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState(initial?.msa_ip_trigger_type || "upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(initial?.msa_jurisdiction_city || "Bangalore");
   const [msaVersionLabel, setMsaVersionLabel] = useState(initial?.msa_version_label || "Standard MSA v1.2");
   const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState(initial?.msa_notes_boilerplate || "");
@@ -99,7 +99,7 @@ function ClientForm({
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
-      msaIpTriggerType,
+      msaIpTriggerType: msaIpTriggerType as ClientDetails["msaIpTriggerType"],
       msaJurisdictionCity,
       msaVersionLabel,
       msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,

@@ -76,7 +76,12 @@ export interface AgencyDetails {
   // MSA Defaults
   msaPaymentTermsDays?: number;
   msaLateFeeRate?: number;
-  msaIpTriggerType?: string;
+  msaIpTriggerType?:
+    | "upon_full_payment"
+    | "upon_signing"
+    | "upon_delivery"
+    | "proportional_transfer"
+    | "retained_by_creator";
   msaJurisdictionCity?: string;
 }
 

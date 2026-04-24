@@ -113,7 +113,7 @@ export default function ProfilePage() {
   // MSA Defaults
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
-  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_payment");
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
 
   // Load auth + profile
@@ -281,7 +281,7 @@ export default function ProfilePage() {
       signatureUrl,
       msaPaymentTermsDays,
       msaLateFeeRate,
-      msaIpTriggerType,
+      msaIpTriggerType: msaIpTriggerType as AgencyDetails["msaIpTriggerType"],
       msaJurisdictionCity,
     };
 

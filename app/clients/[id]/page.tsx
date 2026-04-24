@@ -217,7 +217,7 @@ export default function ClientDetailPage() {
   const [msaEffectiveDate, setMsaEffectiveDate] = useState("");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
-  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_payment");
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
   const [msaVersionLabel, setMsaVersionLabel] = useState("Standard Lance MSA v1.2");
   const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState("");
@@ -280,7 +280,7 @@ export default function ClientDetailPage() {
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
-      msaIpTriggerType,
+      msaIpTriggerType: msaIpTriggerType as ClientDetails["msaIpTriggerType"],
       msaJurisdictionCity,
       msaVersionLabel,
       msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,
