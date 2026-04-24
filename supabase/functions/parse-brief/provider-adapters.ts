@@ -11,136 +11,67 @@ const GROQ_TIMEOUT_MS = 30000;
 const GROK_TIMEOUT_MS = 30000;
 
 const JSON_SCHEMA_DESCRIPTION = `
-Return strict JSON with this shape. ALWAYS output the _scratchpad field first to reason through the data before filling the remaining fields!
+Return strict JSON with this shape. ALWAYS output the _thought_process field first to reason through the data before filling the remaining fields!
 {
-  "_scratchpad": "string (Think step-by-step about locations, tax rules, exact numbers from colloquial Indian slang, missing data, and ambiguities)",
-  "normalizedExtraction": {
-    "agency": {
-      "businessName": string|null,
-      "gstRegistered": boolean|null,
-      "gstin": string|null,
-      "pan": string|null,
-      "lutEnabled": boolean|null,
-      "lutNumber": string|null,
-      "addressLine1": string|null,
-      "addressLine2": string|null,
-      "city": string|null,
-      "state": string|null,
-      "pinCode": string|null,
-      "country": string|null
-    },
-    "client": {
-      "name": string|null,
-      "email": string|null,
-      "location": "domestic"|"international"|null,
-      "gstinOrTaxId": string|null,
-      "isSezUnit": boolean|null,
-      "country": string|null,
-      "addressLine1": string|null,
-      "addressLine2": string|null,
-      "city": string|null,
-      "state": string|null,
-      "pinCode": string|null,
-      "postalCode": string|null
-    },
-    "deliverables": [
-      {
-        "type": string|null,
-        "description": string|null,
-        "quantity": number|null,
-        "rate": number|null,
-        "unit": string|null,
-        "sacCode": string|null
-      }
-    ],
-    "payment": {
-      "terms": string|null,
-      "mode": string|null,
-      "accountName": string|null,
-      "bankName": string|null,
-      "bankAddress": string|null,
-      "accountNumber": string|null,
-      "ifscCode": string|null,
-      "swiftCode": string|null,
-      "ibanOrRouting": string|null
-    },
-    "meta": {
-      "invoiceNumber": string|null,
-      "invoiceDate": string|null,
-      "dueDate": string|null,
-      "currency": string|null,
-      "totalAmount": number|null
-    },
-    "taxHints": {
-      "treatment": "CGST_SGST"|"IGST"|"ZERO_RATED"|"NONE"|null,
-      "rate": number|null,
-      "domesticOrInternational": "domestic"|"international"|null,
-      "placeOfSupply": string|null,
-      "exportMentioned": boolean|null,
-      "sezMentioned": boolean|null,
-      "lutMentioned": boolean|null,
-      "ambiguity": string|null
-    }
+  "_thought_process": {
+    "identity_status": "guest | partial_data | full_data",
+    "gstin_logic": "Explain how you identified the client GSTIN vs agency GSTIN.",
+    "tax_logic": "Compare state codes to determine IGST vs CGST/SGST.",
+    "categorization_logic": "Explain SAC code choices."
   },
-  "confidence": {
-    "overall": "high"|"medium"|"low",
-    "fields": { "field.path": "high"|"medium"|"low" }
+  "is_guest": boolean,
+  "client_details": {
+    "client_id": "uuid if known, else null",
+    "is_new_client": boolean,
+    "name": "Proper Noun",
+    "gstin": "string or null",
+    "state_code": "2 digit string or null",
+    "is_international": boolean
   },
-  "missingFields": string[],
-  "clarificationQuestions": string[],
-  "warnings": string[]
+  "tax_determination": {
+    "tax_type": "IGST | CGST_SGST | LUT | NONE",
+    "tax_rate_percentage": 18
+  },
+  "msa_terms": {
+    "payment_terms": "string",
+    "ip_transfer_trigger": "string"
+  },
+  "line_items": [
+    { "description": "string", "sac_code": "string", "qty": number, "base_rate": number }
+  ]
 }
 `;
 
 function createPrompt(bundle: NormalizedParserBundle, resolverMode = false) {
   const { context } = bundle;
-  const isGuest = context?.isGuest ?? true;
-  const existingClients = context?.existingClients ?? [];
-
-  let contextInstructions = "";
-  if (isGuest) {
-    contextInstructions = `
-- **GUEST MODE ACTIVE**: Extract the invoice details. Apply standard generic MSA defaults (e.g., Net 15, retained IP).
-- You MUST include this flag in your internal reasoning and ensure the final JSON has metadata indicating guest mode if applicable (though the schema is strict).
-    `;
-  } else {
-    contextInstructions = `
-- **CONTEXT-AWARE HYDRATION ACTIVE**: You are provided with a list of the user's existing clients and their MSA defaults:
-${JSON.stringify(existingClients, null, 2)}
-- **Cross-Reference**: Compare the extracted client name against this list.
-- **Match Found**: If a match is found (even partial or fuzzy), return that exact Client ID in a 'clientId' field (if you can add it to the schema, or just note it in _scratchpad) and apply their specific MSA rules (Payment Terms, Late Fee, etc.).
-- **New Client**: If the client is not in the list, flag this in your _scratchpad as "is_new_client: true" and output standard default MSA terms.
-    `;
-  }
+  const databaseContext = context?.databaseContext ?? { user_state: "guest" };
 
   return `
-You are a highly intelligent, GST-aware freelance invoice parser trained for the Indian context.
+You are the "Autonomous Billing Engine" for Lance, a premium freelance platform.
+Your mission is to transform unstructured briefs into perfect, tax-compliant relational data.
 
-Parse the input bundle into invoice-ready structured data. Return JSON only. You must always use the _scratchpad first to reason about the extraction.
+DATABASE_CONTEXT (The User's Reality):
+${JSON.stringify(databaseContext, null, 2)}
 
-Context Instructions:
-${contextInstructions}
+Strict Reasoning Rules (Process these in _thought_process):
+1. **IDENTITY RESOLUTION**: Check the DATABASE_CONTEXT. Are you dealing with a guest, a registered user with a new client, or a registered user with a known client? Map to existing 'client_id' if known (fuzzy match client name).
+2. **GSTIN DISAMBIGUATION**: If multiple GSTINs are present in the text, cross-reference them with the Agency GSTIN in the DATABASE_CONTEXT to determine which belongs to the Agency and which belongs to the Client.
+3. **TAX GEOGRAPHY**: The first 2 digits of an Indian GSTIN represent the State Code. Compare the Agency State Code to the Client State Code. 
+   - Match = CGST/SGST.
+   - Differ = IGST.
+   - International = LUT (if client is outside India).
+4. **CATEGORIZATION**: Analyze the work and assign the correct SAC code:
+   - UX/UI / Product Design = 998314
+   - Web / App Development = 998313
+   - 3D / Motion / Video = 998315
+   - Branding / Strategy = 998311
+5. **MATH DELEGATION**: Extract the base rates and quantities perfectly. Do NOT calculate the final grand total with taxes. Default qty to 1 if not mentioned.
 
-General Rules:
-- Extract only grounded values. Never invent GSTIN, SAC, tax treatment, dates, or prices.
-- **Client Name**: Extract ONLY the official proper noun or registered business name. Ignore conversational descriptors like "their parent company", "the client", or "the agency".
-- **Line Items**: You MUST meticulously separate distinct deliverables into individual objects in the 'deliverables' array. Look for commas, semicolons, or "and" as separators for distinct work items.
-- **Quantities vs. Terms**: NEVER confuse payment term days (e.g., Net 15, 30 days) with item quantities. If a quantity is not explicitly stated for a deliverable, DEFAULT 'quantity' to 1. 
-- **Financial Accuracy**: Ensure the 'rate' maps perfectly to its specific deliverable description. If a lump sum is provided for multiple items, note this in the _scratchpad and distribute fairly or ask a clarification question.
-- **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun.
-- **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
-- **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
-- **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity, leave location fields blank and ask a 'clarificationQuestion'.
-- **Net Payment Terms**: If a client says "Net 15" or "pay me in a couple weeks", log "Net 15" or "14 Days" into payment.terms.
-- If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
-- If a client is outside India, mark client.location as international.
-- SAC is a hint only. Use a 6-digit SAC if accurately matched; otherwise null.
-- **Strict Schema Adherence**: You MUST return the full JSON structure. If a field has no data, return `null` or `""` as appropriate. If no deliverables are found, you MUST return an empty array `[]` for 'deliverables'. NEVER omit keys from the JSON.
-- Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
-
-Few-Shot Example Context:
-If input is: "I did a logo design for Metro Shoes in Bangalore for athraa hazaar. My agency is in Karnataka."
-Your _scratchpad should be: "Agency is in Karnataka. Client Metro Shoes is in Bangalore, which is also Karnataka. Same state means intra-state supply, so CGST_SGST applies. Rate is 'athraa hazaar' which translates to 18000 INR."
+General Extraction Rules:
+- **Client Name**: Extract ONLY the official proper noun. Ignore conversational descriptors.
+- **Line Items**: Meticulously separate distinct deliverables.
+- **Quantities vs. Terms**: NEVER confuse payment term days (e.g., Net 15) with item quantities.
+- **Strict Schema Adherence**: You MUST return the full JSON structure. Use explicit empty values (null, [], "") if data is missing.
 
 ${resolverMode ? "- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing." : ""}
 

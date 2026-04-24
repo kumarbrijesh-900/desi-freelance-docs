@@ -17,14 +17,7 @@ export type BriefParserSourceMetadata = {
 
 export type ParserInputContext = {
   isGuest: boolean;
-  existingClients?: Array<{
-    id: string;
-    name: string;
-    msaPaymentTermsDays: number;
-    msaLateFeeRate: number;
-    msaIpTriggerType: string;
-    msaJurisdictionCity: string;
-  }>;
+  databaseContext?: any;
 };
 
 export type BriefParserInputBundle = {

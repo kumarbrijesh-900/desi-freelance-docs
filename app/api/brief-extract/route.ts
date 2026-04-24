@@ -74,30 +74,45 @@ export async function POST(request: Request) {
     );
 
     const { data: { session } } = await supabase.auth.getSession();
-    let context = { isGuest: true, existingClients: [] as any[] };
+    
+    // ─── STEP 1: DEEP CONTEXT FETCH ───────────────────────────
+    let databaseContext: any = { user_state: "guest" };
 
     if (session?.user) {
-      // BRANCH A: Registered User
+      // Fetch Agency Profile
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("agency_name, city, state, gstin")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      // Fetch Clients
       const { data: clients } = await supabase
         .from("clients")
-        .select("id, client_name, msa_payment_terms_days, msa_late_fee_rate, msa_ip_trigger_type, msa_jurisdiction_city")
+        .select("id, client_name, gstin, state, country, msa_payment_terms_days, msa_late_fee_rate, msa_ip_trigger_type, msa_jurisdiction_city")
         .eq("user_id", session.user.id)
         .order("updated_at", { ascending: false });
 
-      context = {
-        isGuest: false,
-        existingClients: (clients ?? []).map(c => ({
+      databaseContext = {
+        user_state: "registered",
+        agency: {
+          name: profile?.agency_name || null,
+          location: profile?.state || profile?.city || null,
+          gstin: profile?.gstin || null,
+        },
+        existing_clients: (clients ?? []).map(c => ({
           id: c.id,
           name: c.client_name,
-          msaPaymentTermsDays: c.msa_payment_terms_days,
-          msaLateFeeRate: c.msa_late_fee_rate,
-          msaIpTriggerType: c.msa_ip_trigger_type,
-          msaJurisdictionCity: c.msa_jurisdiction_city,
+          gstin: c.gstin,
+          location: c.state || c.country || null,
+          msa: {
+            payment_terms: c.msa_payment_terms_days,
+            late_fee: c.msa_late_fee_rate,
+            ip_trigger: c.msa_ip_trigger_type,
+            jurisdiction: c.msa_jurisdiction_city,
+          }
         })),
       };
-    } else {
-      // BRANCH B: Guest Mode
-      context = { isGuest: true, existingClients: [] };
     }
 
     const input = normalizeBriefParserInput({
@@ -107,7 +122,10 @@ export async function POST(request: Request) {
       attachmentSummary: body?.attachmentSummary ?? "",
       documentId: body?.documentId,
       sourceMetadata: body?.sourceMetadata,
-      context, // Pass context to Edge Function
+      context: {
+        isGuest: !session?.user,
+        databaseContext, // Inject full reality
+      },
     });
 
     if (!input.combinedText.trim()) {
@@ -150,7 +168,7 @@ export async function POST(request: Request) {
       parser: {
         ...parserResult.response,
         legacyExtraction,
-        is_guest: context.isGuest, // Metadata for frontend
+        is_guest: !session?.user, // Metadata for frontend
       },
       available: Boolean(parserResult.response.providerUsed),
     };
