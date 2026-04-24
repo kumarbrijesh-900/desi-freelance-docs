@@ -335,364 +335,368 @@ export default function ClientDetailsSection({
           </div>
         </div>
 
-        {!isInternational ? (
-          <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-            <div className={appFieldPairGridClass}>
-              <div className="min-w-0">
-                <label className={appFieldLabelClass}>
-                  {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientGstin}
-                  onChange={(e) =>
-                    updateField(
-                      "clientGstin",
-                      e.target.value.toUpperCase().replace(/\s+/g, "")
-                    )
-                  }
-                  onBlur={() => markTouched("clientGstin")}
-                  placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  className={inputClass(
-                    clientGstinError,
-                    Boolean(value.clientGstin)
-                  )}
-                />
-                {clientGstinError ? (
-                  <p className={appFieldErrorTextClass}>
-                    {clientGstinError}
-                  </p>
-                ) : gstinInfo.state ? (
-                  <p className={appFieldHelperTextClass}>
-                    GSTIN state code maps to {gstinInfo.state}.
-                  </p>
-                ) : null}
-              </div>
-
-              <div>
-                <label className={appFieldLabelClass}>
-                  Client Email
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="email"
-                  value={value.clientEmail}
-                  onChange={(e) => updateField("clientEmail", e.target.value)}
-                  placeholder="Email address"
-                  className={inputClass(undefined, Boolean(value.clientEmail))}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className={appFieldLabelClass}>
-                SEZ Unit
-              </label>
-              <div className="max-w-[420px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  {(["yes", "no"] as const).map((option) => {
-                    const isSelected = value.isClientSezUnit === option;
-                    return (
-                      <label key={option} className="min-w-[92px] flex-1 cursor-pointer sm:flex-none">
-                        <input
-                          type="radio"
-                          name="client-sez-unit"
-                          value={option}
-                          checked={isSelected}
-                          onChange={() => updateField("isClientSezUnit", option)}
-                          className="peer sr-only"
-                        />
-                        <span
-                          className={cn(
-                            "app-focus-ring block border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
-                            isSelected
-                              ? "border-[color:var(--focus-ring)] bg-white text-[color:var(--text-primary)] shadow-[0_8px_16px_rgba(37,37,65,0.07)]"
-                              : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white"
-                          )}
-                        >
-                          {option === "yes" ? "Yes" : "No"}
-                        </span>
-                      </label>
-                    );
-                  })}
-                  <label className="cursor-pointer">
-                    <input
-                      type="radio"
-                      name="client-sez-unit"
-                      value="not-sure"
-                      checked={value.isClientSezUnit === "not-sure"}
-                      onChange={() => updateField("isClientSezUnit", "not-sure")}
-                      className="peer sr-only"
-                    />
-                    <span
-                      className={cn(
-                        "app-focus-ring inline-flex min-h-9 items-center border px-3 text-[12px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
-                        value.isClientSezUnit === "not-sure"
-                          ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
-                          : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]"
-                      )}
-                    >
-                      Not sure
-                    </span>
-                  </label>
-                </div>
-                <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
-                  This affects GST treatment for SEZ supplies.
-                </p>
-              </div>
-              {sezSuggestion ? (
-                <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                  This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
-                </p>
-              ) : null}
-            </div>
-
-            <div className={appFieldFullWidthStackClass}>
-              <div>
-                <label className={appFieldLabelClass}>
-                  Address Line 1 *
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientAddressLine1}
-                  onChange={(e) => updateField("clientAddressLine1", e.target.value)}
-                  onBlur={() => markTouched("clientAddress")}
-                  placeholder="Building, street, or campus name"
-                  className={inputClass(
-                    clientAddressError,
-                    Boolean(value.clientAddressLine1)
-                  )}
-                />
-              </div>
-
-              <div>
-                <label className={appFieldLabelClass}>
-                  Address Line 2
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientAddressLine2}
-                  onChange={(e) => updateField("clientAddressLine2", e.target.value)}
-                  placeholder="Suite, floor, landmark, or optional line"
-                  className={inputClass(undefined, Boolean(value.clientAddressLine2))}
-                />
-              </div>
-
-              <div className={appFieldTripleCompactGridClass}>
+        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+          <div className="overflow-hidden">
+            <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+              <div className={appFieldPairGridClass}>
                 <div className="min-w-0">
-                <label className={appFieldLabelClass}>
-                  State *
-                </label>
-                <AppSelectField
-                  suppressHydrationWarning
-                  aria-label="Client state"
-                  value={value.clientState}
-                  onChange={(e) =>
-                    updateField(
-                      "clientState",
-                      e.target.value as ClientDetails["clientState"]
-                    )
-                  }
-                  onBlur={() => markTouched("clientState")}
-                  hasError={clientStateError}
-                  hasValue={Boolean(value.clientState)}
-                >
-                  <option value="">Select state or union territory</option>
-                  {INDIA_STATE_OPTIONS.map((stateName) => (
-                    <option key={stateName} value={stateName}>
-                      {stateName}
-                    </option>
-                    ))}
-                  </AppSelectField>
+                  <label className={appFieldLabelClass}>
+                    {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientGstin}
+                    onChange={(e) =>
+                      updateField(
+                        "clientGstin",
+                        e.target.value.toUpperCase().replace(/\s+/g, "")
+                      )
+                    }
+                    onBlur={() => markTouched("clientGstin")}
+                    placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    className={inputClass(
+                      clientGstinError,
+                      Boolean(value.clientGstin)
+                    )}
+                  />
+                  {clientGstinError ? (
+                    <p className={appFieldErrorTextClass}>
+                      {clientGstinError}
+                    </p>
+                  ) : gstinInfo.state ? (
+                    <p className={appFieldHelperTextClass}>
+                      GSTIN state code maps to {gstinInfo.state}.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
-                <label className={appFieldLabelClass}>
-                  City
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientCity}
-                  onChange={(e) => updateField("clientCity", e.target.value)}
-                  placeholder="Bengaluru"
-                  className={inputClass(undefined, Boolean(value.clientCity))}
-                />
-                </div>
-
-                <div className="min-w-0">
-                <label className={appFieldLabelClass}>
-                  PIN Code
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  inputMode="numeric"
-                  value={value.clientPinCode}
-                  onChange={(e) =>
-                    updateField(
-                      "clientPinCode",
-                      e.target.value.replace(/\D/g, "").slice(0, 6)
-                    )
-                  }
-                    placeholder="560048"
-                    className={inputClass(undefined, Boolean(value.clientPinCode))}
+                  <label className={appFieldLabelClass}>
+                    Client Email
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="email"
+                    value={value.clientEmail}
+                    onChange={(e) => updateField("clientEmail", e.target.value)}
+                    placeholder="Email address"
+                    className={inputClass(undefined, Boolean(value.clientEmail))}
                   />
                 </div>
               </div>
-            </div>
 
-            {clientAddressError ? (
-              <p className={appFieldErrorTextClass}>
-                {clientAddressError}
-              </p>
-            ) : null}
-            {clientStateError ? (
-              <p className={appFieldErrorTextClass}>
-                {clientStateError}
-              </p>
-            ) : null}
-            {stateSignals.warning ? (
-              <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                {stateSignals.warning}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        {isInternational ? (
-          <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-            <div className={appFieldPairGridClass}>
-              <div className="min-w-0">
+              <div>
                 <label className={appFieldLabelClass}>
-                  Country *
+                  SEZ Unit
                 </label>
-                <AppSelectField
-                  suppressHydrationWarning
-                  aria-label="Client country"
-                  value={value.clientCountry}
-                  onChange={(e) =>
-                    updateField(
-                      "clientCountry",
-                      e.target.value as ClientDetails["clientCountry"]
-                    )
-                  }
-                  onBlur={() => markTouched("clientCountry")}
-                  hasError={clientCountryError}
-                  hasValue={Boolean(value.clientCountry)}
-                >
-                  <option value="">Select country</option>
-                  {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
-                    <option key={countryName} value={countryName}>
-                      {countryName}
-                    </option>
-                  ))}
-                </AppSelectField>
-                {clientCountryError ? (
-                  <p className={appFieldErrorTextClass}>
-                    {clientCountryError}
+                <div className="max-w-[420px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {(["yes", "no"] as const).map((option) => {
+                      const isSelected = value.isClientSezUnit === option;
+                      return (
+                        <label key={option} className="min-w-[92px] flex-1 cursor-pointer sm:flex-none">
+                          <input
+                            type="radio"
+                            name="client-sez-unit"
+                            value={option}
+                            checked={isSelected}
+                            onChange={() => updateField("isClientSezUnit", option)}
+                            className="peer sr-only"
+                          />
+                          <span
+                            className={cn(
+                              "app-focus-ring block border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+                              isSelected
+                                ? "border-[color:var(--focus-ring)] bg-white text-[color:var(--text-primary)] shadow-[0_8px_16px_rgba(37,37,65,0.07)]"
+                                : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white"
+                            )}
+                          >
+                            {option === "yes" ? "Yes" : "No"}
+                          </span>
+                        </label>
+                      );
+                    })}
+                    <label className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name="client-sez-unit"
+                        value="not-sure"
+                        checked={value.isClientSezUnit === "not-sure"}
+                        onChange={() => updateField("isClientSezUnit", "not-sure")}
+                        className="peer sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "app-focus-ring inline-flex min-h-9 items-center border px-3 text-[12px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+                          value.isClientSezUnit === "not-sure"
+                            ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
+                            : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]"
+                        )}
+                      >
+                        Not sure
+                      </span>
+                    </label>
+                  </div>
+                  <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
+                    This affects GST treatment for SEZ supplies.
+                  </p>
+                </div>
+                {sezSuggestion ? (
+                  <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--text-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                    This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
                   </p>
                 ) : null}
               </div>
 
-              <div className="min-w-0">
-                <label className={appFieldLabelClass}>
-                  Currency
-                </label>
-                <AppSelectField
-                  suppressHydrationWarning
-                  aria-label="Client currency"
-                  value={value.clientCurrency}
-                  onChange={(e) =>
-                    updateField(
-                      "clientCurrency",
-                      e.target.value as ClientDetails["clientCurrency"]
-                    )
-                  }
-                  hasValue={Boolean(value.clientCurrency)}
-                >
-                  <option value="">Keep INR as primary (default)</option>
-                  {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
-                    <option
-                      key={currencyOption.code}
-                      value={currencyOption.code}
-                    >
-                      {currencyOption.label}
-                    </option>
-                  ))}
-                </AppSelectField>
-              </div>
-            </div>
+              <div className={appFieldFullWidthStackClass}>
+                <div>
+                  <label className={appFieldLabelClass}>
+                    Address Line 1 *
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientAddressLine1}
+                    onChange={(e) => updateField("clientAddressLine1", e.target.value)}
+                    onBlur={() => markTouched("clientAddress")}
+                    placeholder="Building, street, or campus name"
+                    className={inputClass(
+                      clientAddressError,
+                      Boolean(value.clientAddressLine1)
+                    )}
+                  />
+                </div>
 
-            <div>
-              <label className={appFieldLabelClass}>
-                Full Address *
-              </label>
-              <textarea
-                suppressHydrationWarning
-                rows={4}
-                value={value.clientAddress}
-                onChange={(e) => updateField("clientAddress", e.target.value)}
-                onBlur={() => markTouched("clientAddress")}
-                placeholder="Full international billing address"
-                className={inputClass(
-                  clientAddressError,
-                  Boolean(value.clientAddress),
-                  true
-                )}
-              />
+                <div>
+                  <label className={appFieldLabelClass}>
+                    Address Line 2
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientAddressLine2}
+                    onChange={(e) => updateField("clientAddressLine2", e.target.value)}
+                    placeholder="Suite, floor, landmark, or optional line"
+                    className={inputClass(undefined, Boolean(value.clientAddressLine2))}
+                  />
+                </div>
+
+                <div className={appFieldTripleCompactGridClass}>
+                  <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    State *
+                  </label>
+                  <AppSelectField
+                    suppressHydrationWarning
+                    aria-label="Client state"
+                    value={value.clientState}
+                    onChange={(e) =>
+                      updateField(
+                        "clientState",
+                        e.target.value as ClientDetails["clientState"]
+                      )
+                    }
+                    onBlur={() => markTouched("clientState")}
+                    hasError={clientStateError}
+                    hasValue={Boolean(value.clientState)}
+                  >
+                    <option value="">Select state or union territory</option>
+                    {INDIA_STATE_OPTIONS.map((stateName) => (
+                      <option key={stateName} value={stateName}>
+                        {stateName}
+                      </option>
+                      ))}
+                    </AppSelectField>
+                  </div>
+
+                  <div>
+                  <label className={appFieldLabelClass}>
+                    City
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientCity}
+                    onChange={(e) => updateField("clientCity", e.target.value)}
+                    placeholder="Bengaluru"
+                    className={inputClass(undefined, Boolean(value.clientCity))}
+                  />
+                  </div>
+
+                  <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    PIN Code
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    inputMode="numeric"
+                    value={value.clientPinCode}
+                    onChange={(e) =>
+                      updateField(
+                        "clientPinCode",
+                        e.target.value.replace(/\D/g, "").slice(0, 6)
+                      )
+                    }
+                      placeholder="560048"
+                      className={inputClass(undefined, Boolean(value.clientPinCode))}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {clientAddressError ? (
                 <p className={appFieldErrorTextClass}>
                   {clientAddressError}
                 </p>
               ) : null}
+              {clientStateError ? (
+                <p className={appFieldErrorTextClass}>
+                  {clientStateError}
+                </p>
+              ) : null}
+              {stateSignals.warning ? (
+                <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                  {stateSignals.warning}
+                </p>
+              ) : null}
             </div>
+          </div>
+        </div>
 
-            <div className={appFieldPairGridClass}>
-              <div className="min-w-0">
-                <label className={appFieldLabelClass}>
-                  Postal Code
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientPostalCode}
-                  onChange={(e) => updateField("clientPostalCode", e.target.value)}
-                  placeholder="Postal / ZIP code"
-                  className={inputClass(undefined, Boolean(value.clientPostalCode))}
-                />
+        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+          <div className="overflow-hidden">
+            <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+              <div className={appFieldPairGridClass}>
+                <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    Country *
+                  </label>
+                  <AppSelectField
+                    suppressHydrationWarning
+                    aria-label="Client country"
+                    value={value.clientCountry}
+                    onChange={(e) =>
+                      updateField(
+                        "clientCountry",
+                        e.target.value as ClientDetails["clientCountry"]
+                      )
+                    }
+                    onBlur={() => markTouched("clientCountry")}
+                    hasError={clientCountryError}
+                    hasValue={Boolean(value.clientCountry)}
+                  >
+                    <option value="">Select country</option>
+                    {INTERNATIONAL_COUNTRY_OPTIONS.map((countryName) => (
+                      <option key={countryName} value={countryName}>
+                        {countryName}
+                      </option>
+                    ))}
+                  </AppSelectField>
+                  {clientCountryError ? (
+                    <p className={appFieldErrorTextClass}>
+                      {clientCountryError}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    Currency
+                  </label>
+                  <AppSelectField
+                    suppressHydrationWarning
+                    aria-label="Client currency"
+                    value={value.clientCurrency}
+                    onChange={(e) =>
+                      updateField(
+                        "clientCurrency",
+                        e.target.value as ClientDetails["clientCurrency"]
+                      )
+                    }
+                    hasValue={Boolean(value.clientCurrency)}
+                  >
+                    <option value="">Keep INR as primary (default)</option>
+                    {INTERNATIONAL_CURRENCY_OPTIONS.map((currencyOption) => (
+                      <option
+                        key={currencyOption.code}
+                        value={currencyOption.code}
+                      >
+                        {currencyOption.label}
+                      </option>
+                    ))}
+                  </AppSelectField>
+                </div>
               </div>
 
-              <div className="min-w-0">
+              <div>
                 <label className={appFieldLabelClass}>
-                  {agency ? getClientTaxIdLabel(value, agency) : "Tax Identification Number"}
+                  Full Address *
                 </label>
-                <input
+                <textarea
                   suppressHydrationWarning
-                  type="text"
-                  value={value.clientGstin}
-                  onChange={(e) => updateField("clientGstin", e.target.value)}
-                  onBlur={() => markTouched("clientGstin")}
-                  placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / EIN / tax ID"}
+                  rows={4}
+                  value={value.clientAddress}
+                  onChange={(e) => updateField("clientAddress", e.target.value)}
+                  onBlur={() => markTouched("clientAddress")}
+                  placeholder="Full international billing address"
                   className={inputClass(
-                    clientGstinError,
-                    Boolean(value.clientGstin)
+                    clientAddressError,
+                    Boolean(value.clientAddress),
+                    true
                   )}
                 />
-                {clientGstinError ? (
+                {clientAddressError ? (
                   <p className={appFieldErrorTextClass}>
-                    {clientGstinError}
+                    {clientAddressError}
                   </p>
                 ) : null}
               </div>
+
+              <div className={appFieldPairGridClass}>
+                <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    Postal Code
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientPostalCode}
+                    onChange={(e) => updateField("clientPostalCode", e.target.value)}
+                    placeholder="Postal / ZIP code"
+                    className={inputClass(undefined, Boolean(value.clientPostalCode))}
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <label className={appFieldLabelClass}>
+                    {agency ? getClientTaxIdLabel(value, agency) : "Tax Identification Number"}
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.clientGstin}
+                    onChange={(e) => updateField("clientGstin", e.target.value)}
+                    onBlur={() => markTouched("clientGstin")}
+                    placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / EIN / tax ID"}
+                    className={inputClass(
+                      clientGstinError,
+                      Boolean(value.clientGstin)
+                    )}
+                  />
+                  {clientGstinError ? (
+                    <p className={appFieldErrorTextClass}>
+                      {clientGstinError}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
-        ) : null}
+        </div>
         {/* Master Services Agreement (MSA) Defaults */}
         <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
           <div className="mb-2">

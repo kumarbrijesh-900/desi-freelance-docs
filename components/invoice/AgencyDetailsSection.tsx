@@ -237,166 +237,176 @@ export default function AgencyDetailsSection({
               />
               </div>
 
-              {showGstinField && (
-                <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-                  <div className={appFieldPairGridClass}>
-                    <div>
-                      <label className={appFieldLabelClass}>
-                        GSTIN
-                      </label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        aria-label="Agency GSTIN"
-                        value={value.gstin}
-                        onChange={(e) =>
-                          updateField(
-                            "gstin",
-                            e.target.value.toUpperCase().replace(/\s+/g, "")
-                          )
-                        }
-                        onBlur={() => markTouched("gstin")}
-                        placeholder="GSTIN"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        className={inputClass(gstinError, Boolean(value.gstin))}
-                      />
-                      {gstinError ? (
-                        <p className={appFieldErrorTextClass}>
-                          {gstinError}
-                        </p>
-                      ) : gstinInfo.state ? (
-                        <p className={appFieldHelperTextClass}>
-                          GSTIN state code maps to {gstinInfo.state}. PAN will
-                          be derived automatically when blank.
-                        </p>
-                      ) : null}
-                    </div>
+              <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showGstinField ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                <div className="overflow-hidden">
+                  <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+                    <div className={appFieldPairGridClass}>
+                      <div>
+                        <label className={appFieldLabelClass}>
+                          GSTIN
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          aria-label="Agency GSTIN"
+                          value={value.gstin}
+                          onChange={(e) =>
+                            updateField(
+                              "gstin",
+                              e.target.value.toUpperCase().replace(/\s+/g, "")
+                            )
+                          }
+                          onBlur={() => markTouched("gstin")}
+                          placeholder="GSTIN"
+                          autoCapitalize="characters"
+                          spellCheck={false}
+                          className={inputClass(gstinError, Boolean(value.gstin))}
+                        />
+                        {gstinError ? (
+                          <p className={appFieldErrorTextClass}>
+                            {gstinError}
+                          </p>
+                        ) : gstinInfo.state ? (
+                          <p className={appFieldHelperTextClass}>
+                            GSTIN state code maps to {gstinInfo.state}. PAN will
+                            be derived automatically when blank.
+                          </p>
+                        ) : null}
+                      </div>
 
-                    <div>
-                      <label className={appFieldLabelClass}>
-                        PAN
-                      </label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={value.pan}
-                        onChange={(e) =>
-                          updateField(
-                            "pan",
-                            e.target.value.toUpperCase().replace(/\s+/g, "")
-                          )
-                        }
-                        onBlur={() => markTouched("pan")}
-                        placeholder="PAN"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        className={inputClass(panError, Boolean(value.pan))}
-                      />
-                      {panError ? (
-                        <p className={appFieldErrorTextClass}>
-                          {panError}
-                        </p>
-                      ) : panConflictWarning ? (
-                        <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                          {panConflictWarning}
-                        </p>
-                      ) : null}
+                      <div>
+                        <label className={appFieldLabelClass}>
+                          PAN
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.pan}
+                          onChange={(e) =>
+                            updateField(
+                              "pan",
+                              e.target.value.toUpperCase().replace(/\s+/g, "")
+                            )
+                          }
+                          onBlur={() => markTouched("pan")}
+                          placeholder="PAN"
+                          autoCapitalize="characters"
+                          spellCheck={false}
+                          className={inputClass(panError, Boolean(value.pan))}
+                        />
+                        {panError ? (
+                          <p className={appFieldErrorTextClass}>
+                            {panError}
+                          </p>
+                        ) : panConflictWarning ? (
+                          <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                            {panConflictWarning}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {showLutSection && (
-                <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-                  <label className={appFieldLabelClass}>
-                    Valid LUT for current financial year?
-                  </label>
-                  <ChoiceCards
-                    name="agency-lut-availability"
-                    value={value.lutAvailability}
-                    onChange={(nextValue) =>
-                      updateField("lutAvailability", nextValue)
-                    }
-                    variant="segmented"
-                    columns={2}
-                    options={[
-                      {
-                        value: "yes",
-                        label: "Yes",
-                      },
-                      {
-                        value: "no",
-                        label: "No",
-                      },
-                    ]}
-                  />
+              <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showLutSection ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                <div className="overflow-hidden">
+                  <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+                    <label className={appFieldLabelClass}>
+                      Valid LUT for current financial year?
+                    </label>
+                    <ChoiceCards
+                      name="agency-lut-availability"
+                      value={value.lutAvailability}
+                      onChange={(nextValue) =>
+                        updateField("lutAvailability", nextValue)
+                      }
+                      variant="segmented"
+                      columns={2}
+                      options={[
+                        {
+                          value: "yes",
+                          label: "Yes",
+                        },
+                        {
+                          value: "no",
+                          label: "No",
+                        },
+                      ]}
+                    />
 
-                  {value.lutAvailability === "yes" && (
-                    <div className="max-w-[220px]">
-                      <label className={appFieldLabelClass}>
-                        LUT Number / ARN
-                      </label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={value.lutNumber}
-                        onChange={(e) =>
-                          updateField("lutNumber", e.target.value)
-                        }
-                        placeholder="Recommended, not mandatory"
-                        className={inputClass(
-                          undefined,
-                          Boolean(value.lutNumber)
-                        )}
-                      />
+                    <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${value.lutAvailability === "yes" ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                      <div className="overflow-hidden">
+                        <div className="max-w-[220px] pt-4">
+                          <label className={appFieldLabelClass}>
+                            LUT Number / ARN
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.lutNumber}
+                            onChange={(e) =>
+                              updateField("lutNumber", e.target.value)
+                            }
+                            placeholder="Recommended, not mandatory"
+                            className={inputClass(
+                              undefined,
+                              Boolean(value.lutNumber)
+                            )}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  {showNoLutTotalsNote && (
-                    <div className={cn(getAppSubtlePanelClass(), "mt-4 px-3 py-2")}>
-                      <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                        This only affects export tax handling later if the client
-                        invoice is international.
-                      </p>
+                    <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showNoLutTotalsNote ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                      <div className="overflow-hidden">
+                        <div className={cn(getAppSubtlePanelClass(), "mt-4 px-3 py-2")}>
+                          <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
+                            This only affects export tax handling later if the client
+                            invoice is international.
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            {!showGstinField ? (
-              <div className="w-full md:max-w-[240px]">
-              <label className={appFieldLabelClass}>
-                PAN
-              </label>
-              <input
-                suppressHydrationWarning
-                type="text"
-                value={value.pan}
-                onChange={(e) =>
-                  updateField(
-                    "pan",
-                    e.target.value.toUpperCase().replace(/\s+/g, "")
-                  )
-                }
-                onBlur={() => markTouched("pan")}
-                placeholder="PAN"
-                autoCapitalize="characters"
-                spellCheck={false}
-                className={inputClass(panError, Boolean(value.pan))}
-              />
-              {panError ? (
-                <p className={appFieldErrorTextClass}>
-                  {panError}
-                </p>
-              ) : panConflictWarning ? (
-                <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                  {panConflictWarning}
-                </p>
-              ) : null}
+            <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!showGstinField ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+              <div className="overflow-hidden">
+                <div className="w-full md:max-w-[240px] pt-4">
+                  <label className={appFieldLabelClass}>
+                    PAN
+                  </label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.pan}
+                    onChange={(e) =>
+                      updateField(
+                        "pan",
+                        e.target.value.toUpperCase().replace(/\s+/g, "")
+                      )
+                    }
+                    onBlur={() => markTouched("pan")}
+                    placeholder="PAN"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    className={inputClass(panError, Boolean(value.pan))}
+                  />
+                  {panError ? (
+                    <p className={appFieldErrorTextClass}>
+                      {panError}
+                    </p>
+                  ) : panConflictWarning ? (
+                    <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                      {panConflictWarning}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </div>
-            ) : null}
 
             {/* Business Name */}
             <div>

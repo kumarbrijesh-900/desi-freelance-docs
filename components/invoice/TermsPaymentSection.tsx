@@ -317,57 +317,60 @@ export default function TermsPaymentSection({
         ) : null}
 
         <div className={appFieldFullWidthStackClass}>
-          {isInternational ? (
-            <div className="space-y-1.5" data-testid="payment-settlement-control">
-              <label className={appFieldLabelClass}>
-                Settlement Type
-              </label>
-              <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1">
-                {[
-                  { value: "forex", label: "Forex" },
-                  { value: "inr", label: "INR" },
-                  { value: "unknown", label: "Not sure" },
-                ].map((option) => {
-                  const isSelected =
-                    value.paymentSettlementType === option.value;
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="space-y-1.5 pb-4" data-testid="payment-settlement-control">
+                <label className={appFieldLabelClass}>
+                  Settlement Type
+                </label>
+                <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1">
+                  {[
+                    { value: "forex", label: "Forex" },
+                    { value: "inr", label: "INR" },
+                    { value: "unknown", label: "Not sure" },
+                  ].map((option) => {
+                    const isSelected =
+                      value.paymentSettlementType === option.value;
 
-                  return (
-                    <label key={option.value} className="block cursor-pointer">
-                      <input
-                        type="radio"
-                        name="payment-settlement-type"
-                        value={option.value}
-                        checked={value.paymentSettlementType === option.value}
-                        onChange={() =>
-                          updateField(
-                            "paymentSettlementType",
-                            option.value as PaymentDetails["paymentSettlementType"]
-                          )
-                        }
-                        className="sr-only"
-                      />
-                      <span
-                        className={cn(
-                          "flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
-                          isSelected
-                            ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
-                            : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
-                        )}
-                      >
-                        {option.label}
-                      </span>
-                    </label>
-                  );
-                })}
+                    return (
+                      <label key={option.value} className="block cursor-pointer">
+                        <input
+                          type="radio"
+                          name="payment-settlement-type"
+                          value={option.value}
+                          checked={value.paymentSettlementType === option.value}
+                          onChange={() =>
+                            updateField(
+                              "paymentSettlementType",
+                              option.value as PaymentDetails["paymentSettlementType"]
+                            )
+                          }
+                          className="sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]",
+                            isSelected
+                              ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
+                              : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
+                          )}
+                        >
+                          {option.label}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${value.paymentSettlementType && value.paymentSettlementType !== "forex" ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                  <div className="overflow-hidden">
+                    <p className="pt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
+                      Confirm the settlement route before final delivery.
+                    </p>
+                  </div>
+                </div>
               </div>
-              {value.paymentSettlementType &&
-              value.paymentSettlementType !== "forex" ? (
-                <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                  Confirm the settlement route before final delivery.
-                </p>
-              ) : null}
             </div>
-          ) : null}
+          </div>
 
           <div className="w-full md:max-w-[288px]">
             <label className={appFieldLabelClass}>
@@ -427,59 +430,67 @@ export default function TermsPaymentSection({
               />
             </div>
 
-            {showLicenseFields ? (
-              <div>
-                <label className={appFieldLabelClass}>
-                  License Type *
-                </label>
-                <ChoiceCards
-                  name="license-type"
-                  value={value.license.licenseType}
-                  onChange={(nextValue) =>
-                    updateLicenseField("licenseType", nextValue as LicenseType)
-                  }
-                  variant="inline"
-                  options={[
-                    { label: "Full assignment", value: "full-assignment" },
-                    { label: "Exclusive", value: "exclusive-license" },
-                    { label: "Non-exclusive", value: "non-exclusive-license" },
-                  ]}
-                />
-              </div>
-            ) : null}
+            <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showLicenseFields ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+              <div className="overflow-hidden">
+                <div className="space-y-4 pt-3">
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      License Type *
+                    </label>
+                    <ChoiceCards
+                      name="license-type"
+                      value={value.license.licenseType}
+                      onChange={(nextValue) =>
+                        updateLicenseField("licenseType", nextValue as LicenseType)
+                      }
+                      variant="inline"
+                      options={[
+                        { label: "Full assignment", value: "full-assignment" },
+                        { label: "Exclusive", value: "exclusive-license" },
+                        { label: "Non-exclusive", value: "non-exclusive-license" },
+                      ]}
+                    />
+                  </div>
 
-            {showLicenseFields && showLicenseDuration ? (
-              <div className="max-w-[260px]">
-                <label className={appFieldLabelClass}>
-                  License Duration *
-                </label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.license.licenseDuration}
-                  onChange={(e) =>
-                    updateLicenseField("licenseDuration", e.target.value)
-                  }
-                  onBlur={() => markTouched("licenseDuration")}
-                  placeholder="Example: 3 years"
-                  className={inputClass(
-                    licenseDurationError,
-                    Boolean(value.license.licenseDuration)
-                  )}
-                />
-                {licenseDurationError ? (
-                  <p className={appFieldErrorTextClass}>
-                    {licenseDurationError}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
+                  <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showLicenseDuration ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                    <div className="overflow-hidden">
+                      <div className="max-w-[260px] pt-1">
+                        <label className={appFieldLabelClass}>
+                          License Duration *
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.license.licenseDuration}
+                          onChange={(e) =>
+                            updateLicenseField("licenseDuration", e.target.value)
+                          }
+                          onBlur={() => markTouched("licenseDuration")}
+                          placeholder="Example: 3 years"
+                          className={inputClass(
+                            licenseDurationError,
+                            Boolean(value.license.licenseDuration)
+                          )}
+                        />
+                        {licenseDurationError ? (
+                          <p className={appFieldErrorTextClass}>
+                            {licenseDurationError}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
 
-            {showLicenseFields && value.license.licenseType ? (
-              <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                {licenseExplanation}
-              </p>
-            ) : null}
+                  <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${value.license.licenseType ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                    <div className="overflow-hidden">
+                      <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
+                        {licenseExplanation}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -496,137 +507,162 @@ export default function TermsPaymentSection({
             />
           </div>
 
-          {!isInternational ? (
-            <div className="space-y-4">
-              <div className={appFieldPairGridClass}>
-                <div>
-                  <label className={appFieldLabelClass}>
-                    Bank Name
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.bankName}
-                    onChange={(e) => updateField("bankName", e.target.value)}
-                    onBlur={() => markTouched("bankName")}
-                    placeholder="Bank name"
-                    className={inputClass(bankNameError, Boolean(value.bankName))}
-                  />
-                  {bankNameError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {bankNameError}
-                    </p>
-                  ) : null}
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="space-y-4 pt-4">
+                <div className={appFieldPairGridClass}>
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Bank Name
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.bankName}
+                      onChange={(e) => updateField("bankName", e.target.value)}
+                      onBlur={() => markTouched("bankName")}
+                      placeholder="Bank name"
+                      className={inputClass(bankNameError, Boolean(value.bankName))}
+                    />
+                    {bankNameError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {bankNameError}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Account Name
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.accountName}
+                      onChange={(e) => updateField("accountName", e.target.value)}
+                      onBlur={() => markTouched("accountName")}
+                      placeholder="Name as per bank account"
+                      className={inputClass(
+                        accountNameError,
+                        Boolean(value.accountName)
+                      )}
+                    />
+                    {accountNameError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {accountNameError}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Account Number
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.accountNumber}
+                      onChange={(e) => updateField("accountNumber", e.target.value)}
+                      onBlur={() => markTouched("accountNumber")}
+                      placeholder="Bank account number"
+                      className={inputClass(
+                        accountNumberError,
+                        Boolean(value.accountNumber)
+                      )}
+                    />
+                    {accountNumberError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {accountNumberError}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      IFSC Code
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.ifscCode}
+                      onChange={(e) => updateField("ifscCode", e.target.value)}
+                      onBlur={() => markTouched("ifscCode")}
+                      placeholder="Bank IFSC code"
+                      className={inputClass(
+                        ifscCodeError,
+                        Boolean(value.ifscCode)
+                      )}
+                    />
+                    {ifscCodeError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {ifscCodeError}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div>
+                {/* QR Upload Section */}
+                <div className="space-y-2">
                   <label className={appFieldLabelClass}>
-                    Account Name
+                    Payment QR Code <span className="text-[color:var(--text-soft)]">(Optional)</span>
                   </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.accountName}
-                    onChange={(e) => updateField("accountName", e.target.value)}
-                    onBlur={() => markTouched("accountName")}
-                    placeholder="Name as per bank account"
-                    className={inputClass(
-                      accountNameError,
-                      Boolean(value.accountName)
-                    )}
-                  />
-                  {accountNameError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {accountNameError}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className={appFieldLabelClass}>
-                    Account Number
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.accountNumber}
-                    onChange={(e) => updateField("accountNumber", e.target.value)}
-                    onBlur={() => markTouched("accountNumber")}
-                    placeholder="Bank account number"
-                    className={inputClass(
-                      accountNumberError,
-                      Boolean(value.accountNumber)
-                    )}
-                  />
-                  {accountNumberError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {accountNumberError}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className={appFieldLabelClass}>
-                    IFSC Code
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.ifscCode}
-                    onChange={(e) => updateField("ifscCode", e.target.value)}
-                    onBlur={() => markTouched("ifscCode")}
-                    placeholder="Bank IFSC code"
-                    className={inputClass(
-                      ifscCodeError,
-                      Boolean(value.ifscCode)
-                    )}
-                  />
-                  {ifscCodeError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {ifscCodeError}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-
-              {/* QR Upload Section */}
-              <div className="space-y-2">
-                <label className={appFieldLabelClass}>
-                  Payment QR Code <span className="text-[color:var(--text-soft)]">(Optional)</span>
-                </label>
-                {value.qrCodeUrl ? (
-                  <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 ring-1 ring-inset ring-gray-200">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
-                        <img
-                          src={value.qrCodeUrl}
-                          alt="QR"
-                          className="h-full w-full object-contain"
-                        />
+                  {value.qrCodeUrl ? (
+                    <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 ring-1 ring-inset ring-gray-200">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                          <img
+                            src={value.qrCodeUrl}
+                            alt="QR"
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-medium text-gray-900">
+                            QR Code Attached
+                            {value.qrCodeUrl === value.profileQrUrl && value.qrCodeUrl !== "" && (
+                              <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
+                                Synced from Profile
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-[11px] text-gray-500">
+                            Used for instant UPI/Bank transfers
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[13px] font-medium text-gray-900">
-                          QR Code Attached
-                          {value.qrCodeUrl === value.profileQrUrl && value.qrCodeUrl !== "" && (
-                            <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
-                              Synced from Profile
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[11px] text-gray-500">
-                          Used for instant UPI/Bank transfers
-                        </p>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={removeQr}
+                        className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                        title="Remove QR"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={removeQr}
-                      className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                      title="Remove QR"
-                    >
+                  ) : (
+                    <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQrUpload}
+                        className="hidden"
+                      />
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
+                        className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -635,152 +671,133 @@ export default function TermsPaymentSection({
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
+                          d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                         />
                       </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleQrUpload}
-                      className="hidden"
-                    />
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                      />
-                    </svg>
-                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
-                      Upload Payment QR (Optional)
-                    </span>
-                  </label>
-                )}
+                      <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
+                        Upload Payment QR (Optional)
+                      </span>
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-              <div className={appFieldPairGridClass}>
-                <div>
-                  <label className={appFieldLabelClass}>
-                    Beneficiary Name
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.accountName}
-                    onChange={(e) => updateField("accountName", e.target.value)}
-                    onBlur={() => markTouched("accountName")}
-                    placeholder="Beneficiary name on bank account"
-                    className={inputClass(
-                      accountNameError,
-                      Boolean(value.accountName)
-                    )}
-                  />
-                  {accountNameError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {accountNameError}
-                    </p>
-                  ) : null}
-                </div>
+          </div>
 
-                <div>
-                  <label className={appFieldLabelClass}>
-                    Bank Name
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.bankName}
-                    onChange={(e) => updateField("bankName", e.target.value)}
-                    onBlur={() => markTouched("bankName")}
-                    placeholder="Receiving bank name"
-                    className={inputClass(
-                      bankNameError,
-                      Boolean(value.bankName)
-                    )}
-                  />
-                  {bankNameError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {bankNameError}
-                    </p>
-                  ) : null}
-                </div>
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
+                <div className={appFieldPairGridClass}>
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Beneficiary Name
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.accountName}
+                      onChange={(e) => updateField("accountName", e.target.value)}
+                      onBlur={() => markTouched("accountName")}
+                      placeholder="Beneficiary name on bank account"
+                      className={inputClass(
+                        accountNameError,
+                        Boolean(value.accountName)
+                      )}
+                    />
+                    {accountNameError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {accountNameError}
+                      </p>
+                    ) : null}
+                  </div>
 
-                <div>
-                  <label className={appFieldLabelClass}>
-                    Account Number
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.accountNumber}
-                    onChange={(e) => updateField("accountNumber", e.target.value)}
-                    onBlur={() => markTouched("accountNumber")}
-                    placeholder="Bank account number"
-                    className={inputClass(
-                      accountNumberError,
-                      Boolean(value.accountNumber)
-                    )}
-                  />
-                  {accountNumberError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {accountNumberError}
-                    </p>
-                  ) : null}
-                </div>
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Bank Name
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.bankName}
+                      onChange={(e) => updateField("bankName", e.target.value)}
+                      onBlur={() => markTouched("bankName")}
+                      placeholder="Receiving bank name"
+                      className={inputClass(
+                        bankNameError,
+                        Boolean(value.bankName)
+                      )}
+                    />
+                    {bankNameError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {bankNameError}
+                      </p>
+                    ) : null}
+                  </div>
 
-                <div>
-                  <label className={appFieldLabelClass}>
-                    SWIFT / BIC
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.swiftBicCode}
-                    onChange={(e) => updateField("swiftBicCode", e.target.value)}
-                    onBlur={() => markTouched("swiftBicCode")}
-                    placeholder="Bank SWIFT or BIC code"
-                    className={inputClass(
-                      swiftBicCodeError,
-                      Boolean(value.swiftBicCode)
-                    )}
-                  />
-                  {swiftBicCodeError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {swiftBicCodeError}
-                    </p>
-                  ) : null}
-                </div>
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      Account Number
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.accountNumber}
+                      onChange={(e) => updateField("accountNumber", e.target.value)}
+                      onBlur={() => markTouched("accountNumber")}
+                      placeholder="Bank account number"
+                      className={inputClass(
+                        accountNumberError,
+                        Boolean(value.accountNumber)
+                      )}
+                    />
+                    {accountNumberError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {accountNumberError}
+                      </p>
+                    ) : null}
+                  </div>
 
-                <div className="md:col-span-2 md:max-w-[420px]">
-                  <label className={appFieldLabelClass}>
-                    IBAN / Routing / Sort Code
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.ibanRoutingCode}
-                    onChange={(e) =>
-                      updateField("ibanRoutingCode", e.target.value)
-                    }
-                    placeholder="IBAN, routing number, or sort code"
-                    className={inputClass(
-                      undefined,
-                      Boolean(value.ibanRoutingCode)
-                    )}
-                  />
+                  <div>
+                    <label className={appFieldLabelClass}>
+                      SWIFT / BIC
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.swiftBicCode}
+                      onChange={(e) => updateField("swiftBicCode", e.target.value)}
+                      onBlur={() => markTouched("swiftBicCode")}
+                      placeholder="Bank SWIFT or BIC code"
+                      className={inputClass(
+                        swiftBicCodeError,
+                        Boolean(value.swiftBicCode)
+                      )}
+                    />
+                    {swiftBicCodeError ? (
+                      <p className={appFieldErrorTextClass}>
+                        {swiftBicCodeError}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="md:col-span-2 md:max-w-[420px]">
+                    <label className={appFieldLabelClass}>
+                      IBAN / Routing / Sort Code
+                    </label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.ibanRoutingCode}
+                      onChange={(e) =>
+                        updateField("ibanRoutingCode", e.target.value)
+                      }
+                      placeholder="IBAN, routing number, or sort code"
+                      className={inputClass(
+                        undefined,
+                        Boolean(value.ibanRoutingCode)
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div
@@ -886,7 +903,7 @@ export default function TermsPaymentSection({
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
     </>
