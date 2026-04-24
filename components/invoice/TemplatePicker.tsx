@@ -255,7 +255,7 @@ export default function TemplatePicker({
         className={
           isHorizontal
             ? "flex gap-2 overflow-x-auto pb-1"
-            : "grid grid-cols-2 gap-1.5"
+            : "grid grid-cols-1 gap-3"
         }
       >
         {sortedTemplates.map((template) => {

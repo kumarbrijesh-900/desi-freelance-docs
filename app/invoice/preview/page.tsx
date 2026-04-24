@@ -494,7 +494,7 @@ function PreviewContent() {
             )}
 
             {/* Main Layout Grid: Invoice (Left) + Templates (Right) */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_260px] print:block">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px] print:block">
               {/* ─── Invoice Sheet (Left) ─── */}
               <div className="min-w-0">
                 <MotionReveal
@@ -508,7 +508,7 @@ function PreviewContent() {
 
               {/* ─── Vertical Template Picker (Right Sidebar) ─── */}
               <aside className="print:hidden">
-                <div className="sticky top-24 space-y-4">
+                <div className="sticky top-24 h-[calc(100vh-160px)] overflow-y-auto pr-2 scrollbar-hide">
                   <MotionReveal preset="fade-up" delay={20}>
                     <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-[var(--app-floating-shadow)]">
                       <TemplatePicker
@@ -520,7 +520,7 @@ function PreviewContent() {
                     </div>
                   </MotionReveal>
                   
-                  <div className="rounded-xl bg-[color:var(--bg-surface-muted)] p-4 text-center">
+                  <div className="mt-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-4 text-center">
                     <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
                       Pro templates come with premium layout options and zero branding.
                     </p>
