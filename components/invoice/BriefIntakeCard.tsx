@@ -226,7 +226,6 @@ export default function BriefIntakeCard({
                 </MotionButton>
               ) : null}
             </div>
-          </div>
 
           <AnimatePresence initial={false}>
             <motion.div
