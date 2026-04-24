@@ -1864,6 +1864,7 @@ function EditorContent() {
                 : ""
             }
             grandTotalReferenceAmount={approximateUsdGrandTotal}
+            settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
             onExportTaxDecisionChange={
               showInternationalExportDecision
                 ? (noLutTaxHandling) =>
