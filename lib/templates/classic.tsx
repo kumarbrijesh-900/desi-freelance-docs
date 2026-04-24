@@ -7,9 +7,15 @@ import { InvoiceWatermark } from "./Watermark";
 
 export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative">
+    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+      {/* ── Background Patterns ────────────────── */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#111118 0.5px, transparent 0.5px)', backgroundSize: '16px 16px' }} />
+      
+      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#F0F0F2] rounded-full blur-3xl opacity-20 z-0 pointer-events-none" />
+
       {/* ── Top Accent ──────────────────────────── */}
-      <div className="h-1 w-full bg-[#111118] mb-12" />
+      <div className="relative z-10 h-1 w-full bg-[#111118] mb-12" />
 
       {/* ── Header ────────────────────────────── */}
       <header className="flex justify-between items-start mb-16">

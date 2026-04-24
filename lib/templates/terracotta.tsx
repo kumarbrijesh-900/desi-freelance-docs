@@ -21,9 +21,19 @@ import { InvoiceWatermark } from "./Watermark";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517]">
+    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517] bg-[#FFFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+      {/* ── Background Elements ────────────────── */}
+      <div className="absolute top-[5%] -left-20 w-[400px] h-[400px] bg-[#C75B39]/[0.02] rounded-full blur-[120px] pointer-events-none z-0 rotate-12" />
+      <div className="absolute bottom-[15%] -right-20 w-[350px] h-[350px] bg-[#8B6F5E]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />
+      
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
+           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")' }} />
+      
+      <div className="absolute top-[40%] left-0 w-full h-[300px] opacity-[0.015] pointer-events-none z-0"
+           style={{ backgroundImage: 'radial-gradient(#C75B39 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       {/* ── Terracotta bar ────────────────────── */}
-      <div className="h-[5px] w-full rounded-t-sm bg-[#C75B39] print:bg-[#999]" />
+      <div className="relative z-10 h-[5px] w-full rounded-t-sm bg-[#C75B39] print:bg-[#999]" />
 
       {/* ── Header ────────────────────────────── */}
       <header className="rounded-b-lg bg-[#FFF8F3] px-5 py-5 print:bg-[#fafafa]">

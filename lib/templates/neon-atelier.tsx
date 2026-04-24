@@ -20,6 +20,24 @@ import { InvoiceWatermark } from "./Watermark";
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
     <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:m-0 print:border-none">
+      {/* ── Background Elements ────────────────── */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#111118 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
+      
+      <div className="absolute top-[40%] -right-20 select-none pointer-events-none text-[320px] font-outfit font-black text-[#111118]/[0.01] -rotate-12 z-0">
+        STUDIO
+      </div>
+
+      {/* Technical Crosshairs */}
+      <div className="absolute top-[10mm] left-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0">
+        <div className="absolute top-1/2 left-0 w-full h-px bg-current" />
+        <div className="absolute top-0 left-1/2 w-px h-full bg-current" />
+      </div>
+      <div className="absolute bottom-[10mm] right-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0">
+        <div className="absolute top-1/2 left-0 w-full h-px bg-current" />
+        <div className="absolute top-0 left-1/2 w-px h-full bg-current" />
+      </div>
+
       {/* ── A4 Header Accent (No Bleed) ────── */}
       <div className="absolute top-0 right-[20mm] w-[280px] h-[280px] bg-[#2D5BFF] z-0 rounded-b-[20px] print:right-0" />
 

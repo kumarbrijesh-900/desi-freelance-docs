@@ -20,9 +20,16 @@ import { InvoiceWatermark } from "./Watermark";
 
 export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#27272F]">
+    <div className="font-['DM_Sans',_sans-serif] text-[#27272F] bg-[#F8F7F4] min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+      {/* ── Background Elements ────────────────── */}
+      <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[#27272F]/[0.02] -rotate-12 z-0">
+        INV
+      </div>
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply" 
+           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }} />
+
       {/* ── Top accent line ───────────────────── */}
-      <div className="h-[1px] w-full bg-[#27272F] print:bg-black" />
+      <div className="relative z-10 h-[1px] w-full bg-[#27272F] print:bg-black" />
 
       {/* ── Masthead ──────────────────────────── */}
       <header className="pb-6 pt-6">
@@ -73,14 +80,14 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <div className="h-[0.5px] w-full bg-[#D8D5CE] print:bg-[#ccc]" />
 
       {/* ── Parties — Editorial two-panel ────── */}
-      <section className="grid gap-6 py-5 md:grid-cols-2">
-        <div>
+      <section className="relative z-10 grid gap-6 py-5 md:grid-cols-2">
+        <div className="md:pr-6 md:border-r md:border-[#EEEBE5]">
           <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">From</p>
           <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">{data.agencyName}</p>
           <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">{data.agencyAddress}</p>
           {data.showAgencyGstin && <p className="mt-1 text-[11px] text-[#999]">GSTIN {data.agencyGstin}</p>}
         </div>
-        <div>
+        <div className="md:pl-6">
           <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">To</p>
           <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">{data.clientName}</p>
           <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">{data.clientAddress}</p>

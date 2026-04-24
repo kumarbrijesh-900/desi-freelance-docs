@@ -20,7 +20,17 @@ import { InvoiceWatermark } from "./Watermark";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E]">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+      {/* ── Background Elements ────────────────── */}
+      <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.03] rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.04] rounded-full blur-[100px] pointer-events-none z-0" />
+      
+      <svg className="absolute top-0 right-0 w-[400px] h-[400px] text-[#6C63FF]/[0.02] pointer-events-none z-0" viewBox="0 0 400 400">
+        <path d="M0,100 C150,200 250,0 400,100 V400 H0 Z" fill="currentColor" />
+      </svg>
+
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] mix-blend-overlay" 
+           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png")' }} />
       {/* ── Violet accent line ────────────────── */}
       <div className="h-[3px] w-full bg-gradient-to-r from-[#6C63FF] to-[#9B93FF] print:bg-[#888]" />
 

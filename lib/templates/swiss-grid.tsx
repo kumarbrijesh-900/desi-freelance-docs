@@ -21,9 +21,17 @@ import { InvoiceWatermark } from "./Watermark";
 
 export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557]">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+      {/* ── Background Elements ────────────────── */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'linear-gradient(#1D3557 1px, transparent 1px), linear-gradient(90deg, #1D3557 1px, transparent 1px)', backgroundSize: '10mm 10mm' }} />
+      
+      <div className="absolute top-[15%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">01</div>
+      <div className="absolute top-[45%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">02</div>
+      <div className="absolute top-[75%] -left-4 select-none pointer-events-none text-[180px] font-black text-[#E63946]/[0.02] z-0">03</div>
+
       {/* ── Red bar — Swiss poster authority ──── */}
-      <div className="h-[6px] w-full bg-[#E63946] print:bg-[#666]" />
+      <div className="relative z-10 h-[6px] w-full bg-[#E63946] print:bg-[#666]" />
 
       {/* ── Header — Strict grid ─────────────── */}
       <header className="mt-4 grid gap-4 pb-4 md:grid-cols-[minmax(0,1fr)_200px]">
