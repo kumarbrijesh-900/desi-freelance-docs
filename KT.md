@@ -354,10 +354,6 @@ tests/
 - **Agency name personalization:** Rejection and MSA screens show agency name from form_data
 - **Supabase migration:** `msa_response`, `msa_responded_at`, `shared_to_email` columns
 
----
-
-## 10. Pending Roadmap
-
 ### Phase 9c — Invoices Dashboard
 - **Professional data table:** 9 columns (Invoice #, Date/Due, Client, Work Type, Amount, Status, MSA, Views, Actions)
 - **Search & Filters:** Real-time search + Status (Draft/Finalized) and MSA (Pending/Accepted/Rejected) filters
@@ -395,13 +391,15 @@ tests/
 - **Automatic Profile Sync:** Updated `handleSaveDraft` in the Preview page to automatically sync the user's master profile whenever they save an invoice draft, ensuring professional assets are captured immediately.
 - **Unified Asset Management:** Logo, Signature, and QR codes now support both direct URL entry and native file selection with automatic cloud hosting.
 
-### Phase 9g — Smart Client Auto-fill & Suggestion Tray
-- **Searchable Dropdown:** Implemented a high-visibility suggestion tray (`z-[9999]`) in the Client Name field that filters saved clients as the user types.
-- **One-Click Zap:** Selecting a client from the tray automatically "zaps" all related details (Email, GSTIN, Address, SEZ status) into the form.
-- **Unique-Client Rule:** If a user has exactly one client in their directory, the form automatically pre-fills that client's details when starting a fresh invoice.
-- **Self-Fetching Fallback:** Added a `useEffect` fallback in the Client Section to independently fetch clients if parent state fails, ensuring the tray works even in complex navigation scenarios.
-- **Unified Auth Service:** Switched to `getSession` in `lib/supabase/clients.ts` for faster, more reliable client loading.
-- **KT Persistence:** Established a "Commit → Push → Verify on Vercel → Update KT" workflow for all subsequent implementations.
+---
+
+## 10. Pending Roadmap
+
+### Phase 10 — Advanced Compliance & Analytics
+- **Reverse Charge toggle:** Add a toggle in the Totals/Taxes section for RCM edge cases.
+- **Voice Input:** Activate voice-to-brief extraction in `BriefIntakeCard.tsx`.
+- **Engagement Analytics:** Real-time dashboard for invoice views, duration, and conversion rates.
+- **Subscription Engine:** Implement billing to gate the "Share" button and advanced templates.
 
 ### Known Issues
 - **Share Button:** Temporarily hidden in Preview (requires subscription/billing logic implementation).
@@ -461,6 +459,9 @@ tests/
 | `msa_accepted_at` | timestamptz | Legacy — when client accepted (backward compat) |
 | `msa_response` | text | `pending`, `accepted`, `rejected` (CHECK constraint) |
 | `msa_responded_at` | timestamptz | When client responded to MSA |
+| `applied_payment_terms` | integer | MSA Override for this specific invoice |
+| `applied_late_fee_rate` | numeric | MSA Override for this specific invoice |
+| `applied_license_type` | text | MSA Override for this specific invoice |
 | `created_at` | timestamptz | Auto |
 | `updated_at` | timestamptz | Auto |
 

@@ -60,4 +60,4 @@ Do not import from `_archived/` in production code.
 ## Related docs
 
 - `KT.md` — Knowledge transfer document
-- `audits/` — Architecture audit history
+- `docs/kt/` — Engineering Knowledge Transfer, System Audits, and UAT Reports
