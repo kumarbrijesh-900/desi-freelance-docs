@@ -99,6 +99,8 @@ export default function ProfilePage() {
   const [pan, setPan] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [gstStatus, setGstStatus] = useState("not-registered");
+  const [lutNumber, setLutNumber] = useState("");
+  const [lutValidity, setLutValidity] = useState("");
 
   // Payment fields
   const [bankName, setBankName] = useState("");
@@ -145,6 +147,8 @@ export default function ProfilePage() {
         setPan(profile.pan || "");
         setLogoUrl(profile.logo_url || "");
         setGstStatus(profile.gst_registration_status || "not-registered");
+        setLutNumber(profile.lut_number || "");
+        setLutValidity(profile.lut_validity || "");
         setBankName(profile.bank_name || "");
         setAccountName(profile.account_name || "");
         setAccountNumber(profile.account_number || "");
@@ -274,8 +278,9 @@ export default function ProfilePage() {
       pan,
       logoUrl,
       gstRegistrationStatus: gstStatus as AgencyDetails["gstRegistrationStatus"],
-      lutAvailability: "",
-      lutNumber: "",
+      lutAvailability: lutNumber ? "yes" : "no",
+      lutNumber,
+      lutValidity,
       noLutTaxHandling: "",
       signatureUrl,
       msaPaymentTermsDays,
@@ -504,6 +509,54 @@ export default function ProfilePage() {
                     onUrlChange={setSignatureUrl}
                     folder="signatures"
                   />
+                </div>
+              </div>
+            </MotionReveal>
+            
+            {/* Export Compliance (LUT) */}
+            <MotionReveal preset="fade-up" delay={15}>
+              <div className={`${getAppPanelClass()} mb-4`}>
+                <SectionLabel
+                  icon="🌐"
+                  title="Export Compliance (LUT)"
+                  description="Details for zero-tax international or SEZ billing."
+                />
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FieldRow 
+                    label="LUT Number" 
+                    helper="Enter your Letter of Undertaking number if applicable."
+                  >
+                    <input
+                      type="text"
+                      value={lutNumber}
+                      onChange={(e) => setLutNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g., AD290324..."
+                      className={fc({ hasValue: Boolean(lutNumber) })}
+                    />
+                  </FieldRow>
+
+                  <FieldRow 
+                    label="Validity Period"
+                    helper="Select the financial year for which the LUT is valid."
+                  >
+                    <select
+                      value={lutValidity}
+                      onChange={(e) => setLutValidity(e.target.value)}
+                      className={fc({ hasValue: Boolean(lutValidity), isSelect: true })}
+                    >
+                      <option value="">Select validity</option>
+                      <option value="fy_2025_26">FY 2025-26</option>
+                      <option value="fy_2026_27">FY 2026-27</option>
+                      <option value="fy_2027_28">FY 2027-28</option>
+                    </select>
+                  </FieldRow>
+
+                  <div className="sm:col-span-2">
+                    <p className={appFieldHelperTextClass}>
+                      If provided, this LUT will be automatically applied to International and SEZ invoices to legally enforce 0% IGST.
+                    </p>
+                  </div>
                 </div>
               </div>
             </MotionReveal>

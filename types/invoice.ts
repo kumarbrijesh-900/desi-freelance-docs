@@ -71,6 +71,7 @@ export interface AgencyDetails {
   gstRegistrationStatus: "" | "registered" | "not-registered";
   lutAvailability: "" | "yes" | "no";
   lutNumber: string;
+  lutValidity: string;
   noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
   signatureUrl: string;
   // MSA Defaults
@@ -203,6 +204,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     gstRegistrationStatus: "not-registered",
     lutAvailability: "",
     lutNumber: "",
+    lutValidity: "",
     noLutTaxHandling: "",
     signatureUrl: "",
   },

@@ -203,6 +203,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       gstRegistrationStatus: "registered",
       lutAvailability: "",
       lutNumber: "",
+      lutValidity: "",
       noLutTaxHandling: "",
       signatureUrl: "",
     },

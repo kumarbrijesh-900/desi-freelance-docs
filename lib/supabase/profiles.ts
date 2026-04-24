@@ -27,6 +27,7 @@ export interface UserProfile {
   gst_registration_status: string;
   lut_availability: string;
   lut_number: string;
+  lut_validity: string;
   no_lut_tax_handling: string;
   bank_name: string;
   account_name: string;
@@ -70,6 +71,7 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     gstRegistrationStatus: (p.gst_registration_status || "not-registered") as AgencyDetails["gstRegistrationStatus"],
     lutAvailability: p.lut_availability as AgencyDetails["lutAvailability"],
     lutNumber: p.lut_number,
+    lutValidity: p.lut_validity,
     noLutTaxHandling: p.no_lut_tax_handling as AgencyDetails["noLutTaxHandling"],
     signatureUrl: p.signature_url,
     // Add MSA defaults to agency details if we need them in the editor
@@ -114,6 +116,7 @@ export function agencyToProfileRow(
     gst_registration_status: agency.gstRegistrationStatus || "not-registered",
     lut_availability: agency.lutAvailability || "",
     lut_number: agency.lutNumber || "",
+    lut_validity: agency.lutValidity || "",
     no_lut_tax_handling: agency.noLutTaxHandling || "",
     bank_name: payment?.bankName || "",
     account_name: payment?.accountName || "",
