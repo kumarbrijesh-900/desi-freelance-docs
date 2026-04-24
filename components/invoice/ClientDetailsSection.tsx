@@ -713,7 +713,7 @@ export default function ClientDetailsSection({
               </div>
             </div>
             <p className="text-[11px] text-[color:var(--text-muted)]">
-              Transaction-specific overrides for this client relationship.
+              Note: Invoice-specific briefs will override these defaults during AI extraction.
             </p>
           </div>
 
@@ -728,19 +728,33 @@ export default function ClientDetailsSection({
               />
             </div>
 
-            <div>
-              <label className={appFieldLabelClass}>Late Fee Rate</label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={value.msaLateFeeRate ?? 1.5}
-                  onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
-                  className={inputClass(undefined, true)}
-                />
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <span className="text-[11px] font-medium text-[color:var(--text-muted)]">% per month</span>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={appFieldLabelClass}>Late Fee Rate</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={value.msaLateFeeRate ?? 1.5}
+                    onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
+                    className={inputClass(undefined, true)}
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-[11px] font-medium text-[color:var(--text-muted)]">%</span>
+                  </div>
                 </div>
+              </div>
+              <div>
+                <label className={appFieldLabelClass}>Unit</label>
+                <AppSelectField
+                  value={value.msaLateFeeUnit || "monthly"}
+                  onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
+                  hasValue={true}
+                >
+                  <option value="monthly">per month</option>
+                  <option value="annually">per annum</option>
+                  <option value="daily">per day</option>
+                </AppSelectField>
               </div>
             </div>
 
@@ -778,23 +792,29 @@ export default function ClientDetailsSection({
                 <button
                   type="button"
                   onClick={() => {
-                    const ipLabel = {
+                    const ipLabels: Record<string, string> = {
                       upon_full_payment: "upon full payment",
                       upon_signing: "upon signing",
                       upon_delivery: "upon delivery",
                       proportional_transfer: "proportionally per milestone",
                       retained_by_creator: "retained by the creator (limited license)",
-                    }[value.msaIpTriggerType || "upon_full_payment"];
+                    };
+                    const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
+
+                    const unitLabels: Record<string, string> = {
+                      monthly: "per month",
+                      annually: "per annum",
+                      daily: "per day",
+                    };
+                    const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
                     
-                    const template = `1. Intellectual Property (IP) transfers to the client ${ipLabel}. 
-2. A late fee of ${value.msaLateFeeRate ?? 1.5}% per month applies to all payments delayed beyond ${value.msaPaymentTermsDays ?? 20} days.
-3. All disputes are subject to ${value.msaJurisdictionCity || "local"} jurisdiction.`;
+                    const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
                     
                     updateField("msaNotesBoilerplate", template);
                   }}
                   className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
                 >
-                  + Generate Standard Template
+                  + Generate Smart Template
                 </button>
               )}
             </div>

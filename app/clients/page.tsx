@@ -65,6 +65,9 @@ function ClientForm({
   const [msaEffectiveDate, setMsaEffectiveDate] = useState(initial?.msa_effective_date || "");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(initial?.msa_payment_terms_days || 20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(initial?.msa_late_fee_rate || 1.5);
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">(
+    (initial?.msa_late_fee_unit as any) || "monthly"
+  );
   const [msaIpTriggerType, setMsaIpTriggerType] = useState(initial?.msa_ip_trigger_type || "upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(initial?.msa_jurisdiction_city || "Bangalore");
   const [msaVersionLabel, setMsaVersionLabel] = useState(initial?.msa_version_label || "Standard MSA v1.2");
@@ -99,6 +102,7 @@ function ClientForm({
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
+      msaLateFeeUnit,
       msaIpTriggerType: msaIpTriggerType as ClientDetails["msaIpTriggerType"],
       msaJurisdictionCity,
       msaVersionLabel,
@@ -301,10 +305,10 @@ function ClientForm({
               <h4 className="text-[14px] font-bold text-[color:var(--text-primary)]">
                 Master Services Agreement (MSA) Defaults
               </h4>
-              <span className="rounded-full bg-[color:var(--color-lime-100)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-lime-700)]">
-                Contract-First Flow
-              </span>
             </div>
+            <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
+              Note: Invoice-specific briefs will override these defaults during AI extraction.
+            </p>
 
             <div className="relative">
               <button
@@ -347,15 +351,29 @@ function ClientForm({
             </div>
 
             {/* Late Fee Rate */}
-            <div>
-              <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={msaLateFeeRate}
-                onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                className={fc({ hasValue: true })}
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={msaLateFeeRate}
+                  onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                  className={fc({ hasValue: true })}
+                />
+              </div>
+              <div>
+                <label className={appFieldLabelClass}>Unit</label>
+                <select
+                  value={msaLateFeeUnit}
+                  onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                  className={fc({ hasValue: true, isSelect: true })}
+                >
+                  <option value="monthly">per month</option>
+                  <option value="annually">per annum</option>
+                  <option value="daily">per day</option>
+                </select>
+              </div>
             </div>
 
             {/* IP Trigger */}
@@ -411,7 +429,36 @@ function ClientForm({
 
             {/* Boilerplate / Notes */}
             <div className="sm:col-span-2 lg:col-span-4">
-              <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ipLabels: Record<string, string> = {
+                      upon_full_payment: "upon full payment",
+                      upon_signing: "upon signing",
+                      upon_delivery: "upon delivery",
+                      proportional_transfer: "proportionally per milestone",
+                      retained_by_creator: "retained by the creator (limited license)",
+                    };
+                    const ipLabel = ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
+
+                    const unitLabels: Record<string, string> = {
+                      monthly: "per month",
+                      annually: "per annum",
+                      daily: "per day",
+                    };
+                    const unitLabel = unitLabels[msaLateFeeUnit] || unitLabels.monthly;
+                    
+                    const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+                    
+                    setMsaNotesBoilerplate(template);
+                  }}
+                  className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                >
+                  + Generate Smart Template
+                </button>
+              </div>
               <textarea
                 value={msaNotesBoilerplate}
                 onChange={(e) => setMsaNotesBoilerplate(e.target.value)}

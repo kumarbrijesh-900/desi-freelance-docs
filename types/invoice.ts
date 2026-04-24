@@ -76,6 +76,7 @@ export interface AgencyDetails {
   // MSA Defaults
   msaPaymentTermsDays?: number;
   msaLateFeeRate?: number;
+  msaLateFeeUnit?: "monthly" | "annually" | "daily";
   msaIpTriggerType?:
     | "upon_full_payment"
     | "upon_signing"
@@ -105,6 +106,7 @@ export interface ClientDetails {
   msaEffectiveDate?: string;
   msaPaymentTermsDays?: number;
   msaLateFeeRate?: number;
+  msaLateFeeUnit?: "monthly" | "annually" | "daily";
   msaIpTriggerType?:
     | "upon_full_payment"
     | "upon_signing"

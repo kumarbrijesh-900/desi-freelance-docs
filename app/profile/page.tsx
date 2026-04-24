@@ -113,6 +113,7 @@ export default function ProfilePage() {
   // MSA Defaults
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">("monthly");
   const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
 
@@ -157,7 +158,8 @@ export default function ProfilePage() {
         // MSA Defaults
         setMsaPaymentTermsDays(profile.msa_payment_terms_days ?? 20);
         setMsaLateFeeRate(profile.msa_late_fee_rate ?? 1.5);
-        setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_payment");
+        setMsaLateFeeUnit((profile.msa_late_fee_unit as any) || "monthly");
+        setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_full_payment");
         setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bangalore");
       } else {
         console.log("PROFILE_INIT_INFO: No profile data to apply.");
@@ -281,6 +283,7 @@ export default function ProfilePage() {
       signatureUrl,
       msaPaymentTermsDays,
       msaLateFeeRate,
+      msaLateFeeUnit,
       msaIpTriggerType: msaIpTriggerType as AgencyDetails["msaIpTriggerType"],
       msaJurisdictionCity,
     };
@@ -611,16 +614,30 @@ export default function ProfilePage() {
                   </FieldRow>
 
                   <FieldRow label="Late Fee Rate (%)">
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={msaLateFeeRate}
-                      onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                      className={fc({ hasValue: true })}
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={msaLateFeeRate}
+                        onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                        className={fc({ hasValue: true })}
+                      />
+                      <select
+                        value={msaLateFeeUnit}
+                        onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                        className={fc({ hasValue: true, isSelect: true })}
+                      >
+                        <option value="monthly">per month</option>
+                        <option value="annually">per annum</option>
+                        <option value="daily">per day</option>
+                      </select>
+                    </div>
                   </FieldRow>
 
-                  <FieldRow label="IP Transfer Trigger">
+                  <FieldRow 
+                    label="IP Transfer Trigger"
+                    helper="Note: Invoice-specific briefs will override these defaults during AI extraction."
+                  >
                     <select
                       value={msaIpTriggerType}
                       onChange={(e) => setMsaIpTriggerType(e.target.value as any)}

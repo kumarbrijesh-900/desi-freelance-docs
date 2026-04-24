@@ -34,6 +34,7 @@ export interface SavedClient {
   msa_effective_date: string | null;
   msa_payment_terms_days: number;
   msa_late_fee_rate: number;
+  msa_late_fee_unit: "monthly" | "annually" | "daily";
   msa_ip_trigger_type:
     | "upon_full_payment"
     | "upon_signing"
@@ -70,6 +71,7 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     msaEffectiveDate: c.msa_effective_date || undefined,
     msaPaymentTermsDays: c.msa_payment_terms_days,
     msaLateFeeRate: c.msa_late_fee_rate,
+    msaLateFeeUnit: (c.msa_late_fee_unit || "monthly") as any,
     msaIpTriggerType: c.msa_ip_trigger_type,
     msaJurisdictionCity: c.msa_jurisdiction_city,
     msaVersionLabel: c.msa_version_label,
@@ -100,6 +102,7 @@ export function clientDetailsToRow(
     msa_effective_date: details.msaEffectiveDate || null,
     msa_payment_terms_days: details.msaPaymentTermsDays ?? 20,
     msa_late_fee_rate: details.msaLateFeeRate ?? 1.5,
+    msa_late_fee_unit: details.msaLateFeeUnit || "monthly",
     msa_ip_trigger_type: details.msaIpTriggerType || "upon_full_payment",
     msa_jurisdiction_city: details.msaJurisdictionCity || "Bangalore",
     msa_version_label: details.msaVersionLabel || "Standard Lance MSA v1.2",

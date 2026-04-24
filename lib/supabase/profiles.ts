@@ -40,6 +40,7 @@ export interface UserProfile {
   // MSA Defaults (Global)
   msa_payment_terms_days: number;
   msa_late_fee_rate: number;
+  msa_late_fee_unit: "monthly" | "annually" | "daily";
   msa_ip_trigger_type:
     | "upon_full_payment"
     | "upon_signing"
@@ -74,6 +75,7 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     // Add MSA defaults to agency details if we need them in the editor
     msaPaymentTermsDays: p.msa_payment_terms_days,
     msaLateFeeRate: p.msa_late_fee_rate,
+    msaLateFeeUnit: (p.msa_late_fee_unit || "monthly") as any,
     msaIpTriggerType: p.msa_ip_trigger_type,
     msaJurisdictionCity: p.msa_jurisdiction_city,
   };
@@ -125,6 +127,7 @@ export function agencyToProfileRow(
     // MSA Defaults
     msa_payment_terms_days: agency.msaPaymentTermsDays ?? 20,
     msa_late_fee_rate: agency.msaLateFeeRate ?? 1.5,
+    msa_late_fee_unit: agency.msaLateFeeUnit || "monthly",
     msa_ip_trigger_type: agency.msaIpTriggerType || "upon_full_payment",
     msa_jurisdiction_city: agency.msaJurisdictionCity || "Bangalore",
     updated_at: new Date().toISOString(),

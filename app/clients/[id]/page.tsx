@@ -217,6 +217,7 @@ export default function ClientDetailPage() {
   const [msaEffectiveDate, setMsaEffectiveDate] = useState("");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">("monthly");
   const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
   const [msaVersionLabel, setMsaVersionLabel] = useState("Standard Lance MSA v1.2");
@@ -246,6 +247,7 @@ export default function ClientDetailPage() {
         setMsaEffectiveDate(c.msa_effective_date || "");
         setMsaPaymentTermsDays(c.msa_payment_terms_days);
         setMsaLateFeeRate(c.msa_late_fee_rate);
+        setMsaLateFeeUnit((c.msa_late_fee_unit as any) || "monthly");
         setMsaIpTriggerType(c.msa_ip_trigger_type);
         setMsaJurisdictionCity(c.msa_jurisdiction_city);
         setMsaVersionLabel(c.msa_version_label);
@@ -280,6 +282,7 @@ export default function ClientDetailPage() {
       msaEffectiveDate: msaEffectiveDate || undefined,
       msaPaymentTermsDays: Number(msaPaymentTermsDays),
       msaLateFeeRate: Number(msaLateFeeRate),
+      msaLateFeeUnit,
       msaIpTriggerType: msaIpTriggerType as ClientDetails["msaIpTriggerType"],
       msaJurisdictionCity,
       msaVersionLabel,
@@ -470,8 +473,8 @@ export default function ClientDetailPage() {
                     <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
                       Master Services Agreement (MSA) Defaults
                     </h3>
-                    <p className="text-[11px] text-[color:var(--text-muted)]">
-                      Contract-First Flow
+                    <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
+                      Note: Invoice-specific briefs will override these defaults during AI extraction.
                     </p>
                   </div>
 
@@ -488,15 +491,29 @@ export default function ClientDetailPage() {
                     </div>
 
                     {/* Late Fee Rate */}
-                    <div>
-                      <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={msaLateFeeRate}
-                        onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                        className={fc({ hasValue: true })}
-                      />
+                     <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={msaLateFeeRate}
+                          onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                          className={fc({ hasValue: true })}
+                        />
+                      </div>
+                      <div>
+                        <label className={appFieldLabelClass}>Unit</label>
+                        <select
+                          value={msaLateFeeUnit}
+                          onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                          className={fc({ hasValue: true, isSelect: true })}
+                        >
+                          <option value="monthly">per month</option>
+                          <option value="annually">per annum</option>
+                          <option value="daily">per day</option>
+                        </select>
+                      </div>
                     </div>
 
                     {/* IP Trigger */}
@@ -551,8 +568,37 @@ export default function ClientDetailPage() {
                     </div>
 
                     {/* Boilerplate / Notes */}
-                    <div className="sm:col-span-2 lg:col-span-4">
-                      <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+                    <div className="sm:col-span-2 lg:col-span-4 mt-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ipLabels: Record<string, string> = {
+                          upon_full_payment: "upon full payment",
+                          upon_signing: "upon signing",
+                          upon_delivery: "upon delivery",
+                          proportional_transfer: "proportionally per milestone",
+                          retained_by_creator: "retained by the creator (limited license)",
+                        };
+                        const ipLabel = ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
+
+                        const unitLabels: Record<string, string> = {
+                          monthly: "per month",
+                          annually: "per annum",
+                          daily: "per day",
+                        };
+                        const unitLabel = unitLabels[msaLateFeeUnit] || unitLabels.monthly;
+                        
+                        const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+                        
+                        setMsaNotesBoilerplate(template);
+                      }}
+                      className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                    >
+                      + Generate Smart Template
+                    </button>
+                  </div>
                       <textarea
                         value={msaNotesBoilerplate}
                         onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
