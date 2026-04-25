@@ -48,7 +48,7 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
-import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice, getCurrentUserEmail } from \"@/lib/supabase/invoices\";
+import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice, getCurrentUserEmail } from "@/lib/supabase/invoices";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import {
   convertInrToApproximateUsd,
