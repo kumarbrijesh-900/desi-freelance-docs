@@ -615,6 +615,28 @@ function PreviewContent() {
                 Print
               </MotionButton>
 
+              {/* Share — only available once the invoice is cloud-saved */}
+              {cloudInvoiceId ? (
+                <MotionButton
+                  type="button"
+                  onClick={() => setShowShareModal(true)}
+                  className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                >
+                  <ShareIcon className="h-4 w-4" />
+                  Share
+                </MotionButton>
+              ) : (
+                <MotionButton
+                  type="button"
+                  disabled
+                  title="Save the invoice first to get a shareable link"
+                  className={getAppButtonClass({ variant: "secondary", size: "md" }) + " opacity-40 cursor-not-allowed"}
+                >
+                  <ShareIcon className="h-4 w-4" />
+                  Share
+                </MotionButton>
+              )}
+
               <SuccessPulse active={!isExportingPdf}>
                 <MotionButton
                   type="button"
