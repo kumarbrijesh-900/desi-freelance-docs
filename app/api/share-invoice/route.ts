@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     /* ── 4. Send email to client (link only goes to inbox) ── */
     const hasMsa = !!msaId;
     const { error: emailError } = await resend.emails.send({
-      from: `${agencyName} via Lance <invoices@resend.dev>`,
+      from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
       subject: `Invoice from ${agencyName} — ready for your review`,
       html: `
