@@ -1664,37 +1664,48 @@ function EditorContent() {
                 ? { Authorization: `Bearer ${session.access_token}` }
                 : {}),
             },
-              body: JSON.stringify({
-                briefText: normalizedInput.text,
-                ocrText: normalizedInput.ocrText,
-                voiceTranscript: normalizedInput.voiceTranscript ?? "",
-                documentId: parserDocumentId,
-                isRetry: isBriefRetry,
-                sourceMetadata: {
-                  attachmentNames: input.imageFiles?.map((file) => file.name),
-                  attachmentTypes: input.imageFiles?.map((file) => file.type),
-                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                },
-              }),
+            body: JSON.stringify({
+              raw_input: [
+                normalizedInput.text,
+                normalizedInput.ocrText,
+                normalizedInput.voiceTranscript ?? "",
+              ]
+                .filter(Boolean)
+                .join("\n\n"),
+              agency_context: {
+                businessName: formData.agency.agencyName,
+                full_name: "", // Could pull from profile if needed
+                city: formData.agency.city,
+                state: formData.agency.agencyState,
+                gstin: formData.agency.gstin,
+              },
+              client_context: selectedClientMsa ? {
+                id: selectedClientMsa.id,
+                name: selectedClientMsa.client_name,
+                email: selectedClientMsa.client_email,
+                location: selectedClientMsa.country || selectedClientMsa.state,
+                gstinOrTaxId: selectedClientMsa.gstin,
+                msa: {
+                  payment_terms: selectedClientMsa.msa_payment_terms_days,
+                  late_fee: selectedClientMsa.msa_late_fee_rate,
+                  ip_trigger: selectedClientMsa.msa_ip_trigger_type,
+                  jurisdiction: selectedClientMsa.msa_jurisdiction_city,
+                }
+              } : null,
+              documentId: parserDocumentId,
+              isRetry: isBriefRetry,
+            }),
           });
 
           if (response.ok) {
             const payload = (await response.json()) as {
               extraction?: AiBriefExtraction | null;
-              parser?: BriefParserResponse | null;
             };
             aiExtraction = payload.extraction ?? null;
-            parserResponse = payload.parser ?? null;
-            if (payload.parser?.documentId) {
-              setParserDocumentId(payload.parser.documentId);
-            }
             
-            // If parser identifies an existing client, sync the MSA state
-            if (payload.parser?.clientId) {
-              const matched = savedClients.find(c => c.id === payload.parser?.clientId);
-              if (matched) {
-                setSelectedClientMsa(matched);
-              }
+            // Note: Parser response is now merged into extraction for Omniscient Agent
+            if (aiExtraction?.invoice_data?.clientName?.value) {
+               // Optional: If AI identifies a specific client from context, we could sync it here
             }
           }
         } catch (error) {

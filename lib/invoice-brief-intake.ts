@@ -1356,7 +1356,8 @@ function normalizeAiDeliverables(
   extraction: AiBriefExtraction,
   rawText: string
 ) {
-  const normalized = extraction.deliverables
+  const data = extraction.invoice_data;
+  const normalized = data.deliverables
     .map((item) => {
       const normalizedType = normalizeLineItemTypeValue(item.type.value);
       const normalizedRateUnit = normalizeRateUnitValue(
@@ -1406,7 +1407,8 @@ function normalizeAiTaxType(
 }
 
 function formatAiPaymentSchedule(extraction: AiBriefExtraction) {
-  const scheduleParts = extraction.paymentSchedule
+  const data = extraction.invoice_data;
+  const scheduleParts = data.paymentSchedule
     .map((item) => {
       const milestone = cleanValue(item.milestone.value ?? "");
       const percentage = item.percentage.value;
@@ -1433,28 +1435,29 @@ export function normalizeExtractedData(
   extraction: AiBriefExtraction,
   rawText: string
 ): InvoiceBriefExtractionSchema {
+  const data = extraction.invoice_data;
   const roleInferences = inferNameRolesFromText(rawText);
   const agencyContext = roleInferences.agencyContext || collectRoleContextFromText(rawText, "agency");
   const clientContext = roleInferences.clientContext || collectRoleContextFromText(rawText, "client");
   const fallbackAgencyName =
-    sanitizeEntityNameCandidate(extraction.agencyName.value) ||
+    sanitizeEntityNameCandidate(data.agencyName.value) ||
     sanitizeEntityNameCandidate(roleInferences.agency?.value) ||
-    sanitizeEntityNameCandidate(extraction.payment.accountName.value) ||
+    sanitizeEntityNameCandidate(data.payment.accountName.value) ||
     "";
   const agencyAddressValue =
-    extraction.agencyAddress.value ?? extraction.locations.agency.value ?? "";
+    data.agencyAddress.value ?? data.locations.agency.value ?? "";
   const clientAddressValue =
-    extraction.clientAddress.value ?? extraction.locations.client.value ?? "";
-  const agencyStateFromGstin = getStateFromGstin(extraction.gst.gstin.value);
-  const clientStateFromGstin = getStateFromGstin(extraction.clientTaxId.value);
-  const agencyPanFromGstin = derivePanFromGstin(extraction.gst.gstin.value);
+    data.clientAddress.value ?? data.locations.client.value ?? "";
+  const agencyStateFromGstin = getStateFromGstin(data.gst.gstin.value);
+  const clientStateFromGstin = getStateFromGstin(data.clientTaxId.value);
+  const agencyPanFromGstin = derivePanFromGstin(data.gst.gstin.value);
   const agencyLocationDetails = inferLocationDetailsFromText(
-    [extraction.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" ")
+    [data.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" ")
   );
   const clientLocationDetails = inferLocationDetailsFromText(
     [
-      extraction.clientState.value ?? "",
-      extraction.clientCountry.value ?? "",
+      data.clientState.value ?? "",
+      data.clientCountry.value ?? "",
       clientAddressValue,
       clientContext,
     ].join(" ")
@@ -1463,22 +1466,22 @@ export function normalizeExtractedData(
   const clientStateValue = clientLocationDetails.state || clientStateFromGstin || "";
   const clientCountryValue = clientLocationDetails.country || "";
   const currencyCandidate =
-    createAiCandidate(extraction.currency.value, extraction.currency.confidence) ??
+    createAiCandidate(data.currency.value, data.currency.confidence) ??
     getCurrencyFromText(rawText);
   const explicitInternational =
-    extraction.locations.inferredType.value === "international"
+    data.locations.inferredType.value === "international"
       ? true
-      : extraction.locations.inferredType.value === "domestic"
+      : data.locations.inferredType.value === "domestic"
       ? false
       : null;
   const paymentModeValue =
-    normalizePaymentModeValue(extraction.paymentMode.value) ||
+    normalizePaymentModeValue(data.paymentMode.value) ||
     normalizePaymentModeValue(
       /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0]
     );
   const inferredLocationType = inferLocationTypeFromText(
     [
-      extraction.clientName.value ?? roleInferences.client?.value ?? "",
+      data.clientName.value ?? roleInferences.client?.value ?? "",
       clientAddressValue,
       clientCountryValue,
       clientStateValue,
@@ -1489,7 +1492,7 @@ export function normalizeExtractedData(
     explicitInternational !== null
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           explicitInternational ? "international" : "domestic",
-          extraction.locations.inferredType.confidence,
+          data.locations.inferredType.confidence,
           "ai"
         )
       : inferredLocationType === "international"
@@ -1525,28 +1528,28 @@ export function normalizeExtractedData(
       : undefined;
   const agencyGstStatus =
     createAiBooleanCandidate(
-      extraction.gst.isRegistered,
+      data.gst.isRegistered,
       "registered" as AgencyDetails["gstRegistrationStatus"],
       "not-registered" as AgencyDetails["gstRegistrationStatus"]
     ) ??
-    (extraction.gst.lutAvailable.value === true
+    (data.gst.lutAvailable.value === true
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "medium",
           "inference"
         )
       : undefined) ??
-    ((extraction.gst.type.value === "CGST_SGST" ||
-      extraction.gst.type.value === "IGST") &&
-    extraction.gst.rate.value &&
-    extraction.gst.rate.value > 0
+    ((data.gst.type.value === "CGST_SGST" ||
+      data.gst.type.value === "IGST") &&
+    data.gst.rate.value &&
+    data.gst.rate.value > 0
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "medium",
           "inference"
         )
       : undefined) ??
-    (extraction.gst.gstin.value
+    (data.gst.gstin.value
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "high",
@@ -1555,7 +1558,7 @@ export function normalizeExtractedData(
       : undefined);
   const agencyLutAvailability =
     createAiBooleanCandidate(
-      extraction.gst.lutAvailable,
+      data.gst.lutAvailable,
       "yes" as AgencyDetails["lutAvailability"],
       "no" as AgencyDetails["lutAvailability"]
     ) ??
@@ -1567,7 +1570,7 @@ export function normalizeExtractedData(
         )
       : undefined);
   const taxTypeCandidate = deriveTaxTypeCandidate({
-    explicitTaxType: normalizeAiTaxType(extraction.gst.type),
+    explicitTaxType: normalizeAiTaxType(data.gst.type),
     rawText,
     agencyState: agencyStateValue,
     clientState: clientStateValue,
@@ -1575,15 +1578,15 @@ export function normalizeExtractedData(
     gstRegistrationStatus: agencyGstStatus?.value,
     lutAvailability: agencyLutAvailability?.value,
   });
-  const invoiceDateValue = formatDateCandidate(extraction.timeline.invoiceDate.value);
+  const invoiceDateValue = formatDateCandidate(data.timeline.invoiceDate.value);
   const commercialTerms = inferCommercialTermsFromText(rawText, {
     invoiceDate: invoiceDateValue,
   });
-  const paymentScheduleText = formatAiPaymentSchedule(extraction);
+  const paymentScheduleText = formatAiPaymentSchedule(data);
   const paymentTermsCandidate =
     createAiCandidate(
-      normalizePaymentTermsValue(extraction.paymentTerms.value),
-      extraction.paymentTerms.confidence
+      normalizePaymentTermsValue(data.paymentTerms.value),
+      data.paymentTerms.confidence
     ) ??
     (paymentScheduleText
       ? makeCandidate(normalizePaymentTermsValue(paymentScheduleText), "medium", "ai")
@@ -1595,18 +1598,18 @@ export function normalizeExtractedData(
           "inference"
         )
       : undefined);
-  const dueDateValue = formatDateCandidate(extraction.timeline.dueDate.value);
+  const dueDateValue = formatDateCandidate(data.timeline.dueDate.value);
   const agencyAddressCandidate = createAiCandidate(
     cleanAddressBlockValue(agencyAddressValue),
-    extraction.agencyAddress.value
-      ? extraction.agencyAddress.confidence
-      : extraction.locations.agency.confidence
+    data.agencyAddress.value
+      ? data.agencyAddress.confidence
+      : data.locations.agency.confidence
   );
   const clientAddressCandidate = createAiCandidate(
     cleanAddressBlockValue(clientAddressValue),
-    extraction.clientAddress.value
-      ? extraction.clientAddress.confidence
-      : extraction.locations.client.confidence
+    data.clientAddress.value
+      ? data.clientAddress.confidence
+      : data.locations.client.confidence
   );
   const parsedAgencyAddress = parseAgencyStructuredAddress(
     agencyAddressCandidate?.value
@@ -1621,12 +1624,12 @@ export function normalizeExtractedData(
     agencyName: fallbackAgencyName
       ? makeCandidate(
           fallbackAgencyName,
-          extraction.agencyName.value
-            ? extraction.agencyName.confidence
-            : extraction.payment.accountName.value
-            ? extraction.payment.accountName.confidence
+          data.agencyName.value
+            ? data.agencyName.confidence
+            : data.payment.accountName.value
+            ? data.payment.accountName.confidence
             : "low",
-          extraction.agencyName.value ? "ai" : "inference"
+          data.agencyName.value ? "ai" : "inference"
         )
       : undefined,
     agencyAddress: agencyAddressCandidate,
@@ -1661,40 +1664,40 @@ export function normalizeExtractedData(
     agencyState: agencyStateValue
       ? makeCandidate(
           agencyStateValue,
-          extraction.agencyState.value
-            ? extraction.agencyState.confidence
+          data.agencyState.value
+            ? data.agencyState.confidence
             : agencyLocationDetails.confidence || "medium",
-          extraction.agencyState.value ? "ai" : "inference"
+          data.agencyState.value ? "ai" : "inference"
         )
       : undefined,
     agencyGstRegistrationStatus: agencyGstStatus,
     agencyGstin: createAiClassifiedCandidate(
-      extraction.gst.gstin.value,
-      extraction.gst.gstin.confidence,
+      data.gst.gstin.value,
+      data.gst.gstin.confidence,
       ["gstin"],
       "agency gstin"
     ),
     agencyPan: createAiClassifiedCandidate(
-      extraction.gst.pan.value || agencyPanFromGstin,
-      extraction.gst.pan.value
-        ? extraction.gst.pan.confidence
+      data.gst.pan.value || agencyPanFromGstin,
+      data.gst.pan.value
+        ? data.gst.pan.confidence
         : agencyPanFromGstin
         ? "high"
-        : extraction.gst.pan.confidence,
+        : data.gst.pan.confidence,
       ["pan"],
       "agency pan"
     ),
     agencyLutAvailability,
     agencyLutNumber: createAiCandidate(
-      cleanValue(extraction.gst.lutNumber.value),
-      extraction.gst.lutNumber.confidence
+      cleanValue(data.gst.lutNumber.value),
+      data.gst.lutNumber.confidence
     ),
     clientName: createAiCandidate(
       sanitizeEntityNameCandidate(
-        extraction.clientName.value ?? roleInferences.client?.value ?? ""
+        data.clientName.value ?? roleInferences.client?.value ?? ""
       ),
-      extraction.clientName.value
-        ? extraction.clientName.confidence
+      data.clientName.value
+        ? data.clientName.confidence
         : roleInferences.client?.confidence
     ),
     clientAddress: clientAddressCandidate,
@@ -1736,32 +1739,32 @@ export function normalizeExtractedData(
     clientState: clientStateValue
       ? makeCandidate(
           clientStateValue,
-          extraction.clientState.value
-            ? extraction.clientState.confidence
+          data.clientState.value
+            ? data.clientState.confidence
             : clientLocationDetails.confidence || "medium",
-          extraction.clientState.value ? "ai" : "inference"
+          data.clientState.value ? "ai" : "inference"
         )
       : undefined,
     clientCountry: clientCountryValue
       ? makeCandidate(
           clientCountryValue,
-          extraction.clientCountry.value
-            ? extraction.clientCountry.confidence
+          data.clientCountry.value
+            ? data.clientCountry.confidence
             : clientLocationDetails.confidence || "medium",
-          extraction.clientCountry.value ? "ai" : "inference"
+          data.clientCountry.value ? "ai" : "inference"
         )
       : undefined,
     clientLocation: clientLocationCandidate,
     clientGstin: createAiClassifiedCandidate(
       sanitizeOwnedIdentifier({
-        value: extraction.clientTaxId.value,
+        value: data.clientTaxId.value,
         owner: "client",
         kind: "tax-id",
-        agencyGstin: extraction.gst.gstin.value,
-        agencyPan: extraction.gst.pan.value || agencyPanFromGstin,
+        agencyGstin: data.gst.gstin.value,
+        agencyPan: data.gst.pan.value || agencyPanFromGstin,
         clientLocation: clientLocationCandidate?.value ?? null,
       }),
-      extraction.clientTaxId.confidence,
+      data.clientTaxId.confidence,
       ["gstin", "unknown-alphanumeric-code"],
       "client tax id"
     ),
@@ -1781,12 +1784,12 @@ export function normalizeExtractedData(
       clientLocationCandidate?.value === "international"
         ? makeCandidate(true, clientLocationCandidate.confidence, clientLocationCandidate.source)
         : explicitInternational === false
-        ? makeCandidate(false, extraction.locations.inferredType.confidence, "ai")
+        ? makeCandidate(false, data.locations.inferredType.confidence, "ai")
         : undefined,
     invoiceCurrencyCode: currencyCandidate,
     invoiceTotalAmount: createAiCandidate(
-      extraction.totalAmount.value,
-      extraction.totalAmount.confidence
+      data.totalAmount.value,
+      data.totalAmount.confidence
     ),
     invoiceTaxType: taxTypeCandidate,
     lineItems: normalizeAiDeliverables(extraction, rawText),
@@ -1806,56 +1809,56 @@ export function normalizeExtractedData(
         )
       : undefined,
     paymentAccountName: createAiCandidate(
-      cleanValue(extraction.payment.accountName.value),
-      extraction.payment.accountName.confidence
+      cleanValue(data.payment.accountName.value),
+      data.payment.accountName.confidence
     ),
     paymentBankName: createAiCandidate(
-      cleanValue(extraction.payment.bankName.value),
-      extraction.payment.bankName.confidence
+      cleanValue(data.payment.bankName.value),
+      data.payment.bankName.confidence
     ),
     paymentBankAddress: createAiCandidate(
-      cleanAddressValue(extraction.payment.bankAddress.value),
-      extraction.payment.bankAddress.confidence
+      cleanAddressValue(data.payment.bankAddress.value),
+      data.payment.bankAddress.confidence
     ),
     paymentAccountNumber: createAiClassifiedCandidate(
-      extraction.payment.accountNumber.value,
-      extraction.payment.accountNumber.confidence,
+      data.payment.accountNumber.value,
+      data.payment.accountNumber.confidence,
       ["bank-account-number"],
       "bank account number"
     ),
     paymentIfscCode: createAiClassifiedCandidate(
-      extraction.payment.ifscCode.value,
-      extraction.payment.ifscCode.confidence,
+      data.payment.ifscCode.value,
+      data.payment.ifscCode.confidence,
       ["ifsc"],
       "ifsc code"
     ),
     paymentSwiftBicCode: createAiClassifiedCandidate(
-      extraction.payment.swiftCode.value,
-      extraction.payment.swiftCode.confidence,
+      data.payment.swiftCode.value,
+      data.payment.swiftCode.confidence,
       ["swift-bic"],
       "swift bic code"
     ),
     paymentIbanRoutingCode: createAiCandidate(
-      cleanValue(extraction.payment.ibanOrRouting.value),
-      extraction.payment.ibanOrRouting.confidence
+      cleanValue(data.payment.ibanOrRouting.value),
+      data.payment.ibanOrRouting.confidence
     ),
     invoiceDate: invoiceDateValue
       ? makeCandidate(
           invoiceDateValue,
-          extraction.timeline.invoiceDate.confidence,
+          data.timeline.invoiceDate.confidence,
           "ai"
         )
       : undefined,
     dueDate: dueDateValue || commercialTerms.dueDate
       ? makeCandidate(
           dueDateValue || commercialTerms.dueDate,
-          dueDateValue ? extraction.timeline.dueDate.confidence : commercialTerms.confidence,
+          dueDateValue ? data.timeline.dueDate.confidence : commercialTerms.confidence,
           dueDateValue ? "ai" : "inference"
         )
       : undefined,
     timeline: createAiCandidate(
-      cleanValue(extraction.timeline.deliveryTimeline.value),
-      extraction.timeline.deliveryTimeline.confidence
+      cleanValue(data.timeline.deliveryTimeline.value),
+      data.timeline.deliveryTimeline.confidence
     ),
   } satisfies InvoiceBriefExtractionSchema;
 

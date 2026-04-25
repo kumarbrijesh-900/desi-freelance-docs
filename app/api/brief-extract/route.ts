@@ -1,13 +1,5 @@
-export const dynamic = 'force-dynamic';
-
 import { NextResponse } from "next/server";
-import {
-  invokeBriefParserGateway,
-  normalizeBriefParserInput,
-  toLegacyAiBriefExtraction,
-  type BriefParserInputBundle,
-} from "@/lib/brief-parser-gateway";
-
+import { extractInvoiceBriefWithAi } from "@/lib/ai-brief-extractor";
 import { ratelimit } from "@/lib/upstash";
 import { z } from "zod";
 
@@ -21,23 +13,30 @@ function getClientIp(request: Request): string {
   );
 }
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-
 const BriefExtractSchema = z.object({
-  briefText: z.string().max(10240).optional(),
-  ocrText: z.string().max(10240).optional(),
-  voiceTranscript: z.string().max(10240).optional(),
-  attachmentSummary: z.string().max(10240).optional(),
-  text: z.string().max(10240).optional(), // Legacy field
+  raw_input: z.string().max(10240),
+  agency_context: z.object({
+    businessName: z.string().optional().nullable(),
+    full_name: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    state: z.string().optional().nullable(),
+    gstin: z.string().optional().nullable(),
+  }),
+  client_context: z.object({
+    id: z.string().uuid().optional().nullable(),
+    name: z.string().optional().nullable(),
+    email: z.string().optional().nullable(),
+    location: z.string().optional().nullable(),
+    gstinOrTaxId: z.string().optional().nullable(),
+    msa: z.object({
+      payment_terms: z.number().optional().nullable(),
+      late_fee: z.number().optional().nullable(),
+      ip_trigger: z.string().optional().nullable(),
+      jurisdiction: z.string().optional().nullable(),
+    }).optional().nullable(),
+  }).optional().nullable(),
   documentId: z.string().uuid().optional().nullable(),
   isRetry: z.boolean().optional(),
-  sourceMetadata: z.object({
-    locale: z.string().optional(),
-    timezone: z.string().optional(),
-    attachmentNames: z.array(z.string()).optional(),
-    attachmentTypes: z.array(z.string()).optional(),
-  }).optional(),
 });
 
 export async function POST(request: Request) {
@@ -49,8 +48,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         extraction: null,
-        parser: null,
-        available: false,
         error: "Too many requests. Please try again in a minute.",
       },
       { status: 429 }
@@ -64,8 +61,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           extraction: null,
-          parser: null,
-          available: false,
           error: "Request body too large. Maximum brief size is 10 KB.",
         },
         { status: 413 }
@@ -79,8 +74,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           extraction: null,
-          parser: null,
-          available: false,
           error: "Invalid request payload.",
           details: result.error.format(),
         },
@@ -89,135 +82,37 @@ export async function POST(request: Request) {
     }
 
     const validatedData = result.data;
-    
-    // ─── Session & Context Gathering ─────────────────────────
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
 
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    // ─── STEP 1: DEEP CONTEXT FETCH ───────────────────────────
-    let databaseContext: any = { user_state: "guest" };
-
-    if (session?.user) {
-      // Fetch Agency Profile
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("agency_name, full_name, city, state, gstin")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      // Fetch Clients
-      const { data: clients } = await supabase
-        .from("clients")
-        .select("id, client_name, gstin, state, country, msa_payment_terms_days, msa_late_fee_rate, msa_ip_trigger_type, msa_jurisdiction_city")
-        .eq("user_id", session.user.id)
-        .order("updated_at", { ascending: false });
-
-      databaseContext = {
-        user_state: "registered",
-        sender_agency_data: {
-          business_name: profile?.agency_name || null,
-          full_name: profile?.full_name || null,
-          id: session.user.id,
-          location: profile?.state || profile?.city || null,
-          gstin: profile?.gstin || null,
-        },
-        existing_clients: (clients ?? []).map(c => ({
-          id: c.id,
-          name: c.client_name,
-          gstin: c.gstin,
-          location: c.state || c.country || null,
-          msa: {
-            payment_terms: c.msa_payment_terms_days,
-            late_fee: c.msa_late_fee_rate,
-            ip_trigger: c.msa_ip_trigger_type,
-            jurisdiction: c.msa_jurisdiction_city,
-          }
-        })),
-      };
-    }
-
-    const input = normalizeBriefParserInput({
-      briefText: validatedData.briefText ?? validatedData.text ?? "",
-      ocrText: validatedData.ocrText ?? "",
-      voiceTranscript: validatedData.voiceTranscript ?? "",
-      attachmentSummary: validatedData.attachmentSummary ?? "",
-      documentId: validatedData.documentId || undefined,
-      sourceMetadata: validatedData.sourceMetadata,
-      isRetry: validatedData.isRetry,
-      context: {
-        isGuest: !session?.user,
-        databaseContext, // Inject full reality
-      },
+    // ─── AI Extraction Stage ─────────────────────────────────
+    const extraction = await extractInvoiceBriefWithAi({
+      rawInput: validatedData.raw_input,
+      agencyContext: validatedData.agency_context,
+      clientContext: validatedData.client_context,
     });
 
-    if (!input.combinedText.trim()) {
+    if (!extraction) {
       return NextResponse.json(
         {
           extraction: null,
-          parser: null,
-          available: false,
-          error: "Text, OCR text, or voice transcript is required.",
+          error: "AI engine failed to parse the brief.",
         },
-        { status: 400 }
+        { status: 502 }
       );
     }
 
-    const parserResult = await invokeBriefParserGateway({
-      input,
-      authorizationHeader: request.headers.get("authorization"),
+    // The extraction already contains { reasoning_log, invoice_data }
+    return NextResponse.json({
+      extraction,
+      available: true,
     });
-
-    if (!parserResult.ok) {
-      console.error("=== EDGE FUNCTION GATEWAY FAILED ===", parserResult);
-      return NextResponse.json(
-        {
-          extraction: null,
-          parser: null,
-          available: false,
-          error: parserResult.error,
-        },
-        { status: 200 }
-      );
-    }
-
-    const legacyExtraction =
-      parserResult.response.legacyExtraction ??
-      toLegacyAiBriefExtraction(parserResult.response);
-
-    // Ensure is_guest flag is in the final JSON as requested
-    const finalResponse = {
-      extraction: legacyExtraction,
-      parser: {
-        ...parserResult.response,
-        legacyExtraction,
-        is_guest: !session?.user, // Metadata for frontend
-      },
-      available: Boolean(parserResult.response.providerUsed),
-    };
-
-    return NextResponse.json(finalResponse);
   } catch (error) {
-    console.error("Brief parser gateway request failed:", error);
+    console.error("Omniscient Agent extraction failed:", error);
     return NextResponse.json(
       {
         extraction: null,
-        parser: null,
-        available: false,
-        error: "Brief parser gateway request failed.",
+        error: "Brief extraction failed.",
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }

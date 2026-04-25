@@ -9,64 +9,99 @@ export type AiBriefTaxType = "CGST_SGST" | "IGST" | "ZERO";
 export type AiBriefLocationType = "domestic" | "international";
 
 export type AiBriefExtraction = {
-  agencyName: AiBriefField<string>;
-  agencyAddress: AiBriefField<string>;
-  agencyState: AiBriefField<string>;
-  clientName: AiBriefField<string>;
-  clientAddress: AiBriefField<string>;
-  clientCountry: AiBriefField<string>;
-  clientState: AiBriefField<string>;
-  clientTaxId: AiBriefField<string>;
-  totalAmount: AiBriefField<number>;
-  currency: AiBriefField<string>;
-  gst: {
-    type: AiBriefField<AiBriefTaxType>;
-    rate: AiBriefField<number>;
-    gstin: AiBriefField<string>;
-    isRegistered: AiBriefField<boolean>;
-    lutAvailable: AiBriefField<boolean>;
-    lutNumber: AiBriefField<string>;
-    pan: AiBriefField<string>;
+  reasoning_log: {
+    step_1_linguistic_and_pronoun_mapping: {
+      slang_translation: string;
+      pronoun_resolution: string;
+    };
+    step_2_master_data_reconciliation: {
+      agency_verification: string;
+      client_verification: string;
+    };
+    step_3_tax_nexus_and_compliance: {
+      place_of_supply: string;
+      gst_applicability: string;
+      export_and_lut_status: string;
+      rcm_and_tds: string;
+    };
+    step_4_sac_classification: {
+      service_analysis: string;
+      sac_code_deduction: string;
+    };
+    step_5_contractual_deltas: {
+      payment_terms_logic: string;
+      addendum_trigger: string;
+    };
+    step_6_financial_math: {
+      unit_normalization: string;
+      subtotal_calculation: string;
+      modifiers_logic: string;
+      tax_calculation: string;
+      grand_total: string;
+    };
+    confidence_and_warnings: string[];
   };
-  deliverables: Array<{
-    type: AiBriefField<string>;
-    description: AiBriefField<string>;
-    quantity: AiBriefField<number>;
-    rate: AiBriefField<number>;
-    unit: AiBriefField<string>;
-  }>;
-  paymentTerms: AiBriefField<string>;
-  paymentMode: AiBriefField<string>;
-  paymentSchedule: Array<{
-    milestone: AiBriefField<string>;
-    percentage: AiBriefField<number>;
-    dueWhen: AiBriefField<string>;
-  }>;
-  payment: {
-    bankName: AiBriefField<string>;
-    accountName: AiBriefField<string>;
-    accountNumber: AiBriefField<string>;
-    ifscCode: AiBriefField<string>;
-    swiftCode: AiBriefField<string>;
-    ibanOrRouting: AiBriefField<string>;
-    bankAddress: AiBriefField<string>;
+  invoice_data: {
+    agencyName: AiBriefField<string>;
+    agencyAddress: AiBriefField<string>;
+    agencyState: AiBriefField<string>;
+    clientName: AiBriefField<string>;
+    clientAddress: AiBriefField<string>;
+    clientCountry: AiBriefField<string>;
+    clientState: AiBriefField<string>;
+    clientTaxId: AiBriefField<string>;
+    totalAmount: AiBriefField<number>;
+    currency: AiBriefField<string>;
+    gst: {
+      type: AiBriefField<AiBriefTaxType>;
+      rate: AiBriefField<number>;
+      gstin: AiBriefField<string>;
+      isRegistered: AiBriefField<boolean>;
+      lutAvailable: AiBriefField<boolean>;
+      lutNumber: AiBriefField<string>;
+      pan: AiBriefField<string>;
+    };
+    deliverables: Array<{
+      type: AiBriefField<string>;
+      description: AiBriefField<string>;
+      quantity: AiBriefField<number>;
+      rate: AiBriefField<number>;
+      unit: AiBriefField<string>;
+      sacCode: AiBriefField<string>;
+    }>;
+    paymentTerms: AiBriefField<string>;
+    paymentMode: AiBriefField<string>;
+    paymentSchedule: Array<{
+      milestone: AiBriefField<string>;
+      percentage: AiBriefField<number>;
+      dueWhen: AiBriefField<string>;
+    }>;
+    payment: {
+      bankName: AiBriefField<string>;
+      accountName: AiBriefField<string>;
+      accountNumber: AiBriefField<string>;
+      ifscCode: AiBriefField<string>;
+      swiftCode: AiBriefField<string>;
+      ibanOrRouting: AiBriefField<string>;
+      bankAddress: AiBriefField<string>;
+    };
+    timeline: {
+      invoiceDate: AiBriefField<string>;
+      dueDate: AiBriefField<string>;
+      deliveryTimeline: AiBriefField<string>;
+    };
+    locations: {
+      agency: AiBriefField<string>;
+      client: AiBriefField<string>;
+      inferredType: AiBriefField<AiBriefLocationType>;
+    };
+    license: {
+      isIncluded: AiBriefField<boolean>;
+      type: AiBriefField<string>;
+      duration: AiBriefField<string>;
+    };
+    confidenceScore: AiBriefConfidence;
   };
-  timeline: {
-    invoiceDate: AiBriefField<string>;
-    dueDate: AiBriefField<string>;
-    deliveryTimeline: AiBriefField<string>;
-  };
-  locations: {
-    agency: AiBriefField<string>;
-    client: AiBriefField<string>;
-    inferredType: AiBriefField<AiBriefLocationType>;
-  };
-  license: {
-    isIncluded: AiBriefField<boolean>;
-    type: AiBriefField<string>;
-    duration: AiBriefField<string>;
-  };
-  confidenceScore: AiBriefConfidence;
 };
 
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
@@ -148,7 +183,7 @@ function createNullableEnumFieldSchema<TValues extends readonly string[]>(
   } as const;
 }
 
-const AI_EXTRACTION_SCHEMA = {
+const INVOICE_DATA_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -233,8 +268,11 @@ const AI_EXTRACTION_SCHEMA = {
           unit: createNullableStringFieldSchema(
             "Billing unit such as per screen, per image, per reel, per item."
           ),
+          sacCode: createNullableStringFieldSchema(
+            "6-digit Indian SAC code (e.g., 998314 for Design services)."
+          ),
         },
-        required: ["type", "description", "quantity", "rate", "unit"],
+        required: ["type", "description", "quantity", "rate", "unit", "sacCode"],
       },
     },
     paymentTerms: createNullableStringFieldSchema(
@@ -338,66 +376,152 @@ const AI_EXTRACTION_SCHEMA = {
       },
       required: ["isIncluded", "type", "duration"],
     },
-    confidenceScore: {
-      type: "string",
-      enum: ["high", "medium", "low"],
+const AI_EXTRACTION_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    reasoning_log: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        step_1_linguistic_and_pronoun_mapping: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            slang_translation: { type: "string" },
+            pronoun_resolution: { type: "string" },
+          },
+          required: ["slang_translation", "pronoun_resolution"],
+        },
+        step_2_master_data_reconciliation: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            agency_verification: { type: "string" },
+            client_verification: { type: "string" },
+          },
+          required: ["agency_verification", "client_verification"],
+        },
+        step_3_tax_nexus_and_compliance: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            place_of_supply: { type: "string" },
+            gst_applicability: { type: "string" },
+            export_and_lut_status: { type: "string" },
+            rcm_and_tds: { type: "string" },
+          },
+          required: [
+            "place_of_supply",
+            "gst_applicability",
+            "export_and_lut_status",
+            "rcm_and_tds",
+          ],
+        },
+        step_4_sac_classification: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            service_analysis: { type: "string" },
+            sac_code_deduction: { type: "string" },
+          },
+          required: ["service_analysis", "sac_code_deduction"],
+        },
+        step_5_contractual_deltas: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            payment_terms_logic: { type: "string" },
+            addendum_trigger: { type: "string" },
+          },
+          required: ["payment_terms_logic", "addendum_trigger"],
+        },
+        step_6_financial_math: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            unit_normalization: { type: "string" },
+            subtotal_calculation: { type: "string" },
+            modifiers_logic: { type: "string" },
+            tax_calculation: { type: "string" },
+            grand_total: { type: "string" },
+          },
+          required: [
+            "unit_normalization",
+            "subtotal_calculation",
+            "modifiers_logic",
+            "tax_calculation",
+            "grand_total",
+          ],
+        },
+        confidence_and_warnings: {
+          type: "array",
+          items: { type: "string" },
+        },
+      },
+      required: [
+        "step_1_linguistic_and_pronoun_mapping",
+        "step_2_master_data_reconciliation",
+        "step_3_tax_nexus_and_compliance",
+        "step_4_sac_classification",
+        "step_5_contractual_deltas",
+        "step_6_financial_math",
+        "confidence_and_warnings",
+      ],
     },
+    invoice_data: INVOICE_DATA_SCHEMA,
   },
-  required: [
-    "agencyName",
-    "agencyAddress",
-    "agencyState",
-    "clientName",
-    "clientAddress",
-    "clientCountry",
-    "clientState",
-    "clientTaxId",
-    "totalAmount",
-    "currency",
-    "gst",
-    "deliverables",
-    "paymentTerms",
-    "paymentMode",
-    "paymentSchedule",
-    "payment",
-    "timeline",
-    "locations",
-    "license",
-    "confidenceScore",
-  ],
+  required: ["reasoning_log", "invoice_data"],
 } as const;
 
 const SYSTEM_PROMPT = `
-You are an expert freelance invoice assistant.
+You are the Lance Omniscient Context Agent, an expert freelance invoice and tax engine for the Indian market.
 
-Given a messy brief (chat, email, OCR text), your job is to:
-1. Understand the intent
-2. Infer missing structure
-3. Extract invoice-ready structured data
+Your mission is to transform a messy project brief into a legally compliant, GST-ready invoice. 
+You are equipped with high-fidelity context about the Agency (the sender) and the Client (the recipient).
 
-IMPORTANT RULES:
-- Do NOT wait for perfect labels
-- Infer meaning from context
-- Convert conversational language into structured fields
-- Prefer the best grounded guess with a confidence score instead of skipping fields
-- Do NOT hallucinate details that are unsupported by the brief
-- If a guess would be too speculative, still return the closest grounded interpretation with low confidence
-- Separate agency details from client details from payment details
-- Treat sender/self-referential phrases like "we are", "I'm", "from", "our studio", and beneficiary/account-name details as agency clues
-- Treat phrases like "invoice for", "bill to", "client", "brand", and "your company" as client clues
-- If any grounded signal exists for a schema field, try to map it instead of leaving the field empty
-- Favor role-based extraction: agency, client, invoice, deliverables, compliance, payment, timeline
-- If GSTIN is present, strongly lean toward GST registration being true
-- If export or LUT signals exist, strongly consider ZERO tax treatment unless IGST is explicitly stated
-- If multiple deliverables are present, keep them as separate deliverable objects instead of collapsing them
+### THE OMNISCIENT REASONING PROTOCOL
+You MUST execute these exact 7 steps in your reasoning_log before populating invoice_data:
 
-PLACEHOLDER DETECTION (CRITICAL):
-- If a field value is wrapped in brackets like [Amount], [Name], [Date], [e.g., ...], treat it as UNFILLED
-- Return null for such placeholder fields, NOT 0, NOT the bracket content
-- Common placeholder patterns: ₹[Amount], [Client Name], [Date], [e.g., Logo Design], [Your Details], [Client Details]
-- Text after "e.g.," inside brackets is an EXAMPLE, not an actual value — return null
-- Template markers like "Item 01:", "Item 02:" with placeholder amounts should still create separate deliverables, but with null rates
-- If a template has real data mixed with placeholders (e.g., "Ashok" is real but "[Client Name]" is placeholder), extract the real data and null the placeholders
+Step 1: Linguistic and Pronoun Mapping
+- Translate Hinglish, slang, or colloquialisms (e.g., '15 din' -> Net 15, 'lumpsum' -> Fixed Fee, 'shukriya' -> Thank you) into standard business terms.
+- Map pronouns ('I', 'we', 'our', 'my bank') to the Agency (sender).
+- Map pronouns ('they', 'them', 'their', 'you guys') to the Client (recipient) based on the provided context.
+
+Step 2: Master Data Reconciliation
+- Use agency_context as the absolute truth for the sender.
+- Match the brief's mention of a client to the provided client_context. Note if this is a NEW client or a match.
+
+Step 3: Tax Nexus and Compliance
+- Determine Place of Supply (PoS) based on Agency vs Client geography.
+- Applicability: 
+  - Same State -> CGST + SGST (9%+9%).
+  - Different State -> IGST (18%).
+  - International/SEZ -> ZERO Rated (Assume LUT active if brief suggests export).
+- RCM/TDS: Detect if Reverse Charge applies or if TDS deductions are mentioned.
+
+Step 4: SAC Classification
+- Analyze the deliverables.
+- Map to the correct 6-digit Indian SAC code (e.g., 998314 for Design, 998311 for IT, 998733 for Video). Explain the deduction.
+
+Step 5: Contractual Deltas
+- Compare the extracted payment terms/licensing against the MSA defaults in client_context.
+- If they differ, state 'MSA Deviation Detected: Project Addendum required'.
+
+Step 6: Financial Math
+- Normalize units (e.g., '5 screens', '10 hours').
+- Calculate Subtotal: (Qty * Rate).
+- Apply Modifiers: Discounts or Rush Fees BEFORE tax.
+- Calculate Tax: Apply the % from Step 3.
+- Final Grand Total: Subtotal + Tax.
+
+Step 7: Confidence and Warnings
+- List critical assumptions that require human verification.
+
+### CRITICAL RULES
+- Preserve all existing Indian GST compliance logic.
+- Do NOT hallucinate. Use grounded guesses only.
+- If a field is a bracketed placeholder like [Name], return null.
 
 INTERPRETATION RULES:
 - Amount detection:
@@ -511,14 +635,28 @@ function extractOutputText(payload: unknown) {
   return "";
 }
 
-export async function extractInvoiceBriefWithAi(
-  normalizedText: string
-): Promise<AiBriefExtraction | null> {
+export async function extractInvoiceBriefWithAi(params: {
+  rawInput: string;
+  agencyContext: any;
+  clientContext?: any;
+}): Promise<AiBriefExtraction | null> {
   const apiKey = process.env.OPENAI_API_KEY;
+  const { rawInput, agencyContext, clientContext } = params;
 
-  if (!apiKey || !normalizedText.trim()) {
+  if (!apiKey || !rawInput.trim()) {
     return null;
   }
+
+  const contextPrompt = `
+AGENCY_CONTEXT (Absolute Truth for Sender):
+${JSON.stringify(agencyContext, null, 2)}
+
+CLIENT_CONTEXT (Known Master Data for Recipient):
+${clientContext ? JSON.stringify(clientContext, null, 2) : "No master data for this client yet."}
+
+RAW_INPUT (Process this brief):
+${rawInput}
+  `;
 
   const abortController = new AbortController();
   const timeout = setTimeout(
@@ -552,7 +690,7 @@ export async function extractInvoiceBriefWithAi(
             content: [
               {
                 type: "input_text",
-                text: normalizedText,
+                text: contextPrompt,
               },
             ],
           },
