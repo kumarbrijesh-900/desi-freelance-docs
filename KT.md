@@ -686,4 +686,27 @@ The platform uses a tiered validation system after parsing an unstructured proje
 
 ---
 
+## 15. Real-time Notification System & Lifecycle
+
+The platform features a "Mission Control" notification bell in the global header to track asynchronous client interactions and critical status changes.
+
+### Notification Lifecycle Logic
+1.  **Contextual Filtering**: Notifications are visible in the Bell feed only as long as the associated invoice is **NOT settled**.
+2.  **Settlement Exception**: The "Invoice Settled" notification itself is exempt from filtering and remains as a persistent historical record of completion.
+3.  **Spam Suppression**: Viewing notifications (Read Receipts) are only triggered on the **first view** per invoice to avoid cluttering the freelancer's feed.
+
+### High-Priority Event Mappings
+| Event Type | Logic Trigger | UI Message Format |
+| :--- | :--- | :--- |
+| `msa_negotiating` | Client proposes MSA changes | `Client Proposing new MSA for [Inv#]: "[Client Note]"` |
+| `msa_accepted` | Client approves MSA | `Client approved MSA and seen invoice [Inv#].` |
+| `invoice_sent` | Cron/Nudge sent | `Mail sent to client on due date for invoice [Inv#].` |
+| `invoice_settled` | Freelancer marks settled | `You have settled INVOICE No [Inv#] for [Client] on [Date] [Time].` |
+
+### Technical Architecture
+*   **Real-time**: Uses Supabase Postgres Changes (Realtime) to push updates to the UI without page refreshes.
+*   **Filtering**: Logic is implemented in `lib/supabase/notifications.ts` via a filtered join with the `invoices` status column.
+
+---
+
 *This KT is authoritative. If you are an AI agent reading this repo, start here. The canonical branch is `main`. The product is called Lance. Never use "AI" in user-facing copy.*

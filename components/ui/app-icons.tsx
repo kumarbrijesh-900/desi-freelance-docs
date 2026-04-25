@@ -201,3 +201,21 @@ export function ExclamationTriangleIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function BellIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
+export function MailIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}

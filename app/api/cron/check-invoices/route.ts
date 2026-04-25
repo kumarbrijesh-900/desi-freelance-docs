@@ -93,6 +93,16 @@ export async function GET(request: Request) {
             html: `<p>Your invoice <strong>${inv.invoice_number}</strong> for ${clientName} is due today.</p><p>We have sent a gentle reminder to the client. <br/><br/><strong>Did you receive payment?</strong> Don't forget to mark this invoice as "Settled" in your dashboard to close the loop.</p>`,
           });
 
+          // Create notification for the agency
+          await supabaseAdmin.from("notifications").insert({
+            user_id: inv.user_id,
+            invoice_id: inv.id,
+            type: "invoice_sent",
+            title: "Due Date Reminder Sent",
+            message: `Mail sent to client on due date for invoice ${inv.invoice_number}.`,
+            is_read: false,
+          });
+
           // Update flag
           await supabaseAdmin.from("invoices").update({ reminded_due_date: true }).eq("id", inv.id);
         }

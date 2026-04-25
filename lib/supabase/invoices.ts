@@ -248,10 +248,36 @@ export async function recordView(
   invoiceId: string,
   userAgent: string
 ): Promise<void> {
+  // Check if it's the first view to avoid spamming notifications
+  const { count } = await supabase
+    .from("read_receipts")
+    .select("*", { count: "exact", head: true })
+    .eq("invoice_id", invoiceId);
+
   await supabase.from("read_receipts").insert({
     invoice_id: invoiceId,
     viewer_ua: userAgent,
   });
+
+  if (count === 0) {
+    // Fetch invoice to get owner
+    const { data: inv } = await supabase
+      .from("invoices")
+      .select("user_id, invoice_number")
+      .eq("id", invoiceId)
+      .single();
+
+    if (inv) {
+      await supabase.from("notifications").insert({
+        user_id: inv.user_id,
+        invoice_id: invoiceId,
+        type: "invoice_viewed",
+        title: "Invoice Viewed",
+        message: `Your client just opened invoice ${inv.invoice_number}.`,
+        is_read: false,
+      });
+    }
+  }
 }
 
 export async function getReadReceipts(
@@ -356,13 +382,29 @@ export async function respondToMsa(
   };
   // msa_accepted_at does not exist in the DB — msa_responded_at is the canonical field.
 
-  const { error } = await supabase
+  const { data: inv, error: fetchErr } = await supabase
     .from("invoices")
     .update(updateFields)
     .eq("share_token", shareToken)
-    .not("msa_id", "is", null);
+    .not("msa_id", "is", null)
+    .select("id, user_id, invoice_number")
+    .single();
 
-  return { error: error?.message ?? null };
+  if (fetchErr) return { error: fetchErr.message };
+
+  // Create notification for the agency
+  await supabase.from("notifications").insert({
+    user_id: inv.user_id,
+    invoice_id: inv.id,
+    type: `msa_${response}`,
+    title: response === "accepted" ? "MSA Approved" : "MSA Rejected",
+    message: response === "accepted" 
+      ? `Client approved MSA and seen invoice ${inv.invoice_number}.`
+      : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
+    is_read: false,
+  });
+
+  return { error: null };
 }
 
 /** Update the shared_to_email on an invoice */
@@ -389,7 +431,7 @@ export async function proposeMsaChanges(
   invoiceId: string,
   noteText: string
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { data: inv, error: updateErr } = await supabase
     .from("invoices")
     .update({
       msa_response: "negotiating" as MsaResponse,
@@ -397,10 +439,23 @@ export async function proposeMsaChanges(
       msa_responded_at: new Date().toISOString(),
     })
     .eq("id", invoiceId)
-    // Bug 4 fix: RLS policy requires share_token IS NOT NULL for public UPDATE
-    .not("share_token", "is", null);
+    .not("share_token", "is", null)
+    .select("id, user_id, invoice_number")
+    .single();
 
-  return { error: error?.message ?? null };
+  if (updateErr) return { error: updateErr.message };
+
+  // Create notification
+  await supabase.from("notifications").insert({
+    user_id: inv.user_id,
+    invoice_id: inv.id,
+    type: "msa_negotiating",
+    title: "MSA Changes Proposed",
+    message: `Client Proposing new MSA for ${inv.invoice_number}: "${noteText}"`,
+    is_read: false,
+  });
+
+  return { error: null };
 }
 
 /** Mark an invoice as fully paid/settled (freelancer action) */
@@ -410,11 +465,29 @@ export async function markInvoiceSettled(
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
-  const { error } = await supabase
+  const { data: inv, error } = await supabase
     .from("invoices")
     .update({ status: "settled" as InvoiceStatus })
     .eq("id", invoiceId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("invoice_number, form_data")
+    .single();
+
+  if (!error && inv) {
+    const clientName = inv.form_data?.client?.clientName || "Client";
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      invoice_id: invoiceId,
+      type: "invoice_settled",
+      title: "Invoice Settled",
+      message: `You have settled INVOICE No ${inv.invoice_number} for ${clientName} on ${dateStr} ${timeStr}.`,
+      is_read: false,
+    });
+  }
 
   return { error: error?.message ?? null };
 }

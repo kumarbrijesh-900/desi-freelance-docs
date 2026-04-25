@@ -7,6 +7,7 @@ import { appPageContainerClass } from "@/lib/layout-foundation";
 import { cn } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 import FeedbackModal from "./feedback/FeedbackModal";
+import NotificationBell from "./NotificationBell";
 
 interface AppHeaderProps {
   rightSlot?: React.ReactNode;
@@ -178,11 +179,14 @@ export default function AppHeader({
           <div className="flex items-center gap-3">
             {rightSlot}
             {user ? (
-              <UserMenu 
-                email={user.email} 
-                avatar={user.avatar} 
-                onFeedbackClick={() => setIsFeedbackModalOpen(true)} 
-              />
+              <div className="flex items-center gap-3">
+                <NotificationBell />
+                <UserMenu 
+                  email={user.email} 
+                  avatar={user.avatar} 
+                  onFeedbackClick={() => setIsFeedbackModalOpen(true)} 
+                />
+              </div>
             ) : (
               <Link
                 href="/login"
