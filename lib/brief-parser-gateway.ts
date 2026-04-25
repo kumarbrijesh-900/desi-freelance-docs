@@ -458,14 +458,14 @@ export function toLegacyAiBriefExtraction(
     .join(", ");
 
   return {
-    reasoning_log: {
-      step_1_linguistic_and_pronoun_mapping: { slang_translation: "", pronoun_resolution: "" },
-      step_2_master_data_reconciliation: { agency_verification: "", client_verification: "" },
-      step_3_tax_nexus_and_compliance: { place_of_supply: "", gst_applicability: "", export_and_lut_status: "", rcm_and_tds: "" },
-      step_4_sac_classification: { service_analysis: "", sac_code_deduction: "" },
-      step_5_contractual_deltas: { payment_terms_logic: "", addendum_trigger: "" },
-      step_6_financial_math: { unit_normalization: "", subtotal_calculation: "", modifiers_logic: "", tax_calculation: "", grand_total: "" },
-      confidence_and_warnings: [],
+    inference_matrix: {
+      macro_resolution: { linguistic_translation: "", nexus_and_compliance: "" },
+      agency_nodes_1_to_6: { identity_inference: "", tax_id_inference: "" },
+      client_and_msa_nodes_7_to_16: { client_identity_inference: "", msa_baseline_inference: "" },
+      meta_nodes_17_to_19: { invoice_number_inference: "", date_currency_inference: "" },
+      item_nodes_20_to_24: { deliverable_splitting_logic: "", financial_math_logic: "" },
+      tax_nodes_25_to_27: { sac_deduction_logic: "", rcm_lut_logic: "" },
+      payment_nodes_28_to_34: { bank_routing_inference: "", addendum_trigger_logic: "" },
     },
     agencyName: createField(
       normalizedExtraction.agency.businessName,

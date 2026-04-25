@@ -9,37 +9,35 @@ export type AiBriefTaxType = "CGST_SGST" | "IGST" | "ZERO";
 export type AiBriefLocationType = "domestic" | "international";
 
 export type AiBriefExtraction = {
-  reasoning_log?: {
-    step_1_linguistic_and_pronoun_mapping: {
-      slang_translation: string;
-      pronoun_resolution: string;
+  inference_matrix?: {
+    macro_resolution: {
+      linguistic_translation: string;
+      nexus_and_compliance: string;
     };
-    step_2_master_data_reconciliation: {
-      agency_verification: string;
-      client_verification: string;
+    agency_nodes_1_to_6: {
+      identity_inference: string;
+      tax_id_inference: string;
     };
-    step_3_tax_nexus_and_compliance: {
-      place_of_supply: string;
-      gst_applicability: string;
-      export_and_lut_status: string;
-      rcm_and_tds: string;
+    client_and_msa_nodes_7_to_16: {
+      client_identity_inference: string;
+      msa_baseline_inference: string;
     };
-    step_4_sac_classification: {
-      service_analysis: string;
-      sac_code_deduction: string;
+    meta_nodes_17_to_19: {
+      invoice_number_inference: string;
+      date_currency_inference: string;
     };
-    step_5_contractual_deltas: {
-      payment_terms_logic: string;
-      addendum_trigger: string;
+    item_nodes_20_to_24: {
+      deliverable_splitting_logic: string;
+      financial_math_logic: string;
     };
-    step_6_financial_math: {
-      unit_normalization: string;
-      subtotal_calculation: string;
-      modifiers_logic: string;
-      tax_calculation: string;
-      grand_total: string;
+    tax_nodes_25_to_27: {
+      sac_deduction_logic: string;
+      rcm_lut_logic: string;
     };
-    confidence_and_warnings: string[];
+    payment_nodes_28_to_34: {
+      bank_routing_inference: string;
+      addendum_trigger_logic: string;
+    };
   };
   agencyName: AiBriefField<string>;
   agencyAddress: AiBriefField<string>;
@@ -409,220 +407,138 @@ const AI_EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    reasoning_log: {
+    inference_matrix: {
       type: "object",
       additionalProperties: false,
       properties: {
-        step_1_linguistic_and_pronoun_mapping: {
+        macro_resolution: {
           type: "object",
           additionalProperties: false,
           properties: {
-            slang_translation: { type: "string" },
-            pronoun_resolution: { type: "string" },
+            linguistic_translation: { type: "string" },
+            nexus_and_compliance: { type: "string" },
           },
-          required: ["slang_translation", "pronoun_resolution"],
+          required: ["linguistic_translation", "nexus_and_compliance"],
         },
-        step_2_master_data_reconciliation: {
+        agency_nodes_1_to_6: {
           type: "object",
           additionalProperties: false,
           properties: {
-            agency_verification: { type: "string" },
-            client_verification: { type: "string" },
+            identity_inference: { type: "string" },
+            tax_id_inference: { type: "string" },
           },
-          required: ["agency_verification", "client_verification"],
+          required: ["identity_inference", "tax_id_inference"],
         },
-        step_3_tax_nexus_and_compliance: {
+        client_and_msa_nodes_7_to_16: {
           type: "object",
           additionalProperties: false,
           properties: {
-            place_of_supply: { type: "string" },
-            gst_applicability: { type: "string" },
-            export_and_lut_status: { type: "string" },
-            rcm_and_tds: { type: "string" },
+            client_identity_inference: { type: "string" },
+            msa_baseline_inference: { type: "string" },
           },
-          required: [
-            "place_of_supply",
-            "gst_applicability",
-            "export_and_lut_status",
-            "rcm_and_tds",
-          ],
+          required: ["client_identity_inference", "msa_baseline_inference"],
         },
-        step_4_sac_classification: {
+        meta_nodes_17_to_19: {
           type: "object",
           additionalProperties: false,
           properties: {
-            service_analysis: { type: "string" },
-            sac_code_deduction: { type: "string" },
+            invoice_number_inference: { type: "string" },
+            date_currency_inference: { type: "string" },
           },
-          required: ["service_analysis", "sac_code_deduction"],
+          required: ["invoice_number_inference", "date_currency_inference"],
         },
-        step_5_contractual_deltas: {
+        item_nodes_20_to_24: {
           type: "object",
           additionalProperties: false,
           properties: {
-            payment_terms_logic: { type: "string" },
-            addendum_trigger: { type: "string" },
+            deliverable_splitting_logic: { type: "string" },
+            financial_math_logic: { type: "string" },
           },
-          required: ["payment_terms_logic", "addendum_trigger"],
+          required: ["deliverable_splitting_logic", "financial_math_logic"],
         },
-        step_6_financial_math: {
+        tax_nodes_25_to_27: {
           type: "object",
           additionalProperties: false,
           properties: {
-            unit_normalization: { type: "string" },
-            subtotal_calculation: { type: "string" },
-            modifiers_logic: { type: "string" },
-            tax_calculation: { type: "string" },
-            grand_total: { type: "string" },
+            sac_deduction_logic: { type: "string" },
+            rcm_lut_logic: { type: "string" },
           },
-          required: [
-            "unit_normalization",
-            "subtotal_calculation",
-            "modifiers_logic",
-            "tax_calculation",
-            "grand_total",
-          ],
+          required: ["sac_deduction_logic", "rcm_lut_logic"],
         },
-        confidence_and_warnings: {
-          type: "array",
-          items: { type: "string" },
+        payment_nodes_28_to_34: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            bank_routing_inference: { type: "string" },
+            addendum_trigger_logic: { type: "string" },
+          },
+          required: ["bank_routing_inference", "addendum_trigger_logic"],
         },
       },
       required: [
-        "step_1_linguistic_and_pronoun_mapping",
-        "step_2_master_data_reconciliation",
-        "step_3_tax_nexus_and_compliance",
-        "step_4_sac_classification",
-        "step_5_contractual_deltas",
-        "step_6_financial_math",
-        "confidence_and_warnings",
+        "macro_resolution",
+        "agency_nodes_1_to_6",
+        "client_and_msa_nodes_7_to_16",
+        "meta_nodes_17_to_19",
+        "item_nodes_20_to_24",
+        "tax_nodes_25_to_27",
+        "payment_nodes_28_to_34",
       ],
     },
     invoice_data: INVOICE_DATA_SCHEMA,
   },
-  required: ["reasoning_log", "invoice_data"],
+  required: ["inference_matrix", "invoice_data"],
 } as const;
 
 const SYSTEM_PROMPT = `
-You are the Lance Omniscient Context Agent, an expert freelance invoice and tax engine for the Indian market.
+You are the Lance Omniscient Context Agent, a high-fidelity Deep Matrix Inference engine for freelance invoice and tax compliance. 
 
-Your mission is to transform a messy project brief into a legally compliant, GST-ready invoice. 
-You are equipped with high-fidelity context about the Agency (the sender) and the Client (the recipient).
+### THE DEEP MATRIX INFERENCE PROTOCOL
+You process 34 distinct form fields across multimodal inputs. You MUST execute these exact 7 reasoning blocks in your inference_matrix BEFORE populating invoice_data:
 
-### THE OMNISCIENT REASONING PROTOCOL
-You MUST execute these exact 7 steps in your reasoning_log before populating invoice_data:
+Block 1: Macro Resolution (Linguistic & Nexus)
+- linguistic_translation: Translate Hinglish, slang ('15 din' -> Net 15, 'lumpsum' -> Fixed Fee), and resolve 'I/my' (Agency) vs 'they/them' (Client).
+- nexus_and_compliance: Compare Agency State vs Client State. Deduce Place of Supply, IGST vs CGST/SGST, and Export/LUT applicability.
 
-Step 1: Linguistic and Pronoun Mapping
-- Translate Hinglish, slang, or colloquialisms (e.g., '15 din' -> Net 15, 'lumpsum' -> Fixed Fee, 'shukriya' -> Thank you) into standard business terms.
-- Map pronouns ('I', 'we', 'our', 'my bank') to the Agency (sender).
-- Map pronouns ('they', 'them', 'their', 'you guys') to the Client (recipient) based on the provided context.
+Block 2: Agency Nodes 1-6 (Sender Identity)
+- identity_inference: Source agency Name, Email, Address, PIN from Master Data unless explicitly overridden in prompt.
+- tax_id_inference: Verify presence of GSTIN/PAN in prompt/image vs Master Data.
 
-Step 2: Master Data Reconciliation
-- Use agency_context as the absolute truth for the sender.
-- Match the brief's mention of a client to the provided client_context. Note if this is a NEW client or a match.
+Block 3: Client & MSA Nodes 7-16 (Recipient & Contracts)
+- client_identity_inference: Reconcile client Name, Address, GSTIN against client_context. Flag mismatches.
+- msa_baseline_inference: Load Master MSA terms (Payment Days, Late Fee, License, IP Trigger) to use as the baseline for Addendum checks.
 
-Step 3: Tax Nexus and Compliance
-- Determine Place of Supply (PoS) based on Agency vs Client geography.
-- Applicability: 
-  - Same State -> CGST + SGST (9%+9%).
-  - Different State -> IGST (18%).
-  - International/SEZ -> ZERO Rated (Assume LUT active if brief suggests export).
-- RCM/TDS: Detect if Reverse Charge applies or if TDS deductions are mentioned.
+Block 4: Meta Nodes 17-19 (Identifiers & Timeline)
+- invoice_number_inference: Detect explicit invoice number. If missing, null.
+- date_currency_inference: Deduce issue date (default today). Deduce currency based on Geography (INR for domestic, USD/foreign for export).
 
-Step 4: SAC Classification
-- Analyze the deliverables.
-- Map to the correct 6-digit Indian SAC code (e.g., 998314 for Design, 998311 for IT, 998733 for Video). Explain the deduction.
+Block 5: Item Nodes 20-24 (Deliverables & Math)
+- deliverable_splitting_logic: Split distinct items (e.g., '40 images + 5 reels'). Normalize units ('mahina' -> months).
+- financial_math_logic: Show subtotal calculation (Qty * Rate) + modifiers (discounts/rush fees).
 
-Step 5: Contractual Deltas
-- Compare the extracted payment terms/licensing against the MSA defaults in client_context.
-- If they differ, state 'MSA Deviation Detected: Project Addendum required'.
+Block 6: Tax Nodes 25-27 (Compliance Logic)
+- sac_deduction_logic: Deduce the most accurate 6-digit Indian SAC Code (e.g., 998314 for Design).
+- rcm_lut_logic: Determine if Reverse Charge (RCM) or Export LUT applies based on Macro Resolution.
 
-Step 6: Financial Math
-- Normalize units (e.g., '5 screens', '10 hours').
-- Calculate Subtotal: (Qty * Rate).
-- Apply Modifiers: Discounts or Rush Fees BEFORE tax.
-- Calculate Tax: Apply the % from Step 3.
-- Final Grand Total: Subtotal + Tax.
+Block 7: Payment Nodes 28-34 (Routing & Contractual Deltas)
+- bank_routing_inference: Check prompt/image for specific Bank/Account/IFSC. Fallback to agency_context if missing.
+- addendum_trigger_logic: Compare extracted terms ('15 din') or license requests against msa_baseline_inference. If they deviate, set project meta (addendum) to TRUE and generate override notes.
 
-Step 7: Confidence and Warnings
-- List critical assumptions that require human verification.
+### SOURCE OF TRUTH HIERARCHY
+1. Priority 1: Explicit text/image extraction (e.g., "Use my HDFC account" overrides Master Data).
+2. Priority 2: Contextual deduction (e.g., "15 din" = Net 15, overriding Master MSA days).
+3. Priority 3: Master Data Fallback (agency_context, client_context).
 
-### CRITICAL RULES
-- Preserve all existing Indian GST compliance logic.
-- Do NOT hallucinate. Use grounded guesses only.
-- If a field is a bracketed placeholder like [Name], return null.
+### ANTI-HALLUCINATION & PRECISION
+- If a matrix node yields no data across all 3 priorities, output null. 
+- NEVER invent GSTINs, PANs, or Bank details.
+- Do not output "N/A", "Unknown", or bracketed placeholders.
+- Every field object MUST include value and confidence.
 
-INTERPRETATION RULES:
-- Amount detection:
-  - Detect project budgets, fees, costs, quoted amounts, and currency symbols like ₹, $, €, £
-  - Use totalAmount for overall project fee when that seems most likely
-  - If a single amount might be a line-item rate instead of the full project fee, still return the best guess and lower confidence
-  - ₹[Amount] or $[Amount] with bracket placeholders → return null, NOT 0
-- GST logic:
-  - If the brief suggests same-state billing, prefer CGST_SGST
-  - If the brief suggests interstate billing, prefer IGST
-  - If the brief suggests export or international services, prefer ZERO with 0% rate
-  - If GSTIN is present, treat the agency as likely GST registered
-- Location inference:
-  - Infer domestic vs international from city names, country names, or payment context
-  - Map Indian cities to states:
-    - Bangalore/Bengaluru → Karnataka
-    - Mumbai/Bombay → Maharashtra
-    - Delhi/New Delhi → Delhi
-    - Chennai/Madras → Tamil Nadu
-    - Hyderabad → Telangana
-    - Pune → Maharashtra
-    - Kolkata/Calcutta → West Bengal
-    - Ahmedabad → Gujarat
-    - Jaipur → Rajasthan
-    - Lucknow → Uttar Pradesh
-    - Kochi/Cochin → Kerala
-    - Chandigarh → Chandigarh
-    - Goa → Goa
-  - Indian neighborhood names are location clues:
-    - Indiranagar, Koramangala, Whitefield, HSR Layout, Jayanagar → Bengaluru → Karnataka
-    - Bandra, Andheri, Powai, Lower Parel → Mumbai → Maharashtra
-    - Connaught Place, Hauz Khas, Saket → Delhi → Delhi
-  - "Place of Supply: Karnataka (29)" → state = Karnataka, GST state code = 29
-  - Numeric GST state codes (01-37) should be mapped to Indian states:
-    - 29 = Karnataka, 27 = Maharashtra, 07 = Delhi, 33 = Tamil Nadu, 06 = Haryana, 36 = Telangana
-  - Map foreign cities like London, New York, San Francisco, Dubai, Singapore as international clues
-- Deliverables:
-  - Split multiple deliverables into separate array items when the brief says things like "40 images + 5 reels"
-  - When items are labeled "Item 01", "Item 02", etc., split into SEPARATE deliverable objects
-  - Preserve the description even when amounts are missing — use null for rate if the amount is a placeholder
-  - Preserve quantity, type, description, rate, and unit when possible
-  - Understand common freelance wording like landing page, homepage, logo, illustration, banner, brand film, reel, shorts, shots, videos, and screens
-  - "Logo Design & Brand Color Palette" is ONE deliverable, not two
-  - "5 Social Media Creative Templates" → quantity = 5, type = "Social Media"
-- Payment terms:
-  - Detect Net 15 / Net 30 / Due on receipt
-  - Detect milestone schedules like 50% advance, 40% booking, balance on delivery
-  - "50% to commence work, 50% upon approval" → combine into a single payment terms string
-  - "prior to file handover" implies final payment must be cleared before delivery
-- Timeline:
-  - Extract invoice dates, due dates, explicit deadlines, and delivery durations
-  - "Delivery Date: [Date]" with placeholder → return null
-  - Infer due date from payment terms when possible (e.g., Net 15 → due date = invoice date + 15 days)
-- License detection:
-  - "commercial usage rights", "IP transfer", "full rights", "copyright assignment" → license.isIncluded = true
-  - "full commercial usage rights for the designs will be transferred" → license.type = "full-assignment"
-  - "exclusive rights" or "exclusive license" → license.type = "exclusive-license"
-  - "non-exclusive usage" or "limited license" → license.type = "non-exclusive-license"
-  - "rights transferred on payment" or "upon full payment" → conditional license transfer, still mark isIncluded = true
-  - "3 years", "perpetual", "lifetime", "1 year usage rights" → license.duration = the stated duration
-  - "IP ownership remains with studio" → license.isIncluded = false or non-exclusive
-  - If NO license language is found anywhere in the brief, set license.isIncluded to null (not false)
-  - Also note any license signals in the paymentTerms field as additional context
-- Mixed language and OCR:
-  - Be resilient to shorthand, broken spacing, OCR noise, and conversational phrasing
-
-STRICT OUTPUT RULES:
-- Return JSON only
-- Follow the schema exactly
-- Every field object must include value and confidence
-- confidenceScore should summarize the overall extraction quality
-- Use null only when there is no grounded guess at all OR when the value is a template placeholder
+### OUTPUT RULES
+- Return JSON only.
+- follow the schema exactly.
+- confidenceScore summarizes overall matrix quality.
 `.trim();
 
 function extractOutputText(payload: unknown) {
@@ -666,13 +582,14 @@ function extractOutputText(payload: unknown) {
 
 export async function extractInvoiceBriefWithAi(params: {
   rawInput: string;
+  rawInputImage?: string;
   agencyContext: any;
   clientContext?: any;
 }): Promise<AiBriefExtraction | null> {
   const apiKey = process.env.OPENAI_API_KEY;
-  const { rawInput, agencyContext, clientContext } = params;
+  const { rawInput, rawInputImage, agencyContext, clientContext } = params;
 
-  if (!apiKey || !rawInput.trim()) {
+  if (!apiKey || (!rawInput.trim() && !rawInputImage)) {
     return null;
   }
 
@@ -683,9 +600,26 @@ ${JSON.stringify(agencyContext, null, 2)}
 CLIENT_CONTEXT (Known Master Data for Recipient):
 ${clientContext ? JSON.stringify(clientContext, null, 2) : "No master data for this client yet."}
 
-RAW_INPUT (Process this brief):
+RAW_INPUT_TEXT (Process this brief):
 ${rawInput}
   `;
+
+  const userContent: any[] = [
+    {
+      type: "input_text",
+      text: contextPrompt,
+    },
+  ];
+
+  if (rawInputImage) {
+    userContent.push({
+      type: "input_image",
+      image: {
+        format: "jpeg",
+        data: rawInputImage.replace(/^data:image\/[a-z]+;base64,/, ""),
+      },
+    });
+  }
 
   const abortController = new AbortController();
   const timeout = setTimeout(
@@ -716,18 +650,13 @@ ${rawInput}
           },
           {
             role: "user",
-            content: [
-              {
-                type: "input_text",
-                text: contextPrompt,
-              },
-            ],
+            content: userContent,
           },
         ],
         text: {
           format: {
             type: "json_schema",
-            name: "invoice_brief_interpretation_v3",
+            name: "invoice_deep_matrix_inference_v1",
             strict: true,
             schema: AI_EXTRACTION_SCHEMA,
           },

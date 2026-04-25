@@ -15,6 +15,7 @@ function getClientIp(request: Request): string {
 
 const BriefExtractSchema = z.object({
   raw_input: z.string().max(10240),
+  raw_input_image: z.string().optional().nullable(),
   agency_context: z.object({
     businessName: z.string().optional().nullable(),
     full_name: z.string().optional().nullable(),
@@ -63,11 +64,12 @@ export async function POST(request: Request) {
   try {
     // ─── Input size guard ─────────────────────────────────────
     const contentLength = request.headers.get("content-length");
-    if (contentLength && parseInt(contentLength, 10) > MAX_INPUT_BYTES) {
+    if (contentLength && parseInt(contentLength, 10) > MAX_INPUT_BYTES * 50) {
+      // Increased for images
       return NextResponse.json(
         {
           extraction: null,
-          error: "Request body too large. Maximum brief size is 10 KB.",
+          error: "Request body too large.",
         },
         { status: 413 },
       );
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
     // ─── AI Extraction Stage ─────────────────────────────────
     const extraction = await extractInvoiceBriefWithAi({
       rawInput: validatedData.raw_input,
+      rawInputImage: validatedData.raw_input_image || undefined,
       agencyContext: validatedData.agency_context,
       clientContext: validatedData.client_context,
     });
