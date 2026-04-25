@@ -1413,10 +1413,10 @@ function EditorContent() {
         JSON.stringify(previewFormData)
       );
 
-      // Save Client to Master if checked
-      if (shouldSaveNewClientMaster && userProfile) {
-        import("@/lib/supabase/clients").then(({ clientDetailsToRow, saveClient }) => {
-          saveClient(clientDetailsToRow(formData.client)).catch(console.error);
+      // Save Client to Master if checked (only for registered users)
+      if (shouldSaveNewClientMaster && !isGuestMode) {
+        import("@/lib/supabase/clients").then(({ upsertClient }) => {
+          upsertClient(formData.client).catch(console.error);
         });
       }
 
