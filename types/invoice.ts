@@ -125,6 +125,7 @@ export interface InvoiceMeta {
   invoiceDate: string;
   dueDate: string;
   paymentTerms: string;
+  hasAddendum: boolean;
 }
 
 export interface TaxConfig {
@@ -233,6 +234,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     invoiceDate: "",
     dueDate: "",
     paymentTerms: "",
+    hasAddendum: false,
   },
   lineItems: [
     {

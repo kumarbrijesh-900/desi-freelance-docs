@@ -334,6 +334,10 @@ export default function AgencyDetailsSection({
                         },
                       ]}
                     />
+                    <p className={appFieldHelperTextClass}>
+                      A Letter of Undertaking (LUT) allows you to export services without paying IGST upfront. 
+                      It must be renewed every financial year on the GST portal.
+                    </p>
 
                     <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${value.lutAvailability === "yes" ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
@@ -354,6 +358,10 @@ export default function AgencyDetailsSection({
                               Boolean(value.lutNumber)
                             )}
                           />
+                          <p className={appFieldHelperTextClass}>
+                            The LUT ARN (Acknowledgement Reference Number) is the 15-digit unique ID from your filed GST RFD-11. 
+                            Providing this allows you to issue 'Zero Rated' invoices to foreign clients without collecting tax.
+                          </p>
                         </div>
                       </div>
                     </div>
