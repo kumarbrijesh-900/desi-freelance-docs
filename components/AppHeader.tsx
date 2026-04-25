@@ -161,9 +161,12 @@ export default function AppHeader({
             </Link>
 
             <nav className="ml-4 hidden items-center gap-5 border-l border-[color:var(--border-subtle)] pl-5 sm:flex">
+              <NavLink 
+                href={user ? "/invoice/new" : "/sandbox?guest=1"} 
+                label="New Invoice" 
+              />
               {user && (
                 <>
-                  <NavLink href="/invoice/new" label="New Invoice" />
                   <NavLink href="/invoices" label="Invoices" />
                   <NavLink href="/clients" label="Clients" />
                 </>

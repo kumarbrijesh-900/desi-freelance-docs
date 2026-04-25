@@ -42,6 +42,7 @@ import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
 import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
+import ConversionModal from "@/components/invoice/ConversionModal";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -75,6 +76,7 @@ function PreviewContent() {
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showConversionModal, setShowConversionModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
@@ -169,13 +171,14 @@ function PreviewContent() {
       const userId = await getCurrentUserId();
       if (!userId) return;
 
-      const { error } = await saveInvoice({
+      const { error, data: saved } = await saveInvoice({
         formData: currentData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
       });
 
-      if (!error) {
+      if (!error && saved) {
+        setCloudInvoiceId(saved.id);
         // Sync profile details from this restored draft
         await syncProfileFromInvoice(currentData);
         
@@ -222,7 +225,7 @@ function PreviewContent() {
     const userId = await getCurrentUserId();
     if (!userId) {
       persistDraft();
-      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      setShowConversionModal(true);
       return;
     }
     window.print();
@@ -262,8 +265,8 @@ function PreviewContent() {
       // Fall through to local-only save on error
       console.warn("Cloud save failed, using local storage:", error);
     } else {
-      // Redirect to login if not authenticated
-      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      setShowConversionModal(true);
+      setSaveState("idle");
       return;
     }
 
@@ -275,7 +278,7 @@ function PreviewContent() {
     const userId = await getCurrentUserId();
     if (!userId) {
       persistDraft();
-      router.push(`/login?next=${encodeURIComponent("/invoice/preview?restore=1")}`);
+      setShowConversionModal(true);
       return;
     }
 
@@ -306,6 +309,13 @@ function PreviewContent() {
         document.title = defaultTitleRef.current || previewTitle;
       }
     }, 500);
+  };
+
+  const handleLoginClick = async () => {
+    const next = encodeURIComponent("/invoice/preview?restore=1");
+    const redirectTo = `${window.location.origin}/login?next=${next}`;
+    // We already persisted the draft in handlePrint/Save/Download
+    window.location.href = redirectTo;
   };
 
   if (!isReady) {
@@ -601,6 +611,12 @@ function PreviewContent() {
           onShared={(token) => setShareToken(token)}
         />
       )}
+
+      <ConversionModal
+        isOpen={showConversionModal}
+        onClose={() => setShowConversionModal(false)}
+        onLoginClick={handleLoginClick}
+      />
 
       <UploadToast message={toastMessage} visible={showToast} />
     </>

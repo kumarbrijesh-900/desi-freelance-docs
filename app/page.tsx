@@ -192,7 +192,7 @@ export default function Home() {
                       </span>
                     </Link>
                     <Link
-                      href="/sandbox"
+                      href="/sandbox?guest=1"
                       className={getAppButtonClass({ variant: "ghost", size: "lg" })}
                     >
                       <span className="inline-flex items-center gap-2">

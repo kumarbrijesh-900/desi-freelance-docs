@@ -675,6 +675,7 @@ function EditorContent() {
     mergeInvoiceFormData(defaultInvoiceFormData)
   );
   const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
+  const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -734,6 +735,9 @@ function EditorContent() {
     let nextMsaNote: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
+
+    const isGuest = searchParams.get("guest") === "1";
+    setIsGuestMode(isGuest);
 
     try {
       try {
