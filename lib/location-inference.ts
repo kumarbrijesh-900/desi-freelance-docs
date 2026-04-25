@@ -1,4 +1,7 @@
-import { INDIA_STATE_OPTIONS, type IndiaStateOption } from "@/lib/india-state-options";
+import {
+  INDIA_STATE_OPTIONS,
+  type IndiaStateOption,
+} from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   type InternationalCountryOption,
@@ -27,7 +30,11 @@ export type LocationInferenceResult = {
 };
 
 const indianCityStateAliases: IndianCityAlias[] = [
-  { city: "Bengaluru", state: "Karnataka", aliases: ["bengaluru", "bangalore"] },
+  {
+    city: "Bengaluru",
+    state: "Karnataka",
+    aliases: ["bengaluru", "bangalore"],
+  },
   { city: "Mumbai", state: "Maharashtra", aliases: ["mumbai"] },
   { city: "Pune", state: "Maharashtra", aliases: ["pune"] },
   { city: "Chennai", state: "Tamil Nadu", aliases: ["chennai"] },
@@ -85,7 +92,11 @@ const foreignCityCountryAliases: ForeignCityAlias[] = [
 ];
 
 function normalizeLocationAlias(alias: string) {
-  return alias.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+  return alias
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function escapeRegExp(value: string) {
@@ -110,7 +121,7 @@ export function normalizeLocationText(text: string) {
   ].reduce((currentText, [from, to]) => {
     return currentText.replace(
       new RegExp(`\\b${escapeRegExp(from)}\\b`, "gi"),
-      to
+      to,
     );
   }, normalized);
 
@@ -120,28 +131,36 @@ export function normalizeLocationText(text: string) {
 function matchIndianCity(text: string) {
   return indianCityStateAliases.find((entry) =>
     entry.aliases.some((alias) =>
-      new RegExp(`\\b${escapeRegExp(normalizeLocationAlias(alias))}\\b`, "i").test(text)
-    )
+      new RegExp(
+        `\\b${escapeRegExp(normalizeLocationAlias(alias))}\\b`,
+        "i",
+      ).test(text),
+    ),
   );
 }
 
 function matchForeignCity(text: string) {
   return foreignCityCountryAliases.find((entry) =>
     entry.aliases.some((alias) =>
-      new RegExp(`\\b${escapeRegExp(normalizeLocationAlias(alias))}\\b`, "i").test(text)
-    )
+      new RegExp(
+        `\\b${escapeRegExp(normalizeLocationAlias(alias))}\\b`,
+        "i",
+      ).test(text),
+    ),
   );
 }
 
-export function inferLocationDetailsFromText(text: string): LocationInferenceResult {
+export function inferLocationDetailsFromText(
+  text: string,
+): LocationInferenceResult {
   const normalizedText = normalizeLocationText(text);
   const directState =
     INDIA_STATE_OPTIONS.find((stateName) =>
-      normalizedText.includes(stateName.toLowerCase())
+      normalizedText.includes(stateName.toLowerCase()),
     ) ?? "";
   const directCountry =
     INTERNATIONAL_COUNTRY_OPTIONS.find((countryName) =>
-      normalizedText.includes(countryName.toLowerCase())
+      normalizedText.includes(countryName.toLowerCase()),
     ) ?? "";
   const matchedIndianCity = matchIndianCity(normalizedText);
   const matchedForeignCity = matchForeignCity(normalizedText);
@@ -172,7 +191,7 @@ export function inferLocationDetailsFromText(text: string): LocationInferenceRes
 
   if (
     /\b(?:international|foreign client|overseas|outside india|export of services)\b/i.test(
-      normalizedText
+      normalizedText,
     )
   ) {
     return {
@@ -188,7 +207,7 @@ export function inferLocationDetailsFromText(text: string): LocationInferenceRes
 
   if (
     /\b(?:domestic|within india|same state|inter state|inter-state|igst|cgst|sgst)\b/i.test(
-      normalizedText
+      normalizedText,
     )
   ) {
     return {
@@ -218,7 +237,7 @@ export function inferStateFromText(text: string): IndiaStateOption | "" {
 }
 
 export function inferCountryFromText(
-  text: string
+  text: string,
 ): InternationalCountryOption | "" {
   return inferLocationDetailsFromText(text).country;
 }
@@ -232,7 +251,7 @@ export function hasIndianLocationHint(text: string) {
 }
 
 export function inferLocationTypeFromText(
-  text: string
+  text: string,
 ): "domestic" | "international" | "" {
   return inferLocationDetailsFromText(text).locationType;
 }

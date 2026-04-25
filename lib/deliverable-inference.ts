@@ -1,9 +1,6 @@
 import { normalizeInvoiceLineItemType } from "@/lib/invoice-line-item-catalog";
 import { resolveLineItemSacCode } from "@/lib/invoice-sac";
-import type {
-  InvoiceLineItemType,
-  InvoiceRateUnit,
-} from "@/types/invoice";
+import type { InvoiceLineItemType, InvoiceRateUnit } from "@/types/invoice";
 
 export type InferredDeliverableLine = {
   type: InvoiceLineItemType;
@@ -16,8 +13,7 @@ export type InferredDeliverableLine = {
   pricingSignal: "rate" | "budget" | "none";
 };
 
-const amountPattern =
-  String.raw`(?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?`;
+const amountPattern = String.raw`(?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?`;
 
 const deliverablePatterns: Array<{
   pattern: RegExp;
@@ -26,7 +22,8 @@ const deliverablePatterns: Array<{
   description: string;
 }> = [
   {
-    pattern: /\b(\d+)\s+((?:landing page\s+|homepage\s+|mobile app\s+)?screens?)\b/gi,
+    pattern:
+      /\b(\d+)\s+((?:landing page\s+|homepage\s+|mobile app\s+)?screens?)\b/gi,
     type: "UI/UX Design",
     unit: "per-screen",
     description: "UI screens",
@@ -84,7 +81,10 @@ const deliverablePatterns: Array<{
 function parseAmount(value?: string | null) {
   const cleaned = (value ?? "")
     .toLowerCase()
-    .replace(/(?:₹|rs\.?|inr|rupees?|us\$|a\$|c\$|s\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)/gi, "")
+    .replace(
+      /(?:₹|rs\.?|inr|rupees?|us\$|a\$|c\$|s\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)/gi,
+      "",
+    )
     .replace(/,/g, "")
     .trim();
   const match = cleaned.match(/(\d+(?:\.\d+)?)(?:\s*(k|m|lakh|lac))?/i);
@@ -102,17 +102,17 @@ function parseAmount(value?: string | null) {
     match[2] === "k"
       ? 1_000
       : match[2] === "m"
-      ? 1_000_000
-      : match[2] === "lakh" || match[2] === "lac"
-      ? 100_000
-      : 1;
+        ? 1_000_000
+        : match[2] === "lakh" || match[2] === "lac"
+          ? 100_000
+          : 1;
 
   return Math.round(base * multiplier);
 }
 
 function isOptionalFutureContext(context: string) {
   return /\b(?:optional|maybe|later|future|phase\s*2|next month|not now|exclude|hold)\b/i.test(
-    context
+    context,
   );
 }
 
@@ -127,8 +127,15 @@ function cleanDescription(value: string, fallback: string) {
 function inferRateFromContext(context: string, unit: InvoiceRateUnit) {
   const unitLabel = unit.replace("per-", "");
   const directRate =
-    context.match(new RegExp(`(?:at|@)\\s*(${amountPattern})\\s*(?:per\\s+${unitLabel}|each)?`, "i"))?.[1] ??
-    context.match(new RegExp(`(${amountPattern})\\s+per\\s+${unitLabel}`, "i"))?.[1];
+    context.match(
+      new RegExp(
+        `(?:at|@)\\s*(${amountPattern})\\s*(?:per\\s+${unitLabel}|each)?`,
+        "i",
+      ),
+    )?.[1] ??
+    context.match(
+      new RegExp(`(${amountPattern})\\s+per\\s+${unitLabel}`, "i"),
+    )?.[1];
 
   if (directRate) {
     const parsed = parseAmount(directRate);
@@ -138,7 +145,10 @@ function inferRateFromContext(context: string, unit: InvoiceRateUnit) {
   }
 
   const budgetOnly = context.match(
-    new RegExp(`\\b(?:budget|total|project fee|fixed fee)\\b[^\\n.]{0,32}?(${amountPattern})`, "i")
+    new RegExp(
+      `\\b(?:budget|total|project fee|fixed fee)\\b[^\\n.]{0,32}?(${amountPattern})`,
+      "i",
+    ),
   )?.[1];
 
   return budgetOnly
@@ -146,13 +156,18 @@ function inferRateFromContext(context: string, unit: InvoiceRateUnit) {
     : { rate: null, pricingSignal: "none" as const };
 }
 
-export function inferDeliverablesFromText(text: string): InferredDeliverableLine[] {
+export function inferDeliverablesFromText(
+  text: string,
+): InferredDeliverableLine[] {
   const items: InferredDeliverableLine[] = [];
 
   for (const matcher of deliverablePatterns) {
     for (const match of text.matchAll(matcher.pattern)) {
       const index = match.index ?? 0;
-      const context = text.slice(Math.max(0, index - 48), Math.min(text.length, index + 140));
+      const context = text.slice(
+        Math.max(0, index - 48),
+        Math.min(text.length, index + 140),
+      );
       const precedingContext = text.slice(Math.max(0, index - 36), index);
 
       if (isOptionalFutureContext(precedingContext)) {
@@ -166,7 +181,10 @@ export function inferDeliverablesFromText(text: string): InferredDeliverableLine
 
       const normalizedType =
         normalizeInvoiceLineItemType(matcher.type) ?? matcher.type;
-      const { rate, pricingSignal } = inferRateFromContext(context, matcher.unit);
+      const { rate, pricingSignal } = inferRateFromContext(
+        context,
+        matcher.unit,
+      );
       const description = cleanDescription(match[2] ?? "", matcher.description);
 
       items.push({

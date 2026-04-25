@@ -52,7 +52,7 @@ const primitiveSwatches = [
 
 export default function DesignSystemReference() {
   const [settlement, setSettlement] = useState<"forex" | "inr" | "not-sure">(
-    "forex"
+    "forex",
   );
   const [licensingExpanded, setLicensingExpanded] = useState(false);
 
@@ -80,13 +80,13 @@ export default function DesignSystemReference() {
                   key={swatch.label}
                   className={cn(
                     getAppSubtlePanelClass("muted"),
-                    "space-y-3 p-4"
+                    "space-y-3 p-4",
                   )}
                 >
                   <div
                     className={cn(
                       "h-16 rounded-[14px] border border-black/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]",
-                      swatch.className
+                      swatch.className,
                     )}
                   />
                   <p className="text-sm font-medium text-slate-800">
@@ -104,13 +104,19 @@ export default function DesignSystemReference() {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                className={getAppButtonClass({
+                  variant: "primary",
+                  size: "sm",
+                })}
               >
                 Primary action
               </button>
               <button
                 type="button"
-                className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                className={getAppButtonClass({
+                  variant: "secondary",
+                  size: "sm",
+                })}
               >
                 Secondary action
               </button>
@@ -126,7 +132,9 @@ export default function DesignSystemReference() {
               </span>
             </div>
             <div className="grid gap-5 xl:grid-cols-2">
-              <div className={cn(getAppSubtlePanelClass("muted"), "space-y-5 p-5")}>
+              <div
+                className={cn(getAppSubtlePanelClass("muted"), "space-y-5 p-5")}
+              >
                 <AppTextField
                   label="GSTIN"
                   value="29ABCDE1234F1Z5"
@@ -150,7 +158,9 @@ export default function DesignSystemReference() {
                   width="content"
                 />
               </div>
-              <div className={cn(getAppSubtlePanelClass("muted"), "space-y-5 p-5")}>
+              <div
+                className={cn(getAppSubtlePanelClass("muted"), "space-y-5 p-5")}
+              >
                 <AppFieldShell label="Settlement type" width="content">
                   <AppSegmentedControl
                     name="reference-settlement"
@@ -194,7 +204,7 @@ export default function DesignSystemReference() {
                     "flex w-full items-center gap-3 rounded-[14px] px-2.5 py-2.5 text-left transition-colors",
                     index === 1
                       ? "bg-white text-slate-950 shadow-[var(--app-elevation-soft)]"
-                      : "text-slate-600 hover:bg-white/75 hover:text-slate-950"
+                      : "text-slate-600 hover:bg-white/75 hover:text-slate-950",
                   )}
                 >
                   <span
@@ -202,7 +212,7 @@ export default function DesignSystemReference() {
                       "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold",
                       index === 1
                         ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                        : "border-slate-200 bg-white text-slate-500"
+                        : "border-slate-200 bg-white text-slate-500",
                     )}
                   >
                     {item.step}
@@ -230,7 +240,9 @@ export default function DesignSystemReference() {
                   Add your business details for the invoice.
                 </p>
               </div>
-              <span className={getAppStatusPillClass("default")}>2 required</span>
+              <span className={getAppStatusPillClass("default")}>
+                2 required
+              </span>
             </div>
             <div className={appSectionBodyClass}>
               <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_132px]">
@@ -251,7 +263,12 @@ export default function DesignSystemReference() {
                       width="code"
                     />
                   </div>
-                  <div className={getAppFieldRowClass({ columns: 3, density: "compact" })}>
+                  <div
+                    className={getAppFieldRowClass({
+                      columns: 3,
+                      density: "compact",
+                    })}
+                  >
                     <AppTextField
                       label="Address line 1"
                       value="2nd Floor, Residency Road"
@@ -280,7 +297,9 @@ export default function DesignSystemReference() {
                   <div className="flex aspect-[4/3] items-center justify-center rounded-[14px] border border-dashed border-slate-300 bg-white/80 text-slate-500">
                     <UploadIcon className="h-5 w-5" />
                   </div>
-                  <p className="text-[11px] leading-5 text-slate-500">PNG/JPG</p>
+                  <p className="text-[11px] leading-5 text-slate-500">
+                    PNG/JPG
+                  </p>
                 </div>
               </div>
             </div>
@@ -294,20 +313,28 @@ export default function DesignSystemReference() {
                   Add the billable line items.
                 </p>
               </div>
-              <span className={getAppStatusPillClass("muted")}>Dense row editor</span>
+              <span className={getAppStatusPillClass("muted")}>
+                Dense row editor
+              </span>
             </div>
             <div className={cn(appSectionBodyClass, "space-y-4")}>
               <div className="hidden lg:grid lg:grid-cols-[92px_minmax(0,3.6fr)_72px_132px_116px_104px_40px] lg:gap-2">
-                {["Type", "Description", "Qty", "Rate", "Unit", "Total", ""].map(
-                  (label) => (
-                    <span
-                      key={label || "remove"}
-                      className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500"
-                    >
-                      {label}
-                    </span>
-                  )
-                )}
+                {[
+                  "Type",
+                  "Description",
+                  "Qty",
+                  "Rate",
+                  "Unit",
+                  "Total",
+                  "",
+                ].map((label) => (
+                  <span
+                    key={label || "remove"}
+                    className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500"
+                  >
+                    {label}
+                  </span>
+                ))}
               </div>
               <div className={cn(getAppFieldGroupClass(), "space-y-3")}>
                 <div className="grid gap-2 lg:grid-cols-[92px_minmax(0,3.6fr)_72px_132px_116px_104px_40px]">
@@ -339,7 +366,10 @@ export default function DesignSystemReference() {
                   </div>
                   <button
                     type="button"
-                    className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                    className={getAppButtonClass({
+                      variant: "ghost",
+                      size: "sm",
+                    })}
                     aria-label="Remove item"
                   >
                     ×
@@ -348,8 +378,8 @@ export default function DesignSystemReference() {
                 <div className="grid gap-2 lg:grid-cols-[92px_minmax(0,3.6fr)_72px_132px_116px_104px_40px]">
                   <div />
                   <p className="min-h-[20px] text-[11px] leading-5 text-slate-500">
-                    Description stays dominant and visible; helper/error space is
-                    reserved in the row.
+                    Description stays dominant and visible; helper/error space
+                    is reserved in the row.
                   </p>
                   <p className="min-h-[20px] text-[11px] leading-5 text-slate-500">
                     Qty
@@ -373,7 +403,9 @@ export default function DesignSystemReference() {
                   Add payment and bank details.
                 </p>
               </div>
-              <span className={getAppStatusPillClass("muted")}>Optional controls</span>
+              <span className={getAppStatusPillClass("muted")}>
+                Optional controls
+              </span>
             </div>
             <div className={appSectionBodyClass}>
               <div className="space-y-5">
@@ -394,7 +426,12 @@ export default function DesignSystemReference() {
                   />
                 </AppFieldShell>
 
-                <div className={cn(getAppFieldGroupClass({ tone: "muted" }), "space-y-4")}>
+                <div
+                  className={cn(
+                    getAppFieldGroupClass({ tone: "muted" }),
+                    "space-y-4",
+                  )}
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-slate-900">
@@ -406,8 +443,13 @@ export default function DesignSystemReference() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setLicensingExpanded((current) => !current)}
-                      className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                      onClick={() =>
+                        setLicensingExpanded((current) => !current)
+                      }
+                      className={getAppButtonClass({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
                     >
                       {licensingExpanded ? (
                         <>
@@ -424,7 +466,12 @@ export default function DesignSystemReference() {
                   </div>
 
                   {licensingExpanded ? (
-                    <div className={getAppFieldRowClass({ columns: 2, density: "compact" })}>
+                    <div
+                      className={getAppFieldRowClass({
+                        columns: 2,
+                        density: "compact",
+                      })}
+                    >
                       <AppTextField
                         label="License duration"
                         value="12 months"
@@ -445,7 +492,12 @@ export default function DesignSystemReference() {
 
                 <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_144px]">
                   <div className="space-y-4">
-                    <div className={getAppFieldRowClass({ columns: 2, density: "compact" })}>
+                    <div
+                      className={getAppFieldRowClass({
+                        columns: 2,
+                        density: "compact",
+                      })}
+                    >
                       <AppTextField
                         label="Beneficiary name"
                         value="Acme Design Studio"
@@ -461,7 +513,12 @@ export default function DesignSystemReference() {
                         width="medium"
                       />
                     </div>
-                    <div className={getAppFieldRowClass({ columns: 3, density: "compact" })}>
+                    <div
+                      className={getAppFieldRowClass({
+                        columns: 3,
+                        density: "compact",
+                      })}
+                    >
                       <AppTextField
                         label="Account number"
                         value="50200044321098"
@@ -502,7 +559,12 @@ export default function DesignSystemReference() {
       </section>
 
       <div className="pointer-events-none sticky bottom-4 z-30 flex justify-end">
-        <div className={cn(appStickyActionDockClass, "pointer-events-auto flex flex-wrap items-center gap-2 p-2.5")}>
+        <div
+          className={cn(
+            appStickyActionDockClass,
+            "pointer-events-auto flex flex-wrap items-center gap-2 p-2.5",
+          )}
+        >
           <button
             type="button"
             className={getAppButtonClass({ variant: "ghost", size: "sm" })}

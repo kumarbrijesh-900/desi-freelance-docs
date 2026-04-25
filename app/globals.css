@@ -8,69 +8,69 @@
 
 :root {
   /* ---------- Canvas / Surfaces ---------- */
-  --color-bg-canvas: #F8F8FA;
-  --color-bg-subtle: #F0F0F4;
+  --color-bg-canvas: #f8f8fa;
+  --color-bg-subtle: #f0f0f4;
   --color-surface: #ffffff;
-  --color-surface-elevated: #F5F5F8;
-  --color-surface-muted: #EBEBF0;
-  --color-border-soft: #E2E2EA;
-  --color-border-default: #D0D0DA;
-  --color-border-strong: #ADADB8;
+  --color-surface-elevated: #f5f5f8;
+  --color-surface-muted: #ebebf0;
+  --color-border-soft: #e2e2ea;
+  --color-border-default: #d0d0da;
+  --color-border-strong: #adadb8;
 
   /* ---------- Text ---------- */
   --color-text-strong: #111118;
-  --color-text-default: #27272F;
-  --color-text-muted: #6E6E7A;
-  --color-text-soft: #76767F;  /* WCAG AA: 4.6:1 on #F8F8FA (was #9E9EA8 = 2.8:1) */
+  --color-text-default: #27272f;
+  --color-text-muted: #6e6e7a;
+  --color-text-soft: #76767f; /* WCAG AA: 4.6:1 on #F8F8FA (was #9E9EA8 = 2.8:1) */
   --color-text-on-dark: #ffffff;
 
   /* ---------- Neon Lime (Primary Accent) ---------- */
-  --color-lime-50: #F4FFE0;
-  --color-lime-100: #E8FFC2;
-  --color-lime-200: #D4FF8A;
-  --color-lime-300: #BEFF00;
-  --color-lime-400: #A8E600;
-  --color-lime-500: #8FCC00;
-  --color-lime-600: #6B9900;
+  --color-lime-50: #f4ffe0;
+  --color-lime-100: #e8ffc2;
+  --color-lime-200: #d4ff8a;
+  --color-lime-300: #beff00;
+  --color-lime-400: #a8e600;
+  --color-lime-500: #8fcc00;
+  --color-lime-600: #6b9900;
   --color-lime-700: #476600;
-  --color-lime-800: #2B3D00;
-  --color-lime-900: #141D00;
+  --color-lime-800: #2b3d00;
+  --color-lime-900: #141d00;
 
   /* ---------- Hot Coral (CTA / Danger / Emphasis) ---------- */
-  --color-coral-50: #FFF0EC;
-  --color-coral-100: #FFD9CF;
-  --color-coral-200: #FFB3A0;
-  --color-coral-300: #FF8C70;
-  --color-coral-400: #FF6641;
-  --color-coral-500: #FF4D2A;
-  --color-coral-600: #DB3A1A;
-  --color-coral-700: #B72A0E;
-  --color-coral-800: #931D06;
-  --color-coral-900: #6F1200;
+  --color-coral-50: #fff0ec;
+  --color-coral-100: #ffd9cf;
+  --color-coral-200: #ffb3a0;
+  --color-coral-300: #ff8c70;
+  --color-coral-400: #ff6641;
+  --color-coral-500: #ff4d2a;
+  --color-coral-600: #db3a1a;
+  --color-coral-700: #b72a0e;
+  --color-coral-800: #931d06;
+  --color-coral-900: #6f1200;
 
   /* ---------- Cyan (Success / Completed) ---------- */
-  --color-cyan-50: #E0FFF7;
-  --color-cyan-100: #B3FFEB;
-  --color-cyan-200: #66FFD6;
-  --color-cyan-300: #00F5B8;
-  --color-cyan-400: #00D4A0;
-  --color-cyan-500: #00B388;
-  --color-cyan-600: #008F6D;
-  --color-cyan-700: #006B52;
+  --color-cyan-50: #e0fff7;
+  --color-cyan-100: #b3ffeb;
+  --color-cyan-200: #66ffd6;
+  --color-cyan-300: #00f5b8;
+  --color-cyan-400: #00d4a0;
+  --color-cyan-500: #00b388;
+  --color-cyan-600: #008f6d;
+  --color-cyan-700: #006b52;
   --color-cyan-800: #004838;
-  --color-cyan-900: #002A20;
+  --color-cyan-900: #002a20;
 
   /* ---------- Violet (Info / Selected) ---------- */
-  --color-violet-50: #F0EAFF;
-  --color-violet-100: #DDD0FF;
-  --color-violet-200: #BBA6FF;
-  --color-violet-300: #9A7DFF;
-  --color-violet-400: #7A56FF;
-  --color-violet-500: #6B3FFF;
-  --color-violet-600: #5530DB;
-  --color-violet-700: #4022B7;
-  --color-violet-800: #2C1693;
-  --color-violet-900: #1A0C6F;
+  --color-violet-50: #f0eaff;
+  --color-violet-100: #ddd0ff;
+  --color-violet-200: #bba6ff;
+  --color-violet-300: #9a7dff;
+  --color-violet-400: #7a56ff;
+  --color-violet-500: #6b3fff;
+  --color-violet-600: #5530db;
+  --color-violet-700: #4022b7;
+  --color-violet-800: #2c1693;
+  --color-violet-900: #1a0c6f;
 
   /* ---------- Semantic Mappings ---------- */
   --bg-app: var(--color-bg-canvas);
@@ -108,15 +108,15 @@
   --state-warning-border: var(--color-coral-300);
   --state-warning-text: var(--color-coral-800);
 
-  --state-danger-bg: #FFF5F2;
-  --state-danger-border: #FF8A71;
-  --state-danger-text: #B72A0E;
+  --state-danger-bg: #fff5f2;
+  --state-danger-border: #ff8a71;
+  --state-danger-text: #b72a0e;
 
   --state-info-bg: var(--color-violet-50);
   --state-info-border: var(--color-violet-200);
   --state-info-text: var(--color-violet-600);
 
-  --focus-ring: #D4FF00;
+  --focus-ring: #d4ff00;
   --focus-ring-soft: rgba(212, 255, 0, 0.25);
 
   /* App token aliases */
@@ -194,8 +194,7 @@
   --app-elevation-soft: 0 1px 3px rgba(17, 17, 24, 0.04);
   --app-elevation-raised: 0 4px 16px rgba(17, 17, 24, 0.06);
   --app-elevation-active:
-    0 0 0 2px rgba(190, 255, 0, 0.18),
-    0 4px 16px rgba(17, 17, 24, 0.06);
+    0 0 0 2px rgba(190, 255, 0, 0.18), 0 4px 16px rgba(17, 17, 24, 0.06);
 }
 
 @theme inline {
@@ -209,7 +208,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-dm-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 html {
@@ -217,7 +220,9 @@ html {
 }
 
 /* ---------- Display headings use Syne ---------- */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
 }
 
@@ -262,8 +267,9 @@ h1, h2, h3 {
   border: 1px solid var(--border-default);
   background: #ffffff;
   box-shadow: none;
-  transition: border-color var(--app-duration-fast) var(--app-ease-standard),
-              box-shadow var(--app-duration-fast) var(--app-ease-standard);
+  transition:
+    border-color var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .app-soft-field:hover {
@@ -289,8 +295,12 @@ h1, h2, h3 {
 }
 
 @keyframes missing-field-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 77, 42, 0); }
-  100% { box-shadow: 0 0 0 3px rgba(255, 77, 42, 0.08); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 42, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(255, 77, 42, 0.08);
+  }
 }
 
 /* ---------- Buttons ---------- */
@@ -320,7 +330,7 @@ h1, h2, h3 {
 }
 
 .app-soft-button-primary::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -670,9 +680,15 @@ h1, h2, h3 {
 
 /* ---------- Field completion pulse ---------- */
 @keyframes field-complete-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(0, 212, 160, 0.3); }
-  50%  { box-shadow: 0 0 8px 2px rgba(0, 212, 160, 0.12); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 212, 160, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 160, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px rgba(0, 212, 160, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 160, 0);
+  }
 }
 
 .field-complete-flash {
@@ -681,8 +697,12 @@ h1, h2, h3 {
 
 /* ---------- Shimmer for primary CTA ---------- */
 @keyframes shimmer-sweep {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ---------- Reduced motion ---------- */

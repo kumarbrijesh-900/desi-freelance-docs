@@ -23,9 +23,9 @@ export interface TemplateMetadata {
   tier: TemplateTier;
   /** Preview color tokens for the picker thumbnail */
   palette: {
-    primary: string;      // Header / accent
-    secondary: string;    // Background / surface
-    text: string;         // Text color
+    primary: string; // Header / accent
+    secondary: string; // Background / surface
+    text: string; // Text color
   };
   /** Sort order in the picker */
   order: number;
@@ -90,13 +90,13 @@ export function getTemplateById(id: string): TemplateMetadata | undefined {
 
 export function getTemplatesByTier(tier: TemplateTier): TemplateMetadata[] {
   return TEMPLATE_REGISTRY.filter((t) => t.tier === tier).sort(
-    (a, b) => a.order - b.order
+    (a, b) => a.order - b.order,
   );
 }
 
 export function isTemplateLocked(
   templateId: string,
-  userTier: "visitor" | "free" | "pro"
+  userTier: "visitor" | "free" | "pro",
 ): boolean {
   const template = getTemplateById(templateId);
   if (!template) return true;
@@ -106,7 +106,7 @@ export function isTemplateLocked(
 
 export function getTemplateLockState(
   templateId: string,
-  userTier: "visitor" | "free" | "pro"
+  userTier: "visitor" | "free" | "pro",
 ): "unlocked" | "blurred" | "locked" {
   const template = getTemplateById(templateId);
   if (!template) return "locked";

@@ -12,19 +12,20 @@ import { cn } from "@/lib/ui-foundation";
 
 export { AnimatePresence, motion };
 
-type MotionPreset = "fade-in" | "fade-up" | "scale-in" | "modal" | "soft" | "blur-in" | "slide-spring";
+type MotionPreset =
+  | "fade-in"
+  | "fade-up"
+  | "scale-in"
+  | "modal"
+  | "soft"
+  | "blur-in"
+  | "slide-spring";
 
 export const appEaseStandard: [number, number, number, number] = [
-  0.16,
-  1,
-  0.3,
-  1,
+  0.16, 1, 0.3, 1,
 ];
 export const appEaseGentle: [number, number, number, number] = [
-  0.22,
-  1,
-  0.36,
-  1,
+  0.22, 1, 0.36, 1,
 ];
 
 export const appSpringTransition = {
@@ -212,15 +213,9 @@ export function MotionButton({
   return (
     <motion.button
       className={className}
-      whileHover={
-        reducedMotion ? undefined : { scale: hoverScale, y: -1 }
-      }
+      whileHover={reducedMotion ? undefined : { scale: hoverScale, y: -1 }}
       whileTap={reducedMotion ? undefined : { scale: tapScale, y: 0 }}
-      transition={
-        reducedMotion
-          ? undefined
-          : appSpringTransition
-      }
+      transition={reducedMotion ? undefined : appSpringTransition}
       {...props}
     >
       {children}
@@ -244,10 +239,10 @@ export function HoverLift({
   return (
     <motion.div
       className={className}
-      whileHover={
-        reducedMotion ? undefined : { y: hoverY, scale: hoverScale }
+      whileHover={reducedMotion ? undefined : { y: hoverY, scale: hoverScale }}
+      transition={
+        reducedMotion ? undefined : { duration: 0.2, ease: appEaseStandard }
       }
-      transition={reducedMotion ? undefined : { duration: 0.2, ease: appEaseStandard }}
       {...props}
     >
       {children}
@@ -270,7 +265,9 @@ export function PressDown({
     <motion.div
       className={className}
       whileTap={reducedMotion ? undefined : { scale: tapScale }}
-      transition={reducedMotion ? undefined : { duration: 0.18, ease: appEaseStandard }}
+      transition={
+        reducedMotion ? undefined : { duration: 0.18, ease: appEaseStandard }
+      }
       {...props}
     >
       {children}

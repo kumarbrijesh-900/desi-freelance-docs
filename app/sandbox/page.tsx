@@ -24,7 +24,8 @@ const InvoiceEditorPage = dynamic(
                   Loading sandbox...
                 </p>
                 <p className="text-sm leading-6 text-[color:var(--text-secondary)]">
-                  Preparing your guest session. No account required to test the magic.
+                  Preparing your guest session. No account required to test the
+                  magic.
                 </p>
               </div>
             </div>
@@ -32,7 +33,7 @@ const InvoiceEditorPage = dynamic(
         </section>
       </main>
     ),
-  }
+  },
 );
 
 export default function SandboxPage() {

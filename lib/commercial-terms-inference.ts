@@ -45,31 +45,36 @@ export function addDaysToIsoDate(value: string, days: number) {
 
 export function inferCommercialTermsFromText(
   text: string,
-  options: { invoiceDate?: string | null } = {}
+  options: { invoiceDate?: string | null } = {},
 ): InferredCommercialTerms {
   const normalized = clean(text);
   const netMatch = normalized.match(/\bnet[\s-]?(\d{1,3})\b/i);
   const remainingWithinMatch = normalized.match(
-    /\b(?:remaining|balance)[^.\n]{0,40}\bwithin\s+(\d{1,3})\s+days?\s+of\s+invoice\b/i
+    /\b(?:remaining|balance)[^.\n]{0,40}\bwithin\s+(\d{1,3})\s+days?\s+of\s+invoice\b/i,
   );
   const advanceMatch = normalized.match(/\b(\d{1,3})\s*%\s+advance\b/i);
-  const balanceBeforeFinal = /\bbalance\b[^.\n]{0,60}\bbefore\s+(?:final|handover|delivery|files?)\b/i.test(
-    normalized
-  );
+  const balanceBeforeFinal =
+    /\bbalance\b[^.\n]{0,60}\bbefore\s+(?:final|handover|delivery|files?)\b/i.test(
+      normalized,
+    );
   const retainer = /\bmonthly\s+retainer\b|\bretainer\b/i.test(normalized);
-  const fixedFee = /\b(?:fixed fee|project fee|total project fee|lump sum|flat fee)\b/i.test(
-    normalized
-  );
-  const budgetOnly = /\bbudget\b/i.test(normalized) && !/\b(?:at|@|rate|fee)\b/i.test(normalized);
-  const perUnit = /\bper\s+(?:screen|page|deliverable|item|post|video|image|hour|day|revision|concept)\b/i.test(
-    normalized
-  );
+  const fixedFee =
+    /\b(?:fixed fee|project fee|total project fee|lump sum|flat fee)\b/i.test(
+      normalized,
+    );
+  const budgetOnly =
+    /\bbudget\b/i.test(normalized) &&
+    !/\b(?:at|@|rate|fee)\b/i.test(normalized);
+  const perUnit =
+    /\bper\s+(?:screen|page|deliverable|item|post|video|image|hour|day|revision|concept)\b/i.test(
+      normalized,
+    );
 
   const dueDays = netMatch
     ? Number(netMatch[1])
     : remainingWithinMatch
-    ? Number(remainingWithinMatch[1])
-    : null;
+      ? Number(remainingWithinMatch[1])
+      : null;
   const dueDate =
     dueDays && options.invoiceDate
       ? addDaysToIsoDate(options.invoiceDate, dueDays)
@@ -90,18 +95,20 @@ export function inferCommercialTermsFromText(
   if (balanceBeforeFinal) {
     paymentParts.push("balance before final delivery");
   } else if (remainingWithinMatch) {
-    paymentParts.push(`balance within ${Number(remainingWithinMatch[1])} days of invoice`);
+    paymentParts.push(
+      `balance within ${Number(remainingWithinMatch[1])} days of invoice`,
+    );
   }
 
   const pricingMode: CommercialPricingMode = retainer
     ? "monthly-retainer"
     : budgetOnly
-    ? "budget-only"
-    : fixedFee
-    ? "bundled-project-fee"
-    : perUnit
-    ? "per-unit"
-    : "unknown";
+      ? "budget-only"
+      : fixedFee
+        ? "bundled-project-fee"
+        : perUnit
+          ? "per-unit"
+          : "unknown";
 
   return {
     pricingMode,
@@ -112,9 +119,10 @@ export function inferCommercialTermsFromText(
     balanceCondition: balanceBeforeFinal
       ? "before final delivery"
       : remainingWithinMatch
-      ? `within ${Number(remainingWithinMatch[1])} days of invoice`
-      : "",
-    confidence: paymentParts.length > 0 || pricingMode !== "unknown" ? "medium" : "low",
+        ? `within ${Number(remainingWithinMatch[1])} days of invoice`
+        : "",
+    confidence:
+      paymentParts.length > 0 || pricingMode !== "unknown" ? "medium" : "low",
     unresolved: budgetOnly ? ["pricing.budgetOnly"] : [],
   };
 }

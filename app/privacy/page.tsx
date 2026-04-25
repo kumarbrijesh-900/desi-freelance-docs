@@ -72,8 +72,8 @@ export default function PrivacyPage() {
 
           <Section title="3. AI Processing">
             <p>
-              When you submit a project brief for extraction, the text is sent to
-              OpenAI&apos;s API for processing. OpenAI processes this data in
+              When you submit a project brief for extraction, the text is sent
+              to OpenAI&apos;s API for processing. OpenAI processes this data in
               accordance with their{" "}
               <a
                 href="https://openai.com/policies/api-data-usage-policies"
@@ -105,8 +105,8 @@ export default function PrivacyPage() {
 
           <Section title="5. Data Sharing">
             <p>
-              We do not sell, rent, or share your personal information with third
-              parties for marketing purposes. Data is shared only with:
+              We do not sell, rent, or share your personal information with
+              third parties for marketing purposes. Data is shared only with:
             </p>
             <ul className="ml-4 mt-2 list-disc space-y-1 text-sm leading-6">
               <li>
@@ -126,26 +126,20 @@ export default function PrivacyPage() {
             <p>
               Your invoice data is retained for as long as your account is
               active. You may delete individual invoices at any time from the
-              Invoice History page. If you wish to delete your entire account and
-              all associated data, please contact us.
+              Invoice History page. If you wish to delete your entire account
+              and all associated data, please contact us.
             </p>
           </Section>
 
           <Section title="7. Security">
-            <p>
-              We implement industry-standard security measures including:
-            </p>
+            <p>We implement industry-standard security measures including:</p>
             <ul className="ml-4 mt-2 list-disc space-y-1 text-sm leading-6">
+              <li>HTTPS encryption for all data in transit</li>
               <li>
-                HTTPS encryption for all data in transit
+                Row-Level Security (RLS) ensuring users can only access their
+                own invoices
               </li>
-              <li>
-                Row-Level Security (RLS) ensuring users can only access their own
-                invoices
-              </li>
-              <li>
-                OAuth-based authentication (no passwords stored by Lance)
-              </li>
+              <li>OAuth-based authentication (no passwords stored by Lance)</li>
               <li>
                 Server-side API key management (OpenAI keys never exposed to the
                 client)
@@ -165,25 +159,25 @@ export default function PrivacyPage() {
 
           <Section title="9. Cookies">
             <p>
-              Lance uses essential cookies for authentication session management.
-              We do not use advertising cookies or third-party tracking cookies.
-              Analytics, if implemented, use privacy-respecting, cookie-free
-              methods.
+              Lance uses essential cookies for authentication session
+              management. We do not use advertising cookies or third-party
+              tracking cookies. Analytics, if implemented, use
+              privacy-respecting, cookie-free methods.
             </p>
           </Section>
 
-          <Section title="10. Children&apos;s Privacy">
+          <Section title="10. Children's Privacy">
             <p>
-              Lance is not directed to individuals under the age of 18. We do not
-              knowingly collect personal information from children.
+              Lance is not directed to individuals under the age of 18. We do
+              not knowingly collect personal information from children.
             </p>
           </Section>
 
           <Section title="11. Changes to This Policy">
             <p>
               We may update this Privacy Policy from time to time. Changes will
-              be reflected on this page with an updated effective date. Continued
-              use of the Service after changes constitutes acceptance.
+              be reflected on this page with an updated effective date.
+              Continued use of the Service after changes constitutes acceptance.
             </p>
           </Section>
 

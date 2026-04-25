@@ -41,7 +41,7 @@ export default function AppTextField({
             hasValue,
           }),
           getAppFieldWidthClass(width),
-          className
+          className,
         )}
       />
     </AppFieldShell>

@@ -84,7 +84,9 @@ export type InvoiceBriefExtractionSchema = {
   agencyCity?: BriefExtractedField<string>;
   agencyPinCode?: BriefExtractedField<string>;
   agencyState?: BriefExtractedField<InvoiceFormData["agency"]["agencyState"]>;
-  agencyGstRegistrationStatus?: BriefExtractedField<AgencyDetails["gstRegistrationStatus"]>;
+  agencyGstRegistrationStatus?: BriefExtractedField<
+    AgencyDetails["gstRegistrationStatus"]
+  >;
   agencyGstin?: BriefExtractedField<string>;
   agencyPan?: BriefExtractedField<string>;
   agencyLutAvailability?: BriefExtractedField<AgencyDetails["lutAvailability"]>;
@@ -97,8 +99,12 @@ export type InvoiceBriefExtractionSchema = {
   clientPinCode?: BriefExtractedField<string>;
   clientPostalCode?: BriefExtractedField<string>;
   clientState?: BriefExtractedField<InvoiceFormData["client"]["clientState"]>;
-  clientCountry?: BriefExtractedField<InvoiceFormData["client"]["clientCountry"]>;
-  clientLocation?: BriefExtractedField<InvoiceFormData["client"]["clientLocation"]>;
+  clientCountry?: BriefExtractedField<
+    InvoiceFormData["client"]["clientCountry"]
+  >;
+  clientLocation?: BriefExtractedField<
+    InvoiceFormData["client"]["clientLocation"]
+  >;
   clientCurrency?: BriefExtractedField<InternationalCurrencyCode>;
   clientGstin?: BriefExtractedField<string>;
   invoiceIsInternational?: BriefExtractedField<boolean>;
@@ -426,13 +432,12 @@ const currencyMatchers: Array<{
   },
 ];
 
-const FLEXIBLE_AMOUNT_PATTERN =
-  String.raw`(?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?`;
+const FLEXIBLE_AMOUNT_PATTERN = String.raw`(?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£|usd|eur|gbp|aed|aud|cad|sgd)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?`;
 
 function makeCandidate<T>(
   value: T,
   confidence: BriefExtractionConfidence,
-  source: BriefExtractionSource
+  source: BriefExtractionSource,
 ): Candidate<T> {
   return {
     value,
@@ -474,7 +479,7 @@ function cleanAddressValue(value?: string | null) {
   return cleanValue(value)
     .replace(
       /\s+(?:\d+\s+(?:screens?|banners?|items?|illustrations?)|landing page|homepage|logo|illustration|ui\/?\s*ux|terms?|payment|bank|account|ifsc|swift)\b.*$/i,
-      ""
+      "",
     )
     .trim();
 }
@@ -503,7 +508,7 @@ type ExtractLabeledValueOptions = {
 
 export function normalizeBriefText(text: string) {
   return normalizeOcrText(
-    text.replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 ")
+    text.replace(/([A-Za-z0-9,.:])\s*\n\s*(?=[a-z0-9])/g, "$1 "),
   );
 }
 
@@ -521,10 +526,12 @@ function findFirstMatch(text: string, patterns: RegExp[]) {
 function extractLabeledValue(
   text: string,
   labels: string[],
-  options: ExtractLabeledValueOptions = {}
+  options: ExtractLabeledValueOptions = {},
 ) {
   const lines = text.split(/\n/);
-  const orderedLabels = [...labels].sort((left, right) => right.length - left.length);
+  const orderedLabels = [...labels].sort(
+    (left, right) => right.length - left.length,
+  );
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
@@ -534,11 +541,11 @@ function extractLabeledValue(
         options.strictShortLabels && !label.includes(" ")
           ? new RegExp(
               `^\\s*${escapeRegExp(label)}(?:\\s*[:\\-]\\s*(.*))?\\s*$`,
-              "i"
+              "i",
             )
           : new RegExp(
               `^\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.*)$`,
-              "i"
+              "i",
             );
       const match = line.match(pattern);
 
@@ -582,7 +589,7 @@ function extractLabeledValue(
         const normalizedContinuationLine = cleanValue(
           options.normalizeContinuationLine
             ? options.normalizeContinuationLine(nextLine)
-            : nextLine
+            : nextLine,
         );
 
         if (!normalizedContinuationLine) {
@@ -621,7 +628,7 @@ function looksLikeAddressContinuationLine(line: string) {
 
   if (
     /\b(?:gst|gstin|pan|lut|client|agency|deliverable|qty|quantity|rate|payment|terms?|due date|currency|bank|ifsc|swift|iban|routing|account|invoice date|landing page|homepage|home page|logo|illustrations?|editorial|ui\/?\s*ux|screens?|banners?|posts?|videos?|retouched|editing|campaign|project fee)\b/i.test(
-      cleaned
+      cleaned,
     )
   ) {
     return false;
@@ -634,7 +641,7 @@ function normalizeAddressContinuationLine(line: string) {
   return cleanValue(line)
     .replace(
       /\s+(?:\d+\s+(?:screens?|banners?|items?|illustrations?|images?|posts?|videos?)|landing page|homepage|home page|logo|editorial illustrations?|ui\/?\s*ux|project fee|campaign launch|payment terms?)\b.*$/i,
-      ""
+      "",
     )
     .trim();
 }
@@ -644,7 +651,10 @@ function cleanEntityLabelValue(value?: string | null) {
     .replace(/^is\s+/i, "")
     .replace(/\s+(?:and they are|and they're|and is)\b.*$/i, "")
     .replace(/\s+(?:based|located)\s+in\b.*$/i, "")
-    .replace(/\s+(?:invoice|project|work|rate|qty|quantity|currency|payment|bank)\b.*$/i, "")
+    .replace(
+      /\s+(?:invoice|project|work|rate|qty|quantity|currency|payment|bank)\b.*$/i,
+      "",
+    )
     .trim();
 }
 
@@ -657,7 +667,7 @@ function escapeRegExp(value: string) {
 }
 
 function makeIdentifierCandidate(
-  identifier: IdentifierClassification | undefined
+  identifier: IdentifierClassification | undefined,
 ): Candidate<string> | undefined {
   if (!identifier) {
     return undefined;
@@ -669,8 +679,8 @@ function makeIdentifierCandidate(
     identifier.source === "label"
       ? "label"
       : identifier.source === "regex"
-      ? "regex"
-      : "inference"
+        ? "regex"
+        : "inference",
   );
 }
 
@@ -687,20 +697,27 @@ function looksLikeEntityName(value: string) {
 
   if (
     /\b(?:landing page|homepage|home page|ui\/?\s*ux|wireframes?|design system|campaign launch|project fee|deliverables?|illustrations?|images?|reels?|screens?|banners?|posts?|videos?|retouched|editing|payment terms?|net\s*\d+|due on receipt)\b/i.test(
-      cleaned
+      cleaned,
     ) &&
     !/\b(?:studio|agency|creative|media|labs|works?|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i.test(
-      cleaned
+      cleaned,
     )
   ) {
     return false;
   }
 
-  if (/\bdesign\b/i.test(cleaned) && /\b(?:studio|agency|creative|media|labs|works?|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i.test(cleaned)) {
+  if (
+    /\bdesign\b/i.test(cleaned) &&
+    /\b(?:studio|agency|creative|media|labs|works?|co\.?|company|llc|inc\.?|ltd\.?|pvt\.?\s*ltd\.?|private limited|corp\.?|corporation|limited)\b/i.test(
+      cleaned,
+    )
+  ) {
     return true;
   }
 
-  return !/\b(?:invoice|brief|work|project|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(cleaned);
+  return !/\b(?:invoice|brief|work|project|rate|qty|quantity|terms|bank|amount|budget|ignore|old one|this one)\b/i.test(
+    cleaned,
+  );
 }
 
 type ParsedStructuredAgencyAddress = {
@@ -747,7 +764,7 @@ function splitAddressSegments(address: string) {
 
 function stripLocationFragments(
   value: string,
-  fragments: Array<string | undefined>
+  fragments: Array<string | undefined>,
 ) {
   let nextValue = cleanValue(value);
 
@@ -760,7 +777,7 @@ function stripLocationFragments(
 
     nextValue = nextValue.replace(
       new RegExp(`\\b${escapeRegExp(cleanedFragment)}\\b`, "ig"),
-      ""
+      "",
     );
   }
 
@@ -787,7 +804,9 @@ function extractInternationalPostalCode(value: string) {
   return "";
 }
 
-function parseAgencyStructuredAddress(value?: string | null): ParsedStructuredAgencyAddress {
+function parseAgencyStructuredAddress(
+  value?: string | null,
+): ParsedStructuredAgencyAddress {
   const cleaned = cleanAddressBlockValue(value);
 
   if (!cleaned) {
@@ -807,11 +826,14 @@ function parseAgencyStructuredAddress(value?: string | null): ParsedStructuredAg
     .split(/\n+/)
     .map((segment) => cleanValue(segment))
     .filter(Boolean);
-  const trailingAddressLine = stripLocationFragments(lineSegments.at(-1) ?? "", [
-    hydrated.city || inferredLocation.matchedIndianCity,
-    inferredLocation.state,
-    hydrated.pinCode,
-  ]);
+  const trailingAddressLine = stripLocationFragments(
+    lineSegments.at(-1) ?? "",
+    [
+      hydrated.city || inferredLocation.matchedIndianCity,
+      inferredLocation.state,
+      hydrated.pinCode,
+    ],
+  );
 
   return {
     line1:
@@ -820,11 +842,9 @@ function parseAgencyStructuredAddress(value?: string | null): ParsedStructuredAg
       (lineSegments.length > 2
         ? lineSegments.slice(1, -1).join(", ")
         : lineSegments.length === 2
-        ? trailingAddressLine
-        : "") ||
-      hydrated.addressLine2,
-    city:
-      hydrated.city || inferredLocation.matchedIndianCity || "",
+          ? trailingAddressLine
+          : "") || hydrated.addressLine2,
+    city: hydrated.city || inferredLocation.matchedIndianCity || "",
     pinCode: hydrated.pinCode,
   };
 }
@@ -860,22 +880,25 @@ function parseClientStructuredAddress(params: {
       .split(/\n+/)
       .map((segment) => cleanValue(segment))
       .filter(Boolean);
-    const trailingAddressLine = stripLocationFragments(lineSegments.at(-1) ?? "", [
-      hydrated.city || inferredLocation.matchedIndianCity,
-      inferredLocation.state,
-      hydrated.pinCode,
-    ]);
+    const trailingAddressLine = stripLocationFragments(
+      lineSegments.at(-1) ?? "",
+      [
+        hydrated.city || inferredLocation.matchedIndianCity,
+        inferredLocation.state,
+        hydrated.pinCode,
+      ],
+    );
 
     return {
       line1:
-        (lineSegments.length > 1 ? lineSegments[0] : "") || hydrated.addressLine1,
+        (lineSegments.length > 1 ? lineSegments[0] : "") ||
+        hydrated.addressLine1,
       line2:
         (lineSegments.length > 2
           ? lineSegments.slice(1, -1).join(", ")
           : lineSegments.length === 2
-          ? trailingAddressLine
-          : "") ||
-        hydrated.addressLine2,
+            ? trailingAddressLine
+            : "") || hydrated.addressLine2,
       city: hydrated.city || inferredLocation.matchedIndianCity || "",
       pinCode: hydrated.pinCode,
       postalCode: "",
@@ -917,7 +940,7 @@ function parseClientStructuredAddress(params: {
 function makeStringCandidate(
   value: string,
   confidence: BriefExtractionConfidence,
-  source: BriefExtractionSource
+  source: BriefExtractionSource,
 ) {
   const cleaned = cleanValue(value);
   return cleaned ? makeCandidate(cleaned, confidence, source) : undefined;
@@ -925,7 +948,7 @@ function makeStringCandidate(
 
 function sanitizeCandidate<T extends string>(
   candidate: Candidate<T> | undefined,
-  kind: Parameters<typeof sanitizeHydrationString>[0]["kind"] = "general"
+  kind: Parameters<typeof sanitizeHydrationString>[0]["kind"] = "general",
 ) {
   if (!candidate) {
     return undefined;
@@ -953,10 +976,7 @@ function getConfidenceScore(confidence: BriefExtractionConfidence) {
 }
 
 function getFieldStepForLabel(label: string): InvoiceStepperStep {
-  if (
-    /agency|gst|lut|pan/i.test(label) &&
-    !/client/i.test(label)
-  ) {
+  if (/agency|gst|lut|pan/i.test(label) && !/client/i.test(label)) {
     return "agency";
   }
 
@@ -974,7 +994,7 @@ function getFieldStepForLabel(label: string): InvoiceStepperStep {
 
   if (
     /payment terms|beneficiary|account|bank|ifsc|swift|iban|routing|license/i.test(
-      label
+      label,
     )
   ) {
     return "payment";
@@ -990,7 +1010,7 @@ function getFieldStepForLabel(label: string): InvoiceStepperStep {
 function createFieldSummary(
   label: string,
   confidence: BriefExtractionConfidence,
-  source: BriefExtractionSource
+  source: BriefExtractionSource,
 ): BriefAutofillFieldSummary {
   return {
     label,
@@ -1024,7 +1044,7 @@ function dedupeFieldSummaries(summaries: BriefAutofillFieldSummary[]) {
 
 function createAiCandidate<T>(
   value: T | "" | undefined | null,
-  confidence: BriefExtractionConfidence | undefined
+  confidence: BriefExtractionConfidence | undefined,
 ): Candidate<T> | undefined {
   if (
     value === undefined ||
@@ -1041,20 +1061,24 @@ function createAiCandidate<T>(
 function createAiBooleanCandidate<T>(
   field: AiBriefField<boolean>,
   trueValue: T,
-  falseValue: T
+  falseValue: T,
 ): Candidate<T> | undefined {
   if (field.value === null) {
     return undefined;
   }
 
-  return makeCandidate(field.value ? trueValue : falseValue, field.confidence, "ai");
+  return makeCandidate(
+    field.value ? trueValue : falseValue,
+    field.confidence,
+    "ai",
+  );
 }
 
 function createAiClassifiedCandidate(
   value: string | null | undefined,
   confidence: BriefExtractionConfidence | undefined,
   allowedKinds: IdentifierKind[],
-  contextText: string
+  contextText: string,
 ): Candidate<string> | undefined {
   const cleaned = cleanValue(value ?? "");
 
@@ -1076,14 +1100,14 @@ function createAiClassifiedCandidate(
 
   const resolvedConfidence =
     classified.confidence === "low"
-      ? confidence ?? classified.confidence
+      ? (confidence ?? classified.confidence)
       : classified.confidence;
 
   return makeCandidate(classified.normalizedValue, resolvedConfidence, "ai");
 }
 
 function normalizeLineItemTypeValue(
-  value: string | null | undefined
+  value: string | null | undefined,
 ): InvoiceLineItemType | undefined {
   const normalized = cleanValue(value ?? "");
 
@@ -1094,7 +1118,7 @@ function normalizeLineItemTypeValue(
   if (/\blogos?\b/i.test(normalized)) return "Logo Design";
   if (
     /\b(ui|ux|landing page|homepage|screens?|wireframes?|dashboard)\b/i.test(
-      normalized
+      normalized,
     )
   ) {
     return "UI/UX";
@@ -1111,7 +1135,7 @@ function normalizeLineItemTypeValue(
 
 function normalizeRateUnitValue(
   value: string | null | undefined,
-  description?: string | null
+  description?: string | null,
 ): InvoiceRateUnit | undefined {
   const normalized = `${value ?? ""} ${description ?? ""}`.trim();
 
@@ -1177,7 +1201,7 @@ function formatDateCandidate(value: string | null | undefined) {
 
 function extractDateCandidate(
   text: string,
-  labels: string[]
+  labels: string[],
 ): Candidate<string> | undefined {
   const labeled = extractLabeledValue(text, labels);
 
@@ -1190,13 +1214,11 @@ function extractDateCandidate(
   }
 
   const matchedDate = text.match(
-    /\b(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b/i
+    /\b(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b/i,
   )?.[1];
   const formatted = formatDateCandidate(matchedDate);
 
-  return formatted
-    ? makeCandidate(formatted, "medium", "pattern")
-    : undefined;
+  return formatted ? makeCandidate(formatted, "medium", "pattern") : undefined;
 }
 
 function deriveTaxTypeCandidate(params: {
@@ -1216,7 +1238,7 @@ function deriveTaxTypeCandidate(params: {
     return makeCandidate<NormalizedInvoiceTaxType>(
       "IGST",
       "medium",
-      "inference"
+      "inference",
     );
   }
 
@@ -1227,7 +1249,7 @@ function deriveTaxTypeCandidate(params: {
     return makeCandidate<NormalizedInvoiceTaxType>(
       "ZERO_RATED",
       "medium",
-      "inference"
+      "inference",
     );
   }
 
@@ -1235,31 +1257,27 @@ function deriveTaxTypeCandidate(params: {
     params.gstRegistrationStatus === "registered" &&
     (params.clientLocation === "domestic" ||
       /\b(?:same state|same-state|inter state|inter-state|interstate|different state|out of state|cgst|sgst)\b/i.test(
-        params.rawText
+        params.rawText,
       ))
   ) {
     if (
       /\b(?:same state|same-state|within state|cgst\s*(?:\+|and)\s*sgst)\b/i.test(
-        params.rawText
+        params.rawText,
       )
     ) {
       return makeCandidate<NormalizedInvoiceTaxType>(
         "CGST_SGST",
         "high",
-        "pattern"
+        "pattern",
       );
     }
 
     if (
       /\b(?:inter state|inter-state|interstate|different state|out of state)\b/i.test(
-        params.rawText
+        params.rawText,
       )
     ) {
-      return makeCandidate<NormalizedInvoiceTaxType>(
-        "IGST",
-        "high",
-        "pattern"
-      );
+      return makeCandidate<NormalizedInvoiceTaxType>("IGST", "high", "pattern");
     }
   }
 
@@ -1272,7 +1290,7 @@ function deriveTaxTypeCandidate(params: {
     return makeCandidate<NormalizedInvoiceTaxType>(
       params.agencyState === params.clientState ? "CGST_SGST" : "IGST",
       "medium",
-      "inference"
+      "inference",
     );
   }
 
@@ -1354,15 +1372,15 @@ function deriveFallbackDeliverables(text: string) {
 
 function normalizeAiDeliverables(
   extraction: AiBriefExtraction,
-  rawText: string
+  rawText: string,
 ) {
-  const data = extraction.invoice_data;
+  const data = extraction;
   const normalized = data.deliverables
     .map((item) => {
       const normalizedType = normalizeLineItemTypeValue(item.type.value);
       const normalizedRateUnit = normalizeRateUnitValue(
         item.unit.value,
-        item.description.value ?? item.type.value
+        item.description.value ?? item.type.value,
       );
 
       return {
@@ -1371,7 +1389,7 @@ function normalizeAiDeliverables(
           : undefined,
         description: createAiCandidate(
           cleanSentenceValue(item.description.value ?? item.type.value ?? ""),
-          item.description.confidence
+          item.description.confidence,
         ),
         qty: createAiCandidate(item.quantity.value, item.quantity.confidence),
         rate: createAiCandidate(item.rate.value, item.rate.confidence),
@@ -1382,18 +1400,16 @@ function normalizeAiDeliverables(
     })
     .filter(
       (item) =>
-        item.type ||
-        item.description ||
-        item.qty ||
-        item.rate ||
-        item.rateUnit
+        item.type || item.description || item.qty || item.rate || item.rateUnit,
     );
 
-  return normalized.length > 0 ? normalized : deriveFallbackDeliverables(rawText);
+  return normalized.length > 0
+    ? normalized
+    : deriveFallbackDeliverables(rawText);
 }
 
 function normalizeAiTaxType(
-  field: AiBriefField<AiBriefTaxType>
+  field: AiBriefField<AiBriefTaxType>,
 ): Candidate<NormalizedInvoiceTaxType> | undefined {
   if (!field.value) {
     return undefined;
@@ -1402,12 +1418,12 @@ function normalizeAiTaxType(
   return makeCandidate(
     field.value === "ZERO" ? "ZERO_RATED" : field.value,
     field.confidence,
-    "ai"
+    "ai",
   );
 }
 
 function formatAiPaymentSchedule(extraction: AiBriefExtraction) {
-  const data = extraction.invoice_data;
+  const data = extraction;
   const scheduleParts = data.paymentSchedule
     .map((item) => {
       const milestone = cleanValue(item.milestone.value ?? "");
@@ -1433,12 +1449,16 @@ function formatAiPaymentSchedule(extraction: AiBriefExtraction) {
 
 export function normalizeExtractedData(
   extraction: AiBriefExtraction,
-  rawText: string
+  rawText: string,
 ): InvoiceBriefExtractionSchema {
-  const data = extraction.invoice_data;
+  const data = extraction;
   const roleInferences = inferNameRolesFromText(rawText);
-  const agencyContext = roleInferences.agencyContext || collectRoleContextFromText(rawText, "agency");
-  const clientContext = roleInferences.clientContext || collectRoleContextFromText(rawText, "client");
+  const agencyContext =
+    roleInferences.agencyContext ||
+    collectRoleContextFromText(rawText, "agency");
+  const clientContext =
+    roleInferences.clientContext ||
+    collectRoleContextFromText(rawText, "client");
   const fallbackAgencyName =
     sanitizeEntityNameCandidate(data.agencyName.value) ||
     sanitizeEntityNameCandidate(roleInferences.agency?.value) ||
@@ -1452,7 +1472,7 @@ export function normalizeExtractedData(
   const clientStateFromGstin = getStateFromGstin(data.clientTaxId.value);
   const agencyPanFromGstin = derivePanFromGstin(data.gst.gstin.value);
   const agencyLocationDetails = inferLocationDetailsFromText(
-    [data.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" ")
+    [data.agencyState.value ?? "", agencyAddressValue, agencyContext].join(" "),
   );
   const clientLocationDetails = inferLocationDetailsFromText(
     [
@@ -1460,10 +1480,12 @@ export function normalizeExtractedData(
       data.clientCountry.value ?? "",
       clientAddressValue,
       clientContext,
-    ].join(" ")
+    ].join(" "),
   );
-  const agencyStateValue = agencyLocationDetails.state || agencyStateFromGstin || "";
-  const clientStateValue = clientLocationDetails.state || clientStateFromGstin || "";
+  const agencyStateValue =
+    agencyLocationDetails.state || agencyStateFromGstin || "";
+  const clientStateValue =
+    clientLocationDetails.state || clientStateFromGstin || "";
   const clientCountryValue = clientLocationDetails.country || "";
   const currencyCandidate =
     createAiCandidate(data.currency.value, data.currency.confidence) ??
@@ -1472,12 +1494,12 @@ export function normalizeExtractedData(
     data.locations.inferredType.value === "international"
       ? true
       : data.locations.inferredType.value === "domestic"
-      ? false
-      : null;
+        ? false
+        : null;
   const paymentModeValue =
     normalizePaymentModeValue(data.paymentMode.value) ||
     normalizePaymentModeValue(
-      /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0]
+      /wise|payoneer|paypal|upi|bank|wire/i.exec(rawText)?.[0],
     );
   const inferredLocationType = inferLocationTypeFromText(
     [
@@ -1486,87 +1508,88 @@ export function normalizeExtractedData(
       clientCountryValue,
       clientStateValue,
       clientContext,
-    ].join(" ")
+    ].join(" "),
   );
   const clientLocationCandidate =
     explicitInternational !== null
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           explicitInternational ? "international" : "domestic",
           data.locations.inferredType.confidence,
-          "ai"
+          "ai",
         )
       : inferredLocationType === "international"
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "international",
-          "high",
-          "inference"
-        )
-      : inferredLocationType === "domestic"
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "domestic",
-          "high",
-          "inference"
-        )
-      : clientCountryValue
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "international",
-          clientLocationDetails.confidence || "medium",
-          "inference"
-        )
-      : hasForeignCityHint(rawText) || paymentModeValue === "wise" || paymentModeValue === "payoneer"
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "international",
-          "medium",
-          "inference"
-        )
-      : clientStateValue
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "domestic",
-          clientLocationDetails.confidence || "medium",
-          "inference"
-        )
-      : undefined;
+        ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+            "international",
+            "high",
+            "inference",
+          )
+        : inferredLocationType === "domestic"
+          ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+              "domestic",
+              "high",
+              "inference",
+            )
+          : clientCountryValue
+            ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+                "international",
+                clientLocationDetails.confidence || "medium",
+                "inference",
+              )
+            : hasForeignCityHint(rawText) ||
+                paymentModeValue === "wise" ||
+                paymentModeValue === "payoneer"
+              ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+                  "international",
+                  "medium",
+                  "inference",
+                )
+              : clientStateValue
+                ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+                    "domestic",
+                    clientLocationDetails.confidence || "medium",
+                    "inference",
+                  )
+                : undefined;
   const agencyGstStatus =
     createAiBooleanCandidate(
       data.gst.isRegistered,
       "registered" as AgencyDetails["gstRegistrationStatus"],
-      "not-registered" as AgencyDetails["gstRegistrationStatus"]
+      "not-registered" as AgencyDetails["gstRegistrationStatus"],
     ) ??
     (data.gst.lutAvailable.value === true
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "medium",
-          "inference"
+          "inference",
         )
       : undefined) ??
-    ((data.gst.type.value === "CGST_SGST" ||
-      data.gst.type.value === "IGST") &&
+    ((data.gst.type.value === "CGST_SGST" || data.gst.type.value === "IGST") &&
     data.gst.rate.value &&
     data.gst.rate.value > 0
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "medium",
-          "inference"
+          "inference",
         )
       : undefined) ??
     (data.gst.gstin.value
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "high",
-          "inference"
+          "inference",
         )
       : undefined);
   const agencyLutAvailability =
     createAiBooleanCandidate(
       data.gst.lutAvailable,
       "yes" as AgencyDetails["lutAvailability"],
-      "no" as AgencyDetails["lutAvailability"]
+      "no" as AgencyDetails["lutAvailability"],
     ) ??
     (/export of services/i.test(rawText)
       ? makeCandidate<AgencyDetails["lutAvailability"]>(
           "yes",
           "high",
-          "inference"
+          "inference",
         )
       : undefined);
   const taxTypeCandidate = deriveTaxTypeCandidate({
@@ -1586,16 +1609,20 @@ export function normalizeExtractedData(
   const paymentTermsCandidate =
     createAiCandidate(
       normalizePaymentTermsValue(data.paymentTerms.value),
-      data.paymentTerms.confidence
+      data.paymentTerms.confidence,
     ) ??
     (paymentScheduleText
-      ? makeCandidate(normalizePaymentTermsValue(paymentScheduleText), "medium", "ai")
+      ? makeCandidate(
+          normalizePaymentTermsValue(paymentScheduleText),
+          "medium",
+          "ai",
+        )
       : undefined) ??
     (commercialTerms.paymentTerms
       ? makeCandidate(
           normalizePaymentTermsValue(commercialTerms.paymentTerms),
           commercialTerms.confidence,
-          "inference"
+          "inference",
         )
       : undefined);
   const dueDateValue = formatDateCandidate(data.timeline.dueDate.value);
@@ -1603,16 +1630,16 @@ export function normalizeExtractedData(
     cleanAddressBlockValue(agencyAddressValue),
     data.agencyAddress.value
       ? data.agencyAddress.confidence
-      : data.locations.agency.confidence
+      : data.locations.agency.confidence,
   );
   const clientAddressCandidate = createAiCandidate(
     cleanAddressBlockValue(clientAddressValue),
     data.clientAddress.value
       ? data.clientAddress.confidence
-      : data.locations.client.confidence
+      : data.locations.client.confidence,
   );
   const parsedAgencyAddress = parseAgencyStructuredAddress(
-    agencyAddressCandidate?.value
+    agencyAddressCandidate?.value,
   );
   const parsedClientAddress = parseClientStructuredAddress({
     value: clientAddressCandidate?.value,
@@ -1627,9 +1654,9 @@ export function normalizeExtractedData(
           data.agencyName.value
             ? data.agencyName.confidence
             : data.payment.accountName.value
-            ? data.payment.accountName.confidence
-            : "low",
-          data.agencyName.value ? "ai" : "inference"
+              ? data.payment.accountName.confidence
+              : "low",
+          data.agencyName.value ? "ai" : "inference",
         )
       : undefined,
     agencyAddress: agencyAddressCandidate,
@@ -1637,28 +1664,28 @@ export function normalizeExtractedData(
       ? makeStringCandidate(
           parsedAgencyAddress.line1,
           agencyAddressCandidate.confidence,
-          agencyAddressCandidate.source
+          agencyAddressCandidate.source,
         )
       : undefined,
     agencyAddressLine2: agencyAddressCandidate
       ? makeStringCandidate(
           parsedAgencyAddress.line2,
           agencyAddressCandidate.confidence,
-          agencyAddressCandidate.source
+          agencyAddressCandidate.source,
         )
       : undefined,
     agencyCity: agencyAddressCandidate
       ? makeStringCandidate(
           parsedAgencyAddress.city,
           agencyAddressCandidate.confidence,
-          agencyAddressCandidate.source
+          agencyAddressCandidate.source,
         )
       : undefined,
     agencyPinCode: agencyAddressCandidate
       ? makeStringCandidate(
           parsedAgencyAddress.pinCode,
           agencyAddressCandidate.confidence,
-          agencyAddressCandidate.source
+          agencyAddressCandidate.source,
         )
       : undefined,
     agencyState: agencyStateValue
@@ -1667,7 +1694,7 @@ export function normalizeExtractedData(
           data.agencyState.value
             ? data.agencyState.confidence
             : agencyLocationDetails.confidence || "medium",
-          data.agencyState.value ? "ai" : "inference"
+          data.agencyState.value ? "ai" : "inference",
         )
       : undefined,
     agencyGstRegistrationStatus: agencyGstStatus,
@@ -1675,65 +1702,65 @@ export function normalizeExtractedData(
       data.gst.gstin.value,
       data.gst.gstin.confidence,
       ["gstin"],
-      "agency gstin"
+      "agency gstin",
     ),
     agencyPan: createAiClassifiedCandidate(
       data.gst.pan.value || agencyPanFromGstin,
       data.gst.pan.value
         ? data.gst.pan.confidence
         : agencyPanFromGstin
-        ? "high"
-        : data.gst.pan.confidence,
+          ? "high"
+          : data.gst.pan.confidence,
       ["pan"],
-      "agency pan"
+      "agency pan",
     ),
     agencyLutAvailability,
     agencyLutNumber: createAiCandidate(
       cleanValue(data.gst.lutNumber.value),
-      data.gst.lutNumber.confidence
+      data.gst.lutNumber.confidence,
     ),
     clientName: createAiCandidate(
       sanitizeEntityNameCandidate(
-        data.clientName.value ?? roleInferences.client?.value ?? ""
+        data.clientName.value ?? roleInferences.client?.value ?? "",
       ),
       data.clientName.value
         ? data.clientName.confidence
-        : roleInferences.client?.confidence
+        : roleInferences.client?.confidence,
     ),
     clientAddress: clientAddressCandidate,
     clientAddressLine1: clientAddressCandidate
       ? makeStringCandidate(
           parsedClientAddress.line1,
           clientAddressCandidate.confidence,
-          clientAddressCandidate.source
+          clientAddressCandidate.source,
         )
       : undefined,
     clientAddressLine2: clientAddressCandidate
       ? makeStringCandidate(
           parsedClientAddress.line2,
           clientAddressCandidate.confidence,
-          clientAddressCandidate.source
+          clientAddressCandidate.source,
         )
       : undefined,
     clientCity: clientAddressCandidate
       ? makeStringCandidate(
           parsedClientAddress.city,
           clientAddressCandidate.confidence,
-          clientAddressCandidate.source
+          clientAddressCandidate.source,
         )
       : undefined,
     clientPinCode: clientAddressCandidate
       ? makeStringCandidate(
           parsedClientAddress.pinCode,
           clientAddressCandidate.confidence,
-          clientAddressCandidate.source
+          clientAddressCandidate.source,
         )
       : undefined,
     clientPostalCode: clientAddressCandidate
       ? makeStringCandidate(
           parsedClientAddress.postalCode,
           clientAddressCandidate.confidence,
-          clientAddressCandidate.source
+          clientAddressCandidate.source,
         )
       : undefined,
     clientState: clientStateValue
@@ -1742,7 +1769,7 @@ export function normalizeExtractedData(
           data.clientState.value
             ? data.clientState.confidence
             : clientLocationDetails.confidence || "medium",
-          data.clientState.value ? "ai" : "inference"
+          data.clientState.value ? "ai" : "inference",
         )
       : undefined,
     clientCountry: clientCountryValue
@@ -1751,7 +1778,7 @@ export function normalizeExtractedData(
           data.clientCountry.value
             ? data.clientCountry.confidence
             : clientLocationDetails.confidence || "medium",
-          data.clientCountry.value ? "ai" : "inference"
+          data.clientCountry.value ? "ai" : "inference",
         )
       : undefined,
     clientLocation: clientLocationCandidate,
@@ -1766,30 +1793,34 @@ export function normalizeExtractedData(
       }),
       data.clientTaxId.confidence,
       ["gstin", "unknown-alphanumeric-code"],
-      "client tax id"
+      "client tax id",
     ),
     clientCurrency:
       currencyCandidate?.value &&
       currencyCandidate.value !== "INR" &&
       ["USD", "EUR", "GBP", "AED", "AUD", "CAD", "SGD"].includes(
-        currencyCandidate.value
+        currencyCandidate.value,
       )
         ? makeCandidate(
             currencyCandidate.value as InternationalCurrencyCode,
             currencyCandidate.confidence,
-            currencyCandidate.source
+            currencyCandidate.source,
           )
         : undefined,
     invoiceIsInternational:
       clientLocationCandidate?.value === "international"
-        ? makeCandidate(true, clientLocationCandidate.confidence, clientLocationCandidate.source)
+        ? makeCandidate(
+            true,
+            clientLocationCandidate.confidence,
+            clientLocationCandidate.source,
+          )
         : explicitInternational === false
-        ? makeCandidate(false, data.locations.inferredType.confidence, "ai")
-        : undefined,
+          ? makeCandidate(false, data.locations.inferredType.confidence, "ai")
+          : undefined,
     invoiceCurrencyCode: currencyCandidate,
     invoiceTotalAmount: createAiCandidate(
       data.totalAmount.value,
-      data.totalAmount.confidence
+      data.totalAmount.confidence,
     ),
     invoiceTaxType: taxTypeCandidate,
     lineItems: normalizeAiDeliverables(extraction, rawText),
@@ -1805,60 +1836,63 @@ export function normalizeExtractedData(
           extraction.paymentMode.value
             ? extraction.paymentMode.confidence
             : "medium",
-          extraction.paymentMode.value ? "ai" : "inference"
+          extraction.paymentMode.value ? "ai" : "inference",
         )
       : undefined,
     paymentAccountName: createAiCandidate(
       cleanValue(data.payment.accountName.value),
-      data.payment.accountName.confidence
+      data.payment.accountName.confidence,
     ),
     paymentBankName: createAiCandidate(
       cleanValue(data.payment.bankName.value),
-      data.payment.bankName.confidence
+      data.payment.bankName.confidence,
     ),
     paymentBankAddress: createAiCandidate(
       cleanAddressValue(data.payment.bankAddress.value),
-      data.payment.bankAddress.confidence
+      data.payment.bankAddress.confidence,
     ),
     paymentAccountNumber: createAiClassifiedCandidate(
       data.payment.accountNumber.value,
       data.payment.accountNumber.confidence,
       ["bank-account-number"],
-      "bank account number"
+      "bank account number",
     ),
     paymentIfscCode: createAiClassifiedCandidate(
       data.payment.ifscCode.value,
       data.payment.ifscCode.confidence,
       ["ifsc"],
-      "ifsc code"
+      "ifsc code",
     ),
     paymentSwiftBicCode: createAiClassifiedCandidate(
       data.payment.swiftCode.value,
       data.payment.swiftCode.confidence,
       ["swift-bic"],
-      "swift bic code"
+      "swift bic code",
     ),
     paymentIbanRoutingCode: createAiCandidate(
       cleanValue(data.payment.ibanOrRouting.value),
-      data.payment.ibanOrRouting.confidence
+      data.payment.ibanOrRouting.confidence,
     ),
     invoiceDate: invoiceDateValue
       ? makeCandidate(
           invoiceDateValue,
           data.timeline.invoiceDate.confidence,
-          "ai"
+          "ai",
         )
       : undefined,
-    dueDate: dueDateValue || commercialTerms.dueDate
-      ? makeCandidate(
-          dueDateValue || commercialTerms.dueDate,
-          dueDateValue ? data.timeline.dueDate.confidence : commercialTerms.confidence,
-          dueDateValue ? "ai" : "inference"
-        )
-      : undefined,
+    dueDate:
+      dueDateValue || commercialTerms.dueDate
+        ? makeCandidate(
+            dueDateValue || commercialTerms.dueDate,
+            dueDateValue
+              ? data.timeline.dueDate.confidence
+              : commercialTerms.confidence,
+            dueDateValue ? "ai" : "inference",
+          )
+        : undefined,
     timeline: createAiCandidate(
       cleanValue(data.timeline.deliveryTimeline.value),
-      data.timeline.deliveryTimeline.confidence
+      data.timeline.deliveryTimeline.confidence,
     ),
   } satisfies InvoiceBriefExtractionSchema;
 
@@ -1866,7 +1900,10 @@ export function normalizeExtractedData(
     normalized.deliverableType = normalized.lineItems[0].type;
   }
 
-  if (!normalized.deliverableDescription && normalized.lineItems?.[0]?.description) {
+  if (
+    !normalized.deliverableDescription &&
+    normalized.lineItems?.[0]?.description
+  ) {
     normalized.deliverableDescription = normalized.lineItems[0].description;
   }
 
@@ -1889,7 +1926,7 @@ export function normalizeExtractedData(
 function chooseMergedCandidate<T>(
   fieldKey: string,
   aiCandidate?: Candidate<T>,
-  heuristicCandidate?: Candidate<T>
+  heuristicCandidate?: Candidate<T>,
 ) {
   const strictFallbackFields = new Set([
     "agencyGstin",
@@ -1924,7 +1961,7 @@ function chooseMergedCandidate<T>(
 
 function mergeLineItemExtractions(
   aiLineItems: InvoiceBriefLineItemExtraction[] = [],
-  heuristic: InvoiceBriefExtractionSchema
+  heuristic: InvoiceBriefExtractionSchema,
 ) {
   const fallbackFirst: InvoiceBriefLineItemExtraction = {
     type: heuristic.deliverableType,
@@ -1938,12 +1975,12 @@ function mergeLineItemExtractions(
     heuristic.lineItems && heuristic.lineItems.length > 0
       ? heuristic.lineItems
       : fallbackFirst.type ||
-        fallbackFirst.description ||
-        fallbackFirst.qty ||
-        fallbackFirst.rate ||
-        fallbackFirst.rateUnit
-      ? [fallbackFirst]
-      : [];
+          fallbackFirst.description ||
+          fallbackFirst.qty ||
+          fallbackFirst.rate ||
+          fallbackFirst.rateUnit
+        ? [fallbackFirst]
+        : [];
 
   const totalItems = Math.max(aiLineItems.length, fallbackItems.length);
   const mergedItems: InvoiceBriefLineItemExtraction[] = [];
@@ -1953,18 +1990,22 @@ function mergeLineItemExtractions(
     const fallbackItem = fallbackItems[index];
 
     const mergedItem: InvoiceBriefLineItemExtraction = {
-      type: chooseMergedCandidate(`lineItems.${index}.type`, aiItem?.type, fallbackItem?.type),
+      type: chooseMergedCandidate(
+        `lineItems.${index}.type`,
+        aiItem?.type,
+        fallbackItem?.type,
+      ),
       description: chooseMergedCandidate(
         `lineItems.${index}.description`,
         aiItem?.description,
-        fallbackItem?.description
+        fallbackItem?.description,
       ),
       qty: chooseMergedCandidate(`qty`, aiItem?.qty, fallbackItem?.qty),
       rate: chooseMergedCandidate(`rate`, aiItem?.rate, fallbackItem?.rate),
       rateUnit: chooseMergedCandidate(
         `rateUnit`,
         aiItem?.rateUnit,
-        fallbackItem?.rateUnit
+        fallbackItem?.rateUnit,
       ),
     };
 
@@ -1996,243 +2037,247 @@ export function mergeBriefExtractions(params: {
     agencyName: chooseMergedCandidate(
       "agencyName",
       aiExtraction.agencyName,
-      heuristicExtraction.agencyName
+      heuristicExtraction.agencyName,
     ),
     agencyAddress: chooseMergedCandidate(
       "agencyAddress",
       aiExtraction.agencyAddress,
-      heuristicExtraction.agencyAddress
+      heuristicExtraction.agencyAddress,
     ),
     agencyAddressLine1: chooseMergedCandidate(
       "agencyAddressLine1",
       aiExtraction.agencyAddressLine1,
-      heuristicExtraction.agencyAddressLine1
+      heuristicExtraction.agencyAddressLine1,
     ),
     agencyAddressLine2: chooseMergedCandidate(
       "agencyAddressLine2",
       aiExtraction.agencyAddressLine2,
-      heuristicExtraction.agencyAddressLine2
+      heuristicExtraction.agencyAddressLine2,
     ),
     agencyCity: chooseMergedCandidate(
       "agencyCity",
       aiExtraction.agencyCity,
-      heuristicExtraction.agencyCity
+      heuristicExtraction.agencyCity,
     ),
     agencyPinCode: chooseMergedCandidate(
       "agencyPinCode",
       aiExtraction.agencyPinCode,
-      heuristicExtraction.agencyPinCode
+      heuristicExtraction.agencyPinCode,
     ),
     agencyState: chooseMergedCandidate(
       "agencyState",
       aiExtraction.agencyState,
-      heuristicExtraction.agencyState
+      heuristicExtraction.agencyState,
     ),
     agencyGstRegistrationStatus: chooseMergedCandidate(
       "agencyGstRegistrationStatus",
       aiExtraction.agencyGstRegistrationStatus,
-      heuristicExtraction.agencyGstRegistrationStatus
+      heuristicExtraction.agencyGstRegistrationStatus,
     ),
     agencyGstin: chooseMergedCandidate(
       "agencyGstin",
       aiExtraction.agencyGstin,
-      heuristicExtraction.agencyGstin
+      heuristicExtraction.agencyGstin,
     ),
     agencyPan: chooseMergedCandidate(
       "agencyPan",
       aiExtraction.agencyPan,
-      heuristicExtraction.agencyPan
+      heuristicExtraction.agencyPan,
     ),
     agencyLutAvailability: chooseMergedCandidate(
       "agencyLutAvailability",
       aiExtraction.agencyLutAvailability,
-      heuristicExtraction.agencyLutAvailability
+      heuristicExtraction.agencyLutAvailability,
     ),
     agencyLutNumber: chooseMergedCandidate(
       "agencyLutNumber",
       aiExtraction.agencyLutNumber,
-      heuristicExtraction.agencyLutNumber
+      heuristicExtraction.agencyLutNumber,
     ),
     clientName: chooseMergedCandidate(
       "clientName",
       aiExtraction.clientName,
-      heuristicExtraction.clientName
+      heuristicExtraction.clientName,
     ),
     clientAddress: chooseMergedCandidate(
       "clientAddress",
       aiExtraction.clientAddress,
-      heuristicExtraction.clientAddress
+      heuristicExtraction.clientAddress,
     ),
     clientAddressLine1: chooseMergedCandidate(
       "clientAddressLine1",
       aiExtraction.clientAddressLine1,
-      heuristicExtraction.clientAddressLine1
+      heuristicExtraction.clientAddressLine1,
     ),
     clientAddressLine2: chooseMergedCandidate(
       "clientAddressLine2",
       aiExtraction.clientAddressLine2,
-      heuristicExtraction.clientAddressLine2
+      heuristicExtraction.clientAddressLine2,
     ),
     clientCity: chooseMergedCandidate(
       "clientCity",
       aiExtraction.clientCity,
-      heuristicExtraction.clientCity
+      heuristicExtraction.clientCity,
     ),
     clientPinCode: chooseMergedCandidate(
       "clientPinCode",
       aiExtraction.clientPinCode,
-      heuristicExtraction.clientPinCode
+      heuristicExtraction.clientPinCode,
     ),
     clientPostalCode: chooseMergedCandidate(
       "clientPostalCode",
       aiExtraction.clientPostalCode,
-      heuristicExtraction.clientPostalCode
+      heuristicExtraction.clientPostalCode,
     ),
     clientState: chooseMergedCandidate(
       "clientState",
       aiExtraction.clientState,
-      heuristicExtraction.clientState
+      heuristicExtraction.clientState,
     ),
     clientCountry: chooseMergedCandidate(
       "clientCountry",
       aiExtraction.clientCountry,
-      heuristicExtraction.clientCountry
+      heuristicExtraction.clientCountry,
     ),
     clientLocation: chooseMergedCandidate(
       "clientLocation",
       aiExtraction.clientLocation,
-      heuristicExtraction.clientLocation
+      heuristicExtraction.clientLocation,
     ),
     invoiceIsInternational: chooseMergedCandidate(
       "invoiceIsInternational",
       aiExtraction.invoiceIsInternational,
-      heuristicExtraction.invoiceIsInternational
+      heuristicExtraction.invoiceIsInternational,
     ),
     invoiceCurrencyCode: chooseMergedCandidate(
       "invoiceCurrencyCode",
       aiExtraction.invoiceCurrencyCode,
-      heuristicExtraction.invoiceCurrencyCode
+      heuristicExtraction.invoiceCurrencyCode,
     ),
     invoiceTotalAmount: chooseMergedCandidate(
       "invoiceTotalAmount",
       aiExtraction.invoiceTotalAmount,
-      heuristicExtraction.invoiceTotalAmount
+      heuristicExtraction.invoiceTotalAmount,
     ),
     invoiceTaxType: chooseMergedCandidate(
       "invoiceTaxType",
       aiExtraction.invoiceTaxType,
-      heuristicExtraction.invoiceTaxType
+      heuristicExtraction.invoiceTaxType,
     ),
     clientCurrency: chooseMergedCandidate(
       "clientCurrency",
       aiExtraction.clientCurrency,
-      heuristicExtraction.clientCurrency
+      heuristicExtraction.clientCurrency,
     ),
     clientGstin: chooseMergedCandidate(
       "clientGstin",
       aiExtraction.clientGstin,
-      heuristicExtraction.clientGstin
+      heuristicExtraction.clientGstin,
     ),
     lineItems: mergeLineItemExtractions(
       aiExtraction.lineItems,
-      heuristicExtraction
+      heuristicExtraction,
     ),
     deliverableType: chooseMergedCandidate(
       "deliverableType",
       aiExtraction.deliverableType,
-      heuristicExtraction.deliverableType
+      heuristicExtraction.deliverableType,
     ),
     deliverableDescription: chooseMergedCandidate(
       "deliverableDescription",
       aiExtraction.deliverableDescription,
-      heuristicExtraction.deliverableDescription
+      heuristicExtraction.deliverableDescription,
     ),
-    qty: chooseMergedCandidate("qty", aiExtraction.qty, heuristicExtraction.qty),
+    qty: chooseMergedCandidate(
+      "qty",
+      aiExtraction.qty,
+      heuristicExtraction.qty,
+    ),
     rate: chooseMergedCandidate(
       "rate",
       aiExtraction.rate,
-      heuristicExtraction.rate
+      heuristicExtraction.rate,
     ),
     rateUnit: chooseMergedCandidate(
       "rateUnit",
       aiExtraction.rateUnit,
-      heuristicExtraction.rateUnit
+      heuristicExtraction.rateUnit,
     ),
     licenseType: chooseMergedCandidate(
       "licenseType",
       aiExtraction.licenseType,
-      heuristicExtraction.licenseType
+      heuristicExtraction.licenseType,
     ),
     licenseDuration: chooseMergedCandidate(
       "licenseDuration",
       aiExtraction.licenseDuration,
-      heuristicExtraction.licenseDuration
+      heuristicExtraction.licenseDuration,
     ),
     paymentTerms: chooseMergedCandidate(
       "paymentTerms",
       aiExtraction.paymentTerms,
-      heuristicExtraction.paymentTerms
+      heuristicExtraction.paymentTerms,
     ),
     paymentMode: chooseMergedCandidate(
       "paymentMode",
       aiExtraction.paymentMode,
-      heuristicExtraction.paymentMode
+      heuristicExtraction.paymentMode,
     ),
     paymentAccountName: chooseMergedCandidate(
       "paymentAccountName",
       aiExtraction.paymentAccountName,
-      heuristicExtraction.paymentAccountName
+      heuristicExtraction.paymentAccountName,
     ),
     paymentBankName: chooseMergedCandidate(
       "paymentBankName",
       aiExtraction.paymentBankName,
-      heuristicExtraction.paymentBankName
+      heuristicExtraction.paymentBankName,
     ),
     paymentBankAddress: chooseMergedCandidate(
       "paymentBankAddress",
       aiExtraction.paymentBankAddress,
-      heuristicExtraction.paymentBankAddress
+      heuristicExtraction.paymentBankAddress,
     ),
     paymentAccountNumber: chooseMergedCandidate(
       "paymentAccountNumber",
       aiExtraction.paymentAccountNumber,
-      heuristicExtraction.paymentAccountNumber
+      heuristicExtraction.paymentAccountNumber,
     ),
     paymentIfscCode: chooseMergedCandidate(
       "paymentIfscCode",
       aiExtraction.paymentIfscCode,
-      heuristicExtraction.paymentIfscCode
+      heuristicExtraction.paymentIfscCode,
     ),
     paymentSwiftBicCode: chooseMergedCandidate(
       "paymentSwiftBicCode",
       aiExtraction.paymentSwiftBicCode,
-      heuristicExtraction.paymentSwiftBicCode
+      heuristicExtraction.paymentSwiftBicCode,
     ),
     paymentIbanRoutingCode: chooseMergedCandidate(
       "paymentIbanRoutingCode",
       aiExtraction.paymentIbanRoutingCode,
-      heuristicExtraction.paymentIbanRoutingCode
+      heuristicExtraction.paymentIbanRoutingCode,
     ),
     invoiceDate: chooseMergedCandidate(
       "invoiceDate",
       aiExtraction.invoiceDate,
-      heuristicExtraction.invoiceDate
+      heuristicExtraction.invoiceDate,
     ),
     dueDate: chooseMergedCandidate(
       "dueDate",
       aiExtraction.dueDate,
-      heuristicExtraction.dueDate
+      heuristicExtraction.dueDate,
     ),
     timeline: chooseMergedCandidate(
       "timeline",
       aiExtraction.timeline,
-      heuristicExtraction.timeline
+      heuristicExtraction.timeline,
     ),
   };
 }
 
 export function normalizeExtractionOutput(
-  rawExtraction: InvoiceExtractionAdapterInput
+  rawExtraction: InvoiceExtractionAdapterInput,
 ): NormalizedExtractionOutput {
   if (rawExtraction.source === "ai") {
     return {
@@ -2249,12 +2294,12 @@ export function normalizeExtractionOutput(
 }
 
 export function toInvoiceExtractionSchema(
-  normalizedData: NormalizedExtractionOutput
+  normalizedData: NormalizedExtractionOutput,
 ): InvoiceBriefExtractionSchema {
   if (normalizedData.source === "ai") {
     return normalizeExtractedData(
       normalizedData.extraction,
-      normalizedData.rawText
+      normalizedData.rawText,
     );
   }
 
@@ -2262,19 +2307,19 @@ export function toInvoiceExtractionSchema(
 }
 
 function getStateFromText(
-  text: string
+  text: string,
 ): InvoiceFormData["agency"]["agencyState"] {
   return inferStateFromText(text);
 }
 
 function getCountryFromText(
-  text: string
+  text: string,
 ): InvoiceFormData["client"]["clientCountry"] {
   return inferCountryFromText(text);
 }
 
 function getCurrencyFromText(
-  text: string
+  text: string,
 ): Candidate<InternationalCurrencyCode> | undefined {
   const stronglyDetectedCurrency = detectCurrencyFromText(text);
 
@@ -2282,18 +2327,18 @@ function getCurrencyFromText(
     stronglyDetectedCurrency &&
     stronglyDetectedCurrency !== "INR" &&
     ["USD", "EUR", "GBP", "AED", "AUD", "CAD", "SGD"].includes(
-      stronglyDetectedCurrency
+      stronglyDetectedCurrency,
     )
   ) {
     return makeCandidate(
       stronglyDetectedCurrency as InternationalCurrencyCode,
       "high",
-      "regex"
+      "regex",
     );
   }
 
   const labelMatches = currencyMatchers.filter((matcher) =>
-    matcher.labelPatterns.some((pattern) => pattern.test(text))
+    matcher.labelPatterns.some((pattern) => pattern.test(text)),
   );
 
   if (labelMatches.length === 1) {
@@ -2301,7 +2346,7 @@ function getCurrencyFromText(
   }
 
   const fallbackMatches = currencyMatchers.filter((matcher) =>
-    matcher.fallbackPatterns.some((pattern) => pattern.test(text))
+    matcher.fallbackPatterns.some((pattern) => pattern.test(text)),
   );
 
   if (fallbackMatches.length === 1) {
@@ -2346,7 +2391,7 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
     return makeCandidate(
       roleInference.value,
       roleInference.confidence,
-      roleInference.confidence === "high" ? "label" : "inference"
+      roleInference.confidence === "high" ? "label" : "inference",
     );
   }
 
@@ -2367,7 +2412,7 @@ function extractAgencyName(text: string): Candidate<string> | undefined {
       allowContinuationLines: true,
       maxContinuationLines: 1,
       strictShortLabels: true,
-    }
+    },
   );
 
   if (value) {
@@ -2399,7 +2444,7 @@ function extractAgencyAddress(text: string): Candidate<string> | undefined {
       preserveLineBreaks: true,
       shouldIncludeContinuationLine: looksLikeAddressContinuationLine,
       normalizeContinuationLine: normalizeAddressContinuationLine,
-    }
+    },
   );
 
   if (value) {
@@ -2431,7 +2476,7 @@ function extractAgencyGstin(text: string): Candidate<string> | undefined {
         /\b(?:agency|business|freelancer|our|my|issued by|from)\b/i,
       ],
       rejectContext: [/\b(?:client|customer|billing|bill to|recipient)\b/i],
-    })
+    }),
   );
 }
 
@@ -2443,7 +2488,7 @@ function extractAgencyPan(text: string): Candidate<string> | undefined {
         /\b(?:agency|business|freelancer|our|my|issued by|from)\b/i,
       ],
       rejectContext: [/\b(?:client|customer|billing|bill to|recipient)\b/i],
-    })
+    }),
   );
 }
 
@@ -2454,7 +2499,7 @@ function extractClientName(text: string): Candidate<string> | undefined {
     return makeCandidate(
       roleInference.value,
       roleInference.confidence,
-      roleInference.confidence === "high" ? "label" : "inference"
+      roleInference.confidence === "high" ? "label" : "inference",
     );
   }
 
@@ -2465,7 +2510,7 @@ function extractClientName(text: string): Candidate<string> | undefined {
       allowContinuationLines: true,
       maxContinuationLines: 1,
       strictShortLabels: true,
-    }
+    },
   );
 
   if (value) {
@@ -2500,7 +2545,7 @@ function extractClientAddress(text: string): Candidate<string> | undefined {
       preserveLineBreaks: true,
       shouldIncludeContinuationLine: looksLikeAddressContinuationLine,
       normalizeContinuationLine: normalizeAddressContinuationLine,
-    }
+    },
   );
 
   return value
@@ -2538,12 +2583,14 @@ function extractClientTaxId(text: string): Candidate<string> | undefined {
 
   const genericIdentifier = classifyIdentifier(
     labeledValue,
-    `client tax id: ${labeledValue}`
+    `client tax id: ${labeledValue}`,
   );
 
   if (
     genericIdentifier &&
-    ["gstin", "pan", "unknown-alphanumeric-code"].includes(genericIdentifier.kind)
+    ["gstin", "pan", "unknown-alphanumeric-code"].includes(
+      genericIdentifier.kind,
+    )
   ) {
     return makeIdentifierCandidate(genericIdentifier);
   }
@@ -2552,7 +2599,9 @@ function extractClientTaxId(text: string): Candidate<string> | undefined {
   return cleaned ? makeCandidate(cleaned, "high", "label") : undefined;
 }
 
-function extractPaymentAccountNumber(text: string): Candidate<string> | undefined {
+function extractPaymentAccountNumber(
+  text: string,
+): Candidate<string> | undefined {
   return makeIdentifierCandidate(
     findBestIdentifier(text, ["bank-account-number"], {
       labels: [
@@ -2565,7 +2614,7 @@ function extractPaymentAccountNumber(text: string): Candidate<string> | undefine
       ],
       preferredContext: [/\b(?:account|a\/c|acct|bank account)\b/i],
       rejectContext: [/\b(?:phone|mobile|contact|pin|pincode|zip)\b/i],
-    })
+    }),
   );
 }
 
@@ -2574,15 +2623,17 @@ function extractPaymentIfscCode(text: string): Candidate<string> | undefined {
     findBestIdentifier(text, ["ifsc"], {
       labels: ["ifsc", "ifsc code"],
       preferredContext: [/\bifsc\b/i],
-    })
+    }),
   );
 }
 
-function extractPaymentSwiftBicCode(text: string): Candidate<string> | undefined {
+function extractPaymentSwiftBicCode(
+  text: string,
+): Candidate<string> | undefined {
   const classified = findBestIdentifier(text, ["swift-bic"], {
-      labels: ["swift", "swift / bic code", "bic", "swift code"],
-      preferredContext: [/\bswift\b/i, /\bbic\b/i],
-    });
+    labels: ["swift", "swift / bic code", "bic", "swift code"],
+    preferredContext: [/\bswift\b/i, /\bbic\b/i],
+  });
 
   if (!classified) {
     return undefined;
@@ -2593,7 +2644,9 @@ function extractPaymentSwiftBicCode(text: string): Candidate<string> | undefined
     : undefined;
 }
 
-function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | undefined {
+function extractLineItemType(
+  text: string,
+): Candidate<InvoiceLineItemType> | undefined {
   const explicitType = extractLabeledValue(text, [
     "deliverable type",
     "project type",
@@ -2608,7 +2661,7 @@ function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | und
       return makeCandidate(
         matcher.type,
         explicitType ? "high" : "medium",
-        explicitType ? "label" : "pattern"
+        explicitType ? "label" : "pattern",
       );
     }
   }
@@ -2617,7 +2670,7 @@ function extractLineItemType(text: string): Candidate<InvoiceLineItemType> | und
 }
 
 function extractAgencyGstRegistrationStatus(
-  text: string
+  text: string,
 ): Candidate<AgencyDetails["gstRegistrationStatus"]> | undefined {
   const labeled = extractLabeledValue(text, [
     "gst registration",
@@ -2636,11 +2689,17 @@ function extractAgencyGstRegistrationStatus(
     }
   }
 
-  if (/\b(?:not gst registered|not registered under gst|unregistered under gst|gst unregistered)\b/i.test(text)) {
+  if (
+    /\b(?:not gst registered|not registered under gst|unregistered under gst|gst unregistered)\b/i.test(
+      text,
+    )
+  ) {
     return makeCandidate("not-registered", "high", "pattern");
   }
 
-  if (/\b(?:gst registered|registered under gst|registered for gst)\b/i.test(text)) {
+  if (
+    /\b(?:gst registered|registered under gst|registered for gst)\b/i.test(text)
+  ) {
     return makeCandidate("registered", "high", "pattern");
   }
 
@@ -2648,7 +2707,7 @@ function extractAgencyGstRegistrationStatus(
 }
 
 function extractAgencyLutAvailability(
-  text: string
+  text: string,
 ): Candidate<AgencyDetails["lutAvailability"]> | undefined {
   const labeled = extractLabeledValue(text, [
     "valid lut for current financial year",
@@ -2689,7 +2748,9 @@ function extractAgencyLutNumber(text: string): Candidate<string> | undefined {
   return labeled ? makeCandidate(labeled, "high", "label") : undefined;
 }
 
-function extractDeliverableDescription(text: string): Candidate<string> | undefined {
+function extractDeliverableDescription(
+  text: string,
+): Candidate<string> | undefined {
   const labeled = extractLabeledValue(
     text,
     [
@@ -2703,7 +2764,7 @@ function extractDeliverableDescription(text: string): Candidate<string> | undefi
       allowContinuationLines: true,
       maxContinuationLines: 1,
       strictShortLabels: true,
-    }
+    },
   );
 
   if (labeled) {
@@ -2744,11 +2805,13 @@ function extractQuantity(text: string): Candidate<number> | undefined {
   return undefined;
 }
 
-function extractStandaloneRateAmount(text: string): Candidate<number> | undefined {
+function extractStandaloneRateAmount(
+  text: string,
+): Candidate<number> | undefined {
   const patterns = [
     new RegExp(
       String.raw`\b(${FLEXIBLE_AMOUNT_PATTERN})\s+per\s+(?:screen|item|image|reel|video|banner|post|deliverable|day|hour|revision|concept)\b`,
-      "i"
+      "i",
     ),
     new RegExp(String.raw`\bcharge\s+(${FLEXIBLE_AMOUNT_PATTERN})\b`, "i"),
   ];
@@ -2790,11 +2853,11 @@ function extractRate(text: string): Candidate<number> | undefined {
   const fallbackPatterns = [
     new RegExp(
       String.raw`\b(?:project fee|fixed budget|budget fixed(?: hua tha)?|fixed fee|total project fee)\s*(?:is|was|of|:)?\s*(${FLEXIBLE_AMOUNT_PATTERN})`,
-      "i"
+      "i",
     ),
     new RegExp(
       String.raw`\b(?:rate|fee|budget|quote(?:d)?|charge(?:d|s|ing)?|cost)\s*(?:is|was|of|:)?\s*(${FLEXIBLE_AMOUNT_PATTERN})`,
-      "i"
+      "i",
     ),
     new RegExp(String.raw`\b(?:at|@)\s*(${FLEXIBLE_AMOUNT_PATTERN})`, "i"),
     /(?:^|[\s(])((?:US\$|A\$|C\$|S\$|\$|€|£)\s*\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m)?|\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)\b|\d[\d,.]*(?:\.\d{1,2})?\s*(?:usd|eur|gbp|aed|aud|cad|sgd|inr|rupees?)\b)/i,
@@ -2849,22 +2912,22 @@ function extractLicenseType(text: string): Candidate<LicenseType> | undefined {
 }
 
 function extractPaymentTerms(text: string): Candidate<string> | undefined {
-  const labeled = extractLabeledValue(
-    text,
-    ["payment terms", "terms"],
-    {
-      allowContinuationLines: true,
-      maxContinuationLines: 1,
-      strictShortLabels: true,
-    }
-  );
+  const labeled = extractLabeledValue(text, ["payment terms", "terms"], {
+    allowContinuationLines: true,
+    maxContinuationLines: 1,
+    strictShortLabels: true,
+  });
   if (labeled) {
     return makeCandidate(normalizePaymentTermsValue(labeled), "high", "label");
   }
 
   const netMatch = text.match(/\bnet[\s-]?\d+\b/i);
   if (netMatch?.[0]) {
-    return makeCandidate(normalizePaymentTermsValue(netMatch[0]), "high", "regex");
+    return makeCandidate(
+      normalizePaymentTermsValue(netMatch[0]),
+      "high",
+      "regex",
+    );
   }
 
   if (/due on receipt/i.test(text)) {
@@ -2872,11 +2935,15 @@ function extractPaymentTerms(text: string): Candidate<string> | undefined {
   }
 
   const scheduleSnippet = text.match(
-    /\b(?:\d{1,3}%\s+(?:advance|upfront|booking|booking retainer|retainer)[^.\n]*|\d{1,3}%\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*|balance\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*)/i
+    /\b(?:\d{1,3}%\s+(?:advance|upfront|booking|booking retainer|retainer)[^.\n]*|\d{1,3}%\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*|balance\s+(?:on|upon)\s+(?:delivery|completion)[^.\n]*)/i,
   )?.[0];
 
   if (scheduleSnippet) {
-    return makeCandidate(normalizePaymentTermsValue(scheduleSnippet), "high", "pattern");
+    return makeCandidate(
+      normalizePaymentTermsValue(scheduleSnippet),
+      "high",
+      "pattern",
+    );
   }
 
   return undefined;
@@ -2884,16 +2951,16 @@ function extractPaymentTerms(text: string): Candidate<string> | undefined {
 
 function extractPaymentField(
   text: string,
-  labels: string[]
+  labels: string[],
 ): Candidate<string> | undefined {
   const value = extractLabeledValue(text, labels);
 
-  return value
-    ? makeCandidate(value, "high", "label")
-    : undefined;
+  return value ? makeCandidate(value, "high", "label") : undefined;
 }
 
-function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined {
+function extractInvoiceTotalAmount(
+  text: string,
+): Candidate<number> | undefined {
   const labeled = extractLabeledValue(text, [
     "total amount",
     "invoice total",
@@ -2913,15 +2980,15 @@ function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined 
   const fallbackPatterns = [
     new RegExp(
       String.raw`\b(?:budget fixed(?: hua tha)?|project fee|fixed budget|fixed fee)\s*(?:is|was|of|:)?\s*(${FLEXIBLE_AMOUNT_PATTERN})`,
-      "i"
+      "i",
     ),
     new RegExp(
       String.raw`\b(?:total project fee|(?:logo|homepage|landing page|dashboard)\s+design fee)\s*(?:is|was|of|:)?\s*(${FLEXIBLE_AMOUNT_PATTERN})`,
-      "i"
+      "i",
     ),
     new RegExp(
       String.raw`\b(?:total|overall total|project total|invoice total|grand total)\s*(?:amount|fee|budget|cost)?\s*(?:is|was|of|:)?\s*(${FLEXIBLE_AMOUNT_PATTERN})`,
-      "i"
+      "i",
     ),
   ];
 
@@ -2939,7 +3006,7 @@ function extractInvoiceTotalAmount(text: string): Candidate<number> | undefined 
 }
 
 function extractInvoiceTaxType(
-  text: string
+  text: string,
 ): Candidate<NormalizedInvoiceTaxType> | undefined {
   if (/\bcgst\b.*\bsgst\b|\bsgst\b.*\bcgst\b/i.test(text)) {
     return makeCandidate("CGST_SGST", "high", "pattern");
@@ -2973,7 +3040,7 @@ function extractInvoiceIsInternational(
   text: string,
   clientCountry?: Candidate<InvoiceFormData["client"]["clientCountry"]>,
   clientState?: Candidate<InvoiceFormData["client"]["clientState"]>,
-  clientCurrency?: Candidate<InternationalCurrencyCode>
+  clientCurrency?: Candidate<InternationalCurrencyCode>,
 ): Candidate<boolean> | undefined {
   const inferredLocationType = inferLocationTypeFromText(text);
 
@@ -2987,7 +3054,7 @@ function extractInvoiceIsInternational(
 
   if (
     /\binternational\b|\bforeign client\b|\boverseas\b|\bexport of services\b/i.test(
-      text
+      text,
     )
   ) {
     return makeCandidate(true, "high", "pattern");
@@ -3027,8 +3094,8 @@ function extractPaymentMode(text: string): Candidate<string> | undefined {
 
   const inferred = normalizePaymentModeValue(
     /\b(?:wise|payoneer|paypal|bank transfer|wire transfer|bank|upi)\b/i.exec(
-      text
-    )?.[0]
+      text,
+    )?.[0],
   );
 
   return inferred ? makeCandidate(inferred, "medium", "pattern") : undefined;
@@ -3060,11 +3127,11 @@ function extractTimeline(text: string): Candidate<string> | undefined {
 function buildLineItemDescriptionFromContext(
   text: string,
   matchIndex: number,
-  fallback: string
+  fallback: string,
 ) {
   const localContext = text.slice(
     Math.max(0, matchIndex - 32),
-    Math.min(text.length, matchIndex + 48)
+    Math.min(text.length, matchIndex + 48),
   );
 
   if (/landing page/i.test(localContext)) {
@@ -3100,7 +3167,7 @@ function buildLineItemDescriptionFromContext(
 
 function mergeLineItemsWithScalarFallback(
   items: InvoiceBriefLineItemExtraction[],
-  scalarFallback?: InvoiceBriefLineItemExtraction
+  scalarFallback?: InvoiceBriefLineItemExtraction,
 ) {
   if (!scalarFallback) {
     return items;
@@ -3161,9 +3228,10 @@ function extractHeuristicLineItems(text: string) {
     qty: item.quantity
       ? makeCandidate(item.quantity, item.confidence, "inference")
       : undefined,
-    rate: item.rate && item.rate > 0
-      ? makeCandidate(item.rate, item.confidence, "inference")
-      : undefined,
+    rate:
+      item.rate && item.rate > 0
+        ? makeCandidate(item.rate, item.confidence, "inference")
+        : undefined,
     rateUnit: makeCandidate(item.unit, item.confidence, "inference"),
   }));
 
@@ -3263,19 +3331,19 @@ function extractHeuristicLineItems(text: string) {
         buildLineItemDescriptionFromContext(
           text,
           match.index ?? 0,
-          matcher.fallbackDescription
+          matcher.fallbackDescription,
         );
 
       const localContext = text.slice(
         match.index ?? 0,
-        Math.min(text.length, (match.index ?? 0) + 96)
+        Math.min(text.length, (match.index ?? 0) + 96),
       );
       const rateText =
         localContext.match(
-          /\b(?:at|@|each|for)\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i
+          /\b(?:at|@|each|for)\s*((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)/i,
         )?.[1] ??
         localContext.match(
-          /\b((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)\s+per\s+(?:screen|item|image|reel|video|banner|post)\b/i
+          /\b((?:(?:₹|rs\.?|inr|rupees?|US\$|A\$|C\$|S\$|\$|€|£)\s*)?\d[\d,.]*(?:\.\d{1,2})?\s*(?:k|m|lakh|lac)?(?:\s*(?:inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd))?)\s+per\s+(?:screen|item|image|reel|video|banner|post)\b/i,
         )?.[1];
 
       items.push({
@@ -3313,7 +3381,7 @@ function extractHeuristicLineItems(text: string) {
 }
 
 export function extractInvoiceBriefSchema(
-  text: string
+  text: string,
 ): InvoiceBriefExtractionSchema {
   const roleInferences = inferNameRolesFromText(text);
   const agencyContext =
@@ -3348,8 +3416,8 @@ export function extractInvoiceBriefSchema(
             agencyGstin: agencyGstin?.value,
             agencyPan: agencyPan?.value,
           }),
-          "client tax id"
-        )
+          "client tax id",
+        ),
       )
     : undefined;
   const explicitAgencyGstStatus = extractAgencyGstRegistrationStatus(text);
@@ -3368,17 +3436,26 @@ export function extractInvoiceBriefSchema(
     "due by",
   ]);
   const dueDate =
-    rawDueDate && !(rawDueDate.source === "pattern" && rawDueDate.value === invoiceDate?.value)
+    rawDueDate &&
+    !(
+      rawDueDate.source === "pattern" && rawDueDate.value === invoiceDate?.value
+    )
       ? rawDueDate
       : commercialTerms.dueDate
-      ? makeCandidate(commercialTerms.dueDate, commercialTerms.confidence, "inference")
-      : undefined;
+        ? makeCandidate(
+            commercialTerms.dueDate,
+            commercialTerms.confidence,
+            "inference",
+          )
+        : undefined;
   const explicitClientCountry = extractPaymentField(text, [
     "client country",
     "country",
   ]);
   const agencyLocationDetails = inferLocationDetailsFromText(
-    [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(" ")
+    [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(
+      " ",
+    ),
   );
   const clientLocationDetails = inferLocationDetailsFromText(
     [
@@ -3386,34 +3463,39 @@ export function extractInvoiceBriefSchema(
       clientName?.value ?? roleInferences.client?.value ?? "",
       clientAddress?.value ?? "",
       clientContext,
-    ].join(" ")
+    ].join(" "),
   );
-  const derivedClientCountry =
-    explicitClientCountry?.value
-      ? inferLocationDetailsFromText(explicitClientCountry.value).country ||
-        getCountryFromText(explicitClientCountry.value)
-      : clientLocationDetails.country ||
-        getCountryFromText(
-          [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
-            " "
-          )
-        );
+  const derivedClientCountry = explicitClientCountry?.value
+    ? inferLocationDetailsFromText(explicitClientCountry.value).country ||
+      getCountryFromText(explicitClientCountry.value)
+    : clientLocationDetails.country ||
+      getCountryFromText(
+        [
+          clientName?.value ?? "",
+          clientAddress?.value ?? "",
+          clientContext,
+        ].join(" "),
+      );
 
   const clientCountry =
     explicitClientCountry?.value && derivedClientCountry
       ? makeCandidate(derivedClientCountry, "high", "label")
       : derivedClientCountry
-      ? makeCandidate(
-          derivedClientCountry,
-          clientLocationDetails.country ? clientLocationDetails.confidence || "medium" : "medium",
-          "inference"
-        )
-      : undefined;
+        ? makeCandidate(
+            derivedClientCountry,
+            clientLocationDetails.country
+              ? clientLocationDetails.confidence || "medium"
+              : "medium",
+            "inference",
+          )
+        : undefined;
 
   const agencyState =
     agencyLocationDetails.state ||
     getStateFromText(
-      [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(" ")
+      [agencyAddress?.value ?? "", agencyName?.value ?? "", agencyContext].join(
+        " ",
+      ),
     )
       ? makeCandidate(
           agencyLocationDetails.state ||
@@ -3422,12 +3504,12 @@ export function extractInvoiceBriefSchema(
                 agencyAddress?.value ?? "",
                 agencyName?.value ?? "",
                 agencyContext,
-              ].join(" ")
+              ].join(" "),
             ),
           agencyLocationDetails.state
             ? agencyLocationDetails.confidence || "medium"
             : "medium",
-          "inference"
+          "inference",
         )
       : undefined;
 
@@ -3440,37 +3522,42 @@ export function extractInvoiceBriefSchema(
           inferLocationDetailsFromText(explicitClientState.value).state ||
             getStateFromText(explicitClientState.value),
           "high",
-          "label"
+          "label",
         )
       : clientLocationDetails.state ||
-        getStateFromText(
-          [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
-            " "
+          getStateFromText(
+            [
+              clientName?.value ?? "",
+              clientAddress?.value ?? "",
+              clientContext,
+            ].join(" "),
           )
-        )
-      ? makeCandidate(
-          clientLocationDetails.state ||
-            getStateFromText(
-              [
-                clientName?.value ?? "",
-                clientAddress?.value ?? "",
-                clientContext,
-              ].join(" ")
-            ),
-          clientLocationDetails.state
-            ? clientLocationDetails.confidence || "medium"
-            : "medium",
-          "inference"
-        )
-      : undefined;
+        ? makeCandidate(
+            clientLocationDetails.state ||
+              getStateFromText(
+                [
+                  clientName?.value ?? "",
+                  clientAddress?.value ?? "",
+                  clientContext,
+                ].join(" "),
+              ),
+            clientLocationDetails.state
+              ? clientLocationDetails.confidence || "medium"
+              : "medium",
+            "inference",
+          )
+        : undefined;
 
-  const explicitLocation = extractPaymentField(text, ["client location", "location"]);
+  const explicitLocation = extractPaymentField(text, [
+    "client location",
+    "location",
+  ]);
   const inferredLocationType =
     clientLocationDetails.locationType ||
     inferLocationTypeFromText(
       [clientName?.value ?? "", clientAddress?.value ?? "", clientContext].join(
-        " "
-      )
+        " ",
+      ),
     );
   const clientLocation: InvoiceBriefExtractionSchema["clientLocation"] =
     explicitLocation?.value &&
@@ -3478,35 +3565,38 @@ export function extractInvoiceBriefSchema(
       ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
           "international",
           "high",
-          "label"
+          "label",
         )
-      : explicitLocation?.value && /domestic|india/i.test(explicitLocation.value)
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "domestic",
-          "high",
-          "label"
-        )
-      : inferredLocationType === "international" ||
-        clientCountry ||
-        clientCurrency ||
-        /international client|foreign client|overseas client/i.test(text)
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "international",
-          inferredLocationType === "international"
-            ? clientLocationDetails.confidence || "high"
-            : "medium",
-          "inference"
-        )
-      : inferredLocationType === "domestic" || clientState
-      ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
-          "domestic",
-          inferredLocationType === "domestic"
-            ? clientLocationDetails.confidence || "high"
-            : "medium",
-          "inference"
-        )
-      : undefined;
-  const parsedAgencyAddress = parseAgencyStructuredAddress(agencyAddress?.value);
+      : explicitLocation?.value &&
+          /domestic|india/i.test(explicitLocation.value)
+        ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+            "domestic",
+            "high",
+            "label",
+          )
+        : inferredLocationType === "international" ||
+            clientCountry ||
+            clientCurrency ||
+            /international client|foreign client|overseas client/i.test(text)
+          ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+              "international",
+              inferredLocationType === "international"
+                ? clientLocationDetails.confidence || "high"
+                : "medium",
+              "inference",
+            )
+          : inferredLocationType === "domestic" || clientState
+            ? makeCandidate<InvoiceFormData["client"]["clientLocation"]>(
+                "domestic",
+                inferredLocationType === "domestic"
+                  ? clientLocationDetails.confidence || "high"
+                  : "medium",
+                "inference",
+              )
+            : undefined;
+  const parsedAgencyAddress = parseAgencyStructuredAddress(
+    agencyAddress?.value,
+  );
   const parsedClientAddress = parseClientStructuredAddress({
     value: clientAddress?.value,
     location: clientLocation?.value,
@@ -3519,19 +3609,19 @@ export function extractInvoiceBriefSchema(
     clientContext || text,
     clientCountry,
     clientState,
-    clientCurrency
+    clientCurrency,
   );
   const invoiceTotalAmount =
     extractInvoiceTotalAmount(text) ??
     (extractedRate &&
     !extractedRateUnit &&
     !/\bper\s+(?:screen|item|image|reel|video|banner|post|deliverable|day|hour|revision|concept)\b/i.test(
-      text
+      text,
     )
       ? makeCandidate(
           extractedRate.value,
           extractedRate.confidence,
-          extractedRate.source
+          extractedRate.source,
         )
       : undefined);
   const derivedGstRegistrationStatus =
@@ -3539,14 +3629,14 @@ export function extractInvoiceBriefSchema(
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "high",
-          "inference"
+          "inference",
         )
       : explicitAgencyGstStatus) ??
     (agencyGstin
       ? makeCandidate<AgencyDetails["gstRegistrationStatus"]>(
           "registered",
           "high",
-          "inference"
+          "inference",
         )
       : undefined);
   const derivedLutAvailability =
@@ -3555,7 +3645,7 @@ export function extractInvoiceBriefSchema(
       ? makeCandidate("yes", "high", "inference")
       : undefined) ??
     (/\b(?:export of services|under lut|0% gst|without payment of igst)\b/i.test(
-      text
+      text,
     )
       ? makeCandidate("yes", "medium", "inference")
       : undefined);
@@ -3569,16 +3659,16 @@ export function extractInvoiceBriefSchema(
       ? makeCandidate<NormalizedInvoiceTaxType>(
           agencyState.value === clientState.value ? "CGST_SGST" : "IGST",
           "medium",
-          "inference"
+          "inference",
         )
       : invoiceIsInternational?.value === true &&
-        derivedLutAvailability?.value === "yes"
-      ? makeCandidate<NormalizedInvoiceTaxType>(
-          "ZERO_RATED",
-          "medium",
-          "inference"
-        )
-      : undefined);
+          derivedLutAvailability?.value === "yes"
+        ? makeCandidate<NormalizedInvoiceTaxType>(
+            "ZERO_RATED",
+            "medium",
+            "inference",
+          )
+        : undefined);
   const paymentMode = extractPaymentMode(text);
   const timeline = extractTimeline(text);
   const primaryHeuristicLineItem = heuristicLineItems[0];
@@ -3587,18 +3677,20 @@ export function extractInvoiceBriefSchema(
     invoiceTotalAmount?.value &&
     extractedRate?.value === invoiceTotalAmount.value
       ? undefined
-      : primaryHeuristicLineItem?.rate ?? extractedRate;
+      : (primaryHeuristicLineItem?.rate ?? extractedRate);
   const scalarLineItemFallback = buildScalarLineItemFallback({
-    deliverableType: primaryHeuristicLineItem?.type ?? extractLineItemType(text),
+    deliverableType:
+      primaryHeuristicLineItem?.type ?? extractLineItemType(text),
     deliverableDescription:
-      primaryHeuristicLineItem?.description ?? extractDeliverableDescription(text),
+      primaryHeuristicLineItem?.description ??
+      extractDeliverableDescription(text),
     qty: primaryHeuristicLineItem?.qty ?? extractQuantity(text),
     rate: scalarRateCandidate,
     rateUnit: primaryHeuristicLineItem?.rateUnit ?? extractedRateUnit,
   });
   const combinedLineItems = mergeLineItemsWithScalarFallback(
     heuristicLineItems,
-    scalarLineItemFallback
+    scalarLineItemFallback,
   );
   const primaryLineItem = combinedLineItems[0];
 
@@ -3609,28 +3701,28 @@ export function extractInvoiceBriefSchema(
       ? makeStringCandidate(
           parsedAgencyAddress.line1,
           agencyAddress.confidence,
-          agencyAddress.source
+          agencyAddress.source,
         )
       : undefined,
     agencyAddressLine2: agencyAddress
       ? makeStringCandidate(
           parsedAgencyAddress.line2,
           agencyAddress.confidence,
-          agencyAddress.source
+          agencyAddress.source,
         )
       : undefined,
     agencyCity: agencyAddress
       ? makeStringCandidate(
           parsedAgencyAddress.city,
           agencyAddress.confidence,
-          agencyAddress.source
+          agencyAddress.source,
         )
       : undefined,
     agencyPinCode: agencyAddress
       ? makeStringCandidate(
           parsedAgencyAddress.pinCode,
           agencyAddress.confidence,
-          agencyAddress.source
+          agencyAddress.source,
         )
       : undefined,
     agencyState,
@@ -3645,35 +3737,35 @@ export function extractInvoiceBriefSchema(
       ? makeStringCandidate(
           parsedClientAddress.line1,
           clientAddress.confidence,
-          clientAddress.source
+          clientAddress.source,
         )
       : undefined,
     clientAddressLine2: clientAddress
       ? makeStringCandidate(
           parsedClientAddress.line2,
           clientAddress.confidence,
-          clientAddress.source
+          clientAddress.source,
         )
       : undefined,
     clientCity: clientAddress
       ? makeStringCandidate(
           parsedClientAddress.city,
           clientAddress.confidence,
-          clientAddress.source
+          clientAddress.source,
         )
       : undefined,
     clientPinCode: clientAddress
       ? makeStringCandidate(
           parsedClientAddress.pinCode,
           clientAddress.confidence,
-          clientAddress.source
+          clientAddress.source,
         )
       : undefined,
     clientPostalCode: clientAddress
       ? makeStringCandidate(
           parsedClientAddress.postalCode,
           clientAddress.confidence,
-          clientAddress.source
+          clientAddress.source,
         )
       : undefined,
     clientState,
@@ -3699,13 +3791,16 @@ export function extractInvoiceBriefSchema(
         ? makeCandidate(
             normalizePaymentTermsValue(commercialTerms.paymentTerms),
             commercialTerms.confidence,
-            "inference"
+            "inference",
           )
         : undefined),
     paymentMode,
     paymentAccountName,
     paymentBankName: extractPaymentField(text, ["bank name"]),
-    paymentBankAddress: extractPaymentField(text, ["bank address", "bank full address"]),
+    paymentBankAddress: extractPaymentField(text, [
+      "bank address",
+      "bank full address",
+    ]),
     paymentAccountNumber: extractPaymentAccountNumber(text),
     paymentIfscCode: extractPaymentIfscCode(text),
     paymentSwiftBicCode: extractPaymentSwiftBicCode(text),
@@ -3732,11 +3827,7 @@ function isEffectivelyEmptyValue<T>(currentValue: T, defaultValue: T) {
 // Autofill is allowed to fill only empty or untouched-default fields.
 // Once the user has meaningful data, we preserve it even when extraction
 // comes back with high confidence.
-function safeAssign<T>(
-  currentValue: T,
-  defaultValue: T,
-  incomingValue: T
-) {
+function safeAssign<T>(currentValue: T, defaultValue: T, incomingValue: T) {
   return isEffectivelyEmptyValue(currentValue, defaultValue)
     ? incomingValue
     : currentValue;
@@ -3745,7 +3836,7 @@ function safeAssign<T>(
 function shouldApplyCandidate<T>(
   currentValue: T,
   defaultValue: T,
-  candidate?: Candidate<T>
+  candidate?: Candidate<T>,
 ) {
   if (!candidate) return false;
   if (candidate.confidence === "low") return false;
@@ -3761,7 +3852,7 @@ function recordField(
   aiFilledFields: string[],
   reviewFields: string[],
   confidentFieldSummaries: BriefAutofillFieldSummary[],
-  inferredFieldSummaries: BriefAutofillFieldSummary[]
+  inferredFieldSummaries: BriefAutofillFieldSummary[],
 ) {
   filledFields.push(label);
   if (source === "ai") {
@@ -3821,7 +3912,7 @@ function applyCandidateToForm<T>({
   if (candidate.confidence === "low") {
     lowConfidenceFields.push(label);
     lowConfidenceFieldSummaries.push(
-      createFieldSummary(label, candidate.confidence, candidate.source)
+      createFieldSummary(label, candidate.confidence, candidate.source),
     );
     return;
   }
@@ -3845,7 +3936,7 @@ function applyCandidateToForm<T>({
     aiFilledFields,
     reviewFields,
     confidentFieldSummaries,
-    inferredFieldSummaries
+    inferredFieldSummaries,
   );
 }
 
@@ -3857,7 +3948,7 @@ export function normalizeBriefIntake(input: BriefIntakeInput) {
       input.voiceTranscript?.trim() ?? "",
     ]
       .filter(Boolean)
-      .join("\n\n")
+      .join("\n\n"),
   );
 }
 
@@ -3874,7 +3965,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
   const inferredFieldSummaries: BriefAutofillFieldSummary[] = [];
   const lowConfidenceFieldSummaries: BriefAutofillFieldSummary[] = [];
   const { extraction } = params;
-  const applyCandidate = <T,>(args: MappingApplyCandidateArgs<T>) =>
+  const applyCandidate = <T>(args: MappingApplyCandidateArgs<T>) =>
     applyCandidateToForm({
       ...args,
       filledFields,
@@ -3888,10 +3979,10 @@ export function mapBriefExtractionToInvoiceForm(params: {
   const hasMeaningfulLineItems = nextFormData.lineItems.some((item) => {
     return Boolean(
       item.description.trim() ||
-        item.qty !== defaultLineItem.qty ||
-        item.rate !== defaultLineItem.rate ||
-        item.type !== defaultLineItem.type ||
-        item.rateUnit !== defaultLineItem.rateUnit
+      item.qty !== defaultLineItem.qty ||
+      item.rate !== defaultLineItem.rate ||
+      item.type !== defaultLineItem.type ||
+      item.rateUnit !== defaultLineItem.rateUnit,
     );
   });
 
@@ -4248,7 +4339,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
             item.description ||
             item.qty ||
             item.rate ||
-            item.rateUnit
+            item.rateUnit,
         );
 
   if (extractedLineItems.length > 0 && !hasMeaningfulLineItems) {
@@ -4259,7 +4350,8 @@ export function mapBriefExtractionToInvoiceForm(params: {
       };
 
       applyCandidate({
-        label: index === 0 ? "Deliverable type" : `Deliverable ${index + 1} type`,
+        label:
+          index === 0 ? "Deliverable type" : `Deliverable ${index + 1} type`,
         currentValue: nextItem.type,
         defaultValue: defaultLineItem.type,
         candidate: candidateItem.type,
@@ -4515,7 +4607,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
     confidentFieldSummaries: dedupeFieldSummaries(confidentFieldSummaries),
     inferredFieldSummaries: dedupeFieldSummaries(inferredFieldSummaries),
     lowConfidenceFieldSummaries: dedupeFieldSummaries(
-      lowConfidenceFieldSummaries
+      lowConfidenceFieldSummaries,
     ),
   };
 }
@@ -4531,7 +4623,7 @@ export function runBriefAutofill(params: {
     normalizeExtractionOutput({
       source: "heuristic",
       extraction: rawHeuristicExtraction,
-    })
+    }),
   );
   const aiExtraction = params.aiExtraction
     ? toInvoiceExtractionSchema(
@@ -4539,7 +4631,7 @@ export function runBriefAutofill(params: {
           source: "ai",
           extraction: params.aiExtraction,
           rawText: normalizedText,
-        })
+        }),
       )
     : null;
   const extraction = mergeBriefExtractions({

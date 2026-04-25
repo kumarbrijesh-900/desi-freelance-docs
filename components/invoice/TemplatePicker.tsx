@@ -43,11 +43,17 @@ function CheckIcon({ className = "h-3 w-3" }: { className?: string }) {
   );
 }
 
-
-
 function PanelIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <path d="M9 3v18" />
     </svg>
@@ -107,12 +113,19 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
           className="h-[2px] w-12 rounded-full"
           style={{ backgroundColor: text, opacity: 0.2 }}
         />
-        <div className="my-[2px] h-px w-full" style={{ backgroundColor: text, opacity: 0.08 }} />
+        <div
+          className="my-[2px] h-px w-full"
+          style={{ backgroundColor: text, opacity: 0.08 }}
+        />
         {[0.7, 0.5, 0.6].map((w, i) => (
           <div key={i} className="flex items-center justify-between">
             <div
               className="h-[2px] rounded-full"
-              style={{ backgroundColor: text, opacity: 0.15, width: `${w * 55}%` }}
+              style={{
+                backgroundColor: text,
+                opacity: 0.15,
+                width: `${w * 55}%`,
+              }}
             />
             <div
               className="h-[2px] w-3 rounded-full"
@@ -120,10 +133,19 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
             />
           </div>
         ))}
-        <div className="mt-auto h-px w-full" style={{ backgroundColor: text, opacity: 0.08 }} />
+        <div
+          className="mt-auto h-px w-full"
+          style={{ backgroundColor: text, opacity: 0.08 }}
+        />
         <div className="flex items-center justify-between">
-          <div className="h-[2px] w-4 rounded-full" style={{ backgroundColor: text, opacity: 0.25 }} />
-          <div className="h-[3px] w-5 rounded-full" style={{ backgroundColor: primary, opacity: 0.7 }} />
+          <div
+            className="h-[2px] w-4 rounded-full"
+            style={{ backgroundColor: text, opacity: 0.25 }}
+          />
+          <div
+            className="h-[3px] w-5 rounded-full"
+            style={{ backgroundColor: primary, opacity: 0.7 }}
+          />
         </div>
       </div>
     </div>
@@ -167,7 +189,9 @@ function ThumbnailCard({
     >
       {/* Preview area — compact aspect ratio */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-[color:var(--bg-surface-muted)]">
-        <div className={`h-full w-full ${lockState === "blurred" ? "blur-[4px] scale-110" : ""}`}>
+        <div
+          className={`h-full w-full ${lockState === "blurred" ? "blur-[4px] scale-110" : ""}`}
+        >
           <MiniInvoiceThumbnail template={template} />
         </div>
 
@@ -195,8 +219,6 @@ function ThumbnailCard({
             <CheckIcon className="h-2.5 w-2.5 text-white" />
           </div>
         )}
-
-
       </div>
 
       {/* Label — compact */}
@@ -225,7 +247,7 @@ export default function TemplatePicker({
 }: TemplatePickerProps) {
   const router = useRouter();
   const sortedTemplates = [...TEMPLATE_REGISTRY].sort(
-    (a, b) => a.order - b.order
+    (a, b) => a.order - b.order,
   );
 
   const handleTemplateClick = (templateId: string, lockState: string) => {
@@ -241,7 +263,9 @@ export default function TemplatePicker({
   const isHorizontal = layout === "horizontal";
 
   return (
-    <div className={isHorizontal ? "flex flex-col gap-2" : "flex flex-col gap-2"}>
+    <div
+      className={isHorizontal ? "flex flex-col gap-2" : "flex flex-col gap-2"}
+    >
       {/* Header */}
       <div className="flex items-center gap-1.5 px-1">
         <PanelIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)]" />
@@ -278,7 +302,9 @@ export default function TemplatePicker({
 
       {/* Upgrade hint */}
       {userTier === "visitor" && (
-        <div className={`rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}>
+        <div
+          className={`rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}
+        >
           <p className="text-[9px] font-semibold text-amber-700">
             ✦ Sign in to unlock all templates
           </p>

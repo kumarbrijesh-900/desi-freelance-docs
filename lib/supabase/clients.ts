@@ -65,8 +65,10 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     clientCountry: c.country as ClientDetails["clientCountry"],
     clientCurrency: c.client_currency as ClientDetails["clientCurrency"],
     clientGstin: c.gstin,
-    clientLocation: (c.client_type || "domestic") as ClientDetails["clientLocation"],
-    clientType: (c.client_entity_type || "agency") as ClientDetails["clientType"],
+    clientLocation: (c.client_type ||
+      "domestic") as ClientDetails["clientLocation"],
+    clientType: (c.client_entity_type ||
+      "agency") as ClientDetails["clientType"],
     isClientSezUnit: c.sez_status as ClientDetails["isClientSezUnit"],
     msaEffectiveDate: c.msa_effective_date || undefined,
     msaPaymentTermsDays: c.msa_payment_terms_days,
@@ -81,7 +83,7 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
 
 /** Convert ClientDetails to DB row for upsert */
 export function clientDetailsToRow(
-  details: ClientDetails
+  details: ClientDetails,
 ): Record<string, unknown> {
   return {
     client_name: details.clientName,
@@ -137,7 +139,7 @@ export async function listClients(): Promise<{
 /* ─── Get Single ──────────────────────────────────── */
 
 export async function getClient(
-  clientId: string
+  clientId: string,
 ): Promise<{ data: SavedClient | null; error: string | null }> {
   const { data, error } = await supabase
     .from("clients")
@@ -153,7 +155,7 @@ export async function getClient(
 
 export async function upsertClient(
   details: ClientDetails,
-  existingId?: string
+  existingId?: string,
 ): Promise<{ data: SavedClient | null; error: string | null }> {
   const {
     data: { user },
@@ -214,7 +216,7 @@ export async function upsertClient(
 /* ─── Increment Invoice Count ─────────────────────── */
 
 export async function incrementClientInvoiceCount(
-  clientId: string
+  clientId: string,
 ): Promise<void> {
   const { data: client } = await supabase
     .from("clients")
@@ -236,7 +238,7 @@ export async function incrementClientInvoiceCount(
 /* ─── Delete ──────────────────────────────────────── */
 
 export async function deleteClient(
-  clientId: string
+  clientId: string,
 ): Promise<{ error: string | null }> {
   const {
     data: { user },

@@ -14,7 +14,9 @@ export const dynamic = "force-dynamic";
 function generateShareToken(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(12));
-  return Array.from(bytes).map((b) => chars[b % chars.length]).join("");
+  return Array.from(bytes)
+    .map((b) => chars[b % chars.length])
+    .join("");
 }
 
 function getClientIp(request: Request): string {
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   try {
@@ -46,18 +48,18 @@ export async function POST(req: NextRequest) {
     if (!success) {
       return NextResponse.json(
         { error: "Too many requests. Please try again in 10 seconds." },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
     // ─── 0.5. Zod Validation ───
     const body = await req.json();
     const result = ShareInvoiceSchema.safeParse(body);
-    
+
     if (!result.success) {
       return NextResponse.json(
         { error: "Invalid request payload.", details: result.error.format() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -71,7 +73,10 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (fetchError || !invoice) {
-      return NextResponse.json({ error: "Invoice not found." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invoice not found." },
+        { status: 404 },
+      );
     }
 
     /* ── 2. Fetch agency name from user_profiles ── */
@@ -114,7 +119,7 @@ export async function POST(req: NextRequest) {
     /* ── 4. Send email to client (link only goes to inbox) ── */
     const hasMsa = !!msaId;
     const hasAddendum = invoice.has_addendum;
-    
+
     const { error: emailError } = await resend.emails.send({
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
@@ -142,25 +147,35 @@ export async function POST(req: NextRequest) {
                     </h1>
                     <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
                       <strong style="color:#111118;">${agencyName}</strong> has sent you an invoice via Lance.
-                      ${hasMsa 
-                        ? (hasAddendum 
+                      ${
+                        hasMsa
+                          ? hasAddendum
                             ? "Please review the Master Service Agreement and the specific Project Addendum attached to this invoice prior to acceptance."
-                            : "Please review and accept the Master Service Agreement before viewing the invoice.")
-                        : "Click below to view your invoice."}
+                            : "Please review and accept the Master Service Agreement before viewing the invoice."
+                          : "Click below to view your invoice."
+                      }
                     </p>
-                    ${hasMsa ? `
+                    ${
+                      hasMsa
+                        ? `
                     <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:24px;background:#f9fafb;">
                       <p style="margin:0 0 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;">What to expect</p>
                       <p style="margin:0;font-size:13px;color:#374151;line-height:1.6;">
                         You will be asked to read and accept a Master Service Agreement (MSA) from ${agencyName}. This protects both parties and outlines the terms of work. You can also propose changes.
                       </p>
                     </div>
-                    ` : ""}
+                    `
+                        : ""
+                    }
                     <a href="${shareUrl}"
                       style="display:inline-block;background:#111118;color:#d4ff00;font-size:14px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      ${hasMsa 
-                        ? (hasAddendum ? "Review MSA & Addendum →" : "Review MSA & View Invoice →")
-                        : "View Invoice →"}
+                      ${
+                        hasMsa
+                          ? hasAddendum
+                            ? "Review MSA & Addendum →"
+                            : "Review MSA & View Invoice →"
+                          : "View Invoice →"
+                      }
                     </a>
                     <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">
                       This link is private and was sent only to ${clientEmail}. Do not share it.
@@ -186,8 +201,11 @@ export async function POST(req: NextRequest) {
     if (emailError) {
       console.error("RESEND_ERROR:", emailError);
       return NextResponse.json(
-        { error: "Email delivery failed. Invoice was saved but not sent. Please try again." },
-        { status: 500 }
+        {
+          error:
+            "Email delivery failed. Invoice was saved but not sent. Please try again.",
+        },
+        { status: 500 },
       );
     }
 
@@ -205,6 +223,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ token, success: true });
   } catch (err) {
     console.error("SHARE_INVOICE_ERROR:", err);
-    return NextResponse.json({ error: "Unexpected server error." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected server error." },
+      { status: 500 },
+    );
   }
 }

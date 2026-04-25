@@ -109,7 +109,13 @@ export function hydrateIndianAddressFields({
   const nextPinCode = cleanPinCode(pinCode);
   const normalizedLegacyAddress = cleanValue(legacyAddress);
 
-  if (nextLine1 || nextLine2 || nextCity || nextPinCode || !normalizedLegacyAddress) {
+  if (
+    nextLine1 ||
+    nextLine2 ||
+    nextCity ||
+    nextPinCode ||
+    !normalizedLegacyAddress
+  ) {
     return {
       addressLine1: nextLine1,
       addressLine2: nextLine2,
@@ -124,7 +130,10 @@ export function hydrateIndianAddressFields({
   const inferredCity = locationDetails.matchedIndianCity || "";
   const inferredState = cleanValue(state) || locationDetails.state || "";
   const withoutPin = inferredPinCode
-    ? normalizedLegacyAddress.replace(inferredPinCode, "").replace(/\s{2,}/g, " ").trim()
+    ? normalizedLegacyAddress
+        .replace(inferredPinCode, "")
+        .replace(/\s{2,}/g, " ")
+        .trim()
     : normalizedLegacyAddress;
   const strippedState = removeMatchedPart(withoutPin, inferredState);
   const strippedCity = removeMatchedPart(strippedState, inferredCity);
@@ -185,7 +194,7 @@ export function evaluateStateSignals(params: {
   ].filter(Boolean) as Array<{ source: string; state: string }>;
 
   const uniqueStates = Array.from(
-    new Set(deterministicSources.map((entry) => entry.state))
+    new Set(deterministicSources.map((entry) => entry.state)),
   );
 
   const warning =

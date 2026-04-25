@@ -49,7 +49,8 @@ By accepting this Agreement (electronically or otherwise), the Client acknowledg
 
 export const MSA_TOOLTIP_CONTENT = {
   title: "Why you need an MSA",
-  description: "An invoice bills, but an MSA protects. Relying on email leaves you legally exposed. An MSA is your baseline shield that locks down:",
+  description:
+    "An invoice bills, but an MSA protects. Relying on email leaves you legally exposed. An MSA is your baseline shield that locks down:",
   points: [
     {
       label: "IP Rights",

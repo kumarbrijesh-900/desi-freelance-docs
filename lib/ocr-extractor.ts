@@ -23,7 +23,9 @@ function fileToDataUrl(file: File) {
 
 export async function extractTextFromImage(file: File): Promise<string> {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    throw new Error("Unsupported image type. Please upload a PNG or JPG image.");
+    throw new Error(
+      "Unsupported image type. Please upload a PNG or JPG image.",
+    );
   }
 
   const imageDataUrl = await fileToDataUrl(file);

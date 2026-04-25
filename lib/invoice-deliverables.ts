@@ -1,7 +1,4 @@
-import type {
-  InvoiceLineItemType,
-  InvoiceRateUnit,
-} from "@/types/invoice";
+import type { InvoiceLineItemType, InvoiceRateUnit } from "@/types/invoice";
 import {
   getInvoiceLineItemCatalogEntry,
   invoiceCanonicalLineItemTypeOptions,
@@ -17,15 +14,19 @@ function resolveCatalogEntry(type: InvoiceLineItemType) {
   );
 }
 
-const knownTypes = [...invoiceCanonicalLineItemTypeOptions, "UI/UX", "Social Media"] as const;
+const knownTypes = [
+  ...invoiceCanonicalLineItemTypeOptions,
+  "UI/UX",
+  "Social Media",
+] as const;
 
 type KnownInvoiceLineItemType = (typeof knownTypes)[number];
 
 function asInvoiceLineItemTypeMap<T>(
-  resolver: (type: KnownInvoiceLineItemType) => T
+  resolver: (type: KnownInvoiceLineItemType) => T,
 ) {
   return Object.fromEntries(
-    knownTypes.map((type) => [type, resolver(type)])
+    knownTypes.map((type) => [type, resolver(type)]),
   ) as Record<InvoiceLineItemType, T>;
 }
 
@@ -50,21 +51,21 @@ export const invoiceAllowedUnitsByType = asInvoiceLineItemTypeMap((type) => [
 ]) as Record<InvoiceLineItemType, InvoiceRateUnit[]>;
 
 export const invoiceDefaultUnitByType = asInvoiceLineItemTypeMap(
-  (type) => resolveCatalogEntry(type)!.defaultUnit
+  (type) => resolveCatalogEntry(type)!.defaultUnit,
 ) as Record<InvoiceLineItemType, InvoiceRateUnit>;
 
 export const invoiceDescriptionPlaceholderByType = asInvoiceLineItemTypeMap(
-  (type) => resolveCatalogEntry(type)!.placeholder
+  (type) => resolveCatalogEntry(type)!.placeholder,
 ) as Record<InvoiceLineItemType, string>;
 
 export const invoiceDescriptionSuggestionsByType = asInvoiceLineItemTypeMap(
-  (type) => [...resolveCatalogEntry(type)!.suggestions]
+  (type) => [...resolveCatalogEntry(type)!.suggestions],
 ) as Record<InvoiceLineItemType, string[]>;
 
 export function getInvoiceDescriptionSuggestions(
   type: InvoiceLineItemType,
   query = "",
-  limit = 10
+  limit = 10,
 ) {
   const resolvedType = normalizeInvoiceLineItemType(type) ?? fallbackType;
   const suggestions = invoiceDescriptionSuggestionsByType[resolvedType] ?? [];
@@ -75,9 +76,6 @@ export function getInvoiceDescriptionSuggestions(
   }
 
   return suggestions
-    .filter((suggestion) =>
-      suggestion.toLowerCase().includes(normalizedQuery)
-    )
+    .filter((suggestion) => suggestion.toLowerCase().includes(normalizedQuery))
     .slice(0, limit);
 }
-

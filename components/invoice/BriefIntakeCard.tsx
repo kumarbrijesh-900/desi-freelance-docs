@@ -48,15 +48,18 @@ export default function BriefIntakeCard({
   const [isDragOver, setIsDragOver] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractProgress, setExtractProgress] = useState(0);
-  const [lastExtractionState, setLastExtractionState] =
-    useState<"idle" | "success" | "error">("idle");
+  const [lastExtractionState, setLastExtractionState] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isExtracting) {
       setExtractProgress(0);
       interval = setInterval(() => {
-        setExtractProgress((prev) => (prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1));
+        setExtractProgress((prev) =>
+          prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1,
+        );
       }, 300);
     } else {
       if (lastExtractionState === "success") {
@@ -73,12 +76,12 @@ export default function BriefIntakeCard({
   const statusTone = isExtracting
     ? "processing"
     : lastExtractionState === "success"
-    ? "success"
-    : lastExtractionState === "error"
-    ? "warning"
-    : canExtract
-    ? "ready"
-    : "idle";
+      ? "success"
+      : lastExtractionState === "error"
+        ? "warning"
+        : canExtract
+          ? "ready"
+          : "idle";
 
   const statusCopy =
     statusTone === "processing"
@@ -86,29 +89,29 @@ export default function BriefIntakeCard({
         ? "Reading the screenshot and preparing autofill."
         : "Preparing autofill from the brief."
       : statusTone === "success"
-      ? "Autofill is ready."
-      : statusTone === "warning"
-      ? "Add a little more detail or try a clearer screenshot."
-      : statusTone === "ready"
-      ? "Ready to extract."
-      : "Add a brief first.";
+        ? "Autofill is ready."
+        : statusTone === "warning"
+          ? "Add a little more detail or try a clearer screenshot."
+          : statusTone === "ready"
+            ? "Ready to extract."
+            : "Add a brief first.";
 
   const statusBadgeClass =
     statusTone === "processing"
       ? "border-[color:var(--border-default)] bg-[color:var(--bg-surface)] text-[color:var(--text-secondary)]"
       : statusTone === "success"
-      ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
-      : statusTone === "warning"
-      ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
-      : statusTone === "ready"
-      ? "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
-      : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]";
+        ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
+        : statusTone === "warning"
+          ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
+          : statusTone === "ready"
+            ? "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+            : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]";
 
   const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
 
     const nextFiles = Array.from(files).filter((file) =>
-      ["image/png", "image/jpeg"].includes(file.type)
+      ["image/png", "image/jpeg"].includes(file.type),
     );
 
     if (!nextFiles.length) {
@@ -145,13 +148,16 @@ export default function BriefIntakeCard({
 
   const isAdmin = userEmail === "kumar.brijesh900@gmail.com";
   const isEngineLocked = !isAdmin; // Manual lock override
-  const lockMessage = "Engine is out of fuel, waiting for Strait to straighten up.";
+  const lockMessage =
+    "Engine is out of fuel, waiting for Strait to straighten up.";
 
   if (isCollapsed) {
     return (
       <MotionReveal className="mb-3" preset="fade-up" delay={40}>
         <section
-          className={cn("app-soft-panel-muted overflow-hidden rounded-[14px] border-amber-200 bg-amber-50/30")}
+          className={cn(
+            "app-soft-panel-muted overflow-hidden rounded-[14px] border-amber-200 bg-amber-50/30",
+          )}
           aria-labelledby="brief-intake-collapsed-heading"
           data-brief-intake-state="collapsed"
           data-testid="brief-intake-collapsed"
@@ -188,7 +194,7 @@ export default function BriefIntakeCard({
               aria-controls="brief-intake-panel"
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "shrink-0 bg-white/50 hover:bg-white shadow-sm"
+                "shrink-0 bg-white/50 hover:bg-white shadow-sm",
               )}
             >
               <ChevronDownIcon className="h-3.5 w-3.5 text-amber-700" />
@@ -204,7 +210,7 @@ export default function BriefIntakeCard({
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "invoice-brief-card relative overflow-hidden px-4 py-3 sm:px-[18px]"
+          "invoice-brief-card relative overflow-hidden px-4 py-3 sm:px-[18px]",
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
@@ -219,7 +225,7 @@ export default function BriefIntakeCard({
               aria-controls="brief-intake-panel"
               className={cn(
                 getAppButtonClass({ variant: "tertiary", size: "sm" }),
-                "bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white"
+                "bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white",
               )}
             >
               <ChevronUpIcon className="h-3.5 w-3.5" />
@@ -238,7 +244,7 @@ export default function BriefIntakeCard({
                 {lockMessage}
               </p>
               <div className="h-1 w-32 rounded-full bg-gray-100 overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-amber-400"
                   animate={{ x: [-128, 128] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -248,14 +254,20 @@ export default function BriefIntakeCard({
           </div>
         )}
 
-        <div className={cn("space-y-2", isEngineLocked && "opacity-20 grayscale pointer-events-none")}>
+        <div
+          className={cn(
+            "space-y-2",
+            isEngineLocked && "opacity-20 grayscale pointer-events-none",
+          )}
+        >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
                 Screenshot, text, or audio brief
               </h2>
               <p className={cn("max-w-2xl", appSectionDescriptionClass)}>
-                Paste a brief first, then add a screenshot only if it helps autofill.
+                Paste a brief first, then add a screenshot only if it helps
+                autofill.
               </p>
             </div>
           </div>
@@ -286,7 +298,7 @@ export default function BriefIntakeCard({
                         hasValue: Boolean(briefText),
                         multiline: true,
                       }),
-                      "min-h-[104px]"
+                      "min-h-[104px]",
                     )}
                   />
 
@@ -296,7 +308,7 @@ export default function BriefIntakeCard({
                         <span
                           key={`${file.name}-${file.lastModified}`}
                           className={cn(
-                            "inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-1 text-[11px] font-medium text-[color:var(--text-secondary)]"
+                            "inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] px-2 py-1 text-[11px] font-medium text-[color:var(--text-secondary)]",
                           )}
                         >
                           <ClipboardCheckIcon className="h-3.5 w-3.5" />
@@ -310,9 +322,14 @@ export default function BriefIntakeCard({
                     <div className="flex flex-wrap items-center gap-2">
                       <label
                         className={cn(
-                          getAppButtonClass({ variant: "secondary", size: "sm" }),
+                          getAppButtonClass({
+                            variant: "secondary",
+                            size: "sm",
+                          }),
                           "cursor-pointer",
-                          isDragOver ? "border-[color:var(--border-accent)] bg-[color:var(--bg-surface)] text-[color:var(--text-primary)]" : ""
+                          isDragOver
+                            ? "border-[color:var(--border-accent)] bg-[color:var(--bg-surface)] text-[color:var(--text-primary)]"
+                            : "",
                         )}
                       >
                         <UploadIcon className="h-4 w-4" />
@@ -333,7 +350,10 @@ export default function BriefIntakeCard({
                       <MotionButton
                         type="button"
                         disabled={isEngineLocked}
-                        className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                        className={getAppButtonClass({
+                          variant: "ghost",
+                          size: "sm",
+                        })}
                       >
                         <MicrophoneIcon className="h-4 w-4" />
                         Voice
@@ -350,7 +370,10 @@ export default function BriefIntakeCard({
                       type="button"
                       onClick={handleExtract}
                       disabled={isEngineLocked || isExtracting || !canExtract}
-                      className={getAppButtonClass({ variant: "primary", size: "md" })}
+                      className={getAppButtonClass({
+                        variant: "primary",
+                        size: "md",
+                      })}
                     >
                       <motion.span
                         animate={
@@ -366,7 +389,9 @@ export default function BriefIntakeCard({
                       >
                         <SparklesIcon className="h-4 w-4" />
                       </motion.span>
-                      {isExtracting ? `Extracting... ${extractProgress}%` : "Extract & Autofill"}
+                      {isExtracting
+                        ? `Extracting... ${extractProgress}%`
+                        : "Extract & Autofill"}
                     </MotionButton>
                   </div>
                 </div>

@@ -17,7 +17,15 @@ import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from "@/lib/default-msa";
 
 function MailIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="2" y="4" width="20" height="16" rx="2" />
       <path d="M22 7L13.03 12.7C12.71 12.9 12.36 13 12 13C11.64 13 11.29 12.9 10.97 12.7L2 7" />
     </svg>
@@ -26,7 +34,15 @@ function MailIcon({ className }: { className?: string }) {
 
 function SendIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
@@ -35,7 +51,15 @@ function SendIcon({ className }: { className?: string }) {
 
 function EyeIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -46,14 +70,28 @@ function EyeIcon({ className }: { className?: string }) {
 
 function MsaStatusBadge({ response }: { response: MsaResponse }) {
   const map: Record<MsaResponse, { label: string; classes: string }> = {
-    accepted: { label: "Client Accepted", classes: "border-green-200 bg-green-50 text-green-700" },
-    rejected:  { label: "Client Rejected",  classes: "border-red-200 bg-red-50 text-red-600" },
-    negotiating: { label: "Negotiating",    classes: "border-cyan-200 bg-cyan-50 text-cyan-700" },
-    pending:   { label: "Pending",          classes: "border-amber-200 bg-amber-50 text-amber-700" },
+    accepted: {
+      label: "Client Accepted",
+      classes: "border-green-200 bg-green-50 text-green-700",
+    },
+    rejected: {
+      label: "Client Rejected",
+      classes: "border-red-200 bg-red-50 text-red-600",
+    },
+    negotiating: {
+      label: "Negotiating",
+      classes: "border-cyan-200 bg-cyan-50 text-cyan-700",
+    },
+    pending: {
+      label: "Pending",
+      classes: "border-amber-200 bg-amber-50 text-amber-700",
+    },
   };
   const { label, classes } = map[response] ?? map.pending;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${classes}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${classes}`}
+    >
       {response === "accepted" && <CheckCircleIcon className="h-3 w-3" />}
       {label}
     </span>
@@ -90,7 +128,9 @@ export default function ShareLinkModal({
 
   // MSA state
   const [availableMsas, setAvailableMsas] = useState<ClientMsa[]>([]);
-  const [selectedMsaId, setSelectedMsaId] = useState<string | null>(currentMsaId);
+  const [selectedMsaId, setSelectedMsaId] = useState<string | null>(
+    currentMsaId,
+  );
   const [previewMsa, setPreviewMsa] = useState<ClientMsa | null>(null);
   const [msaAttaching, setMsaAttaching] = useState(false);
   const [loadingMsas, setLoadingMsas] = useState(false);
@@ -155,7 +195,9 @@ export default function ShareLinkModal({
     setError(null);
     if (msaId) {
       const { error } = await attachMsaToInvoice(invoiceId, msaId);
-      if (error) { setError(error); } else {
+      if (error) {
+        setError(error);
+      } else {
         setSelectedMsaId(msaId);
         const match = availableMsas.find((m) => m.id === msaId);
         setPreviewMsa(match ?? null);
@@ -163,7 +205,9 @@ export default function ShareLinkModal({
       }
     } else {
       const { error } = await detachMsaFromInvoice(invoiceId);
-      if (error) { setError(error); } else {
+      if (error) {
+        setError(error);
+      } else {
         setSelectedMsaId(null);
         setPreviewMsa(null);
         playInteractionCue("saveSuccess");
@@ -184,7 +228,9 @@ export default function ShareLinkModal({
       status: "active",
     });
     if (error || !data) {
-      setError("Could not create default MSA. Please create one from the Clients page.");
+      setError(
+        "Could not create default MSA. Please create one from the Clients page.",
+      );
     } else {
       setAvailableMsas((prev) => [data, ...prev]);
       await handleMsaToggle(data.id);
@@ -195,23 +241,24 @@ export default function ShareLinkModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <MotionReveal preset="scale-in">
         <div className="mx-4 w-full max-w-lg rounded-xl border border-[color:var(--border-default)] bg-white shadow-2xl overflow-hidden">
-
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--border-subtle)] px-6 py-4">
             <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
               Send Invoice to Client
             </h2>
             <p className="mt-0.5 text-sm text-[color:var(--text-secondary)]">
-              A secure, one-time link is sent directly to your client&apos;s inbox.
+              A secure, one-time link is sent directly to your client&apos;s
+              inbox.
             </p>
           </div>
 
           <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
-
             {/* ── Error ── */}
             {error && (
               <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -226,8 +273,11 @@ export default function ShareLinkModal({
               </label>
               <div className="mt-1.5 flex items-center gap-2 rounded-md border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" />
-                <span className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-medium" : "text-[color:var(--text-muted)] italic"}`}>
-                  {clientEmail?.trim() || "No client email — add it in the editor first"}
+                <span
+                  className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-medium" : "text-[color:var(--text-muted)] italic"}`}
+                >
+                  {clientEmail?.trim() ||
+                    "No client email — add it in the editor first"}
                 </span>
               </div>
               {!clientEmail?.trim() && (
@@ -250,19 +300,27 @@ export default function ShareLinkModal({
               </div>
 
               <p className="text-xs text-[color:var(--text-secondary)]">
-                Require your client to accept a Master Service Agreement before they can view the invoice.
+                Require your client to accept a Master Service Agreement before
+                they can view the invoice.
               </p>
 
               {loadingMsas ? (
-                <p className="text-xs text-[color:var(--text-muted)]">Loading MSAs…</p>
+                <p className="text-xs text-[color:var(--text-muted)]">
+                  Loading MSAs…
+                </p>
               ) : availableMsas.length === 0 ? (
                 <div className="space-y-2">
-                  <p className="text-xs text-[color:var(--text-secondary)]">No MSAs found. Create a default one to protect your work:</p>
+                  <p className="text-xs text-[color:var(--text-secondary)]">
+                    No MSAs found. Create a default one to protect your work:
+                  </p>
                   <button
                     type="button"
                     onClick={handleCreateDefault}
                     disabled={creatingDefault}
-                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                    className={getAppButtonClass({
+                      variant: "secondary",
+                      size: "sm",
+                    })}
                   >
                     {creatingDefault ? "Creating…" : "Create Default MSA"}
                   </button>
@@ -270,37 +328,65 @@ export default function ShareLinkModal({
               ) : (
                 <div className="space-y-2">
                   {/* No MSA radio */}
-                  <label className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                    !selectedMsaId
-                      ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
-                      : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
-                  }`}>
-                    <input type="radio" name="msa-select" checked={!selectedMsaId}
-                      onChange={() => handleMsaToggle(null)} disabled={msaAttaching}
-                      className="accent-[color:var(--color-lime-700)]" />
-                    <span className="text-sm text-[color:var(--text-primary)]">No MSA — send invoice directly</span>
+                  <label
+                    className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
+                      !selectedMsaId
+                        ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
+                        : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="msa-select"
+                      checked={!selectedMsaId}
+                      onChange={() => handleMsaToggle(null)}
+                      disabled={msaAttaching}
+                      className="accent-[color:var(--color-lime-700)]"
+                    />
+                    <span className="text-sm text-[color:var(--text-primary)]">
+                      No MSA — send invoice directly
+                    </span>
                   </label>
 
                   {/* MSA options */}
                   {availableMsas.map((msa) => (
-                    <label key={msa.id} className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                      selectedMsaId === msa.id
-                        ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
-                        : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
-                    }`}>
-                      <input type="radio" name="msa-select" checked={selectedMsaId === msa.id}
-                        onChange={() => handleMsaToggle(msa.id)} disabled={msaAttaching}
-                        className="accent-[color:var(--color-lime-700)]" />
+                    <label
+                      key={msa.id}
+                      className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
+                        selectedMsaId === msa.id
+                          ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
+                          : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="msa-select"
+                        checked={selectedMsaId === msa.id}
+                        onChange={() => handleMsaToggle(msa.id)}
+                        disabled={msaAttaching}
+                        className="accent-[color:var(--color-lime-700)]"
+                      />
                       <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-[color:var(--text-primary)]">{msa.title}</span>
-                        <span className={`ml-2 inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
-                          msa.status === "active" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
-                        }`}>{msa.status}</span>
+                        <span className="text-sm font-medium text-[color:var(--text-primary)]">
+                          {msa.title}
+                        </span>
+                        <span
+                          className={`ml-2 inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
+                            msa.status === "active"
+                              ? "bg-green-50 text-green-700"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          {msa.status}
+                        </span>
                       </div>
                       {/* Preview button — shows MSA text inline */}
                       <button
                         type="button"
-                        onClick={(e) => { e.preventDefault(); setPreviewMsa(previewMsa?.id === msa.id ? null : msa); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPreviewMsa(previewMsa?.id === msa.id ? null : msa);
+                        }}
                         className="shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
                       >
                         <EyeIcon className="h-3.5 w-3.5" />
@@ -333,7 +419,9 @@ export default function ShareLinkModal({
               <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
                 <CheckCircleIcon className="h-5 w-5 shrink-0 text-green-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-green-800">Invoice sent to {clientEmail}</p>
+                  <p className="text-sm font-semibold text-green-800">
+                    Invoice sent to {clientEmail}
+                  </p>
                   <p className="mt-0.5 text-xs text-green-700">
                     {selectedMsaId
                       ? "The client will need to accept your MSA before viewing the invoice."
@@ -342,17 +430,20 @@ export default function ShareLinkModal({
                 </div>
               </div>
             )}
-
           </div>
 
           {/* ── Footer ── */}
           <div className="border-t border-[color:var(--border-subtle)] px-6 py-4 flex items-center justify-between gap-3">
             <p className="text-[11px] text-[color:var(--text-muted)] leading-relaxed">
-              🔒 The secure link is delivered only to {clientEmail?.trim() || "the client's email"}.
+              🔒 The secure link is delivered only to{" "}
+              {clientEmail?.trim() || "the client's email"}.
             </p>
             <div className="flex items-center gap-2 shrink-0">
-              <button type="button" onClick={onClose}
-                className={getAppButtonClass({ variant: "ghost", size: "sm" })}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              >
                 {sent ? "Close" : "Cancel"}
               </button>
               {!sent && (
@@ -360,7 +451,10 @@ export default function ShareLinkModal({
                   type="button"
                   onClick={handleSend}
                   disabled={sending || !clientEmail?.trim() || msaAttaching}
-                  className={getAppButtonClass({ variant: "primary", size: "md" })}
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    size: "md",
+                  })}
                 >
                   <span className="inline-flex items-center gap-2">
                     <SendIcon className="h-4 w-4" />
@@ -370,7 +464,6 @@ export default function ShareLinkModal({
               )}
             </div>
           </div>
-
         </div>
       </MotionReveal>
     </div>

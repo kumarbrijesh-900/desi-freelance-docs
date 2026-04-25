@@ -86,11 +86,10 @@ function findFirstMatch(text: string, patterns: RegExp[]) {
   return "";
 }
 
-function extractLabeledValue(
-  text: string,
-  labels: readonly string[]
-) {
-  const orderedLabels = [...labels].sort((left, right) => right.length - left.length);
+function extractLabeledValue(text: string, labels: readonly string[]) {
+  const orderedLabels = [...labels].sort(
+    (left, right) => right.length - left.length,
+  );
   const lines = text.split(/\n/);
 
   for (const line of lines) {
@@ -98,11 +97,11 @@ function extractLabeledValue(
       const pattern = !label.includes(" ")
         ? new RegExp(
             `^\\s*${escapeRegExp(label)}(?:\\s*[:\\-]\\s*(.*))?\\s*$`,
-            "i"
+            "i",
           )
         : new RegExp(
             `^\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.*)$`,
-            "i"
+            "i",
           );
       const match = line.match(pattern);
 
@@ -121,23 +120,26 @@ function normalizeContextLine(line: string) {
   return cleanValue(line)
     .replace(
       /^(?:agency name|agency|business name|business|freelancer name|freelancer|studio name|studio|issued by|my name|from)\s+/i,
-      ""
+      "",
     )
     .replace(/^is\s+/i, "")
     .replace(
       /^(?:invoice\s+(?:for|to)|bill to|customer name|client name|recipient|client|for|to|your brand|brand)\s+/i,
-      ""
+      "",
     )
     .replace(
       /\s+(?:address|country|state|currency|gstin|gst|bank|ifsc|swift|iban|routing|payment|terms?|rate|qty|quantity|invoice|project|due date)\b.*$/i,
-      ""
+      "",
     )
     .trim();
 }
 
 export function sanitizeEntityNameCandidate(value?: string | null) {
   const cleaned = normalizeContextLine(value ?? "")
-    .replace(/\b(?:gst registered|registered under gst|not registered under gst|gstin|pan|lut)\b.*$/i, "")
+    .replace(
+      /\b(?:gst registered|registered under gst|not registered under gst|gstin|pan|lut)\b.*$/i,
+      "",
+    )
     .trim();
 
   if (!looksLikeNameCandidate(cleaned)) {
@@ -159,11 +161,18 @@ function looksLikeNameCandidate(value: string) {
     return false;
   }
 
-  if (ambiguityTextPattern.test(cleaned) || teamOrContactPattern.test(cleaned)) {
+  if (
+    ambiguityTextPattern.test(cleaned) ||
+    teamOrContactPattern.test(cleaned)
+  ) {
     return false;
   }
 
-  if (/^(?:not|yes|no|gst|gst registered|registered under gst|not registered)$/i.test(cleaned)) {
+  if (
+    /^(?:not|yes|no|gst|gst registered|registered under gst|not registered)$/i.test(
+      cleaned,
+    )
+  ) {
     return false;
   }
 
@@ -180,7 +189,7 @@ function looksLikeNameCandidate(value: string) {
   }
 
   return !/\b(?:address|country|state|currency|gstin|bank|payment|terms?|rate|qty|quantity|invoice|project|description)\b/i.test(
-    cleaned
+    cleaned,
   );
 }
 
@@ -273,7 +282,7 @@ function buildRoleCandidate(
   value: string,
   role: InferredRole,
   confidence: InferredNameConfidence,
-  reason: string
+  reason: string,
 ): InferredRoleName | undefined {
   const cleaned = sanitizeEntityNameCandidate(value);
 

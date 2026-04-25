@@ -60,7 +60,9 @@ export function isPlaceholderLikeValue(value?: string | null) {
     return true;
   }
 
-  if (/^(?:billing|finance|accounts?|hello|test|client)@client\./i.test(cleaned)) {
+  if (
+    /^(?:billing|finance|accounts?|hello|test|client)@client\./i.test(cleaned)
+  ) {
     return true;
   }
 
@@ -84,7 +86,7 @@ export function isUnsafeEntityName(value?: string | null) {
 
   if (
     /\b(?:gstin|gst registered|pan|lut|payment terms?|invoice date|due date)\b/i.test(
-      cleaned
+      cleaned,
     )
   ) {
     return true;
@@ -94,7 +96,7 @@ export function isUnsafeEntityName(value?: string | null) {
   if (
     cleaned.length > 30 &&
     /\b(?:we are|they are|doing|total of|lakh|rupees|dollars|send it out|usually they|for the|redesign of|project|client is|agency is)\b/i.test(
-      cleaned
+      cleaned,
     )
   ) {
     return true;
@@ -153,7 +155,10 @@ export function sanitizeOwnedIdentifier(params: {
       return "";
     }
 
-    if (params.agencyGstin && value === clean(params.agencyGstin).toUpperCase()) {
+    if (
+      params.agencyGstin &&
+      value === clean(params.agencyGstin).toUpperCase()
+    ) {
       return "";
     }
 
@@ -169,7 +174,10 @@ export function sanitizeOwnedIdentifier(params: {
   }
 
   if (params.kind === "gstin") {
-    if (params.clientGstinOrTaxId && value === clean(params.clientGstinOrTaxId).toUpperCase()) {
+    if (
+      params.clientGstinOrTaxId &&
+      value === clean(params.clientGstinOrTaxId).toUpperCase()
+    ) {
       return "";
     }
 

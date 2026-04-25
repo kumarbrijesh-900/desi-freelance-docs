@@ -25,7 +25,7 @@ export function shouldShowAgencyGstin(agency: AgencyDetails) {
 
 export function requiresExplicitExportTaxChoice(
   agency: AgencyDetails,
-  client: ClientDetails
+  client: ClientDetails,
 ) {
   return (
     isInternationalClient(client) &&
@@ -41,7 +41,10 @@ export function hasExplicitExportTaxChoice(agency: AgencyDetails) {
   );
 }
 
-export function getClientTaxIdLabel(client: ClientDetails, agency: AgencyDetails) {
+export function getClientTaxIdLabel(
+  client: ClientDetails,
+  agency: AgencyDetails,
+) {
   if (isInternationalClient(client)) {
     return "Client Tax ID / VAT No. (Optional)";
   }
@@ -51,7 +54,10 @@ export function getClientTaxIdLabel(client: ClientDetails, agency: AgencyDetails
   return "Client GSTIN";
 }
 
-export function getClientTaxIdPlaceholder(client: ClientDetails, agency: AgencyDetails) {
+export function getClientTaxIdPlaceholder(
+  client: ClientDetails,
+  agency: AgencyDetails,
+) {
   if (isInternationalClient(client)) {
     return "Client tax ID or VAT number";
   }

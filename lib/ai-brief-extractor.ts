@@ -9,7 +9,7 @@ export type AiBriefTaxType = "CGST_SGST" | "IGST" | "ZERO";
 export type AiBriefLocationType = "domestic" | "international";
 
 export type AiBriefExtraction = {
-  reasoning_log: {
+  reasoning_log?: {
     step_1_linguistic_and_pronoun_mapping: {
       slang_translation: string;
       pronoun_resolution: string;
@@ -41,67 +41,65 @@ export type AiBriefExtraction = {
     };
     confidence_and_warnings: string[];
   };
-  invoice_data: {
-    agencyName: AiBriefField<string>;
-    agencyAddress: AiBriefField<string>;
-    agencyState: AiBriefField<string>;
-    clientName: AiBriefField<string>;
-    clientAddress: AiBriefField<string>;
-    clientCountry: AiBriefField<string>;
-    clientState: AiBriefField<string>;
-    clientTaxId: AiBriefField<string>;
-    totalAmount: AiBriefField<number>;
-    currency: AiBriefField<string>;
-    gst: {
-      type: AiBriefField<AiBriefTaxType>;
-      rate: AiBriefField<number>;
-      gstin: AiBriefField<string>;
-      isRegistered: AiBriefField<boolean>;
-      lutAvailable: AiBriefField<boolean>;
-      lutNumber: AiBriefField<string>;
-      pan: AiBriefField<string>;
-    };
-    deliverables: Array<{
-      type: AiBriefField<string>;
-      description: AiBriefField<string>;
-      quantity: AiBriefField<number>;
-      rate: AiBriefField<number>;
-      unit: AiBriefField<string>;
-      sacCode: AiBriefField<string>;
-    }>;
-    paymentTerms: AiBriefField<string>;
-    paymentMode: AiBriefField<string>;
-    paymentSchedule: Array<{
-      milestone: AiBriefField<string>;
-      percentage: AiBriefField<number>;
-      dueWhen: AiBriefField<string>;
-    }>;
-    payment: {
-      bankName: AiBriefField<string>;
-      accountName: AiBriefField<string>;
-      accountNumber: AiBriefField<string>;
-      ifscCode: AiBriefField<string>;
-      swiftCode: AiBriefField<string>;
-      ibanOrRouting: AiBriefField<string>;
-      bankAddress: AiBriefField<string>;
-    };
-    timeline: {
-      invoiceDate: AiBriefField<string>;
-      dueDate: AiBriefField<string>;
-      deliveryTimeline: AiBriefField<string>;
-    };
-    locations: {
-      agency: AiBriefField<string>;
-      client: AiBriefField<string>;
-      inferredType: AiBriefField<AiBriefLocationType>;
-    };
-    license: {
-      isIncluded: AiBriefField<boolean>;
-      type: AiBriefField<string>;
-      duration: AiBriefField<string>;
-    };
-    confidenceScore: AiBriefConfidence;
+  agencyName: AiBriefField<string>;
+  agencyAddress: AiBriefField<string>;
+  agencyState: AiBriefField<string>;
+  clientName: AiBriefField<string>;
+  clientAddress: AiBriefField<string>;
+  clientCountry: AiBriefField<string>;
+  clientState: AiBriefField<string>;
+  clientTaxId: AiBriefField<string>;
+  totalAmount: AiBriefField<number>;
+  currency: AiBriefField<string>;
+  gst: {
+    type: AiBriefField<AiBriefTaxType>;
+    rate: AiBriefField<number>;
+    gstin: AiBriefField<string>;
+    isRegistered: AiBriefField<boolean>;
+    lutAvailable: AiBriefField<boolean>;
+    lutNumber: AiBriefField<string>;
+    pan: AiBriefField<string>;
   };
+  deliverables: Array<{
+    type: AiBriefField<string>;
+    description: AiBriefField<string>;
+    quantity: AiBriefField<number>;
+    rate: AiBriefField<number>;
+    unit: AiBriefField<string>;
+    sacCode: AiBriefField<string>;
+  }>;
+  paymentTerms: AiBriefField<string>;
+  paymentMode: AiBriefField<string>;
+  paymentSchedule: Array<{
+    milestone: AiBriefField<string>;
+    percentage: AiBriefField<number>;
+    dueWhen: AiBriefField<string>;
+  }>;
+  payment: {
+    bankName: AiBriefField<string>;
+    accountName: AiBriefField<string>;
+    accountNumber: AiBriefField<string>;
+    ifscCode: AiBriefField<string>;
+    swiftCode: AiBriefField<string>;
+    ibanOrRouting: AiBriefField<string>;
+    bankAddress: AiBriefField<string>;
+  };
+  timeline: {
+    invoiceDate: AiBriefField<string>;
+    dueDate: AiBriefField<string>;
+    deliveryTimeline: AiBriefField<string>;
+  };
+  locations: {
+    agency: AiBriefField<string>;
+    client: AiBriefField<string>;
+    inferredType: AiBriefField<AiBriefLocationType>;
+  };
+  license: {
+    isIncluded: AiBriefField<boolean>;
+    type: AiBriefField<string>;
+    duration: AiBriefField<string>;
+  };
+  confidenceScore: AiBriefConfidence;
 };
 
 const OPENAI_API_URL = "https://api.openai.com/v1/responses";
@@ -164,7 +162,7 @@ function createNullableBooleanFieldSchema(description: string) {
 
 function createNullableEnumFieldSchema<TValues extends readonly string[]>(
   description: string,
-  values: TValues
+  values: TValues,
 ) {
   return {
     type: "object",
@@ -188,32 +186,28 @@ const INVOICE_DATA_SCHEMA = {
   additionalProperties: false,
   properties: {
     agencyName: createNullableStringFieldSchema(
-      "Agency or freelancer business name."
+      "Agency or freelancer business name.",
     ),
-    agencyAddress: createNullableStringFieldSchema(
-      "Agency business address."
-    ),
+    agencyAddress: createNullableStringFieldSchema("Agency business address."),
     agencyState: createNullableStringFieldSchema(
-      "Agency state when known or strongly inferred."
+      "Agency state when known or strongly inferred.",
     ),
     clientName: createNullableStringFieldSchema("Client entity name."),
     clientAddress: createNullableStringFieldSchema(
-      "Client billing address or location."
+      "Client billing address or location.",
     ),
     clientCountry: createNullableStringFieldSchema(
-      "Client country when international."
+      "Client country when international.",
     ),
-    clientState: createNullableStringFieldSchema(
-      "Client state when domestic."
-    ),
+    clientState: createNullableStringFieldSchema("Client state when domestic."),
     clientTaxId: createNullableStringFieldSchema(
-      "Client GSTIN, tax ID, or VAT number."
+      "Client GSTIN, tax ID, or VAT number.",
     ),
     totalAmount: createNullableNumberFieldSchema(
-      "Best overall project amount if the brief suggests a total budget or fee."
+      "Best overall project amount if the brief suggests a total budget or fee.",
     ),
     currency: createNullableStringFieldSchema(
-      "Invoice currency such as INR, USD, EUR, GBP, AED, AUD, CAD, SGD."
+      "Invoice currency such as INR, USD, EUR, GBP, AED, AUD, CAD, SGD.",
     ),
     gst: {
       type: "object",
@@ -225,14 +219,14 @@ const INVOICE_DATA_SCHEMA = {
           "ZERO",
         ] as const),
         rate: createNullableNumberFieldSchema(
-          "GST rate percentage such as 18, 9, or 0."
+          "GST rate percentage such as 18, 9, or 0.",
         ),
         gstin: createNullableStringFieldSchema("Agency GSTIN."),
         isRegistered: createNullableBooleanFieldSchema(
-          "True when the agency should likely be treated as GST registered."
+          "True when the agency should likely be treated as GST registered.",
         ),
         lutAvailable: createNullableBooleanFieldSchema(
-          "True when the brief suggests a valid LUT is available."
+          "True when the brief suggests a valid LUT is available.",
         ),
         lutNumber: createNullableStringFieldSchema("LUT number or ARN."),
         pan: createNullableStringFieldSchema("Agency PAN."),
@@ -254,32 +248,39 @@ const INVOICE_DATA_SCHEMA = {
         additionalProperties: false,
         properties: {
           type: createNullableStringFieldSchema(
-            "Deliverable type such as UI/UX, illustration, reel, image, logo."
+            "Deliverable type such as UI/UX, illustration, reel, image, logo.",
           ),
           description: createNullableStringFieldSchema(
-            "Short human-readable description for this deliverable."
+            "Short human-readable description for this deliverable.",
           ),
           quantity: createNullableNumberFieldSchema(
-            "Quantity for this deliverable when known."
+            "Quantity for this deliverable when known.",
           ),
           rate: createNullableNumberFieldSchema(
-            "Rate for this deliverable when clearly item-level."
+            "Rate for this deliverable when clearly item-level.",
           ),
           unit: createNullableStringFieldSchema(
-            "Billing unit such as per screen, per image, per reel, per item."
+            "Billing unit such as per screen, per image, per reel, per item.",
           ),
           sacCode: createNullableStringFieldSchema(
-            "6-digit Indian SAC code (e.g., 998314 for Design services)."
+            "6-digit Indian SAC code (e.g., 998314 for Design services).",
           ),
         },
-        required: ["type", "description", "quantity", "rate", "unit", "sacCode"],
+        required: [
+          "type",
+          "description",
+          "quantity",
+          "rate",
+          "unit",
+          "sacCode",
+        ],
       },
     },
     paymentTerms: createNullableStringFieldSchema(
-      "Invoice payment terms such as Net 15, Due on receipt, 50% advance."
+      "Invoice payment terms such as Net 15, Due on receipt, 50% advance.",
     ),
     paymentMode: createNullableStringFieldSchema(
-      "Payment mode such as bank, wire, wise, payoneer, upi."
+      "Payment mode such as bank, wire, wise, payoneer, upi.",
     ),
     paymentSchedule: {
       type: "array",
@@ -288,13 +289,13 @@ const INVOICE_DATA_SCHEMA = {
         additionalProperties: false,
         properties: {
           milestone: createNullableStringFieldSchema(
-            "Schedule milestone such as advance, booking, balance."
+            "Schedule milestone such as advance, booking, balance.",
           ),
           percentage: createNullableNumberFieldSchema(
-            "Percentage for this milestone if stated."
+            "Percentage for this milestone if stated.",
           ),
           dueWhen: createNullableStringFieldSchema(
-            "When this milestone is due, such as on booking or on delivery."
+            "When this milestone is due, such as on booking or on delivery.",
           ),
         },
         required: ["milestone", "percentage", "dueWhen"],
@@ -306,13 +307,13 @@ const INVOICE_DATA_SCHEMA = {
       properties: {
         bankName: createNullableStringFieldSchema("Bank name."),
         accountName: createNullableStringFieldSchema(
-          "Beneficiary or account name."
+          "Beneficiary or account name.",
         ),
         accountNumber: createNullableStringFieldSchema("Account number."),
         ifscCode: createNullableStringFieldSchema("IFSC code."),
         swiftCode: createNullableStringFieldSchema("SWIFT or BIC code."),
         ibanOrRouting: createNullableStringFieldSchema(
-          "IBAN, routing number, or sort code."
+          "IBAN, routing number, or sort code.",
         ),
         bankAddress: createNullableStringFieldSchema("Full bank address."),
       },
@@ -331,13 +332,13 @@ const INVOICE_DATA_SCHEMA = {
       additionalProperties: false,
       properties: {
         invoiceDate: createNullableStringFieldSchema(
-          "Invoice date if clearly mentioned."
+          "Invoice date if clearly mentioned.",
         ),
         dueDate: createNullableStringFieldSchema(
-          "Due date if clearly mentioned."
+          "Due date if clearly mentioned.",
         ),
         deliveryTimeline: createNullableStringFieldSchema(
-          "Delivery timeline, ETA, deadline, or duration."
+          "Delivery timeline, ETA, deadline, or duration.",
         ),
       },
       required: ["invoiceDate", "dueDate", "deliveryTimeline"],
@@ -347,14 +348,14 @@ const INVOICE_DATA_SCHEMA = {
       additionalProperties: false,
       properties: {
         agency: createNullableStringFieldSchema(
-          "Agency city, state, or location snippet."
+          "Agency city, state, or location snippet.",
         ),
         client: createNullableStringFieldSchema(
-          "Client city, state, country, or location snippet."
+          "Client city, state, country, or location snippet.",
         ),
         inferredType: createNullableEnumFieldSchema(
           "Whether the invoice should be treated as domestic or international.",
-          ["domestic", "international"] as const
+          ["domestic", "international"] as const,
         ),
       },
       required: ["agency", "client", "inferredType"],
@@ -364,18 +365,46 @@ const INVOICE_DATA_SCHEMA = {
       additionalProperties: false,
       properties: {
         isIncluded: createNullableBooleanFieldSchema(
-          "True when the brief mentions any form of license, usage rights, IP transfer, or copyright assignment."
+          "True when the brief mentions any form of license, usage rights, IP transfer, or copyright assignment.",
         ),
         type: createNullableEnumFieldSchema(
           "The type of license or rights transfer mentioned.",
-          ["full-assignment", "exclusive-license", "non-exclusive-license"] as const
+          [
+            "full-assignment",
+            "exclusive-license",
+            "non-exclusive-license",
+          ] as const,
         ),
         duration: createNullableStringFieldSchema(
-          "License duration if mentioned, such as '3 years', 'perpetual', 'lifetime', '1 year'."
+          "License duration if mentioned, such as '3 years', 'perpetual', 'lifetime', '1 year'.",
         ),
       },
       required: ["isIncluded", "type", "duration"],
     },
+  },
+  required: [
+    "agencyName",
+    "agencyAddress",
+    "agencyState",
+    "clientName",
+    "clientAddress",
+    "clientCountry",
+    "clientState",
+    "clientTaxId",
+    "totalAmount",
+    "currency",
+    "gst",
+    "deliverables",
+    "paymentTerms",
+    "paymentMode",
+    "paymentSchedule",
+    "payment",
+    "timeline",
+    "locations",
+    "license",
+  ],
+} as const;
+
 const AI_EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -619,7 +648,7 @@ function extractOutputText(payload: unknown) {
     for (const content of item.content ?? []) {
       if (content.type === "refusal") {
         throw new Error(
-          content.refusal || "The AI extractor refused the request."
+          content.refusal || "The AI extractor refused the request.",
         );
       }
 
@@ -661,7 +690,7 @@ ${rawInput}
   const abortController = new AbortController();
   const timeout = setTimeout(
     () => abortController.abort("AI brief extraction timed out."),
-    AI_EXTRACTION_TIMEOUT_MS
+    AI_EXTRACTION_TIMEOUT_MS,
   );
 
   let response: Response;
@@ -713,7 +742,9 @@ ${rawInput}
         error.message.includes("timed out") ||
         error.message.includes("aborted"))
     ) {
-      console.warn("AI brief extraction timed out; falling back to parser only.");
+      console.warn(
+        "AI brief extraction timed out; falling back to parser only.",
+      );
       return null;
     }
 
@@ -725,7 +756,7 @@ ${rawInput}
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `AI brief extraction failed with ${response.status}: ${errorText}`
+      `AI brief extraction failed with ${response.status}: ${errorText}`,
     );
   }
 

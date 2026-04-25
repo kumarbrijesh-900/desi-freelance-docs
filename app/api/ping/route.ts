@@ -10,7 +10,10 @@ export async function GET() {
       .limit(1);
 
     if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
@@ -19,6 +22,9 @@ export async function GET() {
       rowFound: (data?.length ?? 0) > 0,
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 },
+    );
   }
 }

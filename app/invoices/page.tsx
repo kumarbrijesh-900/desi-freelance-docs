@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
-import { appPageContainerClass, appPageSectionClass, appPageShellClass } from "@/lib/layout-foundation";
+import {
+  appPageContainerClass,
+  appPageSectionClass,
+  appPageShellClass,
+} from "@/lib/layout-foundation";
 import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import {
   listInvoices,
@@ -24,7 +28,11 @@ import LogoutButton from "@/components/LogoutButton";
 const PREVIEW_KEY = "invoice-preview-data";
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function fmtAmount(inv: SavedInvoice) {
@@ -32,7 +40,14 @@ function fmtAmount(inv: SavedInvoice) {
   const subtotal = items.reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
   if (!subtotal) return "—";
   const currency = inv.form_data?.client?.clientCurrency || "INR";
-  const symbol = currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "₹";
+  const symbol =
+    currency === "USD"
+      ? "$"
+      : currency === "EUR"
+        ? "€"
+        : currency === "GBP"
+          ? "£"
+          : "₹";
   return `${symbol}${subtotal.toLocaleString("en-IN")}`;
 }
 
@@ -49,55 +64,88 @@ function StatusBadge({ status }: { status: string }) {
   const fin = status === "finalized";
   const set = status === "settled";
   const ovr = status === "overdue";
-  
-  if (set) return (
-    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
-      Settled
-    </span>
-  );
-  
-  if (ovr) return (
-    <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
-      Overdue
-    </span>
-  );
+
+  if (set)
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+        Settled
+      </span>
+    );
+
+  if (ovr)
+    return (
+      <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
+        Overdue
+      </span>
+    );
 
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-      fin
-        ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
-        : "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
-    }`}>
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+        fin
+          ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
+          : "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+      }`}
+    >
       {fin ? "Finalized" : "Draft"}
     </span>
   );
 }
 
-function MsaBadge({ msaId, response }: { msaId: string | null; response: MsaResponse }) {
-  if (!msaId) return <span className="text-[12px] text-[color:var(--text-muted)]">—</span>;
-  
-  if (response === "negotiating") return (
-    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
-      Action Required
-    </span>
-  );
+function MsaBadge({
+  msaId,
+  response,
+}: {
+  msaId: string | null;
+  response: MsaResponse;
+}) {
+  if (!msaId)
+    return (
+      <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
+    );
 
-  if (response === "accepted") return (
-    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">✓ Accepted</span>
-  );
-  if (response === "rejected") return (
-    <span className="inline-flex items-center rounded-full border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-warning-text)]">✕ Rejected</span>
-  );
+  if (response === "negotiating")
+    return (
+      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
+        Action Required
+      </span>
+    );
+
+  if (response === "accepted")
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+        ✓ Accepted
+      </span>
+    );
+  if (response === "rejected")
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-warning-text)]">
+        ✕ Rejected
+      </span>
+    );
   return (
-    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">Pending</span>
+    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+      Pending
+    </span>
   );
 }
 
-function ViewsBadge({ count, lastViewed }: { count: number; lastViewed: string | null }) {
-  if (!count) return <span className="text-[12px] text-[color:var(--text-muted)]">—</span>;
+function ViewsBadge({
+  count,
+  lastViewed,
+}: {
+  count: number;
+  lastViewed: string | null;
+}) {
+  if (!count)
+    return (
+      <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
+    );
   return (
-    <span title={lastViewed ? `Last viewed ${fmtDate(lastViewed)}` : undefined}
-      className="inline-flex items-center gap-1 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--text-secondary)]">
+    <span
+      title={lastViewed ? `Last viewed ${fmtDate(lastViewed)}` : undefined}
+      className="inline-flex items-center gap-1 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--text-secondary)]"
+    >
       👁 {count}
     </span>
   );
@@ -107,19 +155,33 @@ function ViewsBadge({ count, lastViewed }: { count: number; lastViewed: string |
 
 type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
 type StatusFilter = "all" | "draft" | "finalized" | "settled" | "overdue";
-type MsaFilter = "all" | "pending" | "accepted" | "rejected" | "negotiating" | "none";
+type MsaFilter =
+  | "all"
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "negotiating"
+  | "none";
 
 function FilterBar({
-  statusFilter, setStatusFilter,
-  msaFilter, setMsaFilter,
-  sortKey, setSortKey,
-  search, setSearch,
+  statusFilter,
+  setStatusFilter,
+  msaFilter,
+  setMsaFilter,
+  sortKey,
+  setSortKey,
+  search,
+  setSearch,
   total,
 }: {
-  statusFilter: StatusFilter; setStatusFilter: (v: StatusFilter) => void;
-  msaFilter: MsaFilter; setMsaFilter: (v: MsaFilter) => void;
-  sortKey: SortKey; setSortKey: (v: SortKey) => void;
-  search: string; setSearch: (v: string) => void;
+  statusFilter: StatusFilter;
+  setStatusFilter: (v: StatusFilter) => void;
+  msaFilter: MsaFilter;
+  setMsaFilter: (v: MsaFilter) => void;
+  sortKey: SortKey;
+  setSortKey: (v: SortKey) => void;
+  search: string;
+  setSearch: (v: string) => void;
   total: number;
 }) {
   return (
@@ -172,7 +234,9 @@ function FilterBar({
         <option value="amount-asc">Amount ↑</option>
       </select>
 
-      <span className="text-[12px] text-[color:var(--text-muted)]">{total} result{total !== 1 ? "s" : ""}</span>
+      <span className="text-[12px] text-[color:var(--text-muted)]">
+        {total} result{total !== 1 ? "s" : ""}
+      </span>
     </div>
   );
 }
@@ -180,7 +244,15 @@ function FilterBar({
 /* ─── Table row ────────────────────────────────── */
 
 function InvoiceRow({
-  invoice, viewCount, lastViewed, onView, onEdit, onDelete, onMarkSettled, deletingId, settlingId,
+  invoice,
+  viewCount,
+  lastViewed,
+  onView,
+  onEdit,
+  onDelete,
+  onMarkSettled,
+  deletingId,
+  settlingId,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
@@ -193,7 +265,8 @@ function InvoiceRow({
   settlingId: string | null;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const canSettle = invoice.status === "finalized" || invoice.status === "overdue";
+  const canSettle =
+    invoice.status === "finalized" || invoice.status === "overdue";
 
   return (
     <tr className="border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group">
@@ -206,17 +279,23 @@ function InvoiceRow({
       <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] whitespace-nowrap">
         {fmtDate(invoice.created_at)}
         {invoice.form_data?.meta?.dueDate ? (
-          <div className="text-[11px] text-[color:var(--text-muted)]">Due {fmtDate(invoice.form_data.meta.dueDate)}</div>
+          <div className="text-[11px] text-[color:var(--text-muted)]">
+            Due {fmtDate(invoice.form_data.meta.dueDate)}
+          </div>
         ) : null}
       </td>
 
       {/* Client */}
       <td className="px-4 py-3">
         <div className="text-[13px] font-medium text-[color:var(--text-primary)] truncate max-w-[160px]">
-          {invoice.form_data?.client?.clientName || <span className="text-[color:var(--text-muted)]">—</span>}
+          {invoice.form_data?.client?.clientName || (
+            <span className="text-[color:var(--text-muted)]">—</span>
+          )}
         </div>
         {invoice.shared_to_email && (
-          <div className="text-[11px] text-[color:var(--text-muted)] truncate max-w-[160px]">{invoice.shared_to_email}</div>
+          <div className="text-[11px] text-[color:var(--text-muted)] truncate max-w-[160px]">
+            {invoice.shared_to_email}
+          </div>
         )}
       </td>
 
@@ -235,14 +314,19 @@ function InvoiceRow({
         <div className="flex flex-col gap-1 items-start">
           <StatusBadge status={invoice.status} />
           {invoice.msa_response === "negotiating" && (
-            <span className="text-[10px] font-medium text-amber-600">Client proposing changes</span>
+            <span className="text-[10px] font-medium text-amber-600">
+              Client proposing changes
+            </span>
           )}
         </div>
       </td>
 
       {/* MSA Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <MsaBadge msaId={invoice.msa_id} response={invoice.msa_response ?? "pending"} />
+        <MsaBadge
+          msaId={invoice.msa_id}
+          response={invoice.msa_response ?? "pending"}
+        />
       </td>
 
       {/* Views */}
@@ -280,12 +364,14 @@ function InvoiceRow({
             View
           </button>
 
-
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1">
               <button
                 type="button"
-                onClick={() => { onDelete(invoice.id); setConfirmDelete(false); }}
+                onClick={() => {
+                  onDelete(invoice.id);
+                  setConfirmDelete(false);
+                }}
                 disabled={deletingId === invoice.id}
                 className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--state-warning-text)] hover:bg-[color:var(--state-warning-bg)] transition-colors"
               >
@@ -319,7 +405,9 @@ function InvoiceRow({
 export default function InvoiceHistoryPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState<SavedInvoice[]>([]);
-  const [receipts, setReceipts] = useState<Record<string, { count: number; lastViewed: string | null }>>({});
+  const [receipts, setReceipts] = useState<
+    Record<string, { count: number; lastViewed: string | null }>
+  >({});
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -334,7 +422,11 @@ export default function InvoiceHistoryPage() {
   useEffect(() => {
     async function init() {
       const userId = await getCurrentUserId();
-      if (!userId) { setAuthenticated(false); setLoading(false); return; }
+      if (!userId) {
+        setAuthenticated(false);
+        setLoading(false);
+        return;
+      }
       setAuthenticated(true);
 
       const { data } = await listInvoices();
@@ -361,13 +453,16 @@ export default function InvoiceHistoryPage() {
   const handleEdit = (inv: SavedInvoice) => {
     try {
       // Save to editor draft storage
-      window.localStorage.setItem("invoice-editor-draft", JSON.stringify({
-        formData: inv.form_data,
-        currentStep: "totals",
-        savedAt: new Date().toISOString(),
-        documentId: inv.id, // Re-use ID to track which invoice to update
-        clientMsaNote: inv.client_msa_note, // NEW: metadata for editor
-      }));
+      window.localStorage.setItem(
+        "invoice-editor-draft",
+        JSON.stringify({
+          formData: inv.form_data,
+          currentStep: "totals",
+          savedAt: new Date().toISOString(),
+          documentId: inv.id, // Re-use ID to track which invoice to update
+          clientMsaNote: inv.client_msa_note, // NEW: metadata for editor
+        }),
+      );
       router.push("/invoice/new?fresh=0"); // Use fresh=0 to avoid auto-filling profile over this
     } catch {}
   };
@@ -385,8 +480,8 @@ export default function InvoiceHistoryPage() {
     if (!error) {
       setInvoices((prev) =>
         prev.map((inv) =>
-          inv.id === id ? { ...inv, status: "settled" as any } : inv
-        )
+          inv.id === id ? { ...inv, status: "settled" as any } : inv,
+        ),
       );
     }
     setSettlingId(null);
@@ -398,25 +493,42 @@ export default function InvoiceHistoryPage() {
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter((i) =>
-        i.invoice_number?.toLowerCase().includes(q) ||
-        i.form_data?.client?.clientName?.toLowerCase().includes(q) ||
-        i.shared_to_email?.toLowerCase().includes(q)
+      list = list.filter(
+        (i) =>
+          i.invoice_number?.toLowerCase().includes(q) ||
+          i.form_data?.client?.clientName?.toLowerCase().includes(q) ||
+          i.shared_to_email?.toLowerCase().includes(q),
       );
     }
 
-    if (statusFilter !== "all") list = list.filter((i) => i.status === statusFilter);
+    if (statusFilter !== "all")
+      list = list.filter((i) => i.status === statusFilter);
 
     if (msaFilter !== "all") {
       if (msaFilter === "none") list = list.filter((i) => !i.msa_id);
-      else list = list.filter((i) => i.msa_id && (i.msa_response ?? "pending") === msaFilter);
+      else
+        list = list.filter(
+          (i) => i.msa_id && (i.msa_response ?? "pending") === msaFilter,
+        );
     }
 
     list.sort((a, b) => {
-      if (sortKey === "date-desc") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortKey === "date-asc") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      const amtA = (a.form_data?.lineItems ?? []).reduce((s, i) => s + i.qty * i.rate, 0);
-      const amtB = (b.form_data?.lineItems ?? []).reduce((s, i) => s + i.qty * i.rate, 0);
+      if (sortKey === "date-desc")
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      if (sortKey === "date-asc")
+        return (
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+      const amtA = (a.form_data?.lineItems ?? []).reduce(
+        (s, i) => s + i.qty * i.rate,
+        0,
+      );
+      const amtB = (b.form_data?.lineItems ?? []).reduce(
+        (s, i) => s + i.qty * i.rate,
+        0,
+      );
       return sortKey === "amount-desc" ? amtB - amtA : amtA - amtB;
     });
 
@@ -424,14 +536,20 @@ export default function InvoiceHistoryPage() {
   }, [invoices, search, statusFilter, msaFilter, sortKey]);
 
   // Stats
-  const stats = useMemo(() => ({
-    total: invoices.length,
-    finalized: invoices.filter((i) => i.status === "finalized").length,
-    msaPending: invoices.filter((i) => i.msa_id && (i.msa_response ?? "pending") === "pending").length,
-    msaNegotiating: invoices.filter((i) => i.msa_response === "negotiating").length,
-    msaRejected: invoices.filter((i) => i.msa_response === "rejected").length,
-    totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
-  }), [invoices, receipts]);
+  const stats = useMemo(
+    () => ({
+      total: invoices.length,
+      finalized: invoices.filter((i) => i.status === "finalized").length,
+      msaPending: invoices.filter(
+        (i) => i.msa_id && (i.msa_response ?? "pending") === "pending",
+      ).length,
+      msaNegotiating: invoices.filter((i) => i.msa_response === "negotiating")
+        .length,
+      msaRejected: invoices.filter((i) => i.msa_response === "rejected").length,
+      totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
+    }),
+    [invoices, receipts],
+  );
 
   /* ── Unauthenticated ── */
   if (authenticated === false) {
@@ -444,9 +562,19 @@ export default function InvoiceHistoryPage() {
               <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
                 <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
               </span>
-              <h1 className="mt-5 text-2xl font-bold text-[color:var(--text-primary)]">Sign in to view your invoices</h1>
-              <p className="mt-2 text-sm text-[color:var(--text-secondary)]">Your invoices are stored securely. Please log in to access your history.</p>
-              <Link href="/login" className={`mt-5 inline-block ${getAppButtonClass({ variant: "primary", size: "md" })}`}>Log in</Link>
+              <h1 className="mt-5 text-2xl font-bold text-[color:var(--text-primary)]">
+                Sign in to view your invoices
+              </h1>
+              <p className="mt-2 text-sm text-[color:var(--text-secondary)]">
+                Your invoices are stored securely. Please log in to access your
+                history.
+              </p>
+              <Link
+                href="/login"
+                className={`mt-5 inline-block ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+              >
+                Log in
+              </Link>
             </MotionReveal>
           </div>
         </section>
@@ -460,17 +588,25 @@ export default function InvoiceHistoryPage() {
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
         <div className="mx-auto max-w-[1200px] px-4">
-
           {/* Header */}
           <MotionReveal className="mb-6" preset="fade-up">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[28px]">Invoices</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[28px]">
+                  Invoices
+                </h1>
                 <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
-                  {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
+                  {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}{" "}
+                  total
                 </p>
               </div>
-              <Link href="/invoice/new" className={getAppButtonClass({ variant: "primary", size: "sm" })}>
+              <Link
+                href="/invoice/new"
+                className={getAppButtonClass({
+                  variant: "primary",
+                  size: "sm",
+                })}
+              >
                 + New Invoice
               </Link>
             </div>
@@ -478,19 +614,63 @@ export default function InvoiceHistoryPage() {
 
           {/* Stat cards */}
           {!loading && invoices.length > 0 && (
-            <MotionReveal className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5" preset="fade-up">
+            <MotionReveal
+              className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5"
+              preset="fade-up"
+            >
               {[
-                { label: "Total", value: stats.total, color: "text-[color:var(--text-primary)]", accent: "bg-[color:var(--text-primary)]", icon: "📄" },
-                { label: "Finalized", value: stats.finalized, color: "text-[color:var(--state-success-text)]", accent: "bg-[color:var(--state-success-border)]", icon: "✅" },
-                { label: "Action Required", value: stats.msaNegotiating, color: "text-amber-700", accent: "bg-amber-400", icon: "⚡" },
-                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-600", accent: "bg-amber-200", icon: "⏳" },
-                { label: "Views (All)", value: stats.totalViews, color: "text-[color:var(--text-secondary)]", accent: "bg-[color:var(--border-subtle)]", icon: "👁️" },
+                {
+                  label: "Total",
+                  value: stats.total,
+                  color: "text-[color:var(--text-primary)]",
+                  accent: "bg-[color:var(--text-primary)]",
+                  icon: "📄",
+                },
+                {
+                  label: "Finalized",
+                  value: stats.finalized,
+                  color: "text-[color:var(--state-success-text)]",
+                  accent: "bg-[color:var(--state-success-border)]",
+                  icon: "✅",
+                },
+                {
+                  label: "Action Required",
+                  value: stats.msaNegotiating,
+                  color: "text-amber-700",
+                  accent: "bg-amber-400",
+                  icon: "⚡",
+                },
+                {
+                  label: "MSA Pending",
+                  value: stats.msaPending,
+                  color: "text-amber-600",
+                  accent: "bg-amber-200",
+                  icon: "⏳",
+                },
+                {
+                  label: "Views (All)",
+                  value: stats.totalViews,
+                  color: "text-[color:var(--text-secondary)]",
+                  accent: "bg-[color:var(--border-subtle)]",
+                  icon: "👁️",
+                },
               ].map((s) => (
-                <div key={s.label} className="relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md">
-                  <div className={cn("absolute left-0 top-0 h-1 w-full", s.accent)} />
+                <div
+                  key={s.label}
+                  className="relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md"
+                >
+                  <div
+                    className={cn("absolute left-0 top-0 h-1 w-full", s.accent)}
+                  />
                   <div className="relative z-10">
-                    <div className={`text-xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
-                    <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">{s.label}</div>
+                    <div
+                      className={`text-xl font-bold tabular-nums ${s.color}`}
+                    >
+                      {s.value}
+                    </div>
+                    <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      {s.label}
+                    </div>
                   </div>
                   <div className="absolute -bottom-1 -right-1 text-2xl opacity-[0.03] grayscale pointer-events-none select-none">
                     {s.icon}
@@ -506,7 +686,9 @@ export default function InvoiceHistoryPage() {
               <div className="flex items-center gap-3 rounded-lg border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-4 py-3">
                 <span className="text-lg">⚠️</span>
                 <p className="text-sm font-medium text-[color:var(--state-warning-text)]">
-                  {stats.msaRejected} invoice{stats.msaRejected !== 1 ? "s have" : " has"} a rejected MSA — reach out to your client.
+                  {stats.msaRejected} invoice
+                  {stats.msaRejected !== 1 ? "s have" : " has"} a rejected MSA —
+                  reach out to your client.
                 </p>
               </div>
             </MotionReveal>
@@ -515,15 +697,18 @@ export default function InvoiceHistoryPage() {
           {/* Table */}
           <MotionReveal preset="fade-up">
             <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden">
-
               {/* Filter bar */}
               {invoices.length > 0 && (
                 <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
                   <FilterBar
-                    statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-                    msaFilter={msaFilter} setMsaFilter={setMsaFilter}
-                    sortKey={sortKey} setSortKey={setSortKey}
-                    search={search} setSearch={setSearch}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    msaFilter={msaFilter}
+                    setMsaFilter={setMsaFilter}
+                    sortKey={sortKey}
+                    setSortKey={setSortKey}
+                    search={search}
+                    setSearch={setSearch}
                     total={filtered.length}
                   />
                 </div>
@@ -532,26 +717,44 @@ export default function InvoiceHistoryPage() {
               {loading ? (
                 <div className="flex items-center gap-3 px-6 py-10">
                   <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-muted)]" />
-                  <p className="text-sm text-[color:var(--text-secondary)]">Loading invoices…</p>
+                  <p className="text-sm text-[color:var(--text-secondary)]">
+                    Loading invoices…
+                  </p>
                 </div>
               ) : invoices.length === 0 ? (
                 <div className="flex flex-col items-center gap-5 px-6 py-16 text-center">
                   <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
                     <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
                   </span>
-                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">No invoices yet</h2>
+                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
+                    No invoices yet
+                  </h2>
                   <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
-                    Create your first invoice using the smart brief extraction flow.
+                    Create your first invoice using the smart brief extraction
+                    flow.
                   </p>
-                  <Link href="/invoice/new?fresh=1" className={getAppButtonClass({ variant: "primary", size: "md" })}>
+                  <Link
+                    href="/invoice/new?fresh=1"
+                    className={getAppButtonClass({
+                      variant: "primary",
+                      size: "md",
+                    })}
+                  >
                     Create Invoice
                   </Link>
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
                   No invoices match your filters.{" "}
-                  <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setMsaFilter("all"); }}
-                    className="font-semibold text-[color:var(--text-secondary)] hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setStatusFilter("all");
+                      setMsaFilter("all");
+                    }}
+                    className="font-semibold text-[color:var(--text-secondary)] hover:underline"
+                  >
                     Clear filters
                   </button>
                 </div>
@@ -560,8 +763,21 @@ export default function InvoiceHistoryPage() {
                   <table className="w-full min-w-[900px]">
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
-                        {["Invoice #", "Date / Due", "Client", "Work Type", "Amount", "Status", "MSA", "Views", ""].map((h) => (
-                          <th key={h} className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        {[
+                          "Invoice #",
+                          "Date / Due",
+                          "Client",
+                          "Work Type",
+                          "Amount",
+                          "Status",
+                          "MSA",
+                          "Views",
+                          "",
+                        ].map((h) => (
+                          <th
+                            key={h}
+                            className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]"
+                          >
                             {h}
                           </th>
                         ))}
@@ -591,14 +807,16 @@ export default function InvoiceHistoryPage() {
 
           {/* Back */}
           <div className="mt-6">
-            <Link href="/" className={getAppButtonClass({ variant: "ghost", size: "sm" })}>
+            <Link
+              href="/"
+              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+            >
               <span className="inline-flex items-center gap-2">
                 <ChevronLeftIcon className="h-4 w-4" />
                 Back to Home
               </span>
             </Link>
           </div>
-
         </div>
       </section>
     </main>

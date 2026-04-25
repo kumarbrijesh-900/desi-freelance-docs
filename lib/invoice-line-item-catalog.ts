@@ -184,12 +184,7 @@ const canonicalInvoiceLineItemCatalog = [
     aliases: [],
     defaultSacCode: "998387",
     defaultUnit: "per-image",
-    allowedUnits: [
-      "per-image",
-      "per-hour",
-      "per-day",
-      "per-deliverable",
-    ],
+    allowedUnits: ["per-image", "per-hour", "per-day", "per-deliverable"],
     placeholder: "Photography shoot with edited selects",
     suggestions: [
       "Product photography shoot (10-15 high-res images)",
@@ -209,12 +204,7 @@ const canonicalInvoiceLineItemCatalog = [
     aliases: [],
     defaultSacCode: "998387",
     defaultUnit: "per-video",
-    allowedUnits: [
-      "per-video",
-      "per-day",
-      "per-hour",
-      "per-deliverable",
-    ],
+    allowedUnits: ["per-video", "per-day", "per-hour", "per-deliverable"],
     placeholder: "Videography shoot and footage capture",
     suggestions: [
       "Corporate video shoot (1-2 days coverage)",
@@ -311,12 +301,7 @@ const canonicalInvoiceLineItemCatalog = [
     aliases: [],
     defaultSacCode: "998391",
     defaultUnit: "per-item",
-    allowedUnits: [
-      "per-item",
-      "per-deliverable",
-      "per-day",
-      "per-revision",
-    ],
+    allowedUnits: ["per-item", "per-deliverable", "per-day", "per-revision"],
     placeholder: "Print-ready design assets",
     suggestions: [
       "Brochure / Catalog print design (ready for press)",
@@ -336,12 +321,7 @@ const canonicalInvoiceLineItemCatalog = [
     aliases: [],
     defaultSacCode: "998391",
     defaultUnit: "per-item",
-    allowedUnits: [
-      "per-item",
-      "per-deliverable",
-      "per-day",
-      "per-hour",
-    ],
+    allowedUnits: ["per-item", "per-deliverable", "per-day", "per-hour"],
     placeholder: "Infographic or presentation design package",
     suggestions: [
       "Infographic design (single or multi-page)",
@@ -378,7 +358,8 @@ const canonicalInvoiceLineItemCatalog = [
   },
 ] as const;
 
-type InvoiceLineItemCatalogEntry = (typeof canonicalInvoiceLineItemCatalog)[number];
+type InvoiceLineItemCatalogEntry =
+  (typeof canonicalInvoiceLineItemCatalog)[number];
 type CanonicalInvoiceLineItemType = InvoiceLineItemCatalogEntry["type"];
 type LegacyInvoiceLineItemType = InvoiceLineItemCatalogEntry["aliases"][number];
 
@@ -401,14 +382,14 @@ export type KnownInvoiceLineItemType =
   | LegacyInvoiceLineItemType;
 
 export function normalizeInvoiceLineItemType(
-  value: string | null | undefined
+  value: string | null | undefined,
 ): CanonicalInvoiceLineItemType | undefined {
   if (!value) return undefined;
   return invoiceLineItemAliasMap.get(value);
 }
 
 export function getInvoiceLineItemCatalogEntry(
-  value: string | null | undefined
+  value: string | null | undefined,
 ) {
   const normalized = normalizeInvoiceLineItemType(value);
 
@@ -419,7 +400,5 @@ export function getInvoiceLineItemCatalogEntry(
   return invoiceLineItemCatalogByCanonicalType.get(normalized);
 }
 
-export const invoiceCanonicalLineItemTypeOptions = canonicalInvoiceLineItemCatalog.map(
-  (entry) => entry.type
-);
-
+export const invoiceCanonicalLineItemTypeOptions =
+  canonicalInvoiceLineItemCatalog.map((entry) => entry.type);

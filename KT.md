@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-26 (Session: Phase 12a complete — Security Hardening & Project Addendum)
+> **Last Updated:** 2026-04-26 (Session: Phase 12b complete — Omniscient Context Agent)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -176,12 +176,15 @@ User pastes brief text ──→ BriefIntakeCard.tsx
                               ▼
                      InvoiceEditorPage.handleBriefAutofill()
                               │
-                    ┌─────────┴──────────┐
-                    │                    │
-              Local Parser          /api/brief-extract (Edge)
-          (regex heuristics)       (OpenAI gpt-4o-mini)
-                    │                    │
-                    └────────┬───────────┘
+                     (Injects Agency + Client Context)
+                               │
+                               ▼
+                     /api/brief-extract (Next.js API)
+                               │
+                Omniscient Context Agent (gpt-4o-mini)
+                - Mandatory 7-step Reasoning Protocol
+                - Linguistic & Pronoun Resolution
+                - Master Data Reconciliation
                              ▼
                   invoice-brief-intake.ts
                    runBriefAutofill() — merges both sources
@@ -307,6 +310,7 @@ tests/
 | `68b1bbe` | Inline delete confirmation for clients (replaced flickering confirm dialog) |
 | `a6d3b94` | Lance rebrand + extraction intelligence upgrade |
 | `d5b6542` | feat: implement Master MSA + Project Addendum architecture |
+| `394a09c` | feat: Upgrade to Omniscient Context Agent with 7-step CoT reasoning and context-aware extraction |
 | `6fa478c` | chore: security hardening - RLS, Zod validation, and rate limiting |
 | `6fa478c` | Neon Atelier redesign — fluorescent lime, Syne+DM Sans, sharper radii |
 
@@ -492,6 +496,22 @@ tests/
   - **Addendum Safety Gate**: A mandatory checkbox appears in a high-contrast warning box if deviations are detected, requiring the agency to acknowledge the overrides as a project-specific addendum.
   - **Client-Facing Addendum**: The public view (`/view/[token]`) now renders a distinct "Project Addendum" box detailing the overrides and updates the acceptance button to "Accept MSA & Addendum".
   - **Communication Bridge**: Updated Resend email payload to explicitly notify clients when a project-specific addendum is attached.
+
+### Phase 12b — Omniscient Context Agent
+- **The Protocol**: Re-engineered the AI extraction engine (`lib/ai-brief-extractor.ts`) to enforce a mandatory **7-step Chain-of-Thought (CoT) Reasoning Protocol**:
+  1. Linguistic and Pronoun Mapping (Resolving "I/Us" vs "They/Them").
+  2. Master Data Reconciliation (Agency & Client Profile alignment).
+  3. Tax Nexus Verification (GST/IGST/Export logic).
+  4. SAC Classification (Correct code lookup).
+  5. Contractual Delta Analysis (Deviations from MSA).
+  6. Financial Math Proof (Qty x Rate x Tax explanations).
+  7. Risk & Warning Generation.
+- **Context-Aware Extraction**: The API now processes a high-context triple-object payload:
+  - `raw_input`: The user brief (including OCR/Voice).
+  - `agency_context`: The authenticated user's master profile.
+  - `client_context`: The selected client's full metadata + MSA defaults.
+- **Hydration Synchronization**: Overhauled the frontend hydration logic (`lib/invoice-brief-intake.ts`) to support the new nested `invoice_data` structure while maintaining 100% precision for Indian GST compliance.
+- **API Simplification**: Replaced the legacy Supabase Edge Gateway with a direct Next.js API route that leverages the improved contextual prompt for higher reliability and zero-cold-start performance.
 
 ---
 

@@ -27,7 +27,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
         "text-[13px] font-medium transition-colors duration-150",
         isActive
           ? "text-[color:var(--text-primary)]"
-          : "text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+          : "text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]",
       )}
     >
       {label}
@@ -37,19 +37,27 @@ function NavLink({ href, label }: { href: string; label: string }) {
 
 /* ─── User Menu ───────────────────────────────────── */
 
-function UserMenu({ email, avatar, onFeedbackClick }: { email: string; avatar?: string; onFeedbackClick: () => void }) {
+function UserMenu({
+  email,
+  avatar,
+  onFeedbackClick,
+}: {
+  email: string;
+  avatar?: string;
+  onFeedbackClick: () => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const initials = email
-    .split("@")[0]
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = email.split("@")[0].slice(0, 2).toUpperCase();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -70,35 +78,51 @@ function UserMenu({ email, avatar, onFeedbackClick }: { email: string; avatar?: 
         className="flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] overflow-hidden transition-all hover:ring-2 hover:ring-[color:var(--interactive-primary)]/20"
       >
         {avatar ? (
-          <img src={avatar} alt="Profile" className="h-full w-full object-cover" />
+          <img
+            src={avatar}
+            alt="Profile"
+            className="h-full w-full object-cover"
+          />
         ) : (
-          <span className="text-[10px] font-bold text-[color:var(--text-secondary)]">{initials}</span>
+          <span className="text-[10px] font-bold text-[color:var(--text-secondary)]">
+            {initials}
+          </span>
         )}
       </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-xl ring-1 ring-black/5 z-50">
           <div className="px-3 py-2 border-b border-gray-100 mb-1">
-            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Account</p>
-            <p className="text-[13px] font-semibold text-gray-900 truncate">{email}</p>
+            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+              Account
+            </p>
+            <p className="text-[13px] font-semibold text-gray-900 truncate">
+              {email}
+            </p>
           </div>
-          
+
           <button
-            onClick={() => { setIsOpen(false); router.push("/profile"); }}
+            onClick={() => {
+              setIsOpen(false);
+              router.push("/profile");
+            }}
             className="flex w-full items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Profile Settings
           </button>
-          
+
           <button
-            onClick={() => { setIsOpen(false); onFeedbackClick(); }}
+            onClick={() => {
+              setIsOpen(false);
+              onFeedbackClick();
+            }}
             className="flex w-full items-center gap-2 px-3 py-2 text-[13px] font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Provide Feedback
           </button>
 
           <div className="h-px bg-gray-100 my-1" />
-          
+
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-2 px-3 py-2 text-[13px] font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
@@ -111,16 +135,17 @@ function UserMenu({ email, avatar, onFeedbackClick }: { email: string; avatar?: 
   );
 }
 
-export default function AppHeader({
-  rightSlot,
-  leftSlot,
-}: AppHeaderProps) {
-  const [user, setUser] = useState<{ email: string; avatar?: string } | null>(null);
+export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
+  const [user, setUser] = useState<{ email: string; avatar?: string } | null>(
+    null,
+  );
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
       if (authUser) {
         setUser({
           email: authUser.email || "",
@@ -132,7 +157,9 @@ export default function AppHeader({
     }
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser({
           email: session.user.email || "",
@@ -149,7 +176,9 @@ export default function AppHeader({
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[color:var(--border-subtle)] bg-white/90 backdrop-blur-md print:hidden">
-        <div className={`${appPageContainerClass} flex items-center justify-between py-3.5`}>
+        <div
+          className={`${appPageContainerClass} flex items-center justify-between py-3.5`}
+        >
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
@@ -162,9 +191,9 @@ export default function AppHeader({
             </Link>
 
             <nav className="ml-4 hidden items-center gap-5 border-l border-[color:var(--border-subtle)] pl-5 sm:flex">
-              <NavLink 
-                href={user ? "/invoice/new" : "/sandbox?guest=1"} 
-                label="New Invoice" 
+              <NavLink
+                href={user ? "/invoice/new" : "/sandbox?guest=1"}
+                label="New Invoice"
               />
               {user && (
                 <>
@@ -181,10 +210,10 @@ export default function AppHeader({
             {user ? (
               <div className="flex items-center gap-3">
                 <NotificationBell />
-                <UserMenu 
-                  email={user.email} 
-                  avatar={user.avatar} 
-                  onFeedbackClick={() => setIsFeedbackModalOpen(true)} 
+                <UserMenu
+                  email={user.email}
+                  avatar={user.avatar}
+                  onFeedbackClick={() => setIsFeedbackModalOpen(true)}
                 />
               </div>
             ) : (
@@ -199,9 +228,9 @@ export default function AppHeader({
         </div>
       </header>
 
-      <FeedbackModal 
-        isOpen={isFeedbackModalOpen} 
-        onClose={() => setIsFeedbackModalOpen(false)} 
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
       />
     </>
   );

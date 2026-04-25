@@ -31,8 +31,8 @@ export default function ChoiceCards<T extends string>({
     variant === "segmented"
       ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[8px] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "inline"
-      ? "flex flex-wrap gap-1.5"
-      : `grid gap-3 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
+        ? "flex flex-wrap gap-1.5"
+        : `grid gap-3 ${columns === 2 ? "sm:grid-cols-2" : ""}`;
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
@@ -62,7 +62,9 @@ export default function ChoiceCards<T extends string>({
     <div className={wrapperClass}>
       {options.map((option) => {
         const id = `${name}-${option.value}`;
-        const descriptionId = option.description ? `${id}-description` : undefined;
+        const descriptionId = option.description
+          ? `${id}-description`
+          : undefined;
         const isSelected = value === option.value;
 
         return (
@@ -96,7 +98,7 @@ export default function ChoiceCards<T extends string>({
             <motion.span
               layout
               className={`${getCardClass(
-                isSelected
+                isSelected,
               )} peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1 ${
                 isSelected ? "ring-1 ring-[color:var(--color-lime-300)]" : ""
               }`}
@@ -109,7 +111,7 @@ export default function ChoiceCards<T extends string>({
               <span
                 className={cn(
                   "block min-w-0",
-                  variant === "segmented" ? "flex-1 pr-1" : ""
+                  variant === "segmented" ? "flex-1 pr-1" : "",
                 )}
               >
                 <span
@@ -117,7 +119,7 @@ export default function ChoiceCards<T extends string>({
                     "block text-[13px] font-medium",
                     variant === "segmented"
                       ? "break-words leading-[1.35]"
-                      : "leading-5"
+                      : "leading-5",
                   )}
                 >
                   {option.label}
@@ -129,7 +131,7 @@ export default function ChoiceCards<T extends string>({
                       "mt-1 block text-[11px] leading-5",
                       isSelected
                         ? "text-[color:var(--text-secondary)]"
-                        : "text-[color:var(--text-muted)]"
+                        : "text-[color:var(--text-muted)]",
                     )}
                   >
                     {option.description}
@@ -144,7 +146,9 @@ export default function ChoiceCards<T extends string>({
                       ? "bg-[color:var(--color-lime-500)]"
                       : "bg-[color:var(--border-strong)]"
                   }`}
-                  animate={reducedMotion ? undefined : { scale: isSelected ? 1.15 : 1 }}
+                  animate={
+                    reducedMotion ? undefined : { scale: isSelected ? 1.15 : 1 }
+                  }
                   transition={{
                     duration: 0.15,
                     ease: [0.16, 1, 0.3, 1],

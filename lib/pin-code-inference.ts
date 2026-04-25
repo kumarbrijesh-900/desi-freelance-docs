@@ -33,7 +33,7 @@ function normalizePinCode(value?: string | null) {
 }
 
 export function inferIndianLocationFromPinCode(
-  value?: string | null
+  value?: string | null,
 ): PinCodeInferenceResult {
   const normalized = normalizePinCode(value);
 
@@ -46,7 +46,7 @@ export function inferIndianLocationFromPinCode(
   }
 
   const matchedEntry = PIN_PREFIX_LOOKUP.find((entry) =>
-    normalized.startsWith(entry.prefix)
+    normalized.startsWith(entry.prefix),
   );
 
   if (!matchedEntry) {

@@ -34,12 +34,14 @@ export const appGroupGapClass = "space-y-6";
 
 export const appFieldGapClass = "space-y-4";
 
-export const appFieldGridClass = "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2";
+export const appFieldGridClass =
+  "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2";
 
 export const appFieldGridWideStartClass =
   "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-[minmax(0,1.2fr)_minmax(220px,0.8fr)]";
 
-export const appMetaGridClass = "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2";
+export const appMetaGridClass =
+  "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2";
 
 export const appModalWidthClass = "w-full max-w-[1120px]";
 

@@ -22,19 +22,25 @@ const BriefExtractSchema = z.object({
     state: z.string().optional().nullable(),
     gstin: z.string().optional().nullable(),
   }),
-  client_context: z.object({
-    id: z.string().uuid().optional().nullable(),
-    name: z.string().optional().nullable(),
-    email: z.string().optional().nullable(),
-    location: z.string().optional().nullable(),
-    gstinOrTaxId: z.string().optional().nullable(),
-    msa: z.object({
-      payment_terms: z.number().optional().nullable(),
-      late_fee: z.number().optional().nullable(),
-      ip_trigger: z.string().optional().nullable(),
-      jurisdiction: z.string().optional().nullable(),
-    }).optional().nullable(),
-  }).optional().nullable(),
+  client_context: z
+    .object({
+      id: z.string().uuid().optional().nullable(),
+      name: z.string().optional().nullable(),
+      email: z.string().optional().nullable(),
+      location: z.string().optional().nullable(),
+      gstinOrTaxId: z.string().optional().nullable(),
+      msa: z
+        .object({
+          payment_terms: z.number().optional().nullable(),
+          late_fee: z.number().optional().nullable(),
+          ip_trigger: z.string().optional().nullable(),
+          jurisdiction: z.string().optional().nullable(),
+        })
+        .optional()
+        .nullable(),
+    })
+    .optional()
+    .nullable(),
   documentId: z.string().uuid().optional().nullable(),
   isRetry: z.boolean().optional(),
 });
@@ -50,7 +56,7 @@ export async function POST(request: Request) {
         extraction: null,
         error: "Too many requests. Please try again in a minute.",
       },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -63,7 +69,7 @@ export async function POST(request: Request) {
           extraction: null,
           error: "Request body too large. Maximum brief size is 10 KB.",
         },
-        { status: 413 }
+        { status: 413 },
       );
     }
 
@@ -77,7 +83,7 @@ export async function POST(request: Request) {
           error: "Invalid request payload.",
           details: result.error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -96,7 +102,7 @@ export async function POST(request: Request) {
           extraction: null,
           error: "AI engine failed to parse the brief.",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -112,8 +118,7 @@ export async function POST(request: Request) {
         extraction: null,
         error: "Brief extraction failed.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

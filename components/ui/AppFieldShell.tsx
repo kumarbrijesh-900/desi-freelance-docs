@@ -37,11 +37,13 @@ export default function AppFieldShell({
       className={cn(
         getAppFieldStackClass({ density }),
         getAppFieldWidthClass(width),
-        className
+        className,
       )}
     >
       {label ? (
-        <div className={cn(appFieldLabelClass, "mb-0", labelClassName)}>{label}</div>
+        <div className={cn(appFieldLabelClass, "mb-0", labelClassName)}>
+          {label}
+        </div>
       ) : null}
       {children}
       {errorText ? (

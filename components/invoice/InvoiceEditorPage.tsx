@@ -11,13 +11,13 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { 
-  Building2, 
-  Users, 
-  Settings2, 
-  ListChecks, 
-  ShieldCheck, 
-  CreditCard 
+import {
+  Building2,
+  Users,
+  Settings2,
+  ListChecks,
+  ShieldCheck,
+  CreditCard,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
@@ -56,7 +56,12 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
-import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice, getCurrentUserEmail } from "@/lib/supabase/invoices";
+import {
+  getCurrentUserId,
+  saveInvoice,
+  reissueNegotiatedInvoice,
+  getCurrentUserEmail,
+} from "@/lib/supabase/invoices";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import {
   convertInrToApproximateUsd,
@@ -179,7 +184,7 @@ function setInvoiceSequenceMap(sequenceMap: InvoiceSequenceMap) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(
     INVOICE_SEQUENCE_KEY,
-    JSON.stringify(sequenceMap)
+    JSON.stringify(sequenceMap),
   );
 }
 
@@ -238,6 +243,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       invoiceDate: today,
       dueDate: addDays(today, 15),
       paymentTerms: "Net 15",
+      hasAddendum: false,
     },
     lineItems: [
       {
@@ -300,65 +306,65 @@ function getFreshInvoiceData(): InvoiceFormData {
 
 function isFormTouched(formData: InvoiceFormData) {
   const hasAgencyData = Boolean(
-      formData.agency.agencyName ||
-      formData.agency.address ||
-      formData.agency.addressLine1 ||
-      formData.agency.addressLine2 ||
-      formData.agency.city ||
-      formData.agency.pinCode ||
-      formData.agency.agencyState ||
-      formData.agency.gstin ||
-      formData.agency.pan ||
-      formData.agency.logoUrl ||
-      formData.agency.gstRegistrationStatus ||
-      formData.agency.lutAvailability ||
-      formData.agency.lutNumber ||
-      formData.agency.noLutTaxHandling
+    formData.agency.agencyName ||
+    formData.agency.address ||
+    formData.agency.addressLine1 ||
+    formData.agency.addressLine2 ||
+    formData.agency.city ||
+    formData.agency.pinCode ||
+    formData.agency.agencyState ||
+    formData.agency.gstin ||
+    formData.agency.pan ||
+    formData.agency.logoUrl ||
+    formData.agency.gstRegistrationStatus ||
+    formData.agency.lutAvailability ||
+    formData.agency.lutNumber ||
+    formData.agency.noLutTaxHandling,
   );
 
   const hasClientData = Boolean(
     formData.client.clientName ||
-      formData.client.clientAddress ||
-      formData.client.clientAddressLine1 ||
-      formData.client.clientAddressLine2 ||
-      formData.client.clientCity ||
-      formData.client.clientPinCode ||
-      formData.client.clientPostalCode ||
-      formData.client.clientEmail ||
-      formData.client.clientState ||
-      formData.client.clientCountry ||
-      formData.client.clientCurrency ||
-      formData.client.clientGstin ||
-      formData.client.clientLocation === "international" ||
-      formData.client.isClientSezUnit
+    formData.client.clientAddress ||
+    formData.client.clientAddressLine1 ||
+    formData.client.clientAddressLine2 ||
+    formData.client.clientCity ||
+    formData.client.clientPinCode ||
+    formData.client.clientPostalCode ||
+    formData.client.clientEmail ||
+    formData.client.clientState ||
+    formData.client.clientCountry ||
+    formData.client.clientCurrency ||
+    formData.client.clientGstin ||
+    formData.client.clientLocation === "international" ||
+    formData.client.isClientSezUnit,
   );
 
   const hasMetaData = Boolean(
-    formData.meta.paymentTerms || formData.meta.dueDate
+    formData.meta.paymentTerms || formData.meta.dueDate,
   );
 
   const hasLineItemData = formData.lineItems.some((item) =>
     Boolean(
       item.description ||
-        item.rate > 0 ||
-        item.qty !== 1 ||
-        item.type !== "Other" ||
-        item.rateUnit !== "per-deliverable"
-    )
+      item.rate > 0 ||
+      item.qty !== 1 ||
+      item.type !== "Other" ||
+      item.rateUnit !== "per-deliverable",
+    ),
   );
 
   const hasPaymentData = Boolean(
-      formData.payment.notes ||
-      formData.payment.paymentSettlementType ||
-      formData.payment.accountName ||
-      formData.payment.bankName ||
-      formData.payment.bankAddress ||
-      formData.payment.accountNumber ||
-      formData.payment.ifscCode ||
-      formData.payment.swiftBicCode ||
-      formData.payment.ibanRoutingCode ||
-      formData.payment.qrCodeUrl ||
-      formData.payment.license.isLicenseIncluded
+    formData.payment.notes ||
+    formData.payment.paymentSettlementType ||
+    formData.payment.accountName ||
+    formData.payment.bankName ||
+    formData.payment.bankAddress ||
+    formData.payment.accountNumber ||
+    formData.payment.ifscCode ||
+    formData.payment.swiftBicCode ||
+    formData.payment.ibanRoutingCode ||
+    formData.payment.qrCodeUrl ||
+    formData.payment.license.isLicenseIncluded,
   );
 
   return (
@@ -387,8 +393,13 @@ function ExitConfirmModal({
         </h2>
         <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
           You have unsaved progress. Choose{" "}
-          <span className="font-medium text-[color:var(--text-primary)]">Save Draft</span> to keep
-          your work, or <span className="font-medium text-[color:var(--text-primary)]">Skip</span>{" "}
+          <span className="font-medium text-[color:var(--text-primary)]">
+            Save Draft
+          </span>{" "}
+          to keep your work, or{" "}
+          <span className="font-medium text-[color:var(--text-primary)]">
+            Skip
+          </span>{" "}
           to leave without saving.
         </p>
 
@@ -469,7 +480,7 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
       "client",
       formData.client.clientLocation === "international"
         ? "Full address"
-        : "Address line 1"
+        : "Address line 1",
     );
   }
   if (errors.client.clientState) addField("client", "Client state");
@@ -485,7 +496,7 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
       "payment",
       formData.client.clientLocation === "international"
         ? "Beneficiary / Account Name"
-        : "Account name"
+        : "Account name",
     );
   }
   if (errors.payment.bankName) addField("payment", "Bank name");
@@ -590,10 +601,10 @@ function InlineStepSection({
     !isCompleted && isMounted && issueCount > 0
       ? `${issueCount} required`
       : isCompleted
-      ? "Ready"
-      : isActive
-      ? "In progress"
-      : "Pending";
+        ? "Ready"
+        : isActive
+          ? "In progress"
+          : "Pending";
 
   const StepIcon = {
     agency: Building2,
@@ -612,10 +623,12 @@ function InlineStepSection({
     <motion.section
       layout
       data-step-section={step}
-      data-step-state={isActive ? "active" : isCompleted ? "completed" : "incomplete"}
+      data-step-state={
+        isActive ? "active" : isCompleted ? "completed" : "incomplete"
+      }
       data-step-kind={stepKind}
       className={cn(
-        "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5"
+        "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
       )}
     >
       <div className="flex flex-col gap-2">
@@ -627,16 +640,16 @@ function InlineStepSection({
             className="min-w-0 flex-1 text-left"
           >
             <div className="flex items-start gap-3">
-                <span
-                  className={cn(
-                    "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
-                    isCompleted
-                      ? "bg-[color:var(--interactive-secondary)]"
-                      : isActive
+              <span
+                className={cn(
+                  "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
+                  isCompleted
+                    ? "bg-[color:var(--interactive-secondary)]"
+                    : isActive
                       ? "bg-[color:var(--interactive-primary)]"
-                      : "bg-[color:var(--border-strong)]"
-                  )}
-                />
+                      : "bg-[color:var(--border-strong)]",
+                )}
+              />
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                   Step {stepNumber}
@@ -644,12 +657,14 @@ function InlineStepSection({
                 <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
                   <div className="flex items-center gap-2">
                     {StepIcon && (
-                      <StepIcon 
+                      <StepIcon
                         className={cn(
                           "w-5 h-5 shrink-0 transition-colors duration-200",
-                          isActive || isCompleted ? "text-inherit" : "text-slate-400"
-                        )} 
-                        strokeWidth={1.5} 
+                          isActive || isCompleted
+                            ? "text-inherit"
+                            : "text-slate-400",
+                        )}
+                        strokeWidth={1.5}
                       />
                     )}
                     {stepLabel}
@@ -665,7 +680,7 @@ function InlineStepSection({
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <span
               className={getAppStatusPillClass(
-                isCompleted ? "success" : isActive ? "default" : "muted"
+                isCompleted ? "success" : isActive ? "default" : "muted",
               )}
             >
               {statusLabel}
@@ -701,7 +716,7 @@ function EditorContent() {
   const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState<InvoiceFormData>(() =>
-    mergeInvoiceFormData(defaultInvoiceFormData)
+    mergeInvoiceFormData(defaultInvoiceFormData),
   );
   const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
   const [isGuestMode, setIsGuestMode] = useState(false);
@@ -722,7 +737,8 @@ function EditorContent() {
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [selectedClientMsa, setSelectedClientMsa] = useState<SavedClient | null>(null);
+  const [selectedClientMsa, setSelectedClientMsa] =
+    useState<SavedClient | null>(null);
 
   // Modal States
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -731,8 +747,12 @@ function EditorContent() {
     confident: import("@/lib/invoice-brief-intake").BriefAutofillFieldSummary[];
     isNewClient: boolean;
   } | null>(null);
-  const [shouldSaveNewClientMaster, setShouldSaveNewClientMaster] = useState(false);
-  const [postSubmitActionModal, setPostSubmitActionModal] = useState<{ isOpen: boolean; isReady: boolean } | null>(null);
+  const [shouldSaveNewClientMaster, setShouldSaveNewClientMaster] =
+    useState(false);
+  const [postSubmitActionModal, setPostSubmitActionModal] = useState<{
+    isOpen: boolean;
+    isReady: boolean;
+  } | null>(null);
   const [extractProgress, setExtractProgress] = useState(0);
 
   const hasInitializedRef = useRef(false);
@@ -785,8 +805,10 @@ function EditorContent() {
     try {
       try {
         const isFresh = window.location.search.includes("fresh=1");
-        const rawDraft = !isFresh ? window.localStorage.getItem(DRAFT_STORAGE_KEY) : null;
-        
+        const rawDraft = !isFresh
+          ? window.localStorage.getItem(DRAFT_STORAGE_KEY)
+          : null;
+
         if (rawDraft) {
           const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
           if (
@@ -811,7 +833,7 @@ function EditorContent() {
 
       const suggestedDueDate = getSuggestedDueDate(
         nextFormData.meta.paymentTerms,
-        nextFormData.meta.invoiceDate
+        nextFormData.meta.invoiceDate,
       );
 
       dueDateAutoManagedRef.current =
@@ -825,7 +847,7 @@ function EditorContent() {
       setClientMsaNote(nextMsaNote);
 
       // Fetch user email for admin check
-      void getCurrentUserEmail().then(email => setUserEmail(email));
+      void getCurrentUserEmail().then((email) => setUserEmail(email));
     } catch (error) {
       console.error("Failed to initialize invoice editor:", error);
 
@@ -835,7 +857,7 @@ function EditorContent() {
       const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
       const fallbackSuggestedDueDate = getSuggestedDueDate(
         fallbackFormData.meta.paymentTerms,
-        fallbackFormData.meta.invoiceDate
+        fallbackFormData.meta.invoiceDate,
       );
 
       dueDateAutoManagedRef.current =
@@ -857,7 +879,7 @@ function EditorContent() {
         triggerToast(
           shouldShowRestoreToast
             ? "Draft restored"
-            : "Could not restore saved invoice state. Starting fresh."
+            : "Could not restore saved invoice state. Starting fresh.",
         );
       });
     }
@@ -887,7 +909,7 @@ function EditorContent() {
       if (!error) {
         // NEW: Sync profile details from this restored draft
         await syncProfileFromInvoice(formData);
-        
+
         triggerToast("Draft saved to cloud ☁ Welcome back!");
         playInteractionCue("saveSuccess");
         // Clean up URL without reloading
@@ -898,7 +920,7 @@ function EditorContent() {
     }
 
     void autoCloudSave();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBootstrapped]);
 
   /* ── Profile auto-fill: load saved agency when starting fresh ── */
@@ -933,51 +955,59 @@ function EditorContent() {
       });
     }
     applyProfile();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBootstrapped]);
 
   /* ── Client auto-fill: load saved clients and handle single-client case ── */
   useEffect(() => {
     if (!isBootstrapped) return;
-    
+
     let cancelled = false;
     async function fetchClients() {
       const { data: clients } = await listClients();
       if (cancelled) return;
-      
+
       console.log("CLIENT_LOAD: Found", clients?.length || 0, "saved clients");
       setSavedClients(clients || []);
 
       // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
       const isFresh = searchParams.get("fresh") === "1";
-      if (clients.length === 1 && (!formData.client.clientName.trim() || isFresh)) {
+      if (
+        clients.length === 1 &&
+        (!formData.client.clientName.trim() || isFresh)
+      ) {
         const clientDetails = savedClientToClientDetails(clients[0]);
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          client: clientDetails
+          client: clientDetails,
         }));
         setSelectedClientMsa(clients[0]);
-        console.log("CLIENT_AUTOFILL: Applied unique client", clients[0].client_name);
+        console.log(
+          "CLIENT_AUTOFILL: Applied unique client",
+          clients[0].client_name,
+        );
       }
     }
 
     void fetchClients();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBootstrapped]);
 
   /* ── Check for missing profile assets (Logo, QR, Signature) ── */
   useEffect(() => {
     if (!isBootstrapped) return;
-    
+
     async function checkAssets() {
       const { data: profile } = await loadProfile();
       if (profile) {
         const hasAssets = Boolean(
-          profile.logo_url && 
-          profile.qr_code_url && 
-          profile.signature_url
+          profile.logo_url && profile.qr_code_url && profile.signature_url,
         );
         setShowProfilePrompt(!hasAssets);
       }
@@ -990,7 +1020,7 @@ function EditorContent() {
 
     const suggestedDueDate = getSuggestedDueDate(
       formData.meta.paymentTerms,
-      formData.meta.invoiceDate
+      formData.meta.invoiceDate,
     );
 
     const currentDueDate = formData.meta.dueDate;
@@ -1038,7 +1068,11 @@ function EditorContent() {
 
     dueDateAutoManagedRef.current = false;
     lastAutoDueDateRef.current = suggestedDueDate;
-  }, [formData.meta.paymentTerms, formData.meta.invoiceDate, formData.meta.dueDate]);
+  }, [
+    formData.meta.paymentTerms,
+    formData.meta.invoiceDate,
+    formData.meta.dueDate,
+  ]);
 
   useEffect(() => {
     if (!focusRequestNonce) return;
@@ -1047,10 +1081,9 @@ function EditorContent() {
       const activeStepRoot = stepRefs.current[currentStep];
       if (!activeStepRoot) return;
 
-      const focusTarget =
-        activeStepRoot.querySelector<HTMLElement>(
-          'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])'
-        );
+      const focusTarget = activeStepRoot.querySelector<HTMLElement>(
+        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+      );
 
       focusTarget?.focus({ preventScroll: true });
     });
@@ -1060,14 +1093,15 @@ function EditorContent() {
 
   const fieldErrors = useMemo(
     () => getInvoiceFieldErrors(formData),
-    [formData]
+    [formData],
   );
 
-  const clientIsInternational = formData.client.clientLocation === "international";
+  const clientIsInternational =
+    formData.client.clientLocation === "international";
   const agencyIsGstRegistered =
     formData.agency.gstRegistrationStatus === "registered";
   const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
-    formData.agency
+    formData.agency,
   );
   const displayCurrency = useMemo(
     () =>
@@ -1075,7 +1109,7 @@ function EditorContent() {
         clientLocation: formData.client.clientLocation,
         clientCurrency: formData.client.clientCurrency,
       }),
-    [formData.client.clientLocation, formData.client.clientCurrency]
+    [formData.client.clientLocation, formData.client.clientCurrency],
   );
 
   const computedTotals = useMemo(
@@ -1102,7 +1136,7 @@ function EditorContent() {
       effectiveExportTaxDecision,
       formData.tax.taxRate,
       formData.tax.isRcmEnabled,
-    ]
+    ],
   );
 
   const derivedTaxConfig = useMemo(() => {
@@ -1144,7 +1178,10 @@ function EditorContent() {
       }
 
       if (effectiveExportTaxDecision === "add-igst") {
-        return [`International export without LUT: IGST ${formData.tax.taxRate}% applies.`, settlementWarning]
+        return [
+          `International export without LUT: IGST ${formData.tax.taxRate}% applies.`,
+          settlementWarning,
+        ]
           .filter(Boolean)
           .join(" ");
       }
@@ -1248,22 +1285,25 @@ function EditorContent() {
     : undefined;
   const missingFieldGroups = useMemo(
     () => getMissingFieldLabels(formData),
-    [formData]
+    [formData],
   );
   const stepValidityByStep = useMemo(
     () =>
-      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>((result, step) => {
-        result[step] = isInvoiceStepValid(formData, step);
-        return result;
-      }, {
-        agency: false,
-        client: false,
-        deliverables: false,
-        payment: false,
-        meta: false,
-        totals: false,
-      }),
-    [formData]
+      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
+        (result, step) => {
+          result[step] = isInvoiceStepValid(formData, step);
+          return result;
+        },
+        {
+          agency: false,
+          client: false,
+          deliverables: false,
+          payment: false,
+          meta: false,
+          totals: false,
+        },
+      ),
+    [formData],
   );
   const missingFieldCountByStep = useMemo(
     () =>
@@ -1279,33 +1319,33 @@ function EditorContent() {
           payment: 0,
           meta: 0,
           totals: 0,
-        }
+        },
       ),
-    [missingFieldGroups]
+    [missingFieldGroups],
   );
   const firstInvalidStep = useMemo(
     () => getFirstInvalidStep(formData),
-    [formData]
+    [formData],
   );
 
   const invoiceReadyForPreview = useMemo(
     () => isInvoiceReadyForPreview(formData),
-    [formData]
+    [formData],
   );
   const displayStepValidityByStep = useMemo(
     () => ({
       ...stepValidityByStep,
       totals: invoiceReadyForPreview,
     }),
-    [stepValidityByStep, invoiceReadyForPreview]
+    [stepValidityByStep, invoiceReadyForPreview],
   );
   const completedStepCount = useMemo(
     () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
-    [displayStepValidityByStep]
+    [displayStepValidityByStep],
   );
   const guideToSection = (
     step: InvoiceStepperStep,
-    options?: { focus?: boolean }
+    options?: { focus?: boolean },
   ) => {
     setCurrentStep(step);
 
@@ -1316,7 +1356,7 @@ function EditorContent() {
 
   const handleSectionKeyDownCapture = (
     step: InvoiceStepperStep,
-    event: ReactKeyboardEvent<HTMLDivElement>
+    event: ReactKeyboardEvent<HTMLDivElement>,
   ) => {
     if (
       event.key !== "Enter" ||
@@ -1333,9 +1373,7 @@ function EditorContent() {
     }
 
     const inputType = event.target.type.toLowerCase();
-    if (
-      ["checkbox", "radio", "file", "submit", "button"].includes(inputType)
-    ) {
+    if (["checkbox", "radio", "file", "submit", "button"].includes(inputType)) {
       return;
     }
 
@@ -1346,8 +1384,8 @@ function EditorContent() {
 
     const focusableFields = Array.from(
       activeStepRoot.querySelectorAll<HTMLElement>(
-        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])'
-      )
+        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+      ),
     ).filter((element) => element.offsetParent !== null);
 
     const currentIndex = focusableFields.indexOf(event.target);
@@ -1356,7 +1394,6 @@ function EditorContent() {
       focusableFields[currentIndex + 1]?.focus();
       return;
     }
-
   };
 
   const shouldConfirmExit = isFormTouched(formData);
@@ -1392,13 +1429,16 @@ function EditorContent() {
     };
   }, [shouldConfirmExit]);
 
-  const goToStep = (step: InvoiceStepperStep, options?: { focus?: boolean }) => {
+  const goToStep = (
+    step: InvoiceStepperStep,
+    options?: { focus?: boolean },
+  ) => {
     guideToSection(step, { focus: options?.focus });
   };
 
   const scrollToStep = (
     step: InvoiceStepperStep,
-    options?: { focus?: boolean }
+    options?: { focus?: boolean },
   ) => {
     guideToSection(step);
 
@@ -1445,7 +1485,7 @@ function EditorContent() {
 
       window.localStorage.setItem(
         PREVIEW_STORAGE_KEY,
-        JSON.stringify(previewFormData)
+        JSON.stringify(previewFormData),
       );
 
       // Save Client to Master if checked (only for registered users)
@@ -1455,7 +1495,7 @@ function EditorContent() {
         });
       }
 
-       window.localStorage.setItem(
+      window.localStorage.setItem(
         DRAFT_STORAGE_KEY,
         JSON.stringify({
           formData,
@@ -1463,7 +1503,7 @@ function EditorContent() {
           savedAt: new Date().toISOString(),
           documentId: parserDocumentId,
           clientMsaNote,
-        } satisfies StoredDraft)
+        } satisfies StoredDraft),
       );
       triggerToast("Preview ready");
       playInteractionCue("previewReady");
@@ -1482,13 +1522,11 @@ function EditorContent() {
         currentStep,
         savedAt: new Date().toISOString(),
         documentId: parserDocumentId,
-      } satisfies StoredDraft)
+      } satisfies StoredDraft),
     );
   };
 
-  const performSaveDraft = (options?: {
-    stayOnPage?: boolean;
-  }) => {
+  const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
     try {
       persistDraft();
       setShowExitModal(false);
@@ -1541,7 +1579,11 @@ function EditorContent() {
       }
 
       if (!result.error) {
-        triggerToast(clientMsaNote ? "Reissued & saved to cloud ☁" : "Draft saved to cloud ☁");
+        triggerToast(
+          clientMsaNote
+            ? "Reissued & saved to cloud ☁"
+            : "Draft saved to cloud ☁",
+        );
         playInteractionCue("saveSuccess");
       } else {
         triggerToast("Saved locally (cloud save failed)");
@@ -1553,15 +1595,14 @@ function EditorContent() {
   };
 
   const handleLoadDemoData = () => {
-    const demoInvoiceNumber =
-      formData.meta.invoiceNumber?.startsWith("INV-")
-        ? formData.meta.invoiceNumber
-        : getNextInvoiceNumber();
+    const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
+      ? formData.meta.invoiceNumber
+      : getNextInvoiceNumber();
     const demo = getDemoData(demoInvoiceNumber);
 
     const demoSuggestedDueDate = getSuggestedDueDate(
       demo.meta.paymentTerms,
-      demo.meta.invoiceDate
+      demo.meta.invoiceDate,
     );
 
     dueDateAutoManagedRef.current = demo.meta.dueDate === demoSuggestedDueDate;
@@ -1579,7 +1620,7 @@ function EditorContent() {
     const freshInvoiceData = getFreshInvoiceData();
     const suggestedDueDate = getSuggestedDueDate(
       freshInvoiceData.meta.paymentTerms,
-      freshInvoiceData.meta.invoiceDate
+      freshInvoiceData.meta.invoiceDate,
     );
 
     dueDateAutoManagedRef.current = true;
@@ -1611,7 +1652,9 @@ function EditorContent() {
     setExtractProgress(0);
 
     const progressInterval = setInterval(() => {
-      setExtractProgress((prev) => (prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1));
+      setExtractProgress((prev) =>
+        prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1,
+      );
     }, 300);
 
     try {
@@ -1627,7 +1670,7 @@ function EditorContent() {
             if (extractedText.trim()) {
               console.log(
                 `[Brief Intake OCR] Extracted text from ${file.name}:`,
-                extractedText
+                extractedText,
               );
               extractedChunks.push(extractedText.trim());
             }
@@ -1679,19 +1722,22 @@ function EditorContent() {
                 state: formData.agency.agencyState,
                 gstin: formData.agency.gstin,
               },
-              client_context: selectedClientMsa ? {
-                id: selectedClientMsa.id,
-                name: selectedClientMsa.client_name,
-                email: selectedClientMsa.client_email,
-                location: selectedClientMsa.country || selectedClientMsa.state,
-                gstinOrTaxId: selectedClientMsa.gstin,
-                msa: {
-                  payment_terms: selectedClientMsa.msa_payment_terms_days,
-                  late_fee: selectedClientMsa.msa_late_fee_rate,
-                  ip_trigger: selectedClientMsa.msa_ip_trigger_type,
-                  jurisdiction: selectedClientMsa.msa_jurisdiction_city,
-                }
-              } : null,
+              client_context: selectedClientMsa
+                ? {
+                    id: selectedClientMsa.id,
+                    name: selectedClientMsa.client_name,
+                    email: selectedClientMsa.client_email,
+                    location:
+                      selectedClientMsa.country || selectedClientMsa.state,
+                    gstinOrTaxId: selectedClientMsa.gstin,
+                    msa: {
+                      payment_terms: selectedClientMsa.msa_payment_terms_days,
+                      late_fee: selectedClientMsa.msa_late_fee_rate,
+                      ip_trigger: selectedClientMsa.msa_ip_trigger_type,
+                      jurisdiction: selectedClientMsa.msa_jurisdiction_city,
+                    },
+                  }
+                : null,
               documentId: parserDocumentId,
               isRetry: isBriefRetry,
             }),
@@ -1702,10 +1748,10 @@ function EditorContent() {
               extraction?: AiBriefExtraction | null;
             };
             aiExtraction = payload.extraction ?? null;
-            
+
             // Note: Parser response is now merged into extraction for Omniscient Agent
-            if (aiExtraction?.invoice_data?.clientName?.value) {
-               // Optional: If AI identifies a specific client from context, we could sync it here
+            if (aiExtraction?.clientName?.value) {
+              // Optional: If AI identifies a specific client from context, we could sync it here
             }
           }
         } catch (error) {
@@ -1724,7 +1770,7 @@ function EditorContent() {
         triggerToast(
           input.imageFiles?.length
             ? "Could not extract text clearly. Try uploading a clearer image or paste text."
-            : "Add a text brief first to extract invoice details."
+            : "Add a text brief first to extract invoice details.",
         );
         return false;
       }
@@ -1735,13 +1781,20 @@ function EditorContent() {
           baseFormData: result.nextFormData,
           parserResponse,
         });
-        console.log("=== PARSER HYDRATION SUCCESS ===", parserHydration.nextFormData.lineItems[0]);
+        console.log(
+          "=== PARSER HYDRATION SUCCESS ===",
+          parserHydration.nextFormData.lineItems[0],
+        );
       } else {
         console.log("=== PARSER RESPONSE IS NULL ===");
       }
 
-      const hydratedFormData = parserHydration?.nextFormData ?? result.nextFormData;
-      console.log("=== HYDRATED FORM DATA MERGE ===", hydratedFormData.lineItems[0]);
+      const hydratedFormData =
+        parserHydration?.nextFormData ?? result.nextFormData;
+      console.log(
+        "=== HYDRATED FORM DATA MERGE ===",
+        hydratedFormData.lineItems[0],
+      );
 
       const totalFilledFields = [
         ...result.filledFields,
@@ -1750,7 +1803,7 @@ function EditorContent() {
 
       const nextSuggestedDueDate = getSuggestedDueDate(
         hydratedFormData.meta.paymentTerms,
-        hydratedFormData.meta.invoiceDate
+        hydratedFormData.meta.invoiceDate,
       );
 
       const nextFormData =
@@ -1768,10 +1821,15 @@ function EditorContent() {
 
       // Check if Client is New
       const clientName = mergedToSet.client.clientName.trim();
-      const isNewClient = Boolean(clientName && !savedClients.some(c => c.client_name.toLowerCase() === clientName.toLowerCase()));
+      const isNewClient = Boolean(
+        clientName &&
+        !savedClients.some(
+          (c) => c.client_name.toLowerCase() === clientName.toLowerCase(),
+        ),
+      );
 
       setExtractProgress(100);
-      
+
       // Open Summary Modal instead of instantly populating
       setBriefSummaryData({
         nextFormData: mergedToSet,
@@ -1787,7 +1845,10 @@ function EditorContent() {
     }
   };
 
-  const handleModalSubmit = (finalData: InvoiceFormData, saveClient: boolean) => {
+  const handleModalSubmit = (
+    finalData: InvoiceFormData,
+    saveClient: boolean,
+  ) => {
     setShouldSaveNewClientMaster(saveClient);
     setFormData(finalData);
 
@@ -1807,7 +1868,9 @@ function EditorContent() {
   const handleParseAgain = () => {
     setBriefSummaryData(null);
     setIsBriefRetry(true);
-    triggerToast("Let's try that again. You can edit the brief or add more details.");
+    triggerToast(
+      "Let's try that again. You can edit the brief or add more details.",
+    );
     setIsBriefIntakeCollapsed(false);
   };
 
@@ -1841,7 +1904,7 @@ function EditorContent() {
     const previousDueDate = formData.meta.dueDate;
     const nextSuggestedDueDate = getSuggestedDueDate(
       meta.paymentTerms,
-      meta.invoiceDate
+      meta.invoiceDate,
     );
 
     if (meta.dueDate !== previousDueDate) {
@@ -1864,16 +1927,16 @@ function EditorContent() {
 
   const updateFormSection = <K extends keyof InvoiceFormData>(
     section: K,
-    data: InvoiceFormData[K]
+    data: InvoiceFormData[K],
   ) => {
     setFormData((prev) =>
       mergeInvoiceFormData({
         ...prev,
         [section]: data,
-      })
+      }),
     );
   };
-  
+
   const handleClientSelect = (client: SavedClient) => {
     const syncedData = syncMsaToInvoice(formData, client);
     setFormData(syncedData);
@@ -1934,7 +1997,7 @@ function EditorContent() {
                 mergeInvoiceFormData({
                   ...prev,
                   payment,
-                })
+                }),
               )
             }
             onMetaChange={handleMetaChange}
@@ -2029,7 +2092,9 @@ function EditorContent() {
                 <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">Scanning & Translating {extractProgress}%</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
+                  Scanning & Translating {extractProgress}%
+                </h2>
                 <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
                   Lance is scanning your brief to structure the invoice...
                 </p>
@@ -2046,12 +2111,21 @@ function EditorContent() {
         <div className="absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl"></div>
         <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl"></div>
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)", backgroundSize: "48px 48px" }}></div>
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        ></div>
       </div>
 
       <AppHeader rightSlot={<LogoutButton />} />
-      
-      <section className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}>
+
+      <section
+        className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}
+      >
         <div className="mx-auto w-full max-w-[1328px]">
           {/* Profile Completion Prompt */}
           {showProfilePrompt && (
@@ -2062,20 +2136,28 @@ function EditorContent() {
                     ✨
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
-                    <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
+                    <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
+                      Complete your professional profile
+                    </h3>
+                    <p className="text-[13px] text-[color:var(--text-secondary)]">
+                      Upload your agency logo, signature, and payment QR for
+                      faster, more compliant invoices.
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button 
+                  <button
                     onClick={() => setShowProfilePrompt(false)}
                     className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
                   >
                     Later
                   </button>
-                  <Link 
+                  <Link
                     href="/profile"
-                    className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                    className={getAppButtonClass({
+                      variant: "primary",
+                      size: "sm",
+                    })}
                   >
                     Finish Profile
                   </Link>
@@ -2085,14 +2167,24 @@ function EditorContent() {
           )}
         </div>
         <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
-          <div className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}>
+          <div
+            className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}
+          >
             <div className="space-y-4">
               {clientMsaNote && (
                 <MotionReveal preset="fade-up" className="mb-2">
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
                     <div className="flex items-start gap-3">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          className="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
                       </div>
@@ -2104,7 +2196,8 @@ function EditorContent() {
                           &quot;{clientMsaNote}&quot;
                         </p>
                         <p className="mt-2 text-[11px] text-amber-700">
-                          Please update the invoice details based on the client&apos;s request above.
+                          Please update the invoice details based on the
+                          client&apos;s request above.
                         </p>
                       </div>
                     </div>
@@ -2126,7 +2219,7 @@ function EditorContent() {
               <div
                 className={cn(
                   getAppSubtlePanelClass("muted"),
-                  "px-4 py-3 lg:hidden"
+                  "px-4 py-3 lg:hidden",
                 )}
                 data-testid="compact-progress-summary"
               >
@@ -2136,10 +2229,15 @@ function EditorContent() {
                       Progress
                     </p>
                     <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
-                      {completedStepCount} of {orderedSteps.length} sections ready
+                      {completedStepCount} of {orderedSteps.length} sections
+                      ready
                     </p>
                   </div>
-                  <span className={getAppStatusPillClass(firstInvalidStep ? "default" : "success")}>
+                  <span
+                    className={getAppStatusPillClass(
+                      firstInvalidStep ? "default" : "success",
+                    )}
+                  >
                     {firstInvalidStep
                       ? `Next: ${getStepShortLabel(firstInvalidStep)}`
                       : "Ready for preview"}
@@ -2150,14 +2248,17 @@ function EditorContent() {
                     className="h-full rounded-full bg-[color:var(--interactive-secondary)] transition-all duration-500"
                     style={{
                       width: `${Math.round(
-                        (completedStepCount / orderedSteps.length) * 100
+                        (completedStepCount / orderedSteps.length) * 100,
                       )}%`,
                     }}
                   />
                 </div>
               </div>
 
-              <div className="space-y-4 overflow-visible" data-testid="invoice-vertical-stepper">
+              <div
+                className="space-y-4 overflow-visible"
+                data-testid="invoice-vertical-stepper"
+              >
                 {orderedSteps.map((step) => {
                   const isActive = currentStep === step;
                   const isCompleted = displayStepValidityByStep[step];
@@ -2173,7 +2274,7 @@ function EditorContent() {
                           setCurrentStep(step);
                         }
                       }}
-                      style={{ display: isActive ? 'block' : 'none' }}
+                      style={{ display: isActive ? "block" : "none" }}
                     >
                       <InlineStepSection
                         step={step}
@@ -2189,23 +2290,30 @@ function EditorContent() {
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() =>
-                                  guideToSection(getNextStep(step)!, { focus: true })
+                                  guideToSection(getNextStep(step)!, {
+                                    focus: true,
+                                  })
                                 }
                                 className={cn(
                                   getAppButtonClass({
                                     variant: "primary",
                                     size: "md",
                                   }),
-                                  "h-10 px-6 font-semibold"
+                                  "h-10 px-6 font-semibold",
                                 )}
                               >
-                                Continue to {getStepShortLabel(getNextStep(step)!)}
+                                Continue to{" "}
+                                {getStepShortLabel(getNextStep(step)!)}
                               </button>
                             </div>
                           ) : null
                         }
                       >
-                        <div onKeyDownCapture={(event) => handleSectionKeyDownCapture(step, event)}>
+                        <div
+                          onKeyDownCapture={(event) =>
+                            handleSectionKeyDownCapture(step, event)
+                          }
+                        >
                           {renderStepContent(step)}
                         </div>
                       </InlineStepSection>
@@ -2216,17 +2324,23 @@ function EditorContent() {
             </div>
           </div>
 
-          <aside className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]" data-testid="desktop-support-rail">
+          <aside
+            className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]"
+            data-testid="desktop-support-rail"
+          >
             <div className="space-y-3">
               <MotionReveal
                 preset="fade-up"
                 delay={40}
                 className={cn(
                   getAppSubtlePanelClass("muted"),
-                  "invoice-step-rail rounded-[16px] px-3 py-3"
+                  "invoice-step-rail rounded-[16px] px-3 py-3",
                 )}
               >
-                <div className="space-y-3" data-testid="support-rail-section-list">
+                <div
+                  className="space-y-3"
+                  data-testid="support-rail-section-list"
+                >
                   <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                       Editor progress
@@ -2239,27 +2353,29 @@ function EditorContent() {
                   <div className="invoice-step-rail-track relative space-y-1 pl-3">
                     {orderedSteps.map((step, index) => {
                       const isActive = currentStep === step;
-                      const isCompleted = displayStepValidityByStep[step] && !isActive;
+                      const isCompleted =
+                        displayStepValidityByStep[step] && !isActive;
                       const isIncomplete = !displayStepValidityByStep[step];
                       const stepState = isActive
                         ? "active"
                         : isCompleted
-                        ? "completed"
-                        : "pending";
+                          ? "completed"
+                          : "pending";
                       const railStatus =
                         step === "totals" && !invoiceReadyForPreview
                           ? "Pending"
                           : isActive
-                          ? missingFieldCountByStep[step] > 0
-                            ? `${missingFieldCountByStep[step]} required`
-                            : "In progress"
-                          : isCompleted
-                          ? "Ready"
-                          : isIncomplete && missingFieldCountByStep[step] > 0
-                          ? `${missingFieldCountByStep[step]} required`
-                          : firstInvalidStep === step
-                          ? "Up next"
-                          : "Pending";
+                            ? missingFieldCountByStep[step] > 0
+                              ? `${missingFieldCountByStep[step]} required`
+                              : "In progress"
+                            : isCompleted
+                              ? "Ready"
+                              : isIncomplete &&
+                                  missingFieldCountByStep[step] > 0
+                                ? `${missingFieldCountByStep[step]} required`
+                                : firstInvalidStep === step
+                                  ? "Up next"
+                                  : "Pending";
 
                       return (
                         <button
@@ -2294,53 +2410,53 @@ function EditorContent() {
       </section>
 
       <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:bottom-auto sm:left-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2 sm:w-auto">
-          <div
+        <div
+          className={cn(
+            "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3",
+          )}
+          data-testid="floating-editor-actions"
+        >
+          <button
+            type="button"
+            onClick={handleBackToHome}
             className={cn(
-              "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3"
+              getAppButtonClass({ variant: "ghost", size: "sm" }),
+              "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
             )}
-            data-testid="floating-editor-actions"
           >
-            <button
-              type="button"
-              onClick={handleBackToHome}
-              className={cn(
-                getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
-              )}
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              className={cn(
-                getAppButtonClass({ variant: "secondary", size: "sm" }),
-                "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
-              )}
-            >
-              <SaveIcon className="h-4 w-4" />
-              Draft
-            </button>
-            <button
-              type="button"
-              onClick={handlePreviewInvoice}
-              disabled={false}
-              aria-label={
-                invoiceReadyForPreview
-                  ? "Preview and download your invoice"
-                  : firstInvalidStep
+            Close
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveDraft}
+            className={cn(
+              getAppButtonClass({ variant: "secondary", size: "sm" }),
+              "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+            )}
+          >
+            <SaveIcon className="h-4 w-4" />
+            Draft
+          </button>
+          <button
+            type="button"
+            onClick={handlePreviewInvoice}
+            disabled={false}
+            aria-label={
+              invoiceReadyForPreview
+                ? "Preview and download your invoice"
+                : firstInvalidStep
                   ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
                   : "Complete all sections to preview"
-              }
-              className={cn(
-                getAppButtonClass({ variant: "secondary", size: "sm" }),
-                "h-9 px-3.5 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]"
-              )}
-            >
-              <EyeIcon className="h-4 w-4" />
-              Preview
-            </button>
-          </div>
+            }
+            className={cn(
+              getAppButtonClass({ variant: "secondary", size: "sm" }),
+              "h-9 px-3.5 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+            )}
+          >
+            <EyeIcon className="h-4 w-4" />
+            Preview
+          </button>
+        </div>
       </div>
 
       {showExitModal && (
@@ -2383,7 +2499,7 @@ function EditorContent() {
                 {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
               </h3>
               <p className="text-sm text-[color:var(--text-muted)] mb-6">
-                {postSubmitActionModal.isReady 
+                {postSubmitActionModal.isReady
                   ? "Your invoice is ready. What would you like to do next?"
                   : "We need a few more details to generate the preview. Let's review the form."}
               </p>
@@ -2394,14 +2510,22 @@ function EditorContent() {
                       setPostSubmitActionModal(null);
                       handlePreviewInvoice();
                     }}
-                    className={getAppButtonClass({ variant: "primary", size: "md" })}
+                    className={getAppButtonClass({
+                      variant: "primary",
+                      size: "md",
+                    })}
                   >
                     Check Preview
                   </button>
                 )}
                 <button
                   onClick={() => setPostSubmitActionModal(null)}
-                  className={getAppButtonClass({ variant: postSubmitActionModal.isReady ? "ghost" : "primary", size: "md" })}
+                  className={getAppButtonClass({
+                    variant: postSubmitActionModal.isReady
+                      ? "ghost"
+                      : "primary",
+                    size: "md",
+                  })}
                 >
                   Review Invoice
                 </button>

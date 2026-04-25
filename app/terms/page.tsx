@@ -37,9 +37,9 @@ export default function TermsPage() {
         <div className="prose-lance space-y-8 text-[color:var(--text-secondary)]">
           <Section title="1. Acceptance of Terms">
             <p>
-              By accessing or using Lance (&quot;the Service&quot;), you agree to
-              be bound by these Terms of Service. If you do not agree, do not use
-              the Service.
+              By accessing or using Lance (&quot;the Service&quot;), you agree
+              to be bound by these Terms of Service. If you do not agree, do not
+              use the Service.
             </p>
           </Section>
 
@@ -103,9 +103,9 @@ export default function TermsPage() {
 
           <Section title="7. Limitation of Liability">
             <p>
-              The Service is provided &quot;as is&quot; without warranties of any
-              kind. Lance is not liable for any errors in extracted invoice data,
-              tax calculations, or compliance determinations. Users are
+              The Service is provided &quot;as is&quot; without warranties of
+              any kind. Lance is not liable for any errors in extracted invoice
+              data, tax calculations, or compliance determinations. Users are
               responsible for verifying all invoice content before sending to
               clients or filing with tax authorities.
             </p>
@@ -114,18 +114,18 @@ export default function TermsPage() {
           <Section title="8. GST and Tax Disclaimer">
             <p>
               Lance provides automated GST calculations (CGST/SGST/IGST) as a
-              convenience tool. These calculations are indicative only and do not
-              constitute tax advice. Consult a qualified chartered accountant or
-              tax professional for compliance matters.
+              convenience tool. These calculations are indicative only and do
+              not constitute tax advice. Consult a qualified chartered
+              accountant or tax professional for compliance matters.
             </p>
           </Section>
 
           <Section title="9. Termination">
             <p>
               We reserve the right to suspend or terminate your access to the
-              Service at our discretion, with or without notice, for conduct that
-              we believe violates these Terms or is harmful to other users or the
-              Service.
+              Service at our discretion, with or without notice, for conduct
+              that we believe violates these Terms or is harmful to other users
+              or the Service.
             </p>
           </Section>
 

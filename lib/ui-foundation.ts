@@ -18,15 +18,15 @@ export const appFieldErrorTextClass =
   "mt-1 text-[11px] font-medium leading-[1.45] text-[color:var(--state-danger-text)]";
 
 export function getAppSubtlePanelClass(
-  tone: "default" | "muted" | "warning" = "default"
+  tone: "default" | "muted" | "warning" = "default",
 ) {
   return cn(
     "rounded-[var(--app-radius-card)] p-4",
     tone === "warning"
       ? "bg-[color:var(--state-warning-bg)] border border-[color:var(--state-warning-border)]"
       : tone === "muted"
-      ? "bg-[color:var(--app-color-surface-muted)] border border-[color:var(--border-subtle)]"
-      : "bg-[color:var(--app-color-surface)] border border-[color:var(--border-subtle)]"
+        ? "bg-[color:var(--app-color-surface-muted)] border border-[color:var(--border-subtle)]"
+        : "bg-[color:var(--app-color-surface)] border border-[color:var(--border-subtle)]",
   );
 }
 
@@ -56,20 +56,20 @@ export function getAppButtonClass(params?: {
     size === "sm"
       ? "h-9 px-3 text-[13px]"
       : size === "lg"
-      ? "h-12 px-5 text-sm"
-      : "h-10 px-4 text-[13px]",
+        ? "h-12 px-5 text-sm"
+        : "h-10 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
       ? "app-soft-button-primary text-[#111118] font-bold hover:border-[color:var(--interactive-primary-hover)]"
       : variant === "ghost"
-      ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
-      : variant === "tertiary"
-      ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)]"
-      : variant === "subtle"
-      ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
-      : variant === "destructive-lite"
-      ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)]"
-      : "app-soft-button-secondary border-[color:var(--border-subtle)] text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]"
+        ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
+        : variant === "tertiary"
+          ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)]"
+          : variant === "subtle"
+            ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
+            : variant === "destructive-lite"
+              ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)]"
+              : "app-soft-button-secondary border-[color:var(--border-subtle)] text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]",
   );
 }
 
@@ -93,35 +93,35 @@ export function getAppFieldClass(params?: {
     hasError
       ? "app-soft-field-error focus-visible:border-[color:var(--state-danger-border)]"
       : hasValue
-      ? "app-soft-field-filled"
-      : ""
+        ? "app-soft-field-filled"
+        : "",
   );
 }
 
 export function getAppPanelClass(
-  tone: "default" | "success" | "warning" | "muted" = "default"
+  tone: "default" | "success" | "warning" | "muted" = "default",
 ) {
   return cn(
     "app-interactive-surface rounded-[var(--app-radius-card)] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
     tone === "success"
       ? "app-soft-panel-success"
       : tone === "warning"
-      ? "app-soft-panel-warning"
-      : tone === "muted"
-      ? "app-soft-panel-muted"
-      : "app-soft-panel"
+        ? "app-soft-panel-warning"
+        : tone === "muted"
+          ? "app-soft-panel-muted"
+          : "app-soft-panel",
   );
 }
 
 export function getAppStatusPillClass(
-  tone: "default" | "success" | "muted" = "default"
+  tone: "default" | "success" | "muted" = "default",
 ) {
   return cn(
     "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
     tone === "success"
       ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
       : tone === "muted"
-      ? "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)]"
-      : "border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] text-[color:var(--color-lime-700)]"
+        ? "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)]"
+        : "border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] text-[color:var(--color-lime-700)]",
   );
 }

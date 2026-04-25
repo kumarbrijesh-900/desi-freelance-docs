@@ -76,11 +76,14 @@ export async function getCurrentUserEmail(): Promise<string | null> {
 /* ─── Save (upsert) ──────────────────────────────────────── */
 
 export async function saveInvoice(
-  input: SaveInvoiceInput
+  input: SaveInvoiceInput,
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) {
-    return { data: null, error: "Not authenticated. Please log in to save invoices." };
+    return {
+      data: null,
+      error: "Not authenticated. Please log in to save invoices.",
+    };
   }
 
   const invoiceNumber = getInvoiceNumber(input.formData);
@@ -133,7 +136,7 @@ export async function saveInvoice(
 /* ─── Load Single ─────────────────────────────────────────── */
 
 export async function loadInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
@@ -173,7 +176,7 @@ export async function listInvoices(): Promise<{
 /* ─── Delete ──────────────────────────────────────────────── */
 
 export async function deleteInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) {
@@ -204,7 +207,7 @@ function generateShareToken(): string {
 /* ─── Share Invoice ──────────────────────────────────── */
 
 export async function shareInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ token: string | null; error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { token: null, error: "Not authenticated" };
@@ -239,7 +242,7 @@ export async function shareInvoice(
 /* ─── Load by Share Token (public) ───────────────────── */
 
 export async function loadInvoiceByToken(
-  token: string
+  token: string,
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
@@ -255,7 +258,7 @@ export async function loadInvoiceByToken(
 
 export async function recordView(
   invoiceId: string,
-  userAgent: string
+  userAgent: string,
 ): Promise<void> {
   // Check if it's the first view to avoid spamming notifications
   const { count } = await supabase
@@ -290,7 +293,7 @@ export async function recordView(
 }
 
 export async function getReadReceipts(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ count: number; lastViewed: string | null }> {
   const { data } = await supabase
     .from("read_receipts")
@@ -306,7 +309,7 @@ export async function getReadReceipts(
 
 /** Batch-load read receipt counts for multiple invoices (for dashboard) */
 export async function getReadReceiptsBatch(
-  invoiceIds: string[]
+  invoiceIds: string[],
 ): Promise<Record<string, { count: number; lastViewed: string | null }>> {
   if (!invoiceIds.length) return {};
 
@@ -316,7 +319,8 @@ export async function getReadReceiptsBatch(
     .in("invoice_id", invoiceIds)
     .order("viewed_at", { ascending: false });
 
-  const result: Record<string, { count: number; lastViewed: string | null }> = {};
+  const result: Record<string, { count: number; lastViewed: string | null }> =
+    {};
   for (const row of data ?? []) {
     if (!result[row.invoice_id]) {
       result[row.invoice_id] = { count: 0, lastViewed: null };
@@ -334,7 +338,7 @@ export async function getReadReceiptsBatch(
 /** Attach an MSA to a shared invoice (called by invoice owner) */
 export async function attachMsaToInvoice(
   invoiceId: string,
-  msaId: string
+  msaId: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
@@ -350,7 +354,7 @@ export async function attachMsaToInvoice(
 
 /** Remove MSA from a shared invoice */
 export async function detachMsaFromInvoice(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
@@ -367,7 +371,7 @@ export async function detachMsaFromInvoice(
 /** Load the MSA content for a shared invoice (public — uses RLS) */
 export async function loadMsaForSharedInvoice(
   invoiceId: string,
-  msaId: string
+  msaId: string,
 ): Promise<{ title: string; content: string } | null> {
   const { data } = await supabase
     .from("client_msas")
@@ -382,7 +386,7 @@ export async function loadMsaForSharedInvoice(
 /** Respond to MSA on a shared invoice (public — anon user) */
 export async function respondToMsa(
   shareToken: string,
-  response: "accepted" | "rejected"
+  response: "accepted" | "rejected",
 ): Promise<{ error: string | null }> {
   const now = new Date().toISOString();
   const updateFields: Record<string, unknown> = {
@@ -407,9 +411,10 @@ export async function respondToMsa(
     invoice_id: inv.id,
     type: `msa_${response}`,
     title: response === "accepted" ? "MSA Approved" : "MSA Rejected",
-    message: response === "accepted" 
-      ? `Client approved MSA and seen invoice ${inv.invoice_number}.`
-      : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
+    message:
+      response === "accepted"
+        ? `Client approved MSA and seen invoice ${inv.invoice_number}.`
+        : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
     is_read: false,
   });
 
@@ -419,7 +424,7 @@ export async function respondToMsa(
 /** Update the shared_to_email on an invoice */
 export async function setSharedToEmail(
   invoiceId: string,
-  email: string
+  email: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
@@ -438,7 +443,7 @@ export async function setSharedToEmail(
 /** Client proposes changes to the MSA (public — anon user) */
 export async function proposeMsaChanges(
   invoiceId: string,
-  noteText: string
+  noteText: string,
 ): Promise<{ error: string | null }> {
   const { data: inv, error: updateErr } = await supabase
     .from("invoices")
@@ -469,7 +474,7 @@ export async function proposeMsaChanges(
 
 /** Mark an invoice as fully paid/settled (freelancer action) */
 export async function markInvoiceSettled(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
@@ -485,8 +490,16 @@ export async function markInvoiceSettled(
   if (!error && inv) {
     const clientName = inv.form_data?.client?.clientName || "Client";
     const now = new Date();
-    const dateStr = now.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-    const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const dateStr = now.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    const timeStr = now.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
 
     await supabase.from("notifications").insert({
       user_id: userId,
@@ -504,7 +517,7 @@ export async function markInvoiceSettled(
 /** Reissue an invoice after negotiation (freelancer action) */
 export async function reissueNegotiatedInvoice(
   invoiceId: string,
-  newFormData: InvoiceFormData
+  newFormData: InvoiceFormData,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
@@ -525,5 +538,3 @@ export async function reissueNegotiatedInvoice(
 
   return { error: error?.message ?? null };
 }
-
-

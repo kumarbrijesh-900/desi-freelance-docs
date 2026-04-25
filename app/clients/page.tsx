@@ -11,7 +11,12 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import { MotionReveal, MotionButton, AnimatePresence, motion } from "@/components/ui/motion-primitives";
+import {
+  MotionReveal,
+  MotionButton,
+  AnimatePresence,
+  motion,
+} from "@/components/ui/motion-primitives";
 import {
   appGridClass,
   appPageContainerClass,
@@ -58,21 +63,37 @@ function ClientForm({
   const [state, setState] = useState(initial?.state || "");
   const [gstin, setGstin] = useState(initial?.gstin || "");
   const [location, setLocation] = useState(initial?.client_type || "domestic");
-  const [clientEntityType, setClientEntityType] = useState<"agency" | "freelancer">(
-    (initial?.client_entity_type as "agency" | "freelancer") || "agency"
-  );
+  const [clientEntityType, setClientEntityType] = useState<
+    "agency" | "freelancer"
+  >((initial?.client_entity_type as "agency" | "freelancer") || "agency");
   const [country, setCountry] = useState(initial?.country || "");
-  const [msaEffectiveDate, setMsaEffectiveDate] = useState(initial?.msa_effective_date || "");
-  const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(initial?.msa_payment_terms_days || 20);
-  const [msaLateFeeRate, setMsaLateFeeRate] = useState(initial?.msa_late_fee_rate || 1.5);
-  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">(
-    (initial?.msa_late_fee_unit as any) || "monthly"
+  const [msaEffectiveDate, setMsaEffectiveDate] = useState(
+    initial?.msa_effective_date || "",
   );
-  const [msaIpTriggerType, setMsaIpTriggerType] = useState(initial?.msa_ip_trigger_type || "upon_full_payment");
-  const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(initial?.msa_jurisdiction_city || "Bangalore");
-  const [msaVersionLabel, setMsaVersionLabel] = useState(initial?.msa_version_label || "Standard MSA v1.2");
-  const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState(initial?.msa_notes_boilerplate || "");
-  const [showMsa, setShowMsa] = useState(Boolean(initial?.msa_notes_boilerplate));
+  const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(
+    initial?.msa_payment_terms_days || 20,
+  );
+  const [msaLateFeeRate, setMsaLateFeeRate] = useState(
+    initial?.msa_late_fee_rate || 1.5,
+  );
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<
+    "monthly" | "annually" | "daily"
+  >((initial?.msa_late_fee_unit as any) || "monthly");
+  const [msaIpTriggerType, setMsaIpTriggerType] = useState(
+    initial?.msa_ip_trigger_type || "upon_full_payment",
+  );
+  const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(
+    initial?.msa_jurisdiction_city || "Bangalore",
+  );
+  const [msaVersionLabel, setMsaVersionLabel] = useState(
+    initial?.msa_version_label || "Standard MSA v1.2",
+  );
+  const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState(
+    initial?.msa_notes_boilerplate || "",
+  );
+  const [showMsa, setShowMsa] = useState(
+    Boolean(initial?.msa_notes_boilerplate),
+  );
   const [showMsaTooltip, setShowMsaTooltip] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -154,7 +175,9 @@ function ClientForm({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {/* Name — required */}
           <div>
-            <label className={appFieldLabelClass}>Client / Company Name *</label>
+            <label className={appFieldLabelClass}>
+              Client / Company Name *
+            </label>
             <input
               type="text"
               value={name}
@@ -199,9 +222,9 @@ function ClientForm({
                 onClick={() => setClientEntityType("agency")}
                 className={cn(
                   "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
-                  clientEntityType === "agency" 
+                  clientEntityType === "agency"
                     ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
                 )}
               >
                 Agency / Biz
@@ -211,9 +234,9 @@ function ClientForm({
                 onClick={() => setClientEntityType("freelancer")}
                 className={cn(
                   "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
-                  clientEntityType === "freelancer" 
+                  clientEntityType === "freelancer"
                     ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
                 )}
               >
                 Individual
@@ -257,7 +280,9 @@ function ClientForm({
                 >
                   <option value="">Select state</option>
                   {INDIA_STATE_OPTIONS.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -307,7 +332,8 @@ function ClientForm({
               </h4>
             </div>
             <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
-              Note: Invoice-specific briefs will override these defaults during AI extraction.
+              Note: Invoice-specific briefs will override these defaults during
+              AI extraction.
             </p>
 
             <div className="relative">
@@ -327,10 +353,13 @@ function ClientForm({
                     exit={{ opacity: 0, scale: 0.95, y: 5 }}
                     className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-[color:var(--border-subtle)] bg-white p-4 shadow-2xl"
                   >
-                    <p className="text-[13px] font-bold text-[color:var(--text-primary)] mb-1">Source of Truth</p>
+                    <p className="text-[13px] font-bold text-[color:var(--text-primary)] mb-1">
+                      Source of Truth
+                    </p>
                     <p className="text-[11px] leading-relaxed text-[color:var(--text-secondary)]">
-                      These settings act as defaults for every invoice you create for this client. 
-                      They ensure legal consistency and automate payment logic like Net terms and late fees.
+                      These settings act as defaults for every invoice you
+                      create for this client. They ensure legal consistency and
+                      automate payment logic like Net terms and late fees.
                     </p>
                   </motion.div>
                 )}
@@ -341,7 +370,9 @@ function ClientForm({
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Payment Terms */}
             <div>
-              <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+              <label className={appFieldLabelClass}>
+                Default Payment Terms (Days)
+              </label>
               <input
                 type="number"
                 value={msaPaymentTermsDays}
@@ -387,8 +418,12 @@ function ClientForm({
                 <option value="upon_full_payment">Upon Full Payment</option>
                 <option value="upon_signing">Upon Signing</option>
                 <option value="upon_delivery">Upon Delivery</option>
-                <option value="proportional_transfer">Proportional (Per Milestone)</option>
-                <option value="retained_by_creator">Retained by Creator (License Only)</option>
+                <option value="proportional_transfer">
+                  Proportional (Per Milestone)
+                </option>
+                <option value="retained_by_creator">
+                  Retained by Creator (License Only)
+                </option>
               </select>
             </div>
 
@@ -430,7 +465,9 @@ function ClientForm({
             {/* Boilerplate / Notes */}
             <div className="sm:col-span-2 lg:col-span-4">
               <div className="flex items-center justify-between mb-1.5">
-                <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
+                <label className={appFieldLabelClass}>
+                  Default Notes / Boilerplate
+                </label>
                 <button
                   type="button"
                   onClick={() => {
@@ -439,19 +476,22 @@ function ClientForm({
                       upon_signing: "upon signing",
                       upon_delivery: "upon delivery",
                       proportional_transfer: "proportionally per milestone",
-                      retained_by_creator: "retained by the creator (limited license)",
+                      retained_by_creator:
+                        "retained by the creator (limited license)",
                     };
-                    const ipLabel = ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
+                    const ipLabel =
+                      ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
 
                     const unitLabels: Record<string, string> = {
                       monthly: "per month",
                       annually: "per annum",
                       daily: "per day",
                     };
-                    const unitLabel = unitLabels[msaLateFeeUnit] || unitLabels.monthly;
-                    
+                    const unitLabel =
+                      unitLabels[msaLateFeeUnit] || unitLabels.monthly;
+
                     const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
-                    
+
                     setMsaNotesBoilerplate(template);
                   }}
                   className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
@@ -464,7 +504,10 @@ function ClientForm({
                 onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
                 rows={4}
                 placeholder="These notes will be pre-filled in the invoice editor..."
-                className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
+                className={fc({
+                  hasValue: Boolean(msaNotesBoilerplate),
+                  multiline: true,
+                })}
               />
             </div>
           </div>
@@ -496,7 +539,15 @@ function ClientForm({
 
 function SearchIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
@@ -507,7 +558,15 @@ function SearchIcon({ className = "h-4 w-4" }: { className?: string }) {
 
 function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
@@ -517,7 +576,15 @@ function PlusIcon({ className = "h-4 w-4" }: { className?: string }) {
 
 function EditIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
@@ -528,7 +595,15 @@ function EditIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 
 function TrashIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </svg>
@@ -548,7 +623,9 @@ export default function ClientsPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsAuthenticated(false);
         setIsLoading(false);
@@ -570,7 +647,7 @@ export default function ClientsPage() {
         c.client_name.toLowerCase().includes(q) ||
         c.client_email.toLowerCase().includes(q) ||
         c.city.toLowerCase().includes(q) ||
-        c.gstin.toLowerCase().includes(q)
+        c.gstin.toLowerCase().includes(q),
     );
   }, [clients, searchQuery]);
 
@@ -638,8 +715,13 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">Sign in to manage your clients</p>
-          <Link href="/login" className={getAppButtonClass({ variant: "primary" })}>
+          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+            Sign in to manage your clients
+          </p>
+          <Link
+            href="/login"
+            className={getAppButtonClass({ variant: "primary" })}
+          >
             Sign In
           </Link>
         </div>
@@ -669,7 +751,8 @@ export default function ClientsPage() {
                     Clients
                   </h1>
                   <p className="mt-1 text-[13px] text-[color:var(--text-muted)]">
-                    {clients.length} client{clients.length !== 1 ? "s" : ""} saved
+                    {clients.length} client{clients.length !== 1 ? "s" : ""}{" "}
+                    saved
                   </p>
                 </div>
 
@@ -715,13 +798,18 @@ export default function ClientsPage() {
             <MotionReveal preset="fade-up" delay={10}>
               {clients.length === 0 && !showForm ? (
                 /* Empty state */
-                <div className={`${getAppPanelClass("muted")} flex flex-col items-center justify-center py-16 text-center`}>
+                <div
+                  className={`${getAppPanelClass("muted")} flex flex-col items-center justify-center py-16 text-center`}
+                >
                   <div className="mb-3 text-[40px]">👥</div>
                   <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
                     No clients yet
                   </h2>
                   <p className="mt-1.5 max-w-md text-[13px] text-[color:var(--text-muted)]">
-                    Add your clients here to quickly fill their details when creating invoices. Click <strong>&ldquo;Add Client&rdquo;</strong> above to get started.
+                    Add your clients here to quickly fill their details when
+                    creating invoices. Click{" "}
+                    <strong>&ldquo;Add Client&rdquo;</strong> above to get
+                    started.
                   </p>
                 </div>
               ) : clients.length > 0 ? (
@@ -760,7 +848,8 @@ export default function ClientsPage() {
                             key={client.id}
                             className={cn(
                               "group transition-colors hover:bg-[color:var(--bg-surface-muted)]",
-                              idx < filteredClients.length - 1 && "border-b border-[color:var(--border-subtle)]"
+                              idx < filteredClients.length - 1 &&
+                                "border-b border-[color:var(--border-subtle)]",
                             )}
                           >
                             {/* Name */}
@@ -796,7 +885,9 @@ export default function ClientsPage() {
                                   {client.gstin}
                                 </span>
                               ) : (
-                                <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
+                                <span className="text-[12px] text-[color:var(--text-muted)]">
+                                  —
+                                </span>
                               )}
                             </td>
 
@@ -804,10 +895,14 @@ export default function ClientsPage() {
                             <td className="px-4 py-3">
                               <span
                                 className={getAppStatusPillClass(
-                                  client.client_type === "international" ? "muted" : "default"
+                                  client.client_type === "international"
+                                    ? "muted"
+                                    : "default",
                                 )}
                               >
-                                {client.client_type === "international" ? "Intl" : "India"}
+                                {client.client_type === "international"
+                                  ? "Intl"
+                                  : "India"}
                               </span>
                             </td>
 
@@ -820,7 +915,9 @@ export default function ClientsPage() {
                             <td className="px-4 py-3 text-right">
                               {deletingClientId === client.id ? (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  <span className="text-[11px] text-red-500 font-medium mr-1">Delete?</span>
+                                  <span className="text-[11px] text-red-500 font-medium mr-1">
+                                    Delete?
+                                  </span>
                                   <button
                                     type="button"
                                     onClick={handleDeleteConfirm}
@@ -848,7 +945,9 @@ export default function ClientsPage() {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => handleDeleteRequest(client.id)}
+                                    onClick={() =>
+                                      handleDeleteRequest(client.id)
+                                    }
                                     className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                                     title="Delete"
                                   >

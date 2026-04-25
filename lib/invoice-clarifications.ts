@@ -44,7 +44,7 @@ function getExtractedLineItems(extraction: InvoiceBriefExtractionSchema) {
             item.description ||
             item.qty ||
             item.rate ||
-            item.rateUnit
+            item.rateUnit,
         );
 
   return explicitItems;
@@ -52,14 +52,12 @@ function getExtractedLineItems(extraction: InvoiceBriefExtractionSchema) {
 
 function toSeed(
   item: InvoiceBriefLineItemExtraction,
-  index: number
+  index: number,
 ): ClarificationLineItemSeed {
   return {
     type: item.type?.value ?? "Other",
     description:
-      item.description?.value ||
-      item.type?.value ||
-      `Deliverable ${index + 1}`,
+      item.description?.value || item.type?.value || `Deliverable ${index + 1}`,
     qty: item.qty?.value ?? 1,
     rate: item.rate?.value ?? 0,
     rateUnit: item.rateUnit?.value ?? "per-deliverable",
@@ -96,20 +94,20 @@ function getPaymentScheduleSnippet(text: string) {
 }
 
 function getDetectedForeignCurrency(
-  extraction: InvoiceBriefExtractionSchema
+  extraction: InvoiceBriefExtractionSchema,
 ): InvoiceFormData["client"]["clientCurrency"] {
   return extraction.clientCurrency?.value ?? "";
 }
 
 function shouldSuppressSuggestion(
   id: string,
-  resolvedIds: string[] | undefined
+  resolvedIds: string[] | undefined,
 ) {
   return Boolean(resolvedIds?.includes(id));
 }
 
 export function buildBriefClarificationSuggestions(
-  context: ClarificationContext
+  context: ClarificationContext,
 ) {
   const { extraction, currentFormData, normalizedText, resolvedIds } = context;
   const suggestions: BriefClarificationSuggestion[] = [];
@@ -219,7 +217,8 @@ export function buildBriefClarificationSuggestions(
         {
           id: "use-total-fee",
           label: "Total project fee",
-          helper: "Keep one line item and use the amount as the full project total.",
+          helper:
+            "Keep one line item and use the amount as the full project total.",
           action: {
             kind: "use-amount-as-total-project-fee",
             amount: amountCandidate,
@@ -230,7 +229,8 @@ export function buildBriefClarificationSuggestions(
         {
           id: "use-item-rate",
           label: "Rate per deliverable",
-          helper: "Use the amount as the per-item rate for the detected deliverable.",
+          helper:
+            "Use the amount as the per-item rate for the detected deliverable.",
           action: {
             kind: "use-amount-as-line-item-rate",
             amount: amountCandidate,
@@ -269,7 +269,8 @@ export function buildBriefClarificationSuggestions(
         {
           id: "combine-line-items",
           label: "Keep one combined line item",
-          helper: "Group the detected deliverables into one broader project line.",
+          helper:
+            "Group the detected deliverables into one broader project line.",
           action: {
             kind: "collapse-to-single-line-item",
             item: {
@@ -293,8 +294,7 @@ export function buildBriefClarificationSuggestions(
     suggestions.push({
       id: "location-ambiguity",
       title: "Confirm the client location",
-      message:
-        "Should I treat this client as domestic or international?",
+      message: "Should I treat this client as domestic or international?",
       step: "client",
       priority: 1,
       options: [
@@ -345,7 +345,8 @@ export function buildBriefClarificationSuggestions(
         {
           id: "put-in-notes",
           label: "Put in payment notes",
-          helper: "Keep the wording, but store it in the payment notes area instead.",
+          helper:
+            "Keep the wording, but store it in the payment notes area instead.",
           action: {
             kind: "append-payment-note",
             value: paymentScheduleSnippet,
@@ -469,7 +470,7 @@ export function buildBriefClarificationSuggestions(
   }
 
   return capSuggestions(suggestions).filter(
-    (suggestion) => !shouldSuppressSuggestion(suggestion.id, resolvedIds)
+    (suggestion) => !shouldSuppressSuggestion(suggestion.id, resolvedIds),
   );
 }
 
@@ -533,7 +534,7 @@ export function applyBriefClarificationAction(params: {
     case "append-payment-note":
       nextFormData.payment.notes = appendUniqueNote(
         nextFormData.payment.notes,
-        params.action.value
+        params.action.value,
       );
       return nextFormData;
 

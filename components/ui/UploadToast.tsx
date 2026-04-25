@@ -1,10 +1,7 @@
 "use client";
 
 import { CheckIcon } from "@/components/ui/app-icons";
-import {
-  AnimatePresence,
-  motion,
-} from "@/components/ui/motion-primitives";
+import { AnimatePresence, motion } from "@/components/ui/motion-primitives";
 import { cn } from "@/lib/ui-foundation";
 
 interface UploadToastProps {
@@ -12,10 +9,7 @@ interface UploadToastProps {
   visible: boolean;
 }
 
-export default function UploadToast({
-  message,
-  visible,
-}: UploadToastProps) {
+export default function UploadToast({ message, visible }: UploadToastProps) {
   return (
     <AnimatePresence>
       {visible ? (
@@ -33,7 +27,7 @@ export default function UploadToast({
           <div
             className={cn(
               "flex items-center gap-3 rounded-full border border-[color:var(--color-lime-300)] bg-[#111118] px-5 py-3",
-              "shadow-xl"
+              "shadow-xl",
             )}
           >
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-400)] text-[#111118] shadow-[0_1px_0_rgba(255,255,255,0.2)]">

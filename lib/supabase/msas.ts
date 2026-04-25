@@ -26,7 +26,7 @@ export interface ClientMsa {
 /* ─── List MSAs for a client ──────────────────────── */
 
 export async function listClientMsas(
-  clientId: string
+  clientId: string,
 ): Promise<{ data: ClientMsa[]; error: string | null }> {
   const { data, error } = await supabase
     .from("client_msas")
@@ -62,7 +62,7 @@ export async function listAllUserMsas(): Promise<{
 /* ─── Get Single MSA ──────────────────────────────── */
 
 export async function getMsa(
-  msaId: string
+  msaId: string,
 ): Promise<{ data: ClientMsa | null; error: string | null }> {
   const { data, error } = await supabase
     .from("client_msas")
@@ -107,7 +107,7 @@ export async function createMsa(input: {
 
 export async function updateMsa(
   msaId: string,
-  updates: { title?: string; content?: string; status?: MsaStatus }
+  updates: { title?: string; content?: string; status?: MsaStatus },
 ): Promise<{ data: ClientMsa | null; error: string | null }> {
   const {
     data: { user },
@@ -132,7 +132,7 @@ export async function updateMsa(
 /* ─── Delete MSA ──────────────────────────────────── */
 
 export async function deleteMsa(
-  msaId: string
+  msaId: string,
 ): Promise<{ error: string | null }> {
   const {
     data: { user },
@@ -151,7 +151,7 @@ export async function deleteMsa(
 /* ─── Get active MSA for a client ─────────────────── */
 
 export async function getActiveMsa(
-  clientId: string
+  clientId: string,
 ): Promise<{ data: ClientMsa | null; error: string | null }> {
   const { data, error } = await supabase
     .from("client_msas")

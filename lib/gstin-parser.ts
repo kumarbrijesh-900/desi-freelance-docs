@@ -32,7 +32,9 @@ export function getGstinStateCode(value?: string | null) {
   return normalized.slice(0, 2);
 }
 
-export function getStateFromGstin(value?: string | null): IndiaStateOption | "" {
+export function getStateFromGstin(
+  value?: string | null,
+): IndiaStateOption | "" {
   return getStateFromGstinCode(getGstinStateCode(value));
 }
 

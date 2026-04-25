@@ -5,7 +5,12 @@ export interface Notification {
   id: string;
   user_id: string;
   invoice_id: string | null;
-  type: "invoice_sent" | "invoice_viewed" | "msa_accepted" | "msa_rejected" | "msa_negotiating";
+  type:
+    | "invoice_sent"
+    | "invoice_viewed"
+    | "msa_accepted"
+    | "msa_rejected"
+    | "msa_negotiating";
   title: string;
   message: string;
   is_read: boolean;
@@ -17,7 +22,7 @@ export interface Notification {
   } | null;
 }
 
-/** 
+/**
  * Fetch live notifications.
  * Filters out notifications for invoices that are already 'settled'.
  */
@@ -31,13 +36,15 @@ export async function listLiveNotifications(): Promise<{
   // We fetch notifications and join with invoices to check status
   const { data, error } = await supabase
     .from("notifications")
-    .select(`
+    .select(
+      `
       *,
       invoices:invoice_id (
         status,
         invoice_number
       )
-    `)
+    `,
+    )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

@@ -26,12 +26,22 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Background Elements ────────────────── */}
       <div className="absolute top-[5%] -left-20 w-[400px] h-[400px] bg-[#C75B39]/[0.02] rounded-full blur-[120px] pointer-events-none z-0 rotate-12" />
       <div className="absolute bottom-[15%] -right-20 w-[350px] h-[350px] bg-[#8B6F5E]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />
-      
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
-           style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")' }} />
-      
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" 
-           style={{ backgroundImage: 'radial-gradient(#C75B39 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
+        }}
+      />
+
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "radial-gradient(#C75B39 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
       <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#C75B39]/[0.02] rounded-full blur-[140px] pointer-events-none z-0" />
 
@@ -44,14 +54,20 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           <div className="min-w-0">
             <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-3 overflow-hidden">
               {data.agencyLogoUrl ? (
-                <img src={data.agencyLogoUrl} alt="Agency Logo" className="max-h-full max-w-full object-contain object-left" />
+                <img
+                  src={data.agencyLogoUrl}
+                  alt="Agency Logo"
+                  className="max-h-full max-w-full object-contain object-left"
+                />
               ) : (
                 <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
                   Logo
                 </div>
               )}
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Studio</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+              Studio
+            </p>
             <h1 className="mt-1 text-[24px] font-bold leading-none tracking-tight text-[#3D2517]">
               {data.agencyName}
             </h1>
@@ -60,7 +76,12 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             </p>
             {(data.agencyState || data.showAgencyGstin) && (
               <div className="mt-1.5 flex flex-wrap gap-3 text-[10px] text-[#B09080]">
-                {data.agencyState && <span>State: {data.agencyState}{data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}</span>}
+                {data.agencyState && (
+                  <span>
+                    State: {data.agencyState}
+                    {data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}
+                  </span>
+                )}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
                 {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
               </div>
@@ -68,8 +89,12 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           </div>
 
           <div className="shrink-0 rounded-lg border border-[#E8D5C4] bg-white px-4 py-3 text-right print:border-[#ddd]">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Invoice</p>
-            <p className="mt-1 text-[24px] font-bold tracking-tight text-[#3D2517]">{data.invoiceNumber}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+              Invoice
+            </p>
+            <p className="mt-1 text-[24px] font-bold tracking-tight text-[#3D2517]">
+              {data.invoiceNumber}
+            </p>
             <div className="mt-2 space-y-1 text-[11px] text-[#8B6F5E]">
               <p>{data.invoiceDate}</p>
               <p>Due {data.dueDate}</p>
@@ -83,23 +108,39 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Parties — Warm cards ──────────────── */}
       <section className="mt-4 grid gap-3 md:grid-cols-2">
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa] print:border-[#ddd]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">From</p>
-          <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">{data.agencyName}</p>
-          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">{data.agencyAddress}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+            From
+          </p>
+          <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">
+            {data.agencyName}
+          </p>
+          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
+            {data.agencyAddress}
+          </p>
         </div>
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa] print:border-[#ddd]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Bill To</p>
-          <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">{data.clientName}</p>
-          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">{data.clientAddress}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+            Bill To
+          </p>
+          <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">
+            {data.clientName}
+          </p>
+          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
+            {data.clientAddress}
+          </p>
           {data.clientTaxId && (
-            <p className="mt-1 text-[10px] text-[#B09080]">{data.clientTaxLabel}: {data.clientTaxId}</p>
+            <p className="mt-1 text-[10px] text-[#B09080]">
+              {data.clientTaxLabel}: {data.clientTaxId}
+            </p>
           )}
         </div>
       </section>
 
       {/* ── Line Items — Left-border accent ──── */}
       <section className="mt-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Work Delivered</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+          Work Delivered
+        </p>
 
         <div className="mt-3 space-y-2">
           {data.lineItems.map((item) => (
@@ -108,19 +149,33 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
               className="flex items-start justify-between gap-4 rounded-lg border border-[#E8D5C4] border-l-[4px] border-l-[#C75B39] bg-white px-4 py-3 print:border-l-[#999]"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-[#3D2517]">{item.description}</p>
+                <p className="text-[13px] font-semibold text-[#3D2517]">
+                  {item.description}
+                </p>
                 <p className="mt-0.5 text-[10px] text-[#8B6F5E]">
                   {item.type} · {item.qty} × {item.rateFormatted}
                 </p>
                 {item.sacCode && (
                   <p className="mt-1 text-[10px] text-[#8B6F5E]">
                     <span className="text-[#B09080]">HSN/SAC:</span>{" "}
-                    <span className="font-semibold text-[#3D2517]">{item.sacCode}</span>
-                    {item.unit && <span className="text-[#B09080]"> &nbsp;·&nbsp; Unit: <span className="font-medium text-[#3D2517]">{item.unit}</span></span>}
+                    <span className="font-semibold text-[#3D2517]">
+                      {item.sacCode}
+                    </span>
+                    {item.unit && (
+                      <span className="text-[#B09080]">
+                        {" "}
+                        &nbsp;·&nbsp; Unit:{" "}
+                        <span className="font-medium text-[#3D2517]">
+                          {item.unit}
+                        </span>
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
-              <p className="shrink-0 text-[15px] font-bold tabular-nums text-[#3D2517]">{item.amountFormatted}</p>
+              <p className="shrink-0 text-[15px] font-bold tabular-nums text-[#3D2517]">
+                {item.amountFormatted}
+              </p>
             </div>
           ))}
         </div>
@@ -132,19 +187,28 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         <div className="space-y-3 text-[12px] text-[#8B6F5E]">
           {data.hasNotes && (
             <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Notes</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                Notes
+              </p>
               <p className="mt-1.5 whitespace-pre-line">{data.notes}</p>
             </div>
           )}
           {data.hasLicense && (
             <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">License</p>
-              <p className="mt-1.5">{data.licenseType}{data.licenseDuration ? ` · ${data.licenseDuration}` : ""}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                License
+              </p>
+              <p className="mt-1.5">
+                {data.licenseType}
+                {data.licenseDuration ? ` · ${data.licenseDuration}` : ""}
+              </p>
             </div>
           )}
           {data.hasBankDetails && (
             <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Payment</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                Payment
+              </p>
               <div className="mt-1.5 space-y-0.5">
                 {!data.isInternational ? (
                   <>
@@ -163,10 +227,16 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             </div>
           )}
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Scan to Pay</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+              Scan to Pay
+            </p>
             <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
               {data.hasQrCode ? (
-                <img src={data.qrCodeUrl} alt="Payment QR" className="max-h-full max-w-full object-contain object-center" />
+                <img
+                  src={data.qrCodeUrl}
+                  alt="Payment QR"
+                  className="max-h-full max-w-full object-contain object-center"
+                />
               ) : (
                 <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
                   QR
@@ -179,21 +249,41 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         {/* Right: Totals */}
         <div>
           <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Amount Due</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+              Amount Due
+            </p>
             <div className="mt-3 space-y-2 text-[12px] text-[#8B6F5E]">
-              <div className="flex justify-between"><span>Subtotal</span><span className="tabular-nums font-medium text-[#3D2517]">{data.subtotalFormatted}</span></div>
-              <div className="flex justify-between"><span>{data.taxLabel}</span><span className="tabular-nums font-medium text-[#3D2517]">{data.taxFormatted}</span></div>
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span className="tabular-nums font-medium text-[#3D2517]">
+                  {data.subtotalFormatted}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>{data.taxLabel}</span>
+                <span className="tabular-nums font-medium text-[#3D2517]">
+                  {data.taxFormatted}
+                </span>
+              </div>
             </div>
             <div className="mt-3 rounded-md bg-[#C75B39] px-3 py-2.5 text-right text-white print:bg-[#eee] print:text-[#111]">
-              <p className="text-[9px] uppercase tracking-[0.15em] text-white/60 print:text-[#888]">Grand Total</p>
-              <p className="mt-0.5 text-[22px] font-bold tabular-nums">{data.grandTotalFormatted}</p>
+              <p className="text-[9px] uppercase tracking-[0.15em] text-white/60 print:text-[#888]">
+                Grand Total
+              </p>
+              <p className="mt-0.5 text-[22px] font-bold tabular-nums">
+                {data.grandTotalFormatted}
+              </p>
             </div>
           </div>
           {data.approximateUsd && (
-            <p className="mt-2 text-right text-[10px] text-[#B09080]">≈ {data.approximateUsd}</p>
+            <p className="mt-2 text-right text-[10px] text-[#B09080]">
+              ≈ {data.approximateUsd}
+            </p>
           )}
           {data.taxComplianceNote && (
-            <p className="mt-2 text-[10px] text-[#B09080]">{data.taxComplianceNote}</p>
+            <p className="mt-2 text-[10px] text-[#B09080]">
+              {data.taxComplianceNote}
+            </p>
           )}
         </div>
       </section>
@@ -202,8 +292,12 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       <section className="mt-4 grid gap-3 lg:grid-cols-2">
         {data.grandTotalRaw > 0 && (
           <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Amount in Words</p>
-            <p className="mt-1.5 text-[12px] font-semibold text-[#3D2517]">{data.amountInWords}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+              Amount in Words
+            </p>
+            <p className="mt-1.5 text-[12px] font-semibold text-[#3D2517]">
+              {data.amountInWords}
+            </p>
             {data.reverseCharge && (
               <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#C75B39] print:text-black">
                 ★ Tax is Payable on Reverse Charge Basis ★
@@ -212,16 +306,26 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           </div>
         )}
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Authorized Signatory</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+            Authorized Signatory
+          </p>
           <div className="mt-4 flex flex-col items-center">
             {data.signatureUrl ? (
               <div className="flex flex-col items-center gap-1">
-                <img src={data.signatureUrl} alt="Signature" className="h-10 w-auto object-contain brightness-0 opacity-80" />
-                <p className="text-[8px] italic text-[#B09080]">Digitally Signed</p>
+                <img
+                  src={data.signatureUrl}
+                  alt="Signature"
+                  className="h-10 w-auto object-contain brightness-0 opacity-80"
+                />
+                <p className="text-[8px] italic text-[#B09080]">
+                  Digitally Signed
+                </p>
               </div>
             ) : (
               <div className="mt-2 w-full border-b border-[#3D2517] pb-1 text-center">
-                <p className="text-[12px] font-medium text-[#8B6F5E]">{data.authorizedSignatory || data.agencyName}</p>
+                <p className="text-[12px] font-medium text-[#8B6F5E]">
+                  {data.authorizedSignatory || data.agencyName}
+                </p>
               </div>
             )}
             <p className="mt-1 text-[10px] text-[#B09080]">Signature</p>

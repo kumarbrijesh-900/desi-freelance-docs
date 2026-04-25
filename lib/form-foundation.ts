@@ -43,11 +43,7 @@ export function getAppFieldStackClass(params?: {
 
   return cn(
     "grid grid-cols-1",
-    density === "compact"
-      ? "gap-2"
-      : density === "relaxed"
-      ? "gap-6"
-      : "gap-4"
+    density === "compact" ? "gap-2" : density === "relaxed" ? "gap-6" : "gap-4",
   );
 }
 
@@ -63,18 +59,16 @@ export function getAppFieldRowClass(params?: {
     density === "compact" ? "gap-3 sm:gap-4" : "gap-4 sm:gap-5",
     columns >= 2 ? "md:grid-cols-2" : "",
     columns >= 3 ? "xl:grid-cols-3" : "",
-    columns >= 4 ? "2xl:grid-cols-4" : ""
+    columns >= 4 ? "2xl:grid-cols-4" : "",
   );
 }
 
-export function getAppFieldGroupClass(params?: {
-  tone?: "default" | "muted";
-}) {
+export function getAppFieldGroupClass(params?: { tone?: "default" | "muted" }) {
   return cn(
     "rounded-[var(--app-radius-card)] border px-4 py-4 sm:px-5 sm:py-5",
     params?.tone === "muted"
       ? "border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface-muted)]"
-      : "border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface)]"
+      : "border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface)]",
   );
 }
 

@@ -1,7 +1,4 @@
-import type {
-  InvoiceFormData,
-  InvoiceStepperStep,
-} from "@/types/invoice";
+import type { InvoiceFormData, InvoiceStepperStep } from "@/types/invoice";
 import {
   hasExplicitExportTaxChoice,
   isAgencyGstRegistered,
@@ -55,8 +52,7 @@ export type InvoiceFieldErrors = {
   };
 };
 
-const GSTIN_REGEX =
-  /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
@@ -65,7 +61,7 @@ function isBlank(value?: string) {
 }
 
 export function getInvoiceFieldErrors(
-  formData: InvoiceFormData
+  formData: InvoiceFormData,
 ): InvoiceFieldErrors {
   const errors: InvoiceFieldErrors = {
     agency: {},
@@ -93,9 +89,7 @@ export function getInvoiceFieldErrors(
   if (isAgencyGstRegistered(formData.agency)) {
     if (isBlank(formData.agency.gstin)) {
       errors.agency.gstin = "GSTIN is required when registered under GST.";
-    } else if (
-      !GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())
-    ) {
+    } else if (!GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())) {
       errors.agency.gstin =
         "Enter a valid GSTIN in standard 15-character format.";
     }
@@ -105,8 +99,7 @@ export function getInvoiceFieldErrors(
     formData.agency.pan.trim() &&
     !PAN_REGEX.test(formData.agency.pan.trim().toUpperCase())
   ) {
-    errors.agency.pan =
-      "Enter a valid PAN in the format AAAAA9999A.";
+    errors.agency.pan = "Enter a valid PAN in the format AAAAA9999A.";
   }
 
   if (isBlank(formData.client.clientName)) {
@@ -128,7 +121,8 @@ export function getInvoiceFieldErrors(
     isAgencyGstRegistered(formData.agency) &&
     isBlank(formData.client.clientState)
   ) {
-    errors.client.clientState = "Client state is required for domestic GST invoices.";
+    errors.client.clientState =
+      "Client state is required for domestic GST invoices.";
   }
 
   if (
@@ -169,8 +163,7 @@ export function getInvoiceFieldErrors(
     formData.meta.dueDate &&
     new Date(formData.meta.dueDate) < new Date(formData.meta.invoiceDate)
   ) {
-    errors.meta.dueDate =
-      "Due date cannot be earlier than the invoice date.";
+    errors.meta.dueDate = "Due date cannot be earlier than the invoice date.";
   }
 
   formData.lineItems.forEach((item) => {
@@ -242,8 +235,7 @@ export function getInvoiceFieldErrors(
     }
   } else {
     if (isBlank(formData.payment.bankName)) {
-      errors.payment.bankName =
-        "Bank name is required for domestic payments.";
+      errors.payment.bankName = "Bank name is required for domestic payments.";
     }
 
     if (isBlank(formData.payment.accountNumber)) {
@@ -277,20 +269,26 @@ function hasAnyErrors(value: unknown): boolean {
 
 export function isInvoiceStepValid(
   formData: InvoiceFormData,
-  step: InvoiceStepperStep
+  step: InvoiceStepperStep,
 ) {
   const errors = getInvoiceFieldErrors(formData);
 
   switch (step) {
     case "agency":
       // Optimistic: Only require name and address for the rail to show "Ready"
-      return !isBlank(formData.agency.agencyName) && 
-             (!isBlank(formData.agency.address) || !isBlank(formData.agency.addressLine1));
+      return (
+        !isBlank(formData.agency.agencyName) &&
+        (!isBlank(formData.agency.address) ||
+          !isBlank(formData.agency.addressLine1))
+      );
 
     case "client":
       // Optimistic: Only require name and address/location core for the rail
-      return !isBlank(formData.client.clientName) && 
-             (!isBlank(formData.client.clientAddress) || !isBlank(formData.client.clientAddressLine1));
+      return (
+        !isBlank(formData.client.clientName) &&
+        (!isBlank(formData.client.clientAddress) ||
+          !isBlank(formData.client.clientAddressLine1))
+      );
 
     case "deliverables":
       return Object.keys(errors.lineItems).length === 0;
@@ -318,7 +316,7 @@ export function isInvoiceStepValid(
 
 export function getInvoiceStepError(
   formData: InvoiceFormData,
-  step: InvoiceStepperStep
+  step: InvoiceStepperStep,
 ) {
   const errors = getInvoiceFieldErrors(formData);
 
@@ -344,10 +342,10 @@ export function getInvoiceStepError(
         : "Please review payment terms, payment details, and license details.";
 
     case "totals":
-      return (
-        !requiresExplicitExportTaxChoice(formData.agency, formData.client) ||
-        hasExplicitExportTaxChoice(formData.agency)
-      )
+      return !requiresExplicitExportTaxChoice(
+        formData.agency,
+        formData.client,
+      ) || hasExplicitExportTaxChoice(formData.agency)
         ? ""
         : "Choose how you want to handle export tax before previewing this invoice.";
 

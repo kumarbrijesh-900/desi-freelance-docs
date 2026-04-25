@@ -34,7 +34,7 @@ const InvoiceEditorPage = dynamic(
         </section>
       </main>
     ),
-  }
+  },
 );
 
 export default function NewInvoicePage() {

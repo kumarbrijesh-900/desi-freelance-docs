@@ -1,8 +1,8 @@
-import type {
-  InvoiceLineItem,
-  InvoiceLineItemType,
-} from "@/types/invoice";
-import { getInvoiceLineItemCatalogEntry, normalizeInvoiceLineItemType } from "@/lib/invoice-line-item-catalog";
+import type { InvoiceLineItem, InvoiceLineItemType } from "@/types/invoice";
+import {
+  getInvoiceLineItemCatalogEntry,
+  normalizeInvoiceLineItemType,
+} from "@/lib/invoice-line-item-catalog";
 
 export const SAC_CODE_REGEX = /^\d{6}$/;
 
@@ -30,7 +30,7 @@ export const defaultSacCodeByType = Object.fromEntries(
   knownSacTypes.map((type) => [
     type,
     getInvoiceLineItemCatalogEntry(type)?.defaultSacCode ?? "",
-  ])
+  ]),
 ) as Record<InvoiceLineItemType, string>;
 
 export function getDefaultSacCodeForType(type: InvoiceLineItemType) {
@@ -39,7 +39,7 @@ export function getDefaultSacCodeForType(type: InvoiceLineItemType) {
 }
 
 export function resolveLineItemSacCode(
-  item: Pick<InvoiceLineItem, "type" | "sacCode">
+  item: Pick<InvoiceLineItem, "type" | "sacCode">,
 ) {
   if (!isManualSacRequired(item.type)) {
     return getDefaultSacCodeForType(item.type);

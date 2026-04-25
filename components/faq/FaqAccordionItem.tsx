@@ -9,7 +9,10 @@ interface FaqAccordionItemProps {
   answer: string;
 }
 
-export default function FaqAccordionItem({ question, answer }: FaqAccordionItemProps) {
+export default function FaqAccordionItem({
+  question,
+  answer,
+}: FaqAccordionItemProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -21,18 +24,18 @@ export default function FaqAccordionItem({ question, answer }: FaqAccordionItemP
         <span className="text-base font-semibold text-gray-900 group-hover:text-[color:var(--interactive-primary)] transition-colors">
           {question}
         </span>
-        <ChevronDownIcon 
+        <ChevronDownIcon
           className={cn(
             "h-5 w-5 text-gray-400 transition-transform duration-300 ease-in-out",
-            isOpen ? "rotate-180 text-gray-900" : "rotate-0"
-          )} 
+            isOpen ? "rotate-180 text-gray-900" : "rotate-0",
+          )}
         />
       </button>
-      
-      <div 
+
+      <div
         className={cn(
           "grid transition-[grid-template-rows] duration-300 ease-in-out",
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
         <div className="overflow-hidden">

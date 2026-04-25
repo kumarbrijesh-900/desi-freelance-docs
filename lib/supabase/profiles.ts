@@ -68,11 +68,13 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     gstin: p.gstin,
     pan: p.pan,
     logoUrl: p.logo_url,
-    gstRegistrationStatus: (p.gst_registration_status || "not-registered") as AgencyDetails["gstRegistrationStatus"],
+    gstRegistrationStatus: (p.gst_registration_status ||
+      "not-registered") as AgencyDetails["gstRegistrationStatus"],
     lutAvailability: p.lut_availability as AgencyDetails["lutAvailability"],
     lutNumber: p.lut_number,
     lutValidity: p.lut_validity,
-    noLutTaxHandling: p.no_lut_tax_handling as AgencyDetails["noLutTaxHandling"],
+    noLutTaxHandling:
+      p.no_lut_tax_handling as AgencyDetails["noLutTaxHandling"],
     signatureUrl: p.signature_url,
     // Add MSA defaults to agency details if we need them in the editor
     msaPaymentTermsDays: p.msa_payment_terms_days,
@@ -84,7 +86,9 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
 }
 
 /** Convert a DB profile row into PaymentDetails defaults */
-export function profileToPaymentDefaults(p: UserProfile): Partial<PaymentDetails> {
+export function profileToPaymentDefaults(
+  p: UserProfile,
+): Partial<PaymentDetails> {
   return {
     bankName: p.bank_name,
     accountName: p.account_name,
@@ -100,7 +104,7 @@ export function profileToPaymentDefaults(p: UserProfile): Partial<PaymentDetails
 /** Convert AgencyDetails + payment back to DB columns for upsert */
 export function agencyToProfileRow(
   agency: AgencyDetails,
-  payment?: Partial<PaymentDetails>
+  payment?: Partial<PaymentDetails>,
 ): Record<string, unknown> {
   return {
     agency_name: agency.agencyName,
@@ -143,7 +147,9 @@ export async function loadProfile(): Promise<{
   data: UserProfile | null;
   error: string | null;
 }> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session?.user) {
     console.warn("loadProfile: No session found");
     return { data: null, error: "Not authenticated" };
@@ -160,11 +166,17 @@ export async function loadProfile(): Promise<{
     console.error("SUPABASE_LOAD_ERROR:", error.message);
     return { data: null, error: error.message };
   }
-  
+
   if (!data) {
-    console.log("SUPABASE_LOAD_INFO: No profile row found for user_id:", user.id);
+    console.log(
+      "SUPABASE_LOAD_INFO: No profile row found for user_id:",
+      user.id,
+    );
   } else {
-    console.log("SUPABASE_LOAD_SUCCESS: Profile found for agency:", data.agency_name);
+    console.log(
+      "SUPABASE_LOAD_SUCCESS: Profile found for agency:",
+      data.agency_name,
+    );
   }
 
   return { data: data as UserProfile | null, error: null };
@@ -174,16 +186,18 @@ export async function loadProfile(): Promise<{
 
 export async function upsertProfile(
   agency: AgencyDetails,
-  payment?: Partial<PaymentDetails>
+  payment?: Partial<PaymentDetails>,
 ): Promise<{ data: UserProfile | null; error: string | null }> {
   // Force-refresh session to ensure we have latest user_id
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session?.user) return { data: null, error: "Not authenticated" };
   const user = session.user;
 
   const row = agencyToProfileRow(agency, payment);
 
-  // Use UPSERT directly with ON CONFLICT (user_id) if possible, 
+  // Use UPSERT directly with ON CONFLICT (user_id) if possible,
   // but for safety we'll stick to our exist check with a force update.
   const { data: existing, error: checkError } = await supabase
     .from("user_profiles")
@@ -227,16 +241,17 @@ export async function upsertProfile(
  * Only fills in fields that are currently empty in the profile.
  */
 export async function syncProfileFromInvoice(
-  formData: any
+  formData: any,
 ): Promise<{ success: boolean; error?: string }> {
   const { data: profile, error: loadError } = await loadProfile();
-  if (loadError && loadError !== "Not authenticated") return { success: false, error: loadError };
+  if (loadError && loadError !== "Not authenticated")
+    return { success: false, error: loadError };
 
   // If profile is mostly empty, or we want to force-sync details
   // For now, we'll upsert to ensure we capture the guest's effort
   const { error: upsertError } = await upsertProfile(
     formData.agency,
-    formData.payment
+    formData.payment,
   );
 
   if (upsertError) return { success: false, error: upsertError };

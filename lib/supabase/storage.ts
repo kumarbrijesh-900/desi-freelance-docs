@@ -6,7 +6,7 @@ import { supabase } from "./client";
  */
 export async function uploadProfessionalAsset(
   file: File,
-  path: string
+  path: string,
 ): Promise<{ url: string | null; error: string | null }> {
   try {
     const { data, error } = await supabase.storage
@@ -17,14 +17,14 @@ export async function uploadProfessionalAsset(
       });
 
     if (error) {
-      // If bucket doesn't exist, this might fail. 
+      // If bucket doesn't exist, this might fail.
       // In a real app, you'd create the bucket in the dashboard.
       return { url: null, error: error.message };
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from("professional-assets")
-      .getPublicUrl(data.path);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("professional-assets").getPublicUrl(data.path);
 
     return { url: publicUrl, error: null };
   } catch (err: any) {

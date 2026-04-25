@@ -53,7 +53,7 @@ function normalizeLooseLabeledLines(text: string) {
       }
 
       const matchedLabel = looseFieldLabels.find((label) =>
-        new RegExp(`^${label}\\b\\s+`, "i").test(trimmed)
+        new RegExp(`^${label}\\b\\s+`, "i").test(trimmed),
       );
 
       if (!matchedLabel) {
@@ -62,7 +62,7 @@ function normalizeLooseLabeledLines(text: string) {
 
       return trimmed.replace(
         new RegExp(`^(${matchedLabel})\\b\\s+`, "i"),
-        "$1: "
+        "$1: ",
       );
     })
     .join("\n");
@@ -125,9 +125,9 @@ export function normalizeOcrText(text: string) {
     normalizeWordLevelOcrNoise(
       normalizeCommonOcrLabels(
         normalizeLooseLabeledLines(
-          removeOcrJunkLines(reconnectSplitWords(normalized))
-        )
-      )
-    )
+          removeOcrJunkLines(reconnectSplitWords(normalized)),
+        ),
+      ),
+    ),
   );
 }

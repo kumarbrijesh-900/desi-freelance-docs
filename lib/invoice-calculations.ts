@@ -1,9 +1,6 @@
 import { calculateTax } from "@/lib/invoice-tax";
 import type { IndiaStateOption } from "@/lib/india-state-options";
-import type {
-  InvoiceComputedValues,
-  InvoiceLineItem,
-} from "@/types/invoice";
+import type { InvoiceComputedValues, InvoiceLineItem } from "@/types/invoice";
 
 type CalculateInvoiceTotalsInput = {
   lineItems: InvoiceLineItem[];
@@ -38,14 +35,14 @@ export function calculateInvoiceTotals({
 
   const taxBreakdown = calculateTax({
     subtotal,
-      agencyState,
-      clientState,
-      isInternational,
-      isClientSezUnit,
-      gstRegistered,
-      lutAvailability,
-      noLutTaxHandling,
-      taxRate,
+    agencyState,
+    clientState,
+    isInternational,
+    isClientSezUnit,
+    gstRegistered,
+    lutAvailability,
+    noLutTaxHandling,
+    taxRate,
   });
 
   return {

@@ -71,13 +71,16 @@ export default function ClientDetailsSection({
   agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {},
+  );
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [internalClients, setInternalClients] = useState<SavedClient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Use provided clients or fetch them if needed
-  const effectiveClients = savedClients && savedClients.length > 0 ? savedClients : internalClients;
+  const effectiveClients =
+    savedClients && savedClients.length > 0 ? savedClients : internalClients;
 
   // Fetch clients if none were passed in (fallback)
   const performSafetyFetch = async () => {
@@ -85,7 +88,7 @@ export default function ClientDetailsSection({
       setIsLoading(true);
       const { data, error } = await listClients();
       setIsLoading(false);
-      
+
       if (error) {
         console.error(error);
       }
@@ -100,7 +103,7 @@ export default function ClientDetailsSection({
   }, [savedClients]);
 
   const filteredClients = effectiveClients.filter((c) =>
-    c.client_name.toLowerCase().includes(value.clientName.toLowerCase())
+    c.client_name.toLowerCase().includes(value.clientName.toLowerCase()),
   );
 
   const handleSelectClient = (client: SavedClient) => {
@@ -119,7 +122,9 @@ export default function ClientDetailsSection({
     }
 
     const gstinInfo = parseGstin(nextValue.clientGstin);
-    const pinInference = inferIndianLocationFromPinCode(nextValue.clientPinCode);
+    const pinInference = inferIndianLocationFromPinCode(
+      nextValue.clientPinCode,
+    );
     const nextCity = nextValue.clientCity || pinInference.city;
     const stateSignals = evaluateStateSignals({
       manualState: nextValue.clientState,
@@ -149,7 +154,7 @@ export default function ClientDetailsSection({
 
   const updateField = <K extends keyof ClientDetails>(
     key: K,
-    fieldValue: ClientDetails[K]
+    fieldValue: ClientDetails[K],
   ) => {
     syncClientDetails({
       ...value,
@@ -158,7 +163,7 @@ export default function ClientDetailsSection({
   };
   const markTouched = (field: string) => {
     setTouchedFields((prev) =>
-      prev[field] ? prev : { ...prev, [field]: true }
+      prev[field] ? prev : { ...prev, [field]: true },
     );
   };
   const getVisibleError = (field: string, error?: string) =>
@@ -167,7 +172,7 @@ export default function ClientDetailsSection({
   const inputClass = (
     hasError?: string,
     hasValue?: boolean,
-    multiline = false
+    multiline = false,
   ) =>
     getAppFieldClass({
       hasError,
@@ -184,20 +189,25 @@ export default function ClientDetailsSection({
   });
   const sezSuggestion = !isInternational
     ? suggestSezCampus(
-        [value.clientName, value.clientAddressLine1, value.clientAddressLine2, value.clientCity]
+        [
+          value.clientName,
+          value.clientAddressLine1,
+          value.clientAddressLine2,
+          value.clientCity,
+        ]
           .filter(Boolean)
-          .join(", ")
+          .join(", "),
       )
     : null;
   const clientNameError = getVisibleError("clientName", errors?.clientName);
   const clientAddressError = getVisibleError(
     "clientAddress",
-    errors?.clientAddress
+    errors?.clientAddress,
   );
   const clientStateError = getVisibleError("clientState", errors?.clientState);
   const clientCountryError = getVisibleError(
     "clientCountry",
-    errors?.clientCountry
+    errors?.clientCountry,
   );
   const clientGstinError = getVisibleError("clientGstin", errors?.clientGstin);
 
@@ -207,7 +217,7 @@ export default function ClientDetailsSection({
         "overflow-visible",
         embedded
           ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-          : getAppPanelClass()
+          : getAppPanelClass(),
       )}
     >
       {!embedded ? (
@@ -222,9 +232,7 @@ export default function ClientDetailsSection({
       <div className={appFieldFullWidthStackClass}>
         <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="relative">
-            <label className={appFieldLabelClass}>
-              Client Name *
-            </label>
+            <label className={appFieldLabelClass}>Client Name *</label>
             <input
               suppressHydrationWarning
               type="text"
@@ -243,27 +251,28 @@ export default function ClientDetailsSection({
                 performSafetyFetch();
               }}
               placeholder="Client or company name"
-              className={inputClass(
-                clientNameError,
-                Boolean(value.clientName)
-              )}
+              className={inputClass(clientNameError, Boolean(value.clientName))}
             />
-            
+
             {/* Suggestion Tray */}
             {showSuggestions && (isLoading || effectiveClients.length > 0) && (
-              <div 
+              <div
                 className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200"
-                style={{ top: '100%' }}
+                style={{ top: "100%" }}
               >
                 {isLoading ? (
                   <div className="px-3 py-4 text-center">
-                    <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
+                    <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">
+                      Loading saved clients...
+                    </span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">
-                        {filteredClients.length === 0 ? "No matches found" : "Saved Clients"}
+                        {filteredClients.length === 0
+                          ? "No matches found"
+                          : "Saved Clients"}
                       </span>
                       <span className="text-[10px] font-medium text-[color:var(--color-lime-600)]">
                         {effectiveClients.length} in directory
@@ -287,7 +296,9 @@ export default function ClientDetailsSection({
                     ))}
                     {filteredClients.length === 0 && (
                       <div className="px-3 py-4 text-center">
-                        <p className="text-[12px] text-[color:var(--text-soft)]">No clients match your search.</p>
+                        <p className="text-[12px] text-[color:var(--text-soft)]">
+                          No clients match your search.
+                        </p>
                       </div>
                     )}
                   </>
@@ -296,16 +307,12 @@ export default function ClientDetailsSection({
             )}
 
             {clientNameError ? (
-              <p className={appFieldErrorTextClass}>
-                {clientNameError}
-              </p>
+              <p className={appFieldErrorTextClass}>{clientNameError}</p>
             ) : null}
           </div>
 
           <div>
-            <label className={appFieldLabelClass}>
-              Client Location *
-            </label>
+            <label className={appFieldLabelClass}>Client Location *</label>
             <ChoiceCards
               name="client-location"
               value={value.clientLocation}
@@ -335,13 +342,17 @@ export default function ClientDetailsSection({
           </div>
         </div>
 
-        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div
+          className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!isInternational ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        >
           <div className="overflow-hidden">
             <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
               <div className={appFieldPairGridClass}>
                 <div className="min-w-0">
                   <label className={appFieldLabelClass}>
-                    {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
+                    {agency
+                      ? getClientTaxIdLabel(value, agency)
+                      : "Client GSTIN"}
                   </label>
                   <input
                     suppressHydrationWarning
@@ -350,22 +361,24 @@ export default function ClientDetailsSection({
                     onChange={(e) =>
                       updateField(
                         "clientGstin",
-                        e.target.value.toUpperCase().replace(/\s+/g, "")
+                        e.target.value.toUpperCase().replace(/\s+/g, ""),
                       )
                     }
                     onBlur={() => markTouched("clientGstin")}
-                    placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
+                    placeholder={
+                      agency
+                        ? getClientTaxIdPlaceholder(value, agency)
+                        : "Client GSTIN"
+                    }
                     autoCapitalize="characters"
                     spellCheck={false}
                     className={inputClass(
                       clientGstinError,
-                      Boolean(value.clientGstin)
+                      Boolean(value.clientGstin),
                     )}
                   />
                   {clientGstinError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {clientGstinError}
-                    </p>
+                    <p className={appFieldErrorTextClass}>{clientGstinError}</p>
                   ) : gstinInfo.state ? (
                     <p className={appFieldHelperTextClass}>
                       GSTIN state code maps to {gstinInfo.state}.
@@ -374,36 +387,40 @@ export default function ClientDetailsSection({
                 </div>
 
                 <div>
-                  <label className={appFieldLabelClass}>
-                    Client Email
-                  </label>
+                  <label className={appFieldLabelClass}>Client Email</label>
                   <input
                     suppressHydrationWarning
                     type="email"
                     value={value.clientEmail}
                     onChange={(e) => updateField("clientEmail", e.target.value)}
                     placeholder="Email address"
-                    className={inputClass(undefined, Boolean(value.clientEmail))}
+                    className={inputClass(
+                      undefined,
+                      Boolean(value.clientEmail),
+                    )}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={appFieldLabelClass}>
-                  SEZ Unit
-                </label>
+                <label className={appFieldLabelClass}>SEZ Unit</label>
                 <div className="max-w-[420px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-2">
                   <div className="flex flex-wrap items-center gap-2">
                     {(["yes", "no"] as const).map((option) => {
                       const isSelected = value.isClientSezUnit === option;
                       return (
-                        <label key={option} className="min-w-[92px] flex-1 cursor-pointer sm:flex-none">
+                        <label
+                          key={option}
+                          className="min-w-[92px] flex-1 cursor-pointer sm:flex-none"
+                        >
                           <input
                             type="radio"
                             name="client-sez-unit"
                             value={option}
                             checked={isSelected}
-                            onChange={() => updateField("isClientSezUnit", option)}
+                            onChange={() =>
+                              updateField("isClientSezUnit", option)
+                            }
                             className="peer sr-only"
                           />
                           <span
@@ -411,7 +428,7 @@ export default function ClientDetailsSection({
                               "app-focus-ring block border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
                               isSelected
                                 ? "border-[color:var(--focus-ring)] bg-white text-[color:var(--text-primary)] shadow-[0_8px_16px_rgba(37,37,65,0.07)]"
-                                : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white"
+                                : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white",
                             )}
                           >
                             {option === "yes" ? "Yes" : "No"}
@@ -425,7 +442,9 @@ export default function ClientDetailsSection({
                         name="client-sez-unit"
                         value="not-sure"
                         checked={value.isClientSezUnit === "not-sure"}
-                        onChange={() => updateField("isClientSezUnit", "not-sure")}
+                        onChange={() =>
+                          updateField("isClientSezUnit", "not-sure")
+                        }
                         className="peer sr-only"
                       />
                       <span
@@ -433,7 +452,7 @@ export default function ClientDetailsSection({
                           "app-focus-ring inline-flex min-h-9 items-center border px-3 text-[12px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
                           value.isClientSezUnit === "not-sure"
                             ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
-                            : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]"
+                            : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]",
                         )}
                       >
                         Not sure
@@ -446,117 +465,120 @@ export default function ClientDetailsSection({
                 </div>
                 {sezSuggestion ? (
                   <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--text-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                    This address looks similar to {sezSuggestion.name}. If the recipient bills as an SEZ unit, switch this toggle to Yes or Not sure.
+                    This address looks similar to {sezSuggestion.name}. If the
+                    recipient bills as an SEZ unit, switch this toggle to Yes or
+                    Not sure.
                   </p>
                 ) : null}
               </div>
 
               <div className={appFieldFullWidthStackClass}>
                 <div>
-                  <label className={appFieldLabelClass}>
-                    Address Line 1 *
-                  </label>
+                  <label className={appFieldLabelClass}>Address Line 1 *</label>
                   <input
                     suppressHydrationWarning
                     type="text"
                     value={value.clientAddressLine1}
-                    onChange={(e) => updateField("clientAddressLine1", e.target.value)}
+                    onChange={(e) =>
+                      updateField("clientAddressLine1", e.target.value)
+                    }
                     onBlur={() => markTouched("clientAddress")}
                     placeholder="Building, street, or campus name"
                     className={inputClass(
                       clientAddressError,
-                      Boolean(value.clientAddressLine1)
+                      Boolean(value.clientAddressLine1),
                     )}
                   />
                 </div>
 
                 <div>
-                  <label className={appFieldLabelClass}>
-                    Address Line 2
-                  </label>
+                  <label className={appFieldLabelClass}>Address Line 2</label>
                   <input
                     suppressHydrationWarning
                     type="text"
                     value={value.clientAddressLine2}
-                    onChange={(e) => updateField("clientAddressLine2", e.target.value)}
+                    onChange={(e) =>
+                      updateField("clientAddressLine2", e.target.value)
+                    }
                     placeholder="Suite, floor, landmark, or optional line"
-                    className={inputClass(undefined, Boolean(value.clientAddressLine2))}
+                    className={inputClass(
+                      undefined,
+                      Boolean(value.clientAddressLine2),
+                    )}
                   />
                 </div>
 
                 <div className={appFieldTripleCompactGridClass}>
                   <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    State *
-                  </label>
-                  <AppSelectField
-                    suppressHydrationWarning
-                    aria-label="Client state"
-                    value={value.clientState}
-                    onChange={(e) =>
-                      updateField(
-                        "clientState",
-                        e.target.value as ClientDetails["clientState"]
-                      )
-                    }
-                    onBlur={() => markTouched("clientState")}
-                    hasError={clientStateError}
-                    hasValue={Boolean(value.clientState)}
-                  >
-                    <option value="">Select state or union territory</option>
-                    {INDIA_STATE_OPTIONS.map((stateName) => (
-                      <option key={stateName} value={stateName}>
-                        {stateName}
-                      </option>
+                    <label className={appFieldLabelClass}>State *</label>
+                    <AppSelectField
+                      suppressHydrationWarning
+                      aria-label="Client state"
+                      value={value.clientState}
+                      onChange={(e) =>
+                        updateField(
+                          "clientState",
+                          e.target.value as ClientDetails["clientState"],
+                        )
+                      }
+                      onBlur={() => markTouched("clientState")}
+                      hasError={clientStateError}
+                      hasValue={Boolean(value.clientState)}
+                    >
+                      <option value="">Select state or union territory</option>
+                      {INDIA_STATE_OPTIONS.map((stateName) => (
+                        <option key={stateName} value={stateName}>
+                          {stateName}
+                        </option>
                       ))}
                     </AppSelectField>
                   </div>
 
                   <div>
-                  <label className={appFieldLabelClass}>
-                    City
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.clientCity}
-                    onChange={(e) => updateField("clientCity", e.target.value)}
-                    placeholder="Bengaluru"
-                    className={inputClass(undefined, Boolean(value.clientCity))}
-                  />
+                    <label className={appFieldLabelClass}>City</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.clientCity}
+                      onChange={(e) =>
+                        updateField("clientCity", e.target.value)
+                      }
+                      placeholder="Bengaluru"
+                      className={inputClass(
+                        undefined,
+                        Boolean(value.clientCity),
+                      )}
+                    />
                   </div>
 
                   <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    PIN Code
-                  </label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    inputMode="numeric"
-                    value={value.clientPinCode}
-                    onChange={(e) =>
-                      updateField(
-                        "clientPinCode",
-                        e.target.value.replace(/\D/g, "").slice(0, 6)
-                      )
-                    }
+                    <label className={appFieldLabelClass}>PIN Code</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      inputMode="numeric"
+                      value={value.clientPinCode}
+                      onChange={(e) =>
+                        updateField(
+                          "clientPinCode",
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
+                        )
+                      }
                       placeholder="560048"
-                      className={inputClass(undefined, Boolean(value.clientPinCode))}
+                      className={inputClass(
+                        undefined,
+                        Boolean(value.clientPinCode),
+                      )}
                     />
                   </div>
                 </div>
               </div>
 
               {clientAddressError ? (
-                <p className={appFieldErrorTextClass}>
-                  {clientAddressError}
-                </p>
+                <p className={appFieldErrorTextClass}>{clientAddressError}</p>
               ) : null}
               {clientStateError ? (
-                <p className={appFieldErrorTextClass}>
-                  {clientStateError}
-                </p>
+                <p className={appFieldErrorTextClass}>{clientStateError}</p>
               ) : null}
               {stateSignals.warning ? (
                 <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
@@ -567,14 +589,14 @@ export default function ClientDetailsSection({
           </div>
         </div>
 
-        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div
+          className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isInternational ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        >
           <div className="overflow-hidden">
             <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
               <div className={appFieldPairGridClass}>
                 <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    Country *
-                  </label>
+                  <label className={appFieldLabelClass}>Country *</label>
                   <AppSelectField
                     suppressHydrationWarning
                     aria-label="Client country"
@@ -582,7 +604,7 @@ export default function ClientDetailsSection({
                     onChange={(e) =>
                       updateField(
                         "clientCountry",
-                        e.target.value as ClientDetails["clientCountry"]
+                        e.target.value as ClientDetails["clientCountry"],
                       )
                     }
                     onBlur={() => markTouched("clientCountry")}
@@ -604,9 +626,7 @@ export default function ClientDetailsSection({
                 </div>
 
                 <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    Currency
-                  </label>
+                  <label className={appFieldLabelClass}>Currency</label>
                   <AppSelectField
                     suppressHydrationWarning
                     aria-label="Client currency"
@@ -614,7 +634,7 @@ export default function ClientDetailsSection({
                     onChange={(e) =>
                       updateField(
                         "clientCurrency",
-                        e.target.value as ClientDetails["clientCurrency"]
+                        e.target.value as ClientDetails["clientCurrency"],
                       )
                     }
                     hasValue={Boolean(value.clientCurrency)}
@@ -633,9 +653,7 @@ export default function ClientDetailsSection({
               </div>
 
               <div>
-                <label className={appFieldLabelClass}>
-                  Full Address *
-                </label>
+                <label className={appFieldLabelClass}>Full Address *</label>
                 <textarea
                   suppressHydrationWarning
                   rows={4}
@@ -646,34 +664,37 @@ export default function ClientDetailsSection({
                   className={inputClass(
                     clientAddressError,
                     Boolean(value.clientAddress),
-                    true
+                    true,
                   )}
                 />
                 {clientAddressError ? (
-                  <p className={appFieldErrorTextClass}>
-                    {clientAddressError}
-                  </p>
+                  <p className={appFieldErrorTextClass}>{clientAddressError}</p>
                 ) : null}
               </div>
 
               <div className={appFieldPairGridClass}>
                 <div className="min-w-0">
-                  <label className={appFieldLabelClass}>
-                    Postal Code
-                  </label>
+                  <label className={appFieldLabelClass}>Postal Code</label>
                   <input
                     suppressHydrationWarning
                     type="text"
                     value={value.clientPostalCode}
-                    onChange={(e) => updateField("clientPostalCode", e.target.value)}
+                    onChange={(e) =>
+                      updateField("clientPostalCode", e.target.value)
+                    }
                     placeholder="Postal / ZIP code"
-                    className={inputClass(undefined, Boolean(value.clientPostalCode))}
+                    className={inputClass(
+                      undefined,
+                      Boolean(value.clientPostalCode),
+                    )}
                   />
                 </div>
 
                 <div className="min-w-0">
                   <label className={appFieldLabelClass}>
-                    {agency ? getClientTaxIdLabel(value, agency) : "Tax Identification Number"}
+                    {agency
+                      ? getClientTaxIdLabel(value, agency)
+                      : "Tax Identification Number"}
                   </label>
                   <input
                     suppressHydrationWarning
@@ -681,16 +702,18 @@ export default function ClientDetailsSection({
                     value={value.clientGstin}
                     onChange={(e) => updateField("clientGstin", e.target.value)}
                     onBlur={() => markTouched("clientGstin")}
-                    placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / EIN / tax ID"}
+                    placeholder={
+                      agency
+                        ? getClientTaxIdPlaceholder(value, agency)
+                        : "VAT / EIN / tax ID"
+                    }
                     className={inputClass(
                       clientGstinError,
-                      Boolean(value.clientGstin)
+                      Boolean(value.clientGstin),
                     )}
                   />
                   {clientGstinError ? (
-                    <p className={appFieldErrorTextClass}>
-                      {clientGstinError}
-                    </p>
+                    <p className={appFieldErrorTextClass}>{clientGstinError}</p>
                   ) : null}
                 </div>
               </div>
@@ -709,23 +732,29 @@ export default function ClientDetailsSection({
                   ?
                 </span>
                 <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
-                  Note: Invoice-specific briefs will override these default MSA values during AI extraction.
+                  Note: Invoice-specific briefs will override these default MSA
+                  values during AI extraction.
                   <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
                 </div>
               </div>
             </div>
             <p className="text-[11px] text-[color:var(--text-muted)]">
-              Note: Invoice-specific briefs will override these defaults during AI extraction.
+              Note: Invoice-specific briefs will override these defaults during
+              AI extraction.
             </p>
           </div>
 
           <div className={appFieldPairGridClass}>
             <div>
-              <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+              <label className={appFieldLabelClass}>
+                Default Payment Terms (Days)
+              </label>
               <input
                 type="number"
                 value={value.msaPaymentTermsDays ?? 20}
-                onChange={(e) => updateField("msaPaymentTermsDays", Number(e.target.value))}
+                onChange={(e) =>
+                  updateField("msaPaymentTermsDays", Number(e.target.value))
+                }
                 className={inputClass(undefined, true)}
               />
             </div>
@@ -738,11 +767,15 @@ export default function ClientDetailsSection({
                     type="number"
                     step="0.1"
                     value={value.msaLateFeeRate ?? 1.5}
-                    onChange={(e) => updateField("msaLateFeeRate", Number(e.target.value))}
+                    onChange={(e) =>
+                      updateField("msaLateFeeRate", Number(e.target.value))
+                    }
                     className={inputClass(undefined, true)}
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-[11px] font-medium text-[color:var(--text-muted)]">%</span>
+                    <span className="text-[11px] font-medium text-[color:var(--text-muted)]">
+                      %
+                    </span>
                   </div>
                 </div>
               </div>
@@ -750,7 +783,9 @@ export default function ClientDetailsSection({
                 <label className={appFieldLabelClass}>Unit</label>
                 <AppSelectField
                   value={value.msaLateFeeUnit || "monthly"}
-                  onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
+                  onChange={(e) =>
+                    updateField("msaLateFeeUnit", e.target.value as any)
+                  }
                   hasValue={true}
                 >
                   <option value="monthly">per month</option>
@@ -764,14 +799,20 @@ export default function ClientDetailsSection({
               <label className={appFieldLabelClass}>IP Transfer Trigger</label>
               <AppSelectField
                 value={value.msaIpTriggerType || "upon_full_payment"}
-                onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)}
+                onChange={(e) =>
+                  updateField("msaIpTriggerType", e.target.value as any)
+                }
                 hasValue={true}
               >
                 <option value="upon_full_payment">Upon Full Payment</option>
                 <option value="upon_signing">Upon Signing</option>
                 <option value="upon_delivery">Upon Delivery</option>
-                <option value="proportional_transfer">Proportional (Per Milestone)</option>
-                <option value="retained_by_creator">Retained by Creator (License Only)</option>
+                <option value="proportional_transfer">
+                  Proportional (Per Milestone)
+                </option>
+                <option value="retained_by_creator">
+                  Retained by Creator (License Only)
+                </option>
               </AppSelectField>
             </div>
 
@@ -780,16 +821,23 @@ export default function ClientDetailsSection({
               <input
                 type="text"
                 value={value.msaJurisdictionCity || ""}
-                onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
+                onChange={(e) =>
+                  updateField("msaJurisdictionCity", e.target.value)
+                }
                 placeholder="e.g. Bangalore"
-                className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
+                className={inputClass(
+                  undefined,
+                  Boolean(value.msaJurisdictionCity),
+                )}
               />
             </div>
           </div>
 
           <div className="mt-4">
             <div className="flex items-center justify-between mb-1.5">
-              <label className={appFieldLabelClass}>Notes / MSA Boilerplate</label>
+              <label className={appFieldLabelClass}>
+                Notes / MSA Boilerplate
+              </label>
               {!value.msaNotesBoilerplate && (
                 <button
                   type="button"
@@ -799,19 +847,22 @@ export default function ClientDetailsSection({
                       upon_signing: "upon signing",
                       upon_delivery: "upon delivery",
                       proportional_transfer: "proportionally per milestone",
-                      retained_by_creator: "retained by the creator (limited license)",
+                      retained_by_creator:
+                        "retained by the creator (limited license)",
                     };
-                    const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
+                    const ipLabel =
+                      ipLabels[value.msaIpTriggerType || "upon_full_payment"];
 
                     const unitLabels: Record<string, string> = {
                       monthly: "per month",
                       annually: "per annum",
                       daily: "per day",
                     };
-                    const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
-                    
+                    const unitLabel =
+                      unitLabels[value.msaLateFeeUnit || "monthly"];
+
                     const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
-                    
+
                     updateField("msaNotesBoilerplate", template);
                   }}
                   className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
@@ -823,9 +874,15 @@ export default function ClientDetailsSection({
             <textarea
               rows={4}
               value={value.msaNotesBoilerplate || ""}
-              onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)}
+              onChange={(e) =>
+                updateField("msaNotesBoilerplate", e.target.value)
+              }
               placeholder="Custom terms or additional MSA boilerplate for this client..."
-              className={inputClass(undefined, Boolean(value.msaNotesBoilerplate), true)}
+              className={inputClass(
+                undefined,
+                Boolean(value.msaNotesBoilerplate),
+                true,
+              )}
             />
           </div>
         </div>

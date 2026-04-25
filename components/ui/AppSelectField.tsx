@@ -31,7 +31,7 @@ export default function AppSelectField({
             isSelect: true,
           }),
           "max-w-full cursor-pointer",
-          className
+          className,
         )}
       >
         {children}

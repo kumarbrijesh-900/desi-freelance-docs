@@ -35,11 +35,13 @@ export default function InvoiceMetaSection({
   errors,
   showAllErrors = false,
 }: InvoiceMetaSectionProps) {
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const updateField = <K extends keyof InvoiceMeta>(
     key: K,
-    fieldValue: InvoiceMeta[K]
+    fieldValue: InvoiceMeta[K],
   ) => {
     onChange({
       ...value,
@@ -48,7 +50,7 @@ export default function InvoiceMetaSection({
   };
   const markTouched = (field: string) => {
     setTouchedFields((prev) =>
-      prev[field] ? prev : { ...prev, [field]: true }
+      prev[field] ? prev : { ...prev, [field]: true },
     );
   };
   const getVisibleError = (field: string, error?: string) =>
@@ -61,7 +63,7 @@ export default function InvoiceMetaSection({
     });
   const invoiceNumberError = getVisibleError(
     "invoiceNumber",
-    errors?.invoiceNumber
+    errors?.invoiceNumber,
   );
   const invoiceDateError = getVisibleError("invoiceDate", errors?.invoiceDate);
   const dueDateError = getVisibleError("dueDate", errors?.dueDate);
@@ -71,7 +73,7 @@ export default function InvoiceMetaSection({
       className={cn(
         embedded
           ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-          : getAppPanelClass()
+          : getAppPanelClass(),
       )}
     >
       {!embedded ? (
@@ -85,9 +87,7 @@ export default function InvoiceMetaSection({
 
       <div className={cn(appFieldFullWidthStackClass, "md:max-w-[640px]")}>
         <div>
-          <label className={appFieldLabelClass}>
-            Invoice Number *
-          </label>
+          <label className={appFieldLabelClass}>Invoice Number *</label>
           <input
             suppressHydrationWarning
             type="text"
@@ -97,21 +97,17 @@ export default function InvoiceMetaSection({
             placeholder="INV-2026-001"
             className={inputClass(
               invoiceNumberError,
-              Boolean(value.invoiceNumber)
+              Boolean(value.invoiceNumber),
             )}
           />
           {invoiceNumberError ? (
-            <p className={appFieldErrorTextClass}>
-              {invoiceNumberError}
-            </p>
+            <p className={appFieldErrorTextClass}>{invoiceNumberError}</p>
           ) : null}
         </div>
 
         <div className={appFieldPairGridClass}>
           <div className="md:max-w-[190px]">
-            <label className={appFieldLabelClass}>
-              Invoice Date *
-            </label>
+            <label className={appFieldLabelClass}>Invoice Date *</label>
             <input
               suppressHydrationWarning
               type="date"
@@ -120,20 +116,16 @@ export default function InvoiceMetaSection({
               onBlur={() => markTouched("invoiceDate")}
               className={inputClass(
                 invoiceDateError,
-                Boolean(value.invoiceDate)
+                Boolean(value.invoiceDate),
               )}
             />
             {invoiceDateError ? (
-              <p className={appFieldErrorTextClass}>
-                {invoiceDateError}
-              </p>
+              <p className={appFieldErrorTextClass}>{invoiceDateError}</p>
             ) : null}
           </div>
 
           <div className="md:max-w-[190px]">
-            <label className={appFieldLabelClass}>
-              Due Date *
-            </label>
+            <label className={appFieldLabelClass}>Due Date *</label>
             <input
               suppressHydrationWarning
               type="date"
@@ -143,9 +135,7 @@ export default function InvoiceMetaSection({
               className={inputClass(dueDateError, Boolean(value.dueDate))}
             />
             {dueDateError ? (
-              <p className={appFieldErrorTextClass}>
-                {dueDateError}
-              </p>
+              <p className={appFieldErrorTextClass}>{dueDateError}</p>
             ) : null}
           </div>
         </div>

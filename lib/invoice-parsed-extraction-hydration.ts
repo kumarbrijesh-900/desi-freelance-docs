@@ -3,7 +3,10 @@ import type {
   BriefParserResponse,
   NormalizedBriefLineItem,
 } from "@/lib/brief-parser-gateway";
-import { INDIA_STATE_OPTIONS, type IndiaStateOption } from "@/lib/india-state-options";
+import {
+  INDIA_STATE_OPTIONS,
+  type IndiaStateOption,
+} from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
@@ -101,15 +104,19 @@ const STRICT_LOW_FIELD_PATHS = new Set<string>([
 
 function maxParserConfidence(
   a: BriefParserConfidence,
-  b: BriefParserConfidence
+  b: BriefParserConfidence,
 ): BriefParserConfidence {
-  const order: Record<BriefParserConfidence, number> = { low: 0, medium: 1, high: 2 };
+  const order: Record<BriefParserConfidence, number> = {
+    low: 0,
+    medium: 1,
+    high: 2,
+  };
   return order[a] >= order[b] ? a : b;
 }
 
 function getConfidence(
   parserResponse: BriefParserResponse,
-  path: string
+  path: string,
 ): BriefParserConfidence {
   const fields = parserResponse.confidence.fields;
   const overall = parserResponse.confidence.overall;
@@ -135,7 +142,7 @@ function recordHydration(
   collection: HydrationField[],
   path: string,
   label: string,
-  confidence: BriefParserConfidence
+  confidence: BriefParserConfidence,
 ) {
   collection.push({ path, label, confidence });
 }
@@ -178,7 +185,7 @@ function applyStringField(params: {
         params.ctx.hydratedFields,
         params.path,
         params.label,
-        confidence
+        confidence,
       );
     }
     return;
@@ -188,7 +195,7 @@ function applyStringField(params: {
     params.ctx.preservedFields,
     params.path,
     params.label,
-    confidence
+    confidence,
   );
 }
 
@@ -227,7 +234,7 @@ function applyToggleField<T extends string>(params: {
       params.ctx.hydratedFields,
       params.path,
       params.label,
-      confidence
+      confidence,
     );
     return;
   }
@@ -237,7 +244,7 @@ function applyToggleField<T extends string>(params: {
       params.ctx.preservedFields,
       params.path,
       params.label,
-      confidence
+      confidence,
     );
   }
 }
@@ -245,24 +252,28 @@ function applyToggleField<T extends string>(params: {
 function normalizeState(value?: string | null): IndiaStateOption | "" {
   if (!value) return "";
   const normalized = INDIA_STATE_OPTIONS.find(
-    (state) => state.toLowerCase() === value.trim().toLowerCase()
+    (state) => state.toLowerCase() === value.trim().toLowerCase(),
   );
   return normalized ?? "";
 }
 
-function normalizeCountry(value?: string | null): InternationalCountryOption | "" {
+function normalizeCountry(
+  value?: string | null,
+): InternationalCountryOption | "" {
   if (!value) return "";
   const normalized = INTERNATIONAL_COUNTRY_OPTIONS.find(
-    (country) => country.toLowerCase() === value.trim().toLowerCase()
+    (country) => country.toLowerCase() === value.trim().toLowerCase(),
   );
   return normalized ?? "";
 }
 
-function normalizeCurrency(value?: string | null): InternationalCurrencyCode | "" {
+function normalizeCurrency(
+  value?: string | null,
+): InternationalCurrencyCode | "" {
   if (!value) return "";
   const upperValue = value.trim().toUpperCase();
   const normalized = INTERNATIONAL_CURRENCY_OPTIONS.find(
-    (currency) => currency.code === upperValue
+    (currency) => currency.code === upperValue,
   );
   return normalized?.code ?? "";
 }
@@ -311,16 +322,23 @@ function hasMeaningfulLineItems(lineItems: InvoiceLineItem[]) {
   return lineItems.some((item) =>
     Boolean(
       item.description.trim() ||
-        item.qty !== defaultLineItem.qty ||
-        item.rate !== defaultLineItem.rate ||
-        item.type !== defaultLineItem.type ||
-        item.rateUnit !== defaultLineItem.rateUnit
-    )
+      item.qty !== defaultLineItem.qty ||
+      item.rate !== defaultLineItem.rate ||
+      item.type !== defaultLineItem.type ||
+      item.rateUnit !== defaultLineItem.rateUnit,
+    ),
   );
 }
 
 function hasLineItemSignal(item: NormalizedBriefLineItem) {
-  return Boolean(item.type || item.description || item.quantity || item.rate || item.unit || item.sacCode);
+  return Boolean(
+    item.type ||
+    item.description ||
+    item.quantity ||
+    item.rate ||
+    item.unit ||
+    item.sacCode,
+  );
 }
 
 function expandExtractedLineItems(items: NormalizedBriefLineItem[]) {
@@ -330,24 +348,23 @@ function expandExtractedLineItems(items: NormalizedBriefLineItem[]) {
 
   const [item] = items;
   const inferred = inferDeliverablesFromText(
-    [item.type ?? "", item.description ?? ""].join(" ")
+    [item.type ?? "", item.description ?? ""].join(" "),
   );
 
   if (inferred.length <= 1) {
     return items;
   }
 
-  const parentRate =
-    item.rate && item.rate > 0
-      ? item.rate
-      : null;
+  const parentRate = item.rate && item.rate > 0 ? item.rate : null;
 
   return inferred.map((inferredItem) => ({
     type: inferredItem.type,
     description: inferredItem.description,
     quantity: inferredItem.quantity,
     rate:
-      inferredItem.pricingSignal === "rate" && inferredItem.rate && inferredItem.rate > 0
+      inferredItem.pricingSignal === "rate" &&
+      inferredItem.rate &&
+      inferredItem.rate > 0
         ? inferredItem.rate
         : parentRate,
     unit: inferredItem.unit,
@@ -357,7 +374,9 @@ function expandExtractedLineItems(items: NormalizedBriefLineItem[]) {
 
 function hydrateLineItems(ctx: HydrationContext) {
   const extractedItems = expandExtractedLineItems(
-    ctx.parserResponse.normalizedExtraction.deliverables.filter(hasLineItemSignal)
+    ctx.parserResponse.normalizedExtraction.deliverables.filter(
+      hasLineItemSignal,
+    ),
   );
 
   if (extractedItems.length === 0) {
@@ -365,7 +384,7 @@ function hydrateLineItems(ctx: HydrationContext) {
   }
 
   const originalHadMeaningfulItems = hasMeaningfulLineItems(
-    ctx.originalFormData.lineItems
+    ctx.originalFormData.lineItems,
   );
 
   if (!originalHadMeaningfulItems) {
@@ -378,9 +397,10 @@ function hydrateLineItems(ctx: HydrationContext) {
       const manualSac = normalizeString(item.sacCode);
       const sacCode = resolveLineItemSacCode({
         type,
-        sacCode: isManualSacRequired(type) && isValidSacCode(manualSac)
-          ? manualSac
-          : "",
+        sacCode:
+          isManualSacRequired(type) && isValidSacCode(manualSac)
+            ? manualSac
+            : "",
       });
 
       return {
@@ -393,10 +413,10 @@ function hydrateLineItems(ctx: HydrationContext) {
           item.rate && item.rate > 0
             ? item.rate
             : extractedItems.length === 1 &&
-              ctx.parserResponse.normalizedExtraction.meta.totalAmount &&
-              ctx.parserResponse.normalizedExtraction.meta.totalAmount > 0
-            ? ctx.parserResponse.normalizedExtraction.meta.totalAmount
-            : 0,
+                ctx.parserResponse.normalizedExtraction.meta.totalAmount &&
+                ctx.parserResponse.normalizedExtraction.meta.totalAmount > 0
+              ? ctx.parserResponse.normalizedExtraction.meta.totalAmount
+              : 0,
         rateUnit: unit,
         sacCode,
       };
@@ -405,16 +425,18 @@ function hydrateLineItems(ctx: HydrationContext) {
     extractedItems.forEach((item, index) => {
       const confidence = getConfidence(
         ctx.parserResponse,
-        `deliverables.${index}.description`
+        `deliverables.${index}.description`,
       );
       recordHydration(
         ctx.hydratedFields,
         `deliverables.${index}`,
         `Line item ${index + 1}`,
-        confidence
+        confidence,
       );
 
-      if (isManualSacRequired(ctx.nextFormData.lineItems[index]?.type ?? "Other")) {
+      if (
+        isManualSacRequired(ctx.nextFormData.lineItems[index]?.type ?? "Other")
+      ) {
         ctx.unresolvedFields.push(`deliverables.${index}.sacCode`);
       }
     });
@@ -427,10 +449,16 @@ function hydrateLineItems(ctx: HydrationContext) {
     if (!currentItem || !originalItem) return;
 
     const type = normalizeLineItemType(item.type);
-    const typeConfidence = getConfidence(ctx.parserResponse, `deliverables.${index}.type`);
+    const typeConfidence = getConfidence(
+      ctx.parserResponse,
+      `deliverables.${index}.type`,
+    );
     if (
       shouldHydrate(typeConfidence) &&
-      isDefaultOrBlank(originalItem.type, defaultInvoiceFormData.lineItems[0].type)
+      isDefaultOrBlank(
+        originalItem.type,
+        defaultInvoiceFormData.lineItems[0].type,
+      )
     ) {
       currentItem.type = type;
     }
@@ -448,7 +476,10 @@ function hydrateLineItems(ctx: HydrationContext) {
       },
     });
 
-    const qtyConfidence = getConfidence(ctx.parserResponse, `deliverables.${index}.quantity`);
+    const qtyConfidence = getConfidence(
+      ctx.parserResponse,
+      `deliverables.${index}.quantity`,
+    );
     if (
       item.quantity &&
       item.quantity > 0 &&
@@ -456,10 +487,18 @@ function hydrateLineItems(ctx: HydrationContext) {
       originalItem.qty === defaultInvoiceFormData.lineItems[0].qty
     ) {
       currentItem.qty = item.quantity;
-      recordHydration(ctx.hydratedFields, `deliverables.${index}.quantity`, `Line item ${index + 1} quantity`, qtyConfidence);
+      recordHydration(
+        ctx.hydratedFields,
+        `deliverables.${index}.quantity`,
+        `Line item ${index + 1} quantity`,
+        qtyConfidence,
+      );
     }
 
-    const rateConfidence = getConfidence(ctx.parserResponse, `deliverables.${index}.rate`);
+    const rateConfidence = getConfidence(
+      ctx.parserResponse,
+      `deliverables.${index}.rate`,
+    );
     if (
       ((item.rate && item.rate > 0) ||
         (extractedItems.length === 1 &&
@@ -471,27 +510,41 @@ function hydrateLineItems(ctx: HydrationContext) {
       currentItem.rate =
         item.rate && item.rate > 0
           ? item.rate
-          : ctx.parserResponse.normalizedExtraction.meta.totalAmount ?? 0;
-      recordHydration(ctx.hydratedFields, `deliverables.${index}.rate`, `Line item ${index + 1} rate`, rateConfidence);
+          : (ctx.parserResponse.normalizedExtraction.meta.totalAmount ?? 0);
+      recordHydration(
+        ctx.hydratedFields,
+        `deliverables.${index}.rate`,
+        `Line item ${index + 1} rate`,
+        rateConfidence,
+      );
     }
 
     const rateUnit = normalizeRateUnit(item.unit);
-    const unitConfidence = getConfidence(ctx.parserResponse, `deliverables.${index}.unit`);
+    const unitConfidence = getConfidence(
+      ctx.parserResponse,
+      `deliverables.${index}.unit`,
+    );
     if (
       rateUnit &&
       shouldHydrate(unitConfidence) &&
       originalItem.rateUnit === defaultInvoiceFormData.lineItems[0].rateUnit
     ) {
       currentItem.rateUnit = rateUnit;
-      recordHydration(ctx.hydratedFields, `deliverables.${index}.unit`, `Line item ${index + 1} rate unit`, unitConfidence);
+      recordHydration(
+        ctx.hydratedFields,
+        `deliverables.${index}.unit`,
+        `Line item ${index + 1} rate unit`,
+        unitConfidence,
+      );
     }
 
     const manualSac = normalizeString(item.sacCode);
     currentItem.sacCode = resolveLineItemSacCode({
       type: currentItem.type,
-      sacCode: isManualSacRequired(currentItem.type) && isValidSacCode(manualSac)
-        ? manualSac
-        : currentItem.sacCode ?? "",
+      sacCode:
+        isManualSacRequired(currentItem.type) && isValidSacCode(manualSac)
+          ? manualSac
+          : (currentItem.sacCode ?? ""),
     });
 
     if (isManualSacRequired(currentItem.type) && !currentItem.sacCode) {
@@ -532,7 +585,9 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   baseFormData?: InvoiceFormData;
   parserResponse: BriefParserResponse;
 }): ParsedInvoiceHydrationResult {
-  const nextFormData = mergeInvoiceFormData(params.baseFormData ?? params.currentFormData);
+  const nextFormData = mergeInvoiceFormData(
+    params.baseFormData ?? params.currentFormData,
+  );
   const ctx: HydrationContext = {
     originalFormData: mergeInvoiceFormData(params.currentFormData),
     nextFormData,
@@ -552,8 +607,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       agency.gstRegistered === true
         ? "registered"
         : agency.gstRegistered === false
-        ? "not-registered"
-        : null,
+          ? "not-registered"
+          : null,
     currentValue: nextFormData.agency.gstRegistrationStatus,
     originalValue: ctx.originalFormData.agency.gstRegistrationStatus,
     defaultValue: defaultInvoiceFormData.agency.gstRegistrationStatus,
@@ -621,10 +676,10 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       agency.lutEnabled === true
         ? "yes"
         : agency.lutEnabled === false
-        ? "no"
-        : taxHints.lutMentioned === true
-        ? "yes"
-        : null,
+          ? "no"
+          : taxHints.lutMentioned === true
+            ? "yes"
+            : null,
     currentValue: nextFormData.agency.lutAvailability,
     originalValue: ctx.originalFormData.agency.lutAvailability,
     defaultValue: defaultInvoiceFormData.agency.lutAvailability,
@@ -762,7 +817,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       kind: "tax-id",
       agencyGstin: agency.gstin,
       agencyPan: agency.pan,
-      clientLocation: client.location ?? taxHints.domesticOrInternational ?? null,
+      clientLocation:
+        client.location ?? taxHints.domesticOrInternational ?? null,
     }),
     currentValue: nextFormData.client.clientGstin,
     originalValue: ctx.originalFormData.client.clientGstin,
@@ -776,10 +832,10 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     client.isSezUnit === true
       ? "yes"
       : client.isSezUnit === false
-      ? "no"
-      : taxHints.sezMentioned === true
-      ? "not-sure"
-      : null;
+        ? "no"
+        : taxHints.sezMentioned === true
+          ? "not-sure"
+          : null;
   applyToggleField({
     ctx,
     path: "client.isSezUnit",
@@ -1058,7 +1114,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   ) {
     const inferredTerms = inferCommercialTermsFromText(
       nextFormData.meta.paymentTerms,
-      { invoiceDate: nextFormData.meta.invoiceDate }
+      { invoiceDate: nextFormData.meta.invoiceDate },
     );
 
     if (inferredTerms.dueDate) {
@@ -1067,14 +1123,14 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
         ctx.hydratedFields,
         "meta.dueDate",
         "Due date",
-        inferredTerms.confidence
+        inferredTerms.confidence,
       );
     }
   }
 
   if (
     ctx.hydratedFields.some(
-      (f) => f.path === "agency.city" || f.path === "agency.state"
+      (f) => f.path === "agency.city" || f.path === "agency.state",
     ) &&
     !ctx.hydratedFields.some((f) => f.path === "agency.pinCode")
   ) {
@@ -1083,9 +1139,11 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
 
   if (
     ctx.hydratedFields.some(
-      (f) => f.path === "client.city" || f.path === "client.state"
+      (f) => f.path === "client.city" || f.path === "client.state",
     ) &&
-    !ctx.hydratedFields.some((f) => f.path === "client.pinCode" || f.path === "client.postalCode")
+    !ctx.hydratedFields.some(
+      (f) => f.path === "client.pinCode" || f.path === "client.postalCode",
+    )
   ) {
     nextFormData.client.clientPinCode = "";
     nextFormData.client.clientPostalCode = "";
@@ -1104,8 +1162,12 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       path: "payment.license.isLicenseIncluded",
       label: "License included",
       incoming: "yes",
-      currentValue: nextFormData.payment.license.isLicenseIncluded ? "yes" : "no",
-      originalValue: ctx.originalFormData.payment.license.isLicenseIncluded ? "yes" : "no",
+      currentValue: nextFormData.payment.license.isLicenseIncluded
+        ? "yes"
+        : "no",
+      originalValue: ctx.originalFormData.payment.license.isLicenseIncluded
+        ? "yes"
+        : "no",
       defaultValue: "no",
       assign: () => {
         nextFormData.payment.license.isLicenseIncluded = true;
@@ -1118,10 +1180,10 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       license.type === "full-assignment"
         ? "full-assignment"
         : license.type === "exclusive-license"
-        ? "exclusive-license"
-        : license.type === "non-exclusive-license"
-        ? "non-exclusive-license"
-        : null;
+          ? "exclusive-license"
+          : license.type === "non-exclusive-license"
+            ? "non-exclusive-license"
+            : null;
 
     if (mappedLicenseType) {
       applyToggleField({
@@ -1133,7 +1195,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
         originalValue: ctx.originalFormData.payment.license.licenseType || "",
         defaultValue: "",
         assign: (value) => {
-          nextFormData.payment.license.licenseType = value as typeof mappedLicenseType;
+          nextFormData.payment.license.licenseType =
+            value as typeof mappedLicenseType;
         },
       });
     }
@@ -1159,7 +1222,9 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,
     unresolvedFields: [...new Set(ctx.unresolvedFields)],
-    clarificationQuestions: [...new Set(params.parserResponse.clarificationQuestions)],
+    clarificationQuestions: [
+      ...new Set(params.parserResponse.clarificationQuestions),
+    ],
     missingFields: [...new Set(params.parserResponse.missingFields)],
   };
 }

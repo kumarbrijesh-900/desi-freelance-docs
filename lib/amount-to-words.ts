@@ -9,13 +9,39 @@
  */
 
 const ONES = [
-  "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-  "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-  "Seventeen", "Eighteen", "Nineteen",
+  "",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+  "Nine",
+  "Ten",
+  "Eleven",
+  "Twelve",
+  "Thirteen",
+  "Fourteen",
+  "Fifteen",
+  "Sixteen",
+  "Seventeen",
+  "Eighteen",
+  "Nineteen",
 ];
 
 const TENS = [
-  "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
+  "",
+  "",
+  "Twenty",
+  "Thirty",
+  "Forty",
+  "Fifty",
+  "Sixty",
+  "Seventy",
+  "Eighty",
+  "Ninety",
 ];
 
 function twoDigitWords(n: number): string {
@@ -107,10 +133,15 @@ export function amountToWords(amount: number, currency = "INR"): string {
 
 function currencyPrefix(currency: string): string {
   switch (currency) {
-    case "INR": return "Rupees ";
-    case "USD": return "US Dollars ";
-    case "GBP": return "Pounds Sterling ";
-    case "EUR": return "Euros ";
-    default: return currency + " ";
+    case "INR":
+      return "Rupees ";
+    case "USD":
+      return "US Dollars ";
+    case "GBP":
+      return "Pounds Sterling ";
+    case "EUR":
+      return "Euros ";
+    default:
+      return currency + " ";
   }
 }

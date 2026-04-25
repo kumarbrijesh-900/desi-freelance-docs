@@ -76,15 +76,21 @@ function getLicenseLabel(type?: string): string {
     "exclusive-license": "Exclusive license",
     "non-exclusive-license": "Non-exclusive license",
   };
-  return type ? map[type] ?? type : "—";
+  return type ? (map[type] ?? type) : "—";
 }
 
-function getTaxLineLabel(taxType: "CGST_SGST" | "IGST" | "NONE", rate: number): string {
+function getTaxLineLabel(
+  taxType: "CGST_SGST" | "IGST" | "NONE",
+  rate: number,
+): string {
   const percentage = Math.round(rate * 100);
   switch (taxType) {
-    case "CGST_SGST": return `CGST + SGST (${percentage}%)`;
-    case "IGST": return `IGST (${percentage}%)`;
-    default: return "Tax (0%)";
+    case "CGST_SGST":
+      return `CGST + SGST (${percentage}%)`;
+    case "IGST":
+      return `IGST (${percentage}%)`;
+    default:
+      return "Tax (0%)";
   }
 }
 
@@ -153,7 +159,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     formData.payment?.bankName ||
     formData.payment?.accountName ||
     formData.payment?.accountNumber ||
-    formData.payment?.ifscCode
+    formData.payment?.ifscCode,
   );
   const hasIntlBank = Boolean(
     formData.payment?.accountName ||
@@ -161,7 +167,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     formData.payment?.bankAddress ||
     formData.payment?.accountNumber ||
     formData.payment?.swiftBicCode ||
-    formData.payment?.ibanRoutingCode
+    formData.payment?.ibanRoutingCode,
   );
 
   return {
@@ -191,7 +197,10 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     itemCount: lineItems.length,
 
     subtotalFormatted: formatCurrency(totals.subtotal, displayCurrency),
-    taxLabel: getTaxLineLabel(totals.taxType, (formData.tax?.taxRate ?? 18) / 100),
+    taxLabel: getTaxLineLabel(
+      totals.taxType,
+      (formData.tax?.taxRate ?? 18) / 100,
+    ),
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
     grandTotalFormatted: formatCurrency(totals.grandTotal, displayCurrency),
     grandTotalRaw: totals.grandTotal,

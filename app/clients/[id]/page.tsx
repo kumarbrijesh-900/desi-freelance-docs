@@ -12,7 +12,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import { MotionReveal, MotionButton, SuccessPulse } from "@/components/ui/motion-primitives";
+import {
+  MotionReveal,
+  MotionButton,
+  SuccessPulse,
+} from "@/components/ui/motion-primitives";
 import {
   appGridClass,
   appPageContainerClass,
@@ -92,7 +96,9 @@ function MsaCard({
 
   if (isEditing) {
     return (
-      <div className={`${getAppPanelClass()} border-l-[3px] border-l-[color:var(--color-lime-400)]`}>
+      <div
+        className={`${getAppPanelClass()} border-l-[3px] border-l-[color:var(--color-lime-400)]`}
+      >
         <div className="mb-3 grid gap-3 sm:grid-cols-[1fr_140px]">
           <div>
             <label className={appFieldLabelClass}>Title</label>
@@ -126,7 +132,8 @@ function MsaCard({
             className={fc({ hasValue: Boolean(content), multiline: true })}
           />
           <p className={appFieldHelperTextClass}>
-            Supports plain text. This will be shown to your client when they open the shared invoice link.
+            Supports plain text. This will be shown to your client when they
+            open the shared invoice link.
           </p>
         </div>
         <div className="mt-4 flex items-center gap-2">
@@ -154,13 +161,20 @@ function MsaCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-semibold text-[color:var(--text-primary)]">{msa.title}</h3>
+            <h3 className="text-[14px] font-semibold text-[color:var(--text-primary)]">
+              {msa.title}
+            </h3>
             <span className={getAppStatusPillClass(statusColor(msa.status))}>
               {msa.status}
             </span>
           </div>
           <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">
-            Updated {new Date(msa.updated_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+            Updated{" "}
+            {new Date(msa.updated_at).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
           </p>
         </div>
       </div>
@@ -184,7 +198,10 @@ function MsaCard({
         <button
           type="button"
           onClick={handleDelete}
-          className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
+          className={getAppButtonClass({
+            variant: "destructive-lite",
+            size: "sm",
+          })}
         >
           Delete
         </button>
@@ -202,7 +219,9 @@ export default function ClientDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<SavedClient | null>(null);
   const [msas, setMsas] = useState<ClientMsa[]>([]);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">(
+    "idle",
+  );
   const [isAddingMsa, setIsAddingMsa] = useState(false);
   const [newMsaTitle, setNewMsaTitle] = useState("Master Service Agreement");
   const [newMsaContent, setNewMsaContent] = useState("");
@@ -217,18 +236,27 @@ export default function ClientDetailPage() {
   const [msaEffectiveDate, setMsaEffectiveDate] = useState("");
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
-  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">("monthly");
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<
+    "monthly" | "annually" | "daily"
+  >("monthly");
   const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
-  const [msaVersionLabel, setMsaVersionLabel] = useState("Standard Lance MSA v1.2");
+  const [msaVersionLabel, setMsaVersionLabel] = useState(
+    "Standard Lance MSA v1.2",
+  );
   const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState("");
 
   useEffect(() => {
     async function init() {
       if (!clientId) return;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setIsLoading(false); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
       const [clientRes, msaRes] = await Promise.all([
         getClient(clientId),
@@ -343,7 +371,10 @@ export default function ClientDetailPage() {
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
           <p className="text-[color:var(--text-muted)]">Client not found.</p>
-          <Link href="/clients" className={getAppButtonClass({ variant: "secondary" })}>
+          <Link
+            href="/clients"
+            className={getAppButtonClass({ variant: "secondary" })}
+          >
             Back to Clients
           </Link>
         </div>
@@ -445,11 +476,16 @@ export default function ClientDetailPage() {
                         <select
                           value={clientState}
                           onChange={(e) => setClientState(e.target.value)}
-                          className={fc({ hasValue: Boolean(clientState), isSelect: true })}
+                          className={fc({
+                            hasValue: Boolean(clientState),
+                            isSelect: true,
+                          })}
                         >
                           <option value="">Select state</option>
                           {INDIA_STATE_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{s}</option>
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -458,7 +494,9 @@ export default function ClientDetailPage() {
                         <input
                           type="text"
                           value={clientGstin}
-                          onChange={(e) => setClientGstin(e.target.value.toUpperCase())}
+                          onChange={(e) =>
+                            setClientGstin(e.target.value.toUpperCase())
+                          }
                           maxLength={15}
                           className={fc({ hasValue: Boolean(clientGstin) })}
                         />
@@ -474,31 +512,40 @@ export default function ClientDetailPage() {
                       Master Services Agreement (MSA) Defaults
                     </h3>
                     <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
-                      Note: Invoice-specific briefs will override these defaults during AI extraction.
+                      Note: Invoice-specific briefs will override these defaults
+                      during AI extraction.
                     </p>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Payment Terms */}
                     <div>
-                      <label className={appFieldLabelClass}>Default Payment Terms (Days)</label>
+                      <label className={appFieldLabelClass}>
+                        Default Payment Terms (Days)
+                      </label>
                       <input
                         type="number"
                         value={msaPaymentTermsDays}
-                        onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                        onChange={(e) =>
+                          setMsaPaymentTermsDays(Number(e.target.value))
+                        }
                         className={fc({ hasValue: true })}
                       />
                     </div>
 
                     {/* Late Fee Rate */}
-                     <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+                        <label className={appFieldLabelClass}>
+                          Late Fee Rate (%)
+                        </label>
                         <input
                           type="number"
                           step="0.1"
                           value={msaLateFeeRate}
-                          onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                          onChange={(e) =>
+                            setMsaLateFeeRate(Number(e.target.value))
+                          }
                           className={fc({ hasValue: true })}
                         />
                       </div>
@@ -506,7 +553,9 @@ export default function ClientDetailPage() {
                         <label className={appFieldLabelClass}>Unit</label>
                         <select
                           value={msaLateFeeUnit}
-                          onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                          onChange={(e) =>
+                            setMsaLateFeeUnit(e.target.value as any)
+                          }
                           className={fc({ hasValue: true, isSelect: true })}
                         >
                           <option value="monthly">per month</option>
@@ -518,17 +567,27 @@ export default function ClientDetailPage() {
 
                     {/* IP Trigger */}
                     <div>
-                      <label className={appFieldLabelClass}>IP Transfer Trigger</label>
+                      <label className={appFieldLabelClass}>
+                        IP Transfer Trigger
+                      </label>
                       <select
                         value={msaIpTriggerType}
-                        onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
+                        onChange={(e) =>
+                          setMsaIpTriggerType(e.target.value as any)
+                        }
                         className={fc({ hasValue: true, isSelect: true })}
                       >
-                        <option value="upon_full_payment">Upon Full Payment</option>
+                        <option value="upon_full_payment">
+                          Upon Full Payment
+                        </option>
                         <option value="upon_signing">Upon Signing</option>
                         <option value="upon_delivery">Upon Delivery</option>
-                        <option value="proportional_transfer">Proportional (Per Milestone)</option>
-                        <option value="retained_by_creator">Retained by Creator (License Only)</option>
+                        <option value="proportional_transfer">
+                          Proportional (Per Milestone)
+                        </option>
+                        <option value="retained_by_creator">
+                          Retained by Creator (License Only)
+                        </option>
                       </select>
                     </div>
 
@@ -540,13 +599,17 @@ export default function ClientDetailPage() {
                         value={msaJurisdictionCity}
                         onChange={(e) => setMsaJurisdictionCity(e.target.value)}
                         placeholder="e.g. Bangalore"
-                        className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                        className={fc({
+                          hasValue: Boolean(msaJurisdictionCity),
+                        })}
                       />
                     </div>
 
                     {/* Effective Date */}
                     <div>
-                      <label className={appFieldLabelClass}>MSA Effective Date</label>
+                      <label className={appFieldLabelClass}>
+                        MSA Effective Date
+                      </label>
                       <input
                         type="date"
                         value={msaEffectiveDate}
@@ -557,7 +620,9 @@ export default function ClientDetailPage() {
 
                     {/* Version Label */}
                     <div>
-                      <label className={appFieldLabelClass}>Contract Version</label>
+                      <label className={appFieldLabelClass}>
+                        Contract Version
+                      </label>
                       <input
                         type="text"
                         value={msaVersionLabel}
@@ -569,48 +634,58 @@ export default function ClientDetailPage() {
 
                     {/* Boilerplate / Notes */}
                     <div className="sm:col-span-2 lg:col-span-4 mt-2">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className={appFieldLabelClass}>Default Notes / Boilerplate</label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const ipLabels: Record<string, string> = {
-                          upon_full_payment: "upon full payment",
-                          upon_signing: "upon signing",
-                          upon_delivery: "upon delivery",
-                          proportional_transfer: "proportionally per milestone",
-                          retained_by_creator: "retained by the creator (limited license)",
-                        };
-                        const ipLabel = ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className={appFieldLabelClass}>
+                          Default Notes / Boilerplate
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ipLabels: Record<string, string> = {
+                              upon_full_payment: "upon full payment",
+                              upon_signing: "upon signing",
+                              upon_delivery: "upon delivery",
+                              proportional_transfer:
+                                "proportionally per milestone",
+                              retained_by_creator:
+                                "retained by the creator (limited license)",
+                            };
+                            const ipLabel =
+                              ipLabels[msaIpTriggerType] ||
+                              ipLabels.upon_full_payment;
 
-                        const unitLabels: Record<string, string> = {
-                          monthly: "per month",
-                          annually: "per annum",
-                          daily: "per day",
-                        };
-                        const unitLabel = unitLabels[msaLateFeeUnit] || unitLabels.monthly;
-                        
-                        const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
-                        
-                        setMsaNotesBoilerplate(template);
-                      }}
-                      className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
-                    >
-                      + Generate Smart Template
-                    </button>
-                  </div>
+                            const unitLabels: Record<string, string> = {
+                              monthly: "per month",
+                              annually: "per annum",
+                              daily: "per day",
+                            };
+                            const unitLabel =
+                              unitLabels[msaLateFeeUnit] || unitLabels.monthly;
+
+                            const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+
+                            setMsaNotesBoilerplate(template);
+                          }}
+                          className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                        >
+                          + Generate Smart Template
+                        </button>
+                      </div>
                       <textarea
                         value={msaNotesBoilerplate}
                         onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
                         rows={3}
                         placeholder="These notes will be pre-filled in the invoice editor..."
-                        className={fc({ hasValue: Boolean(msaNotesBoilerplate), multiline: true })}
+                        className={fc({
+                          hasValue: Boolean(msaNotesBoilerplate),
+                          multiline: true,
+                        })}
                       />
                     </div>
                   </div>
-                  </div>
                 </div>
-              </MotionReveal>
+              </div>
+            </MotionReveal>
 
             {/* MSA Section */}
             <MotionReveal preset="fade-up" delay={20}>
@@ -622,13 +697,17 @@ export default function ClientDetailPage() {
                       Service Agreements
                     </h2>
                     <p className={`mt-1 ${appSectionDescriptionClass}`}>
-                      {msas.length} MSA{msas.length !== 1 ? "s" : ""} · Shown to clients on shared invoice links
+                      {msas.length} MSA{msas.length !== 1 ? "s" : ""} · Shown to
+                      clients on shared invoice links
                     </p>
                   </div>
                   {!isAddingMsa && (
                     <MotionButton
                       onClick={() => setIsAddingMsa(true)}
-                      className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                      className={getAppButtonClass({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
                     >
                       + Add MSA
                     </MotionButton>
@@ -637,7 +716,9 @@ export default function ClientDetailPage() {
 
                 {/* Add MSA form */}
                 {isAddingMsa && (
-                  <div className={`${getAppPanelClass()} mt-4 border-l-[3px] border-l-[color:var(--color-lime-400)]`}>
+                  <div
+                    className={`${getAppPanelClass()} mt-4 border-l-[3px] border-l-[color:var(--color-lime-400)]`}
+                  >
                     <div className="mb-3">
                       <label className={appFieldLabelClass}>Title</label>
                       <input
@@ -648,26 +729,37 @@ export default function ClientDetailPage() {
                       />
                     </div>
                     <div className="mb-3">
-                      <label className={appFieldLabelClass}>Agreement Content</label>
+                      <label className={appFieldLabelClass}>
+                        Agreement Content
+                      </label>
                       <textarea
                         value={newMsaContent}
                         onChange={(e) => setNewMsaContent(e.target.value)}
                         rows={10}
                         placeholder="Paste or type your Master Service Agreement…"
-                        className={fc({ hasValue: Boolean(newMsaContent), multiline: true })}
+                        className={fc({
+                          hasValue: Boolean(newMsaContent),
+                          multiline: true,
+                        })}
                       />
                     </div>
                     <div className="flex items-center gap-2">
                       <MotionButton
                         onClick={handleAddMsa}
-                        className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                        className={getAppButtonClass({
+                          variant: "primary",
+                          size: "sm",
+                        })}
                       >
                         Create MSA
                       </MotionButton>
                       <button
                         type="button"
                         onClick={() => setIsAddingMsa(false)}
-                        className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                        className={getAppButtonClass({
+                          variant: "ghost",
+                          size: "sm",
+                        })}
                       >
                         Cancel
                       </button>
@@ -688,7 +780,8 @@ export default function ClientDetailPage() {
                   {msas.length === 0 && !isAddingMsa && (
                     <div className={`${getAppPanelClass("muted")} text-center`}>
                       <p className="text-[13px] text-[color:var(--text-muted)]">
-                        No agreements yet. Add an MSA to gate invoice access for this client.
+                        No agreements yet. Add an MSA to gate invoice access for
+                        this client.
                       </p>
                     </div>
                   )}

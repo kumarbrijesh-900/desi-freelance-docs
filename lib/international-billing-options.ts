@@ -84,7 +84,7 @@ export function getInvoiceDisplayCurrency(params: {
 }
 
 export function getCurrencySymbol(
-  currency: InvoiceDisplayCurrency | ""
+  currency: InvoiceDisplayCurrency | "",
 ): string {
   if (!currency || currency === "INR") {
     return "₹";

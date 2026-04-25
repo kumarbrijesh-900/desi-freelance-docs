@@ -27,7 +27,8 @@ type FindBestIdentifierOptions = {
   rejectContext?: RegExp[];
 };
 
-const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i;
+const GSTIN_REGEX =
+  /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/i;
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/i;
 const SWIFT_REGEX = /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/i;
@@ -47,7 +48,12 @@ const contextLabelPatterns: Record<IdentifierKind, RegExp[]> = {
   ],
   "pin-code": [/\bpin\b/i, /\bpincode\b/i, /\bzip\b/i, /\bpostal\b/i],
   "phone-number": [/\bphone\b/i, /\bmobile\b/i, /\bcontact\b/i],
-  "unknown-alphanumeric-code": [/\bcode\b/i, /\bid\b/i, /\bno\b/i, /\bnumber\b/i],
+  "unknown-alphanumeric-code": [
+    /\bcode\b/i,
+    /\bid\b/i,
+    /\bno\b/i,
+    /\bnumber\b/i,
+  ],
 };
 
 const scanPatterns: Array<{ kind: IdentifierKind; pattern: RegExp }> = [
@@ -109,10 +115,7 @@ function getConfidenceFromScore(score: number): IdentifierConfidence {
   return "low";
 }
 
-function getMatchedLabels(
-  contextText: string,
-  kind: IdentifierKind
-) {
+function getMatchedLabels(contextText: string, kind: IdentifierKind) {
   return contextLabelPatterns[kind]
     .filter((pattern) => pattern.test(contextText))
     .map((pattern) => pattern.source);
@@ -157,7 +160,7 @@ function normalizePhoneValue(value: string) {
 function classifyBySpecificRegex(
   kind: IdentifierKind,
   normalizedValue: string,
-  contextText: string
+  contextText: string,
 ): IdentifierClassification | undefined {
   const matchedLabels = getMatchedLabels(contextText, kind);
   const contextBoost = matchedLabels.length > 0 ? 2 : 0;
@@ -189,7 +192,7 @@ function classifyBySpecificRegex(
 
 export function classifyIdentifier(
   rawValue: string,
-  contextText = ""
+  contextText = "",
 ): IdentifierClassification | undefined {
   const cleaned = cleanValue(rawValue);
   const cleanedContext = cleanValue(contextText);
@@ -207,7 +210,7 @@ export function classifyIdentifier(
     const classified = classifyBySpecificRegex(
       kind,
       normalizedAlphanumeric,
-      cleanedContext
+      cleanedContext,
     );
 
     if (classified) {
@@ -258,7 +261,10 @@ export function classifyIdentifier(
     };
   }
 
-  const unknownLabels = getMatchedLabels(cleanedContext, "unknown-alphanumeric-code");
+  const unknownLabels = getMatchedLabels(
+    cleanedContext,
+    "unknown-alphanumeric-code",
+  );
   if (
     UNKNOWN_ALPHANUMERIC_REGEX.test(normalizedAlphanumeric) &&
     !/^\d+$/.test(normalizedAlphanumeric)
@@ -277,7 +283,9 @@ export function classifyIdentifier(
   return undefined;
 }
 
-export function findIdentifiersInText(text: string): IdentifierClassification[] {
+export function findIdentifiersInText(
+  text: string,
+): IdentifierClassification[] {
   const collected = new Map<string, IdentifierClassification>();
   const occupiedRanges: Array<{ start: number; end: number }> = [];
 
@@ -296,7 +304,7 @@ export function findIdentifiersInText(text: string): IdentifierClassification[] 
 
       const end = start + value.length;
       const overlapsExisting = occupiedRanges.some(
-        (range) => start < range.end && end > range.start
+        (range) => start < range.end && end > range.start,
       );
 
       if (overlapsExisting) {
@@ -335,14 +343,14 @@ export function findIdentifiersInText(text: string): IdentifierClassification[] 
 
 function extractLabeledIdentifierCandidates(
   text: string,
-  labels: string[]
+  labels: string[],
 ): IdentifierClassification[] {
   const candidates: IdentifierClassification[] = [];
 
   for (const label of labels) {
     const pattern = new RegExp(
       `(?:^|\\n)\\s*${escapeRegExp(label)}(?:\\b|$)(?:\\s*(?:[:\\-])|\\s+is)?\\s*(.+)$`,
-      "im"
+      "im",
     );
     const match = text.match(pattern);
 
@@ -364,7 +372,7 @@ function extractLabeledIdentifierCandidates(
 export function findBestIdentifier(
   text: string,
   kinds: IdentifierKind[],
-  options: FindBestIdentifierOptions = {}
+  options: FindBestIdentifierOptions = {},
 ): IdentifierClassification | undefined {
   const candidates = [
     ...extractLabeledIdentifierCandidates(text, options.labels ?? []),
@@ -381,11 +389,11 @@ export function findBestIdentifier(
     .map((candidate) => {
       const preferredHits =
         options.preferredContext?.filter((pattern) =>
-          pattern.test(candidate.contextText)
+          pattern.test(candidate.contextText),
         ).length ?? 0;
       const rejectHits =
         options.rejectContext?.filter((pattern) =>
-          pattern.test(candidate.contextText)
+          pattern.test(candidate.contextText),
         ).length ?? 0;
       const score =
         confidenceScore[candidate.confidence] * 10 +

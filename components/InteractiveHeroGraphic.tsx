@@ -6,7 +6,7 @@ import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
 
 export default function InteractiveHeroGraphic() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Motion values for mouse position
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -65,7 +65,13 @@ export default function InteractiveHeroGraphic() {
       {/* LAYER 2: The Grid (Static) */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <svg width="100%" height="100%">
-          <pattern id="hatch" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <pattern
+            id="hatch"
+            width="20"
+            height="20"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
             <line x1="0" y1="0" x2="0" y2="20" stroke="black" strokeWidth="1" />
           </pattern>
           <rect width="100%" height="100%" fill="url(#hatch)" />
@@ -97,7 +103,7 @@ export default function InteractiveHeroGraphic() {
               <div className="h-1.5 w-3/4 bg-gray-100 rounded-full" />
             </div>
           </div>
-          
+
           <div className="pt-6 border-t border-gray-100/50 flex items-end justify-between">
             <div className="space-y-1">
               <div className="h-1.5 w-12 bg-gray-100 rounded-full" />
@@ -118,7 +124,9 @@ export default function InteractiveHeroGraphic() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
             <Building2 className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Agency</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+            Agency
+          </span>
         </div>
 
         {/* Client Icon (Briefcase) */}
@@ -126,11 +134,16 @@ export default function InteractiveHeroGraphic() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
             <Briefcase className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Client</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+            Client
+          </span>
         </div>
 
         {/* The Connection Spline */}
-        <svg className="absolute top-[40%] left-[18%] w-[65%] h-32 overflow-visible" viewBox="0 0 300 100">
+        <svg
+          className="absolute top-[40%] left-[18%] w-[65%] h-32 overflow-visible"
+          viewBox="0 0 300 100"
+        >
           <motion.path
             d="M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40"
             fill="none"
@@ -141,14 +154,17 @@ export default function InteractiveHeroGraphic() {
             animate={{ strokeDashoffset: [0, -28] }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           />
-          
+
           {/* Traveling "Pulse" Sparkle */}
           <motion.g
-            animate={{ 
-              offsetDistance: ["0%", "100%"] 
+            animate={{
+              offsetDistance: ["0%", "100%"],
             }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            style={{ offsetPath: "path('M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40')" }}
+            style={{
+              offsetPath:
+                "path('M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40')",
+            }}
           >
             <circle r="4" fill="#BEFF00" className="blur-[2px]" />
             <Sparkle className="h-4 w-4 -translate-x-2 -translate-y-2 text-[#BEFF00] fill-[#BEFF00]" />

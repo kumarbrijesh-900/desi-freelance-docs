@@ -31,10 +31,7 @@ import {
   hasExplicitExportTaxChoice,
   requiresExplicitExportTaxChoice,
 } from "@/lib/invoice-compliance";
-import {
-  mergeInvoiceFormData,
-  type InvoiceFormData,
-} from "@/types/invoice";
+import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
@@ -57,7 +54,6 @@ function getPdfTitle(invoiceNumber?: string) {
   return invoiceNumber?.trim() ? `${invoiceNumber.trim()}.pdf` : "invoice.pdf";
 }
 
-
 export default function InvoicePreviewPage() {
   return (
     <Suspense fallback={<div>Loading preview...</div>}>
@@ -71,7 +67,9 @@ function PreviewContent() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved" | "error">("idle");
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "cloud-saved" | "error"
+  >("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
@@ -105,13 +103,13 @@ function PreviewContent() {
       const isRestore = searchParams.get("restore") === "1";
       const keyToUse = isRestore ? DRAFT_STORAGE_KEY : STORAGE_KEY;
       const raw = window.localStorage.getItem(keyToUse);
-      
+
       if (raw) {
         const parsed = JSON.parse(raw);
         // DRAFT_STORAGE_KEY has a wrapper object { formData, ... }
         // STORAGE_KEY has the raw formData
         const formData = isRestore ? parsed.formData : parsed;
-        
+
         if (formData) {
           setData(mergeInvoiceFormData(formData));
           // If we are restoring, also try to restore the template choice if it was saved
@@ -181,7 +179,7 @@ function PreviewContent() {
     async function autoCloudSave() {
       const currentData = data;
       if (!currentData) return;
-      
+
       const userId = await getCurrentUserId();
       if (!userId) return;
 
@@ -202,17 +200,19 @@ function PreviewContent() {
         setCloudInvoiceId(saved.id);
         // Sync profile details from this restored draft
         await syncProfileFromInvoice(currentData);
-        
+
         // Check if assets are missing to show prompt
         const { data: profile } = await loadProfile();
         if (profile) {
-          const hasAssets = Boolean(profile.logo_url && profile.qr_code_url && profile.signature_url);
+          const hasAssets = Boolean(
+            profile.logo_url && profile.qr_code_url && profile.signature_url,
+          );
           setShowProfilePrompt(!hasAssets);
         }
 
         triggerToast("Draft saved to cloud ☁ Welcome back!");
         playInteractionCue("saveSuccess");
-        
+
         // Clean up URL without reloading
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
@@ -234,7 +234,7 @@ function PreviewContent() {
           currentStep: "totals",
           savedAt: new Date().toISOString(),
           templateId: selectedTemplate, // Store the template choice too
-        })
+        }),
       );
 
       // Also sync to the preview key to keep them aligned
@@ -291,7 +291,9 @@ function PreviewContent() {
       // Fall through to local-only save on error
       console.warn("Cloud save failed, using local storage:", error);
       setSaveState("error");
-      triggerToast("Sync Error: Your invoice is saved on this device but not the cloud. Check your connection.");
+      triggerToast(
+        "Sync Error: Your invoice is saved on this device but not the cloud. Check your connection.",
+      );
       return;
     }
 
@@ -378,7 +380,9 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">Invoice Preview</h1>
+                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">
+                  Invoice Preview
+                </h1>
                 <p className="mt-3 text-sm text-[color:var(--text-secondary)]">
                   No invoice data found. Go back to the editor and click Preview
                   Invoice again.
@@ -387,7 +391,10 @@ function PreviewContent() {
                 <div className="mt-6">
                   <Link
                     href="/invoice/new"
-                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                    className={getAppButtonClass({
+                      variant: "secondary",
+                      size: "sm",
+                    })}
                   >
                     ← Back to Editor
                   </Link>
@@ -407,7 +414,9 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">Invoice Preview</h1>
+                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">
+                  Invoice Preview
+                </h1>
                 <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
                   This international invoice still needs an explicit export tax
                   choice in Totals &amp; Taxes before preview or PDF export.
@@ -417,7 +426,10 @@ function PreviewContent() {
                   <Link
                     href="/invoice/new"
                     onClick={handleBackToEdit}
-                    className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+                    className={getAppButtonClass({
+                      variant: "secondary",
+                      size: "sm",
+                    })}
                   >
                     ← Back to Editor
                   </Link>
@@ -474,8 +486,12 @@ function PreviewContent() {
         }
       `}</style>
 
-      <main className={`${appPageShellClass} print:bg-white print:p-0 min-h-screen pb-32`}>
-        <section className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}>
+      <main
+        className={`${appPageShellClass} print:bg-white print:p-0 min-h-screen pb-32`}
+      >
+        <section
+          className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}
+        >
           <div className="mx-auto w-full max-w-[1328px]">
             {/* Minimal Header */}
             <MotionReveal className="mb-8 print:hidden" preset="fade-up">
@@ -506,20 +522,28 @@ function PreviewContent() {
                       ✨
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Complete your professional profile</h3>
-                      <p className="text-[13px] text-[color:var(--text-secondary)]">Upload your agency logo, signature, and payment QR for faster, more compliant invoices.</p>
+                      <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
+                        Complete your professional profile
+                      </h3>
+                      <p className="text-[13px] text-[color:var(--text-secondary)]">
+                        Upload your agency logo, signature, and payment QR for
+                        faster, more compliant invoices.
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button 
+                    <button
                       onClick={() => setShowProfilePrompt(false)}
                       className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
                     >
                       Later
                     </button>
-                    <Link 
+                    <Link
                       href="/profile"
-                      className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                      className={getAppButtonClass({
+                        variant: "primary",
+                        size: "sm",
+                      })}
                     >
                       Finish Profile
                     </Link>
@@ -537,7 +561,10 @@ function PreviewContent() {
                   preset="scale-in"
                   delay={10}
                 >
-                  <TemplateRenderer formData={data} templateId={selectedTemplate} />
+                  <TemplateRenderer
+                    formData={data}
+                    templateId={selectedTemplate}
+                  />
                 </MotionReveal>
               </div>
 
@@ -554,10 +581,11 @@ function PreviewContent() {
                       />
                     </div>
                   </MotionReveal>
-                  
+
                   <div className="mt-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-4 text-center">
                     <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
-                      Pro templates come with premium layout options and zero branding.
+                      Pro templates come with premium layout options and zero
+                      branding.
                     </p>
                   </div>
                 </div>
@@ -580,7 +608,9 @@ function PreviewContent() {
               </Link>
               <div className="h-4 w-px bg-[color:var(--border-subtle)]" />
               {saveState === "saving" ? (
-                <span className="text-xs font-medium text-[color:var(--text-muted)]">Saving…</span>
+                <span className="text-xs font-medium text-[color:var(--text-muted)]">
+                  Saving…
+                </span>
               ) : saveState === "cloud-saved" || saveState === "saved" ? (
                 <span className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--state-success-text)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--state-success-text)]" />
@@ -592,7 +622,9 @@ function PreviewContent() {
                   Cloud Save Failed (Saved Locally)
                 </span>
               ) : (
-                <span className="text-xs text-[color:var(--text-muted)]">Draft unsaved</span>
+                <span className="text-xs text-[color:var(--text-muted)]">
+                  Draft unsaved
+                </span>
               )}
             </div>
 
@@ -600,7 +632,10 @@ function PreviewContent() {
               <MotionButton
                 type="button"
                 onClick={handleSaveDraft}
-                className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                className={getAppButtonClass({
+                  variant: "secondary",
+                  size: "md",
+                })}
               >
                 <SaveIcon className="h-4 w-4" />
                 Save Draft
@@ -609,7 +644,10 @@ function PreviewContent() {
               <MotionButton
                 type="button"
                 onClick={handlePrint}
-                className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                className={getAppButtonClass({
+                  variant: "secondary",
+                  size: "md",
+                })}
               >
                 <PrinterIcon className="h-4 w-4" />
                 Print
@@ -620,7 +658,10 @@ function PreviewContent() {
                 <MotionButton
                   type="button"
                   onClick={() => setShowShareModal(true)}
-                  className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                  className={getAppButtonClass({
+                    variant: "secondary",
+                    size: "md",
+                  })}
                 >
                   <ShareIcon className="h-4 w-4" />
                   Share
@@ -630,7 +671,10 @@ function PreviewContent() {
                   type="button"
                   disabled
                   title="Save the invoice first to get a shareable link"
-                  className={getAppButtonClass({ variant: "secondary", size: "md" }) + " opacity-40 cursor-not-allowed"}
+                  className={
+                    getAppButtonClass({ variant: "secondary", size: "md" }) +
+                    " opacity-40 cursor-not-allowed"
+                  }
                 >
                   <ShareIcon className="h-4 w-4" />
                   Share
@@ -641,7 +685,10 @@ function PreviewContent() {
                 <MotionButton
                   type="button"
                   onClick={handleDownloadPdf}
-                  className={getAppButtonClass({ variant: "primary", size: "md" })}
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    size: "md",
+                  })}
                 >
                   <DownloadIcon className="h-4 w-4" />
                   {isExportingPdf ? "Exporting..." : "Export PDF"}

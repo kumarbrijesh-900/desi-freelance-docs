@@ -11,20 +11,23 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   // 1. Verify this request actually came from Vercel Cron (security)
   const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (
+    process.env.CRON_SECRET &&
+    authHeader !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   try {
     // Get today's date in YYYY-MM-DD
     const today = new Date().toISOString().split("T")[0];
-    
+
     // Get date for 2 days ago
     const twoDaysAgoDate = new Date();
     twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
@@ -43,7 +46,7 @@ export async function GET(request: Request) {
       .lt("due_date", today);
 
     if (!overdueErr && toMarkOverdue?.length) {
-      const ids = toMarkOverdue.map(i => i.id);
+      const ids = toMarkOverdue.map((i) => i.id);
       await supabaseAdmin
         .from("invoices")
         .update({ status: "overdue" })
@@ -104,7 +107,10 @@ export async function GET(request: Request) {
           });
 
           // Update flag
-          await supabaseAdmin.from("invoices").update({ reminded_due_date: true }).eq("id", inv.id);
+          await supabaseAdmin
+            .from("invoices")
+            .update({ reminded_due_date: true })
+            .eq("id", inv.id);
         }
       }
       console.log(`[CRON] Sent ${dueToday.length} 'Due Today' reminders.`);
@@ -141,13 +147,21 @@ export async function GET(request: Request) {
           });
 
           // Update flag
-          await supabaseAdmin.from("invoices").update({ reminded_overdue: true }).eq("id", inv.id);
+          await supabaseAdmin
+            .from("invoices")
+            .update({ reminded_overdue: true })
+            .eq("id", inv.id);
         }
       }
-      console.log(`[CRON] Sent ${twoDaysOverdue.length} 'Overdue' urgent nudges.`);
+      console.log(
+        `[CRON] Sent ${twoDaysOverdue.length} 'Overdue' urgent nudges.`,
+      );
     }
 
-    return NextResponse.json({ success: true, timestamp: new Date().toISOString() });
+    return NextResponse.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+    });
   } catch (err) {
     console.error("[CRON_ERROR]", err);
     return NextResponse.json({ error: "Internal Cron Error" }, { status: 500 });

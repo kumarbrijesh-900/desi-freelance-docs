@@ -1,6 +1,9 @@
 import { InvoiceFormData, LicenseType } from "@/types/invoice";
 import { ClientDetails } from "@/types/invoice";
-import { SavedClient, savedClientToClientDetails } from "@/lib/supabase/clients";
+import {
+  SavedClient,
+  savedClientToClientDetails,
+} from "@/lib/supabase/clients";
 
 function addDays(dateString: string, days: number) {
   const date = new Date(dateString);
@@ -44,7 +47,7 @@ export function getSuggestedDueDate(paymentTerms: string, invoiceDate: string) {
  */
 export function syncMsaToInvoice(
   currentFormData: InvoiceFormData,
-  savedClient: SavedClient
+  savedClient: SavedClient,
 ): InvoiceFormData {
   // Convert DB row to form-friendly details
   const client = savedClientToClientDetails(savedClient);
@@ -59,18 +62,21 @@ export function syncMsaToInvoice(
   if (client.msaPaymentTermsDays !== undefined) {
     const days = client.msaPaymentTermsDays;
     const termsLabel = days === 0 ? "Due on Receipt" : `Net ${days}`;
-    
+
     updated.meta = {
       ...updated.meta,
       paymentTerms: termsLabel,
-      dueDate: getSuggestedDueDate(termsLabel, updated.meta.invoiceDate || new Date().toISOString().split("T")[0]),
+      dueDate: getSuggestedDueDate(
+        termsLabel,
+        updated.meta.invoiceDate || new Date().toISOString().split("T")[0],
+      ),
     };
   }
 
   // 2. Hydrate Terms & Notes (Boilerplate)
   if (client.msaNotesBoilerplate) {
     let finalNotes = client.msaNotesBoilerplate;
-    
+
     // Add Late Fee Rate if specified in the blueprint
     if (client.msaLateFeeRate && client.msaLateFeeRate > 0) {
       const lateFeeText = `\n\nNote: A late fee of ${client.msaLateFeeRate}% per month applies to overdue balances.`;
@@ -96,10 +102,12 @@ export function syncMsaToInvoice(
   // 3. Hydrate Intellectual Property / License Defaults
   if (client.msaIpTriggerType) {
     let targetLicense: LicenseType = "full-assignment";
-    
+
     if (client.msaIpTriggerType.toLowerCase().includes("exclusive_license")) {
       targetLicense = "exclusive-license";
-    } else if (client.msaIpTriggerType.toLowerCase().includes("non_exclusive")) {
+    } else if (
+      client.msaIpTriggerType.toLowerCase().includes("non_exclusive")
+    ) {
       targetLicense = "non-exclusive-license";
     }
 

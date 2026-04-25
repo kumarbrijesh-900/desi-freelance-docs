@@ -91,19 +91,23 @@ export default function DeliverablesSection({
   errors,
   showAllErrors = false,
 }: DeliverablesSectionProps) {
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {},
+  );
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(
-    null
+    null,
   );
   const [isSacHelpOpen, setIsSacHelpOpen] = useState(false);
-  const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>(
+    {},
+  );
   const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
   const closeDescriptionAssist = (id: string) =>
     setActiveDescriptionId((current) => (current === id ? null : current));
   const updateItem = <K extends keyof InvoiceLineItem>(
     id: string,
     key: K,
-    fieldValue: InvoiceLineItem[K]
+    fieldValue: InvoiceLineItem[K],
   ) => {
     onChange(
       value.map((item) =>
@@ -112,8 +116,8 @@ export default function DeliverablesSection({
               ...item,
               [key]: fieldValue,
             }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -138,7 +142,7 @@ export default function DeliverablesSection({
           // Keep any user-entered description intact when the type changes.
           description: item.description.trim() ? item.description : "",
         };
-      })
+      }),
     );
   };
 
@@ -177,10 +181,7 @@ export default function DeliverablesSection({
 
   const canDeleteRows = value.length > 1;
   const currencySymbol = getCurrencySymbol(currency);
-  const lineItemErrorSlotClass = cn(
-    appFieldErrorTextClass,
-    "min-h-[18px]",
-  );
+  const lineItemErrorSlotClass = cn(appFieldErrorTextClass, "min-h-[18px]");
   const inputClass = (hasError?: string, hasValue?: boolean) =>
     getAppFieldClass({
       hasError,
@@ -192,9 +193,12 @@ export default function DeliverablesSection({
         hasError,
         hasValue,
       }),
-      "pl-9"
+      "pl-9",
     );
-  const markTouched = (itemId: string, field: "description" | "qty" | "rate") => {
+  const markTouched = (
+    itemId: string,
+    field: "description" | "qty" | "rate",
+  ) => {
     const key = `${itemId}:${field}`;
     setTouchedFields((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
   };
@@ -205,7 +209,7 @@ export default function DeliverablesSection({
   const getVisibleRowError = (
     itemId: string,
     field: "description" | "qty" | "rate" | "sacCode",
-    error?: string
+    error?: string,
   ) => {
     return showAllErrors || touchedFields[`${itemId}:${field}`]
       ? error
@@ -229,7 +233,7 @@ export default function DeliverablesSection({
         "overflow-visible",
         embedded
           ? "rounded-none border-0 bg-transparent p-0 shadow-none"
-          : getAppPanelClass()
+          : getAppPanelClass(),
       )}
     >
       {!embedded ? (
@@ -242,7 +246,12 @@ export default function DeliverablesSection({
       ) : null}
 
       <div className="invoice-line-item-workspace space-y-4">
-        <div className={cn("invoice-line-item-head mb-2 hidden xl:grid xl:gap-2 xl:px-3 xl:py-3", lineItemDesktopGridClass)}>
+        <div
+          className={cn(
+            "invoice-line-item-head mb-2 hidden xl:grid xl:gap-2 xl:px-3 xl:py-3",
+            lineItemDesktopGridClass,
+          )}
+        >
           <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
             Type
           </span>
@@ -264,7 +273,10 @@ export default function DeliverablesSection({
           <span />
         </div>
 
-        <div className="space-y-3 overflow-visible" data-testid="line-items-list">
+        <div
+          className="space-y-3 overflow-visible"
+          data-testid="line-items-list"
+        >
           {value.map((item, index) => {
             const lineTotal = item.qty * item.rate;
             const allowedUnits = invoiceAllowedUnitsByType[item.type];
@@ -272,16 +284,22 @@ export default function DeliverablesSection({
             const descriptionError = getVisibleRowError(
               item.id,
               "description",
-              rowErrors?.description
+              rowErrors?.description,
             );
             const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
-            const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
+            const rateError = getVisibleRowError(
+              item.id,
+              "rate",
+              rowErrors?.rate,
+            );
             const sacError = getVisibleRowError(
               item.id,
               "sacCode",
-              rowErrors?.sacCode
+              rowErrors?.sacCode,
             );
-            const descriptionSuggestions = getInvoiceDescriptionSuggestions(item.type);
+            const descriptionSuggestions = getInvoiceDescriptionSuggestions(
+              item.type,
+            );
             const resolvedSacCode = resolveLineItemSacCode(item);
             const needsManualSacEntry = isManualSacRequired(item.type);
             const showSuggestionAssist = activeDescriptionId === item.id;
@@ -290,7 +308,7 @@ export default function DeliverablesSection({
             const sacTooltipId = `${item.id}-sac-help`;
             const compactLabelClass = cn(
               appFieldLabelClass,
-              "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0"
+              "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0",
             );
 
             return (
@@ -300,7 +318,7 @@ export default function DeliverablesSection({
                 data-row-tone={index === 0 ? "default" : "muted"}
                 className={cn(
                   "invoice-line-item-row relative overflow-visible px-4 py-3",
-                  showSuggestionAssist ? "z-40" : "z-0"
+                  showSuggestionAssist ? "z-40" : "z-0",
                 )}
               >
                 <div className="mb-3 flex items-center justify-between gap-3 border-b border-[color:var(--border-subtle)] pb-2 xl:hidden">
@@ -315,7 +333,7 @@ export default function DeliverablesSection({
                 <div
                   className={cn(
                     "grid grid-cols-1 gap-3 xl:items-start xl:gap-3",
-                    lineItemDesktopGridClass
+                    lineItemDesktopGridClass,
                   )}
                 >
                   <div className="min-w-0">
@@ -326,7 +344,7 @@ export default function DeliverablesSection({
                       onChange={(e) =>
                         handleTypeChange(
                           item.id,
-                          e.target.value as InvoiceLineItemType
+                          e.target.value as InvoiceLineItemType,
                         )
                       }
                       hasValue
@@ -391,7 +409,7 @@ export default function DeliverablesSection({
                             placeholder="6-digit SAC"
                             className={inputClass(
                               sacError,
-                              Boolean(item.sacCode)
+                              Boolean(item.sacCode),
                             )}
                           />
                           {sacError ? (
@@ -450,7 +468,7 @@ export default function DeliverablesSection({
                   <div
                     className={cn(
                       "min-w-0 space-y-1.5",
-                      showSuggestionAssist ? "relative z-30" : ""
+                      showSuggestionAssist ? "relative z-30" : "",
                     )}
                   >
                     <label className={compactLabelClass}>Description *</label>
@@ -472,16 +490,18 @@ export default function DeliverablesSection({
                             markTouched(item.id, "description");
                             closeDescriptionAssist(item.id);
                           }}
-                          placeholder={invoiceDescriptionPlaceholderByType[item.type]}
+                          placeholder={
+                            invoiceDescriptionPlaceholderByType[item.type]
+                          }
                           className={cn(
                             inputClass(
                               descriptionError,
-                              Boolean(item.description)
+                              Boolean(item.description),
                             ),
                             "pr-12",
                             showSuggestionAssist
                               ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]"
-                              : ""
+                              : "",
                           )}
                           title={
                             item.description ||
@@ -509,7 +529,8 @@ export default function DeliverablesSection({
                         >
                           <SparklesIcon className="h-4 w-4" />
                         </button>
-                        {showSuggestionAssist && descriptionSuggestions.length > 0 ? (
+                        {showSuggestionAssist &&
+                        descriptionSuggestions.length > 0 ? (
                           <div
                             id={descriptionPanelId}
                             role="listbox"
@@ -528,9 +549,14 @@ export default function DeliverablesSection({
                                   key={suggestion}
                                   type="button"
                                   role="option"
-                                  onMouseDown={(event) => event.preventDefault()}
+                                  onMouseDown={(event) =>
+                                    event.preventDefault()
+                                  }
                                   onClick={() =>
-                                    applyDescriptionSuggestion(item.id, suggestion)
+                                    applyDescriptionSuggestion(
+                                      item.id,
+                                      suggestion,
+                                    )
                                   }
                                   className="block w-full px-3 py-2 text-left text-[12px] leading-5 text-[color:var(--text-secondary)] transition-[background-color,color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-primary)]"
                                 >
@@ -545,7 +571,7 @@ export default function DeliverablesSection({
                     <p
                       className={cn(
                         lineItemErrorSlotClass,
-                        descriptionError ? "" : "invisible"
+                        descriptionError ? "" : "invisible",
                       )}
                     >
                       {descriptionError ?? "Description error"}
@@ -564,7 +590,7 @@ export default function DeliverablesSection({
                         updateItem(
                           item.id,
                           "qty",
-                          Math.max(0, Number(e.target.value) || 0)
+                          Math.max(0, Number(e.target.value) || 0),
                         )
                       }
                       onBlur={() => markTouched(item.id, "qty")}
@@ -574,7 +600,7 @@ export default function DeliverablesSection({
                     <p
                       className={cn(
                         lineItemErrorSlotClass,
-                        qtyError ? "" : "invisible"
+                        qtyError ? "" : "invisible",
                       )}
                     >
                       {qtyError ?? "Quantity error"}
@@ -597,7 +623,7 @@ export default function DeliverablesSection({
                           updateItem(
                             item.id,
                             "rate",
-                            Math.max(0, Number(e.target.value) || 0)
+                            Math.max(0, Number(e.target.value) || 0),
                           )
                         }
                         onBlur={() => markTouched(item.id, "rate")}
@@ -608,7 +634,7 @@ export default function DeliverablesSection({
                     <p
                       className={cn(
                         lineItemErrorSlotClass,
-                        rateError ? "" : "invisible"
+                        rateError ? "" : "invisible",
                       )}
                     >
                       {rateError ?? "Rate error"}
@@ -624,7 +650,7 @@ export default function DeliverablesSection({
                         updateItem(
                           item.id,
                           "rateUnit",
-                          e.target.value as InvoiceRateUnit
+                          e.target.value as InvoiceRateUnit,
                         )
                       }
                       hasValue
@@ -663,7 +689,7 @@ export default function DeliverablesSection({
                             variant: "ghost",
                             size: "sm",
                           }),
-                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-[color:var(--text-soft)] hover:border-[color:var(--state-danger-border)] hover:bg-[color:var(--state-danger-bg)] hover:text-[color:var(--state-danger-text)]"
+                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-[color:var(--text-soft)] hover:border-[color:var(--state-danger-border)] hover:bg-[color:var(--state-danger-bg)] hover:text-[color:var(--state-danger-text)]",
                         )}
                       >
                         <span
@@ -692,7 +718,7 @@ export default function DeliverablesSection({
                 variant: "ghost",
                 size: "md",
               }),
-              "w-full border-2 border-dashed border-[color:var(--border-subtle)] font-bold tracking-[0.01em] hover:border-[color:var(--border-strong)] hover:bg-gray-50/50"
+              "w-full border-2 border-dashed border-[color:var(--border-subtle)] font-bold tracking-[0.01em] hover:border-[color:var(--border-strong)] hover:bg-gray-50/50",
             )}
           >
             <span className="mr-2 text-lg">+</span>

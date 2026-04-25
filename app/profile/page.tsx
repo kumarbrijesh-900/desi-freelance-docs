@@ -11,7 +11,11 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import { MotionReveal, MotionButton, SuccessPulse } from "@/components/ui/motion-primitives";
+import {
+  MotionReveal,
+  MotionButton,
+  SuccessPulse,
+} from "@/components/ui/motion-primitives";
 import {
   appGridClass,
   appPageContainerClass,
@@ -37,8 +41,13 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import { uploadProfessionalAsset } from "@/lib/supabase/storage";
 import type { AgencyDetails, PaymentDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
-import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+import ReactCrop, {
+  type Crop,
+  type PixelCrop,
+  centerCrop,
+  makeAspectCrop,
+} from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/image-crop-utils";
 
 import SubmitFeedback from "@/components/feedback/SubmitFeedback";
@@ -90,7 +99,9 @@ function FieldRow({
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "success">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "success">(
+    "idle",
+  );
   const [userId, setUserId] = useState<string>("");
 
   // Form Fields - Agency fields
@@ -120,14 +131,18 @@ export default function ProfilePage() {
   // MSA Defaults
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
   const [msaLateFeeRate, setMsaLateFeeRate] = useState(1.5);
-  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<"monthly" | "annually" | "daily">("monthly");
+  const [msaLateFeeUnit, setMsaLateFeeUnit] = useState<
+    "monthly" | "annually" | "daily"
+  >("monthly");
   const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
 
   // Load auth + profile
   useEffect(() => {
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsAuthenticated(false);
         setIsLoading(false);
@@ -140,7 +155,7 @@ export default function ProfilePage() {
       if (loadError) {
         console.error("PROFILE_INIT_ERROR:", loadError);
       }
-      
+
       if (profile) {
         setAgencyName(profile.agency_name || "");
         setAddressLine1(profile.address_line1 || "");
@@ -162,7 +177,7 @@ export default function ProfilePage() {
         setSwiftBicCode(profile.swift_bic_code || "");
         setQrCodeUrl(profile.qr_code_url || "");
         setSignatureUrl(profile.signature_url || "");
-        
+
         // MSA Defaults
         setMsaPaymentTermsDays(profile.msa_payment_terms_days ?? 20);
         setMsaLateFeeRate(profile.msa_late_fee_rate ?? 1.5);
@@ -178,16 +193,16 @@ export default function ProfilePage() {
   const fc = getAppFieldClass;
 
   /* ── Image Upload Helper ────────────────────────── */
-  const ImageUploadField = ({ 
-    label, 
-    helper, 
-    value, 
-    onUrlChange, 
-    folder 
-  }: { 
-    label: string; 
-    helper: string; 
-    value: string; 
+  const ImageUploadField = ({
+    label,
+    helper,
+    value,
+    onUrlChange,
+    folder,
+  }: {
+    label: string;
+    helper: string;
+    value: string;
     onUrlChange: (url: string) => void;
     folder: string;
   }) => {
@@ -204,13 +219,13 @@ export default function ProfilePage() {
       const aspect = label.toLowerCase().includes("qr") ? 1 : undefined;
       const initialCrop = centerCrop(
         makeAspectCrop(
-          { unit: '%', width: 90 },
-          aspect || (width / height),
+          { unit: "%", width: 90 },
+          aspect || width / height,
           width,
-          height
+          height,
         ),
         width,
-        height
+        height,
       );
       setCrop(initialCrop);
     };
@@ -220,7 +235,7 @@ export default function ProfilePage() {
       if (!file) return;
 
       const reader = new FileReader();
-      reader.addEventListener('load', () => {
+      reader.addEventListener("load", () => {
         setTempImgSrc(reader.result?.toString() || "");
         setCropModalOpen(true);
       });
@@ -237,12 +252,15 @@ export default function ProfilePage() {
         const croppedFile = await getCroppedImg(
           imgRef.current,
           completedCrop,
-          `cropped-${Date.now()}.png`
+          `cropped-${Date.now()}.png`,
         );
 
         const fileName = `${folder}/${userId}-${Date.now()}-cropped.png`;
-        const { url, error } = await uploadProfessionalAsset(croppedFile, fileName);
-        
+        const { url, error } = await uploadProfessionalAsset(
+          croppedFile,
+          fileName,
+        );
+
         if (url) {
           onUrlChange(url);
         } else if (error) {
@@ -287,8 +305,19 @@ export default function ProfilePage() {
                     className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-canvas)] hover:text-[color:var(--text-primary)]"
                     title="Change image"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
                     </svg>
                   </button>
                   <button
@@ -297,8 +326,19 @@ export default function ProfilePage() {
                     className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                     title="Remove"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -313,12 +353,25 @@ export default function ProfilePage() {
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">Processing...</span>
+                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                      Processing...
+                    </span>
                   </div>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
                     </svg>
                     <span className="text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[color:var(--text-primary)]">
                       Upload {label}
@@ -341,14 +394,25 @@ export default function ProfilePage() {
         {/* Cropper Modal */}
         {cropModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <MotionReveal preset="fade-up" className="w-full max-w-2xl overflow-hidden rounded-2xl bg-[color:var(--bg-surface)] shadow-2xl">
+            <MotionReveal
+              preset="fade-up"
+              className="w-full max-w-2xl overflow-hidden rounded-2xl bg-[color:var(--bg-surface)] shadow-2xl"
+            >
               <div className="border-b border-[color:var(--border-subtle)] p-4 flex justify-between items-center bg-[color:var(--bg-surface-soft)]">
-                <h3 className="font-bold text-[color:var(--text-primary)]">Optimize Your {label}</h3>
-                <button onClick={() => setCropModalOpen(false)} className="text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]">✕</button>
+                <h3 className="font-bold text-[color:var(--text-primary)]">
+                  Optimize Your {label}
+                </h3>
+                <button
+                  onClick={() => setCropModalOpen(false)}
+                  className="text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                >
+                  ✕
+                </button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
                 <p className="mb-4 text-[13px] text-[color:var(--text-muted)] text-center">
-                  Crop your image to remove unnecessary margins for a perfect fit on the invoice.
+                  Crop your image to remove unnecessary margins for a perfect
+                  fit on the invoice.
                 </p>
                 <ReactCrop
                   crop={crop}
@@ -362,7 +426,7 @@ export default function ProfilePage() {
                     src={tempImgSrc}
                     onLoad={onImageLoad}
                     alt="To Crop"
-                    style={{ maxWidth: '100%', maxHeight: '50vh' }}
+                    style={{ maxWidth: "100%", maxHeight: "50vh" }}
                   />
                 </ReactCrop>
               </div>
@@ -393,7 +457,9 @@ export default function ProfilePage() {
 
     const agency: AgencyDetails = {
       agencyName,
-      address: [addressLine1, addressLine2, city, agencyState, pinCode].filter(Boolean).join(", "),
+      address: [addressLine1, addressLine2, city, agencyState, pinCode]
+        .filter(Boolean)
+        .join(", "),
       addressLine1,
       addressLine2,
       city,
@@ -402,7 +468,8 @@ export default function ProfilePage() {
       gstin,
       pan,
       logoUrl,
-      gstRegistrationStatus: gstStatus as AgencyDetails["gstRegistrationStatus"],
+      gstRegistrationStatus:
+        gstStatus as AgencyDetails["gstRegistrationStatus"],
       lutAvailability: lutNumber ? "yes" : "no",
       lutNumber,
       lutValidity,
@@ -454,9 +521,16 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">Sign in to manage your profile</p>
-          <p className="text-[13px] text-[color:var(--text-muted)]">Your profile auto-fills agency details on every invoice.</p>
-          <Link href="/login" className={getAppButtonClass({ variant: "primary" })}>
+          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+            Sign in to manage your profile
+          </p>
+          <p className="text-[13px] text-[color:var(--text-muted)]">
+            Your profile auto-fills agency details on every invoice.
+          </p>
+          <Link
+            href="/login"
+            className={getAppButtonClass({ variant: "primary" })}
+          >
             Sign In
           </Link>
         </div>
@@ -504,7 +578,8 @@ export default function ProfilePage() {
                   Your Profile
                 </h1>
                 <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
-                  Agency details saved here auto-fill every new invoice you create.
+                  Agency details saved here auto-fill every new invoice you
+                  create.
                 </p>
               </div>
             </MotionReveal>
@@ -575,11 +650,16 @@ export default function ProfilePage() {
                     <select
                       value={agencyState}
                       onChange={(e) => setAgencyState(e.target.value)}
-                      className={fc({ hasValue: Boolean(agencyState), isSelect: true })}
+                      className={fc({
+                        hasValue: Boolean(agencyState),
+                        isSelect: true,
+                      })}
                     >
                       <option value="">Select state</option>
                       {INDIA_STATE_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
                       ))}
                     </select>
                   </FieldRow>
@@ -588,7 +668,10 @@ export default function ProfilePage() {
                     <select
                       value={gstStatus}
                       onChange={(e) => setGstStatus(e.target.value)}
-                      className={fc({ hasValue: Boolean(gstStatus), isSelect: true })}
+                      className={fc({
+                        hasValue: Boolean(gstStatus),
+                        isSelect: true,
+                      })}
                     >
                       <option value="not-registered">Not registered</option>
                       <option value="registered">GST registered</option>
@@ -619,24 +702,24 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
 
-                  <ImageUploadField 
-                    label="Logo" 
+                  <ImageUploadField
+                    label="Logo"
                     helper="Direct link or upload your logo (PNG, SVG, 1:1 recommended)"
                     value={logoUrl}
                     onUrlChange={setLogoUrl}
                     folder="logos"
                   />
 
-                  <ImageUploadField 
-                    label="Digital Signature" 
+                  <ImageUploadField
+                    label="Digital Signature"
                     helper="Direct link or upload your signature image (PNG with transparent background recommended)"
                     value={signatureUrl}
                     onUrlChange={setSignatureUrl}
                     folder="signatures"
                   />
 
-                  <ImageUploadField 
-                    label="Payment QR Code" 
+                  <ImageUploadField
+                    label="Payment QR Code"
                     helper="Direct link or upload your UPI / Payment QR code image"
                     value={qrCodeUrl}
                     onUrlChange={setQrCodeUrl}
@@ -645,7 +728,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </MotionReveal>
-            
+
             {/* Export Compliance (LUT) */}
             <MotionReveal preset="fade-up" delay={15}>
               <div className={`${getAppPanelClass()} mb-4`}>
@@ -656,27 +739,32 @@ export default function ProfilePage() {
                 />
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldRow 
-                    label="LUT Number" 
+                  <FieldRow
+                    label="LUT Number"
                     helper="Enter your Letter of Undertaking number if applicable."
                   >
                     <input
                       type="text"
                       value={lutNumber}
-                      onChange={(e) => setLutNumber(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setLutNumber(e.target.value.toUpperCase())
+                      }
                       placeholder="e.g., AD290324..."
                       className={fc({ hasValue: Boolean(lutNumber) })}
                     />
                   </FieldRow>
 
-                  <FieldRow 
+                  <FieldRow
                     label="Validity Period"
                     helper="Select the financial year for which the LUT is valid."
                   >
                     <select
                       value={lutValidity}
                       onChange={(e) => setLutValidity(e.target.value)}
-                      className={fc({ hasValue: Boolean(lutValidity), isSelect: true })}
+                      className={fc({
+                        hasValue: Boolean(lutValidity),
+                        isSelect: true,
+                      })}
                     >
                       <option value="">Select validity</option>
                       <option value="fy_2025_26">FY 2025-26</option>
@@ -687,7 +775,8 @@ export default function ProfilePage() {
 
                   <div className="sm:col-span-2">
                     <p className={appFieldHelperTextClass}>
-                      If provided, this LUT will be automatically applied to International and SEZ invoices to legally enforce 0% IGST.
+                      If provided, this LUT will be automatically applied to
+                      International and SEZ invoices to legally enforce 0% IGST.
                     </p>
                   </div>
                 </div>
@@ -738,16 +827,19 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={ifscCode}
-                      onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setIfscCode(e.target.value.toUpperCase())
+                      }
                       placeholder="e.g. HDFC0001234"
                       className={fc({ hasValue: Boolean(ifscCode) })}
                     />
                   </FieldRow>
 
-
-
                   <div className="sm:col-span-2">
-                    <FieldRow label="Bank Address" helper="For international payments (SWIFT transfers)">
+                    <FieldRow
+                      label="Bank Address"
+                      helper="For international payments (SWIFT transfers)"
+                    >
                       <input
                         type="text"
                         value={bankAddress}
@@ -758,11 +850,16 @@ export default function ProfilePage() {
                     </FieldRow>
                   </div>
 
-                  <FieldRow label="SWIFT / BIC Code" helper="For international clients">
+                  <FieldRow
+                    label="SWIFT / BIC Code"
+                    helper="For international clients"
+                  >
                     <input
                       type="text"
                       value={swiftBicCode}
-                      onChange={(e) => setSwiftBicCode(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setSwiftBicCode(e.target.value.toUpperCase())
+                      }
                       placeholder="e.g. HDFCINBB"
                       className={fc({ hasValue: Boolean(swiftBicCode) })}
                     />
@@ -785,7 +882,9 @@ export default function ProfilePage() {
                     <input
                       type="number"
                       value={msaPaymentTermsDays}
-                      onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                      onChange={(e) =>
+                        setMsaPaymentTermsDays(Number(e.target.value))
+                      }
                       className={fc({ hasValue: true })}
                     />
                   </FieldRow>
@@ -796,12 +895,16 @@ export default function ProfilePage() {
                         type="number"
                         step="0.1"
                         value={msaLateFeeRate}
-                        onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                        onChange={(e) =>
+                          setMsaLateFeeRate(Number(e.target.value))
+                        }
                         className={fc({ hasValue: true })}
                       />
                       <select
                         value={msaLateFeeUnit}
-                        onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                        onChange={(e) =>
+                          setMsaLateFeeUnit(e.target.value as any)
+                        }
                         className={fc({ hasValue: true, isSelect: true })}
                       >
                         <option value="monthly">per month</option>
@@ -811,20 +914,28 @@ export default function ProfilePage() {
                     </div>
                   </FieldRow>
 
-                  <FieldRow 
+                  <FieldRow
                     label="IP Transfer Trigger"
                     helper="Note: Invoice-specific briefs will override these defaults during AI extraction."
                   >
                     <select
                       value={msaIpTriggerType}
-                      onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
+                      onChange={(e) =>
+                        setMsaIpTriggerType(e.target.value as any)
+                      }
                       className={fc({ hasValue: true, isSelect: true })}
                     >
-                      <option value="upon_full_payment">Upon Full Payment</option>
+                      <option value="upon_full_payment">
+                        Upon Full Payment
+                      </option>
                       <option value="upon_signing">Upon Signing</option>
                       <option value="upon_delivery">Upon Delivery</option>
-                      <option value="proportional_transfer">Proportional (Per Milestone)</option>
-                      <option value="retained_by_creator">Retained by Creator (License Only)</option>
+                      <option value="proportional_transfer">
+                        Proportional (Per Milestone)
+                      </option>
+                      <option value="retained_by_creator">
+                        Retained by Creator (License Only)
+                      </option>
                     </select>
                   </FieldRow>
 
@@ -854,9 +965,16 @@ export default function ProfilePage() {
                 <MotionButton
                   onClick={handleSave}
                   disabled={saveState === "saving"}
-                  className={getAppButtonClass({ variant: "primary", fullWidth: true })}
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    fullWidth: true,
+                  })}
                 >
-                  {saveState === "saving" ? "Saving…" : saveState === "success" ? "✓ Saved!" : "Save Profile"}
+                  {saveState === "saving"
+                    ? "Saving…"
+                    : saveState === "success"
+                      ? "✓ Saved!"
+                      : "Save Profile"}
                 </MotionButton>
               </div>
             </MotionReveal>

@@ -44,7 +44,7 @@ export default function AppTextareaField({
             multiline: true,
           }),
           getAppFieldWidthClass(width),
-          className
+          className,
         )}
       />
     </AppFieldShell>

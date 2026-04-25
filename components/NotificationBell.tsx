@@ -2,20 +2,20 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { 
-  BellIcon, 
-  MailIcon, 
-  EyeIcon, 
-  CheckCircleIcon, 
+import {
+  BellIcon,
+  MailIcon,
+  EyeIcon,
+  CheckCircleIcon,
   XMarkIcon,
-  ExclamationTriangleIcon 
+  ExclamationTriangleIcon,
 } from "./ui/app-icons";
 import { cn } from "@/lib/ui-foundation";
-import { 
-  listLiveNotifications, 
-  markAsRead, 
-  markAllAsRead, 
-  type Notification 
+import {
+  listLiveNotifications,
+  markAsRead,
+  markAllAsRead,
+  type Notification,
 } from "@/lib/supabase/notifications";
 import { supabase } from "@/lib/supabase/client";
 
@@ -24,7 +24,7 @@ function getTimeAgo(dateString: string) {
   const past = new Date(dateString);
   const diffInMs = now.getTime() - past.getTime();
   const diffInMins = Math.floor(diffInMs / 60000);
-  
+
   if (diffInMins < 1) return "just now";
   if (diffInMins < 60) return `${diffInMins}m ago`;
   const diffInHours = Math.floor(diffInMins / 60);
@@ -37,7 +37,7 @@ export default function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const hasUnread = notifications.some(n => !n.is_read);
+  const hasUnread = notifications.some((n) => !n.is_read);
 
   const fetchNotifications = async () => {
     const { data } = await listLiveNotifications();
@@ -49,14 +49,18 @@ export default function NotificationBell() {
 
     // Subscribe to realtime notifications
     const channel = supabase
-      .channel('realtime_notifications')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'notifications' 
-      }, () => {
-        fetchNotifications();
-      })
+      .channel("realtime_notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+        },
+        () => {
+          fetchNotifications();
+        },
+      )
       .subscribe();
 
     return () => {
@@ -66,7 +70,10 @@ export default function NotificationBell() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -76,22 +83,30 @@ export default function NotificationBell() {
 
   const handleMarkRead = async (id: string) => {
     await markAsRead(id);
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
+    );
   };
 
   const handleMarkAllRead = async () => {
     await markAllAsRead();
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
   };
 
   const getIcon = (type: string) => {
     switch (type) {
-      case "invoice_sent": return <MailIcon className="h-4 w-4 text-blue-500" />;
-      case "invoice_viewed": return <EyeIcon className="h-4 w-4 text-purple-500" />;
-      case "msa_accepted": return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
-      case "msa_rejected": return <XMarkIcon className="h-4 w-4 text-red-500" />;
-      case "msa_negotiating": return <ExclamationTriangleIcon className="h-4 w-4 text-amber-500" />;
-      default: return <BellIcon className="h-4 w-4 text-gray-400" />;
+      case "invoice_sent":
+        return <MailIcon className="h-4 w-4 text-blue-500" />;
+      case "invoice_viewed":
+        return <EyeIcon className="h-4 w-4 text-purple-500" />;
+      case "msa_accepted":
+        return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
+      case "msa_rejected":
+        return <XMarkIcon className="h-4 w-4 text-red-500" />;
+      case "msa_negotiating":
+        return <ExclamationTriangleIcon className="h-4 w-4 text-amber-500" />;
+      default:
+        return <BellIcon className="h-4 w-4 text-gray-400" />;
     }
   };
 
@@ -101,7 +116,14 @@ export default function NotificationBell() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-white transition-all hover:bg-gray-50 active:scale-95"
       >
-        <BellIcon className={cn("h-4.5 w-4.5", hasUnread ? "text-[color:var(--text-primary)]" : "text-[color:var(--text-muted)]")} />
+        <BellIcon
+          className={cn(
+            "h-4.5 w-4.5",
+            hasUnread
+              ? "text-[color:var(--text-primary)]"
+              : "text-[color:var(--text-muted)]",
+          )}
+        />
         {hasUnread && (
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white animate-pulse" />
         )}
@@ -112,7 +134,7 @@ export default function NotificationBell() {
           <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-4 py-3">
             <h3 className="text-[13px] font-bold text-gray-900">Activity</h3>
             {hasUnread && (
-              <button 
+              <button
                 onClick={handleMarkAllRead}
                 className="text-[11px] font-semibold text-[color:var(--interactive-primary)] hover:underline"
               >
@@ -127,17 +149,21 @@ export default function NotificationBell() {
                 <div className="mb-3 rounded-full bg-gray-100 p-3">
                   <BellIcon className="h-6 w-6 text-gray-300" />
                 </div>
-                <p className="text-[13px] font-medium text-gray-900">No active notifications</p>
-                <p className="mt-1 text-[11px] text-gray-500">Notifications for settled invoices are automatically archived.</p>
+                <p className="text-[13px] font-medium text-gray-900">
+                  No active notifications
+                </p>
+                <p className="mt-1 text-[11px] text-gray-500">
+                  Notifications for settled invoices are automatically archived.
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
                 {notifications.map((n) => (
-                  <div 
+                  <div
                     key={n.id}
                     className={cn(
                       "group relative flex items-start gap-3 p-4 transition-colors hover:bg-gray-50",
-                      !n.is_read && "bg-blue-50/30"
+                      !n.is_read && "bg-blue-50/30",
                     )}
                   >
                     <div className="mt-0.5 flex-shrink-0">
@@ -145,19 +171,28 @@ export default function NotificationBell() {
                         {getIcon(n.type)}
                       </div>
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[13px] font-bold text-gray-900 truncate">{n.title}</p>
-                        <span className="text-[10px] text-gray-400 whitespace-nowrap">{getTimeAgo(n.created_at)}</span>
+                        <p className="text-[13px] font-bold text-gray-900 truncate">
+                          {n.title}
+                        </p>
+                        <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                          {getTimeAgo(n.created_at)}
+                        </span>
                       </div>
-                      <p className="mt-0.5 text-[12px] leading-relaxed text-gray-600 line-clamp-2">{n.message}</p>
-                      
+                      <p className="mt-0.5 text-[12px] leading-relaxed text-gray-600 line-clamp-2">
+                        {n.message}
+                      </p>
+
                       <div className="mt-2 flex items-center gap-3">
                         {n.invoice_id && (
-                          <Link 
+                          <Link
                             href={`/invoices?search=${n.invoices?.invoice_number}`}
-                            onClick={() => { setIsOpen(false); handleMarkRead(n.id); }}
+                            onClick={() => {
+                              setIsOpen(false);
+                              handleMarkRead(n.id);
+                            }}
                             className="text-[11px] font-semibold text-[color:var(--interactive-primary)] hover:underline"
                           >
                             View Invoice
@@ -180,8 +215,8 @@ export default function NotificationBell() {
           </div>
 
           <div className="border-t border-gray-100 bg-gray-50/50 p-2 text-center">
-            <Link 
-              href="/invoices" 
+            <Link
+              href="/invoices"
               onClick={() => setIsOpen(false)}
               className="block rounded-lg py-2 text-[11px] font-bold text-gray-500 hover:text-gray-900 transition-colors"
             >

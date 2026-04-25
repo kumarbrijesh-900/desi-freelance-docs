@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { FeedbackType } from "@/types/supabase-extra";
-import { cn, getAppFieldClass, getAppPanelClass, appSectionTitleClass } from "@/lib/ui-foundation";
+import {
+  cn,
+  getAppFieldClass,
+  getAppPanelClass,
+  appSectionTitleClass,
+} from "@/lib/ui-foundation";
 import { MotionReveal, MotionButton } from "@/components/ui/motion-primitives";
 
 interface FeedbackModalProps {
@@ -26,8 +31,10 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     setError(null);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         throw new Error("You must be logged in to submit feedback.");
       }
@@ -59,29 +66,61 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      
-      <MotionReveal preset="fade-up" className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+      <MotionReveal
+        preset="fade-up"
+        className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
         {isSuccess ? (
           <div className="p-10 text-center">
             <div className="mx-auto h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="h-6 w-6 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Feedback Received!</h3>
-            <p className="text-gray-500">Thank you for helping us improve Lance.</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Feedback Received!
+            </h3>
+            <p className="text-gray-500">
+              Thank you for helping us improve Lance.
+            </p>
           </div>
         ) : (
           <>
             <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900">Help us improve Lance</h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <h2 className="text-lg font-bold text-gray-900">
+                Help us improve Lance
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -94,7 +133,10 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as FeedbackType)}
-                  className={cn(getAppFieldClass({ hasValue: true }), "bg-white")}
+                  className={cn(
+                    getAppFieldClass({ hasValue: true }),
+                    "bg-white",
+                  )}
                   disabled={isSubmitting}
                 >
                   <option value="general">General Feedback</option>
@@ -112,7 +154,10 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Tell us about your experience..."
-                  className={cn(getAppFieldClass({ hasValue: message.length > 0 }), "min-h-[120px] py-3 bg-white")}
+                  className={cn(
+                    getAppFieldClass({ hasValue: message.length > 0 }),
+                    "min-h-[120px] py-3 bg-white",
+                  )}
                   disabled={isSubmitting}
                 />
               </div>
@@ -137,7 +182,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   disabled={isSubmitting || !message.trim()}
                   className={cn(
                     "flex-[2] h-11 rounded-xl font-bold transition-all duration-200 shadow-sm",
-                    "bg-[color:var(--color-lime-300)] text-[#111118] hover:shadow-lg disabled:opacity-50"
+                    "bg-[color:var(--color-lime-300)] text-[#111118] hover:shadow-lg disabled:opacity-50",
                   )}
                 >
                   {isSubmitting ? "Submitting..." : "Submit Feedback"}

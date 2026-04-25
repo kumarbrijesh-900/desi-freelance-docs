@@ -58,7 +58,10 @@ export function parseFlexibleAmount(value: string) {
   const normalized = value
     .toLowerCase()
     .replace(/[,\s]+/g, "")
-    .replace(/(?:₹|rs\.?|inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd|us\$|a\$|c\$|s\$|\$|€|£)/g, "");
+    .replace(
+      /(?:₹|rs\.?|inr|rupees?|usd|eur|gbp|aed|aud|cad|sgd|us\$|a\$|c\$|s\$|\$|€|£)/g,
+      "",
+    );
 
   const amountMatch = normalized.match(/(\d+(?:\.\d+)?)(k|m|lakh|lac)?\b/i);
 
@@ -76,10 +79,10 @@ export function parseFlexibleAmount(value: string) {
 }
 
 export function detectCurrencyFromText(
-  text: string
+  text: string,
 ): SupportedAmountCurrency | "" {
   const matches = currencyMarkers.filter((entry) =>
-    entry.patterns.some((pattern) => pattern.test(text))
+    entry.patterns.some((pattern) => pattern.test(text)),
   );
 
   return matches.length === 1 ? matches[0].code : "";
@@ -96,7 +99,9 @@ export function expandAmountShorthandInText(text: string) {
       }
 
       const prefix = `${currencyPrefix ?? ""}`.trim();
-      return prefix ? `${prefix} ${Math.round(parsed)}` : `${Math.round(parsed)}`;
-    }
+      return prefix
+        ? `${prefix} ${Math.round(parsed)}`
+        : `${Math.round(parsed)}`;
+    },
   );
 }

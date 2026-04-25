@@ -101,7 +101,11 @@ export type NormalizedBriefExtraction = {
   };
   license: {
     isIncluded?: boolean | null;
-    type?: "full-assignment" | "exclusive-license" | "non-exclusive-license" | null;
+    type?:
+      | "full-assignment"
+      | "exclusive-license"
+      | "non-exclusive-license"
+      | null;
     duration?: string | null;
   };
 };
@@ -143,7 +147,7 @@ function normalizeTextPart(value?: string | null) {
 }
 
 export function normalizeBriefParserInput(
-  input: BriefParserInputBundle
+  input: BriefParserInputBundle,
 ): BriefParserInputBundle & { combinedText: string } {
   const briefText = normalizeTextPart(input.briefText);
   const ocrText = normalizeTextPart(input.ocrText);
@@ -157,7 +161,9 @@ export function normalizeBriefParserInput(
     voiceTranscript,
     attachmentSummary,
     combinedText: [
-      input.isRetry ? "RETRY ATTEMPT: The previous extraction was unsatisfactory. Please be more precise and careful this time. Review the brief and context thoroughly." : "",
+      input.isRetry
+        ? "RETRY ATTEMPT: The previous extraction was unsatisfactory. Please be more precise and careful this time. Review the brief and context thoroughly."
+        : "",
       briefText ? `Typed brief:\n${briefText}` : "",
       ocrText ? `OCR text:\n${ocrText}` : "",
       voiceTranscript ? `Voice transcript:\n${voiceTranscript}` : "",
@@ -227,7 +233,7 @@ function normalizeLineItem(value: unknown): NormalizedBriefLineItem | null {
 }
 
 export function normalizeBriefParserResponse(
-  value: unknown
+  value: unknown,
 ): BriefParserResponse | null {
   if (!isRecord(value)) {
     return null;
@@ -341,17 +347,17 @@ export function normalizeBriefParserResponse(
         Object.entries(fields).map(([key, fieldEntry]) => [
           key,
           fieldConfidenceFromValue(fieldEntry),
-        ])
+        ]),
       ),
     },
     missingFields: Array.isArray(value.missingFields)
       ? value.missingFields.filter(
-          (field): field is string => typeof field === "string"
+          (field): field is string => typeof field === "string",
         )
       : [],
     clarificationQuestions: Array.isArray(value.clarificationQuestions)
       ? value.clarificationQuestions.filter(
-          (question): question is string => typeof question === "string"
+          (question): question is string => typeof question === "string",
         )
       : [],
     providerUsed:
@@ -366,14 +372,14 @@ export function normalizeBriefParserResponse(
           (provider): provider is BriefParserProvider =>
             provider === "gemini-flash" ||
             provider === "groq-llama" ||
-            provider === "grok"
+            provider === "grok",
         )
       : [],
     rawStored: Boolean(value.rawStored),
     documentId: stringOrNull(value.documentId),
     warnings: Array.isArray(value.warnings)
       ? value.warnings.filter(
-          (warning): warning is string => typeof warning === "string"
+          (warning): warning is string => typeof warning === "string",
         )
       : [],
     parserVersion:
@@ -389,7 +395,7 @@ export function normalizeBriefParserResponse(
 
 function createField<T>(
   value: T | null | undefined,
-  confidence: BriefParserConfidence = "low"
+  confidence: BriefParserConfidence = "low",
 ) {
   return {
     value: value ?? null,
@@ -399,13 +405,13 @@ function createField<T>(
 
 function getFieldConfidence(
   response: BriefParserResponse,
-  key: string
+  key: string,
 ): BriefParserConfidence {
   return response.confidence.fields[key] ?? response.confidence.overall;
 }
 
 function mapTaxTreatment(
-  treatment: NormalizedBriefExtraction["taxHints"]["treatment"]
+  treatment: NormalizedBriefExtraction["taxHints"]["treatment"],
 ): AiBriefTaxType | null {
   if (treatment === "ZERO_RATED" || treatment === "NONE") {
     return "ZERO";
@@ -419,7 +425,7 @@ function mapTaxTreatment(
 }
 
 function mapLocationType(
-  location: NormalizedBriefExtraction["client"]["location"]
+  location: NormalizedBriefExtraction["client"]["location"],
 ): AiBriefLocationType | null {
   return location === "domestic" || location === "international"
     ? location
@@ -427,7 +433,7 @@ function mapLocationType(
 }
 
 export function toLegacyAiBriefExtraction(
-  response: BriefParserResponse
+  response: BriefParserResponse,
 ): AiBriefExtraction {
   const { normalizedExtraction } = response;
   const agencyAddress = [
@@ -452,145 +458,158 @@ export function toLegacyAiBriefExtraction(
     .join(", ");
 
   return {
+    reasoning_log: {
+      step_1_linguistic_and_pronoun_mapping: { slang_translation: "", pronoun_resolution: "" },
+      step_2_master_data_reconciliation: { agency_verification: "", client_verification: "" },
+      step_3_tax_nexus_and_compliance: { place_of_supply: "", gst_applicability: "", export_and_lut_status: "", rcm_and_tds: "" },
+      step_4_sac_classification: { service_analysis: "", sac_code_deduction: "" },
+      step_5_contractual_deltas: { payment_terms_logic: "", addendum_trigger: "" },
+      step_6_financial_math: { unit_normalization: "", subtotal_calculation: "", modifiers_logic: "", tax_calculation: "", grand_total: "" },
+      confidence_and_warnings: [],
+    },
     agencyName: createField(
       normalizedExtraction.agency.businessName,
-      getFieldConfidence(response, "agency.businessName")
+      getFieldConfidence(response, "agency.businessName"),
     ),
     agencyAddress: createField(
       agencyAddress || null,
-      getFieldConfidence(response, "agency.address")
+      getFieldConfidence(response, "agency.address"),
     ),
     agencyState: createField(
       normalizedExtraction.agency.state,
-      getFieldConfidence(response, "agency.state")
+      getFieldConfidence(response, "agency.state"),
     ),
     clientName: createField(
       normalizedExtraction.client.name,
-      getFieldConfidence(response, "client.name")
+      getFieldConfidence(response, "client.name"),
     ),
     clientAddress: createField(
       clientAddress || null,
-      getFieldConfidence(response, "client.address")
+      getFieldConfidence(response, "client.address"),
     ),
     clientCountry: createField(
       normalizedExtraction.client.country,
-      getFieldConfidence(response, "client.country")
+      getFieldConfidence(response, "client.country"),
     ),
     clientState: createField(
       normalizedExtraction.client.state,
-      getFieldConfidence(response, "client.state")
+      getFieldConfidence(response, "client.state"),
     ),
     clientTaxId: createField(
       normalizedExtraction.client.gstinOrTaxId,
-      getFieldConfidence(response, "client.gstinOrTaxId")
+      getFieldConfidence(response, "client.gstinOrTaxId"),
     ),
     totalAmount: createField(
       normalizedExtraction.meta.totalAmount,
-      getFieldConfidence(response, "meta.totalAmount")
+      getFieldConfidence(response, "meta.totalAmount"),
     ),
     currency: createField(
       normalizedExtraction.meta.currency,
-      getFieldConfidence(response, "meta.currency")
+      getFieldConfidence(response, "meta.currency"),
     ),
     gst: {
       type: createField(
         mapTaxTreatment(normalizedExtraction.taxHints.treatment),
-        getFieldConfidence(response, "taxHints.treatment")
+        getFieldConfidence(response, "taxHints.treatment"),
       ),
       rate: createField(
         normalizedExtraction.taxHints.rate,
-        getFieldConfidence(response, "taxHints.rate")
+        getFieldConfidence(response, "taxHints.rate"),
       ),
       gstin: createField(
         normalizedExtraction.agency.gstin,
-        getFieldConfidence(response, "agency.gstin")
+        getFieldConfidence(response, "agency.gstin"),
       ),
       isRegistered: createField(
         normalizedExtraction.agency.gstRegistered,
-        getFieldConfidence(response, "agency.gstRegistered")
+        getFieldConfidence(response, "agency.gstRegistered"),
       ),
       lutAvailable: createField(
         normalizedExtraction.agency.lutEnabled,
-        getFieldConfidence(response, "agency.lutEnabled")
+        getFieldConfidence(response, "agency.lutEnabled"),
       ),
       lutNumber: createField(
         normalizedExtraction.agency.lutNumber,
-        getFieldConfidence(response, "agency.lutNumber")
+        getFieldConfidence(response, "agency.lutNumber"),
       ),
       pan: createField(
         normalizedExtraction.agency.pan,
-        getFieldConfidence(response, "agency.pan")
+        getFieldConfidence(response, "agency.pan"),
       ),
     },
     deliverables: normalizedExtraction.deliverables.map((item, index) => ({
       type: createField(
         item.type,
-        getFieldConfidence(response, `deliverables.${index}.type`)
+        getFieldConfidence(response, `deliverables.${index}.type`),
       ),
       description: createField(
         item.description,
-        getFieldConfidence(response, `deliverables.${index}.description`)
+        getFieldConfidence(response, `deliverables.${index}.description`),
       ),
       quantity: createField(
         item.quantity,
-        getFieldConfidence(response, `deliverables.${index}.quantity`)
+        getFieldConfidence(response, `deliverables.${index}.quantity`),
       ),
       rate: createField(
         item.rate,
-        getFieldConfidence(response, `deliverables.${index}.rate`)
+        getFieldConfidence(response, `deliverables.${index}.rate`),
       ),
       unit: createField(
         item.unit,
-        getFieldConfidence(response, `deliverables.${index}.unit`)
+        getFieldConfidence(response, `deliverables.${index}.unit`),
+      ),
+      sacCode: createField(
+        item.sacCode,
+        getFieldConfidence(response, `deliverables.${index}.sacCode`),
       ),
     })),
     paymentTerms: createField(
       normalizedExtraction.payment.terms,
-      getFieldConfidence(response, "payment.terms")
+      getFieldConfidence(response, "payment.terms"),
     ),
     paymentMode: createField(
       normalizedExtraction.payment.mode,
-      getFieldConfidence(response, "payment.mode")
+      getFieldConfidence(response, "payment.mode"),
     ),
     paymentSchedule: [],
     payment: {
       bankName: createField(
         normalizedExtraction.payment.bankName,
-        getFieldConfidence(response, "payment.bankName")
+        getFieldConfidence(response, "payment.bankName"),
       ),
       accountName: createField(
         normalizedExtraction.payment.accountName,
-        getFieldConfidence(response, "payment.accountName")
+        getFieldConfidence(response, "payment.accountName"),
       ),
       accountNumber: createField(
         normalizedExtraction.payment.accountNumber,
-        getFieldConfidence(response, "payment.accountNumber")
+        getFieldConfidence(response, "payment.accountNumber"),
       ),
       ifscCode: createField(
         normalizedExtraction.payment.ifscCode,
-        getFieldConfidence(response, "payment.ifscCode")
+        getFieldConfidence(response, "payment.ifscCode"),
       ),
       swiftCode: createField(
         normalizedExtraction.payment.swiftCode,
-        getFieldConfidence(response, "payment.swiftCode")
+        getFieldConfidence(response, "payment.swiftCode"),
       ),
       ibanOrRouting: createField(
         normalizedExtraction.payment.ibanOrRouting,
-        getFieldConfidence(response, "payment.ibanOrRouting")
+        getFieldConfidence(response, "payment.ibanOrRouting"),
       ),
       bankAddress: createField(
         normalizedExtraction.payment.bankAddress,
-        getFieldConfidence(response, "payment.bankAddress")
+        getFieldConfidence(response, "payment.bankAddress"),
       ),
     },
     timeline: {
       invoiceDate: createField(
         normalizedExtraction.meta.invoiceDate,
-        getFieldConfidence(response, "meta.invoiceDate")
+        getFieldConfidence(response, "meta.invoiceDate"),
       ),
       dueDate: createField(
         normalizedExtraction.meta.dueDate,
-        getFieldConfidence(response, "meta.dueDate")
+        getFieldConfidence(response, "meta.dueDate"),
       ),
       deliveryTimeline: createField(null),
     },
@@ -599,32 +618,32 @@ export function toLegacyAiBriefExtraction(
         normalizedExtraction.agency.city ||
           normalizedExtraction.agency.state ||
           null,
-        getFieldConfidence(response, "agency.location")
+        getFieldConfidence(response, "agency.location"),
       ),
       client: createField(
         normalizedExtraction.client.city ||
           normalizedExtraction.client.state ||
           normalizedExtraction.client.country ||
           null,
-        getFieldConfidence(response, "client.location")
+        getFieldConfidence(response, "client.location"),
       ),
       inferredType: createField(
         mapLocationType(normalizedExtraction.client.location),
-        getFieldConfidence(response, "client.location")
+        getFieldConfidence(response, "client.location"),
       ),
     },
     license: {
       isIncluded: createField(
         normalizedExtraction.license.isIncluded,
-        getFieldConfidence(response, "license.isIncluded")
+        getFieldConfidence(response, "license.isIncluded"),
       ),
       type: createField(
         normalizedExtraction.license.type,
-        getFieldConfidence(response, "license.type")
+        getFieldConfidence(response, "license.type"),
       ),
       duration: createField(
         normalizedExtraction.license.duration,
-        getFieldConfidence(response, "license.duration")
+        getFieldConfidence(response, "license.duration"),
       ),
     },
     confidenceScore: response.confidence.overall,

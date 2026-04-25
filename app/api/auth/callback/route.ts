@@ -23,7 +23,7 @@ export async function GET(request: Request) {
             cookieStore.set({ name, value: "", ...options });
           },
         },
-      }
+      },
     );
     await supabase.auth.exchangeCodeForSession(code);
   }

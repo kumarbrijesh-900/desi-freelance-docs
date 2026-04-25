@@ -39,7 +39,10 @@ export function isInteractionFeedbackMuted() {
 export function setInteractionFeedbackMuted(muted: boolean) {
   if (typeof window === "undefined") return;
 
-  window.localStorage.setItem(FEEDBACK_MUTE_STORAGE_KEY, muted ? "true" : "false");
+  window.localStorage.setItem(
+    FEEDBACK_MUTE_STORAGE_KEY,
+    muted ? "true" : "false",
+  );
 }
 
 let sharedAudioContext: AudioContext | null = null;
@@ -49,9 +52,11 @@ function getAudioContext() {
 
   const AudioContextCtor =
     window.AudioContext ||
-    (window as typeof window & {
-      webkitAudioContext?: typeof AudioContext;
-    }).webkitAudioContext;
+    (
+      window as typeof window & {
+        webkitAudioContext?: typeof AudioContext;
+      }
+    ).webkitAudioContext;
 
   if (!AudioContextCtor) return null;
 
@@ -102,7 +107,7 @@ export function playInteractionCue(cue: InteractionCue) {
       gainNode.gain.exponentialRampToValueAtTime(tone.gain, cursor + 0.01);
       gainNode.gain.exponentialRampToValueAtTime(
         0.0001,
-        cursor + tone.duration
+        cursor + tone.duration,
       );
 
       oscillator.connect(gainNode);

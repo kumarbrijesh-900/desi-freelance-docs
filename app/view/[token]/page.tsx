@@ -74,7 +74,10 @@ export default function PublicInvoiceViewPage({
       if (data.msa_id) {
         if (response === "pending" || response === "negotiating") {
           setMsaRequired(true);
-          const msaContent = await loadMsaForSharedInvoice(data.id, data.msa_id);
+          const msaContent = await loadMsaForSharedInvoice(
+            data.id,
+            data.msa_id,
+          );
           if (msaContent) setMsaData(msaContent);
         }
       }
@@ -102,7 +105,7 @@ export default function PublicInvoiceViewPage({
   const handleProposeChanges = async () => {
     if (!proposalText.trim() || !formData) return;
     setMsaSubmitting(true);
-    
+
     // We need the raw invoice ID, which we can get from the share token lookup
     const { data } = await loadInvoiceByToken(token);
     if (data) {
@@ -166,8 +169,12 @@ export default function PublicInvoiceViewPage({
       <main className="min-h-screen bg-[color:var(--bg-canvas)] py-8">
         <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+              L
+            </span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+              Lance
+            </span>
           </Link>
         </div>
 
@@ -175,7 +182,15 @@ export default function PublicInvoiceViewPage({
           <div className="mx-auto max-w-md px-4">
             <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 border border-amber-200">
-                <svg className="h-7 w-7 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="h-7 w-7 text-amber-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                   <line x1="12" y1="9" x2="12" y2="13" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -186,7 +201,8 @@ export default function PublicInvoiceViewPage({
                 MSA Declined
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
-                <strong>{agencyName}</strong> has been notified of your decision. They will contact you soon to discuss the terms.
+                <strong>{agencyName}</strong> has been notified of your
+                decision. They will contact you soon to discuss the terms.
               </p>
               <p className="mt-4 text-xs text-[color:var(--text-muted)]">
                 If you declined by mistake, please contact the agency directly.
@@ -205,8 +221,12 @@ export default function PublicInvoiceViewPage({
       <main className="min-h-screen bg-[color:var(--bg-canvas)] py-8">
         <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+              L
+            </span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+              Lance
+            </span>
           </Link>
         </div>
 
@@ -214,7 +234,15 @@ export default function PublicInvoiceViewPage({
           <div className="mx-auto max-w-md px-4">
             <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-50 border border-cyan-200">
-                <svg className="h-7 w-7 text-cyan-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="h-7 w-7 text-cyan-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
               </div>
@@ -223,10 +251,12 @@ export default function PublicInvoiceViewPage({
                 Proposal Sent
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
-                Your proposed changes have been sent to <strong>{agencyName}</strong> for review.
+                Your proposed changes have been sent to{" "}
+                <strong>{agencyName}</strong> for review.
               </p>
               <p className="mt-4 text-xs text-[color:var(--text-muted)]">
-                The agency will contact you shortly to confirm the updated terms.
+                The agency will contact you shortly to confirm the updated
+                terms.
               </p>
             </div>
           </div>
@@ -234,7 +264,6 @@ export default function PublicInvoiceViewPage({
       </main>
     );
   }
-
 
   /* ─── MSA Gate (pending) ───────────────────────────── */
 
@@ -244,8 +273,12 @@ export default function PublicInvoiceViewPage({
         {/* Branding header */}
         <div className="mx-auto mb-6 flex max-w-2xl items-center px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+              L
+            </span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+              Lance
+            </span>
           </Link>
         </div>
 
@@ -263,7 +296,8 @@ export default function PublicInvoiceViewPage({
                       Master Service Agreement
                     </h1>
                     <p className="text-sm text-[color:var(--text-secondary)]">
-                      Review the terms below before viewing the invoice from <strong>{agencyName}</strong>.
+                      Review the terms below before viewing the invoice from{" "}
+                      <strong>{agencyName}</strong>.
                     </p>
                   </div>
                 </div>
@@ -285,8 +319,8 @@ export default function PublicInvoiceViewPage({
                 ) : (
                   <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4">
                     <p className="text-sm text-[color:var(--text-muted)]">
-                      {agencyName} has attached a Master Service Agreement to this invoice.
-                      Please review and respond below.
+                      {agencyName} has attached a Master Service Agreement to
+                      this invoice. Please review and respond below.
                     </p>
                   </div>
                 )}
@@ -304,26 +338,41 @@ export default function PublicInvoiceViewPage({
                         Project Addendum for Invoice #{invoiceNumber}
                       </h3>
                       <p className="mt-1 text-[13px] leading-relaxed text-amber-800">
-                        The following terms deviate from your Master Service Agreement for this specific project only:
+                        The following terms deviate from your Master Service
+                        Agreement for this specific project only:
                       </p>
-                      
+
                       <ul className="mt-3 space-y-2">
                         {formData.meta.paymentTerms && (
                           <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
                             <span className="h-1 w-1 rounded-full bg-amber-400" />
-                            Payment Terms: <span className="font-bold underline decoration-amber-300 underline-offset-2">{formData.meta.paymentTerms}</span>
+                            Payment Terms:{" "}
+                            <span className="font-bold underline decoration-amber-300 underline-offset-2">
+                              {formData.meta.paymentTerms}
+                            </span>
                           </li>
                         )}
                         {formData.payment.license?.licenseType && (
                           <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
                             <span className="h-1 w-1 rounded-full bg-amber-400" />
-                            Licensing: <span className="font-bold underline decoration-amber-300 underline-offset-2">{formData.payment.license.licenseType.replace(/-/g, " ")}</span>
+                            Licensing:{" "}
+                            <span className="font-bold underline decoration-amber-300 underline-offset-2">
+                              {formData.payment.license.licenseType.replace(
+                                /-/g,
+                                " ",
+                              )}
+                            </span>
                           </li>
                         )}
                         {formData.payment.notes && (
                           <li className="flex items-start gap-2 text-[12px] font-medium text-amber-900">
                             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-                            <span>Additional Notes: <span className="font-bold">{formData.payment.notes}</span></span>
+                            <span>
+                              Additional Notes:{" "}
+                              <span className="font-bold">
+                                {formData.payment.notes}
+                              </span>
+                            </span>
                           </li>
                         )}
                       </ul>
@@ -331,29 +380,40 @@ export default function PublicInvoiceViewPage({
                   </div>
                 </div>
               )}
-              </div>
 
               {/* Action footer — Accept or Propose Changes */}
               <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-4">
                 <p className="mb-3 text-xs text-[color:var(--text-muted)]">
-                  By clicking &quot;Accept&quot;, you agree to the terms outlined above. If you have specific change requests, click &quot;Propose Changes&quot; to notify the agency.
+                  By clicking &quot;Accept&quot;, you agree to the terms
+                  outlined above. If you have specific change requests, click
+                  &quot;Propose Changes&quot; to notify the agency.
                 </p>
-                
+
                 {!showProposalForm ? (
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={() => handleMsaRespond("accepted")}
                       disabled={msaSubmitting}
-                      className={getAppButtonClass({ variant: "primary", size: "md" })}
+                      className={getAppButtonClass({
+                        variant: "primary",
+                        size: "md",
+                      })}
                     >
-                      {msaSubmitting ? "Processing…" : (hasAddendum ? "Accept MSA & Addendum" : "Accept MSA")}
+                      {msaSubmitting
+                        ? "Processing…"
+                        : hasAddendum
+                          ? "Accept MSA & Addendum"
+                          : "Accept MSA"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowProposalForm(true)}
                       disabled={msaSubmitting}
-                      className={getAppButtonClass({ variant: "secondary", size: "md" })}
+                      className={getAppButtonClass({
+                        variant: "secondary",
+                        size: "md",
+                      })}
                     >
                       Propose Changes
                     </button>
@@ -363,7 +423,7 @@ export default function PublicInvoiceViewPage({
                         onClick={() => {
                           const blob = new Blob(
                             [`${msaData.title}\n\n${msaData.content}`],
-                            { type: "text/plain" }
+                            { type: "text/plain" },
                           );
                           const url = URL.createObjectURL(blob);
                           const a = document.createElement("a");
@@ -372,7 +432,10 @@ export default function PublicInvoiceViewPage({
                           a.click();
                           URL.revokeObjectURL(url);
                         }}
-                        className={getAppButtonClass({ variant: "ghost", size: "md" })}
+                        className={getAppButtonClass({
+                          variant: "ghost",
+                          size: "md",
+                        })}
                       >
                         ↓ Download MSA
                       </button>
@@ -392,7 +455,10 @@ export default function PublicInvoiceViewPage({
                           type="button"
                           onClick={handleProposeChanges}
                           disabled={msaSubmitting || !proposalText.trim()}
-                          className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                          className={getAppButtonClass({
+                            variant: "primary",
+                            size: "sm",
+                          })}
                         >
                           {msaSubmitting ? "Sending…" : "Send Proposal"}
                         </button>
@@ -400,7 +466,10 @@ export default function PublicInvoiceViewPage({
                           type="button"
                           onClick={() => setShowProposalForm(false)}
                           disabled={msaSubmitting}
-                          className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                          className={getAppButtonClass({
+                            variant: "ghost",
+                            size: "sm",
+                          })}
                         >
                           Cancel
                         </button>
@@ -415,7 +484,10 @@ export default function PublicInvoiceViewPage({
             <div className="relative mt-6 overflow-hidden rounded-lg">
               <div className="pointer-events-none select-none blur-[12px] scale-[1.02] opacity-60">
                 <div className="rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5">
-                  <TemplateRenderer formData={formData} templateId={templateId} />
+                  <TemplateRenderer
+                    formData={formData}
+                    templateId={templateId}
+                  />
                 </div>
               </div>
               <div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[2px]">
@@ -449,8 +521,12 @@ export default function PublicInvoiceViewPage({
         {/* Minimal branding header */}
         <div className="mx-auto mb-5 flex max-w-[210mm] items-center justify-between px-4 print:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">L</span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">Lance</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+              L
+            </span>
+            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+              Lance
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             {msaResponse === "accepted" && (
@@ -462,7 +538,10 @@ export default function PublicInvoiceViewPage({
             <button
               type="button"
               onClick={() => window.print()}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+              className={getAppButtonClass({
+                variant: "secondary",
+                size: "sm",
+              })}
             >
               Print / Save PDF
             </button>
