@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
+import { ratelimit } from "@/lib/upstash";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,20 @@ function generateShareToken(): string {
   return Array.from(bytes).map((b) => chars[b % chars.length]).join("");
 }
 
+function getClientIp(request: Request): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+const ShareInvoiceSchema = z.object({
+  invoiceId: z.string().uuid(),
+  clientEmail: z.string().email(),
+  msaId: z.string().uuid().optional().nullable(),
+});
+
 export async function POST(req: NextRequest) {
   // Initialized here (not module level) so env vars are read at request time
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -24,14 +40,28 @@ export async function POST(req: NextRequest) {
   );
 
   try {
-    const { invoiceId, clientEmail, msaId } = await req.json();
-
-    if (!invoiceId || !clientEmail) {
+    // ─── 0. Rate limiting ───
+    const clientIp = getClientIp(req);
+    const { success } = await ratelimit.limit(clientIp);
+    if (!success) {
       return NextResponse.json(
-        { error: "invoiceId and clientEmail are required." },
+        { error: "Too many requests. Please try again in 10 seconds." },
+        { status: 429 }
+      );
+    }
+
+    // ─── 0.5. Zod Validation ───
+    const body = await req.json();
+    const result = ShareInvoiceSchema.safeParse(body);
+    
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid request payload.", details: result.error.format() },
         { status: 400 }
       );
     }
+
+    const { invoiceId, clientEmail, msaId } = result.data;
 
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin

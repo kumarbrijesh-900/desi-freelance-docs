@@ -15,7 +15,7 @@ export const redis = new Redis({
 
 export const ratelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "60 s"),
+  limiter: Ratelimit.slidingWindow(10, "10 s"),
   analytics: true,
-  prefix: "@upstash/ratelimit",
+  prefix: "lance_api_limit",
 });

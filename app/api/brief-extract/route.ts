@@ -9,6 +9,7 @@ import {
 } from "@/lib/brief-parser-gateway";
 
 import { ratelimit } from "@/lib/upstash";
+import { z } from "zod";
 
 const MAX_INPUT_BYTES = 10_240; // 10 KB max brief size
 
@@ -22,6 +23,22 @@ function getClientIp(request: Request): string {
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+
+const BriefExtractSchema = z.object({
+  briefText: z.string().max(10240).optional(),
+  ocrText: z.string().max(10240).optional(),
+  voiceTranscript: z.string().max(10240).optional(),
+  attachmentSummary: z.string().max(10240).optional(),
+  text: z.string().max(10240).optional(), // Legacy field
+  documentId: z.string().uuid().optional().nullable(),
+  isRetry: z.boolean().optional(),
+  sourceMetadata: z.object({
+    locale: z.string().optional(),
+    timezone: z.string().optional(),
+    attachmentNames: z.array(z.string()).optional(),
+    attachmentTypes: z.array(z.string()).optional(),
+  }).optional(),
+});
 
 export async function POST(request: Request) {
   // ─── Rate limiting ────────────────────────────────────────
@@ -55,9 +72,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = (await request.json()) as
-      | (BriefParserInputBundle & { text?: string })
-      | null;
+    const body = await request.json();
+    const result = BriefExtractSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          extraction: null,
+          parser: null,
+          available: false,
+          error: "Invalid request payload.",
+          details: result.error.format(),
+        },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = result.data;
     
     // ─── Session & Context Gathering ─────────────────────────
     const cookieStore = await cookies();
@@ -118,13 +149,13 @@ export async function POST(request: Request) {
     }
 
     const input = normalizeBriefParserInput({
-      briefText: body?.briefText ?? body?.text ?? "",
-      ocrText: body?.ocrText ?? "",
-      voiceTranscript: body?.voiceTranscript ?? "",
-      attachmentSummary: body?.attachmentSummary ?? "",
-      documentId: body?.documentId,
-      sourceMetadata: body?.sourceMetadata,
-      isRetry: body?.isRetry,
+      briefText: validatedData.briefText ?? validatedData.text ?? "",
+      ocrText: validatedData.ocrText ?? "",
+      voiceTranscript: validatedData.voiceTranscript ?? "",
+      attachmentSummary: validatedData.attachmentSummary ?? "",
+      documentId: validatedData.documentId || undefined,
+      sourceMetadata: validatedData.sourceMetadata,
+      isRetry: validatedData.isRetry,
       context: {
         isGuest: !session?.user,
         databaseContext, // Inject full reality

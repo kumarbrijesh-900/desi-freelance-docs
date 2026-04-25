@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-25 (Session: Phase 11d complete — Automated Invoice Loop & Security)
+> **Last Updated:** 2026-04-26 (Session: Phase 12a complete — Security Hardening & Project Addendum)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -306,6 +306,8 @@ tests/
 | `1f52d64` | Sticky header + softer placeholders |
 | `68b1bbe` | Inline delete confirmation for clients (replaced flickering confirm dialog) |
 | `a6d3b94` | Lance rebrand + extraction intelligence upgrade |
+| `d5b6542` | feat: implement Master MSA + Project Addendum architecture |
+| `6fa478c` | chore: security hardening - RLS, Zod validation, and rate limiting |
 | `6fa478c` | Neon Atelier redesign — fluorescent lime, Syne+DM Sans, sharper radii |
 
 ---
@@ -479,6 +481,18 @@ tests/
 - **Database Tracking**: Extracted `due_date` into a dedicated column and added `reminded_due_date` and `reminded_overdue` boolean flags to prevent duplicate cron emails.
 - **Loop Closure**: Updated the Invoices dashboard UI to allow agencies to click "Mark Settled" on overdue invoices to manually close the lifecycle loop.
 
+### Phase 12a — Security Hardening & Project Addendum
+- **The Security Fortress**: 
+  - **Database Hardening**: Enforced strict Row Level Security (RLS) across `invoices`, `clients`, and `user_profiles`. Added a restricted "Public Share Hole" for `invoices` and `client_msas` that only allows SELECT access when a share token is active.
+  - **The API Shield**: Integrated **Zod** for strict payload validation and **Upstash Redis** for IP-based rate limiting (10 requests per 10 seconds) on all critical endpoints (`/api/share-invoice`, `/api/brief-extract`).
+  - **Cryptographic Tokens**: Mandated the use of `crypto.getRandomValues()` for all 128-bit entropy share tokens to prevent URL guessing/brute-forcing.
+- **Master MSA + Project Addendum Architecture**:
+  - **Deviation Detection**: Implemented logic in the editor (`TermsPaymentSection.tsx`) to compare active form values against Master MSA defaults.
+  - **Visual Indicator System**: Added `Link` (Synced with MSA) vs `Sparkles` (Override/Deviation) icons to individual form fields.
+  - **Addendum Safety Gate**: A mandatory checkbox appears in a high-contrast warning box if deviations are detected, requiring the agency to acknowledge the overrides as a project-specific addendum.
+  - **Client-Facing Addendum**: The public view (`/view/[token]`) now renders a distinct "Project Addendum" box detailing the overrides and updates the acceptance button to "Accept MSA & Addendum".
+  - **Communication Bridge**: Updated Resend email payload to explicitly notify clients when a project-specific addendum is attached.
+
 ---
 
 ## 10. Pending Roadmap
@@ -578,6 +592,7 @@ tests/
 | `applied_late_fee_rate` | numeric | MSA Override for this specific invoice |
 | `applied_license_type` | text | MSA Override for this specific invoice |
 | `due_date` | date | Extracted from meta to allow fast SQL cron querying |
+| `has_addendum` | boolean | Flag indicating if invoice deviates from Master MSA |
 | `reminded_due_date` | boolean | Cron flag to prevent duplicate 'due today' emails |
 | `reminded_overdue` | boolean | Cron flag to prevent duplicate 'overdue' emails |
 | `created_at` | timestamptz | Auto |
