@@ -71,7 +71,7 @@ function PreviewContent() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<InvoiceFormData | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "cloud-saved" | "error">("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
@@ -102,16 +102,30 @@ function PreviewContent() {
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const isRestore = searchParams.get("restore") === "1";
+      const keyToUse = isRestore ? DRAFT_STORAGE_KEY : STORAGE_KEY;
+      const raw = window.localStorage.getItem(keyToUse);
+      
       if (raw) {
-        setData(mergeInvoiceFormData(JSON.parse(raw)));
+        const parsed = JSON.parse(raw);
+        // DRAFT_STORAGE_KEY has a wrapper object { formData, ... }
+        // STORAGE_KEY has the raw formData
+        const formData = isRestore ? parsed.formData : parsed;
+        
+        if (formData) {
+          setData(mergeInvoiceFormData(formData));
+          // If we are restoring, also try to restore the template choice if it was saved
+          if (isRestore && parsed.templateId) {
+            setSelectedTemplate(parsed.templateId);
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to read preview data:", error);
     } finally {
       setIsReady(true);
     }
-  }, []);
+  }, [searchParams]);
 
   const requiresExportChoice = data
     ? requiresExplicitExportTaxChoice(data.agency, data.client)
@@ -161,7 +175,7 @@ function PreviewContent() {
 
   /* ── Auto cloud-save after login redirect (restore=1) ── */
   useEffect(() => {
-    if (!data) return;
+    if (!data || !isReady) return;
     if (searchParams.get("restore") !== "1") return;
 
     async function autoCloudSave() {
@@ -175,9 +189,16 @@ function PreviewContent() {
         formData: currentData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
+        templateId: selectedTemplate, // Pass the selected template!
       });
 
-      if (!error && saved) {
+      if (error) {
+        console.error("Restoration Save Failed:", error);
+        triggerToast("Failed to save draft to cloud. Please try manual save.");
+        return;
+      }
+
+      if (saved) {
         setCloudInvoiceId(saved.id);
         // Sync profile details from this restored draft
         await syncProfileFromInvoice(currentData);
@@ -191,6 +212,7 @@ function PreviewContent() {
 
         triggerToast("Draft saved to cloud ☁ Welcome back!");
         playInteractionCue("saveSuccess");
+        
         // Clean up URL without reloading
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
@@ -199,7 +221,7 @@ function PreviewContent() {
     }
 
     void autoCloudSave();
-  }, [data, searchParams]);
+  }, [data, isReady, searchParams, selectedTemplate]);
 
   const persistDraft = () => {
     if (!data) return false;
@@ -211,8 +233,12 @@ function PreviewContent() {
           formData: data,
           currentStep: "totals",
           savedAt: new Date().toISOString(),
+          templateId: selectedTemplate, // Store the template choice too
         })
       );
+
+      // Also sync to the preview key to keep them aligned
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
       return true;
     } catch (error) {
@@ -264,9 +290,8 @@ function PreviewContent() {
       }
       // Fall through to local-only save on error
       console.warn("Cloud save failed, using local storage:", error);
-    } else {
-      setShowConversionModal(true);
-      setSaveState("idle");
+      setSaveState("error");
+      triggerToast("Sync Error: Your invoice is saved on this device but not the cloud. Check your connection.");
       return;
     }
 
@@ -560,6 +585,11 @@ function PreviewContent() {
                 <span className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--state-success-text)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--state-success-text)]" />
                   All changes saved
+                </span>
+              ) : saveState === "error" ? (
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-red-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                  Cloud Save Failed (Saved Locally)
                 </span>
               ) : (
                 <span className="text-xs text-[color:var(--text-muted)]">Draft unsaved</span>

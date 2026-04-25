@@ -147,8 +147,9 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                 >
                   <td className="px-2 py-2 align-top">
                     <span className="font-semibold text-[#1D3557]">{item.description}</span>
-                    <span className="mt-0.5 flex gap-1.5 text-[8px] uppercase tracking-[0.12em] text-[#A8DADC]">
-                      <span>{item.type}</span><span>·</span><span>SAC {item.sacCode}</span>
+                    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-[#457B9D]">
+                      {item.type && <span className="font-bold uppercase tracking-[0.1em]">{item.type}</span>}
+                      {item.sacCode && <span><span className="text-[#A8DADC]">HSN/SAC:</span> <span className="font-bold text-[#1D3557]">{item.sacCode}</span></span>}
                     </span>
                   </td>
                   <td className="px-2 py-2 text-center align-top font-mono text-[11px] font-bold tabular-nums">{item.qty}</td>
@@ -246,7 +247,11 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           <div>
             <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">Amount in Words</p>
             <p className="mt-1.5 text-[11px] font-semibold text-[#1D3557]">{data.amountInWords}</p>
-            <p className="mt-1 text-[9px] text-[#A8DADC]">Reverse Charge (RCM): <strong className="text-[#1D3557]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+            {data.reverseCharge && (
+              <p className="mt-2 border-l-4 border-[#E63946] pl-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#E63946] print:border-black print:text-black">
+                ★ Tax is Payable on Reverse Charge Basis ★
+              </p>
+            )}
           </div>
         )}
         <div>

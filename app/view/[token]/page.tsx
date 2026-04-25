@@ -295,7 +295,7 @@ export default function PublicInvoiceViewPage({
                 </p>
                 
                 {!showProposalForm ? (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={() => handleMsaRespond("accepted")}
@@ -312,6 +312,26 @@ export default function PublicInvoiceViewPage({
                     >
                       Propose Changes
                     </button>
+                    {msaData && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const blob = new Blob(
+                            [`${msaData.title}\n\n${msaData.content}`],
+                            { type: "text/plain" }
+                          );
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `MSA_${agencyName.replace(/\s+/g, "_")}.txt`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className={getAppButtonClass({ variant: "ghost", size: "md" })}
+                      >
+                        ↓ Download MSA
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <MotionReveal preset="fade-up" delay={0}>

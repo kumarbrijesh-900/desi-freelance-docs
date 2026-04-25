@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-25 (Session: Phase 11b complete — Interactive Hero & PLG Flow)
+> **Last Updated:** 2026-04-25 (Session: Phase 11c complete — Data Audit & Handoff Fix)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -459,6 +459,14 @@ tests/
   - **Guest Sandbox**: Created the `/sandbox` route for frictionless entry into the extraction engine without authentication.
   - **Conversion Wall**: Implemented `ConversionModal` to intercept high-value final actions (Download, Save, Share) for guest users.
   - **State Preservation**: Integrated `persistDraft()` and the `?restore=1` flow to automatically sync guest work to cloud accounts post-authentication.
+
+- **Data Integrity & Handoff Refinement (Phase 11c)**:
+  - **Architecture Audit**: Consolidated all tables (`user_profiles`, `clients`, `invoices`, `faqs`, `user_feedback`, `read_receipts`) into a master SQL schema.
+  - **RLS Safety**: Implemented explicit `WITH CHECK` clauses across all primary tables to prevent silent `INSERT` failures.
+  - **Handoff Fix**: Resolved "Data Loss" bug by synchronizing `STORAGE_KEY` and `DRAFT_STORAGE_KEY` in the Preview page. Restoration now pulls from the most recent user intent.
+  - **Template Preservation**: Fixed "Classic Reversion" bug; the selected template choice is now persisted through the login redirect and saved to the cloud.
+  - **Silent Failure Logging**: Added restoration error tracking with `console.error` and toast feedback.
+  - **Strict Typing**: Synchronized `types/supabase.ts` with the audited Postgres schema.
 
 ---
 

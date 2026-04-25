@@ -109,10 +109,16 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             >
               <div className="min-w-0 flex-1">
                 <p className="text-[13px] font-semibold text-[#3D2517]">{item.description}</p>
-                <p className="mt-0.5 text-[10px] text-[#B09080]">
-                  {item.type} · {item.qty} × {item.rateFormatted} · {item.unit}
+                <p className="mt-0.5 text-[10px] text-[#8B6F5E]">
+                  {item.type} · {item.qty} × {item.rateFormatted}
                 </p>
-                <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em] text-[#C9B5A5]">SAC {item.sacCode}</p>
+                {item.sacCode && (
+                  <p className="mt-1 text-[10px] text-[#8B6F5E]">
+                    <span className="text-[#B09080]">HSN/SAC:</span>{" "}
+                    <span className="font-semibold text-[#3D2517]">{item.sacCode}</span>
+                    {item.unit && <span className="text-[#B09080]"> &nbsp;·&nbsp; Unit: <span className="font-medium text-[#3D2517]">{item.unit}</span></span>}
+                  </p>
+                )}
               </div>
               <p className="shrink-0 text-[15px] font-bold tabular-nums text-[#3D2517]">{item.amountFormatted}</p>
             </div>
@@ -198,7 +204,11 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">Amount in Words</p>
             <p className="mt-1.5 text-[12px] font-semibold text-[#3D2517]">{data.amountInWords}</p>
-            <p className="mt-1.5 text-[10px] text-[#B09080]">Reverse Charge (RCM): <strong className="text-[#3D2517]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+            {data.reverseCharge && (
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#C75B39] print:text-black">
+                ★ Tax is Payable on Reverse Charge Basis ★
+              </p>
+            )}
           </div>
         )}
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa]">

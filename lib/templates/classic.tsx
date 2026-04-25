@@ -112,12 +112,16 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               <tr key={item.id}>
                 <td className="py-6 pr-8">
                   <div className="font-bold text-[15px] mb-1">{item.description}</div>
-                  <div className="flex gap-2 text-[10px] uppercase tracking-widest text-[#999] font-bold">
-                    <span>{item.type}</span>
-                    <span>·</span>
-                    <span>SAC {item.sacCode}</span>
-                    {item.unit && <span>·</span>}
-                    <span>{item.unit}</span>
+                  <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#444]">
+                    {item.type && (
+                      <span className="font-medium">{item.type}</span>
+                    )}
+                    {item.sacCode && (
+                      <span><span className="text-[#888]">HSN/SAC:</span> <span className="font-semibold text-[#222]">{item.sacCode}</span></span>
+                    )}
+                    {item.unit && (
+                      <span><span className="text-[#888]">Unit:</span> <span className="font-medium">{item.unit}</span></span>
+                    )}
                   </div>
                 </td>
                 <td className="py-6 text-center text-[14px] font-medium">{item.qty}</td>
@@ -225,6 +229,15 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           )}
         </div>
       </section>
+
+      {/* ── Statutory RCM Disclosure (GST Act mandatory) ── */}
+      {data.reverseCharge && (
+        <div className="relative z-10 mt-12 border border-[#111118] px-6 py-4 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#111118]">
+            ★ Tax is Payable on Reverse Charge Basis ★
+          </p>
+        </div>
+      )}
 
       <LegalDisclaimer />
       <InvoiceWatermark />

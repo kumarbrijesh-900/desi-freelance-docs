@@ -138,9 +138,10 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 <tr key={item.id} className="border-b border-[#e8e6e1]">
                   <td className="p-4 align-top">
                     <div className="font-outfit font-extrabold text-[16px] text-[#111118] mb-1">{item.description}</div>
-                    <div className="flex gap-2 text-[10px] uppercase tracking-widest text-[#999] font-bold">
-                      <span>{item.type}</span><span>·</span><span>SAC {item.sacCode}</span>
-                      {item.unit && <span>·</span>}<span>{item.unit}</span>
+                    <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-[#555]">
+                      {item.type && <span className="font-semibold">{item.type}</span>}
+                      {item.sacCode && <span><span className="text-[#999]">HSN/SAC:</span> <span className="font-bold text-[#333]">{item.sacCode}</span></span>}
+                      {item.unit && <span><span className="text-[#999]">Unit:</span> <span className="font-medium">{item.unit}</span></span>}
                     </div>
                   </td>
                   <td className="p-4 align-top text-center font-semibold text-[#111118]">{item.qty}</td>
@@ -231,6 +232,15 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
           </div>
         </section>
       </div>
+
+      {/* ── Statutory RCM Disclosure ── */}
+      {data.reverseCharge && (
+        <div className="mx-[20mm] mb-4 border border-[#111118] px-6 py-3 text-center">
+          <p className="font-outfit text-[11px] font-bold uppercase tracking-[0.2em] text-[#111118]">
+            ★ Tax is Payable on Reverse Charge Basis ★
+          </p>
+        </div>
+      )}
 
       <LegalDisclaimer />
       <InvoiceWatermark />

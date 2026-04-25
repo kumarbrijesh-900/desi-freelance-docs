@@ -262,6 +262,12 @@ export default function TotalsTaxesSection({
                     <p className={appFieldHelperTextClass}>
                       Choose how tax should appear on the invoice.
                     </p>
+                    {/* Persistent compliance note — visible on mobile without hover */}
+                    {complianceMessage ? (
+                      <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">
+                        {complianceMessage}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="space-y-3">

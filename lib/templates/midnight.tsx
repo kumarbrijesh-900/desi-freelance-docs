@@ -113,8 +113,9 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                 <tr key={item.id} className="border-b border-[#6C63FF]/8 text-[13px] print:border-[#eee]">
                   <td className="px-2 py-2.5 align-top">
                     <span className="font-semibold">{item.description}</span>
-                    <span className="mt-0.5 flex gap-1.5 text-[9px] uppercase tracking-[0.1em] text-[#aaa]">
-                      <span>{item.type}</span><span>·</span><span>SAC {item.sacCode}</span>
+                    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-[#888]">
+                      {item.type && <span className="font-medium text-[#aaa]">{item.type}</span>}
+                      {item.sacCode && <span><span className="text-[#888]">HSN/SAC:</span> <span className="font-semibold text-[#ccc]">{item.sacCode}</span></span>}
                     </span>
                   </td>
                   <td className="px-2 py-2.5 align-top tabular-nums font-medium">{item.qty}</td>
@@ -202,7 +203,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">Amount in Words</p>
             <p className="mt-1.5 text-[12px] font-semibold text-[#1A1A2E]">{data.amountInWords}</p>
-            <p className="mt-1 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#1A1A2E]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+            {data.reverseCharge && (
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#6C63FF] print:text-black">
+                ★ Tax is Payable on Reverse Charge Basis ★
+              </p>
+            )}
           </div>
         )}
         <div>

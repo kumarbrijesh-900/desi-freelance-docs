@@ -130,9 +130,16 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                 <p className="font-['Georgia',_serif] text-[14px] italic leading-tight text-[#27272F]">
                   {item.description}
                 </p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[#999]">
-                  {item.type} · {item.qty} × {item.rateFormatted} · {item.unit}
+                <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[#777]">
+                  {item.type} · {item.qty} × {item.rateFormatted}
                 </p>
+                {item.sacCode && (
+                  <p className="mt-0.5 text-[10px] text-[#555]">
+                    <span className="text-[#999]">HSN/SAC:</span>{" "}
+                    <span className="font-semibold text-[#27272F]">{item.sacCode}</span>
+                    {item.unit && <span className="text-[#999]"> · Unit: <span className="font-medium text-[#555]">{item.unit}</span></span>}
+                  </p>
+                )}
               </div>
               <p className="shrink-0 text-[15px] font-medium tabular-nums text-[#27272F]">
                 {item.amountFormatted}
@@ -239,7 +246,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
           <div>
             <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">Total Amount in Words</p>
             <p className="mt-1 text-[12px] font-medium text-[#27272F]">{data.amountInWords}</p>
-            <p className="mt-1.5 text-[10px] text-[#999]">Reverse Charge (RCM): <strong className="text-[#27272F]">{data.reverseCharge ? "Yes" : "No"}</strong></p>
+            {data.reverseCharge && (
+              <p className="mt-2 font-['Georgia',_serif] text-[10px] font-bold italic tracking-[0.1em] text-[#27272F]">
+                ★ Tax is Payable on Reverse Charge Basis ★
+              </p>
+            )}
           </div>
         )}
         <div>
