@@ -1936,9 +1936,18 @@ function EditorContent() {
       </AnimatePresence>
       <UploadToast message={toastMessage} visible={showToast} />
 
+      {/* Editor Background Aesthetic Elements */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl"></div>
+        <div className="absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl"></div>
+        <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl"></div>
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)", backgroundSize: "48px 48px" }}></div>
+      </div>
+
       <AppHeader rightSlot={<LogoutButton />} />
       
-      <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
+      <section className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}>
         <div className="mx-auto w-full max-w-[1328px]">
           {/* Profile Completion Prompt */}
           {showProfilePrompt && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -45,8 +45,24 @@ export default function BriefIntakeCard({
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [extractProgress, setExtractProgress] = useState(0);
   const [lastExtractionState, setLastExtractionState] =
     useState<"idle" | "success" | "error">("idle");
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isExtracting) {
+      setExtractProgress(0);
+      interval = setInterval(() => {
+        setExtractProgress((prev) => (prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1));
+      }, 300);
+    } else {
+      if (lastExtractionState === "success") {
+        setExtractProgress(100);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [isExtracting, lastExtractionState]);
 
   const hasTypedBrief = Boolean(briefText.trim());
   const hasImages = imageFiles.length > 0;
@@ -347,7 +363,7 @@ export default function BriefIntakeCard({
                       >
                         <SparklesIcon className="h-4 w-4" />
                       </motion.span>
-                      {isExtracting ? "Extracting..." : "Extract & Autofill"}
+                      {isExtracting ? `Extracting... ${extractProgress}%` : "Extract & Autofill"}
                     </MotionButton>
                   </div>
                 </div>

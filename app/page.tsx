@@ -7,6 +7,7 @@ import LogoutButton from "@/components/LogoutButton";
 import { ArrowRightIcon, SparklesIcon, DocumentSparkIcon, MicrophoneIcon } from "@/components/ui/app-icons";
 import { MotionReveal, MotionStagger, MotionButton } from "@/components/ui/motion-primitives";
 import { motion } from "@/components/ui/motion-primitives";
+import { useScroll, useTransform } from "framer-motion";
 import {
   appPageContainerClass,
   appPageShellClass,
@@ -82,6 +83,13 @@ function TrustIcon({ type, className }: { type: string; className?: string }) {
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { scrollY } = useScroll();
+  
+  // Parallax values for background shapes
+  const y1 = useTransform(scrollY, [0, 1000], [0, 250]);
+  const y2 = useTransform(scrollY, [0, 1000], [0, -200]);
+  const rotate1 = useTransform(scrollY, [0, 1000], [0, 90]);
+  const rotate2 = useTransform(scrollY, [0, 1000], [0, -60]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -108,10 +116,26 @@ export default function Home() {
 
       {/* ─── Hero ─── */}
       <section className={`${appPageContainerClass} relative overflow-hidden pt-20 pb-16 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32`}>
+        {/* Scroll-interactive Abstract Background Geometry */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <motion.div
+            style={{ y: y1, rotate: rotate1 }}
+            className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-[100px] border border-[color:var(--color-lime-300)] opacity-20"
+          />
+          <motion.div
+            style={{ y: y2, rotate: rotate2 }}
+            className="absolute top-40 -right-40 h-[600px] w-[600px] rounded-full border border-[color:var(--color-cyan-300)] opacity-10"
+          />
+          <motion.div
+            style={{ y: y1 }}
+            className="absolute top-1/2 left-1/4 h-[300px] w-[300px] rounded-full bg-[color:var(--color-lime-100)] opacity-30 blur-[100px]"
+          />
+        </div>
+
         {/* Gradient accent */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[400px] w-[600px]"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[400px] w-[600px] z-0"
           style={{
             background: "radial-gradient(ellipse, rgba(190,255,0,0.07) 0%, rgba(0,212,160,0.04) 40%, transparent 70%)",
             filter: "blur(60px)",

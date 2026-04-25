@@ -35,6 +35,9 @@ export interface SavedInvoice {
   applied_payment_terms: string | null;
   applied_late_fee_rate: number | null;
   applied_license_type: string | null;
+  due_date: string | null;
+  reminded_due_date: boolean;
+  reminded_overdue: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +86,7 @@ export async function saveInvoice(
     applied_payment_terms: input.formData.meta?.paymentTerms || null,
     applied_late_fee_rate: input.formData.client?.msaLateFeeRate || null,
     applied_license_type: input.formData.payment?.license?.licenseType || null,
+    due_date: input.formData.meta?.dueDate || null,
   };
 
   if (input.existingId) {

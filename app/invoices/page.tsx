@@ -193,7 +193,7 @@ function InvoiceRow({
   settlingId: string | null;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const canSettle = invoice.status === "finalized" && invoice.msa_response === "accepted";
+  const canSettle = invoice.status === "finalized" || invoice.status === "overdue";
 
   return (
     <tr className="border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group">
