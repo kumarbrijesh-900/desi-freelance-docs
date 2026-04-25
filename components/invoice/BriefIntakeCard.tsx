@@ -33,6 +33,7 @@ interface BriefIntakeCardProps {
   onPlaceholderAction: (message: string) => void;
   isCollapsed: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
+  userEmail?: string | null;
 }
 
 export default function BriefIntakeCard({
@@ -40,6 +41,7 @@ export default function BriefIntakeCard({
   onPlaceholderAction,
   isCollapsed,
   onCollapsedChange,
+  userEmail,
 }: BriefIntakeCardProps) {
   const [briefText, setBriefText] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -141,6 +143,10 @@ export default function BriefIntakeCard({
     }
   };
 
+  const isAdmin = userEmail === "kumar.brijesh900@gmail.com";
+  const isEngineLocked = !isAdmin; // Manual lock override
+  const lockMessage = "Engine is out of fuel, waiting for Strait to straighten up.";
+
   if (isCollapsed) {
     return (
       <MotionReveal className="mb-3" preset="fade-up" delay={40}>
@@ -166,24 +172,9 @@ export default function BriefIntakeCard({
                 <ClipboardCheckIcon className="h-3.5 w-3.5" />
                 Brief Parsing Engine
               </span>
-              <SuccessPulse active={lastExtractionState === "success"}>
-                <span
-                  className={cn(
-                    "inline-flex h-7 min-w-0 items-center rounded-full border px-2 text-xs font-medium",
-                    statusBadgeClass
-                  )}
-                >
-                  {isExtracting
-                    ? "Extracting"
-                    : lastExtractionState === "success"
-                    ? "Autofill Ready"
-                    : lastExtractionState === "error"
-                    ? "Needs Detail"
-                    : canExtract
-                    ? "Ready"
-                    : "Empty"}
-                </span>
-              </SuccessPulse>
+              <span className="text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                Maintenance
+              </span>
             </div>
 
             <MotionButton
@@ -209,12 +200,33 @@ export default function BriefIntakeCard({
       <section
         className={cn(
           getAppSubtlePanelClass("muted"),
-          "invoice-brief-card overflow-hidden px-4 py-3 sm:px-[18px]"
+          "invoice-brief-card relative overflow-hidden px-4 py-3 sm:px-[18px]"
         )}
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
-        <div className="space-y-2">
+        {/* Maintenance Overlay */}
+        {isEngineLocked && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px]">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
+                ⛽
+              </div>
+              <p className="max-w-[240px] text-center text-[14px] font-bold leading-relaxed text-amber-900">
+                {lockMessage}
+              </p>
+              <div className="h-1 w-32 rounded-full bg-gray-100 overflow-hidden">
+                <motion.div 
+                  className="h-full bg-amber-400"
+                  animate={{ x: [-128, 128] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className={cn("space-y-2", isEngineLocked && "opacity-20 pointer-events-none grayscale")}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
@@ -225,23 +237,22 @@ export default function BriefIntakeCard({
               </p>
             </div>
 
-
-
-              {!isCollapsed ? (
-                <MotionButton
-                  type="button"
-                  onClick={() => onCollapsedChange(true)}
-                  aria-expanded={true}
-                  aria-controls="brief-intake-panel"
-                  className={cn(
-                    getAppButtonClass({ variant: "tertiary", size: "sm" }),
-                    "shrink-0"
-                  )}
-                >
-                  <ChevronUpIcon className="h-3.5 w-3.5" />
-                </MotionButton>
-              ) : null}
-            </div>
+            {!isCollapsed ? (
+              <MotionButton
+                type="button"
+                onClick={() => onCollapsedChange(true)}
+                disabled={isEngineLocked}
+                aria-expanded={true}
+                aria-controls="brief-intake-panel"
+                className={cn(
+                  getAppButtonClass({ variant: "tertiary", size: "sm" }),
+                  "shrink-0"
+                )}
+              >
+                <ChevronUpIcon className="h-3.5 w-3.5" />
+              </MotionButton>
+            ) : null}
+          </div>
 
           <AnimatePresence initial={false}>
             <motion.div
@@ -255,11 +266,10 @@ export default function BriefIntakeCard({
             >
               <MotionReveal preset="soft">
                 <div className="space-y-2">
-
-
                   <textarea
                     rows={4}
                     value={briefText}
+                    disabled={isEngineLocked}
                     onChange={(e) => {
                       setBriefText(e.target.value);
                       setLastExtractionState("idle");
@@ -293,16 +303,6 @@ export default function BriefIntakeCard({
                   <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--border-subtle)] pt-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <label
-                        onDragOver={(event) => {
-                          event.preventDefault();
-                          setIsDragOver(true);
-                        }}
-                        onDragLeave={() => setIsDragOver(false)}
-                        onDrop={(event) => {
-                          event.preventDefault();
-                          setIsDragOver(false);
-                          handleFiles(event.dataTransfer.files);
-                        }}
                         className={cn(
                           getAppButtonClass({ variant: "secondary", size: "sm" }),
                           "cursor-pointer",
@@ -315,6 +315,7 @@ export default function BriefIntakeCard({
                           type="file"
                           accept="image/png,image/jpeg"
                           multiple
+                          disabled={isEngineLocked}
                           onChange={(event) => {
                             handleFiles(event.target.files);
                             event.target.value = "";
@@ -325,11 +326,7 @@ export default function BriefIntakeCard({
 
                       <MotionButton
                         type="button"
-                        onClick={() =>
-                          onPlaceholderAction(
-                            "Voice intake is still a placeholder hook. Add text or a screenshot for now."
-                          )
-                        }
+                        disabled={isEngineLocked}
                         className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                       >
                         <MicrophoneIcon className="h-4 w-4" />
@@ -346,7 +343,7 @@ export default function BriefIntakeCard({
                     <MotionButton
                       type="button"
                       onClick={handleExtract}
-                      disabled={isExtracting || !canExtract}
+                      disabled={isEngineLocked || isExtracting || !canExtract}
                       className={getAppButtonClass({ variant: "primary", size: "md" })}
                     >
                       <motion.span

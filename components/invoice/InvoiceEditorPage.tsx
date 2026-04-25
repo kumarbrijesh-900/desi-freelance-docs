@@ -48,7 +48,7 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
-import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice } from "@/lib/supabase/invoices";
+import { getCurrentUserId, saveInvoice, reissueNegotiatedInvoice, getCurrentUserEmail } from \"@/lib/supabase/invoices\";
 import type { InvoiceStatus } from "@/lib/supabase/invoices";
 import {
   convertInrToApproximateUsd,
@@ -693,6 +693,7 @@ function EditorContent() {
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   // Modal States
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -793,6 +794,9 @@ function EditorContent() {
       setCurrentStep(nextStep);
       setParserDocumentId(nextDocumentId);
       setClientMsaNote(nextMsaNote);
+
+      // Fetch user email for admin check
+      void getCurrentUserEmail().then(email => setUserEmail(email));
     } catch (error) {
       console.error("Failed to initialize invoice editor:", error);
 
@@ -2064,6 +2068,7 @@ function EditorContent() {
                   onPlaceholderAction={triggerToast}
                   isCollapsed={isBriefIntakeCollapsed}
                   onCollapsedChange={setIsBriefIntakeCollapsed}
+                  userEmail={userEmail}
                 />
               </div>
 
