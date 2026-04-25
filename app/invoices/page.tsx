@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
 import { appPageContainerClass, appPageSectionClass, appPageShellClass } from "@/lib/layout-foundation";
-import { getAppButtonClass } from "@/lib/ui-foundation";
+import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import {
   listInvoices,
   deleteInvoice,
@@ -478,17 +478,23 @@ export default function InvoiceHistoryPage() {
 
           {/* Stat cards */}
           {!loading && invoices.length > 0 && (
-            <MotionReveal className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4" preset="fade-up">
+            <MotionReveal className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5" preset="fade-up">
               {[
-                { label: "Total", value: stats.total, color: "text-[color:var(--text-primary)]" },
-                { label: "Finalized", value: stats.finalized, color: "text-[color:var(--state-success-text)]" },
-                { label: "Action Required", value: stats.msaNegotiating, color: "text-amber-700 font-bold" },
-                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-600" },
-                { label: "Views (All)", value: stats.totalViews, color: "text-[color:var(--text-secondary)]" },
+                { label: "Total", value: stats.total, color: "text-[color:var(--text-primary)]", accent: "bg-[color:var(--text-primary)]", icon: "📄" },
+                { label: "Finalized", value: stats.finalized, color: "text-[color:var(--state-success-text)]", accent: "bg-[color:var(--state-success-border)]", icon: "✅" },
+                { label: "Action Required", value: stats.msaNegotiating, color: "text-amber-700", accent: "bg-amber-400", icon: "⚡" },
+                { label: "MSA Pending", value: stats.msaPending, color: "text-amber-600", accent: "bg-amber-200", icon: "⏳" },
+                { label: "Views (All)", value: stats.totalViews, color: "text-[color:var(--text-secondary)]", accent: "bg-[color:var(--border-subtle)]", icon: "👁️" },
               ].map((s) => (
-                <div key={s.label} className="rounded-lg border border-[color:var(--border-subtle)] bg-white p-4 shadow-sm">
-                  <div className={`text-2xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
-                  <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">{s.label}</div>
+                <div key={s.label} className="relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md">
+                  <div className={cn("absolute left-0 top-0 h-1 w-full", s.accent)} />
+                  <div className="relative z-10">
+                    <div className={`text-xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
+                    <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">{s.label}</div>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 text-2xl opacity-[0.03] grayscale pointer-events-none select-none">
+                    {s.icon}
+                  </div>
                 </div>
               ))}
             </MotionReveal>
