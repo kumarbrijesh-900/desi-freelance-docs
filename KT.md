@@ -631,6 +631,7 @@ tests/
 | Change form autofill | `lib/invoice-brief-intake.ts` (core), `lib/invoice-parsed-extraction-hydration.ts` (AI→form) |
 | Change invoice steps | `components/invoice/InvoiceEditorPage.tsx` (orchestrator) |
 | Change a specific step | `components/invoice/{AgencyDetails,ClientDetails,Deliverables,TermsPayment,InvoiceMeta,TotalsTaxes}Section.tsx` |
+| Change extraction summary | `components/invoice/BriefSummaryModal.tsx` |
 | Change motion/animation | `components/ui/motion-primitives.tsx` |
 | Change field/button styling | `lib/ui-foundation.ts` |
 | Change tax calculations | `lib/invoice-calculations.ts`, `lib/invoice-tax.ts` |
@@ -661,6 +662,27 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 OPENAI_API_KEY=<your-openai-key>
 OPENAI_BRIEF_EXTRACTION_MODEL=gpt-4o-mini  # optional, defaults to gpt-4o-mini
 ```
+
+---
+
+## 14. Smart Extraction & Review Workflow (Human-in-the-Loop)
+
+The platform uses a tiered validation system after parsing an unstructured project brief:
+
+### Tiered Field Categorization
+1.  **Review Required**: 
+    *   **Mandatory Fields**: Fields essential for a legal invoice (Names, Dates, Rates) that are either missing or low-confidence.
+    *   **Low Confidence Extractions**: AI-parsed values with a confidence score below the threshold.
+2.  **Confident Mandatory**: Fields parsed with high confidence that still require a quick check.
+3.  **Optional Fields**: Non-essential fields (Payment terms, Notes) that can be skipped or filled later.
+
+### Workflow Gating
+*   **Submit Blocking**: The "Generate Invoice" button is programmatically locked until **100% of the Review Required** fields are manually "Approved" (ticked) by the user.
+*   **Native Input Properties**: The review table uses context-aware inputs:
+    *   **Dropdowns**: for States, Countries, and Currencies.
+    *   **Toggles**: for boolean flags (e.g., GST Registration status).
+    *   **Date Pickers**: for formatted dates.
+*   **Extraction Retry**: If the summary shows poor results, users can trigger "Parse Again" which sends a `isRetry` flag to the AI, instructing it to prioritize precision and pattern-matching over general extraction.
 
 ---
 
