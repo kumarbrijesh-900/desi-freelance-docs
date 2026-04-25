@@ -127,10 +127,10 @@ function getExtractedValueForLabel(label: string, data: InvoiceFormData): string
   if (l.includes("client country")) return data.client.clientCountry || "";
   if (l.includes("client gstin") || (l.includes("gstin") && l.includes("client"))) return data.client.clientGstin || "";
   if (l.includes("currency")) return data.client.clientCurrency || "";
-  if (l.includes("description") || l.includes("deliverable")) return data.lineItems[0]?.description || "";
   if (l.includes("rate")) return data.lineItems[0]?.rate?.toString() || "";
   if (l.includes("qty") || l.includes("quantity")) return data.lineItems[0]?.qty?.toString() || "";
   if (l.includes("sac")) return data.lineItems[0]?.sacCode || "";
+  if (l.includes("description") || l.includes("deliverable")) return data.lineItems[0]?.description || "";
   if (l.includes("payment terms")) return data.meta.paymentTerms || "";
   if (l.includes("bank name")) return data.payment.bankName || "";
   if (l.includes("account number")) return data.payment.accountNumber || "";
