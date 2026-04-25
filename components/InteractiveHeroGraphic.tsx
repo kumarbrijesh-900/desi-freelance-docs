@@ -68,7 +68,7 @@ export default function InteractiveHeroGraphic() {
         </svg>
       </div>
 
-      {/* LAYER 3: Abstract Geometric Shapes */}
+      {/* LAYER 3: Abstract Geometric Shapes (Behind) */}
       <motion.div
         style={{ x: shapesX, y: shapesY }}
         className="absolute inset-0 pointer-events-none"
@@ -78,19 +78,6 @@ export default function InteractiveHeroGraphic() {
         
         {/* Outlined Rectangle */}
         <div className="absolute bottom-[25%] right-[20%] w-24 h-16 border-2 border-[#D4FF00] rounded-lg" />
-        
-        {/* Sine Wave Path */}
-        <svg className="absolute top-[40%] right-[30%] w-32 h-16 overflow-visible" viewBox="0 0 120 40">
-          <motion.path
-            d="M0,20 Q30,0 60,20 T120,20"
-            fill="none"
-            stroke="black"
-            strokeWidth="2"
-            strokeDasharray="10, 5"
-            animate={{ strokeDashoffset: [0, -15] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
-        </svg>
       </motion.div>
 
       {/* LAYER 4: UI Hint (Glassmorphic Card) */}
@@ -116,6 +103,34 @@ export default function InteractiveHeroGraphic() {
             <div className="h-8 w-8 bg-[#D4FF00] rounded-lg shadow-[0_4px_12px_rgba(212,255,0,0.3)]" />
           </div>
         </div>
+      </motion.div>
+
+      {/* LAYER 5: Interactive Spline (Front-most) */}
+      <motion.div
+        style={{ x: cardX, y: cardY }}
+        className="absolute inset-0 pointer-events-none z-10"
+      >
+        <svg className="absolute top-[42%] right-[22%] w-40 h-20 overflow-visible" viewBox="0 0 120 40">
+          <motion.path
+            d="M0,20 Q30,0 60,20 T120,20"
+            fill="none"
+            stroke="currentColor"
+            className="text-black/20"
+            strokeWidth="1.5"
+            strokeDasharray="6, 4"
+            animate={{ strokeDashoffset: [0, -20] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+          />
+          {/* Accent dot at the end of path */}
+          <motion.circle
+            cx="120"
+            cy="20"
+            r="2"
+            fill="#D4FF00"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        </svg>
       </motion.div>
     </div>
   );
