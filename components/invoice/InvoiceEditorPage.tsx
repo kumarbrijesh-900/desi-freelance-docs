@@ -11,6 +11,14 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { 
+  Building2, 
+  Users, 
+  Settings2, 
+  ListChecks, 
+  ShieldCheck, 
+  CreditCard 
+} from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import UploadToast from "@/components/ui/UploadToast";
@@ -587,6 +595,15 @@ function InlineStepSection({
       ? "In progress"
       : "Pending";
 
+  const StepIcon = {
+    agency: Building2,
+    client: Users,
+    deliverables: ListChecks,
+    payment: CreditCard,
+    meta: Settings2,
+    totals: ShieldCheck,
+  }[step];
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -625,7 +642,18 @@ function InlineStepSection({
                   Step {stepNumber}
                 </p>
                 <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
-                  {stepLabel}
+                  <div className="flex items-center gap-2">
+                    {StepIcon && (
+                      <StepIcon 
+                        className={cn(
+                          "w-5 h-5 shrink-0 transition-colors duration-200",
+                          isActive || isCompleted ? "text-inherit" : "text-slate-400"
+                        )} 
+                        strokeWidth={1.5} 
+                      />
+                    )}
+                    {stepLabel}
+                  </div>
                 </h2>
                 <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--text-muted)]">
                   {detailCopy}
