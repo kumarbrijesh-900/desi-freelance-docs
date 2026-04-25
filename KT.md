@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-25 (Session: Phase 11c complete — Data Audit & Handoff Fix)
+> **Last Updated:** 2026-04-25 (Session: Phase 11d complete — Automated Invoice Loop & Security)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -468,6 +468,17 @@ tests/
   - **Silent Failure Logging**: Added restoration error tracking with `console.error` and toast feedback.
   - **Strict Typing**: Synchronized `types/supabase.ts` with the audited Postgres schema.
 
+### Phase 11d — Automated Invoice Loop & Security
+- **Security Architecture Redesign**: Completely removed the exposure of raw invoice share URLs from the frontend UI to prevent loop-holes (like agencies accepting their own MSAs).
+- **Server-Side Dispatch**: The `ShareLinkModal` now relies on a secure API route (`/api/share-invoice`) to attach the MSA and dispatch emails directly to the client via **Resend** using a verified domain (`@lanceinvoice.xyz`).
+- **Notifications Foundation**: Created the `notifications` table (and RLS policies) to lay the groundwork for an in-app agency notification center.
+- **Automated Cron Nudges**: Implemented a daily automated billing engine via Vercel Cron (`vercel.json`) hitting `/api/cron/check-invoices`:
+  - **Overdue Marking**: Automatically scans and changes the status of past-due finalized invoices to `overdue`.
+  - **Gentle Nudge (Due Today)**: Automatically sends a polite reminder email to both the client and the agency exactly on the due date.
+  - **Urgent Nudge (2 Days Overdue)**: Automatically sends an urgent alert to the agency to follow up with the client and close the loop.
+- **Database Tracking**: Extracted `due_date` into a dedicated column and added `reminded_due_date` and `reminded_overdue` boolean flags to prevent duplicate cron emails.
+- **Loop Closure**: Updated the Invoices dashboard UI to allow agencies to click "Mark Settled" on overdue invoices to manually close the lifecycle loop.
+
 ---
 
 ## 10. Pending Roadmap
@@ -566,6 +577,9 @@ tests/
 | `applied_payment_terms` | integer | MSA Override for this specific invoice |
 | `applied_late_fee_rate` | numeric | MSA Override for this specific invoice |
 | `applied_license_type` | text | MSA Override for this specific invoice |
+| `due_date` | date | Extracted from meta to allow fast SQL cron querying |
+| `reminded_due_date` | boolean | Cron flag to prevent duplicate 'due today' emails |
+| `reminded_overdue` | boolean | Cron flag to prevent duplicate 'overdue' emails |
 | `created_at` | timestamptz | Auto |
 | `updated_at` | timestamptz | Auto |
 
@@ -573,6 +587,22 @@ tests/
 - Owner can SELECT/INSERT/UPDATE/DELETE own invoices
 - `invoices_select_by_share_token` — public SELECT when `share_token IS NOT NULL`
 - `invoices_update_msa_acceptance` — public UPDATE for MSA acceptance on shared invoices
+
+### `notifications` Table
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK, auto-generated |
+| `user_id` | uuid | FK to auth.users (the agency) |
+| `invoice_id` | uuid | FK to invoices |
+| `type` | enum | `invoice_sent`, `invoice_viewed`, `msa_accepted`, etc. |
+| `title` | text | Notification heading |
+| `message` | text | Notification body |
+| `is_read` | boolean | Default: `false` |
+| `created_at` | timestamptz | Auto |
+
+**RLS Policies:**
+- `Notifications: users can read own`
+- `Notifications: users can update own (mark read)`
 
 ### `read_receipts` Table
 | Column | Type | Notes |
