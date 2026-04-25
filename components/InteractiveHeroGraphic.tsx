@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef } from "react";
+import { Building2, Briefcase, Sparkle } from "lucide-react";
 import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
 
 export default function InteractiveHeroGraphic() {
@@ -16,18 +17,19 @@ export default function InteractiveHeroGraphic() {
   const smoothY = useSpring(mouseY, springConfig);
 
   // Layer transforms (depth mapping)
-  // Layer 1 (Blob): Moves in opposite direction, very slow
   const blobX = useTransform(smoothX, [-300, 300], [15, -15]);
   const blobY = useTransform(smoothY, [-300, 300], [15, -15]);
 
-  // Layer 3 (Shapes): Move in same direction, slightly faster
   const shapesX = useTransform(smoothX, [-300, 300], [-25, 25]);
   const shapesY = useTransform(smoothY, [-300, 300], [-25, 25]);
 
-  // Layer 4 (Card): Moves fastest for front-most depth
   const cardX = useTransform(smoothX, [-300, 300], [-40, 40]);
   const cardY = useTransform(smoothY, [-300, 300], [-40, 40]);
   const cardRotate = useTransform(smoothX, [-300, 300], [-5, 5]);
+
+  // Front-most elements (icons) move fastest
+  const frontX = useTransform(smoothX, [-300, 300], [-55, 55]);
+  const frontY = useTransform(smoothY, [-300, 300], [-55, 55]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -50,12 +52,14 @@ export default function InteractiveHeroGraphic() {
       onMouseLeave={handleMouseLeave}
       className="w-full aspect-square md:aspect-[4/3] relative overflow-hidden rounded-2xl bg-gray-50/50 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
     >
-      {/* LAYER 1: The Blob (Background) */}
+      {/* LAYER 1: The Blobs (Colorful Background) */}
       <motion.div
         style={{ x: blobX, y: blobY }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <div className="w-[80%] h-[80%] bg-gradient-to-tr from-[#D4FF00]/20 to-transparent blur-3xl rounded-full animate-pulse" />
+        <div className="absolute top-10 left-10 w-[60%] h-[60%] bg-gradient-to-tr from-[#BEFF00]/15 to-transparent blur-3xl rounded-full" />
+        <div className="absolute bottom-10 right-10 w-[50%] h-[50%] bg-gradient-to-bl from-[#00D4A0]/10 to-transparent blur-3xl rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-gradient-to-r from-[#FF4D2A]/5 to-transparent blur-3xl rounded-full" />
       </motion.div>
 
       {/* LAYER 2: The Grid (Static) */}
@@ -73,11 +77,10 @@ export default function InteractiveHeroGraphic() {
         style={{ x: shapesX, y: shapesY }}
         className="absolute inset-0 pointer-events-none"
       >
-        {/* Circle */}
-        <div className="absolute top-[20%] left-[25%] w-12 h-12 bg-black rounded-full shadow-lg" />
-        
-        {/* Outlined Rectangle */}
-        <div className="absolute bottom-[25%] right-[20%] w-24 h-16 border-2 border-[#D4FF00] rounded-lg" />
+        {/* Floating Shapes */}
+        <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rounded-lg rotate-12" />
+        <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[#BEFF00]/10 rounded-full" />
+        <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-sm -rotate-12" />
       </motion.div>
 
       {/* LAYER 4: UI Hint (Glassmorphic Card) */}
@@ -100,36 +103,56 @@ export default function InteractiveHeroGraphic() {
               <div className="h-1.5 w-12 bg-gray-100 rounded-full" />
               <div className="h-3 w-20 bg-gray-900 rounded-full" />
             </div>
-            <div className="h-8 w-8 bg-[#D4FF00] rounded-lg shadow-[0_4px_12px_rgba(212,255,0,0.3)]" />
+            <div className="h-8 w-8 bg-[#BEFF00] rounded-lg shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
           </div>
         </div>
       </motion.div>
 
-      {/* LAYER 5: Interactive Spline (Front-most) */}
+      {/* LAYER 5: Interactive Spline & Connection Icons (Front-most) */}
       <motion.div
-        style={{ x: cardX, y: cardY }}
+        style={{ x: frontX, y: frontY }}
         className="absolute inset-0 pointer-events-none z-10"
       >
-        <svg className="absolute top-[42%] right-[22%] w-40 h-20 overflow-visible" viewBox="0 0 120 40">
+        {/* Agency Icon (Building) */}
+        <div className="absolute top-[45%] left-[12%] flex flex-col items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
+            <Building2 className="h-5 w-5" strokeWidth={1.5} />
+          </div>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Agency</span>
+        </div>
+
+        {/* Client Icon (Briefcase) */}
+        <div className="absolute top-[38%] right-[10%] flex flex-col items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
+            <Briefcase className="h-5 w-5" strokeWidth={1.5} />
+          </div>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Client</span>
+        </div>
+
+        {/* The Connection Spline */}
+        <svg className="absolute top-[40%] left-[18%] w-[65%] h-32 overflow-visible" viewBox="0 0 300 100">
           <motion.path
-            d="M0,20 Q30,0 60,20 T120,20"
+            d="M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40"
             fill="none"
             stroke="currentColor"
-            className="text-black/20"
-            strokeWidth="1.5"
-            strokeDasharray="6, 4"
-            animate={{ strokeDashoffset: [0, -20] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+            className="text-[#BEFF00]"
+            strokeWidth="2"
+            strokeDasharray="8, 6"
+            animate={{ strokeDashoffset: [0, -28] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           />
-          {/* Accent dot at the end of path */}
-          <motion.circle
-            cx="120"
-            cy="20"
-            r="2"
-            fill="#D4FF00"
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
+          
+          {/* Traveling "Pulse" Sparkle */}
+          <motion.g
+            animate={{ 
+              offsetDistance: ["0%", "100%"] 
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            style={{ offsetPath: "path('M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40')" }}
+          >
+            <circle r="4" fill="#BEFF00" className="blur-[2px]" />
+            <Sparkle className="h-4 w-4 -translate-x-2 -translate-y-2 text-[#BEFF00] fill-[#BEFF00]" />
+          </motion.g>
         </svg>
       </motion.div>
     </div>
