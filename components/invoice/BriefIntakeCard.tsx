@@ -151,7 +151,7 @@ export default function BriefIntakeCard({
     return (
       <MotionReveal className="mb-3" preset="fade-up" delay={40}>
         <section
-          className={cn("app-soft-panel-muted overflow-hidden rounded-[14px]")}
+          className={cn("app-soft-panel-muted overflow-hidden rounded-[14px] border-amber-200 bg-amber-50/30")}
           aria-labelledby="brief-intake-collapsed-heading"
           data-brief-intake-state="collapsed"
           data-testid="brief-intake-collapsed"
@@ -164,18 +164,21 @@ export default function BriefIntakeCard({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="flex h-12 items-center justify-between gap-3 px-4"
           >
-            <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-              <span
-                id="brief-intake-collapsed-heading"
-                className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700 shadow-[0_1px_0_rgba(255,255,255,0.78)]"
-              >
-                <ClipboardCheckIcon className="h-3.5 w-3.5" />
-                Brief Parsing Engine
+            <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-[12px] shadow-sm">
+                ⛽
               </span>
-              <span className="flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                <span className="text-[10px]">🔒</span>
-                Maintenance
-              </span>
+              <div className="flex flex-col min-w-0">
+                <span
+                  id="brief-intake-collapsed-heading"
+                  className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700/60"
+                >
+                  Parsing Engine
+                </span>
+                <span className="truncate text-[12px] font-bold text-amber-900">
+                  {lockMessage}
+                </span>
+              </div>
             </div>
 
             <MotionButton
@@ -185,10 +188,10 @@ export default function BriefIntakeCard({
               aria-controls="brief-intake-panel"
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "shrink-0"
+                "shrink-0 bg-white/50 hover:bg-white shadow-sm"
               )}
             >
-              <ChevronDownIcon className="h-3.5 w-3.5" />
+              <ChevronDownIcon className="h-3.5 w-3.5 text-amber-700" />
             </MotionButton>
           </motion.div>
         </section>
@@ -206,9 +209,27 @@ export default function BriefIntakeCard({
         aria-labelledby="brief-intake-heading"
         data-brief-intake-state="expanded"
       >
+        {/* Toggle - Top Layer */}
+        {!isCollapsed && (
+          <div className="absolute right-3 top-3 z-[100]">
+            <MotionButton
+              type="button"
+              onClick={() => onCollapsedChange(true)}
+              aria-expanded={true}
+              aria-controls="brief-intake-panel"
+              className={cn(
+                getAppButtonClass({ variant: "tertiary", size: "sm" }),
+                "bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white"
+              )}
+            >
+              <ChevronUpIcon className="h-3.5 w-3.5" />
+            </MotionButton>
+          </div>
+        )}
+
         {/* Maintenance Overlay */}
         {isEngineLocked && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] pointer-events-none">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[1px] pointer-events-none">
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl pointer-events-auto">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
                 ⛽
@@ -227,7 +248,7 @@ export default function BriefIntakeCard({
           </div>
         )}
 
-        <div className={cn("space-y-2", isEngineLocked && "opacity-20 grayscale")}>
+        <div className={cn("space-y-2", isEngineLocked && "opacity-20 grayscale pointer-events-none")}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
@@ -237,23 +258,6 @@ export default function BriefIntakeCard({
                 Paste a brief first, then add a screenshot only if it helps autofill.
               </p>
             </div>
-
-            {!isCollapsed ? (
-              <div className="relative z-30">
-                <MotionButton
-                  type="button"
-                  onClick={() => onCollapsedChange(true)}
-                  aria-expanded={true}
-                  aria-controls="brief-intake-panel"
-                  className={cn(
-                    getAppButtonClass({ variant: "tertiary", size: "sm" }),
-                    "shrink-0"
-                  )}
-                >
-                  <ChevronUpIcon className="h-3.5 w-3.5" />
-                </MotionButton>
-              </div>
-            ) : null}
           </div>
 
           <AnimatePresence initial={false}>
