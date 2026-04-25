@@ -11,6 +11,7 @@ import ChoiceCards from "@/components/ui/ChoiceCards";
 
 import {
   appFieldErrorTextClass,
+  appFieldHelperTextClass,
   appFieldLabelClass,
   appSectionDescriptionClass,
   appSectionTitleClass,
@@ -24,6 +25,7 @@ import {
   appFieldFullWidthStackClass,
   appFieldPairGridClass,
 } from "@/lib/form-foundation";
+import { Link, Sparkles, AlertTriangle } from "lucide-react";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -43,6 +45,7 @@ interface TermsPaymentSectionProps {
     swiftBicCode?: string;
   };
   showAllErrors?: boolean;
+  selectedClientMsa?: import("@/lib/supabase/clients").SavedClient | null;
 }
 
 type StructuredBankAddressFields = {
@@ -141,6 +144,7 @@ export default function TermsPaymentSection({
   paymentTermsError,
   errors,
   showAllErrors = false,
+  selectedClientMsa,
 }: TermsPaymentSectionProps) {
   const [isQrDragOver, setIsQrDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -295,6 +299,23 @@ export default function TermsPaymentSection({
     "swiftBicCode",
     errors?.swiftBicCode
   );
+  
+  // MSA Deviation Checks
+  const isPaymentTermsDeviated = selectedClientMsa && meta.paymentTerms !== `Net ${selectedClientMsa.msa_payment_terms_days}`;
+  
+  // Map MSA IP trigger to LicenseType
+  const getMsaLicenseType = (trigger?: string): LicenseType | "" => {
+    if (!trigger) return "";
+    if (trigger === "upon_full_payment") return "full-assignment";
+    if (trigger === "retained_by_creator") return "exclusive-license";
+    return "";
+  };
+  const msaLicenseType = getMsaLicenseType(selectedClientMsa?.msa_ip_trigger_type);
+  const isLicenseTypeDeviated = selectedClientMsa && value.license.licenseType !== msaLicenseType;
+  
+  const isNotesDeviated = selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && value.notes !== selectedClientMsa.msa_notes_boilerplate;
+  
+  const hasMsaDeviation = isPaymentTermsDeviated || isLicenseTypeDeviated || isNotesDeviated;
 
   return (
     <>
@@ -372,10 +393,23 @@ export default function TermsPaymentSection({
             </div>
           </div>
 
-          <div className="w-full md:max-w-[288px]">
-            <label className={appFieldLabelClass}>
-              Payment Terms *
-            </label>
+            <div className="flex items-center gap-2">
+              <label className={appFieldLabelClass}>
+                Payment Terms *
+              </label>
+              {selectedClientMsa && (
+                <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                  {isPaymentTermsDeviated ? (
+                    <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
+                  ) : (
+                    <Link size={14} strokeWidth={1.5} className="text-slate-400" />
+                  )}
+                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">
+                    {isPaymentTermsDeviated ? "Override" : "Synced with MSA"}
+                  </span>
+                </div>
+              )}
+            </div>
             <input
               suppressHydrationWarning
               type="text"
@@ -393,6 +427,11 @@ export default function TermsPaymentSection({
                 {paymentTermsFieldError}
               </p>
             ) : null}
+            {isPaymentTermsDeviated && (
+              <p className={appFieldHelperTextClass}>
+                MSA default: Net {selectedClientMsa.msa_payment_terms_days}
+              </p>
+            )}
           </div>
 
           {/* ── Licensing (flat layout) ── */}
@@ -434,9 +473,20 @@ export default function TermsPaymentSection({
               <div className="overflow-hidden">
                 <div className="space-y-4 pt-3">
                   <div>
-                    <label className={appFieldLabelClass}>
-                      License Type *
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className={appFieldLabelClass}>
+                        License Type *
+                      </label>
+                      {selectedClientMsa && (
+                        <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                          {isLicenseTypeDeviated ? (
+                            <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
+                          ) : (
+                            <Link size={14} strokeWidth={1.5} className="text-slate-400" />
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <ChoiceCards
                       name="license-type"
                       value={value.license.licenseType}
@@ -494,9 +544,20 @@ export default function TermsPaymentSection({
           </div>
 
           <div>
-            <label className={appFieldLabelClass}>
-              Terms / Notes
-            </label>
+            <div className="flex items-center gap-2">
+              <label className={appFieldLabelClass}>
+                Terms / Notes
+              </label>
+              {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && (
+                <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                  {isNotesDeviated ? (
+                    <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
+                  ) : (
+                    <Link size={14} strokeWidth={1.5} className="text-slate-400" />
+                  )}
+                </div>
+              )}
+            </div>
             <textarea
               suppressHydrationWarning
               rows={3}
@@ -506,6 +567,42 @@ export default function TermsPaymentSection({
               className={inputClass(undefined, Boolean(value.notes), true)}
             />
           </div>
+
+          {/* Deviation Warning & Addendum Trigger */}
+          {hasMsaDeviation && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex gap-3">
+                <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-bold text-amber-900">
+                      Deviation from Master MSA detected
+                    </p>
+                    <p className="text-xs text-amber-700 leading-relaxed mt-1">
+                      You are changing terms that were previously agreed upon in your Master Service Agreement with this client.
+                    </p>
+                  </div>
+                  
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative flex items-center mt-1">
+                      <input
+                        type="checkbox"
+                        checked={meta.hasAddendum}
+                        onChange={(e) => updateMetaField("hasAddendum", e.target.checked)}
+                        className="peer h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                      />
+                    </div>
+                    <span className="text-[13px] font-semibold text-amber-900 group-hover:text-black transition-colors">
+                      Apply overrides as a Project-Specific Addendum
+                      <span className="block text-[11px] font-normal text-amber-700 mt-0.5">
+                        Required to proceed with modified terms.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!isInternational ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
             <div className="overflow-hidden">

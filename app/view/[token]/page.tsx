@@ -31,6 +31,8 @@ export default function PublicInvoiceViewPage({
   const [templateId, setTemplateId] = useState("classic");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [hasAddendum, setHasAddendum] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
 
   // MSA gating state
   const [msaRequired, setMsaRequired] = useState(false);
@@ -57,6 +59,8 @@ export default function PublicInvoiceViewPage({
       const fd = mergeInvoiceFormData(data.form_data);
       setFormData(fd);
       setTemplateId(data.template_id || "classic");
+      setHasAddendum(data.has_addendum || false);
+      setInvoiceNumber(data.invoice_number || "");
 
       // Extract agency name for messaging
       if (fd.agency?.agencyName) {
@@ -288,6 +292,47 @@ export default function PublicInvoiceViewPage({
                 )}
               </div>
 
+              {/* Project Addendum Section */}
+              {hasAddendum && (
+                <div className="border-t border-amber-100 bg-amber-50/30 px-6 py-5">
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[10px] font-bold text-amber-700">
+                      !
+                    </span>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-amber-900">
+                        Project Addendum for Invoice #{invoiceNumber}
+                      </h3>
+                      <p className="mt-1 text-[13px] leading-relaxed text-amber-800">
+                        The following terms deviate from your Master Service Agreement for this specific project only:
+                      </p>
+                      
+                      <ul className="mt-3 space-y-2">
+                        {formData.meta.paymentTerms && (
+                          <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
+                            <span className="h-1 w-1 rounded-full bg-amber-400" />
+                            Payment Terms: <span className="font-bold underline decoration-amber-300 underline-offset-2">{formData.meta.paymentTerms}</span>
+                          </li>
+                        )}
+                        {formData.payment.license?.licenseType && (
+                          <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
+                            <span className="h-1 w-1 rounded-full bg-amber-400" />
+                            Licensing: <span className="font-bold underline decoration-amber-300 underline-offset-2">{formData.payment.license.licenseType.replace(/-/g, " ")}</span>
+                          </li>
+                        )}
+                        {formData.payment.notes && (
+                          <li className="flex items-start gap-2 text-[12px] font-medium text-amber-900">
+                            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+                            <span>Additional Notes: <span className="font-bold">{formData.payment.notes}</span></span>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+              </div>
+
               {/* Action footer — Accept or Propose Changes */}
               <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-4">
                 <p className="mb-3 text-xs text-[color:var(--text-muted)]">
@@ -302,7 +347,7 @@ export default function PublicInvoiceViewPage({
                       disabled={msaSubmitting}
                       className={getAppButtonClass({ variant: "primary", size: "md" })}
                     >
-                      {msaSubmitting ? "Processing…" : "Accept MSA"}
+                      {msaSubmitting ? "Processing…" : (hasAddendum ? "Accept MSA & Addendum" : "Accept MSA")}
                     </button>
                     <button
                       type="button"
@@ -411,7 +456,7 @@ export default function PublicInvoiceViewPage({
             {msaResponse === "accepted" && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
                 <CheckCircleIcon className="h-3.5 w-3.5" />
-                MSA Accepted
+                {hasAddendum ? "MSA & Addendum Accepted" : "MSA Accepted"}
               </span>
             )}
             <button

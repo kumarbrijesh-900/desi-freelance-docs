@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id")
+      .select("id, user_id, share_token, form_data, template_id, has_addendum")
       .eq("id", invoiceId)
       .single();
 
@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
 
     /* ── 4. Send email to client (link only goes to inbox) ── */
     const hasMsa = !!msaId;
+    const hasAddendum = invoice.has_addendum;
+    
     const { error: emailError } = await resend.emails.send({
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
@@ -110,7 +112,11 @@ export async function POST(req: NextRequest) {
                     </h1>
                     <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
                       <strong style="color:#111118;">${agencyName}</strong> has sent you an invoice via Lance.
-                      ${hasMsa ? "Please review and accept the Master Service Agreement before viewing the invoice." : "Click below to view your invoice."}
+                      ${hasMsa 
+                        ? (hasAddendum 
+                            ? "Please review the Master Service Agreement and the specific Project Addendum attached to this invoice prior to acceptance."
+                            : "Please review and accept the Master Service Agreement before viewing the invoice.")
+                        : "Click below to view your invoice."}
                     </p>
                     ${hasMsa ? `
                     <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:24px;background:#f9fafb;">
@@ -122,7 +128,9 @@ export async function POST(req: NextRequest) {
                     ` : ""}
                     <a href="${shareUrl}"
                       style="display:inline-block;background:#111118;color:#d4ff00;font-size:14px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      ${hasMsa ? "Review MSA &amp; View Invoice →" : "View Invoice →"}
+                      ${hasMsa 
+                        ? (hasAddendum ? "Review MSA & Addendum →" : "Review MSA & View Invoice →")
+                        : "View Invoice →"}
                     </a>
                     <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">
                       This link is private and was sent only to ${clientEmail}. Do not share it.

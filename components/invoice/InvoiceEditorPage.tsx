@@ -722,6 +722,7 @@ function EditorContent() {
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [selectedClientMsa, setSelectedClientMsa] = useState<SavedClient | null>(null);
 
   // Modal States
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -956,6 +957,7 @@ function EditorContent() {
           ...prev,
           client: clientDetails
         }));
+        setSelectedClientMsa(clients[0]);
         console.log("CLIENT_AUTOFILL: Applied unique client", clients[0].client_name);
       }
     }
@@ -1686,6 +1688,14 @@ function EditorContent() {
             if (payload.parser?.documentId) {
               setParserDocumentId(payload.parser.documentId);
             }
+            
+            // If parser identifies an existing client, sync the MSA state
+            if (payload.parser?.clientId) {
+              const matched = savedClients.find(c => c.id === payload.parser?.clientId);
+              if (matched) {
+                setSelectedClientMsa(matched);
+              }
+            }
           }
         } catch (error) {
           console.error("AI brief extraction request failed:", error);
@@ -1856,6 +1866,7 @@ function EditorContent() {
   const handleClientSelect = (client: SavedClient) => {
     const syncedData = syncMsaToInvoice(formData, client);
     setFormData(syncedData);
+    setSelectedClientMsa(client);
     playInteractionCue("stepComplete");
   };
 
@@ -1906,6 +1917,7 @@ function EditorContent() {
             value={{ ...formData.payment, profileQrUrl }}
             meta={formData.meta}
             clientLocation={formData.client.clientLocation}
+            selectedClientMsa={selectedClientMsa}
             onChange={(payment) =>
               setFormData((prev) =>
                 mergeInvoiceFormData({
