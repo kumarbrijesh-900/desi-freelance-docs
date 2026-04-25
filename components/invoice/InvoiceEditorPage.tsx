@@ -27,6 +27,7 @@ import InvoiceMetaSection from "@/components/invoice/InvoiceMetaSection";
 import DeliverablesSection from "@/components/invoice/DeliverablesSection";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
+import BriefSummaryModal from "@/components/invoice/BriefSummaryModal";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
@@ -691,6 +692,17 @@ function EditorContent() {
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
   const [savedClients, setSavedClients] = useState<SavedClient[]>([]);
+
+  // Modal States
+  const [briefSummaryData, setBriefSummaryData] = useState<{
+    nextFormData: InvoiceFormData;
+    lowConfidence: import("@/lib/invoice-brief-intake").BriefAutofillFieldSummary[];
+    confident: import("@/lib/invoice-brief-intake").BriefAutofillFieldSummary[];
+    isNewClient: boolean;
+  } | null>(null);
+  const [shouldSaveNewClientMaster, setShouldSaveNewClientMaster] = useState(false);
+  const [postSubmitActionModal, setPostSubmitActionModal] = useState<{ isOpen: boolean; isReady: boolean } | null>(null);
+  const [extractProgress, setExtractProgress] = useState(0);
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -1400,6 +1412,14 @@ function EditorContent() {
         PREVIEW_STORAGE_KEY,
         JSON.stringify(previewFormData)
       );
+
+      // Save Client to Master if checked
+      if (shouldSaveNewClientMaster && userProfile) {
+        import("@/lib/supabase/clients").then(({ clientDetailsToRow, saveClient }) => {
+          saveClient(clientDetailsToRow(formData.client)).catch(console.error);
+        });
+      }
+
        window.localStorage.setItem(
         DRAFT_STORAGE_KEY,
         JSON.stringify({
@@ -1553,6 +1573,12 @@ function EditorContent() {
     // 1. Wipe state immediately to prevent hybrid merge between subsequent extractions
     setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
     setIsProcessingAutofill(true);
+    setExtractProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setExtractProgress((prev) => (prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1));
+    }, 300);
+
     try {
       let ocrText = "";
 
@@ -1684,37 +1710,57 @@ function EditorContent() {
           : hydratedFormData;
 
       const mergedToSet = mergeInvoiceFormData(nextFormData);
-      console.log("=== AFTER MERGE INVOICE FORM DATA ===", mergedToSet.lineItems[0], mergedToSet.agency.agencyName);
 
-      lastAutoDueDateRef.current = nextSuggestedDueDate;
-      dueDateAutoManagedRef.current =
-        !nextFormData.meta.dueDate ||
-        nextFormData.meta.dueDate === nextSuggestedDueDate;
+      // Check if Client is New
+      const clientName = mergedToSet.client.clientName.trim();
+      const isNewClient = Boolean(clientName && !savedClients.some(c => c.client_name.toLowerCase() === clientName.toLowerCase()));
 
-      const missingStep = getFirstInvalidStep(nextFormData);
-      const recommendedStep = missingStep ?? "totals";
+      setExtractProgress(100);
+      
+      // Open Summary Modal instead of instantly populating
+      setBriefSummaryData({
+        nextFormData: mergedToSet,
+        lowConfidence: result.lowConfidenceFieldSummaries,
+        confident: result.confidentFieldSummaries,
+        isNewClient,
+      });
 
-      setFormData(mergeInvoiceFormData(nextFormData));
-      setShowAllValidationErrors(true);
-      guideToSection(recommendedStep, { focus: true });
-
-      triggerToast(
-        totalFilledFields.length > 0
-          ? `Autofilled ${totalFilledFields.length} field${
-              totalFilledFields.length === 1 ? "" : "s"
-            }. Review the highlighted step inline.`
-          : parserHydration?.clarificationQuestions.length
-          ? "Autofill found partial details. Review the unresolved items and finish the missing fields inline."
-          : result.lowConfidenceFieldSummaries.length > 0
-          ? "Autofill landed in the form. Review the highlighted section and finish the missing fields inline."
-          : "Autofill landed in the form. Review the highlighted section and continue."
-      );
-
-      setIsBriefIntakeCollapsed(true);
       return true;
     } finally {
+      clearInterval(progressInterval);
       setIsProcessingAutofill(false);
     }
+  };
+
+  const handleModalSubmit = (finalData: InvoiceFormData, saveClient: boolean) => {
+    setShouldSaveNewClientMaster(saveClient);
+    setFormData(finalData);
+
+    const readyForPreview = isInvoiceReadyForPreview(finalData);
+    setBriefSummaryData(null);
+    setPostSubmitActionModal({ isOpen: true, isReady: readyForPreview });
+
+    setBriefIntakeResetKey(Date.now());
+    setIsBriefIntakeCollapsed(true);
+    setShowAllValidationErrors(true);
+
+    const missingStep = getFirstInvalidStep(finalData);
+    const recommendedStep = missingStep ?? "totals";
+    guideToSection(recommendedStep, { focus: true });
+  };
+
+  const handleParseAgain = () => {
+    setBriefSummaryData(null);
+    triggerToast("Let's try that again. You can edit the brief or add more details.");
+    setIsBriefIntakeCollapsed(false);
+  };
+
+  const handleContinueManually = (finalData: InvoiceFormData) => {
+    setFormData(finalData);
+    setBriefSummaryData(null);
+    setBriefIntakeResetKey(Date.now());
+    setIsBriefIntakeCollapsed(true);
+    setShowAllValidationErrors(true);
   };
 
   const handleBackToHome = () => {
@@ -1925,7 +1971,7 @@ function EditorContent() {
                 <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">Scanning & Translating</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">Scanning & Translating {extractProgress}%</h2>
                 <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
                   Lance is scanning your brief to structure the invoice...
                 </p>
@@ -2244,6 +2290,66 @@ function EditorContent() {
           onSkip={handleDiscardChanges}
           onSaveDraft={handleSaveDraft}
         />
+      )}
+
+      {briefSummaryData && (
+        <BriefSummaryModal
+          isOpen={true}
+          extractedData={briefSummaryData.nextFormData}
+          lowConfidenceFields={briefSummaryData.lowConfidence}
+          confidentFields={briefSummaryData.confident}
+          missingFieldsGroups={missingFieldGroups}
+          isNewClient={briefSummaryData.isNewClient}
+          isLoggedIn={!isGuestMode}
+          onContinueManually={handleContinueManually}
+          onParseAgain={handleParseAgain}
+          onSubmit={handleModalSubmit}
+        />
+      )}
+
+      {postSubmitActionModal?.isOpen && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="flex w-full max-w-sm flex-col overflow-hidden rounded-[20px] bg-[#111118] border border-[color:var(--border-subtle)] p-6 shadow-2xl"
+            >
+              <h3 className="text-lg font-bold text-white mb-2">
+                {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
+              </h3>
+              <p className="text-sm text-[color:var(--text-muted)] mb-6">
+                {postSubmitActionModal.isReady 
+                  ? "Your invoice is ready. What would you like to do next?"
+                  : "We need a few more details to generate the preview. Let's review the form."}
+              </p>
+              <div className="flex flex-col gap-3">
+                {postSubmitActionModal.isReady && (
+                  <button
+                    onClick={() => {
+                      setPostSubmitActionModal(null);
+                      handlePreviewInvoice();
+                    }}
+                    className={getAppButtonClass({ variant: "primary", size: "md" })}
+                  >
+                    Check Preview
+                  </button>
+                )}
+                <button
+                  onClick={() => setPostSubmitActionModal(null)}
+                  className={getAppButtonClass({ variant: postSubmitActionModal.isReady ? "ghost" : "primary", size: "md" })}
+                >
+                  Review Invoice
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
       )}
     </main>
   );
