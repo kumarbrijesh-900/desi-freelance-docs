@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-24 (Session: Phase 11a complete — Support & Feedback Ecosystem)
+> **Last Updated:** 2026-04-25 (Session: Phase 11b complete — Interactive Hero & PLG Flow)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -453,15 +453,12 @@ tests/
   - **Column Rebalancing**: Relocated "Amount in Words" and "RCM" blocks to the left column to resolve visual weight imbalance in Step 6.
   - **Educational Tooltips**: Integrated `InfoCircleIcon` with detailed RCM liability explanations.
 
-### Phase 11a — Support & Feedback Infrastructure
-- **FAQ System**: Created a public, SEO-optimized `/support` hub with categorized FAQs and smooth CSS Grid transitions.
-- **User Feedback Loop**: Implemented a context-preserving `FeedbackModal` triggered from the User Menu.
-- **Top Navigation Polish**:
-  - **User Menu Dropdown**: Unified Profile, Feedback, and Logout actions into a single avatar dropdown.
-  - **Global FAQ Entry**: Added a persistent "FAQ" link to the primary navigation bar.
-- **Accessibility Fix**: Upgraded FAQ category headers to high-contrast `gray-900` with brand-aligned lime-green accents.
-- **Guest Mode CTA**: Added "Try the Magic Extract (Guest)" secondary button to the landing page.
-- **Server-Side Supabase**: Implemented `lib/supabase/server.ts` for RSC/SSR compatibility.
+- **Interactive Hero & PLG Optimization (Phase 11b)**:
+  - **Interactive Hero Graphic**: Replaced the placeholder with a custom 4-layer parallax composition (Blob, Grid, Shapes, Glassmorphic Card) using Framer Motion.
+  - **Hero Refactor**: Shifted the landing page to a 2-column grid to showcase the interactive graphic alongside primary CTAs.
+  - **Guest Sandbox**: Created the `/sandbox` route for frictionless entry into the extraction engine without authentication.
+  - **Conversion Wall**: Implemented `ConversionModal` to intercept high-value final actions (Download, Save, Share) for guest users.
+  - **State Preservation**: Integrated `persistDraft()` and the `?restore=1` flow to automatically sync guest work to cloud accounts post-authentication.
 
 ---
 
@@ -471,7 +468,6 @@ tests/
 - **Voice Input:** Activate voice-to-brief extraction in `BriefIntakeCard.tsx`.
 - **Engagement Analytics:** Real-time dashboard for invoice views, duration, and conversion rates.
 - **Subscription Engine:** Implement billing to gate the "Share" button and advanced templates.
-- **Sandbox Mode:** Build the full guest-extraction sandbox logic for the "Try the Magic Extract" CTA.
 
 ### Known Issues
 - **Share Button:** Temporarily hidden in Preview (requires subscription/billing logic implementation).
