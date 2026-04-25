@@ -29,6 +29,7 @@ export type BriefParserInputBundle = {
   documentId?: string;
   context?: ParserInputContext;
   sourceMetadata?: BriefParserSourceMetadata;
+  isRetry?: boolean;
 };
 
 export type NormalizedBriefLineItem = {
@@ -156,6 +157,7 @@ export function normalizeBriefParserInput(
     voiceTranscript,
     attachmentSummary,
     combinedText: [
+      input.isRetry ? "RETRY ATTEMPT: The previous extraction was unsatisfactory. Please be more precise and careful this time. Review the brief and context thoroughly." : "",
       briefText ? `Typed brief:\n${briefText}` : "",
       ocrText ? `OCR text:\n${ocrText}` : "",
       voiceTranscript ? `Voice transcript:\n${voiceTranscript}` : "",

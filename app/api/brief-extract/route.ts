@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       attachmentSummary: body?.attachmentSummary ?? "",
       documentId: body?.documentId,
       sourceMetadata: body?.sourceMetadata,
+      isRetry: body?.isRetry,
       context: {
         isGuest: !session?.user,
         databaseContext, // Inject full reality

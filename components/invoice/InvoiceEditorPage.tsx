@@ -683,6 +683,7 @@ function EditorContent() {
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
+  const [isBriefRetry, setIsBriefRetry] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
@@ -1629,17 +1630,18 @@ function EditorContent() {
                 ? { Authorization: `Bearer ${session.access_token}` }
                 : {}),
             },
-            body: JSON.stringify({
-              briefText: normalizedInput.text,
-              ocrText: normalizedInput.ocrText,
-              voiceTranscript: normalizedInput.voiceTranscript ?? "",
-              documentId: parserDocumentId,
-              sourceMetadata: {
-                attachmentNames: input.imageFiles?.map((file) => file.name),
-                attachmentTypes: input.imageFiles?.map((file) => file.type),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              },
-            }),
+              body: JSON.stringify({
+                briefText: normalizedInput.text,
+                ocrText: normalizedInput.ocrText,
+                voiceTranscript: normalizedInput.voiceTranscript ?? "",
+                documentId: parserDocumentId,
+                isRetry: isBriefRetry,
+                sourceMetadata: {
+                  attachmentNames: input.imageFiles?.map((file) => file.name),
+                  attachmentTypes: input.imageFiles?.map((file) => file.type),
+                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                },
+              }),
           });
 
           if (response.ok) {
@@ -1751,6 +1753,7 @@ function EditorContent() {
 
   const handleParseAgain = () => {
     setBriefSummaryData(null);
+    setIsBriefRetry(true);
     triggerToast("Let's try that again. You can edit the brief or add more details.");
     setIsBriefIntakeCollapsed(false);
   };
