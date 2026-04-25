@@ -14,6 +14,8 @@ import {
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 
+import InteractiveHeroGraphic from "@/components/InteractiveHeroGraphic";
+
 const HERO_WORDS = ["Describe", "your", "project.", "Get", "a", "perfect", "invoice."];
 const TRUST_ITEMS = [
   {
@@ -116,95 +118,107 @@ export default function Home() {
           }}
         />
 
-        <div className="relative mx-auto max-w-3xl text-center">
-          <MotionReveal preset="fade-up" delay={0}>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-lime-700)]">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)] animate-pulse" />
-              Smart Invoice Engine
-            </p>
-          </MotionReveal>
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
+          <div className="text-center lg:text-left">
+            <MotionReveal preset="fade-up" delay={0}>
+              <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-lime-700)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)] animate-pulse" />
+                Smart Invoice Engine
+              </p>
+            </MotionReveal>
 
-          <div className="mt-8">
-            <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-6xl">
-              {HERO_WORDS.map((word, i) => (
-                <motion.span
-                  key={word + i}
-                  initial={{ opacity: 0, y: 14, filter: "blur(3px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{
-                    delay: 0.15 + i * 0.06,
-                    duration: 0.45,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className="inline-block mr-[0.28em]"
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </h1>
+            <div className="mt-8">
+              <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-6xl">
+                {HERO_WORDS.map((word, i) => (
+                  <motion.span
+                    key={word + i}
+                    initial={{ opacity: 0, y: 14, filter: "blur(3px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{
+                      delay: 0.15 + i * 0.06,
+                      duration: 0.45,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="inline-block mr-[0.28em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </h1>
+            </div>
+
+            <MotionReveal preset="fade-up" delay={700}>
+              <p className="mx-auto lg:mx-0 mt-6 max-w-xl text-base leading-7 text-[color:var(--text-muted)] sm:text-lg sm:leading-8">
+                Turn a raw client brief into a GST-compliant, export-ready invoice
+                in under <span className="font-semibold text-[color:var(--text-secondary)]">10 seconds</span>. 
+                Built for Indian creative freelancers.
+              </p>
+            </MotionReveal>
+
+            <MotionReveal preset="fade-up" delay={900}>
+              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      href="/invoice/new?fresh=1"
+                      className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                    >
+                      <span className="inline-flex items-center gap-2.5">
+                        <SparklesIcon className="h-4 w-4" />
+                        Create Invoice
+                        <ArrowRightIcon className="h-4 w-4" />
+                      </span>
+                    </Link>
+                    <Link
+                      href="/invoices"
+                      className={getAppButtonClass({ variant: "secondary", size: "lg" })}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <DocumentSparkIcon className="h-4 w-4" />
+                        Your Invoices
+                      </span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className={getAppButtonClass({ variant: "primary", size: "lg" })}
+                    >
+                      <span className="inline-flex items-center gap-2.5">
+                        <SparklesIcon className="h-4 w-4" />
+                        Get Started Free
+                        <ArrowRightIcon className="h-4 w-4" />
+                      </span>
+                    </Link>
+                    <Link
+                      href="/sandbox"
+                      className={getAppButtonClass({ variant: "ghost", size: "lg" })}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        Try the Magic Extract (Guest)
+                      </span>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </MotionReveal>
+
+            <MotionReveal preset="fade-in" delay={1200}>
+              <p className="mt-12 text-xs tracking-wide text-[color:var(--text-soft)]">
+                Trusted by 200+ Indian freelancers &amp; agencies
+              </p>
+            </MotionReveal>
           </div>
 
-          <MotionReveal preset="fade-up" delay={700}>
-            <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-[color:var(--text-muted)] sm:text-lg sm:leading-8">
-              Turn a raw client brief into a GST-compliant, export-ready invoice
-              in under <span className="font-semibold text-[color:var(--text-secondary)]">10 seconds</span>. 
-              Built for Indian creative freelancers.
-            </p>
-          </MotionReveal>
-
-          <MotionReveal preset="fade-up" delay={900}>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              {isLoggedIn ? (
-                <>
-                  <Link
-                    href="/invoice/new?fresh=1"
-                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2.5">
-                      <SparklesIcon className="h-4 w-4" />
-                      Create Invoice
-                      <ArrowRightIcon className="h-4 w-4" />
-                    </span>
-                  </Link>
-                  <Link
-                    href="/invoices"
-                    className={getAppButtonClass({ variant: "secondary", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <DocumentSparkIcon className="h-4 w-4" />
-                      Your Invoices
-                    </span>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className={getAppButtonClass({ variant: "primary", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2.5">
-                      <SparklesIcon className="h-4 w-4" />
-                      Get Started Free
-                      <ArrowRightIcon className="h-4 w-4" />
-                    </span>
-                  </Link>
-                  <Link
-                    href="/sandbox"
-                    className={getAppButtonClass({ variant: "ghost", size: "lg" })}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      Try the Magic Extract (Guest)
-                    </span>
-                  </Link>
-                </>
-              )}
+          <MotionReveal preset="fade-up" delay={500} className="relative hidden lg:block">
+            <div className="relative">
+              <InteractiveHeroGraphic />
+              
+              {/* Decorative elements around the graphic */}
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full border border-gray-100 bg-white/50 backdrop-blur-sm shadow-sm" />
+              <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border border-gray-100 bg-white/30 backdrop-blur-sm shadow-sm" />
             </div>
-          </MotionReveal>
-
-          <MotionReveal preset="fade-in" delay={1200}>
-            <p className="mt-12 text-xs tracking-wide text-[color:var(--text-soft)]">
-              Trusted by 200+ Indian freelancers &amp; agencies
-            </p>
           </MotionReveal>
         </div>
       </section>
