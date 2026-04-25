@@ -172,7 +172,8 @@ export default function BriefIntakeCard({
                 <ClipboardCheckIcon className="h-3.5 w-3.5" />
                 Brief Parsing Engine
               </span>
-              <span className="text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              <span className="flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                <span className="text-[10px]">🔒</span>
                 Maintenance
               </span>
             </div>
@@ -207,8 +208,8 @@ export default function BriefIntakeCard({
       >
         {/* Maintenance Overlay */}
         {isEngineLocked && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px]">
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] pointer-events-none">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl pointer-events-auto">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
                 ⛽
               </div>
@@ -226,7 +227,7 @@ export default function BriefIntakeCard({
           </div>
         )}
 
-        <div className={cn("space-y-2", isEngineLocked && "opacity-20 pointer-events-none grayscale")}>
+        <div className={cn("space-y-2", isEngineLocked && "opacity-20 grayscale")}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
@@ -238,19 +239,20 @@ export default function BriefIntakeCard({
             </div>
 
             {!isCollapsed ? (
-              <MotionButton
-                type="button"
-                onClick={() => onCollapsedChange(true)}
-                disabled={isEngineLocked}
-                aria-expanded={true}
-                aria-controls="brief-intake-panel"
-                className={cn(
-                  getAppButtonClass({ variant: "tertiary", size: "sm" }),
-                  "shrink-0"
-                )}
-              >
-                <ChevronUpIcon className="h-3.5 w-3.5" />
-              </MotionButton>
+              <div className="relative z-30">
+                <MotionButton
+                  type="button"
+                  onClick={() => onCollapsedChange(true)}
+                  aria-expanded={true}
+                  aria-controls="brief-intake-panel"
+                  className={cn(
+                    getAppButtonClass({ variant: "tertiary", size: "sm" }),
+                    "shrink-0"
+                  )}
+                >
+                  <ChevronUpIcon className="h-3.5 w-3.5" />
+                </MotionButton>
+              </div>
             ) : null}
           </div>
 
