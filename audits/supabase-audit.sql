@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     gst_registration_status TEXT NOT NULL DEFAULT 'not-registered',
     lut_availability TEXT NOT NULL DEFAULT 'no',
     lut_number TEXT NOT NULL DEFAULT '',
+    lut_validity TEXT NOT NULL DEFAULT '',
     no_lut_tax_handling TEXT NOT NULL DEFAULT '',
     bank_name TEXT NOT NULL DEFAULT '',
     account_name TEXT NOT NULL DEFAULT '',
@@ -44,6 +45,12 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     bank_address TEXT NOT NULL DEFAULT '',
     swift_bic_code TEXT NOT NULL DEFAULT '',
     iban_routing_code TEXT NOT NULL DEFAULT '',
+    -- MSA Defaults (inherited by every new invoice for this user)
+    msa_payment_terms_days INTEGER NOT NULL DEFAULT 20,
+    msa_late_fee_rate NUMERIC NOT NULL DEFAULT 1.5,
+    msa_late_fee_unit TEXT NOT NULL DEFAULT 'monthly',
+    msa_ip_trigger_type TEXT NOT NULL DEFAULT 'upon_full_payment',
+    msa_jurisdiction_city TEXT NOT NULL DEFAULT 'Bangalore',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE(user_id)
@@ -57,16 +64,26 @@ CREATE TABLE IF NOT EXISTS clients (
     client_name TEXT NOT NULL DEFAULT '',
     client_email TEXT NOT NULL DEFAULT '',
     client_address TEXT NOT NULL DEFAULT '',
-    client_postal_code TEXT NOT NULL DEFAULT '',
+    address_line_1 TEXT NOT NULL DEFAULT '',
+    address_line_2 TEXT NOT NULL DEFAULT '',
     city TEXT NOT NULL DEFAULT '',
+    pin_code TEXT NOT NULL DEFAULT '',
+    client_postal_code TEXT NOT NULL DEFAULT '',
     state TEXT NOT NULL DEFAULT '',
+    country TEXT NOT NULL DEFAULT '',
     gstin TEXT NOT NULL DEFAULT '',
     client_location TEXT NOT NULL DEFAULT 'domestic',
+    client_entity_type TEXT NOT NULL DEFAULT 'agency',
     sez_status sez_status_type NOT NULL DEFAULT 'no',
     client_currency TEXT NOT NULL DEFAULT 'INR',
     msa_payment_terms_days INTEGER NOT NULL DEFAULT 15,
     msa_late_fee_rate NUMERIC NOT NULL DEFAULT 0,
+    msa_late_fee_unit TEXT NOT NULL DEFAULT 'monthly',
+    msa_ip_trigger_type TEXT NOT NULL DEFAULT 'upon_full_payment',
+    msa_jurisdiction_city TEXT NOT NULL DEFAULT 'Bangalore',
+    msa_version_label TEXT NOT NULL DEFAULT 'Standard Lance MSA v1.2',
     msa_notes_boilerplate TEXT NOT NULL DEFAULT '',
+    msa_effective_date TIMESTAMPTZ,
     invoice_count INTEGER NOT NULL DEFAULT 0,
     last_invoiced_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -101,7 +118,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     msa_responded_at TIMESTAMPTZ,
     client_msa_note TEXT,
     is_rcm_enabled BOOLEAN NOT NULL DEFAULT false,
-    applied_payment_terms INTEGER,
+    applied_payment_terms TEXT,           -- Bug 2 fixed: TEXT (e.g. 'Net 30')
     applied_late_fee_rate NUMERIC,
     applied_license_type TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -196,6 +213,16 @@ CREATE POLICY "FAQs: public can read published" ON faqs
 -- User Feedback: Authenticated users can insert; Admin can read
 CREATE POLICY "Feedback: users can insert own" ON user_feedback
     FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- MSAs: Public can read MSAs attached to shared invoices (Bug 5 fix)
+CREATE POLICY "MSAs: public can read via shared invoice" ON client_msas
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM invoices
+            WHERE invoices.msa_id      = client_msas.id
+              AND invoices.share_token IS NOT NULL
+        )
+    );
 
 -- Note: Admin/Service access is typically handled via service_role or specific metadata checks
 -- For standard RLS, we block non-owner reads for feedback and non-published reads for FAQs

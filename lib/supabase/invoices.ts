@@ -27,10 +27,11 @@ export interface SavedInvoice {
   shared_to_email: string | null;
   template_id: string | null;
   msa_id: string | null;
-  msa_accepted_at: string | null;
+  /** msa_accepted_at removed — use msa_responded_at instead */
   msa_response: MsaResponse;
   msa_responded_at: string | null;
   client_msa_note: string | null;
+  /** Bug 2: stored as TEXT (e.g. 'Net 30', 'Due on Receipt') */
   applied_payment_terms: string | null;
   applied_late_fee_rate: number | null;
   applied_license_type: string | null;
@@ -317,7 +318,7 @@ export async function detachMsaFromInvoice(
 
   const { error } = await supabase
     .from("invoices")
-    .update({ msa_id: null, msa_accepted_at: null, msa_response: "pending", msa_responded_at: null })
+    .update({ msa_id: null, msa_response: "pending", msa_responded_at: null })
     .eq("id", invoiceId)
     .eq("user_id", userId);
 
@@ -349,10 +350,7 @@ export async function respondToMsa(
     msa_response: response,
     msa_responded_at: now,
   };
-  // Also set legacy msa_accepted_at for backward compat
-  if (response === "accepted") {
-    updateFields.msa_accepted_at = now;
-  }
+  // msa_accepted_at does not exist in the DB — msa_responded_at is the canonical field.
 
   const { error } = await supabase
     .from("invoices")
@@ -394,7 +392,9 @@ export async function proposeMsaChanges(
       client_msa_note: noteText,
       msa_responded_at: new Date().toISOString(),
     })
-    .eq("id", invoiceId);
+    .eq("id", invoiceId)
+    // Bug 4 fix: RLS policy requires share_token IS NOT NULL for public UPDATE
+    .not("share_token", "is", null);
 
   return { error: error?.message ?? null };
 }
@@ -430,7 +430,6 @@ export async function reissueNegotiatedInvoice(
       client_msa_note: null,
       msa_response: "pending" as MsaResponse,
       msa_responded_at: null,
-      msa_accepted_at: null,
       applied_payment_terms: newFormData.meta?.paymentTerms || null,
       applied_late_fee_rate: newFormData.client?.msaLateFeeRate || null,
       applied_license_type: newFormData.payment?.license?.licenseType || null,

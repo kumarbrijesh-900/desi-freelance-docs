@@ -96,7 +96,8 @@ export function clientDetailsToRow(
     country: details.clientCountry || "",
     client_currency: details.clientCurrency || "",
     gstin: details.clientGstin || "",
-    client_type: details.clientLocation || "domestic",
+    // Bug 3 fix: DB column is client_location, not client_type
+    client_location: details.clientLocation || "domestic",
     client_entity_type: details.clientType || "agency",
     sez_status: details.isClientSezUnit || "no",
     msa_effective_date: details.msaEffectiveDate || null,
