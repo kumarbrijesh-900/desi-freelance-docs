@@ -86,6 +86,9 @@ export interface AgencyDetails {
     | "proportional_transfer"
     | "retained_by_creator";
   msaJurisdictionCity?: string;
+  msaVersionLabel?: string;
+  msaNotesBoilerplate?: string;
+  msaLicenseType?: LicenseType | "";
 }
 
 export interface ClientDetails {
@@ -118,6 +121,7 @@ export interface ClientDetails {
   msaJurisdictionCity?: string;
   msaVersionLabel?: string;
   msaNotesBoilerplate?: string;
+  msaLicenseType?: LicenseType | "";
 }
 
 export interface InvoiceMeta {

@@ -491,7 +491,7 @@ export default function ClientDetailsSection({
                           suppressHydrationWarning
                           type="text"
                           value={value.clientCity}
-                          onChange={(e) => updateField("clientCity", e.target.value)}
+                          onChange={(e) => updateField("city" as any, e.target.value)}
                           placeholder="City"
                           className={inputClass(undefined, Boolean(value.clientCity))}
                         />
@@ -611,9 +611,15 @@ export default function ClientDetailsSection({
               <button
                 type="button"
                 onClick={() => setIsMsaOpen(!isMsaOpen)}
-                className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] cursor-pointer mt-6 font-medium"
+                className="flex items-center gap-2 cursor-pointer text-sm font-medium text-[color:var(--text-primary)]/80 hover:text-[color:var(--text-primary)] transition-colors py-4 border-t border-[color:var(--border-subtle)] mt-6 w-full text-left"
               >
-                Advanced: Edit MSA Defaults
+                <span>Default Contract & Payment Terms</span>
+                <ChevronDownIcon 
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    isMsaOpen && "rotate-180"
+                  )} 
+                />
               </button>
 
               <AnimatePresence>
@@ -625,6 +631,9 @@ export default function ClientDetailsSection({
                     transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
+                    <p className="text-sm text-[color:var(--text-muted)] mb-4 leading-relaxed">
+                      Set the baseline rules for this client. Lance will enforce these globally unless overridden by project-specific terms.
+                    </p>
                     <div className="grid grid-cols-1 gap-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-4 ring-1 ring-inset ring-[color:var(--border-subtle)] sm:grid-cols-2">
                       <div className="space-y-4">
                         <div>
@@ -671,6 +680,19 @@ export default function ClientDetailsSection({
                             placeholder="e.g. Bengaluru"
                             className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
                           />
+                        </div>
+                        <div>
+                          <label className={appFieldLabelClass}>Default License Type</label>
+                          <AppSelectField
+                            value={value.msaLicenseType || ""}
+                            onChange={(e) => updateField("msaLicenseType", e.target.value as any)}
+                            hasValue={Boolean(value.msaLicenseType)}
+                          >
+                            <option value="">Select license...</option>
+                            <option value="full-assignment">Full Assignment</option>
+                            <option value="exclusive-license">Exclusive License</option>
+                            <option value="non-exclusive-license">Non-Exclusive License</option>
+                          </AppSelectField>
                         </div>
                       </div>
                       <div className="space-y-4">
@@ -719,7 +741,14 @@ export default function ClientDetailsSection({
                                 const unitLabel =
                                   unitLabels[value.msaLateFeeUnit || "monthly"];
 
-                                const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
+                                const licenseLabels: Record<string, string> = {
+                                  "full-assignment": "full assignment",
+                                  "exclusive-license": "exclusive license",
+                                  "non-exclusive-license": "non-exclusive license",
+                                };
+                                const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
+
+                                const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
 
                                 updateField("msaNotesBoilerplate", template);
                               }}
