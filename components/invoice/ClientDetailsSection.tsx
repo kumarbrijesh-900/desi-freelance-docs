@@ -136,9 +136,9 @@ export default function ClientDetailsSection({
     performSafetyFetch();
   }, [savedClients]);
 
-  // Priority initialization for new clients
+  // Force initialization of defaults if missing (Priority 3 sniper defaults)
   useEffect(() => {
-    if (!value.clientName && !value.msaPaymentTermsDays) {
+    if (!value.msaPaymentTermsDays) {
       onChange(applyMsaCascade(value));
     }
   }, []);

@@ -232,6 +232,12 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     clientGstin: "",
     clientLocation: "domestic",
     isClientSezUnit: "",
+    msaPaymentTermsDays: 15,
+    msaLateFeeRate: 1.5,
+    msaLateFeeUnit: "monthly",
+    msaIpTriggerType: "upon_full_payment",
+    msaLicenseType: "full-assignment",
+    msaJurisdictionCity: "",
   },
   meta: {
     invoiceNumber: "",
@@ -283,7 +289,6 @@ function normalizeAgencyDetails(agency: AgencyDetails): AgencyDetails {
     addressLine1: agency.addressLine1,
     addressLine2: agency.addressLine2,
     city: agency.city,
-    state: agency.agencyState,
     pinCode: agency.pinCode,
     legacyAddress: agency.address,
   });
