@@ -67,6 +67,14 @@ interface ClientDetailsSectionProps {
   agency?: AgencyDetails;
 }
 
+const SNIPER_DEFAULTS = {
+  msaPaymentTermsDays: 15,
+  msaLateFeeRate: 1.5,
+  msaLateFeeUnit: "monthly" as const,
+  msaIpTriggerType: "upon_full_payment" as const,
+  msaLicenseType: "full-assignment" as const,
+};
+
 export default function ClientDetailsSection({
   value,
   onChange,
@@ -91,6 +99,23 @@ export default function ClientDetailsSection({
   const effectiveClients =
     savedClients && savedClients.length > 0 ? savedClients : internalClients;
 
+  /** THE CASCADE LOGIC:
+   * 1. PRIORITY 1 (Client-Specific): Already in 'details' from savedClientToClientDetails.
+   * 2. PRIORITY 2 (Agency Global): Use agency?.msa... fields.
+   * 3. PRIORITY 3 (The Sniper Defaults): SNIPER_DEFAULTS.
+   */
+  const applyMsaCascade = (details: ClientDetails): ClientDetails => {
+    return {
+      ...details,
+      msaPaymentTermsDays: details.msaPaymentTermsDays || agency?.msaPaymentTermsDays || SNIPER_DEFAULTS.msaPaymentTermsDays,
+      msaLateFeeRate: details.msaLateFeeRate || agency?.msaLateFeeRate || SNIPER_DEFAULTS.msaLateFeeRate,
+      msaLateFeeUnit: details.msaLateFeeUnit || agency?.msaLateFeeUnit || SNIPER_DEFAULTS.msaLateFeeUnit,
+      msaIpTriggerType: details.msaIpTriggerType || agency?.msaIpTriggerType || SNIPER_DEFAULTS.msaIpTriggerType,
+      msaLicenseType: details.msaLicenseType || agency?.msaLicenseType || SNIPER_DEFAULTS.msaLicenseType,
+      msaJurisdictionCity: details.msaJurisdictionCity || agency?.city || "",
+    };
+  };
+
   // Fetch clients if none were passed in (fallback)
   const performSafetyFetch = async () => {
     if (effectiveClients.length === 0 && !isLoading) {
@@ -111,13 +136,29 @@ export default function ClientDetailsSection({
     performSafetyFetch();
   }, [savedClients]);
 
+  // Priority initialization for new clients
+  useEffect(() => {
+    if (!value.clientName && !value.msaPaymentTermsDays) {
+      onChange(applyMsaCascade(value));
+    }
+  }, []);
+
+  // Dynamic Jurisdiction Binding
+  useEffect(() => {
+    if (!value.msaJurisdictionCity && agency?.city) {
+      updateField("msaJurisdictionCity", agency.city);
+    }
+  }, [agency?.city]);
+
   const filteredClients = effectiveClients.filter((c) =>
     c.client_name.toLowerCase().includes(value.clientName.toLowerCase()),
   );
 
   const handleSelectClient = (client: SavedClient) => {
     const details = savedClientToClientDetails(client);
-    onChange(details);
+    // Apply cascade to fill missing fields with Agency or Sniper defaults
+    const finalDetails = applyMsaCascade(details);
+    onChange(finalDetails);
     setShowSuggestions(false);
     if (onClientSelect) {
       onClientSelect(client);
@@ -491,7 +532,7 @@ export default function ClientDetailsSection({
                           suppressHydrationWarning
                           type="text"
                           value={value.clientCity}
-                          onChange={(e) => updateField("city" as any, e.target.value)}
+                          onChange={(e) => updateField("clientCity", e.target.value)}
                           placeholder="City"
                           className={inputClass(undefined, Boolean(value.clientCity))}
                         />
