@@ -2287,6 +2287,7 @@ function EditorContent() {
                             <div className="flex justify-end pt-2">
                               <button
                                 type="button"
+                                disabled={!stepValidityByStep[step]}
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() =>
@@ -2295,11 +2296,10 @@ function EditorContent() {
                                   })
                                 }
                                 className={cn(
-                                  getAppButtonClass({
-                                    variant: "primary",
-                                    size: "md",
-                                  }),
-                                  "h-10 px-6 font-semibold",
+                                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                                  !stepValidityByStep[step]
+                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
                                 )}
                               >
                                 Continue to{" "}
@@ -2440,7 +2440,7 @@ function EditorContent() {
           <button
             type="button"
             onClick={handlePreviewInvoice}
-            disabled={false}
+            disabled={!invoiceReadyForPreview}
             aria-label={
               invoiceReadyForPreview
                 ? "Preview and download your invoice"
@@ -2449,8 +2449,10 @@ function EditorContent() {
                   : "Complete all sections to preview"
             }
             className={cn(
-              getAppButtonClass({ variant: "secondary", size: "sm" }),
-              "h-9 px-3.5 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
+              !invoiceReadyForPreview
+                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
             )}
           >
             <EyeIcon className="h-4 w-4" />
