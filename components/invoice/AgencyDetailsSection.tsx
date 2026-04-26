@@ -217,7 +217,7 @@ export default function AgencyDetailsSection({
             )}
           >
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
-              Agency Compliance
+              Agency Compliance *
             </p>
             <div className="w-full md:max-w-[360px]">
               <label className={appFieldLabelClass}>
