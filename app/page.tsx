@@ -21,7 +21,7 @@ import {
   appPageContainerClass,
   appPageShellClass,
 } from "@/lib/layout-foundation";
-import { getAppButtonClass } from "@/lib/ui-foundation";
+import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 
 import InteractiveHeroGraphic from "@/components/InteractiveHeroGraphic";
@@ -196,11 +196,13 @@ export default function Home() {
               <div className="mt-10 flex flex-col items-center gap-6 sm:flex-row lg:justify-start">
                 <Link
                   href={isLoggedIn ? "/invoice/new" : "/login"}
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    size: "lg",
-                    className: "bg-black text-white hover:bg-black/90 px-8 h-14 text-base"
-                  })}
+                  className={cn(
+                    getAppButtonClass({
+                      variant: "primary",
+                      size: "lg",
+                    }),
+                    "bg-black text-white hover:bg-black/90 px-8 h-14 text-base"
+                  )}
                 >
                   <span className="inline-flex items-center gap-2.5">
                     Create Your First Invoice
