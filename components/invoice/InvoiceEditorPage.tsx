@@ -2167,9 +2167,6 @@ function EditorContent() {
           )}
         </div>
         <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
-          <div
-            className={`w-full max-w-[1060px] pb-32 lg:col-start-2 lg:justify-self-start ${appSectionGapClass}`}
-          >
             <div className="space-y-4">
               {clientMsaNote && (
                 <MotionReveal preset="fade-up" className="mb-2">

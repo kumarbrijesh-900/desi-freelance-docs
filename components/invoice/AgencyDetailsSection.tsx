@@ -212,33 +212,33 @@ export default function AgencyDetailsSection({
 
         <div className="space-y-6">
           <div className="border-t border-[color:var(--border-subtle)] py-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <label className={appFieldLabelClass}>Agency Compliance *</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-[color:var(--text-muted)]">
-                    GST Registration Status
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-3">
+                <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                  GST Registration Status
+                </span>
+                <div className="group relative">
+                  <span className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[9px] font-bold text-[color:var(--text-muted)]">
+                    ?
                   </span>
-                  <div className="group relative">
-                    <span className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[9px] font-bold text-[color:var(--text-muted)]">
-                      ?
-                    </span>
-                    <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-64 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
-                      Toggle if your business is registered for Goods and Services Tax in India.
-                      <div className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
-                    </div>
+                  <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-64 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 z-10">
+                    Toggle if your business is registered for Goods and Services Tax in India.
+                    <div className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
                   </div>
                 </div>
+                <AppSwitch
+                  checked={value.gstRegistrationStatus === "registered"}
+                  onChange={(checked) =>
+                    updateField(
+                      "gstRegistrationStatus",
+                      checked ? "registered" : "not-registered",
+                    )
+                  }
+                />
               </div>
-              <AppSwitch
-                checked={value.gstRegistrationStatus === "registered"}
-                onChange={(checked) =>
-                  updateField(
-                    "gstRegistrationStatus",
-                    checked ? "registered" : "not-registered",
-                  )
-                }
-              />
+              <p className="text-[11px] text-[color:var(--text-muted)]">
+                Required for tax compliance in India
+              </p>
             </div>
 
             <AnimatePresence initial={false}>
@@ -309,21 +309,21 @@ export default function AgencyDetailsSection({
                     </div>
 
                     <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <label className={appFieldLabelClass}>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-3">
+                          <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                             Valid LUT for current financial year?
-                          </label>
-                          <p className="text-[12px] text-[color:var(--text-muted)]">
-                            Required for Zero-Rated export invoices
-                          </p>
+                          </span>
+                          <AppSwitch
+                            checked={value.lutAvailability === "yes"}
+                            onChange={(checked) =>
+                              updateField("lutAvailability", checked ? "yes" : "no")
+                            }
+                          />
                         </div>
-                        <AppSwitch
-                          checked={value.lutAvailability === "yes"}
-                          onChange={(checked) =>
-                            updateField("lutAvailability", checked ? "yes" : "no")
-                          }
-                        />
+                        <p className="text-[11px] text-[color:var(--text-muted)]">
+                          Required for Zero-Rated export invoices
+                        </p>
                       </div>
                       
                       <AnimatePresence initial={false}>
