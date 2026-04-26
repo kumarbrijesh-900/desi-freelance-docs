@@ -101,9 +101,6 @@ export async function saveInvoice(
     form_data: input.formData as unknown as Record<string, unknown>,
     status,
     template_id: input.templateId ?? "classic",
-    applied_payment_terms: input.formData.meta?.paymentTerms || null,
-    applied_late_fee_rate: input.formData.client?.msaLateFeeRate || null,
-    applied_license_type: input.formData.payment?.license?.licenseType || null,
     due_date: input.formData.meta?.dueDate || null,
   };
 
