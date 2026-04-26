@@ -226,3 +226,13 @@ export function PencilIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function MonitorSmartphoneIcon(props: IconProps) {
+  return (
+    <svg {...iconProps(props)}>
+      <rect x="5" y="2" width="14" height="20" rx="2" />
+      <path d="M12 18h.01" />
+      <rect x="7" y="5" width="10" height="10" />
+    </svg>
+  );
+}

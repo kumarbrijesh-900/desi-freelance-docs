@@ -8,6 +8,7 @@ import { cn } from "@/lib/ui-foundation";
 import { supabase } from "@/lib/supabase/client";
 import FeedbackModal from "./feedback/FeedbackModal";
 import NotificationBell from "./NotificationBell";
+import InstallPwaButton from "./ui/InstallPwaButton";
 
 interface AppHeaderProps {
   rightSlot?: React.ReactNode;
@@ -209,6 +210,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             {rightSlot}
             {user ? (
               <div className="flex items-center gap-3">
+                <InstallPwaButton />
                 <NotificationBell />
                 <UserMenu
                   email={user.email}

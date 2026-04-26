@@ -18,6 +18,7 @@ import {
   type Notification,
 } from "@/lib/supabase/notifications";
 import { supabase } from "@/lib/supabase/client";
+import { useAppBadge } from "@/hooks/use-app-badge";
 
 function getTimeAgo(dateString: string) {
   const now = new Date();
@@ -38,6 +39,10 @@ export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hasUnread = notifications.some((n) => !n.is_read);
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+
+  // Update app icon badge
+  useAppBadge(unreadCount);
 
   const fetchNotifications = async () => {
     const { data } = await listLiveNotifications();
