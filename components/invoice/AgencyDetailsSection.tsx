@@ -5,7 +5,6 @@ import type { AgencyDetails } from "@/types/invoice";
 import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
-// No motion primitives needed here anymore
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import {
   composeIndianAddress,
@@ -18,6 +17,8 @@ import {
   appFieldPairGridClass,
   appFieldTripleCompactGridClass,
 } from "@/lib/form-foundation";
+import AppSwitch from "@/components/ui/AppSwitch";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   appFieldErrorTextClass,
   appFieldHelperTextClass,
@@ -209,224 +210,214 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="space-y-4">
-          <div
-            className={cn(
-              getAppSubtlePanelClass("muted"),
-              "space-y-3 px-4 py-3",
-            )}
-          >
-            <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">
-              Agency Compliance *
-            </p>
-            <div className="w-full md:max-w-[360px]">
-              <label className={appFieldLabelClass}>
-                GST Registration Status
-              </label>
-              <ChoiceCards
-                name="agency-gst-registration"
-                value={value.gstRegistrationStatus}
-                onChange={(nextValue) =>
-                  updateField("gstRegistrationStatus", nextValue)
+        <div className="space-y-6">
+          <div className="border-t border-[color:var(--border-subtle)] py-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <label className={appFieldLabelClass}>Agency Compliance *</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-[color:var(--text-muted)]">
+                    GST Registration Status
+                  </span>
+                  <div className="group relative">
+                    <span className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[9px] font-bold text-[color:var(--text-muted)]">
+                      ?
+                    </span>
+                    <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-64 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                      Toggle if your business is registered for Goods and Services Tax in India.
+                      <div className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <AppSwitch
+                checked={value.gstRegistrationStatus === "registered"}
+                onChange={(checked) =>
+                  updateField(
+                    "gstRegistrationStatus",
+                    checked ? "registered" : "not-registered",
+                  )
                 }
-                variant="segmented"
-                columns={2}
-                options={[
-                  {
-                    value: "registered",
-                    label: "Registered",
-                  },
-                  {
-                    value: "not-registered",
-                    label: "Not registered",
-                  },
-                ]}
               />
             </div>
 
-            <div
-              className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showGstinField ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-            >
-              <div className="overflow-hidden">
-                <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-                  <div className={appFieldPairGridClass}>
-                    <div>
-                      <label className={appFieldLabelClass}>GSTIN</label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        aria-label="Agency GSTIN"
-                        value={value.gstin}
-                        onChange={(e) =>
-                          updateField(
-                            "gstin",
-                            e.target.value.toUpperCase().replace(/\s+/g, ""),
-                          )
-                        }
-                        onBlur={() => markTouched("gstin")}
-                        placeholder="GSTIN"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        className={inputClass(gstinError, Boolean(value.gstin))}
-                      />
-                      {gstinError ? (
-                        <p className={appFieldErrorTextClass}>{gstinError}</p>
-                      ) : gstinInfo.state ? (
-                        <p className={appFieldHelperTextClass}>
-                          GSTIN state code maps to {gstinInfo.state}. PAN will
-                          be derived automatically when blank.
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div>
-                      <label className={appFieldLabelClass}>PAN</label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        value={value.pan}
-                        onChange={(e) =>
-                          updateField(
-                            "pan",
-                            e.target.value.toUpperCase().replace(/\s+/g, ""),
-                          )
-                        }
-                        onBlur={() => markTouched("pan")}
-                        placeholder="PAN"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        className={inputClass(panError, Boolean(value.pan))}
-                      />
-                      {panError ? (
-                        <p className={appFieldErrorTextClass}>{panError}</p>
-                      ) : panConflictWarning ? (
-                        <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                          {panConflictWarning}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showLutSection ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-            >
-              <div className="overflow-hidden">
-                <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-                  <label className={appFieldLabelClass}>
-                    Valid LUT for current financial year?
-                  </label>
-                  <ChoiceCards
-                    name="agency-lut-availability"
-                    value={value.lutAvailability}
-                    onChange={(nextValue) =>
-                      updateField("lutAvailability", nextValue)
-                    }
-                    variant="segmented"
-                    columns={2}
-                    options={[
-                      {
-                        value: "yes",
-                        label: "Yes",
-                      },
-                      {
-                        value: "no",
-                        label: "No",
-                      },
-                    ]}
-                  />
-                  <p className={appFieldHelperTextClass}>
-                    A Letter of Undertaking (LUT) allows you to export services
-                    without paying IGST upfront. It must be renewed every
-                    financial year on the GST portal.
-                  </p>
-
-                  <div
-                    className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${value.lutAvailability === "yes" ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="max-w-[220px] pt-4">
-                        <label className={appFieldLabelClass}>
-                          LUT Number / ARN
-                        </label>
+            <AnimatePresence initial={false}>
+              {showGstinField && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-4 pt-2">
+                    <div className={appFieldPairGridClass}>
+                      <div>
+                        <label className={appFieldLabelClass}>GSTIN</label>
                         <input
                           suppressHydrationWarning
                           type="text"
-                          value={value.lutNumber}
+                          aria-label="Agency GSTIN"
+                          value={value.gstin}
                           onChange={(e) =>
-                            updateField("lutNumber", e.target.value)
+                            updateField(
+                              "gstin",
+                              e.target.value.toUpperCase().replace(/\s+/g, ""),
+                            )
                           }
-                          placeholder="Recommended, not mandatory"
-                          className={inputClass(
-                            undefined,
-                            Boolean(value.lutNumber),
-                          )}
+                          onBlur={() => markTouched("gstin")}
+                          placeholder="GSTIN"
+                          autoCapitalize="characters"
+                          spellCheck={false}
+                          className={inputClass(gstinError, Boolean(value.gstin))}
                         />
-                        <p className={appFieldHelperTextClass}>
-                          The LUT ARN (Acknowledgement Reference Number) is the
-                          15-digit unique ID from your filed GST RFD-11.
-                          Providing this allows you to issue 'Zero Rated'
-                          invoices to foreign clients without collecting tax.
-                        </p>
+                        {gstinError ? (
+                          <p className={appFieldErrorTextClass}>{gstinError}</p>
+                        ) : gstinInfo.state ? (
+                          <p className={appFieldHelperTextClass}>
+                            GSTIN state code maps to {gstinInfo.state}.
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <label className={appFieldLabelClass}>PAN</label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.pan}
+                          onChange={(e) =>
+                            updateField(
+                              "pan",
+                              e.target.value.toUpperCase().replace(/\s+/g, ""),
+                            )
+                          }
+                          onBlur={() => markTouched("pan")}
+                          placeholder="PAN"
+                          autoCapitalize="characters"
+                          spellCheck={false}
+                          className={inputClass(panError, Boolean(value.pan))}
+                        />
+                        {panError ? (
+                          <p className={appFieldErrorTextClass}>{panError}</p>
+                        ) : panConflictWarning ? (
+                          <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                            {panConflictWarning}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
-                  </div>
 
-                  <div
-                    className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${showNoLutTotalsNote ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-                  >
-                    <div className="overflow-hidden">
-                      <div
-                        className={cn(
-                          getAppSubtlePanelClass(),
-                          "mt-4 px-3 py-2",
+                    <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <label className={appFieldLabelClass}>
+                            Valid LUT for current financial year?
+                          </label>
+                          <p className="text-[12px] text-[color:var(--text-muted)]">
+                            Required for Zero-Rated export invoices
+                          </p>
+                        </div>
+                        <AppSwitch
+                          checked={value.lutAvailability === "yes"}
+                          onChange={(checked) =>
+                            updateField("lutAvailability", checked ? "yes" : "no")
+                          }
+                        />
+                      </div>
+                      
+                      <AnimatePresence initial={false}>
+                        {value.lutAvailability === "yes" && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="max-w-[280px] pt-2">
+                              <label className={appFieldLabelClass}>
+                                LUT Number / ARN
+                              </label>
+                              <input
+                                suppressHydrationWarning
+                                type="text"
+                                value={value.lutNumber}
+                                onChange={(e) =>
+                                  updateField("lutNumber", e.target.value)
+                                }
+                                placeholder="LUT ARN Number"
+                                className={inputClass(
+                                  undefined,
+                                  Boolean(value.lutNumber),
+                                )}
+                              />
+                              <p className="mt-2 text-[11px] leading-relaxed text-[color:var(--text-muted)]">
+                                Acknowledgement Reference Number from your RFD-11 filing.
+                              </p>
+                            </div>
+                          </motion.div>
                         )}
-                      >
-                        <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-                          This only affects export tax handling later if the
-                          client invoice is international.
-                        </p>
-                      </div>
+                      </AnimatePresence>
+
+                      <AnimatePresence>
+                        {showNoLutTotalsNote && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-2"
+                          >
+                            <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
+                              Without a valid LUT, IGST will be applied to export invoices by default.
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <div
-            className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${!showGstinField ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-          >
-            <div className="overflow-hidden">
-              <div className="w-full md:max-w-[240px] pt-4">
-                <label className={appFieldLabelClass}>PAN</label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.pan}
-                  onChange={(e) =>
-                    updateField(
-                      "pan",
-                      e.target.value.toUpperCase().replace(/\s+/g, ""),
-                    )
-                  }
-                  onBlur={() => markTouched("pan")}
-                  placeholder="PAN"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  className={inputClass(panError, Boolean(value.pan))}
-                />
-                {panError ? (
-                  <p className={appFieldErrorTextClass}>{panError}</p>
-                ) : panConflictWarning ? (
-                  <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                    {panConflictWarning}
-                  </p>
-                ) : null}
-              </div>
-            </div>
+            <AnimatePresence initial={false}>
+              {!showGstinField && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="w-full md:max-w-[240px] pt-2">
+                    <label className={appFieldLabelClass}>PAN</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.pan}
+                      onChange={(e) =>
+                        updateField(
+                          "pan",
+                          e.target.value.toUpperCase().replace(/\s+/g, ""),
+                        )
+                      }
+                      onBlur={() => markTouched("pan")}
+                      placeholder="PAN"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      className={inputClass(panError, Boolean(value.pan))}
+                    />
+                    {panError ? (
+                      <p className={appFieldErrorTextClass}>{panError}</p>
+                    ) : panConflictWarning ? (
+                      <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                        {panConflictWarning}
+                      </p>
+                    ) : null}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Business Name */}
