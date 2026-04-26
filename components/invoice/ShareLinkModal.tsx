@@ -100,6 +100,8 @@ function MsaStatusBadge({ response }: { response: MsaResponse }) {
 
 /* ─── Props ─────────────────────────────────────────── */
 
+import type { InvoiceFormData } from "@/types/invoice";
+
 interface ShareLinkModalProps {
   invoiceId: string;
   existingToken: string | null;
@@ -107,6 +109,7 @@ interface ShareLinkModalProps {
   clientEmail: string;
   currentMsaId: string | null;
   msaResponse: MsaResponse;
+  invoiceData?: InvoiceFormData;
   onClose: () => void;
   onShared: (token: string) => void;
 }
@@ -119,6 +122,7 @@ export default function ShareLinkModal({
   clientEmail,
   currentMsaId,
   msaResponse,
+  invoiceData,
   onClose,
   onShared,
 }: ShareLinkModalProps) {
@@ -317,6 +321,18 @@ export default function ShareLinkModal({
                 Require your client to accept a Master Service Agreement before
                 they can view the invoice.
               </p>
+
+              {/* MSA Protection Summary */}
+              <div className="rounded border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] p-3">
+                <p className="text-[13px] leading-relaxed text-[color:var(--text-primary)] font-medium">
+                  This invoice is protected by a Master Services Agreement (Net{" "}
+                  {invoiceData?.client?.msaPaymentTermsDays || 15},{" "}
+                  {invoiceData?.client?.msaLateFeeRate || "1.5"}% late fee).
+                </p>
+                <p className="mt-1 text-[12px] text-[color:var(--text-secondary)]">
+                  The client must digitally accept these terms before viewing.
+                </p>
+              </div>
 
               {loadingMsas ? (
                 <p className="text-xs text-[color:var(--text-muted)]">

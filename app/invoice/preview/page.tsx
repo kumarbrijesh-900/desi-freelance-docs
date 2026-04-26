@@ -741,6 +741,7 @@ function PreviewContent() {
           clientEmail={data?.client?.clientEmail || ""}
           currentMsaId={currentMsaId}
           msaResponse={msaResponse}
+          invoiceData={data}
           onClose={() => setShowShareModal(false)}
           onShared={(token) => setShareToken(token)}
         />

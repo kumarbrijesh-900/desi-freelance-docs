@@ -92,30 +92,59 @@ export default function PublicInvoiceViewPage({
 
   const handleMsaRespond = async (response: "accepted" | "rejected") => {
     setMsaSubmitting(true);
-    const { error } = await respondToMsa(token, response);
-    if (!error) {
-      setMsaResponse(response);
-      if (response === "accepted") {
-        setMsaRequired(false);
+    try {
+      const res = await fetch("/api/msa-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareToken: token, response }),
+      });
+      
+      if (res.ok) {
+        setMsaResponse(response);
+        if (response === "accepted") {
+          setMsaRequired(false);
+        }
+      } else {
+        const err = await res.json();
+        console.error("MSA_RESPONSE_ERROR:", err.error);
+        alert(`Error: ${err.error}`);
       }
+    } catch (err) {
+      console.error("MSA_RESPONSE_FETCH_ERROR:", err);
+      alert("Failed to send response. Please check your connection.");
+    } finally {
+      setMsaSubmitting(false);
     }
-    setMsaSubmitting(false);
   };
 
   const handleProposeChanges = async () => {
     if (!proposalText.trim() || !formData) return;
     setMsaSubmitting(true);
 
-    // We need the raw invoice ID, which we can get from the share token lookup
-    const { data } = await loadInvoiceByToken(token);
-    if (data) {
-      const { error } = await proposeMsaChanges(data.id, proposalText);
-      if (!error) {
+    try {
+      const res = await fetch("/api/msa-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          shareToken: token, 
+          response: "negotiating", 
+          note: proposalText 
+        }),
+      });
+      
+      if (res.ok) {
         setMsaResponse("negotiating");
         setShowProposalForm(false);
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error}`);
       }
+    } catch (err) {
+      console.error("MSA_PROPOSAL_ERROR:", err);
+      alert("Failed to send proposal.");
+    } finally {
+      setMsaSubmitting(false);
     }
-    setMsaSubmitting(false);
   };
 
   /* ─── Loading ──────────────────────────────────────── */

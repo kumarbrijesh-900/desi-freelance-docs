@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { ratelimit } from "@/lib/upstash";
+import { randomBytes } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,12 @@ export const dynamic = "force-dynamic";
 
 function generateShareToken(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  const bytes = crypto.getRandomValues(new Uint8Array(12));
-  return Array.from(bytes)
-    .map((b) => chars[b % chars.length])
-    .join("");
+  const bytes = randomBytes(12);
+  let token = "";
+  for (let i = 0; i < bytes.length; i++) {
+    token += chars[bytes[i] % chars.length];
+  }
+  return token;
 }
 
 function getClientIp(request: Request): string {
@@ -135,62 +138,38 @@ export async function POST(req: NextRequest) {
         <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
           <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
             <tr><td align="center">
-              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;">
+              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                 <!-- Header -->
                 <tr>
                   <td style="background:#111118;padding:24px 32px;">
-                    <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#d4ff00;border-radius:6px;font-weight:900;font-size:16px;color:#111118;text-decoration:none;">L</span>
-                    <span style="color:#fff;font-size:16px;font-weight:700;margin-left:10px;letter-spacing:-0.02em;">Lance</span>
+                    <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
                   </td>
                 </tr>
                 <!-- Body -->
                 <tr>
-                  <td style="padding:32px;">
-                    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111118;letter-spacing:-0.02em;">
-                      Invoice ready for your review
+                  <td style="padding:40px 32px;">
+                    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">
+                      Invoice from ${agencyName}
                     </h1>
-                    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
-                      <strong style="color:#111118;">${agencyName}</strong> has sent you an invoice via Lance.
-                      ${
-                        hasMsa
-                          ? hasAddendum
-                            ? "Please review the Master Service Agreement and the specific Project Addendum attached to this invoice prior to acceptance."
-                            : "Please review and accept the Master Service Agreement before viewing the invoice."
-                          : "Click below to view your invoice."
-                      }
+                    <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
+                      A new invoice is ready for your review. Please review the Master Service Agreement terms before viewing the final invoice.
                     </p>
-                    ${
-                      hasMsa
-                        ? `
-                    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:24px;background:#f9fafb;">
-                      <p style="margin:0 0 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;">What to expect</p>
-                      <p style="margin:0;font-size:13px;color:#374151;line-height:1.6;">
-                        You will be asked to read and accept a Master Service Agreement (MSA) from ${agencyName}. This protects both parties and outlines the terms of work. You can also propose changes.
-                      </p>
-                    </div>
-                    `
-                        : ""
-                    }
+                    
                     <a href="${shareUrl}"
-                      style="display:inline-block;background:#111118;color:#d4ff00;font-size:14px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      ${
-                        hasMsa
-                          ? hasAddendum
-                            ? "Review MSA & Addendum →"
-                            : "Review MSA & View Invoice →"
-                          : "View Invoice →"
-                      }
+                      style="display:inline-block;background:#111118;color:#d4ff00;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                      View Invoice & Terms →
                     </a>
-                    <p style="margin:24px 0 0;font-size:12px;color:#9ca3af;">
-                      This link is private and was sent only to ${clientEmail}. Do not share it.
+                    
+                    <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">
+                      This secure link was sent only to ${clientEmail}. It will expire once the invoice is processed.
                     </p>
                   </td>
                 </tr>
                 <!-- Footer -->
                 <tr>
-                  <td style="border-top:1px solid #f3f4f6;padding:16px 32px;">
-                    <p style="margin:0;font-size:11px;color:#9ca3af;">
-                      Powered by <strong>Lance</strong> — Professional Invoicing for Freelancers
+                  <td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
+                    <p style="margin:0;font-size:12px;color:#9ca3af;">
+                      Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers
                     </p>
                   </td>
                 </tr>
