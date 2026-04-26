@@ -136,57 +136,82 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           </p>
         </div>
 
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[520px] text-left">
-            <thead>
-              <tr className="border-b border-[#6C63FF]/20 text-[9px] uppercase tracking-[0.16em] text-[#999] print:border-[#ccc]">
-                <th className="px-2 py-2 font-semibold">Description</th>
-                <th className="px-2 py-2 font-semibold">Qty</th>
-                <th className="px-2 py-2 font-semibold">Rate</th>
-                <th className="px-2 py-2 font-semibold">Unit</th>
-                <th className="px-2 py-2 text-right font-semibold">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.lineItems.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-b border-[#6C63FF]/8 text-[13px] print:border-[#eee]"
-                >
-                  <td className="px-2 py-2.5 align-top">
-                    <span className="font-semibold">{item.description}</span>
-                    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-[#888]">
+        {/* Responsive Ledger */}
+        <div className="mt-6">
+          {/* Table Header - Desktop Only */}
+          <div className="hidden md:grid md:grid-cols-[1fr_80px_120px_80px_110px] gap-4 border-b border-[#6C63FF]/20 pb-3 text-[9px] uppercase tracking-[0.16em] text-[#999] px-2">
+            <div className="font-semibold">Description</div>
+            <div className="font-semibold text-center">Qty</div>
+            <div className="font-semibold">Rate</div>
+            <div className="font-semibold">Unit</div>
+            <div className="font-semibold text-right">Amount</div>
+          </div>
+
+          {/* Line Items */}
+          <div className="divide-y divide-[#6C63FF]/8">
+            {data.lineItems.map((item) => (
+              <div
+                key={item.id}
+                className="grid grid-cols-1 md:grid-cols-[1fr_80px_120px_80px_110px] gap-2 md:gap-4 py-4 md:py-3 md:px-2 group"
+              >
+                {/* Mobile: Description + Total row */}
+                <div className="flex justify-between items-start md:block">
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-bold text-[#1A1A2E] leading-tight md:font-semibold md:text-[13px]">
+                      {item.description}
+                    </p>
+                    {/* Desktop Subtext */}
+                    <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#888]">
                       {item.type && (
-                        <span className="font-medium text-[#aaa]">
-                          {item.type}
-                        </span>
+                        <span className="font-medium text-[#aaa]">{item.type}</span>
                       )}
                       {item.sacCode && (
                         <span>
-                          <span className="text-[#888]">HSN/SAC:</span>{" "}
-                          <span className="font-semibold text-[#ccc]">
-                            {item.sacCode}
-                          </span>
+                          HSN/SAC: <span className="font-semibold text-[#ccc]">{item.sacCode}</span>
                         </span>
                       )}
+                    </div>
+                  </div>
+                  <div className="text-right md:hidden">
+                    <p className="text-[15px] font-black text-[#1A1A2E] tabular-nums">
+                      {item.amountFormatted}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mobile: Type+SAC and Qty x Rate row */}
+                <div className="flex items-center justify-between md:hidden mt-1">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C63FF]/70">
+                      {item.type || "Service"}
                     </span>
-                  </td>
-                  <td className="px-2 py-2.5 align-top tabular-nums font-medium">
-                    {item.qty}
-                  </td>
-                  <td className="px-2 py-2.5 align-top tabular-nums font-medium">
-                    {item.rateFormatted}
-                  </td>
-                  <td className="px-2 py-2.5 align-top text-[#666]">
-                    {item.unit}
-                  </td>
-                  <td className="px-2 py-2.5 text-right align-top tabular-nums font-bold">
-                    {item.amountFormatted}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {item.sacCode && (
+                      <span className="text-[10px] text-[#999]">SAC {item.sacCode}</span>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] text-[#888] font-medium">
+                      {item.qty} {item.unit} × {item.rateFormatted}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Desktop-only Columns */}
+                <div className="hidden md:flex items-center justify-center tabular-nums text-[13px] font-medium">
+                  {item.qty}
+                </div>
+                <div className="hidden md:flex items-center tabular-nums text-[13px] font-medium">
+                  {item.rateFormatted}
+                </div>
+                <div className="hidden md:flex items-center text-[12px] text-[#666]">
+                  {item.unit}
+                </div>
+                <div className="hidden md:flex items-center justify-end tabular-nums font-bold text-[13px]">
+                  {item.amountFormatted}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

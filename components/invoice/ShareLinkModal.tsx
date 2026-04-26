@@ -302,14 +302,30 @@ export default function ShareLinkModal({
               </p>
 
               {/* MSA Protection Summary */}
-              <div className="rounded border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] p-3">
-                <p className="text-[13px] leading-relaxed text-[color:var(--text-primary)] font-medium">
-                  This invoice is protected by a Master Services Agreement (Net{" "}
-                  {invoiceData?.client?.msaPaymentTermsDays || 15},{" "}
-                  {invoiceData?.client?.msaLateFeeRate || "1.5"}% late fee).
-                </p>
-                <p className="mt-1 text-[12px] text-[color:var(--text-secondary)]">
-                  The client must digitally accept these terms before viewing.
+              <div className="rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-canvas)] p-4">
+                <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)] mb-3">
+                  Terms Enforced:
+                </h4>
+                <ul className="space-y-2.5">
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">Payment:</span> Net {invoiceData?.client?.msaPaymentTermsDays || 15}
+                  </li>
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">Late Penalty:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {invoiceData?.client?.msaLateFeeUnit || "monthly"}
+                  </li>
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">IP Rights:</span> {invoiceData?.client?.msaIpTriggerType?.replace(/_/g, " ") || "Full Transfer"}
+                  </li>
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">Jurisdiction:</span> {invoiceData?.client?.msaJurisdictionCity || "Agency City"}
+                  </li>
+                </ul>
+                <p className="mt-4 border-t border-[color:var(--border-subtle)] pt-3 text-[11px] text-[color:var(--text-muted)] leading-relaxed italic">
+                  The client must digitally accept these terms before they can access the full invoice.
                 </p>
               </div>
 
