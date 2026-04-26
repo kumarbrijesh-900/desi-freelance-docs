@@ -654,7 +654,7 @@ function PreviewContent() {
             </div>
 
             <div className="flex items-center gap-3">
-              <MotionButton
+              <button
                 type="button"
                 onClick={handleSaveDraft}
                 className={getAppButtonClass({
@@ -664,7 +664,13 @@ function PreviewContent() {
               >
                 <SaveIcon className="h-4 w-4" />
                 Save Draft
-              </MotionButton>
+              </button>
+              {cloudInvoiceId && (
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-mono text-green-600 uppercase tracking-tight">Sync Active</span>
+                  <span className="text-[8px] font-mono text-[color:var(--text-muted)]">{cloudInvoiceId.slice(0, 8)}</span>
+                </div>
+              )}
 
               <MotionButton
                 type="button"
