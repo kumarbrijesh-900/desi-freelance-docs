@@ -194,7 +194,7 @@ export default function TermsPaymentSection({
           </div>
         )}
 
-        <div className={appFieldFullWidthStackClass}>
+        <div className="space-y-6">
           <AnimatePresence initial={false}>
             {isInternational && (
               <motion.div
@@ -204,7 +204,7 @@ export default function TermsPaymentSection({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="space-y-1.5 pb-4" data-testid="payment-settlement-control">
+                <div className="space-y-1.5" data-testid="payment-settlement-control">
                   <label className={appFieldLabelClass}>Settlement Type</label>
                   <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1">
                     {[
@@ -242,79 +242,81 @@ export default function TermsPaymentSection({
             )}
           </AnimatePresence>
 
-          <div className="flex items-center gap-2">
-            <label className={appFieldLabelClass}>Payment Terms *</label>
-            {selectedClientMsa && (
-              <div className="flex items-center gap-1 mb-1.5 opacity-80">
-                {isPaymentTermsDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}
-                <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{isPaymentTermsDeviated ? "Override" : "Synced with MSA"}</span>
-              </div>
-            )}
-          </div>
-          <input suppressHydrationWarning type="text" value={meta.paymentTerms} onChange={(e) => updateMetaField("paymentTerms", e.target.value)} onBlur={() => markTouched("paymentTerms")} placeholder="Net 15" className={inputClass(paymentTermsFieldError, Boolean(meta.paymentTerms))} />
-          {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
-          {isPaymentTermsDeviated && <p className={appFieldHelperTextClass}>MSA default: Net {selectedClientMsa.msa_payment_terms_days}</p>}
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Licensing</p>
-          <div>
-            <label className={appFieldLabelClass}>License Included?</label>
-            <ChoiceCards
-              name="license-included"
-              value={value.license.isLicenseIncluded ? "yes" : "no"}
-              onChange={(nextValue) => {
-                if (nextValue === "yes") { updateLicenseField("isLicenseIncluded", true); return; }
-                onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
-              }}
-              variant="inline"
-              options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
-            />
-          </div>
-
-          <AnimatePresence initial={false}>
-            {showLicenseFields && (
-              <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
-                <div className="space-y-4 pt-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <label className={appFieldLabelClass}>License Type *</label>
-                      {selectedClientMsa && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isLicenseTypeDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
-                    </div>
-                    <ChoiceCards name="license-type" value={value.license.licenseType} onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} variant="inline" options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} />
-                  </div>
-
-                  <AnimatePresence initial={false}>
-                    {showLicenseDuration && (
-                      <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 16 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden">
-                        <div className="max-w-[260px]">
-                          <label className={appFieldLabelClass}>License Duration *</label>
-                          <input suppressHydrationWarning type="text" value={value.license.licenseDuration} onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} onBlur={() => markTouched("licenseDuration")} placeholder="Example: 3 years" className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} />
-                          {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <AnimatePresence initial={false}>
-                    {value.license.licenseType && (
-                      <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 12 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
-                        <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">{licenseExplanation}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <label className={appFieldLabelClass}>Payment Terms *</label>
+              {selectedClientMsa && (
+                <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                  {isPaymentTermsDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}
+                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{isPaymentTermsDeviated ? "Override" : "Synced with MSA"}</span>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2">
-            <label className={appFieldLabelClass}>Terms / Notes</label>
-            {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isNotesDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
+              )}
+            </div>
+            <input suppressHydrationWarning type="text" value={meta.paymentTerms} onChange={(e) => updateMetaField("paymentTerms", e.target.value)} onBlur={() => markTouched("paymentTerms")} placeholder="Net 15" className={inputClass(paymentTermsFieldError, Boolean(meta.paymentTerms))} />
+            {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
+            {isPaymentTermsDeviated && <p className={appFieldHelperTextClass}>MSA default: Net {selectedClientMsa.msa_payment_terms_days}</p>}
           </div>
-          <textarea suppressHydrationWarning rows={3} value={value.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment." className={inputClass(undefined, Boolean(value.notes), true)} />
+
+          <div className="space-y-4">
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Licensing</p>
+            <div className="space-y-1.5">
+              <label className={appFieldLabelClass}>License Included?</label>
+              <ChoiceCards
+                name="license-included"
+                value={value.license.isLicenseIncluded ? "yes" : "no"}
+                onChange={(nextValue) => {
+                  if (nextValue === "yes") { updateLicenseField("isLicenseIncluded", true); return; }
+                  onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
+                }}
+                variant="inline"
+                options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
+              />
+            </div>
+
+            <AnimatePresence initial={false}>
+              {showLicenseFields && (
+                <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <label className={appFieldLabelClass}>License Type *</label>
+                        {selectedClientMsa && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isLicenseTypeDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
+                      </div>
+                      <ChoiceCards name="license-type" value={value.license.licenseType} onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} variant="inline" options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} />
+                    </div>
+
+                    <AnimatePresence initial={false}>
+                      {showLicenseDuration && (
+                        <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden">
+                          <div className="max-w-[260px] space-y-1.5 pt-4">
+                            <label className={appFieldLabelClass}>License Duration *</label>
+                            <input suppressHydrationWarning type="text" value={value.license.licenseDuration} onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} onBlur={() => markTouched("licenseDuration")} placeholder="Example: 3 years" className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} />
+                            {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <AnimatePresence initial={false}>
+                      {value.license.licenseType && (
+                        <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 8 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
+                          <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">{licenseExplanation}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <label className={appFieldLabelClass}>Terms / Notes</label>
+              {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isNotesDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
+            </div>
+            <textarea suppressHydrationWarning rows={3} value={value.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment." className={inputClass(undefined, Boolean(value.notes), true)} />
+          </div>
         </div>
 
         {hasMsaDeviation && (
