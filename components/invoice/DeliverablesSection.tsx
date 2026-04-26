@@ -54,7 +54,7 @@ interface DeliverablesSectionProps {
 }
 
 const lineItemDesktopGridClass =
-  "xl:grid-cols-[minmax(136px,1.08fr)_minmax(0,3.24fr)_minmax(76px,0.58fr)_minmax(116px,0.88fr)_minmax(136px,1fr)_minmax(124px,0.92fr)_48px]";
+  "xl:grid-cols-[2fr_3fr_1fr_1.5fr_1.5fr_1fr_min-content]";
 
 let lineItemIdCounter = 0;
 const sacHelpTooltipCopy =
@@ -245,10 +245,10 @@ export default function DeliverablesSection({
         </div>
       ) : null}
 
-      <div className="invoice-line-item-workspace space-y-4">
+      <div className="space-y-6">
         <div
           className={cn(
-            "invoice-line-item-head mb-2 hidden xl:grid xl:gap-2 xl:px-3 xl:py-3",
+            "mb-2 hidden xl:grid xl:gap-4 xl:px-4 xl:py-3 border-b border-[color:var(--border-subtle)] pb-4",
             lineItemDesktopGridClass,
           )}
         >
@@ -274,7 +274,7 @@ export default function DeliverablesSection({
         </div>
 
         <div
-          className="space-y-3 overflow-visible"
+          className="space-y-4 xl:space-y-2 overflow-visible"
           data-testid="line-items-list"
         >
           {value.map((item, index) => {
@@ -315,9 +315,8 @@ export default function DeliverablesSection({
               <div
                 key={item.id}
                 data-testid="line-item-row"
-                data-row-tone={index === 0 ? "default" : "muted"}
                 className={cn(
-                  "invoice-line-item-row relative overflow-visible px-4 py-3",
+                  "relative overflow-visible px-4 py-4 xl:py-3 rounded-xl transition-colors hover:bg-gray-50/50 group",
                   showSuggestionAssist ? "z-40" : "z-0",
                 )}
               >
@@ -332,7 +331,7 @@ export default function DeliverablesSection({
 
                 <div
                   className={cn(
-                    "grid grid-cols-1 gap-3 xl:items-start xl:gap-3",
+                    "grid grid-cols-1 gap-4 xl:items-start xl:gap-4",
                     lineItemDesktopGridClass,
                   )}
                 >
@@ -357,46 +356,9 @@ export default function DeliverablesSection({
                       ))}
                     </AppSelectField>
 
-                    <div className="mt-2 min-h-[44px]">
+                    <div className="mt-1.5">
                       {needsManualSacEntry ? (
-                        <div className="space-y-1.5">
-                          <div
-                            className="relative"
-                            onMouseEnter={() => setIsSacHelpOpen(true)}
-                            onMouseLeave={() => setIsSacHelpOpen(false)}
-                          >
-                            <div className="flex items-center gap-1.5">
-                              <label className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                                SAC Code *
-                              </label>
-                              {showSacHelpIcon ? (
-                                <button
-                                  type="button"
-                                  aria-label="What is SAC?"
-                                  aria-expanded={isSacHelpOpen}
-                                  aria-controls={sacTooltipId}
-                                  aria-describedby={
-                                    isSacHelpOpen ? sacTooltipId : undefined
-                                  }
-                                  onFocus={() => setIsSacHelpOpen(true)}
-                                  onBlur={() => setIsSacHelpOpen(false)}
-                                  onClick={() => setIsSacHelpOpen(true)}
-                                  className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-[color:var(--text-soft)] transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-[color:var(--bg-surface-soft)] hover:text-[color:var(--text-secondary)]"
-                                >
-                                  <InfoCircleIcon className="h-3.5 w-3.5" />
-                                </button>
-                              ) : null}
-                            </div>
-                            {showSacHelpIcon && isSacHelpOpen ? (
-                              <div
-                                id={sacTooltipId}
-                                role="tooltip"
-                                className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-3 py-2 text-[11px] leading-4 text-[color:var(--text-secondary)] shadow-[0_10px_24px_rgba(37,37,65,0.1)]"
-                              >
-                                {sacHelpTooltipCopy}
-                              </div>
-                            ) : null}
-                          </div>
+                        <div className="space-y-1">
                           <input
                             suppressHydrationWarning
                             type="text"
@@ -406,60 +368,21 @@ export default function DeliverablesSection({
                               updateSacCode(item.id, e.target.value)
                             }
                             onBlur={() => markSacTouched(item.id)}
-                            placeholder="6-digit SAC"
-                            className={inputClass(
-                              sacError,
-                              Boolean(item.sacCode),
+                            placeholder="SAC"
+                            className={cn(
+                              inputClass(sacError, Boolean(item.sacCode)),
+                              "h-7 px-2 text-[10px] uppercase font-bold tracking-wider placeholder:normal-case"
                             )}
                           />
-                          {sacError ? (
-                            <p className={appFieldErrorTextClass}>{sacError}</p>
-                          ) : (
-                            <p className={appFieldHelperTextClass}>
-                              Enter the exact SAC for this custom service line.
-                            </p>
-                          )}
                         </div>
                       ) : (
-                        <div
-                          className="relative flex min-h-11 items-center justify-between rounded-[12px] bg-[color:var(--bg-surface-soft)] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.84)] ring-1 ring-inset ring-[color:var(--border-subtle)]"
-                          onMouseEnter={() => setIsSacHelpOpen(true)}
-                          onMouseLeave={() => setIsSacHelpOpen(false)}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                              SAC
-                            </span>
-                            {showSacHelpIcon ? (
-                              <button
-                                type="button"
-                                aria-label="What is SAC?"
-                                aria-expanded={isSacHelpOpen}
-                                aria-controls={sacTooltipId}
-                                aria-describedby={
-                                  isSacHelpOpen ? sacTooltipId : undefined
-                                }
-                                onFocus={() => setIsSacHelpOpen(true)}
-                                onBlur={() => setIsSacHelpOpen(false)}
-                                onClick={() => setIsSacHelpOpen(true)}
-                                className="app-focus-ring inline-flex h-5 w-5 items-center justify-center rounded-full text-[color:var(--text-soft)] transition-[color,background-color] duration-[var(--app-duration-fast)] hover:bg-white/80 hover:text-[color:var(--text-secondary)]"
-                              >
-                                <InfoCircleIcon className="h-3.5 w-3.5" />
-                              </button>
-                            ) : null}
-                          </div>
-                          <span className="text-[12px] font-semibold tracking-[0.01em] text-[color:var(--text-secondary)]">
+                        <div className="flex items-center gap-1 px-1">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                            SAC
+                          </span>
+                          <span className="text-[10px] font-bold tracking-[0.01em] text-[color:var(--text-secondary)]">
                             {resolvedSacCode}
                           </span>
-                          {showSacHelpIcon && isSacHelpOpen ? (
-                            <div
-                              id={sacTooltipId}
-                              role="tooltip"
-                              className="absolute left-0 top-[calc(100%+6px)] z-20 w-56 rounded-[10px] border border-[color:var(--border-default)] bg-[color:var(--bg-surface)] px-3 py-2 text-[11px] leading-4 text-[color:var(--text-secondary)] shadow-[0_10px_24px_rgba(37,37,65,0.1)]"
-                            >
-                              {sacHelpTooltipCopy}
-                            </div>
-                          ) : null}
                         </div>
                       )}
                     </div>
@@ -665,20 +588,16 @@ export default function DeliverablesSection({
                     <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="min-w-0 xl:min-w-[124px]">
+                  <div className="min-w-0 xl:min-w-[100px] xl:text-right">
                     <span className={compactLabelClass}>Total</span>
-                    <div className="invoice-line-item-total flex h-11 w-full min-w-0 items-center justify-between gap-2 overflow-hidden px-3.5 py-0 text-right">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                        Auto
-                      </span>
-                      <span className="truncate text-sm font-semibold text-[color:var(--text-primary)]">
+                    <div className="flex h-11 w-full items-center justify-end">
+                      <span className="text-[14px] font-bold tracking-tight text-[color:var(--text-primary)]">
                         {formatCurrency(lineTotal, currency)}
                       </span>
                     </div>
-                    <div className="min-h-[18px]" />
                   </div>
 
-                  <div className="flex items-start justify-end xl:pt-0.5">
+                  <div className="flex items-start justify-end xl:pt-1">
                     {canDeleteRows ? (
                       <button
                         type="button"
@@ -689,18 +608,18 @@ export default function DeliverablesSection({
                             variant: "ghost",
                             size: "sm",
                           }),
-                          "h-10 w-10 shrink-0 rounded-full border-transparent px-0 text-[color:var(--text-soft)] hover:border-[color:var(--state-danger-border)] hover:bg-[color:var(--state-danger-bg)] hover:text-[color:var(--state-danger-text)]",
+                          "h-9 w-9 shrink-0 rounded-full border-transparent px-0 text-[color:var(--text-soft)] hover:border-[color:var(--state-danger-border)] hover:bg-[color:var(--state-danger-bg)] hover:text-[color:var(--state-danger-text)] transition-all",
                         )}
                       >
                         <span
                           aria-hidden="true"
-                          className="text-lg font-semibold leading-none"
+                          className="text-lg font-medium leading-none"
                         >
                           ×
                         </span>
                       </button>
                     ) : (
-                      <div className="hidden xl:block" />
+                      <div className="hidden xl:block w-9" />
                     )}
                   </div>
                 </div>
@@ -709,21 +628,28 @@ export default function DeliverablesSection({
           })}
         </div>
 
-        <div className="border-t border-[color:var(--border-subtle)] pt-3">
-          <button
-            type="button"
-            onClick={addLineItem}
+        <div className="pt-2">
+          <div
             className={cn(
-              getAppButtonClass({
-                variant: "ghost",
-                size: "md",
-              }),
-              "w-full border-2 border-dashed border-[color:var(--border-subtle)] font-bold tracking-[0.01em] hover:border-[color:var(--border-strong)] hover:bg-gray-50/50",
+              "grid grid-cols-1",
+              lineItemDesktopGridClass
             )}
           >
-            <span className="mr-2 text-lg">+</span>
-            Add line item
-          </button>
+            <button
+              type="button"
+              onClick={addLineItem}
+              className={cn(
+                getAppButtonClass({
+                  variant: "ghost",
+                  size: "md",
+                }),
+                "justify-start px-4 font-bold tracking-[0.01em] hover:bg-[color:var(--bg-surface-muted)] text-[color:var(--color-lime-600)] transition-all",
+              )}
+            >
+              <span className="mr-2 text-xl font-medium">+</span>
+              Add line item
+            </button>
+          </div>
         </div>
       </div>
     </section>
