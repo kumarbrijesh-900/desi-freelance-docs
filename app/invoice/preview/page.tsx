@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
 import AppHeader from "@/components/AppHeader";
 import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
@@ -80,6 +81,7 @@ function PreviewContent() {
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
+  const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
@@ -336,6 +338,51 @@ function PreviewContent() {
       console.error("handleSaveDraft: unexpected exception:", err);
       setSaveState("error");
       triggerToast("An unexpected error occurred while saving. Please try again.");
+    }
+  };
+
+  const handleShareClick = async () => {
+    if (!data) return;
+    setIsSavingAndSharing(true);
+    setSaveState("saving");
+
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        // Intercept guest users
+        persistDraft();
+        setShowConversionModal(true);
+        return;
+      }
+
+      // Auto-save including selected template
+      const { data: saved, error } = await saveInvoice({
+        formData: data,
+        status: "draft" as InvoiceStatus,
+        templateId: selectedTemplate,
+        existingId: cloudInvoiceId ?? undefined,
+      });
+
+      if (error || !saved) {
+        setSaveState("error");
+        triggerToast("Save failed. Cannot share.");
+        return;
+      }
+
+      setCloudInvoiceId(saved.id);
+      setShareToken(saved.share_token || null);
+      setCurrentMsaId(saved.msa_id || null);
+      setSaveState("cloud-saved");
+
+      // Brief delay for transition
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setShowShareModal(true);
+    } catch (err) {
+      console.error("SHARE_AUTOFLOW_ERROR:", err);
+      setSaveState("error");
+      triggerToast("An error occurred during save & share.");
+    } finally {
+      setIsSavingAndSharing(false);
     }
   };
 
@@ -683,7 +730,9 @@ function PreviewContent() {
               {cloudInvoiceId && (
                 <div className="flex flex-col">
                   <span className="text-[9px] font-mono text-green-600 uppercase tracking-tight">Sync Active</span>
-                  <span className="text-[8px] font-mono text-[color:var(--text-muted)]">{cloudInvoiceId.slice(0, 8)}</span>
+                  <span className="text-[8px] font-mono text-[color:var(--text-muted)]">
+                    {cloudInvoiceId.slice(0, 8)}
+                  </span>
                 </div>
               )}
 
@@ -691,7 +740,7 @@ function PreviewContent() {
                 type="button"
                 onClick={handlePrint}
                 className={getAppButtonClass({
-                  variant: "secondary",
+                  variant: "ghost",
                   size: "md",
                 })}
               >
@@ -701,34 +750,34 @@ function PreviewContent() {
 
               <MotionButton
                 type="button"
-                disabled={!cloudInvoiceId}
-                onClick={() => setShowShareModal(true)}
-                title={!cloudInvoiceId ? "Save the invoice first to get a shareable link" : undefined}
-                className={cn(
-                  getAppButtonClass({
-                    variant: "secondary",
-                    size: "md",
-                  }),
-                  !cloudInvoiceId && "opacity-40 cursor-not-allowed"
-                )}
+                onClick={handleDownloadPdf}
+                className={getAppButtonClass({
+                  variant: "secondary",
+                  size: "md",
+                })}
               >
-                <ShareIcon className="h-4 w-4" />
-                Share
+                <DownloadIcon className="h-4 w-4" />
+                {isExportingPdf ? "Exporting..." : "Export PDF"}
               </MotionButton>
 
-              <SuccessPulse active={!isExportingPdf}>
-                <MotionButton
-                  type="button"
-                  onClick={handleDownloadPdf}
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    size: "md",
-                  })}
-                >
-                  <DownloadIcon className="h-4 w-4" />
-                  {isExportingPdf ? "Exporting..." : "Export PDF"}
-                </MotionButton>
-              </SuccessPulse>
+              <MotionButton
+                type="button"
+                disabled={isSavingAndSharing}
+                onClick={handleShareClick}
+                className={cn(
+                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                  isSavingAndSharing
+                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-80 border border-[color:var(--border-subtle)]"
+                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                )}
+              >
+                {isSavingAndSharing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ShareIcon className="h-4 w-4" />
+                )}
+                {isSavingAndSharing ? "Saving..." : "Share Invoice"}
+              </MotionButton>
             </div>
           </div>
         </div>
