@@ -104,6 +104,8 @@ export async function saveInvoice(
     due_date: input.formData.meta?.dueDate || null,
   };
 
+  console.log("saveInvoice (v1.0.6) - sending row:", row);
+
   if (input.existingId) {
     // Update existing
     const { data, error } = await supabase
