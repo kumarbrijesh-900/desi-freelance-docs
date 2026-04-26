@@ -412,7 +412,7 @@ export default function ClientDetailsSection({
                       clientState: nextValue === "international" ? "" : value.clientState,
                     })
                   }
-                  variant="segmented"
+                  variant="minimal-segmented"
                   columns={2}
                   options={[
                     { value: "domestic", label: "Domestic" },
