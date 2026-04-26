@@ -289,10 +289,10 @@ function PreviewContent() {
         return;
       }
       // Fall through to local-only save on error
-      console.warn("Cloud save failed, using local storage:", error);
+      console.warn("Cloud save failed:", error);
       setSaveState("error");
       triggerToast(
-        "Sync Error: Your invoice is saved on this device but not the cloud. Check your connection.",
+        `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
       );
       return;
     }
