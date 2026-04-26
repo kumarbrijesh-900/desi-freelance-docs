@@ -44,12 +44,16 @@ export async function POST(req: NextRequest) {
   try {
     // ─── 0. Rate limiting ───
     const clientIp = getClientIp(req);
-    const { success } = await ratelimit.limit(clientIp);
-    if (!success) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again in 10 seconds." },
-        { status: 429 },
-      );
+    const hasRatelimitKeys = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+    
+    if (hasRatelimitKeys) {
+      const { success } = await ratelimit.limit(clientIp);
+      if (!success) {
+        return NextResponse.json(
+          { error: "Too many requests. Please try again in 10 seconds." },
+          { status: 429 },
+        );
+      }
     }
 
     // ─── 0.5. Zod Validation ───
@@ -221,10 +225,10 @@ export async function POST(req: NextRequest) {
 
     /* ── 6. Return only the token (for state sync — URL never exposed to UI) ── */
     return NextResponse.json({ token, success: true });
-  } catch (err) {
-    console.error("SHARE_INVOICE_ERROR:", err);
+  } catch (err: any) {
+    console.error("SHARE_INVOICE_CRITICAL_ERROR:", err);
     return NextResponse.json(
-      { error: "Unexpected server error." },
+      { error: `Server error: ${err?.message || "Unknown error"}` },
       { status: 500 },
     );
   }
