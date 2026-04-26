@@ -211,7 +211,7 @@ export default function AgencyDetailsSection({
         ) : null}
 
         <div className="space-y-6">
-          <div className="py-6 space-y-6">
+          <div className="py-6">
             <div className="space-y-1.5">
               <div className="flex items-center gap-3">
                 <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
@@ -249,10 +249,10 @@ export default function AgencyDetailsSection({
             <AnimatePresence initial={false}>
               {showGstinField && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                  animate={{ height: "auto", opacity: 1, marginTop: 24 }}
+                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
                   <div className="space-y-4 pt-2">
@@ -337,9 +337,9 @@ export default function AgencyDetailsSection({
                       <AnimatePresence initial={false}>
                         {value.lutAvailability === "yes" && (
                           <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
+                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
                             transition={{ duration: 0.2, ease: "easeOut" }}
                             className="overflow-hidden"
                           >
@@ -391,10 +391,10 @@ export default function AgencyDetailsSection({
             <AnimatePresence initial={false}>
               {!showGstinField && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                  animate={{ height: "auto", opacity: 1, marginTop: 24 }}
+                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
                   <div className="w-full md:max-w-[240px] pt-2">
