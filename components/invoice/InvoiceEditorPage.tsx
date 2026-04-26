@@ -103,7 +103,9 @@ import {
   getAppStatusPillClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
-import { EyeIcon, SaveIcon } from "@/components/ui/app-icons";
+import { EyeIcon, SaveIcon, ShareIcon } from "@/components/ui/app-icons";
+import { Loader2, DownloadIcon } from "lucide-react";
+import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
@@ -739,6 +741,10 @@ function EditorContent() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedClientMsa, setSelectedClientMsa] =
     useState<SavedClient | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
+  const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
 
   // Modal States
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -1594,6 +1600,52 @@ function EditorContent() {
     }
   };
 
+  const handleShareClick = async () => {
+    setIsSavingAndSharing(true);
+    try {
+      // 1. Auto-save as draft first
+      // We always save to ensure the cloud has the latest data for sharing
+      const userId = await getCurrentUserId();
+      if (!userId) {
+        // Not logged in — redirect to login
+        persistDraft();
+        const returnUrl = `/invoice/new?restore=1`;
+        router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
+        return;
+      }
+
+      const result = await saveInvoice({
+        formData,
+        status: "draft" as InvoiceStatus,
+        existingId: parserDocumentId ?? undefined,
+      });
+
+      if (result.error) {
+        triggerToast("Save failed. Cannot share.");
+        return;
+      }
+
+      if (result.data) {
+        setParserDocumentId(result.data.id);
+        setShareToken(result.data.share_token || null);
+        setCurrentMsaId(result.data.msa_id || null);
+        // Small delay for smooth transition
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        setShowShareModal(true);
+      }
+    } catch (err) {
+      console.error("SHARE_AUTOFLOW_ERROR:", err);
+      triggerToast("An error occurred during save & share.");
+    } finally {
+      setIsSavingAndSharing(false);
+    }
+  };
+
+  const handleDownloadPdf = () => {
+    // For now, redirect to preview or trigger print
+    handlePreviewInvoice();
+  };
+
   const handleLoadDemoData = () => {
     const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
       ? formData.meta.invoiceNumber
@@ -2430,36 +2482,59 @@ function EditorContent() {
             type="button"
             onClick={handleSaveDraft}
             className={cn(
-              getAppButtonClass({ variant: "secondary", size: "sm" }),
+              getAppButtonClass({ variant: "ghost", size: "sm" }),
               "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
             )}
           >
             <SaveIcon className="h-4 w-4" />
             Draft
           </button>
+
           <button
             type="button"
-            onClick={handlePreviewInvoice}
-            disabled={!invoiceReadyForPreview}
-            aria-label={
-              invoiceReadyForPreview
-                ? "Preview and download your invoice"
-                : firstInvalidStep
-                  ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
-                  : "Complete all sections to preview"
-            }
+            onClick={handleDownloadPdf}
             className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
-              !invoiceReadyForPreview
-                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+              getAppButtonClass({ variant: "secondary", size: "sm" }),
+              "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+            )}
+          >
+            <DownloadIcon className="h-4 w-4" />
+            PDF
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShareClick}
+            disabled={isSavingAndSharing}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-14 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
+              isSavingAndSharing
+                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-80 border border-[color:var(--border-subtle)]"
                 : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
             )}
           >
-            <EyeIcon className="h-4 w-4" />
-            Preview
+            {isSavingAndSharing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ShareIcon className="h-4 w-4" />
+            )}
+            {isSavingAndSharing ? "Saving..." : "Share"}
           </button>
         </div>
       </div>
+
+      {showShareModal && parserDocumentId && (
+        <ShareLinkModal
+          invoiceId={parserDocumentId}
+          existingToken={shareToken}
+          clientEmail={formData.client.clientEmail || ""}
+          currentMsaId={currentMsaId}
+          msaResponse={clientMsaNote ? "negotiating" : "pending"}
+          invoiceData={formData}
+          onClose={() => setShowShareModal(false)}
+          onShared={(token) => setShareToken(token)}
+        />
+      )}
 
       {showExitModal && (
         <ExitConfirmModal
