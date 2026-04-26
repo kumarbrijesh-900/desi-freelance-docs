@@ -211,7 +211,7 @@ export default function AgencyDetailsSection({
         ) : null}
 
         <div className="space-y-6">
-          <div className="border-t border-[color:var(--border-subtle)] py-6 space-y-6">
+          <div className="py-6 space-y-6">
             <div className="space-y-1.5">
               <div className="flex items-center gap-3">
                 <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
@@ -235,6 +235,11 @@ export default function AgencyDetailsSection({
                     )
                   }
                 />
+                <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                  {value.gstRegistrationStatus === "registered"
+                    ? "Registered"
+                    : "Not registered"}
+                </span>
               </div>
               <p className="text-[11px] text-[color:var(--text-muted)]">
                 Required for tax compliance in India
@@ -320,6 +325,9 @@ export default function AgencyDetailsSection({
                               updateField("lutAvailability", checked ? "yes" : "no")
                             }
                           />
+                          <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                            {value.lutAvailability === "yes" ? "Yes" : "No"}
+                          </span>
                         </div>
                         <p className="text-[11px] text-[color:var(--text-muted)]">
                           Required for Zero-Rated export invoices
