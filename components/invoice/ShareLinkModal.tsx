@@ -222,7 +222,7 @@ export default function ShareLinkModal({
     setError(null);
     const { createMsa } = await import("@/lib/supabase/msas");
     const { data, error } = await createMsa({
-      clientId: "",
+      clientId: null,
       title: DEFAULT_MSA_TITLE,
       content: DEFAULT_MSA_CONTENT,
       status: "active",

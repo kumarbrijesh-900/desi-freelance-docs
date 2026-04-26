@@ -77,7 +77,7 @@ export async function getMsa(
 /* ─── Create MSA ──────────────────────────────────── */
 
 export async function createMsa(input: {
-  clientId: string;
+  clientId: string | null;
   title: string;
   content: string;
   status?: MsaStatus;

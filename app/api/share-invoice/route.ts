@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id, has_addendum")
+      .select("id, user_id, share_token, form_data, template_id")
       .eq("id", invoiceId)
       .single();
 
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
 
     /* ── 4. Send email to client (link only goes to inbox) ── */
     const hasMsa = !!msaId;
-    const hasAddendum = invoice.has_addendum;
+    const hasAddendum = false;
 
     const { error: emailError } = await resend.emails.send({
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
