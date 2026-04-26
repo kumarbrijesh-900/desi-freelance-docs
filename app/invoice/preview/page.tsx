@@ -34,6 +34,7 @@ import {
 import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
+import { supabase } from "@/lib/supabase/client";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
 import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
 import UploadToast from "@/components/ui/UploadToast";
@@ -138,6 +139,17 @@ function PreviewContent() {
   const invoiceNumber = data?.meta?.invoiceNumber;
   const previewTitle = getInvoiceTitle(invoiceNumber);
   const pdfTitle = getPdfTitle(invoiceNumber);
+
+  useEffect(() => {
+    async function debugAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("PreviewContent: session on mount:", !!session);
+      if (session?.user) {
+        console.log("PreviewContent: user detected:", session.user.email);
+      }
+    }
+    void debugAuth();
+  }, []);
 
   useEffect(() => {
     defaultTitleRef.current = previewTitle;

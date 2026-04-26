@@ -60,6 +60,13 @@ function getInvoiceNumber(data: InvoiceFormData): string {
 /* ─── Auth Check ──────────────────────────────────────────── */
 
 export async function getCurrentUserId(): Promise<string | null> {
+  // Try session first (fast, in-memory/local storage)
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session?.user) return session.user.id;
+
+  // Fallback to getUser (strict, network request)
   const {
     data: { user },
   } = await supabase.auth.getUser();
