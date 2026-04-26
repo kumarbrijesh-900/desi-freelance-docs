@@ -15,7 +15,7 @@ import {
   MotionStagger,
   MotionButton,
 } from "@/components/ui/motion-primitives";
-import { motion } from "@/components/ui/motion-primitives";
+import { motion, AnimatePresence } from "@/components/ui/motion-primitives";
 import { useScroll, useTransform } from "framer-motion";
 import {
   appPageContainerClass,
@@ -26,15 +26,7 @@ import { supabase } from "@/lib/supabase/client";
 
 import InteractiveHeroGraphic from "@/components/InteractiveHeroGraphic";
 
-const HERO_WORDS = [
-  "Describe",
-  "your",
-  "project.",
-  "Get",
-  "a",
-  "perfect",
-  "invoice.",
-];
+const HERO_TEXT = "Invoicing, stripped to the essentials.";
 const TRUST_ITEMS = [
   {
     icon: "shield",
@@ -42,12 +34,12 @@ const TRUST_ITEMS = [
     desc: "CGST, SGST, IGST — calculated automatically",
   },
   {
-    icon: "sparkle",
-    title: "Instant Extraction",
-    desc: "One brief fills every field in seconds",
+    icon: "lock",
+    title: "Bulletproof Contracts",
+    desc: "Legally protective MSA terms included by default",
   },
   {
-    icon: "lock",
+    icon: "sparkle",
     title: "Private by Design",
     desc: "Your data stays yours. Nothing is stored.",
   },
@@ -56,20 +48,20 @@ const TRUST_ITEMS = [
 const FEATURES = [
   {
     icon: MicrophoneIcon,
-    title: "Speak or type your brief",
-    desc: "Just describe the project naturally — the engine understands context, amounts, and parties.",
+    title: "Precision Input",
+    desc: "A streamlined, keyboard-first form designed to capture essentials without the bloat.",
     accent: "var(--color-coral-400)",
   },
   {
     icon: SparklesIcon,
-    title: "Every field, filled instantly",
-    desc: "Tax codes, addresses, line items, payment terms — extracted and validated instantly.",
+    title: "Global Compliance",
+    desc: "Automatic tax handling and jurisdictional logic for 100% compliant invoices.",
     accent: "var(--color-lime-500)",
   },
   {
     icon: DocumentSparkIcon,
-    title: "Export in one click",
-    desc: "Preview your invoice, tweak anything, and export a professional PDF. Done.",
+    title: "One-Click Export",
+    desc: "Generate professional PDFs and secure share links in a single click. Done.",
     accent: "var(--color-cyan-500)",
   },
 ];
@@ -116,6 +108,7 @@ function TrustIcon({ type, className }: { type: string; className?: string }) {
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { scrollY } = useScroll();
 
   // Parallax values for background shapes
@@ -181,101 +174,46 @@ export default function Home() {
         <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="text-center lg:text-left">
             <MotionReveal preset="fade-up" delay={0}>
-              <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--color-lime-700)]">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)] animate-pulse" />
-                Smart Invoice Engine
+              <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)]" />
+                Precision Invoicing for Creatives
               </p>
             </MotionReveal>
 
             <div className="mt-8">
-              <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-6xl">
-                {HERO_WORDS.map((word, i) => (
-                  <motion.span
-                    key={word + i}
-                    initial={{ opacity: 0, y: 14, filter: "blur(3px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{
-                      delay: 0.15 + i * 0.06,
-                      duration: 0.45,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="inline-block mr-[0.28em]"
-                  >
-                    {word}
-                  </motion.span>
-                ))}
+              <h1 className="text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-primary)] sm:text-6xl lg:text-7xl leading-[0.95]">
+                {HERO_TEXT}
               </h1>
             </div>
 
-            <MotionReveal preset="fade-up" delay={700}>
+            <MotionReveal preset="fade-up" delay={400}>
               <p className="mx-auto lg:mx-0 mt-6 max-w-xl text-base leading-7 text-[color:var(--text-muted)] sm:text-lg sm:leading-8">
-                Turn a raw client brief into a GST-compliant, export-ready
-                invoice in under{" "}
-                <span className="font-semibold text-[color:var(--text-secondary)]">
-                  10 seconds
-                </span>
-                . Built for Indian creative freelancers.
+                No clunky dashboards. No accounting jargon. Just a precision-engineered form to generate compliant, beautiful contracts and invoices for your international and domestic clients.
               </p>
             </MotionReveal>
 
-            <MotionReveal preset="fade-up" delay={900}>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
-                {isLoggedIn ? (
-                  <>
-                    <Link
-                      href="/invoice/new?fresh=1"
-                      className={getAppButtonClass({
-                        variant: "primary",
-                        size: "lg",
-                      })}
-                    >
-                      <span className="inline-flex items-center gap-2.5">
-                        <SparklesIcon className="h-4 w-4" />
-                        Create Invoice
-                        <ArrowRightIcon className="h-4 w-4" />
-                      </span>
-                    </Link>
-                    <Link
-                      href="/invoices"
-                      className={getAppButtonClass({
-                        variant: "secondary",
-                        size: "lg",
-                      })}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <DocumentSparkIcon className="h-4 w-4" />
-                        Your Invoices
-                      </span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      className={getAppButtonClass({
-                        variant: "primary",
-                        size: "lg",
-                      })}
-                    >
-                      <span className="inline-flex items-center gap-2.5">
-                        <SparklesIcon className="h-4 w-4" />
-                        Get Started Free
-                        <ArrowRightIcon className="h-4 w-4" />
-                      </span>
-                    </Link>
-                    <Link
-                      href="/sandbox?guest=1"
-                      className={getAppButtonClass({
-                        variant: "ghost",
-                        size: "lg",
-                      })}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        Try the Magic Extract (Guest)
-                      </span>
-                    </Link>
-                  </>
-                )}
+            <MotionReveal preset="fade-up" delay={600}>
+              <div className="mt-10 flex flex-col items-center gap-6 sm:flex-row lg:justify-start">
+                <Link
+                  href={isLoggedIn ? "/invoice/new" : "/login"}
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    size: "lg",
+                    className: "bg-black text-white hover:bg-black/90 px-8 h-14 text-base"
+                  })}
+                >
+                  <span className="inline-flex items-center gap-2.5">
+                    Create Your First Invoice
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </span>
+                </Link>
+                
+                <button
+                  onClick={() => setIsLightboxOpen(true)}
+                  className="text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors underline underline-offset-4 decoration-[color:var(--border-subtle)]"
+                >
+                  View a sample invoice
+                </button>
               </div>
             </MotionReveal>
 
@@ -396,11 +334,10 @@ export default function Home() {
             />
 
             <h2 className="relative text-2xl font-bold tracking-[-0.02em] text-[#111118] sm:text-3xl">
-              Start invoicing smarter
+              Start invoicing with precision
             </h2>
             <p className="relative mx-auto mt-3 max-w-md text-sm leading-6 text-[#111118]/60">
-              No credit card. No setup. Just describe your project and let Lance
-              handle the rest.
+              No credit card. No setup. Just focus on your craft and let Lance handle the compliance.
             </p>
             <div className="relative mt-8">
               <MotionButton
@@ -444,6 +381,43 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ─── Sample Invoice Lightbox ─── */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLightboxOpen(false)}
+              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed left-1/2 top-1/2 z-[101] w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 px-4"
+            >
+              <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl">
+                <button
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/10 text-black/40 transition-colors hover:bg-black/20 hover:text-black/60"
+                >
+                  <span className="text-xl font-medium">×</span>
+                </button>
+                <div className="p-2">
+                  <img
+                    src="/lance-invoice-mockup.png"
+                    alt="Sample Lance Invoice"
+                    className="h-auto w-full rounded-lg shadow-sm"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
