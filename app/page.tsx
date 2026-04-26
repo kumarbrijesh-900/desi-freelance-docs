@@ -6,10 +6,12 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import {
   ArrowRightIcon,
-  SparklesIcon,
-  DocumentSparkIcon,
-  MicrophoneIcon,
 } from "@/components/ui/app-icons";
+import { 
+  Terminal, 
+  Scale, 
+  Link as LinkIcon 
+} from "lucide-react";
 import {
   MotionReveal,
   MotionStagger,
@@ -47,21 +49,21 @@ const TRUST_ITEMS = [
 
 const FEATURES = [
   {
-    icon: MicrophoneIcon,
-    title: "Precision Input",
-    desc: "A streamlined, keyboard-first form designed to capture essentials without the bloat.",
+    icon: Terminal,
+    title: "Keyboard-First Precision",
+    desc: "A streamlined, zero-bloat interface designed to capture your agency's essentials. No endless dropdowns or confusing accounting jargon.",
     accent: "var(--color-coral-400)",
   },
   {
-    icon: SparklesIcon,
-    title: "Global Compliance",
-    desc: "Automatic tax handling and jurisdictional logic for 100% compliant invoices.",
+    icon: Scale,
+    title: "Automated Tax Nexus",
+    desc: "Built specifically for Indian tax laws. Lance automatically routes IGST, CGST, and enforces LUT compliance for zero-rated foreign exports.",
     accent: "var(--color-lime-500)",
   },
   {
-    icon: DocumentSparkIcon,
-    title: "One-Click Export",
-    desc: "Generate professional PDFs and secure share links in a single click. Done.",
+    icon: LinkIcon,
+    title: "Tokenized Delivery",
+    desc: "Stop sending dead PDFs. Generate secure, tokenized web links that log client read-receipts and enforce digital MSA acceptance before viewing.",
     accent: "var(--color-cyan-500)",
   },
 ];
@@ -277,10 +279,10 @@ export default function Home() {
       >
         <MotionReveal preset="fade-up" className="text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)]">
-            How it works
+            THE ARCHITECTURE
           </p>
           <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] text-[color:var(--text-primary)] sm:text-3xl">
-            Three steps. Ten seconds. Done.
+            Engineered for operators, not accountants.
           </h2>
         </MotionReveal>
 
