@@ -41,6 +41,7 @@ export interface SavedInvoice {
   created_at: string;
   updated_at: string;
   has_addendum: boolean;
+  msa_status: MsaResponse;
 }
 
 export interface SaveInvoiceInput {

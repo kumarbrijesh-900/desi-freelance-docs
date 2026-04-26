@@ -67,23 +67,34 @@ export default function PublicInvoiceViewPage({
         setAgencyName(fd.agency.agencyName);
       }
 
-      // Check MSA gating
-      const response = data.msa_response || "pending";
-      setMsaResponse(response);
+      // ─── 1. MSA Status Check (Zero-Trust) ───
+      // We use msa_status as the primary source of truth.
+      const status = data.msa_status || data.msa_response || "pending";
+      setMsaResponse(status);
 
-      if (data.msa_id) {
-        if (response === "pending" || response === "negotiating") {
-          setMsaRequired(true);
-          const msaContent = await loadMsaForSharedInvoice(
-            data.id,
-            data.msa_id,
-          );
+      // If status is pending, we MUST show the gate.
+      if (status === "pending" || status === "negotiating") {
+        setMsaRequired(true);
+        
+        // Load custom MSA if it exists, otherwise we'll show defaults
+        if (data.msa_id) {
+          const msaContent = await loadMsaForSharedInvoice(data.id, data.msa_id);
           if (msaContent) setMsaData(msaContent);
         }
+      } else {
+        setMsaRequired(false);
       }
 
-      // Record the view (fire-and-forget)
-      recordView(data.id, navigator.userAgent);
+      // ─── 2. Telemetry (Track View) ───
+      fetch("/api/track-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          invoiceId: data.id, 
+          userAgent: navigator.userAgent 
+        }),
+      }).catch(err => console.error("Telemetry failed:", err));
+
       setLoading(false);
     }
 
@@ -346,11 +357,51 @@ export default function PublicInvoiceViewPage({
                     </div>
                   </>
                 ) : (
-                  <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4">
-                    <p className="text-sm text-[color:var(--text-muted)]">
-                      {agencyName} has attached a Master Service Agreement to
-                      this invoice. Please review and respond below.
-                    </p>
+                  <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-5">
+                    <h2 className="text-sm font-bold text-[color:var(--text-primary)] uppercase tracking-wider mb-3">Standard Terms & Conditions</h2>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="h-5 w-5 rounded bg-white border border-[color:var(--border-subtle)] flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-[10px] font-bold">1</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[color:var(--text-primary)]">Payment Terms (Net {formData.client.msaPaymentTermsDays || 15})</p>
+                          <p className="text-[13px] text-[color:var(--text-secondary)] mt-0.5">
+                            Full payment is due within {formData.client.msaPaymentTermsDays || 15} days from the invoice date. 
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="h-5 w-5 rounded bg-white border border-[color:var(--border-subtle)] flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-[10px] font-bold">2</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[color:var(--text-primary)]">Late Fee Protection ({formData.client.msaLateFeeRate || 1.5}% {formData.client.msaLateFeeUnit || 'monthly'})</p>
+                          <p className="text-[13px] text-[color:var(--text-secondary)] mt-0.5">
+                            Late payments will accrue a simple interest fee of {formData.client.msaLateFeeRate || 1.5}% per {formData.client.msaLateFeeUnit || 'month'} until the balance is settled.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="h-5 w-5 rounded bg-white border border-[color:var(--border-subtle)] flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-[10px] font-bold">3</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[color:var(--text-primary)]">Intellectual Property</p>
+                          <p className="text-[13px] text-[color:var(--text-secondary)] mt-0.5">
+                            Copyright and ownership transfer {formData.client.msaIpTriggerType?.replace(/_/g, ' ') || 'upon full payment'} of the invoice.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t border-[color:var(--border-subtle)]">
+                      <p className="text-[12px] italic text-[color:var(--text-muted)]">
+                        These terms are electronically generated for Invoice {invoiceNumber} and are legally binding upon acceptance.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
