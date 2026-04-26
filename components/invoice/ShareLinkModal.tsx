@@ -138,7 +138,6 @@ export default function ShareLinkModal({
   const [previewMsa, setPreviewMsa] = useState<ClientMsa | null>(null);
   const [msaAttaching, setMsaAttaching] = useState(false);
   const [loadingMsas, setLoadingMsas] = useState(false);
-  const [creatingDefault, setCreatingDefault] = useState(false);
 
   // Load available MSAs on mount
   useEffect(() => {
@@ -234,27 +233,7 @@ export default function ShareLinkModal({
     setMsaAttaching(false);
   };
 
-  /* ── Create and attach default MSA ── */
-  const handleCreateDefault = async () => {
-    setCreatingDefault(true);
-    setError(null);
-    const { createMsa } = await import("@/lib/supabase/msas");
-    const { data, error } = await createMsa({
-      clientId: null,
-      title: DEFAULT_MSA_TITLE,
-      content: DEFAULT_MSA_CONTENT,
-      status: "active",
-    });
-    if (error || !data) {
-      setError(
-        "Could not create default MSA. Please create one from the Clients page.",
-      );
-    } else {
-      setAvailableMsas((prev) => [data, ...prev]);
-      await handleMsaToggle(data.id);
-    }
-    setCreatingDefault(false);
-  };
+
 
   return (
     <div
@@ -338,52 +317,16 @@ export default function ShareLinkModal({
                 <p className="text-xs text-[color:var(--text-muted)]">
                   Loading MSAs…
                 </p>
-              ) : availableMsas.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-xs text-[color:var(--text-secondary)]">
-                    No MSAs found. Create a default one to protect your work:
+              ) : availableMsas.length > 0 ? (
+                <div className="space-y-3 pt-3 border-t border-[color:var(--border-subtle)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                    Override with Custom MSA
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleCreateDefault}
-                    disabled={creatingDefault}
-                    className={getAppButtonClass({
-                      variant: "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    {creatingDefault ? "Creating…" : "Create Default MSA"}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {/* No MSA radio */}
-                  <label
-                    className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                      !selectedMsaId
-                        ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
-                        : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="msa-select"
-                      checked={!selectedMsaId}
-                      onChange={() => handleMsaToggle(null)}
-                      disabled={msaAttaching}
-                      className="accent-[color:var(--color-lime-700)]"
-                    />
-                    <span className="text-sm text-[color:var(--text-primary)]">
-                      No MSA — send invoice directly
-                    </span>
-                  </label>
-
-                  {/* MSA options */}
-                  {availableMsas.map((msa) => (
+                  <div className="space-y-2">
+                    {/* No MSA radio */}
                     <label
-                      key={msa.id}
                       className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                        selectedMsaId === msa.id
+                        !selectedMsaId
                           ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
                           : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
                       }`}
@@ -391,41 +334,67 @@ export default function ShareLinkModal({
                       <input
                         type="radio"
                         name="msa-select"
-                        checked={selectedMsaId === msa.id}
-                        onChange={() => handleMsaToggle(msa.id)}
+                        checked={!selectedMsaId}
+                        onChange={() => handleMsaToggle(null)}
                         disabled={msaAttaching}
                         className="accent-[color:var(--color-lime-700)]"
                       />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-[color:var(--text-primary)]">
-                          {msa.title}
-                        </span>
-                        <span
-                          className={`ml-2 inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
-                            msa.status === "active"
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {msa.status}
-                        </span>
-                      </div>
-                      {/* Preview button — shows MSA text inline */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPreviewMsa(previewMsa?.id === msa.id ? null : msa);
-                        }}
-                        className="shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
-                      >
-                        <EyeIcon className="h-3.5 w-3.5" />
-                        {previewMsa?.id === msa.id ? "Hide" : "Preview"}
-                      </button>
+                      <span className="text-sm text-[color:var(--text-primary)]">
+                        No MSA — send invoice directly
+                      </span>
                     </label>
-                  ))}
+
+                    {/* MSA options */}
+                    {availableMsas.map((msa) => (
+                      <label
+                        key={msa.id}
+                        className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
+                          selectedMsaId === msa.id
+                            ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
+                            : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="msa-select"
+                          checked={selectedMsaId === msa.id}
+                          onChange={() => handleMsaToggle(msa.id)}
+                          disabled={msaAttaching}
+                          className="accent-[color:var(--color-lime-700)]"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-medium text-[color:var(--text-primary)]">
+                            {msa.title}
+                          </span>
+                          <span
+                            className={`ml-2 inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
+                              msa.status === "active"
+                                ? "bg-green-50 text-green-700"
+                                : "bg-gray-100 text-gray-500"
+                            }`}
+                          >
+                            {msa.status}
+                          </span>
+                        </div>
+                        {/* Preview button — shows MSA text inline */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setPreviewMsa(
+                              previewMsa?.id === msa.id ? null : msa,
+                            );
+                          }}
+                          className="shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
+                        >
+                          <EyeIcon className="h-3.5 w-3.5" />
+                          {previewMsa?.id === msa.id ? "Hide" : "Preview"}
+                        </button>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              )}
+              ) : null}
 
               {/* ── Inline MSA Preview ── */}
               {previewMsa && (
