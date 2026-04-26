@@ -608,6 +608,13 @@ export default function ClientDetailsSection({
             </div>
 
             <div className="mt-2 space-y-4">
+              <button
+                type="button"
+                onClick={() => setIsMsaOpen(!isMsaOpen)}
+                className="text-sm text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] cursor-pointer mt-6 font-medium"
+              >
+                Advanced: Edit MSA Defaults
+              </button>
 
               <AnimatePresence>
                 {isMsaOpen && (
@@ -654,6 +661,16 @@ export default function ClientDetailsSection({
                               <option value="daily">per day</option>
                             </AppSelectField>
                           </div>
+                        </div>
+                        <div>
+                          <label className={appFieldLabelClass}>Jurisdiction (City)</label>
+                          <input
+                            type="text"
+                            value={value.msaJurisdictionCity || ""}
+                            onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
+                            placeholder="e.g. Bengaluru"
+                            className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
+                          />
                         </div>
                       </div>
                       <div className="space-y-4">
@@ -702,7 +719,7 @@ export default function ClientDetailsSection({
                                 const unitLabel =
                                   unitLabels[value.msaLateFeeUnit || "monthly"];
 
-                                const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+                                const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
 
                                 updateField("msaNotesBoilerplate", template);
                               }}
@@ -724,16 +741,6 @@ export default function ClientDetailsSection({
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <button
-                type="button"
-                onClick={() => setIsEditingClient(false)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--text-primary)] px-4 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:bg-black/90 active:scale-95"
-              >
-                Save and Preview
-              </button>
             </div>
           </motion.div>
         )}
