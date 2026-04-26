@@ -183,19 +183,21 @@ export default function Home() {
               </p>
             </MotionReveal>
 
-            <div className="mt-8">
-              <h1 className="text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-primary)] sm:text-6xl lg:text-7xl leading-[0.95]">
-                {HERO_TEXT}
-              </h1>
-            </div>
+            <MotionReveal preset="fade-up" delay={0}>
+              <div className="mt-8">
+                <h1 className="text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-primary)] sm:text-6xl lg:text-7xl leading-[0.95]">
+                  {HERO_TEXT}
+                </h1>
+              </div>
+            </MotionReveal>
 
-            <MotionReveal preset="fade-up" delay={400}>
+            <MotionReveal preset="fade-up" delay={150}>
               <p className="mx-auto lg:mx-0 mt-6 max-w-xl text-base leading-7 text-[color:var(--text-muted)] sm:text-lg sm:leading-8">
                 No clunky dashboards. No accounting jargon. Just a precision-engineered form to generate compliant, beautiful contracts and invoices for your international and domestic clients.
               </p>
             </MotionReveal>
 
-            <MotionReveal preset="fade-up" delay={600}>
+            <MotionReveal preset="fade-up" delay={300}>
               <div className="mt-10 flex flex-col items-center gap-6 sm:flex-row lg:justify-start">
                 <Link
                   href={isLoggedIn ? "/invoice/new" : "/login"}
@@ -351,6 +353,7 @@ export default function Home() {
                     ? "/invoice/new"
                     : "/login")
                 }
+                tapScale={0.97}
                 className="inline-flex items-center gap-2.5 rounded-[var(--app-radius-button)] border border-[#111118]/15 bg-[#111118] px-6 py-3 text-sm font-semibold text-[color:var(--color-lime-300)] shadow-[0_2px_12px_rgba(17,17,24,0.15)] transition-all hover:shadow-[0_4px_20px_rgba(17,17,24,0.25)]"
               >
                 <SparklesIcon className="h-4 w-4" />
