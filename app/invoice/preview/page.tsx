@@ -32,7 +32,7 @@ import {
   requiresExplicitExportTaxChoice,
 } from "@/lib/invoice-compliance";
 import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
-import { getAppButtonClass } from "@/lib/ui-foundation";
+import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
 import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
@@ -112,9 +112,12 @@ function PreviewContent() {
 
         if (formData) {
           setData(mergeInvoiceFormData(formData));
-          // If we are restoring, also try to restore the template choice if it was saved
-          if (isRestore && parsed.templateId) {
+          // Restore template and cloud ID if present
+          if (parsed.templateId) {
             setSelectedTemplate(parsed.templateId);
+          }
+          if (parsed.cloudInvoiceId) {
+            setCloudInvoiceId(parsed.cloudInvoiceId);
           }
         }
       }
@@ -233,7 +236,8 @@ function PreviewContent() {
           formData: data,
           currentStep: "totals",
           savedAt: new Date().toISOString(),
-          templateId: selectedTemplate, // Store the template choice too
+          templateId: selectedTemplate,
+          cloudInvoiceId: cloudInvoiceId, // Persist the cloud ID!
         }),
       );
 
@@ -284,6 +288,9 @@ function PreviewContent() {
 
         // Sync profile details from this draft
         await syncProfileFromInvoice(data);
+
+        // Update local storage with the new cloud ID
+        persistDraft();
 
         playInteractionCue("saveSuccess");
         return;
@@ -653,33 +660,22 @@ function PreviewContent() {
                 Print
               </MotionButton>
 
-              {/* Share — only available once the invoice is cloud-saved */}
-              {cloudInvoiceId ? (
-                <MotionButton
-                  type="button"
-                  onClick={() => setShowShareModal(true)}
-                  className={getAppButtonClass({
+              <MotionButton
+                type="button"
+                disabled={!cloudInvoiceId}
+                onClick={() => setShowShareModal(true)}
+                title={!cloudInvoiceId ? "Save the invoice first to get a shareable link" : undefined}
+                className={cn(
+                  getAppButtonClass({
                     variant: "secondary",
                     size: "md",
-                  })}
-                >
-                  <ShareIcon className="h-4 w-4" />
-                  Share
-                </MotionButton>
-              ) : (
-                <MotionButton
-                  type="button"
-                  disabled
-                  title="Save the invoice first to get a shareable link"
-                  className={
-                    getAppButtonClass({ variant: "secondary", size: "md" }) +
-                    " opacity-40 cursor-not-allowed"
-                  }
-                >
-                  <ShareIcon className="h-4 w-4" />
-                  Share
-                </MotionButton>
-              )}
+                  }),
+                  !cloudInvoiceId && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                <ShareIcon className="h-4 w-4" />
+                Share
+              </MotionButton>
 
               <SuccessPulse active={!isExportingPdf}>
                 <MotionButton
