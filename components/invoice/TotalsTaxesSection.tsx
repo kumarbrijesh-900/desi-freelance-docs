@@ -184,6 +184,27 @@ export default function TotalsTaxesSection({
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
         <div className="flex flex-col gap-5">
+          <div className="flex items-center justify-between rounded-[14px] border border-[color:var(--border-subtle)] bg-gray-50 px-5 py-3 shadow-sm transition-colors duration-200 focus-within:bg-white">
+            <div className="flex items-center gap-2">
+              <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
+                Reverse Charge (RCM)
+              </p>
+              <div className="group relative">
+                <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
+                <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
+                  Reverse Charge Mechanism (RCM) shifts the GST payment
+                  liability to your client. If enabled, tax is calculated for
+                  compliance but is NOT added to your Grand Total payable.
+                  <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
+                </div>
+              </div>
+            </div>
+            <AppSwitch
+              checked={isRcmEnabled}
+              onChange={(checked) => updateField("isRcmEnabled", checked)}
+            />
+          </div>
+
           <div className="space-y-4">
             {isLocked ? (
               <div
@@ -359,27 +380,6 @@ export default function TotalsTaxesSection({
                 </p>
               </div>
             ) : null}
-
-            <div className="flex items-center justify-between rounded-[14px] border border-[color:var(--border-subtle)] bg-gray-50 px-5 py-3 shadow-sm transition-colors duration-200 focus-within:bg-white">
-              <div className="flex items-center gap-2">
-                <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
-                  Reverse Charge (RCM)
-                </p>
-                <div className="group relative">
-                  <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
-                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
-                    Reverse Charge Mechanism (RCM) shifts the GST payment
-                    liability to your client. If enabled, tax is calculated for
-                    compliance but is NOT added to your Grand Total payable.
-                    <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
-                  </div>
-                </div>
-              </div>
-              <AppSwitch
-                checked={isRcmEnabled}
-                onChange={(checked) => updateField("isRcmEnabled", checked)}
-              />
-            </div>
           </div>
         </div>
 
