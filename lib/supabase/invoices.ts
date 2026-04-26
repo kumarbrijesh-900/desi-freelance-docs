@@ -98,7 +98,6 @@ export async function saveInvoice(
     applied_late_fee_rate: input.formData.client?.msaLateFeeRate || null,
     applied_license_type: input.formData.payment?.license?.licenseType || null,
     due_date: input.formData.meta?.dueDate || null,
-    has_addendum: input.formData.meta?.hasAddendum ?? false,
   };
 
   if (input.existingId) {

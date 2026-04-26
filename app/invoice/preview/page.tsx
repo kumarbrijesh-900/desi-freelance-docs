@@ -266,46 +266,64 @@ function PreviewContent() {
   };
 
   const handleSaveDraft = async () => {
-    if (!data) return;
-    setSaveState("saving");
-
-    // Always persist to localStorage as offline fallback
-    persistDraft();
-
-    // Attempt cloud save for authenticated users
-    const userId = await getCurrentUserId();
-    if (userId) {
-      const { data: saved, error } = await saveInvoice({
-        formData: data,
-        status: "draft" as InvoiceStatus,
-        templateId: selectedTemplate,
-        existingId: cloudInvoiceId ?? undefined,
-      });
-
-      if (!error && saved) {
-        setCloudInvoiceId(saved.id);
-        setSaveState("cloud-saved");
-
-        // Sync profile details from this draft
-        await syncProfileFromInvoice(data);
-
-        // Update local storage with the new cloud ID
-        persistDraft();
-
-        playInteractionCue("saveSuccess");
-        return;
-      }
-      // Fall through to local-only save on error
-      console.warn("Cloud save failed:", error);
-      setSaveState("error");
-      triggerToast(
-        `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
-      );
+    console.log("handleSaveDraft: initiating cloud save...");
+    if (!data) {
+      console.warn("handleSaveDraft: No invoice data found to save.");
       return;
     }
+    
+    setSaveState("saving");
 
-    setSaveState("saved");
-    playInteractionCue("saveSuccess");
+    try {
+      // Always persist to localStorage as offline fallback
+      persistDraft();
+
+      // Attempt cloud save for authenticated users
+      const userId = await getCurrentUserId();
+      console.log("handleSaveDraft: userId detected:", userId);
+
+      if (userId) {
+        const { data: saved, error } = await saveInvoice({
+          formData: data,
+          status: "draft" as InvoiceStatus,
+          templateId: selectedTemplate,
+          existingId: cloudInvoiceId ?? undefined,
+        });
+
+        if (!error && saved) {
+          console.log("handleSaveDraft: cloud save success, id:", saved.id);
+          setCloudInvoiceId(saved.id);
+          setSaveState("cloud-saved");
+
+          // Sync profile details from this draft
+          await syncProfileFromInvoice(data);
+
+          // Update local storage with the new cloud ID
+          persistDraft();
+
+          playInteractionCue("saveSuccess");
+          return;
+        }
+        
+        // Fall through to local-only save on error
+        console.warn("handleSaveDraft: cloud save failed:", error);
+        setSaveState("error");
+        triggerToast(
+          `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
+        );
+        return;
+      } else {
+        console.log("handleSaveDraft: No authenticated user found, performing local save only.");
+      }
+
+      // Success state for local-only save (guest mode)
+      setSaveState("saved");
+      playInteractionCue("saveSuccess");
+    } catch (err) {
+      console.error("handleSaveDraft: unexpected exception:", err);
+      setSaveState("error");
+      triggerToast("An unexpected error occurred while saving. Please try again.");
+    }
   };
 
   const handleDownloadPdf = async () => {
