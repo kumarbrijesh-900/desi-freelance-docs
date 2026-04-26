@@ -366,7 +366,7 @@ export default function ClientDetailsSection({
                   onChange={(nextValue) =>
                     syncClientDetails({
                       ...value,
-                      clientLocation: nextValue,
+                      clientLocation: nextValue as ClientDetails["clientLocation"],
                       clientCountry: nextValue === "domestic" ? "" : value.clientCountry,
                       clientState: nextValue === "international" ? "" : value.clientState,
                     })
@@ -474,7 +474,7 @@ export default function ClientDetailsSection({
                         <AppSelectField
                           suppressHydrationWarning
                           value={value.clientState}
-                          onChange={(e) => updateField("clientState", e.target.value)}
+                          onChange={(e) => updateField("clientState", e.target.value as ClientDetails["clientState"])}
                           onBlur={() => markTouched("clientState")}
                           hasError={clientStateError}
                           hasValue={Boolean(value.clientState)}
@@ -534,7 +534,7 @@ export default function ClientDetailsSection({
                       <AppSelectField
                         suppressHydrationWarning
                         value={value.clientCountry}
-                        onChange={(e) => updateField("clientCountry", e.target.value)}
+                        onChange={(e) => updateField("clientCountry", e.target.value as ClientDetails["clientCountry"])}
                         onBlur={() => markTouched("clientCountry")}
                         hasError={clientCountryError}
                         hasValue={Boolean(value.clientCountry)}
@@ -553,7 +553,7 @@ export default function ClientDetailsSection({
                       <AppSelectField
                         suppressHydrationWarning
                         value={value.clientCurrency}
-                        onChange={(e) => updateField("clientCurrency", e.target.value)}
+                        onChange={(e) => updateField("clientCurrency", e.target.value as ClientDetails["clientCurrency"])}
                         hasValue={Boolean(value.clientCurrency)}
                       >
                         <option value="">Keep INR (default)</option>
@@ -651,18 +651,86 @@ export default function ClientDetailsSection({
                         </div>
                         <div>
                           <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            value={value.msaLateFeeRate || ""}
-                            onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
-                            className={inputClass(undefined, Boolean(value.msaLateFeeRate))}
-                          />
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={value.msaLateFeeRate || ""}
+                              onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
+                              className={inputClass(undefined, Boolean(value.msaLateFeeRate))}
+                            />
+                            <AppSelectField
+                              value={value.msaLateFeeUnit || "monthly"}
+                              onChange={(e) =>
+                                updateField(
+                                  "msaLateFeeUnit",
+                                  e.target.value as any,
+                                )
+                              }
+                              hasValue={true}
+                            >
+                              <option value="monthly">per month</option>
+                              <option value="annually">per annum</option>
+                              <option value="daily">per day</option>
+                            </AppSelectField>
+                          </div>
                         </div>
                       </div>
                       <div className="space-y-4">
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            IP Trigger Type
+                          </label>
+                          <AppSelectField
+                            value={value.msaIpTriggerType || "upon_full_payment"}
+                            onChange={(e) =>
+                              updateField(
+                                "msaIpTriggerType",
+                                e.target.value as any,
+                              )
+                            }
+                            hasValue={true}
+                          >
+                            <option value="upon_full_payment">
+                              Upon Full Payment
+                            </option>
+                            <option value="upon_delivery">Upon Delivery</option>
+                            <option value="work_for_hire">Work for Hire</option>
+                          </AppSelectField>
+                        </div>
                         <div className="sm:col-span-2">
-                          <label className={appFieldLabelClass}>MSA Boilerplate / Notes</label>
+                          <div className="flex items-center justify-between">
+                            <label className={appFieldLabelClass}>MSA Boilerplate / Notes</label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const ipLabels: Record<string, string> = {
+                                  upon_full_payment: "upon receipt of full payment",
+                                  upon_delivery: "upon delivery of materials",
+                                  work_for_hire: "as a work-for-hire",
+                                };
+                                const ipLabel =
+                                  ipLabels[
+                                    value.msaIpTriggerType || "upon_full_payment"
+                                  ];
+
+                                const unitLabels: Record<string, string> = {
+                                  monthly: "per month",
+                                  annually: "per annum",
+                                  daily: "per day",
+                                };
+                                const unitLabel =
+                                  unitLabels[value.msaLateFeeUnit || "monthly"];
+
+                                const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+
+                                updateField("msaNotesBoilerplate", template);
+                              }}
+                              className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                            >
+                              + Generate Smart Template
+                            </button>
+                          </div>
                           <textarea
                             rows={4}
                             value={value.msaNotesBoilerplate || ""}
