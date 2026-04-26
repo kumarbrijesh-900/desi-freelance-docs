@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
+import AppHeader from "@/components/AppHeader";
 import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
 import TemplateRenderer from "@/lib/templates/renderer";
 import Link from "next/link";
@@ -526,6 +527,8 @@ function PreviewContent() {
       <main
         className={`${appPageShellClass} print:bg-white print:p-0 min-h-screen pb-32`}
       >
+        <AppHeader />
+        
         <section
           className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}
         >
