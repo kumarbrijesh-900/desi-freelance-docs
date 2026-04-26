@@ -652,12 +652,18 @@ export default function ClientDetailsSection({
               <button
                 type="button"
                 onClick={() => setIsMsaOpen(!isMsaOpen)}
-                className="flex items-center gap-2 cursor-pointer text-sm font-medium text-[color:var(--text-primary)]/80 hover:text-[color:var(--text-primary)] transition-colors py-4 border-t border-[color:var(--border-subtle)] mt-6 w-full text-left"
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer text-sm font-medium transition-all py-4 border-t border-[color:var(--border-subtle)] mt-6 w-full text-left group",
+                  "text-[color:var(--text-primary)]/70 hover:text-[color:var(--text-primary)] hover:border-[color:var(--border-strong)]"
+                )}
               >
-                <span>Default Contract & Payment Terms</span>
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="w-2 h-2 rounded-full bg-[#bfff00] shadow-[0_0_8px_rgba(191,255,0,0.4)]" />
+                  <span>Default Contract & Payment Terms</span>
+                </div>
                 <ChevronDownIcon 
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200",
+                    "h-4 w-4 transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]",
                     isMsaOpen && "rotate-180"
                   )} 
                 />
@@ -670,7 +676,7 @@ export default function ClientDetailsSection({
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                    className="overflow-hidden"
+                    className="overflow-hidden border-l-2 border-l-[#bfff00] ml-1 pl-4"
                   >
                     <p className="text-sm text-[color:var(--text-muted)] mb-4 leading-relaxed">
                       Set the baseline rules for this client. Lance will enforce these globally unless overridden by project-specific terms.
