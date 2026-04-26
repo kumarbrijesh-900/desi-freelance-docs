@@ -52,7 +52,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-[-0.01em] text-sm transition-[background-color,border-color,box-shadow,color,opacity,transform] duration-[var(--app-duration-fast)] ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-[0.97]",
     size === "sm"
       ? "h-9 px-3 text-[13px]"
       : size === "lg"
@@ -60,16 +60,16 @@ export function getAppButtonClass(params?: {
         : "h-10 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "app-soft-button-primary text-[#111118] font-bold hover:border-[color:var(--interactive-primary-hover)]"
+      ? "app-soft-button-primary text-[#111118] font-bold hover:border-[color:var(--interactive-primary-hover)] active:bg-[#9acc00]"
       : variant === "ghost"
-        ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
+        ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)] active:bg-[color:var(--color-bg-subtle)]"
         : variant === "tertiary"
-          ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)]"
+          ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)] active:bg-[color:var(--color-bg-subtle)]"
           : variant === "subtle"
-            ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
+            ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)] active:opacity-80"
             : variant === "destructive-lite"
-              ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)]"
-              : "app-soft-button-secondary border-[color:var(--border-subtle)] text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)]",
+              ? "app-soft-button-destructive text-[color:var(--state-danger-text)] hover:border-[color:var(--state-danger-border)] active:brightness-90"
+              : "app-soft-button-secondary border-[color:var(--border-subtle)] text-[color:var(--app-color-text-primary)] hover:border-[color:var(--border-strong)] active:bg-[color:var(--color-bg-subtle)]",
   );
 }
 

@@ -673,7 +673,7 @@ export default function PublicInvoiceViewPage({
               type="button"
               onClick={() => window.print()}
               className={cn(
-                "flex flex-1 items-center justify-center gap-2 rounded-full bg-[#bfff00] py-3.5 text-sm font-black text-black shadow-lg transition-all hover:bg-[#bfff00]/90 md:hidden"
+                "flex flex-1 items-center justify-center gap-2 rounded-full bg-[#bfff00] py-3.5 text-sm font-black text-black shadow-lg transition-all duration-100 hover:bg-[#bfff00]/90 active:scale-[0.97] active:bg-[#9acc00] md:hidden"
               )}
             >
               <DownloadIcon className="h-4 w-4" />

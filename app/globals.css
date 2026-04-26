@@ -316,8 +316,9 @@ h3 {
 }
 
 .app-soft-button:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
   box-shadow: none;
+  transition-duration: 100ms;
 }
 
 .app-soft-button-primary {
