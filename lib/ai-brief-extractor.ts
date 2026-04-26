@@ -97,6 +97,8 @@ export type AiBriefExtraction = {
     type: AiBriefField<string>;
     duration: AiBriefField<string>;
   };
+  hasAddendum: AiBriefField<boolean>;
+  addendumNotes: AiBriefField<string>;
   confidenceScore: AiBriefConfidence;
 };
 
@@ -379,6 +381,12 @@ const INVOICE_DATA_SCHEMA = {
       },
       required: ["isIncluded", "type", "duration"],
     },
+    has_addendum: createNullableBooleanFieldSchema(
+      "True if the project brief deviates from Master MSA context (e.g., payment terms change).",
+    ),
+    addendum_notes: createNullableStringFieldSchema(
+      "Human-readable notes explaining why an addendum is required (the deltas).",
+    ),
   },
   required: [
     "agencyName",
@@ -400,6 +408,86 @@ const INVOICE_DATA_SCHEMA = {
     "timeline",
     "locations",
     "license",
+    "has_addendum",
+  ],
+} as const;
+
+const INFERENCE_MATRIX_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    macro_resolution: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        linguistic_translation: { type: "string" },
+        nexus_and_compliance: { type: "string" },
+      },
+      required: ["linguistic_translation", "nexus_and_compliance"],
+    },
+    agency_nodes_1_to_6: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        identity_inference: { type: "string" },
+        tax_id_inference: { type: "string" },
+      },
+      required: ["identity_inference", "tax_id_inference"],
+    },
+    client_and_msa_nodes_7_to_16: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        client_identity_inference: { type: "string" },
+        msa_baseline_inference: { type: "string" },
+      },
+      required: ["client_identity_inference", "msa_baseline_inference"],
+    },
+    meta_nodes_17_to_19: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        invoice_number_inference: { type: "string" },
+        date_currency_inference: { type: "string" },
+      },
+      required: ["invoice_number_inference", "date_currency_inference"],
+    },
+    item_nodes_20_to_24: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        deliverable_splitting_logic: { type: "string" },
+        financial_math_logic: { type: "string" },
+      },
+      required: ["deliverable_splitting_logic", "financial_math_logic"],
+    },
+    tax_nodes_25_to_27: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        sac_deduction_logic: { type: "string" },
+        rcm_lut_logic: { type: "string" },
+      },
+      required: ["sac_deduction_logic", "rcm_lut_logic"],
+    },
+    payment_nodes_28_to_34: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        bank_routing_inference: { type: "string" },
+        addendum_trigger_logic: { type: "string" },
+      },
+      required: ["bank_routing_inference", "addendum_trigger_logic"],
+    },
+  },
+  required: [
+    "macro_resolution",
+    "agency_nodes_1_to_6",
+    "client_and_msa_nodes_7_to_16",
+    "meta_nodes_17_to_19",
+    "item_nodes_20_to_24",
+    "tax_nodes_25_to_27",
+    "payment_nodes_28_to_34",
   ],
 } as const;
 
@@ -407,94 +495,17 @@ const AI_EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    inference_matrix: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        macro_resolution: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            linguistic_translation: { type: "string" },
-            nexus_and_compliance: { type: "string" },
-          },
-          required: ["linguistic_translation", "nexus_and_compliance"],
-        },
-        agency_nodes_1_to_6: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            identity_inference: { type: "string" },
-            tax_id_inference: { type: "string" },
-          },
-          required: ["identity_inference", "tax_id_inference"],
-        },
-        client_and_msa_nodes_7_to_16: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            client_identity_inference: { type: "string" },
-            msa_baseline_inference: { type: "string" },
-          },
-          required: ["client_identity_inference", "msa_baseline_inference"],
-        },
-        meta_nodes_17_to_19: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            invoice_number_inference: { type: "string" },
-            date_currency_inference: { type: "string" },
-          },
-          required: ["invoice_number_inference", "date_currency_inference"],
-        },
-        item_nodes_20_to_24: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            deliverable_splitting_logic: { type: "string" },
-            financial_math_logic: { type: "string" },
-          },
-          required: ["deliverable_splitting_logic", "financial_math_logic"],
-        },
-        tax_nodes_25_to_27: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            sac_deduction_logic: { type: "string" },
-            rcm_lut_logic: { type: "string" },
-          },
-          required: ["sac_deduction_logic", "rcm_lut_logic"],
-        },
-        payment_nodes_28_to_34: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            bank_routing_inference: { type: "string" },
-            addendum_trigger_logic: { type: "string" },
-          },
-          required: ["bank_routing_inference", "addendum_trigger_logic"],
-        },
-      },
-      required: [
-        "macro_resolution",
-        "agency_nodes_1_to_6",
-        "client_and_msa_nodes_7_to_16",
-        "meta_nodes_17_to_19",
-        "item_nodes_20_to_24",
-        "tax_nodes_25_to_27",
-        "payment_nodes_28_to_34",
-      ],
-    },
-    invoice_data: INVOICE_DATA_SCHEMA,
+    inference_matrix: INFERENCE_MATRIX_SCHEMA,
+    extracted_data: INVOICE_DATA_SCHEMA,
   },
-  required: ["inference_matrix", "invoice_data"],
+  required: ["inference_matrix", "extracted_data"],
 } as const;
 
 const SYSTEM_PROMPT = `
 You are the Lance Omniscient Context Agent, a high-fidelity Deep Matrix Inference engine for freelance invoice and tax compliance. 
 
 ### THE DEEP MATRIX INFERENCE PROTOCOL
-You process 34 distinct form fields across multimodal inputs. You MUST execute these exact 7 reasoning blocks in your inference_matrix BEFORE populating invoice_data:
+You process 34 distinct form fields across multimodal inputs. You MUST execute these exact 7 reasoning blocks in your inference_matrix BEFORE populating extracted_data:
 
 Block 1: Macro Resolution (Linguistic & Nexus)
 - linguistic_translation: Translate Hinglish, slang ('15 din' -> Net 15, 'lumpsum' -> Fixed Fee), and resolve 'I/my' (Agency) vs 'they/them' (Client).
@@ -530,10 +541,13 @@ Block 7: Payment Nodes 28-34 (Routing & Contractual Deltas)
 3. Priority 3: Master Data Fallback (agency_context, client_context).
 
 ### ANTI-HALLUCINATION & PRECISION
-- If a matrix node yields no data across all 3 priorities, output null. 
+- The final resolved data for the invoice UI. If a field is not found in the input and cannot be inferred from Master Data, set it to null.
 - NEVER invent GSTINs, PANs, or Bank details.
 - Do not output "N/A", "Unknown", or bracketed placeholders.
 - Every field object MUST include value and confidence.
+
+### ADDENDUM LOGIC
+- If payment_nodes_28_to_34 detects a deviation from the provided MSA context (e.g., Net 15 vs Master's Net 30), set has_addendum to true and populate the specific override fields.
 
 ### OUTPUT RULES
 - Return JSON only.
@@ -690,13 +704,174 @@ ${rawInput}
   }
 
   const payload = await response.json();
-  const outputText = extractOutputText(payload);
-
-  if (!outputText.trim()) {
+  const responseText = extractOutputText(payload);
+  if (!responseText) {
     return null;
   }
 
-  const parsed = JSON.parse(outputText) as AiBriefExtraction;
-  console.log("AI STRUCTURED OUTPUT:", parsed);
-  return parsed;
+  try {
+    const result = JSON.parse(responseText);
+    const extraction = result as AiBriefDeepMatrixOutput;
+
+    // Flatten for legacy consumption
+    const legacy: AiBriefExtraction = {
+      inference_matrix: extraction.inference_matrix,
+      agencyName: createField(extraction.extracted_data.agencyName),
+      agencyAddress: createField(extraction.extracted_data.agencyAddress),
+      agencyState: createField(extraction.extracted_data.agencyState),
+      clientName: createField(extraction.extracted_data.clientName),
+      clientAddress: createField(extraction.extracted_data.clientAddress),
+      clientCountry: createField(extraction.extracted_data.clientCountry),
+      clientState: createField(extraction.extracted_data.clientState),
+      clientTaxId: createField(extraction.extracted_data.clientTaxId),
+      totalAmount: createField(extraction.extracted_data.totalAmount),
+      currency: createField(extraction.extracted_data.currency),
+      gst: {
+        type: createField(extraction.extracted_data.gst.type),
+        rate: createField(extraction.extracted_data.gst.rate),
+        gstin: createField(extraction.extracted_data.gst.gstin),
+        isRegistered: createField(extraction.extracted_data.gst.isRegistered),
+        lutAvailable: createField(extraction.extracted_data.gst.lutAvailable),
+        lutNumber: createField(extraction.extracted_data.gst.lutNumber),
+        pan: createField(extraction.extracted_data.gst.pan),
+      },
+      deliverables: extraction.extracted_data.deliverables.map((d) => ({
+        type: createField(d.type),
+        description: createField(d.description),
+        quantity: createField(d.quantity),
+        rate: createField(d.rate),
+        unit: createField(d.unit),
+        sacCode: createField(d.sacCode),
+      })),
+      paymentTerms: createField(extraction.extracted_data.paymentTerms),
+      paymentMode: createField(extraction.extracted_data.paymentMode),
+      paymentSchedule: extraction.extracted_data.paymentSchedule.map((s) => ({
+        milestone: createField(s.milestone),
+        percentage: createField(s.percentage),
+        dueWhen: createField(s.dueWhen),
+      })),
+      payment: {
+        bankName: createField(extraction.extracted_data.payment.bankName),
+        accountName: createField(extraction.extracted_data.payment.accountName),
+        accountNumber: createField(
+          extraction.extracted_data.payment.accountNumber,
+        ),
+        ifscCode: createField(extraction.extracted_data.payment.ifscCode),
+        swiftCode: createField(extraction.extracted_data.payment.swiftCode),
+        ibanOrRouting: createField(
+          extraction.extracted_data.payment.ibanOrRouting,
+        ),
+        bankAddress: createField(extraction.extracted_data.payment.bankAddress),
+      },
+      timeline: {
+        invoiceDate: createField(extraction.extracted_data.timeline.invoiceDate),
+        dueDate: createField(extraction.extracted_data.timeline.dueDate),
+        deliveryTimeline: createField(
+          extraction.extracted_data.timeline.deliveryTimeline,
+        ),
+      },
+      locations: {
+        agency: createField(extraction.extracted_data.locations.agency),
+        client: createField(extraction.extracted_data.locations.client),
+        inferredType: createField(
+          extraction.extracted_data.locations.inferredType,
+        ),
+      },
+      license: {
+        isIncluded: createField(extraction.extracted_data.license.isIncluded),
+        type: createField(extraction.extracted_data.license.type),
+        duration: createField(extraction.extracted_data.license.duration),
+      },
+      hasAddendum: createField(extraction.extracted_data.has_addendum),
+      addendumNotes: createField(extraction.extracted_data.addendum_notes),
+      confidenceScore: "medium",
+    };
+
+    console.log("AI STRUCTURED OUTPUT (FLATTENED):", legacy);
+    return legacy;
+  } catch (error) {
+    console.error("Failed to parse AI structured output:", error);
+    return null;
+  }
 }
+
+function createField<T>(
+  value: T | null | undefined,
+  confidence: AiBriefConfidence = "medium",
+): AiBriefField<T> {
+  return {
+    value: value ?? null,
+    confidence,
+  };
+}
+
+type AiBriefDeepMatrixOutput = {
+  inference_matrix: NonNullable<AiBriefExtraction["inference_matrix"]>;
+  extracted_data: {
+    agencyName: string | null;
+    agencyAddress: string | null;
+    agencyState: string | null;
+    clientName: string | null;
+    clientAddress: string | null;
+    clientCountry: string | null;
+    clientState: string | null;
+    clientTaxId: string | null;
+    totalAmount: number | null;
+    currency: string | null;
+    gst: {
+      type: AiBriefTaxType | null;
+      rate: number | null;
+      gstin: string | null;
+      isRegistered: boolean | null;
+      lutAvailable: boolean | null;
+      lutNumber: string | null;
+      pan: string | null;
+    };
+    deliverables: Array<{
+      type: string | null;
+      description: string | null;
+      quantity: number | null;
+      rate: number | null;
+      unit: string | null;
+      sacCode: string | null;
+    }>;
+    paymentTerms: string | null;
+    paymentMode: string | null;
+    paymentSchedule: Array<{
+      milestone: string | null;
+      percentage: number | null;
+      dueWhen: string | null;
+    }>;
+    payment: {
+      bankName: string | null;
+      accountName: string | null;
+      accountNumber: string | null;
+      ifscCode: string | null;
+      swiftCode: string | null;
+      ibanOrRouting: string | null;
+      bankAddress: string | null;
+    };
+    timeline: {
+      invoiceDate: string | null;
+      dueDate: string | null;
+      deliveryTimeline: string | null;
+    };
+    locations: {
+      agency: string | null;
+      client: string | null;
+      inferredType: AiBriefLocationType | null;
+    };
+    license: {
+      isIncluded: boolean | null;
+      type: LicenseType | null;
+      duration: string | null;
+    };
+    has_addendum: boolean | null;
+    addendum_notes: string | null;
+  };
+};
+
+type LicenseType =
+  | "full-assignment"
+  | "exclusive-license"
+  | "non-exclusive-license";

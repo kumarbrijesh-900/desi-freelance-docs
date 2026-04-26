@@ -74,6 +74,7 @@ export type InvoiceBriefLineItemExtraction = {
   qty?: BriefExtractedField<number>;
   rate?: BriefExtractedField<number>;
   rateUnit?: BriefExtractedField<InvoiceRateUnit>;
+  sacCode?: BriefExtractedField<string>;
 };
 
 export type InvoiceBriefExtractionSchema = {
@@ -131,6 +132,8 @@ export type InvoiceBriefExtractionSchema = {
   invoiceDate?: BriefExtractedField<string>;
   dueDate?: BriefExtractedField<string>;
   timeline?: BriefExtractedField<string>;
+  hasAddendum?: BriefExtractedField<boolean>;
+  addendumNotes?: BriefExtractedField<string>;
 };
 
 export type BriefAutofillFieldSummary = {
@@ -1396,6 +1399,7 @@ function normalizeAiDeliverables(
         rateUnit: normalizedRateUnit
           ? makeCandidate(normalizedRateUnit, item.unit.confidence, "ai")
           : undefined,
+        sacCode: createAiCandidate(item.sacCode.value, item.sacCode.confidence),
       } satisfies InvoiceBriefLineItemExtraction;
     })
     .filter(
@@ -1893,6 +1897,14 @@ export function normalizeExtractedData(
     timeline: createAiCandidate(
       cleanValue(data.timeline.deliveryTimeline.value),
       data.timeline.deliveryTimeline.confidence,
+    ),
+    hasAddendum: createAiCandidate(
+      data.hasAddendum.value,
+      data.hasAddendum.confidence,
+    ),
+    addendumNotes: createAiCandidate(
+      data.addendumNotes.value,
+      data.addendumNotes.confidence,
     ),
   } satisfies InvoiceBriefExtractionSchema;
 
@@ -4332,6 +4344,7 @@ export function mapBriefExtractionToInvoiceForm(params: {
             qty: extraction.qty,
             rate: extraction.rate,
             rateUnit: extraction.rateUnit,
+            sacCode: undefined,
           },
         ].filter(
           (item) =>
@@ -4416,6 +4429,20 @@ export function mapBriefExtractionToInvoiceForm(params: {
         candidate: candidateItem.rateUnit,
         assign: (value) => {
           nextItem.rateUnit = value;
+        },
+        filledFields,
+        aiFilledFields,
+        reviewFields,
+        lowConfidenceFields,
+      });
+
+      applyCandidate({
+        label: index === 0 ? "SAC code" : `Deliverable ${index + 1} SAC code`,
+        currentValue: nextItem.sacCode,
+        defaultValue: defaultLineItem.sacCode,
+        candidate: candidateItem.sacCode,
+        assign: (value) => {
+          nextItem.sacCode = value;
         },
         filledFields,
         aiFilledFields,
@@ -4591,6 +4618,34 @@ export function mapBriefExtractionToInvoiceForm(params: {
     candidate: extraction.paymentIbanRoutingCode,
     assign: (value) => {
       nextFormData.payment.ibanRoutingCode = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Has addendum",
+    currentValue: nextFormData.meta.hasAddendum,
+    defaultValue: defaultInvoiceFormData.meta.hasAddendum,
+    candidate: extraction.hasAddendum,
+    assign: (value) => {
+      nextFormData.meta.hasAddendum = value;
+    },
+    filledFields,
+    aiFilledFields,
+    reviewFields,
+    lowConfidenceFields,
+  });
+
+  applyCandidate({
+    label: "Addendum notes",
+    currentValue: nextFormData.payment.notes || "",
+    defaultValue: defaultInvoiceFormData.payment.notes || "",
+    candidate: extraction.addendumNotes,
+    assign: (value) => {
+      nextFormData.payment.notes = value;
     },
     filledFields,
     aiFilledFields,

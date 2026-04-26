@@ -646,6 +646,8 @@ export function toLegacyAiBriefExtraction(
         getFieldConfidence(response, "license.duration"),
       ),
     },
+    hasAddendum: createField(false, "high"),
+    addendumNotes: createField(null, "high"),
     confidenceScore: response.confidence.overall,
   };
 }

@@ -220,15 +220,6 @@ export default function ClientDetailsSection({
           : getAppPanelClass(),
       )}
     >
-      {!embedded ? (
-        <div className="mb-6 space-y-2">
-          <h2 className={appSectionTitleClass}>Client</h2>
-          <p className={appSectionDescriptionClass}>
-            Add the client details and billing location.
-          </p>
-        </div>
-      ) : null}
-
       <div className={appFieldFullWidthStackClass}>
         <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="relative">
