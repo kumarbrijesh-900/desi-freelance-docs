@@ -142,10 +142,24 @@ export default function ShareLinkModal({
       setLoadingMsas(true);
       const { data } = await listAllUserMsas();
       setAvailableMsas(data);
-      // Auto-preview the selected MSA
+      
       if (currentMsaId) {
+        // 1. Prioritize MSA already linked to this invoice
         const match = data.find((m) => m.id === currentMsaId);
-        if (match) setPreviewMsa(match);
+        if (match) {
+          setSelectedMsaId(currentMsaId);
+          setPreviewMsa(match);
+        }
+      } else if (!selectedMsaId && data.length > 0) {
+        // 2. Fallback: Auto-select the first 'active' MSA found in user's library
+        const defaultActive = data.find(m => m.status === 'active');
+        if (defaultActive) {
+          console.log("Auto-selecting default active MSA:", defaultActive.title);
+          // We don't call handleMsaToggle here to avoid side effects on mount, 
+          // but we set the local state so it's pre-selected in the UI.
+          setSelectedMsaId(defaultActive.id);
+          setPreviewMsa(defaultActive);
+        }
       }
       setLoadingMsas(false);
     }
