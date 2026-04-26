@@ -36,6 +36,13 @@ import {
   getClientTaxIdPlaceholder,
 } from "@/lib/invoice-compliance";
 import type { AgencyDetails } from "@/types/invoice";
+import {
+  PencilIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@/components/ui/app-icons";
+import AppSwitch from "@/components/ui/AppSwitch";
+import { motion, AnimatePresence } from "framer-motion";
 
 import {
   listClients,
@@ -71,6 +78,8 @@ export default function ClientDetailsSection({
   agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [isMsaOpen, setIsMsaOpen] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
@@ -220,7 +229,52 @@ export default function ClientDetailsSection({
           : getAppPanelClass(),
       )}
     >
-      <div className={appFieldFullWidthStackClass}>
+      <AnimatePresence mode="wait">
+        {value.clientName && !isEditingClient ? (
+          <motion.div
+            key="summary"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="flex items-center justify-between rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50 p-4"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">
+                  Client
+                </span>
+                {isInternational && (
+                  <span className="rounded-full bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[color:var(--text-secondary)] ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                    International
+                  </span>
+                )}
+              </div>
+              <h3 className="text-[15px] font-bold tracking-tight text-[color:var(--text-primary)]">
+                {value.clientName}
+              </h3>
+              <p className="text-[12px] font-medium text-[color:var(--text-secondary)]">
+                {[value.clientCity, value.clientState, value.clientCountry]
+                  .filter(Boolean)
+                  .join(", ")}
+                {value.clientGstin ? ` • GSTIN: ${value.clientGstin}` : ""}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsEditingClient(true)}
+              className="group flex h-9 w-9 items-center justify-center rounded-full bg-white text-[color:var(--text-muted)] shadow-sm ring-1 ring-[color:var(--border-subtle)] transition-all hover:text-[color:var(--text-primary)] hover:ring-[color:var(--border-strong)]"
+            >
+              <PencilIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className={appFieldFullWidthStackClass}
+          >
         <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="relative">
             <label className={appFieldLabelClass}>Client Name *</label>
@@ -377,83 +431,40 @@ export default function ClientDetailsSection({
                   ) : null}
                 </div>
 
-                <div>
-                  <label className={appFieldLabelClass}>Client Email</label>
-                  <input
-                    suppressHydrationWarning
-                    type="email"
-                    value={value.clientEmail}
-                    onChange={(e) => updateField("clientEmail", e.target.value)}
-                    placeholder="Email address"
-                    className={inputClass(
-                      undefined,
-                      Boolean(value.clientEmail),
-                    )}
-                  />
+                <div className="flex flex-col justify-end pb-1.5">
+                  <div className="flex items-center gap-3">
+                    <AppSwitch
+                      checked={value.isClientSezUnit === "yes"}
+                      onChange={(checked) =>
+                        updateField("isClientSezUnit", checked ? "yes" : "no")
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                        SEZ Unit
+                      </span>
+                      <p className="text-[11px] text-[color:var(--text-muted)]">
+                        This affects GST treatment for SEZ supplies
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className={appFieldLabelClass}>SEZ Unit</label>
-                <div className="max-w-[420px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {(["yes", "no"] as const).map((option) => {
-                      const isSelected = value.isClientSezUnit === option;
-                      return (
-                        <label
-                          key={option}
-                          className="min-w-[92px] flex-1 cursor-pointer sm:flex-none"
-                        >
-                          <input
-                            type="radio"
-                            name="client-sez-unit"
-                            value={option}
-                            checked={isSelected}
-                            onChange={() =>
-                              updateField("isClientSezUnit", option)
-                            }
-                            className="peer sr-only"
-                          />
-                          <span
-                            className={cn(
-                              "app-focus-ring block border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
-                              isSelected
-                                ? "border-[color:var(--focus-ring)] bg-white text-[color:var(--text-primary)] shadow-[0_8px_16px_rgba(37,37,65,0.07)]"
-                                : "border-transparent bg-white/70 text-[color:var(--text-secondary)] hover:border-[color:var(--border-subtle)] hover:bg-white",
-                            )}
-                          >
-                            {option === "yes" ? "Yes" : "No"}
-                          </span>
-                        </label>
-                      );
-                    })}
-                    <label className="cursor-pointer">
-                      <input
-                        type="radio"
-                        name="client-sez-unit"
-                        value="not-sure"
-                        checked={value.isClientSezUnit === "not-sure"}
-                        onChange={() =>
-                          updateField("isClientSezUnit", "not-sure")
-                        }
-                        className="peer sr-only"
-                      />
-                      <span
-                        className={cn(
-                          "app-focus-ring inline-flex min-h-9 items-center border px-3 text-[12px] font-medium transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
-                          value.isClientSezUnit === "not-sure"
-                            ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
-                            : "border-transparent bg-transparent text-[color:var(--text-muted)] hover:border-[color:var(--border-subtle)] hover:bg-white/70 hover:text-[color:var(--text-secondary)]",
-                        )}
-                      >
-                        Not sure
-                      </span>
-                    </label>
-                  </div>
-                  <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
-                    This affects GST treatment for SEZ supplies.
-                  </p>
-                </div>
+                <label className={appFieldLabelClass}>Client Email</label>
+                <input
+                  suppressHydrationWarning
+                  type="email"
+                  value={value.clientEmail}
+                  onChange={(e) => updateField("clientEmail", e.target.value)}
+                  placeholder="Email address"
+                  className={inputClass(
+                    undefined,
+                    Boolean(value.clientEmail),
+                  )}
+                />
+              </div>
                 {sezSuggestion ? (
                   <p className="mt-2 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-5 text-[color:var(--text-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                     This address looks similar to {sezSuggestion.name}. If the
@@ -499,7 +510,7 @@ export default function ClientDetailsSection({
                   />
                 </div>
 
-                <div className={appFieldTripleCompactGridClass}>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div className="min-w-0">
                     <label className={appFieldLabelClass}>State *</label>
                     <AppSelectField
@@ -516,7 +527,7 @@ export default function ClientDetailsSection({
                       hasError={clientStateError}
                       hasValue={Boolean(value.clientState)}
                     >
-                      <option value="">Select state or union territory</option>
+                      <option value="">Select state</option>
                       {INDIA_STATE_OPTIONS.map((stateName) => (
                         <option key={stateName} value={stateName}>
                           {stateName}
@@ -534,7 +545,7 @@ export default function ClientDetailsSection({
                       onChange={(e) =>
                         updateField("clientCity", e.target.value)
                       }
-                      placeholder="Bengaluru"
+                      placeholder="City"
                       className={inputClass(
                         undefined,
                         Boolean(value.clientCity),
@@ -555,7 +566,7 @@ export default function ClientDetailsSection({
                           e.target.value.replace(/\D/g, "").slice(0, 6),
                         )
                       }
-                      placeholder="560048"
+                      placeholder="PIN"
                       className={inputClass(
                         undefined,
                         Boolean(value.clientPinCode),
@@ -712,172 +723,203 @@ export default function ClientDetailsSection({
           </div>
         </div>
         {/* Master Services Agreement (MSA) Defaults */}
-        <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-4">
-          <div className="mb-2">
-            <div className="flex items-center gap-2">
-              <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
-                Master Services Agreement (MSA) Defaults
+        <div className="border-t border-[color:var(--border-subtle)] mt-4">
+          <button
+            type="button"
+            onClick={() => setIsMsaOpen(!isMsaOpen)}
+            className="flex w-full items-center justify-between py-4 text-left transition-colors hover:bg-gray-50/50"
+          >
+            <div className="space-y-0.5">
+              <h3 className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                Advanced: MSA Defaults
               </h3>
-              <div className="group relative">
-                <span className="flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-[color:var(--bg-surface-muted)] text-[10px] font-bold text-[color:var(--text-muted)] ring-1 ring-inset ring-[color:var(--border-subtle)]">
-                  ?
-                </span>
-                <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
-                  Note: Invoice-specific briefs will override these default MSA
-                  values during AI extraction.
-                  <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
-                </div>
-              </div>
+              <p className="text-[11px] text-[color:var(--text-muted)]">
+                Baseline payment terms and IP transfer rules for this client
+              </p>
             </div>
-            <p className="text-[11px] text-[color:var(--text-muted)]">
-              Note: Invoice-specific briefs will override these defaults during
-              AI extraction.
-            </p>
-          </div>
-
-          <div className={appFieldPairGridClass}>
-            <div>
-              <label className={appFieldLabelClass}>
-                Default Payment Terms (Days)
-              </label>
-              <input
-                type="number"
-                value={value.msaPaymentTermsDays ?? 20}
-                onChange={(e) =>
-                  updateField("msaPaymentTermsDays", Number(e.target.value))
-                }
-                className={inputClass(undefined, true)}
-              />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--bg-surface-soft)]">
+              {isMsaOpen ? (
+                <ChevronUpIcon className="h-4 w-4" />
+              ) : (
+                <ChevronDownIcon className="h-4 w-4" />
+              )}
             </div>
+          </button>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className={appFieldLabelClass}>Late Fee Rate</label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={value.msaLateFeeRate ?? 1.5}
-                    onChange={(e) =>
-                      updateField("msaLateFeeRate", Number(e.target.value))
-                    }
-                    className={inputClass(undefined, true)}
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-[11px] font-medium text-[color:var(--text-muted)]">
-                      %
-                    </span>
+          <AnimatePresence>
+            {isMsaOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-6 pb-6 pt-2">
+                  <div className={appFieldPairGridClass}>
+                    <div>
+                      <label className={appFieldLabelClass}>
+                        Default Payment Terms (Days)
+                      </label>
+                      <input
+                        type="number"
+                        value={value.msaPaymentTermsDays ?? 20}
+                        onChange={(e) =>
+                          updateField(
+                            "msaPaymentTermsDays",
+                            Number(e.target.value),
+                          )
+                        }
+                        className={inputClass(undefined, true)}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className={appFieldLabelClass}>
+                          Late Fee Rate
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={value.msaLateFeeRate ?? 1.5}
+                            onChange={(e) =>
+                              updateField(
+                                "msaLateFeeRate",
+                                Number(e.target.value),
+                              )
+                            }
+                            className={inputClass(undefined, true)}
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span className="text-[11px] font-medium text-[color:var(--text-muted)]">
+                              %
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className={appFieldLabelClass}>Unit</label>
+                        <AppSelectField
+                          value={value.msaLateFeeUnit || "monthly"}
+                          onChange={(e) =>
+                            updateField("msaLateFeeUnit", e.target.value as any)
+                          }
+                          hasValue={true}
+                        >
+                          <option value="monthly">per month</option>
+                          <option value="annually">per annum</option>
+                          <option value="daily">per day</option>
+                        </AppSelectField>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={appFieldLabelClass}>
+                        IP Transfer Trigger
+                      </label>
+                      <AppSelectField
+                        value={value.msaIpTriggerType || "upon_full_payment"}
+                        onChange={(e) =>
+                          updateField("msaIpTriggerType", e.target.value as any)
+                        }
+                        hasValue={true}
+                      >
+                        <option value="upon_full_payment">
+                          Upon Full Payment
+                        </option>
+                        <option value="upon_signing">Upon Signing</option>
+                        <option value="upon_delivery">Upon Delivery</option>
+                        <option value="proportional_transfer">
+                          Proportional (Per Milestone)
+                        </option>
+                        <option value="retained_by_creator">
+                          Retained by Creator (License Only)
+                        </option>
+                      </AppSelectField>
+                    </div>
+
+                    <div>
+                      <label className={appFieldLabelClass}>Jurisdiction</label>
+                      <input
+                        type="text"
+                        value={value.msaJurisdictionCity || ""}
+                        onChange={(e) =>
+                          updateField("msaJurisdictionCity", e.target.value)
+                        }
+                        placeholder="e.g. Bangalore"
+                        className={inputClass(
+                          undefined,
+                          Boolean(value.msaJurisdictionCity),
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className={appFieldLabelClass}>
+                        Notes / MSA Boilerplate
+                      </label>
+                      {!value.msaNotesBoilerplate && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ipLabels: Record<string, string> = {
+                              upon_full_payment: "upon full payment",
+                              upon_signing: "upon signing",
+                              upon_delivery: "upon delivery",
+                              proportional_transfer:
+                                "proportionally per milestone",
+                              retained_by_creator:
+                                "retained by the creator (limited license)",
+                            };
+                            const ipLabel =
+                              ipLabels[
+                                value.msaIpTriggerType || "upon_full_payment"
+                              ];
+
+                            const unitLabels: Record<string, string> = {
+                              monthly: "per month",
+                              annually: "per annum",
+                              daily: "per day",
+                            };
+                            const unitLabel =
+                              unitLabels[value.msaLateFeeUnit || "monthly"];
+
+                            const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+
+                            updateField("msaNotesBoilerplate", template);
+                          }}
+                          className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
+                        >
+                          + Generate Smart Template
+                        </button>
+                      )}
+                    </div>
+                    <textarea
+                      rows={4}
+                      value={value.msaNotesBoilerplate || ""}
+                      onChange={(e) =>
+                        updateField("msaNotesBoilerplate", e.target.value)
+                      }
+                      placeholder="Custom terms or additional MSA boilerplate for this client..."
+                      className={inputClass(
+                        undefined,
+                        Boolean(value.msaNotesBoilerplate),
+                        true,
+                      )}
+                    />
                   </div>
                 </div>
-              </div>
-              <div>
-                <label className={appFieldLabelClass}>Unit</label>
-                <AppSelectField
-                  value={value.msaLateFeeUnit || "monthly"}
-                  onChange={(e) =>
-                    updateField("msaLateFeeUnit", e.target.value as any)
-                  }
-                  hasValue={true}
-                >
-                  <option value="monthly">per month</option>
-                  <option value="annually">per annum</option>
-                  <option value="daily">per day</option>
-                </AppSelectField>
-              </div>
-            </div>
-
-            <div>
-              <label className={appFieldLabelClass}>IP Transfer Trigger</label>
-              <AppSelectField
-                value={value.msaIpTriggerType || "upon_full_payment"}
-                onChange={(e) =>
-                  updateField("msaIpTriggerType", e.target.value as any)
-                }
-                hasValue={true}
-              >
-                <option value="upon_full_payment">Upon Full Payment</option>
-                <option value="upon_signing">Upon Signing</option>
-                <option value="upon_delivery">Upon Delivery</option>
-                <option value="proportional_transfer">
-                  Proportional (Per Milestone)
-                </option>
-                <option value="retained_by_creator">
-                  Retained by Creator (License Only)
-                </option>
-              </AppSelectField>
-            </div>
-
-            <div>
-              <label className={appFieldLabelClass}>Jurisdiction</label>
-              <input
-                type="text"
-                value={value.msaJurisdictionCity || ""}
-                onChange={(e) =>
-                  updateField("msaJurisdictionCity", e.target.value)
-                }
-                placeholder="e.g. Bangalore"
-                className={inputClass(
-                  undefined,
-                  Boolean(value.msaJurisdictionCity),
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className={appFieldLabelClass}>
-                Notes / MSA Boilerplate
-              </label>
-              {!value.msaNotesBoilerplate && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const ipLabels: Record<string, string> = {
-                      upon_full_payment: "upon full payment",
-                      upon_signing: "upon signing",
-                      upon_delivery: "upon delivery",
-                      proportional_transfer: "proportionally per milestone",
-                      retained_by_creator:
-                        "retained by the creator (limited license)",
-                    };
-                    const ipLabel =
-                      ipLabels[value.msaIpTriggerType || "upon_full_payment"];
-
-                    const unitLabels: Record<string, string> = {
-                      monthly: "per month",
-                      annually: "per annum",
-                      daily: "per day",
-                    };
-                    const unitLabel =
-                      unitLabels[value.msaLateFeeUnit || "monthly"];
-
-                    const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
-
-                    updateField("msaNotesBoilerplate", template);
-                  }}
-                  className="text-[11px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
-                >
-                  + Generate Smart Template
-                </button>
-              )}
-            </div>
-            <textarea
-              rows={4}
-              value={value.msaNotesBoilerplate || ""}
-              onChange={(e) =>
-                updateField("msaNotesBoilerplate", e.target.value)
-              }
-              placeholder="Custom terms or additional MSA boilerplate for this client..."
-              className={inputClass(
-                undefined,
-                Boolean(value.msaNotesBoilerplate),
-                true,
-              )}
-            />
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
-    </section>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</section>
   );
 }
