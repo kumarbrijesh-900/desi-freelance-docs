@@ -608,26 +608,6 @@ export default function ClientDetailsSection({
             </div>
 
             <div className="mt-2 space-y-4">
-              <div className="flex items-center justify-between border-t border-[color:var(--border-subtle)] pt-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <label className={appFieldLabelClass}>MSA Defaults</label>
-                    <span className="rounded-full bg-lime-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-lime-700 ring-1 ring-inset ring-lime-600/20">
-                      Optional
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[color:var(--text-muted)]">
-                    Collapse or expand Master Services Agreement overrides
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMsaOpen(!isMsaOpen)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[color:var(--text-muted)] shadow-sm ring-1 ring-[color:var(--border-subtle)] transition-all hover:text-[color:var(--text-primary)] hover:ring-[color:var(--border-strong)]"
-                >
-                  {isMsaOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
-                </button>
-              </div>
 
               <AnimatePresence>
                 {isMsaOpen && (
