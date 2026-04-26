@@ -58,13 +58,11 @@ export async function POST(req: NextRequest) {
     if (ownerEmail) {
       const subject = response === "accepted" 
         ? `Action Required: MSA Accepted for Invoice ${inv.invoice_number}`
-        : `Notification: MSA ${response === "rejected" ? "Rejected" : "Negotiation"} for Invoice ${inv.invoice_number}`;
+        : `Action Required: MSA Changes Proposed for Invoice ${inv.invoice_number}`;
       
       const message = response === "accepted"
         ? `Great news! Your client (${inv.shared_to_email}) has accepted the Master Service Agreement and viewed Invoice ${inv.invoice_number}.`
-        : response === "rejected"
-          ? `Your client (${inv.shared_to_email}) has declined the Master Service Agreement for Invoice ${inv.invoice_number}.`
-          : `Your client (${inv.shared_to_email}) has proposed changes to the MSA for Invoice ${inv.invoice_number}: "${note}"`;
+        : `Your client (${inv.shared_to_email}) has proposed changes to the MSA for Invoice ${inv.invoice_number}.<br/><br/><strong>Proposal:</strong> "${note}"`;
 
       await resend.emails.send({
         from: "Lance Notifications <notifications@lanceinvoice.xyz>",
@@ -72,23 +70,26 @@ export async function POST(req: NextRequest) {
         subject: subject,
         html: `
           <div style="font-family:sans-serif;padding:24px;border:1px solid #eee;border-radius:12px;max-width:500px;">
-            <h2 style="margin-top:0;">${subject}</h2>
-            <p style="color:#444;line-height:1.6;">${message}</p>
+            <h2 style="margin-top:0;font-size:18px;">${subject}</h2>
+            <p style="color:#444;line-height:1.6;font-size:15px;">${message}</p>
             <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
-            <p style="font-size:12px;color:#888;">Log in to your Lance dashboard to view full details.</p>
+            <p style="font-size:12px;color:#888;">Log in to your <a href="https://lanceinvoice.xyz/invoices" style="color:#111;font-weight:700;">Lance dashboard</a> to view full details and reissue the invoice.</p>
           </div>
         `
       });
     }
 
     // 4. Create in-app notification
+    const notificationTitle = response === "accepted" ? "MSA Approved" : "MSA Changes Proposed";
+    const notificationMessage = response === "accepted"
+      ? `Client has accepted the MSA and viewed Invoice ${inv.invoice_number}.`
+      : `Client has proposed changes to the MSA for Invoice ${inv.invoice_number}. View Proposal.`;
+
     await supabaseAdmin.from("notifications").insert({
       user_id: inv.user_id,
       type: `msa_${response}`,
-      title: response === "accepted" ? "MSA Approved" : "MSA Response",
-      message: response === "accepted" 
-        ? `Client has accepted the MSA and viewed Invoice ${inv.invoice_number}.`
-        : `Client responded: ${response} to MSA for ${inv.invoice_number}`,
+      title: notificationTitle,
+      message: notificationMessage,
       invoice_id: inv.id,
       is_read: false,
     });

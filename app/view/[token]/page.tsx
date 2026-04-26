@@ -491,7 +491,7 @@ export default function PublicInvoiceViewPage({
                       onClick={() => setShowProposalForm(true)}
                       disabled={msaSubmitting}
                       className={getAppButtonClass({
-                        variant: "secondary",
+                        variant: "ghost",
                         size: "md",
                       })}
                     >
