@@ -6,6 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import {
   ArrowRightIcon,
+  SparklesIcon,
 } from "@/components/ui/app-icons";
 import { 
   Terminal, 
