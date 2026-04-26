@@ -26,8 +26,22 @@ export async function GET(request: Request) {
       },
     );
     await supabase.auth.exchangeCodeForSession(code);
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        return NextResponse.redirect(new URL("/onboarding", request.url));
+      }
+    }
   }
 
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(new URL("/dashboard", request.url));
+  const next = requestUrl.searchParams.get("next") ?? "/invoices";
+  return NextResponse.redirect(new URL(next, request.url));
 }

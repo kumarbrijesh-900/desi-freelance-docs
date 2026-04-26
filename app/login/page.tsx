@@ -36,10 +36,21 @@ function LoginCard() {
   const isRestoring = next.includes("restore");
 
   const handleGoogleLogin = async () => {
-    const redirectTo = `${window.location.origin}${next}`;
+    const callbackUrl = `${window.location.origin}/api/auth/callback`;
+    // We pass the final destination as a query param to our callback route
+    const redirectTo = next && next !== "/" 
+      ? `${callbackUrl}?next=${encodeURIComponent(next)}` 
+      : callbackUrl;
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: { 
+        redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      },
     });
   };
 
