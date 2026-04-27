@@ -111,7 +111,6 @@ function TrustIcon({ type, className }: { type: string; className?: string }) {
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { scrollY } = useScroll();
 
   // Parallax values for background shapes
@@ -214,13 +213,6 @@ export default function Home() {
                     <ArrowRightIcon className="h-4 w-4" />
                   </span>
                 </Link>
-                
-                <button
-                  onClick={() => setIsLightboxOpen(true)}
-                  className="sm:hidden text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors underline underline-offset-4 decoration-[color:var(--border-subtle)]"
-                >
-                  View a sample invoice
-                </button>
               </div>
             </MotionReveal>
 
@@ -390,41 +382,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* ─── Sample Invoice Lightbox ─── */}
-      <AnimatePresence>
-        {isLightboxOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsLightboxOpen(false)}
-              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed left-1/2 top-1/2 z-[101] w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 px-4"
-            >
-              <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl">
-                <button
-                  onClick={() => setIsLightboxOpen(false)}
-                  className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/10 text-black/40 transition-colors hover:bg-black/20 hover:text-black/60"
-                >
-                  <span className="text-xl font-medium">×</span>
-                </button>
-                <div className="p-2">
-                  <img
-                    src="/lance-invoice-mockup.png"
-                    alt="Sample Lance Invoice"
-                    className="h-auto w-full rounded-lg shadow-sm"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
       </AnimatePresence>
     </main>
   );
