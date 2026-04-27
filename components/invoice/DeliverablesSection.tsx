@@ -22,7 +22,7 @@ import {
   isManualSacRequired,
 } from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
-import { SparklesIcon } from "@/components/ui/app-icons";
+import { PencilIcon, SparklesIcon } from "@/components/ui/app-icons";
 import {
   appFieldErrorTextClass,
   appFieldLabelClass,
@@ -151,10 +151,13 @@ export default function DeliverablesSection({
   };
 
   const addMilestone = () => {
-    onChange([
+    const milestoneId = createLineItemId(value);
+    // Note: We don't call createLineItemId twice on the same 'value' because it might return the same ID.
+    // Instead, we manually increment or pass a temp array.
+    const tempValueWithMilestone = [
       ...value,
       {
-        id: createLineItemId(value),
+        id: milestoneId,
         type: "Other",
         description: "",
         qty: 0,
@@ -163,6 +166,22 @@ export default function DeliverablesSection({
         sacCode: "",
         is_milestone_header: true,
         milestone_status: "PENDING",
+      } as InvoiceLineItem,
+    ];
+
+    const lineItemId = createLineItemId(tempValueWithMilestone);
+
+    onChange([
+      ...tempValueWithMilestone,
+      {
+        id: lineItemId,
+        type: "UI/UX Design",
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: invoiceDefaultUnitByType["UI/UX Design"],
+        sacCode: getDefaultSacCodeForType("UI/UX Design"),
+        is_milestone_header: false,
       },
     ]);
   };
@@ -342,13 +361,16 @@ export default function DeliverablesSection({
                         Milestone {mIndex + 1}
                       </span>
                     </div>
-                    <input
-                      type="text"
-                      value={header.description}
-                      onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
-                      placeholder="e.g. Phase 1: Discovery & Strategy"
-                      className="w-full border-none bg-transparent p-0 text-[18px] font-extrabold tracking-tight text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] focus:ring-0"
-                    />
+                    <div className="relative group/title">
+                      <input
+                        type="text"
+                        value={header.description}
+                        onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
+                        placeholder="e.g. Phase 1: Discovery & Strategy"
+                        className="w-full border-none bg-transparent p-0 pr-8 text-[18px] font-extrabold tracking-tight text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] focus:ring-0"
+                      />
+                      <PencilIcon className="absolute right-0 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[color:var(--text-muted)] opacity-40 group-hover/title:opacity-100 transition-opacity pointer-events-none" />
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-6">
