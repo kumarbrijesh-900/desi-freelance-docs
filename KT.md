@@ -1,6 +1,6 @@
 # Knowledge Transfer (KT) — Lance Invoice Engine
 
-> **Last Updated:** 2026-04-26 (Session: Phase 12b complete — Omniscient Context Agent)
+> **Last Updated:** 2026-04-27 (Session: Phase 13 complete — Pre-Flight Lockdown)
 > **Branch:** `main`
 > **Build Status:** ✅ Zero errors (`npm run build`)
 > **Deployment:** Vercel → `lanceinvoice.vercel.app`
@@ -513,6 +513,23 @@ tests/
 - **Hydration Synchronization**: Overhauled the frontend hydration logic (`lib/invoice-brief-intake.ts`) to support the new nested `invoice_data` structure while maintaining 100% precision for Indian GST compliance.
 - **API Simplification**: Replaced the legacy Supabase Edge Gateway with a direct Next.js API route that leverages the improved contextual prompt for higher reliability and zero-cold-start performance.
 
+### Phase 13 — Security Hardening & Pre-Flight Lockdown
+- **The Security Fortress (Hardening)**:
+    - **RLS Lockdown**: Revoked the dangerous public `UPDATE` policy on `invoices`. All status changes (Accept/Reject MSA) now strictly hit the secure `/api/msa-response` server-side route.
+    - **Zero-Trust API Payload**: Refactored `/api/invoice/[token]` to return a redacted whitelist payload. Sensitive financial "meat" is completely withheld until the MSA is `ACCEPTED`.
+    - **Zod Data Guardrails**: Implemented strict Zod schema enforcement (`invoiceSchema.parse()`) for the `invoices` JSONB column. Malformed or malicious JSON is now rejected at the API gate.
+- **Next.js 16 Migration (Proxy)**:
+    - Renamed `middleware.ts` to `proxy.ts` and updated the export to `export async function proxy(request: NextRequest)` as per the Next.js 16.2+ file convention.
+    - Implemented server-side auth gating for `/invoices/*` and `/invoice/*` to prevent JS-disabled bypasses.
+- **Fail-State Resilience (UX)**:
+    - **Dependency-Free Fail-States**: Rewrote `app/error.tsx`, `app/not-found.tsx`, and `app/loading.tsx` using native HTML and Tailwind utilities. 
+    - **Build Stability**: Eliminated module resolution errors during Vercel's production build by removing shadcn/ui dependencies from root fail-state pages.
+- **Milestone Engine Sync**:
+    - Finalized "Dual-Key" milestone header detection in all templates (`isMilestoneHeader` || `is_milestone_header`) to ensure backward compatibility during the V2.0 data migration.
+- **DevOps Integrity**:
+    - Added `.env.example` with documented keys for Supabase, Resend, and Upstash.
+    - Optimized `next.config.ts` with strict security headers (HSTS, XSS Protection).
+
 ---
 
 ## 10. Pending Roadmap
@@ -682,6 +699,10 @@ tests/
 | Change MSA tooltip copy | `lib/default-msa.ts` → `MSA_TOOLTIP_CONTENT` |
 | Manage MSAs | `lib/supabase/msas.ts` |
 | Add tests | `tests/extraction/` or `tests/e2e/` |
+| Auth-gate routes | `proxy.ts` (Next.js 16 file convention) |
+| Handle app errors | `app/error.tsx` (Dependency-free) |
+| Handle broken links | `app/not-found.tsx` (Dependency-free) |
+| Handle loading states | `app/loading.tsx` (Dependency-free) |
 | Check GST compliance | `lib/invoice-compliance.ts`, `lib/gstin-parser.ts` |
 
 ---
