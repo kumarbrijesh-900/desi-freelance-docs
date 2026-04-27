@@ -54,6 +54,8 @@ interface DeliverablesSectionProps {
 const lineItemDesktopGridClass =
   "xl:grid-cols-[2fr_3fr_1fr_1.5fr_1.5fr_1fr_min-content]";
 
+const MAX_MILESTONES = 5;
+
 let lineItemIdCounter = 0;
 
 function createLineItemId(existingItems: InvoiceLineItem[]) {
@@ -154,6 +156,8 @@ export default function DeliverablesSection({
   };
 
   const addMilestone = () => {
+    if (milestones.length >= MAX_MILESTONES) return;
+
     const milestoneId = createLineItemId(value);
     // Note: We don't call createLineItemId twice on the same 'value' because it might return the same ID.
     // Instead, we manually increment or pass a temp array.
@@ -361,28 +365,23 @@ export default function DeliverablesSection({
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
-                        Milestone {mIndex + 1}
+                        {mIndex + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIndex + 1}`}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 group/title">
-                      <input
-                        ref={(el) => {
-                          milestoneTitleRefs.current[header.id] = el;
-                        }}
-                        type="text"
-                        value={header.description}
-                        onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
-                        placeholder="e.g. Phase 1: Discovery & Strategy"
-                        className="flex-1 border-none bg-transparent p-0 text-[18px] font-extrabold tracking-tight text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] focus:ring-0"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => milestoneTitleRefs.current[header.id]?.focus()}
-                        className="flex items-center justify-center h-8 w-8 rounded-full opacity-60 group-hover/title:opacity-100 group-hover/title:bg-gray-100/50 transition-all cursor-pointer"
-                        aria-label="Edit milestone title"
-                      >
-                        <PencilIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
-                      </button>
+                    <div className="flex items-center gap-2 group/title">
+                      <div className="relative flex-1">
+                        <input
+                          ref={(el) => {
+                            milestoneTitleRefs.current[header.id] = el;
+                          }}
+                          type="text"
+                          value={header.description}
+                          onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
+                          placeholder="e.g. Phase 1: Discovery & Strategy"
+                          className="w-full text-xl font-bold text-gray-900 bg-transparent border border-gray-200 rounded px-2 -ml-2 hover:border-gray-300 focus:border-gray-900 focus:ring-0 transition-colors cursor-text"
+                        />
+                      </div>
+                      <PencilIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     </div>
                   </div>
 
@@ -614,16 +613,26 @@ export default function DeliverablesSection({
 
         {/* Add Milestone Button (At the Root level) */}
         <div className="pt-2">
-          <button
-            type="button"
-            onClick={addMilestone}
-            className={cn(
-              "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600 transition-all group"
-            )}
-          >
-            <span className="text-2xl text-gray-300 group-hover:text-gray-400 transition-colors">+</span>
-            Add Project Milestone
-          </button>
+          {(() => {
+            const remaining = MAX_MILESTONES - milestones.length;
+            const isDisabled = remaining <= 0;
+            return (
+              <button
+                type="button"
+                onClick={addMilestone}
+                disabled={isDisabled}
+                className={cn(
+                  "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 transition-all group",
+                  isDisabled 
+                    ? "opacity-50 cursor-not-allowed" 
+                    : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
+                )}
+              >
+                <span className={cn("text-2xl text-gray-300 transition-colors", !isDisabled && "group-hover:text-gray-400")}>+</span>
+                Add Project Milestone ({remaining}/{MAX_MILESTONES})
+              </button>
+            );
+          })()}
           <p className="mt-4 text-[11px] text-gray-400 text-center sm:text-left">
             Milestones help group your deliverables into logical phases like "Phase 1: Research" or "Phase 2: Execution".
           </p>
