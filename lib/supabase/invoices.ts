@@ -104,7 +104,7 @@ export async function saveInvoice(
     invoiceSchema.parse(input.formData);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      const firstError = err.errors[0]?.message || "Invalid invoice data";
+      const firstError = err.issues[0]?.message || "Invalid invoice data";
       return { data: null, error: `Validation Failed: ${firstError}` };
     }
     return { data: null, error: "Malformed invoice data detected." };
