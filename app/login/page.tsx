@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 import { MotionReveal, motion } from "@/components/ui/motion-primitives";
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 
@@ -36,20 +36,15 @@ function LoginCard() {
   const isRestoring = next.includes("restore");
 
   const handleGoogleLogin = async () => {
-    const callbackUrl = `${window.location.origin}/api/auth/callback`;
-    // We pass the final destination as a query param to our callback route
-    const redirectTo = next && next !== "/" 
-      ? `${callbackUrl}?next=${encodeURIComponent(next)}` 
-      : callbackUrl;
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { 
-        redirectTo,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        }
+      options: {
+        redirectTo: "https://lanceinvoice.xyz/auth/callback",
       },
     });
   };

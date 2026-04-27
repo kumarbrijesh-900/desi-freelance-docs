@@ -116,6 +116,7 @@ const orderedSteps: InvoiceStepperStep[] = [
 
 const PREVIEW_STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
+const ANONYMOUS_DRAFT_KEY = "lance_anonymous_draft";
 const INVOICE_SEQUENCE_KEY = "invoice-sequence-by-year";
 
 type StoredDraft = {
@@ -788,6 +789,11 @@ function EditorContent() {
   };
 
   useEffect(() => {
+    if (!formData) return;
+    localStorage.setItem(ANONYMOUS_DRAFT_KEY, JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
     if (hasInitializedRef.current) {
       return;
     }
@@ -800,16 +806,26 @@ function EditorContent() {
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
-    const isGuest = searchParams.get("guest") === "1";
-    setIsGuestMode(isGuest);
+    // 1. Check for anonymous draft (Progressive Profiling)
+    const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
+    const isFresh = window.location.search.includes("fresh=1");
 
-    try {
+    if (anonymousRaw && !isFresh) {
       try {
-        const isFresh = window.location.search.includes("fresh=1");
-        const rawDraft = !isFresh
-          ? window.localStorage.getItem(DRAFT_STORAGE_KEY)
-          : null;
+        const parsed = JSON.parse(anonymousRaw);
+        if (parsed && typeof parsed === "object") {
+          nextFormData = mergeInvoiceFormData(parsed);
+          shouldShowRestoreToast = true;
+        }
+      } catch (e) {
+        console.error("Failed to parse anonymous draft", e);
+      }
+    }
 
+    // 2. Check for official draft (Legacy/Fallback)
+    if (!nextFormData && !isFresh) {
+      try {
+        const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
         if (rawDraft) {
           const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
           if (
@@ -827,1719 +843,1720 @@ function EditorContent() {
       } catch (error) {
         console.error("Failed to restore draft:", error);
       }
-
-      if (!nextFormData) {
-        nextFormData = getFreshInvoiceData();
-      }
-
-      const suggestedDueDate = getSuggestedDueDate(
-        nextFormData.meta.paymentTerms,
-        nextFormData.meta.invoiceDate,
-      );
-
-      dueDateAutoManagedRef.current =
-        !nextFormData.meta.dueDate ||
-        nextFormData.meta.dueDate === suggestedDueDate;
-      lastAutoDueDateRef.current = suggestedDueDate;
-
-      setFormData(nextFormData);
-      setCurrentStep(nextStep);
-      setParserDocumentId(nextDocumentId);
-      setClientMsaNote(nextMsaNote);
-
-      // Fetch user email for admin check
-      void getCurrentUserEmail().then((email) => setUserEmail(email));
-    } catch (error) {
-      console.error("Failed to initialize invoice editor:", error);
-
-      // Logic gap: the page used to return null until this bootstrap finished.
-      // If refresh-time localStorage or invoice-sequence setup failed, the
-      // editor stayed blank. Fall back to a safe empty form instead.
-      const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
-      const fallbackSuggestedDueDate = getSuggestedDueDate(
-        fallbackFormData.meta.paymentTerms,
-        fallbackFormData.meta.invoiceDate,
-      );
-
-      dueDateAutoManagedRef.current =
-        !fallbackFormData.meta.dueDate ||
-        fallbackFormData.meta.dueDate === fallbackSuggestedDueDate;
-      lastAutoDueDateRef.current = fallbackSuggestedDueDate;
-
-      setFormData(fallbackFormData);
-      setCurrentStep("agency");
-      setClientMsaNote(null);
-      shouldShowFallbackToast = true;
-    } finally {
-      hasInitializedRef.current = true;
-      setIsBootstrapped(true);
     }
 
-    if (shouldShowRestoreToast || shouldShowFallbackToast) {
-      frameId = window.requestAnimationFrame(() => {
-        triggerToast(
-          shouldShowRestoreToast
-            ? "Draft restored"
-            : "Could not restore saved invoice state. Starting fresh.",
-        );
-      });
+    if (!nextFormData) {
+      nextFormData = getFreshInvoiceData();
     }
-
-    return () => {
-      if (frameId) {
-        window.cancelAnimationFrame(frameId);
-      }
-    };
-  }, []);
-
-  /* ── Auto cloud-save after login redirect (restore=1) ── */
-  useEffect(() => {
-    if (!isBootstrapped) return;
-    if (searchParams.get("restore") !== "1") return;
-
-    async function autoCloudSave() {
-      const userId = await getCurrentUserId();
-      if (!userId) return;
-
-      const { error } = await saveInvoice({
-        formData,
-        status: "draft" as InvoiceStatus,
-        existingId: undefined,
-      });
-
-      if (!error) {
-        // NEW: Sync profile details from this restored draft
-        await syncProfileFromInvoice(formData);
-
-        triggerToast("Draft saved to cloud ☁ Welcome back!");
-        playInteractionCue("saveSuccess");
-        // Clean up URL without reloading
-        const url = new URL(window.location.href);
-        url.searchParams.delete("restore");
-        window.history.replaceState({}, "", url.toString());
-      }
-    }
-
-    void autoCloudSave();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBootstrapped]);
-
-  /* ── Profile auto-fill: load saved agency when starting fresh ── */
-  useEffect(() => {
-    if (!isBootstrapped) return;
-    const isFresh = searchParams.get("fresh") === "1";
-    // Only auto-fill if agency name is empty (fresh form, not a restored draft) OR if explicitly fresh
-    if (formData.agency.agencyName.trim() && !isFresh) return;
-
-    let cancelled = false;
-    async function applyProfile() {
-      const { data: profile } = await loadProfile();
-      if (cancelled || !profile) return;
-
-      if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
-      if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
-
-      if (!profile.agency_name.trim()) return;
-
-      setFormData((prev) => {
-        // Double-check the form is still blank (user might have typed)
-        if (prev.agency.agencyName.trim()) return prev;
-
-        const agencyFromProfile = profileToAgencyDetails(profile);
-        const paymentFromProfile = profileToPaymentDefaults(profile);
-
-        return {
-          ...prev,
-          agency: { ...prev.agency, ...agencyFromProfile },
-          payment: { ...prev.payment, ...paymentFromProfile },
-        };
-      });
-    }
-    applyProfile();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBootstrapped]);
-
-  /* ── Client auto-fill: load saved clients and handle single-client case ── */
-  useEffect(() => {
-    if (!isBootstrapped) return;
-
-    let cancelled = false;
-    async function fetchClients() {
-      const { data: clients } = await listClients();
-      if (cancelled) return;
-
-      console.log("CLIENT_LOAD: Found", clients?.length || 0, "saved clients");
-      setSavedClients(clients || []);
-
-      // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
-      const isFresh = searchParams.get("fresh") === "1";
-      if (
-        clients.length === 1 &&
-        (!formData.client.clientName.trim() || isFresh)
-      ) {
-        const clientDetails = savedClientToClientDetails(clients[0]);
-        setFormData((prev) => ({
-          ...prev,
-          client: clientDetails,
-        }));
-        setSelectedClientMsa(clients[0]);
-        console.log(
-          "CLIENT_AUTOFILL: Applied unique client",
-          clients[0].client_name,
-        );
-      }
-    }
-
-    void fetchClients();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBootstrapped]);
-
-  /* ── Check for missing profile assets (Logo, QR, Signature) ── */
-  useEffect(() => {
-    if (!isBootstrapped) return;
-
-    async function checkAssets() {
-      const { data: profile } = await loadProfile();
-      if (profile) {
-        const hasAssets = Boolean(
-          profile.logo_url && profile.qr_code_url && profile.signature_url,
-        );
-        setShowProfilePrompt(!hasAssets);
-      }
-    }
-    void checkAssets();
-  }, [isBootstrapped]);
-
-  useEffect(() => {
-    if (!hasInitializedRef.current) return;
 
     const suggestedDueDate = getSuggestedDueDate(
-      formData.meta.paymentTerms,
-      formData.meta.invoiceDate,
+      nextFormData.meta.paymentTerms,
+      nextFormData.meta.invoiceDate,
     );
 
-    const currentDueDate = formData.meta.dueDate;
-    const previousAutoDueDate = lastAutoDueDateRef.current;
-
-    const isStillAutoManaged =
-      dueDateAutoManagedRef.current ||
-      !currentDueDate ||
-      currentDueDate === previousAutoDueDate;
-
-    if (isStillAutoManaged) {
-      dueDateAutoManagedRef.current = true;
-      lastAutoDueDateRef.current = suggestedDueDate;
-
-      if (suggestedDueDate && currentDueDate !== suggestedDueDate) {
-        const frameId = window.requestAnimationFrame(() => {
-          setFormData((prev) => ({
-            ...prev,
-            meta: {
-              ...prev.meta,
-              dueDate: suggestedDueDate,
-            },
-          }));
-        });
-
-        return () => window.cancelAnimationFrame(frameId);
-      }
-
-      if (!suggestedDueDate && currentDueDate === previousAutoDueDate) {
-        const frameId = window.requestAnimationFrame(() => {
-          setFormData((prev) => ({
-            ...prev,
-            meta: {
-              ...prev.meta,
-              dueDate: "",
-            },
-          }));
-        });
-
-        return () => window.cancelAnimationFrame(frameId);
-      }
-
-      return;
-    }
-
-    dueDateAutoManagedRef.current = false;
+    dueDateAutoManagedRef.current =
+      !nextFormData.meta.dueDate ||
+      nextFormData.meta.dueDate === suggestedDueDate;
     lastAutoDueDateRef.current = suggestedDueDate;
-  }, [
+
+    setFormData(nextFormData);
+    setCurrentStep(nextStep);
+    setParserDocumentId(nextDocumentId);
+    setClientMsaNote(nextMsaNote);
+
+    // Fetch user email for admin check
+    void getCurrentUserEmail().then((email) => setUserEmail(email));
+  } catch (error) {
+    console.error("Failed to initialize invoice editor:", error);
+
+    // Logic gap: the page used to return null until this bootstrap finished.
+    // If refresh-time localStorage or invoice-sequence setup failed, the
+    // editor stayed blank. Fall back to a safe empty form instead.
+    const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
+    const fallbackSuggestedDueDate = getSuggestedDueDate(
+      fallbackFormData.meta.paymentTerms,
+      fallbackFormData.meta.invoiceDate,
+    );
+
+    dueDateAutoManagedRef.current =
+      !fallbackFormData.meta.dueDate ||
+      fallbackFormData.meta.dueDate === fallbackSuggestedDueDate;
+    lastAutoDueDateRef.current = fallbackSuggestedDueDate;
+
+    setFormData(fallbackFormData);
+    setCurrentStep("agency");
+    setClientMsaNote(null);
+    shouldShowFallbackToast = true;
+  } finally {
+    hasInitializedRef.current = true;
+    setIsBootstrapped(true);
+  }
+
+  if (shouldShowRestoreToast || shouldShowFallbackToast) {
+    frameId = window.requestAnimationFrame(() => {
+      triggerToast(
+        shouldShowRestoreToast
+          ? "Draft restored"
+          : "Could not restore saved invoice state. Starting fresh.",
+      );
+    });
+  }
+
+  return () => {
+    if (frameId) {
+      window.cancelAnimationFrame(frameId);
+    }
+  };
+}, []);
+
+/* ── Auto cloud-save after login redirect (restore=1) ── */
+useEffect(() => {
+  if (!isBootstrapped) return;
+  if (searchParams.get("restore") !== "1") return;
+
+  async function autoCloudSave() {
+    const userId = await getCurrentUserId();
+    if (!userId) return;
+
+    const { error } = await saveInvoice({
+      formData,
+      status: "draft" as InvoiceStatus,
+      existingId: undefined,
+    });
+
+    if (!error) {
+      // NEW: Sync profile details from this restored draft
+      await syncProfileFromInvoice(formData);
+
+      triggerToast("Draft saved to cloud ☁ Welcome back!");
+      playInteractionCue("saveSuccess");
+      // Clean up URL without reloading
+      const url = new URL(window.location.href);
+      url.searchParams.delete("restore");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
+
+  void autoCloudSave();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isBootstrapped]);
+
+/* ── Profile auto-fill: load saved agency when starting fresh ── */
+useEffect(() => {
+  if (!isBootstrapped) return;
+  const isFresh = searchParams.get("fresh") === "1";
+  // Only auto-fill if agency name is empty (fresh form, not a restored draft) OR if explicitly fresh
+  if (formData.agency.agencyName.trim() && !isFresh) return;
+
+  let cancelled = false;
+  async function applyProfile() {
+    const { data: profile } = await loadProfile();
+    if (cancelled || !profile) return;
+
+    if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
+    if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
+
+    if (!profile.agency_name.trim()) return;
+
+    setFormData((prev) => {
+      // Double-check the form is still blank (user might have typed)
+      if (prev.agency.agencyName.trim()) return prev;
+
+      const agencyFromProfile = profileToAgencyDetails(profile);
+      const paymentFromProfile = profileToPaymentDefaults(profile);
+
+      return {
+        ...prev,
+        agency: { ...prev.agency, ...agencyFromProfile },
+        payment: { ...prev.payment, ...paymentFromProfile },
+      };
+    });
+  }
+  applyProfile();
+  return () => {
+    cancelled = true;
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isBootstrapped]);
+
+/* ── Client auto-fill: load saved clients and handle single-client case ── */
+useEffect(() => {
+  if (!isBootstrapped) return;
+
+  let cancelled = false;
+  async function fetchClients() {
+    const { data: clients } = await listClients();
+    if (cancelled) return;
+
+    console.log("CLIENT_LOAD: Found", clients?.length || 0, "saved clients");
+    setSavedClients(clients || []);
+
+    // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
+    const isFresh = searchParams.get("fresh") === "1";
+    if (
+      clients.length === 1 &&
+      (!formData.client.clientName.trim() || isFresh)
+    ) {
+      const clientDetails = savedClientToClientDetails(clients[0]);
+      setFormData((prev) => ({
+        ...prev,
+        client: clientDetails,
+      }));
+      setSelectedClientMsa(clients[0]);
+      console.log(
+        "CLIENT_AUTOFILL: Applied unique client",
+        clients[0].client_name,
+      );
+    }
+  }
+
+  void fetchClients();
+  return () => {
+    cancelled = true;
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isBootstrapped]);
+
+/* ── Check for missing profile assets (Logo, QR, Signature) ── */
+useEffect(() => {
+  if (!isBootstrapped) return;
+
+  async function checkAssets() {
+    const { data: profile } = await loadProfile();
+    if (profile) {
+      const hasAssets = Boolean(
+        profile.logo_url && profile.qr_code_url && profile.signature_url,
+      );
+      setShowProfilePrompt(!hasAssets);
+    }
+  }
+  void checkAssets();
+}, [isBootstrapped]);
+
+useEffect(() => {
+  if (!hasInitializedRef.current) return;
+
+  const suggestedDueDate = getSuggestedDueDate(
     formData.meta.paymentTerms,
     formData.meta.invoiceDate,
-    formData.meta.dueDate,
-  ]);
-
-  useEffect(() => {
-    if (!focusRequestNonce) return;
-
-    const frameId = window.requestAnimationFrame(() => {
-      const activeStepRoot = stepRefs.current[currentStep];
-      if (!activeStepRoot) return;
-
-      const focusTarget = activeStepRoot.querySelector<HTMLElement>(
-        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
-      );
-
-      focusTarget?.focus({ preventScroll: true });
-    });
-
-    return () => window.cancelAnimationFrame(frameId);
-  }, [currentStep, focusRequestNonce]);
-
-  const fieldErrors = useMemo(
-    () => getInvoiceFieldErrors(formData),
-    [formData],
   );
 
-  const clientIsInternational =
-    formData.client.clientLocation === "international";
-  const agencyIsGstRegistered =
-    formData.agency.gstRegistrationStatus === "registered";
-  const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
-    formData.agency,
-  );
-  const displayCurrency = useMemo(
-    () =>
-      getInvoiceDisplayCurrency({
-        clientLocation: formData.client.clientLocation,
-        clientCurrency: formData.client.clientCurrency,
-      }),
-    [formData.client.clientLocation, formData.client.clientCurrency],
-  );
+  const currentDueDate = formData.meta.dueDate;
+  const previousAutoDueDate = lastAutoDueDateRef.current;
 
-  const computedTotals = useMemo(
-    () =>
-      calculateInvoiceTotals({
-        lineItems: formData.lineItems,
-        agencyState: formData.agency.agencyState,
-        clientState: formData.client.clientState,
-        isInternational: clientIsInternational,
-        isClientSezUnit: isDomesticSezClient(formData.client),
-        gstRegistered: agencyIsGstRegistered,
-        lutAvailability: formData.agency.lutAvailability,
-        noLutTaxHandling: effectiveExportTaxDecision,
-        taxRate: formData.tax.taxRate,
-        isRcmEnabled: formData.tax.isRcmEnabled,
-      }),
-    [
-      formData.lineItems,
-      formData.agency.agencyState,
-      clientIsInternational,
-      formData.client,
-      agencyIsGstRegistered,
-      formData.agency.lutAvailability,
-      effectiveExportTaxDecision,
-      formData.tax.taxRate,
-      formData.tax.isRcmEnabled,
-    ],
-  );
+  const isStillAutoManaged =
+    dueDateAutoManagedRef.current ||
+    !currentDueDate ||
+    currentDueDate === previousAutoDueDate;
 
-  const derivedTaxConfig = useMemo(() => {
-    const currentRate = formData.tax.taxRate ?? 18;
-    const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
-    switch (computedTotals.taxType) {
-      case "CGST_SGST":
-        return {
-          taxMode: "gst" as const,
-          taxRate: currentRate,
-          isRcmEnabled,
-        };
-      case "IGST":
-        return {
-          taxMode: "igst" as const,
-          taxRate: currentRate,
-          isRcmEnabled,
-        };
-      default:
-        return {
-          taxMode: "none" as const,
-          taxRate: 0,
-          isRcmEnabled,
-        };
-    }
-  }, [computedTotals.taxType, formData.tax.taxRate, formData.tax.isRcmEnabled]);
+  if (isStillAutoManaged) {
+    dueDateAutoManagedRef.current = true;
+    lastAutoDueDateRef.current = suggestedDueDate;
 
-  const totalsComplianceMessage = useMemo(() => {
-    const settlementWarning = getSettlementComplianceWarning({
-      client: formData.client,
-      payment: formData.payment,
-    });
+    if (suggestedDueDate && currentDueDate !== suggestedDueDate) {
+      const frameId = window.requestAnimationFrame(() => {
+        setFormData((prev) => ({
+          ...prev,
+          meta: {
+            ...prev.meta,
+            dueDate: suggestedDueDate,
+          },
+        }));
+      });
 
-    if (clientIsInternational && agencyIsGstRegistered) {
-      if (formData.agency.lutAvailability === "yes") {
-        return [getLutDeclarationText(formData.agency), settlementWarning]
-          .filter(Boolean)
-          .join(" ");
-      }
-
-      if (effectiveExportTaxDecision === "add-igst") {
-        return [
-          `International export without LUT: IGST ${formData.tax.taxRate}% applies.`,
-          settlementWarning,
-        ]
-          .filter(Boolean)
-          .join(" ");
-      }
-
-      return settlementWarning;
+      return () => window.cancelAnimationFrame(frameId);
     }
 
-    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
-      if (formData.agency.lutAvailability === "yes") {
-        return formData.agency.lutNumber.trim()
-          ? `Domestic SEZ supply under LUT ${formData.agency.lutNumber.trim()}: no IGST is added on the invoice.`
-          : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
-      }
+    if (!suggestedDueDate && currentDueDate === previousAutoDueDate) {
+      const frameId = window.requestAnimationFrame(() => {
+        setFormData((prev) => ({
+          ...prev,
+          meta: {
+            ...prev.meta,
+            dueDate: "",
+          },
+        }));
+      });
 
-      return `Domestic SEZ supply without LUT: IGST ${formData.tax.taxRate}% applies even if the client is in the same state.`;
+      return () => window.cancelAnimationFrame(frameId);
     }
 
-    if (clientIsInternational && !agencyIsGstRegistered) {
+    return;
+  }
+
+  dueDateAutoManagedRef.current = false;
+  lastAutoDueDateRef.current = suggestedDueDate;
+}, [
+  formData.meta.paymentTerms,
+  formData.meta.invoiceDate,
+  formData.meta.dueDate,
+]);
+
+useEffect(() => {
+  if (!focusRequestNonce) return;
+
+  const frameId = window.requestAnimationFrame(() => {
+    const activeStepRoot = stepRefs.current[currentStep];
+    if (!activeStepRoot) return;
+
+    const focusTarget = activeStepRoot.querySelector<HTMLElement>(
+      'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+    );
+
+    focusTarget?.focus({ preventScroll: true });
+  });
+
+  return () => window.cancelAnimationFrame(frameId);
+}, [currentStep, focusRequestNonce]);
+
+const fieldErrors = useMemo(
+  () => getInvoiceFieldErrors(formData),
+  [formData],
+);
+
+const clientIsInternational =
+  formData.client.clientLocation === "international";
+const agencyIsGstRegistered =
+  formData.agency.gstRegistrationStatus === "registered";
+const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
+  formData.agency,
+);
+const displayCurrency = useMemo(
+  () =>
+    getInvoiceDisplayCurrency({
+      clientLocation: formData.client.clientLocation,
+      clientCurrency: formData.client.clientCurrency,
+    }),
+  [formData.client.clientLocation, formData.client.clientCurrency],
+);
+
+const computedTotals = useMemo(
+  () =>
+    calculateInvoiceTotals({
+      lineItems: formData.lineItems,
+      agencyState: formData.agency.agencyState,
+      clientState: formData.client.clientState,
+      isInternational: clientIsInternational,
+      isClientSezUnit: isDomesticSezClient(formData.client),
+      gstRegistered: agencyIsGstRegistered,
+      lutAvailability: formData.agency.lutAvailability,
+      noLutTaxHandling: effectiveExportTaxDecision,
+      taxRate: formData.tax.taxRate,
+      isRcmEnabled: formData.tax.isRcmEnabled,
+    }),
+  [
+    formData.lineItems,
+    formData.agency.agencyState,
+    clientIsInternational,
+    formData.client,
+    agencyIsGstRegistered,
+    formData.agency.lutAvailability,
+    effectiveExportTaxDecision,
+    formData.tax.taxRate,
+    formData.tax.isRcmEnabled,
+  ],
+);
+
+const derivedTaxConfig = useMemo(() => {
+  const currentRate = formData.tax.taxRate ?? 18;
+  const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
+  switch (computedTotals.taxType) {
+    case "CGST_SGST":
+      return {
+        taxMode: "gst" as const,
+        taxRate: currentRate,
+        isRcmEnabled,
+      };
+    case "IGST":
+      return {
+        taxMode: "igst" as const,
+        taxRate: currentRate,
+        isRcmEnabled,
+      };
+    default:
+      return {
+        taxMode: "none" as const,
+        taxRate: 0,
+        isRcmEnabled,
+      };
+  }
+}, [computedTotals.taxType, formData.tax.taxRate, formData.tax.isRcmEnabled]);
+
+const totalsComplianceMessage = useMemo(() => {
+  const settlementWarning = getSettlementComplianceWarning({
+    client: formData.client,
+    payment: formData.payment,
+  });
+
+  if (clientIsInternational && agencyIsGstRegistered) {
+    if (formData.agency.lutAvailability === "yes") {
+      return [getLutDeclarationText(formData.agency), settlementWarning]
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    if (effectiveExportTaxDecision === "add-igst") {
       return [
-        "No GST applied because agency is marked as not registered under GST.",
+        `International export without LUT: IGST ${formData.tax.taxRate}% applies.`,
         settlementWarning,
       ]
         .filter(Boolean)
         .join(" ");
     }
 
-    if (computedTotals.taxType === "CGST_SGST") {
-      const halfRate = (formData.tax.taxRate ?? 18) / 2;
-      return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
+    return settlementWarning;
+  }
+
+  if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+    if (formData.agency.lutAvailability === "yes") {
+      return formData.agency.lutNumber.trim()
+        ? `Domestic SEZ supply under LUT ${formData.agency.lutNumber.trim()}: no IGST is added on the invoice.`
+        : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
     }
 
-    if (computedTotals.taxType === "IGST") {
-      return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
-    }
+    return `Domestic SEZ supply without LUT: IGST ${formData.tax.taxRate}% applies even if the client is in the same state.`;
+  }
 
-    if (!agencyIsGstRegistered) {
-      return "Tax is set to 0% because the agency is marked as not registered under GST.";
-    }
+  if (clientIsInternational && !agencyIsGstRegistered) {
+    return [
+      "No GST applied because agency is marked as not registered under GST.",
+      settlementWarning,
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
 
-    if (!formData.agency.agencyState || !formData.client.clientState) {
-      return "Select both agency and client state to determine whether GST should be split as CGST + SGST or applied as IGST.";
-    }
+  if (computedTotals.taxType === "CGST_SGST") {
+    const halfRate = (formData.tax.taxRate ?? 18) / 2;
+    return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
+  }
 
-    return "";
-  }, [
-    computedTotals.taxType,
-    clientIsInternational,
-    agencyIsGstRegistered,
-    formData.agency,
-    formData.client,
-    formData.payment,
-    effectiveExportTaxDecision,
-  ]);
+  if (computedTotals.taxType === "IGST") {
+    return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
+  }
 
-  const totalsComplianceVariant = useMemo(() => {
-    if (
-      getSettlementComplianceWarning({
-        client: formData.client,
-        payment: formData.payment,
-      })
-    ) {
-      return "warning";
-    }
+  if (!agencyIsGstRegistered) {
+    return "Tax is set to 0% because the agency is marked as not registered under GST.";
+  }
 
-    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
-      return formData.agency.lutAvailability === "yes" ? "info" : "warning";
-    }
+  if (!formData.agency.agencyState || !formData.client.clientState) {
+    return "Select both agency and client state to determine whether GST should be split as CGST + SGST or applied as IGST.";
+  }
 
-    if (clientIsInternational && agencyIsGstRegistered) {
-      return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
-    }
+  return "";
+}, [
+  computedTotals.taxType,
+  clientIsInternational,
+  agencyIsGstRegistered,
+  formData.agency,
+  formData.client,
+  formData.payment,
+  effectiveExportTaxDecision,
+]);
 
-    return "neutral";
-  }, [
-    clientIsInternational,
-    agencyIsGstRegistered,
-    formData.client,
-    formData.payment,
-    formData.agency.lutAvailability,
-  ]);
+const totalsComplianceVariant = useMemo(() => {
+  if (
+    getSettlementComplianceWarning({
+      client: formData.client,
+      payment: formData.payment,
+    })
+  ) {
+    return "warning";
+  }
 
-  const showInternationalExportDecision =
-    clientIsInternational &&
-    agencyIsGstRegistered &&
-    formData.agency.lutAvailability !== "yes";
+  if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+    return formData.agency.lutAvailability === "yes" ? "info" : "warning";
+  }
 
-  const exportTaxHelperNote =
-    showInternationalExportDecision &&
+  if (clientIsInternational && agencyIsGstRegistered) {
+    return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
+  }
+
+  return "neutral";
+}, [
+  clientIsInternational,
+  agencyIsGstRegistered,
+  formData.client,
+  formData.payment,
+  formData.agency.lutAvailability,
+]);
+
+const showInternationalExportDecision =
+  clientIsInternational &&
+  agencyIsGstRegistered &&
+  formData.agency.lutAvailability !== "yes";
+
+const exportTaxHelperNote =
+  showInternationalExportDecision &&
     effectiveExportTaxDecision === "keep-zero-tax"
-      ? "You chose to handle the IGST liability separately."
-      : "";
-  const estimatedIgstLiability =
-    showInternationalExportDecision &&
+    ? "You chose to handle the IGST liability separately."
+    : "";
+const estimatedIgstLiability =
+  showInternationalExportDecision &&
     effectiveExportTaxDecision === "keep-zero-tax"
-      ? computedTotals.subtotal * 0.18
-      : undefined;
-  const showApproximateUsdReference =
-    clientIsInternational && !formData.client.clientCurrency;
-  const approximateUsdGrandTotal = showApproximateUsdReference
-    ? convertInrToApproximateUsd(computedTotals.grandTotal)
+    ? computedTotals.subtotal * 0.18
     : undefined;
-  const missingFieldGroups = useMemo(
-    () => getMissingFieldLabels(formData),
-    [formData],
-  );
-  const stepValidityByStep = useMemo(
-    () =>
-      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
-        (result, step) => {
-          result[step] = isInvoiceStepValid(formData, step);
-          return result;
-        },
-        {
-          agency: false,
-          client: false,
-          deliverables: false,
-          payment: false,
-          meta: false,
-          totals: false,
-        },
-      ),
-    [formData],
-  );
-  const missingFieldCountByStep = useMemo(
-    () =>
-      missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
-        (counts, group) => {
-          counts[group.step] = group.fields.length;
-          return counts;
-        },
-        {
-          agency: 0,
-          client: 0,
-          deliverables: 0,
-          payment: 0,
-          meta: 0,
-          totals: 0,
-        },
-      ),
-    [missingFieldGroups],
-  );
-  const firstInvalidStep = useMemo(
-    () => getFirstInvalidStep(formData),
-    [formData],
-  );
+const showApproximateUsdReference =
+  clientIsInternational && !formData.client.clientCurrency;
+const approximateUsdGrandTotal = showApproximateUsdReference
+  ? convertInrToApproximateUsd(computedTotals.grandTotal)
+  : undefined;
+const missingFieldGroups = useMemo(
+  () => getMissingFieldLabels(formData),
+  [formData],
+);
+const stepValidityByStep = useMemo(
+  () =>
+    orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
+      (result, step) => {
+        result[step] = isInvoiceStepValid(formData, step);
+        return result;
+      },
+      {
+        agency: false,
+        client: false,
+        deliverables: false,
+        payment: false,
+        meta: false,
+        totals: false,
+      },
+    ),
+  [formData],
+);
+const missingFieldCountByStep = useMemo(
+  () =>
+    missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
+      (counts, group) => {
+        counts[group.step] = group.fields.length;
+        return counts;
+      },
+      {
+        agency: 0,
+        client: 0,
+        deliverables: 0,
+        payment: 0,
+        meta: 0,
+        totals: 0,
+      },
+    ),
+  [missingFieldGroups],
+);
+const firstInvalidStep = useMemo(
+  () => getFirstInvalidStep(formData),
+  [formData],
+);
 
-  const invoiceReadyForPreview = useMemo(
-    () => isInvoiceReadyForPreview(formData),
-    [formData],
-  );
-  const displayStepValidityByStep = useMemo(
-    () => ({
-      ...stepValidityByStep,
-      totals: invoiceReadyForPreview,
-    }),
-    [stepValidityByStep, invoiceReadyForPreview],
-  );
-  const completedStepCount = useMemo(
-    () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
-    [displayStepValidityByStep],
-  );
-  const guideToSection = (
-    step: InvoiceStepperStep,
-    options?: { focus?: boolean },
-  ) => {
-    setCurrentStep(step);
+const invoiceReadyForPreview = useMemo(
+  () => isInvoiceReadyForPreview(formData),
+  [formData],
+);
+const displayStepValidityByStep = useMemo(
+  () => ({
+    ...stepValidityByStep,
+    totals: invoiceReadyForPreview,
+  }),
+  [stepValidityByStep, invoiceReadyForPreview],
+);
+const completedStepCount = useMemo(
+  () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
+  [displayStepValidityByStep],
+);
+const guideToSection = (
+  step: InvoiceStepperStep,
+  options?: { focus?: boolean },
+) => {
+  setCurrentStep(step);
 
-    if (options?.focus) {
-      setFocusRequestNonce((prev) => prev + 1);
-    }
-  };
+  if (options?.focus) {
+    setFocusRequestNonce((prev) => prev + 1);
+  }
+};
 
-  const handleSectionKeyDownCapture = (
-    step: InvoiceStepperStep,
-    event: ReactKeyboardEvent<HTMLDivElement>,
-  ) => {
-    if (
-      event.key !== "Enter" ||
-      event.shiftKey ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey
-    ) {
-      return;
-    }
+const handleSectionKeyDownCapture = (
+  step: InvoiceStepperStep,
+  event: ReactKeyboardEvent<HTMLDivElement>,
+) => {
+  if (
+    event.key !== "Enter" ||
+    event.shiftKey ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey
+  ) {
+    return;
+  }
 
-    if (!(event.target instanceof HTMLInputElement)) {
-      return;
-    }
+  if (!(event.target instanceof HTMLInputElement)) {
+    return;
+  }
 
-    const inputType = event.target.type.toLowerCase();
-    if (["checkbox", "radio", "file", "submit", "button"].includes(inputType)) {
-      return;
-    }
+  const inputType = event.target.type.toLowerCase();
+  if (["checkbox", "radio", "file", "submit", "button"].includes(inputType)) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const activeStepRoot = stepRefs.current[step];
+  if (!activeStepRoot) return;
+
+  const focusableFields = Array.from(
+    activeStepRoot.querySelectorAll<HTMLElement>(
+      'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+    ),
+  ).filter((element) => element.offsetParent !== null);
+
+  const currentIndex = focusableFields.indexOf(event.target);
+
+  if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
+    focusableFields[currentIndex + 1]?.focus();
+    return;
+  }
+};
+
+const shouldConfirmExit = isFormTouched(formData);
+
+useEffect(() => {
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (!shouldConfirmExit) return;
 
     event.preventDefault();
-
-    const activeStepRoot = stepRefs.current[step];
-    if (!activeStepRoot) return;
-
-    const focusableFields = Array.from(
-      activeStepRoot.querySelectorAll<HTMLElement>(
-        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
-      ),
-    ).filter((element) => element.offsetParent !== null);
-
-    const currentIndex = focusableFields.indexOf(event.target);
-
-    if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
-      focusableFields[currentIndex + 1]?.focus();
-      return;
-    }
+    event.returnValue = "";
   };
 
-  const shouldConfirmExit = isFormTouched(formData);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!shouldConfirmExit) return;
+  return () => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  };
+}, [shouldConfirmExit]);
 
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [shouldConfirmExit]);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!shouldConfirmExit) return;
-
-      history.pushState(null, "", window.location.href);
-      setShowExitModal(true);
-    };
+useEffect(() => {
+  const handlePopState = () => {
+    if (!shouldConfirmExit) return;
 
     history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [shouldConfirmExit]);
-
-  const goToStep = (
-    step: InvoiceStepperStep,
-    options?: { focus?: boolean },
-  ) => {
-    guideToSection(step, { focus: options?.focus });
+    setShowExitModal(true);
   };
 
-  const scrollToStep = (
-    step: InvoiceStepperStep,
-    options?: { focus?: boolean },
-  ) => {
-    guideToSection(step);
+  history.pushState(null, "", window.location.href);
+  window.addEventListener("popstate", handlePopState);
 
-    const stepNode = stepRefs.current[step];
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return () => {
+    window.removeEventListener("popstate", handlePopState);
+  };
+}, [shouldConfirmExit]);
 
-    if (stepNode) {
-      stepNode.scrollIntoView({
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-        block: "start",
+const goToStep = (
+  step: InvoiceStepperStep,
+  options?: { focus?: boolean },
+) => {
+  guideToSection(step, { focus: options?.focus });
+};
+
+const scrollToStep = (
+  step: InvoiceStepperStep,
+  options?: { focus?: boolean },
+) => {
+  guideToSection(step);
+
+  const stepNode = stepRefs.current[step];
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (stepNode) {
+    stepNode.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
+  if (options?.focus) {
+    const requestFocus = () => {
+      setFocusRequestNonce((prev) => prev + 1);
+    };
+
+    if (prefersReducedMotion) {
+      requestAnimationFrame(requestFocus);
+    } else {
+      window.setTimeout(requestFocus, 220);
+    }
+  }
+};
+
+const handlePreviewInvoice = () => {
+  if (!invoiceReadyForPreview) {
+    setShowAllValidationErrors(true);
+    if (firstInvalidStep) {
+      scrollToStep(firstInvalidStep, { focus: true });
+      triggerToast("Complete the highlighted section before previewing.");
+    }
+    return;
+  }
+
+  try {
+    const previewFormData = {
+      ...formData,
+      tax: derivedTaxConfig,
+    };
+
+    window.localStorage.setItem(
+      PREVIEW_STORAGE_KEY,
+      JSON.stringify(previewFormData),
+    );
+
+    // Save Client to Master if checked (only for registered users)
+    if (shouldSaveNewClientMaster && !isGuestMode) {
+      import("@/lib/supabase/clients").then(({ upsertClient }) => {
+        upsertClient(formData.client).catch(console.error);
       });
     }
 
-    if (options?.focus) {
-      const requestFocus = () => {
-        setFocusRequestNonce((prev) => prev + 1);
-      };
-
-      if (prefersReducedMotion) {
-        requestAnimationFrame(requestFocus);
-      } else {
-        window.setTimeout(requestFocus, 220);
-      }
-    }
-  };
-
-  const handlePreviewInvoice = () => {
-    if (!invoiceReadyForPreview) {
-      setShowAllValidationErrors(true);
-      if (firstInvalidStep) {
-        scrollToStep(firstInvalidStep, { focus: true });
-        triggerToast("Complete the highlighted section before previewing.");
-      }
-      return;
-    }
-
-    try {
-      const previewFormData = {
-        ...formData,
-        tax: derivedTaxConfig,
-      };
-
-      window.localStorage.setItem(
-        PREVIEW_STORAGE_KEY,
-        JSON.stringify(previewFormData),
-      );
-
-      // Save Client to Master if checked (only for registered users)
-      if (shouldSaveNewClientMaster && !isGuestMode) {
-        import("@/lib/supabase/clients").then(({ upsertClient }) => {
-          upsertClient(formData.client).catch(console.error);
-        });
-      }
-
-      window.localStorage.setItem(
-        DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          formData,
-          currentStep: "totals",
-          savedAt: new Date().toISOString(),
-          documentId: parserDocumentId,
-          clientMsaNote,
-        } satisfies StoredDraft),
-      );
-      triggerToast("Preview ready");
-      playInteractionCue("previewReady");
-      router.push("/invoice/preview");
-    } catch (error) {
-      console.error("Failed to save preview data:", error);
-      alert("Could not open preview. Please try again.");
-    }
-  };
-
-  const persistDraft = () => {
     window.localStorage.setItem(
       DRAFT_STORAGE_KEY,
       JSON.stringify({
         formData,
-        currentStep,
+        currentStep: "totals",
         savedAt: new Date().toISOString(),
         documentId: parserDocumentId,
+        clientMsaNote,
       } satisfies StoredDraft),
     );
-  };
+    triggerToast("Preview ready");
+    playInteractionCue("previewReady");
+    router.push("/invoice/preview");
+  } catch (error) {
+    console.error("Failed to save preview data:", error);
+    alert("Could not open preview. Please try again.");
+  }
+};
 
-  const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
-    try {
-      persistDraft();
-      setShowExitModal(false);
-      triggerToast("Draft saved");
-      playInteractionCue("saveSuccess");
+const persistDraft = () => {
+  window.localStorage.setItem(
+    DRAFT_STORAGE_KEY,
+    JSON.stringify({
+      formData,
+      currentStep,
+      savedAt: new Date().toISOString(),
+      documentId: parserDocumentId,
+    } satisfies StoredDraft),
+  );
+};
 
-      if (!options?.stayOnPage) {
-        window.setTimeout(() => {
-          router.push("/");
-        }, 500);
-      }
-    } catch (error) {
-      console.error("Failed to save draft:", error);
-      alert("Could not save draft. Please try again.");
-    }
-  };
-
-  const handleSaveDraft = async () => {
-    // Always persist locally first — survives login redirect
+const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
+  try {
     persistDraft();
-
-    const userId = await getCurrentUserId();
-
-    if (!userId) {
-      // Not logged in — send to login with restore flag
-      const returnUrl = `/invoice/new?restore=1`;
-      router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
-      return;
-    }
-
-    // Logged in — cloud-save as draft
-    try {
-      let result;
-      if (clientMsaNote && parserDocumentId) {
-        // Re-issuing after negotiation
-        result = await reissueNegotiatedInvoice(parserDocumentId, formData);
-        if (!result.error) {
-          setClientMsaNote(null); // Clear local note state
-        }
-      } else {
-        // Regular save
-        result = await saveInvoice({
-          formData,
-          status: "draft" as InvoiceStatus,
-          existingId: parserDocumentId ?? undefined,
-        });
-        if (!result.error && result.data) {
-          setParserDocumentId(result.data.id);
-        }
-      }
-
-      if (!result.error) {
-        triggerToast(
-          clientMsaNote
-            ? "Reissued & saved to cloud ☁"
-            : "Draft saved to cloud ☁",
-        );
-        playInteractionCue("saveSuccess");
-      } else {
-        triggerToast("Saved locally (cloud save failed)");
-        playInteractionCue("saveSuccess");
-      }
-    } catch {
-      triggerToast("Saved locally");
-    }
-  };
-
-  const handleLoadDemoData = () => {
-    const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
-      ? formData.meta.invoiceNumber
-      : getNextInvoiceNumber();
-    const demo = getDemoData(demoInvoiceNumber);
-
-    const demoSuggestedDueDate = getSuggestedDueDate(
-      demo.meta.paymentTerms,
-      demo.meta.invoiceDate,
-    );
-
-    dueDateAutoManagedRef.current = demo.meta.dueDate === demoSuggestedDueDate;
-    lastAutoDueDateRef.current = demoSuggestedDueDate;
-
-    setFormData(mergeInvoiceFormData(demo));
-    setShowAllValidationErrors(false);
-    guideToSection("totals", { focus: true });
-    setIsBriefIntakeCollapsed(true);
-
-    triggerToast("Demo data loaded");
-  };
-
-  const handleClearDemoData = () => {
-    const freshInvoiceData = getFreshInvoiceData();
-    const suggestedDueDate = getSuggestedDueDate(
-      freshInvoiceData.meta.paymentTerms,
-      freshInvoiceData.meta.invoiceDate,
-    );
-
-    dueDateAutoManagedRef.current = true;
-    lastAutoDueDateRef.current = suggestedDueDate;
-
-    try {
-      window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
-      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch (error) {
-      console.error("Failed to clear local invoice state:", error);
-    }
-
-    setFormData(mergeInvoiceFormData(freshInvoiceData));
-    setShowAllValidationErrors(false);
-    guideToSection("agency", { focus: true });
-    setParserDocumentId(null);
     setShowExitModal(false);
-    setIsBriefIntakeCollapsed(false);
-    setBriefIntakeResetKey((prev) => prev + 1);
-    triggerToast("Demo data cleared");
-  };
-  void handleLoadDemoData;
-  void handleClearDemoData;
+    triggerToast("Draft saved");
+    playInteractionCue("saveSuccess");
 
-  const handleBriefAutofill = async (input: BriefIntakeInput) => {
-    // 1. Wipe state immediately to prevent hybrid merge between subsequent extractions
-    setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
-    setIsProcessingAutofill(true);
-    setExtractProgress(0);
+    if (!options?.stayOnPage) {
+      window.setTimeout(() => {
+        router.push("/");
+      }, 500);
+    }
+  } catch (error) {
+    console.error("Failed to save draft:", error);
+    alert("Could not save draft. Please try again.");
+  }
+};
 
-    const progressInterval = setInterval(() => {
-      setExtractProgress((prev) =>
-        prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1,
-      );
-    }, 300);
+const handleSaveDraft = async () => {
+  // Always persist locally first — survives login redirect
+  persistDraft();
 
-    try {
-      let ocrText = "";
+  const userId = await getCurrentUserId();
 
-      if (input.imageFiles?.length) {
-        const extractedChunks: string[] = [];
+  if (!userId) {
+    // Not logged in — send to login with restore flag
+    const returnUrl = `/invoice/new?restore=1`;
+    router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
+    return;
+  }
 
-        for (const file of input.imageFiles) {
-          try {
-            const extractedText = await extractTextFromImage(file);
-
-            if (extractedText.trim()) {
-              console.log(
-                `[Brief Intake OCR] Extracted text from ${file.name}:`,
-                extractedText,
-              );
-              extractedChunks.push(extractedText.trim());
-            }
-          } catch (error) {
-            console.error(`Failed OCR for ${file.name}:`, error);
-          }
-        }
-
-        ocrText = extractedChunks.join("\n\n");
+  // Logged in — cloud-save as draft
+  try {
+    let result;
+    if (clientMsaNote && parserDocumentId) {
+      // Re-issuing after negotiation
+      result = await reissueNegotiatedInvoice(parserDocumentId, formData);
+      if (!result.error) {
+        setClientMsaNote(null); // Clear local note state
       }
+    } else {
+      // Regular save
+      result = await saveInvoice({
+        formData,
+        status: "draft" as InvoiceStatus,
+        existingId: parserDocumentId ?? undefined,
+      });
+      if (!result.error && result.data) {
+        setParserDocumentId(result.data.id);
+      }
+    }
 
-      const normalizedInput = {
-        ...input,
-        ocrText,
-      };
+    if (!result.error) {
+      triggerToast(
+        clientMsaNote
+          ? "Reissued & saved to cloud ☁"
+          : "Draft saved to cloud ☁",
+      );
+      playInteractionCue("saveSuccess");
+    } else {
+      triggerToast("Saved locally (cloud save failed)");
+      playInteractionCue("saveSuccess");
+    }
+  } catch {
+    triggerToast("Saved locally");
+  }
+};
 
-      let aiExtraction: AiBriefExtraction | null = null;
-      let parserResponse: BriefParserResponse | null = null;
+const handleLoadDemoData = () => {
+  const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
+    ? formData.meta.invoiceNumber
+    : getNextInvoiceNumber();
+  const demo = getDemoData(demoInvoiceNumber);
 
-      if (
-        normalizedInput.text.trim() ||
-        normalizedInput.ocrText.trim() ||
-        normalizedInput.voiceTranscript?.trim()
-      ) {
+  const demoSuggestedDueDate = getSuggestedDueDate(
+    demo.meta.paymentTerms,
+    demo.meta.invoiceDate,
+  );
+
+  dueDateAutoManagedRef.current = demo.meta.dueDate === demoSuggestedDueDate;
+  lastAutoDueDateRef.current = demoSuggestedDueDate;
+
+  setFormData(mergeInvoiceFormData(demo));
+  setShowAllValidationErrors(false);
+  guideToSection("totals", { focus: true });
+  setIsBriefIntakeCollapsed(true);
+
+  triggerToast("Demo data loaded");
+};
+
+const handleClearDemoData = () => {
+  const freshInvoiceData = getFreshInvoiceData();
+  const suggestedDueDate = getSuggestedDueDate(
+    freshInvoiceData.meta.paymentTerms,
+    freshInvoiceData.meta.invoiceDate,
+  );
+
+  dueDateAutoManagedRef.current = true;
+  lastAutoDueDateRef.current = suggestedDueDate;
+
+  try {
+    window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
+    window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch (error) {
+    console.error("Failed to clear local invoice state:", error);
+  }
+
+  setFormData(mergeInvoiceFormData(freshInvoiceData));
+  setShowAllValidationErrors(false);
+  guideToSection("agency", { focus: true });
+  setParserDocumentId(null);
+  setShowExitModal(false);
+  setIsBriefIntakeCollapsed(false);
+  setBriefIntakeResetKey((prev) => prev + 1);
+  triggerToast("Demo data cleared");
+};
+void handleLoadDemoData;
+void handleClearDemoData;
+
+const handleBriefAutofill = async (input: BriefIntakeInput) => {
+  // 1. Wipe state immediately to prevent hybrid merge between subsequent extractions
+  setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
+  setIsProcessingAutofill(true);
+  setExtractProgress(0);
+
+  const progressInterval = setInterval(() => {
+    setExtractProgress((prev) =>
+      prev >= 95 ? 95 : prev + Math.floor(Math.random() * 5) + 1,
+    );
+  }, 300);
+
+  try {
+    let ocrText = "";
+
+    if (input.imageFiles?.length) {
+      const extractedChunks: string[] = [];
+
+      for (const file of input.imageFiles) {
         try {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-          const response = await fetch("/api/brief-extract", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(session?.access_token
-                ? { Authorization: `Bearer ${session.access_token}` }
-                : {}),
-            },
-            body: JSON.stringify({
-              raw_input: [
-                normalizedInput.text,
-                normalizedInput.ocrText,
-                normalizedInput.voiceTranscript ?? "",
-              ]
-                .filter(Boolean)
-                .join("\n\n"),
-              agency_context: {
-                businessName: formData.agency.agencyName,
-                full_name: "", // Could pull from profile if needed
-                city: formData.agency.city,
-                state: formData.agency.agencyState,
-                gstin: formData.agency.gstin,
-              },
-              client_context: selectedClientMsa
-                ? {
-                    id: selectedClientMsa.id,
-                    name: selectedClientMsa.client_name,
-                    email: selectedClientMsa.client_email,
-                    location:
-                      selectedClientMsa.country || selectedClientMsa.state,
-                    gstinOrTaxId: selectedClientMsa.gstin,
-                    msa: {
-                      payment_terms: selectedClientMsa.msa_payment_terms_days,
-                      late_fee: selectedClientMsa.msa_late_fee_rate,
-                      ip_trigger: selectedClientMsa.msa_ip_trigger_type,
-                      jurisdiction: selectedClientMsa.msa_jurisdiction_city,
-                    },
-                  }
-                : null,
-              documentId: parserDocumentId,
-              isRetry: isBriefRetry,
-            }),
-          });
+          const extractedText = await extractTextFromImage(file);
 
-          if (response.ok) {
-            const payload = (await response.json()) as {
-              extraction?: AiBriefExtraction | null;
-            };
-            aiExtraction = payload.extraction ?? null;
-
-            // Note: Parser response is now merged into extraction for Omniscient Agent
-            if (aiExtraction?.clientName?.value) {
-              // Optional: If AI identifies a specific client from context, we could sync it here
-            }
+          if (extractedText.trim()) {
+            console.log(
+              `[Brief Intake OCR] Extracted text from ${file.name}:`,
+              extractedText,
+            );
+            extractedChunks.push(extractedText.trim());
           }
         } catch (error) {
-          console.error("AI brief extraction request failed:", error);
+          console.error(`Failed OCR for ${file.name}:`, error);
         }
       }
 
-      const result = runBriefAutofill({
-        currentFormData: formData,
-        input: normalizedInput,
-        aiExtraction,
-      });
-      let parserHydration: ParsedInvoiceHydrationResult | null = null;
+      ocrText = extractedChunks.join("\n\n");
+    }
 
-      if (!result.normalizedText.trim()) {
-        triggerToast(
-          input.imageFiles?.length
-            ? "Could not extract text clearly. Try uploading a clearer image or paste text."
-            : "Add a text brief first to extract invoice details.",
-        );
-        return false;
-      }
+    const normalizedInput = {
+      ...input,
+      ocrText,
+    };
 
-      if (parserResponse) {
-        parserHydration = hydrateInvoiceFormFromParsedExtraction({
-          currentFormData: formData,
-          baseFormData: result.nextFormData,
-          parserResponse,
+    let aiExtraction: AiBriefExtraction | null = null;
+    let parserResponse: BriefParserResponse | null = null;
+
+    if (
+      normalizedInput.text.trim() ||
+      normalizedInput.ocrText.trim() ||
+      normalizedInput.voiceTranscript?.trim()
+    ) {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const response = await fetch("/api/brief-extract", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token
+              ? { Authorization: `Bearer ${session.access_token}` }
+              : {}),
+          },
+          body: JSON.stringify({
+            raw_input: [
+              normalizedInput.text,
+              normalizedInput.ocrText,
+              normalizedInput.voiceTranscript ?? "",
+            ]
+              .filter(Boolean)
+              .join("\n\n"),
+            agency_context: {
+              businessName: formData.agency.agencyName,
+              full_name: "", // Could pull from profile if needed
+              city: formData.agency.city,
+              state: formData.agency.agencyState,
+              gstin: formData.agency.gstin,
+            },
+            client_context: selectedClientMsa
+              ? {
+                id: selectedClientMsa.id,
+                name: selectedClientMsa.client_name,
+                email: selectedClientMsa.client_email,
+                location:
+                  selectedClientMsa.country || selectedClientMsa.state,
+                gstinOrTaxId: selectedClientMsa.gstin,
+                msa: {
+                  payment_terms: selectedClientMsa.msa_payment_terms_days,
+                  late_fee: selectedClientMsa.msa_late_fee_rate,
+                  ip_trigger: selectedClientMsa.msa_ip_trigger_type,
+                  jurisdiction: selectedClientMsa.msa_jurisdiction_city,
+                },
+              }
+              : null,
+            documentId: parserDocumentId,
+            isRetry: isBriefRetry,
+          }),
         });
-        console.log(
-          "=== PARSER HYDRATION SUCCESS ===",
-          parserHydration.nextFormData.lineItems[0],
-        );
-      } else {
-        console.log("=== PARSER RESPONSE IS NULL ===");
+
+        if (response.ok) {
+          const payload = (await response.json()) as {
+            extraction?: AiBriefExtraction | null;
+          };
+          aiExtraction = payload.extraction ?? null;
+
+          // Note: Parser response is now merged into extraction for Omniscient Agent
+          if (aiExtraction?.clientName?.value) {
+            // Optional: If AI identifies a specific client from context, we could sync it here
+          }
+        }
+      } catch (error) {
+        console.error("AI brief extraction request failed:", error);
       }
+    }
 
-      const hydratedFormData =
-        parserHydration?.nextFormData ?? result.nextFormData;
-      console.log(
-        "=== HYDRATED FORM DATA MERGE ===",
-        hydratedFormData.lineItems[0],
+    const result = runBriefAutofill({
+      currentFormData: formData,
+      input: normalizedInput,
+      aiExtraction,
+    });
+    let parserHydration: ParsedInvoiceHydrationResult | null = null;
+
+    if (!result.normalizedText.trim()) {
+      triggerToast(
+        input.imageFiles?.length
+          ? "Could not extract text clearly. Try uploading a clearer image or paste text."
+          : "Add a text brief first to extract invoice details.",
       );
+      return false;
+    }
 
-      const totalFilledFields = [
-        ...result.filledFields,
-        ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
-      ];
-
-      const nextSuggestedDueDate = getSuggestedDueDate(
-        hydratedFormData.meta.paymentTerms,
-        hydratedFormData.meta.invoiceDate,
-      );
-
-      const nextFormData =
-        !hydratedFormData.meta.dueDate && nextSuggestedDueDate
-          ? {
-              ...hydratedFormData,
-              meta: {
-                ...hydratedFormData.meta,
-                dueDate: nextSuggestedDueDate,
-              },
-            }
-          : hydratedFormData;
-
-      const mergedToSet = mergeInvoiceFormData(nextFormData);
-
-      // Check if Client is New
-      const clientName = mergedToSet.client.clientName.trim();
-      const isNewClient = Boolean(
-        clientName &&
-        !savedClients.some(
-          (c) => c.client_name.toLowerCase() === clientName.toLowerCase(),
-        ),
-      );
-
-      setExtractProgress(100);
-
-      // Open Summary Modal instead of instantly populating
-      setBriefSummaryData({
-        nextFormData: mergedToSet,
-        lowConfidence: result.lowConfidenceFieldSummaries,
-        confident: result.confidentFieldSummaries,
-        isNewClient,
+    if (parserResponse) {
+      parserHydration = hydrateInvoiceFormFromParsedExtraction({
+        currentFormData: formData,
+        baseFormData: result.nextFormData,
+        parserResponse,
       });
-
-      return true;
-    } finally {
-      clearInterval(progressInterval);
-      setIsProcessingAutofill(false);
+      console.log(
+        "=== PARSER HYDRATION SUCCESS ===",
+        parserHydration.nextFormData.lineItems[0],
+      );
+    } else {
+      console.log("=== PARSER RESPONSE IS NULL ===");
     }
-  };
 
-  const handleModalSubmit = (
-    finalData: InvoiceFormData,
-    saveClient: boolean,
-  ) => {
-    setShouldSaveNewClientMaster(saveClient);
-    setFormData(finalData);
-
-    const readyForPreview = isInvoiceReadyForPreview(finalData);
-    setBriefSummaryData(null);
-    setPostSubmitActionModal({ isOpen: true, isReady: readyForPreview });
-
-    setBriefIntakeResetKey(Date.now());
-    setIsBriefIntakeCollapsed(true);
-    setShowAllValidationErrors(true);
-
-    const missingStep = getFirstInvalidStep(finalData);
-    const recommendedStep = missingStep ?? "totals";
-    guideToSection(recommendedStep, { focus: true });
-  };
-
-  const handleParseAgain = () => {
-    setBriefSummaryData(null);
-    setIsBriefRetry(true);
-    triggerToast(
-      "Let's try that again. You can edit the brief or add more details.",
+    const hydratedFormData =
+      parserHydration?.nextFormData ?? result.nextFormData;
+    console.log(
+      "=== HYDRATED FORM DATA MERGE ===",
+      hydratedFormData.lineItems[0],
     );
-    setIsBriefIntakeCollapsed(false);
-  };
 
-  const handleContinueManually = (finalData: InvoiceFormData) => {
-    setFormData(finalData);
-    setBriefSummaryData(null);
-    setBriefIntakeResetKey(Date.now());
-    setIsBriefIntakeCollapsed(true);
-    setShowAllValidationErrors(true);
-  };
+    const totalFilledFields = [
+      ...result.filledFields,
+      ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
+    ];
 
-  const handleBackToHome = () => {
-    if (shouldConfirmExit) {
-      setShowExitModal(true);
-      return;
-    }
-    handleDiscardChanges();
-  };
-
-  const handleDiscardChanges = () => {
-    try {
-      window.localStorage.removeItem(DRAFT_STORAGE_KEY);
-      window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
-    } catch (e) {
-      console.error("Could not clear specific draft keys:", e);
-    }
-    router.push("/");
-  };
-
-  const handleMetaChange = (meta: InvoiceFormData["meta"]) => {
-    const previousDueDate = formData.meta.dueDate;
     const nextSuggestedDueDate = getSuggestedDueDate(
-      meta.paymentTerms,
-      meta.invoiceDate,
+      hydratedFormData.meta.paymentTerms,
+      hydratedFormData.meta.invoiceDate,
     );
 
-    if (meta.dueDate !== previousDueDate) {
-      const wasPreviousAutoDueDate =
-        !previousDueDate || previousDueDate === lastAutoDueDateRef.current;
+    const nextFormData =
+      !hydratedFormData.meta.dueDate && nextSuggestedDueDate
+        ? {
+          ...hydratedFormData,
+          meta: {
+            ...hydratedFormData.meta,
+            dueDate: nextSuggestedDueDate,
+          },
+        }
+        : hydratedFormData;
 
-      dueDateAutoManagedRef.current =
-        wasPreviousAutoDueDate && meta.dueDate === nextSuggestedDueDate;
+    const mergedToSet = mergeInvoiceFormData(nextFormData);
 
-      if (!dueDateAutoManagedRef.current) {
-        dueDateAutoManagedRef.current = false;
-      }
+    // Check if Client is New
+    const clientName = mergedToSet.client.clientName.trim();
+    const isNewClient = Boolean(
+      clientName &&
+      !savedClients.some(
+        (c) => c.client_name.toLowerCase() === clientName.toLowerCase(),
+      ),
+    );
+
+    setExtractProgress(100);
+
+    // Open Summary Modal instead of instantly populating
+    setBriefSummaryData({
+      nextFormData: mergedToSet,
+      lowConfidence: result.lowConfidenceFieldSummaries,
+      confident: result.confidentFieldSummaries,
+      isNewClient,
+    });
+
+    return true;
+  } finally {
+    clearInterval(progressInterval);
+    setIsProcessingAutofill(false);
+  }
+};
+
+const handleModalSubmit = (
+  finalData: InvoiceFormData,
+  saveClient: boolean,
+) => {
+  setShouldSaveNewClientMaster(saveClient);
+  setFormData(finalData);
+
+  const readyForPreview = isInvoiceReadyForPreview(finalData);
+  setBriefSummaryData(null);
+  setPostSubmitActionModal({ isOpen: true, isReady: readyForPreview });
+
+  setBriefIntakeResetKey(Date.now());
+  setIsBriefIntakeCollapsed(true);
+  setShowAllValidationErrors(true);
+
+  const missingStep = getFirstInvalidStep(finalData);
+  const recommendedStep = missingStep ?? "totals";
+  guideToSection(recommendedStep, { focus: true });
+};
+
+const handleParseAgain = () => {
+  setBriefSummaryData(null);
+  setIsBriefRetry(true);
+  triggerToast(
+    "Let's try that again. You can edit the brief or add more details.",
+  );
+  setIsBriefIntakeCollapsed(false);
+};
+
+const handleContinueManually = (finalData: InvoiceFormData) => {
+  setFormData(finalData);
+  setBriefSummaryData(null);
+  setBriefIntakeResetKey(Date.now());
+  setIsBriefIntakeCollapsed(true);
+  setShowAllValidationErrors(true);
+};
+
+const handleBackToHome = () => {
+  if (shouldConfirmExit) {
+    setShowExitModal(true);
+    return;
+  }
+  handleDiscardChanges();
+};
+
+const handleDiscardChanges = () => {
+  try {
+    window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
+  } catch (e) {
+    console.error("Could not clear specific draft keys:", e);
+  }
+  router.push("/");
+};
+
+const handleMetaChange = (meta: InvoiceFormData["meta"]) => {
+  const previousDueDate = formData.meta.dueDate;
+  const nextSuggestedDueDate = getSuggestedDueDate(
+    meta.paymentTerms,
+    meta.invoiceDate,
+  );
+
+  if (meta.dueDate !== previousDueDate) {
+    const wasPreviousAutoDueDate =
+      !previousDueDate || previousDueDate === lastAutoDueDateRef.current;
+
+    dueDateAutoManagedRef.current =
+      wasPreviousAutoDueDate && meta.dueDate === nextSuggestedDueDate;
+
+    if (!dueDateAutoManagedRef.current) {
+      dueDateAutoManagedRef.current = false;
     }
+  }
 
-    setFormData((prev) => ({
+  setFormData((prev) => ({
+    ...prev,
+    meta,
+  }));
+};
+
+const updateFormSection = <K extends keyof InvoiceFormData>(
+  section: K,
+  data: InvoiceFormData[K],
+) => {
+  setFormData((prev) =>
+    mergeInvoiceFormData({
       ...prev,
-      meta,
-    }));
-  };
+      [section]: data,
+    }),
+  );
+};
 
-  const updateFormSection = <K extends keyof InvoiceFormData>(
-    section: K,
-    data: InvoiceFormData[K],
-  ) => {
-    setFormData((prev) =>
-      mergeInvoiceFormData({
-        ...prev,
-        [section]: data,
-      }),
-    );
-  };
+const handleClientSelect = (client: SavedClient) => {
+  const syncedData = syncMsaToInvoice(formData, client);
+  setFormData(syncedData);
+  setSelectedClientMsa(client);
+  playInteractionCue("stepComplete");
+};
 
-  const handleClientSelect = (client: SavedClient) => {
-    const syncedData = syncMsaToInvoice(formData, client);
-    setFormData(syncedData);
-    setSelectedClientMsa(client);
-    playInteractionCue("stepComplete");
-  };
-
-  const renderStepContent = (step: InvoiceStepperStep) => {
-    switch (step) {
-      case "agency":
-        return (
-          <AgencyDetailsSection
-            embedded
-            value={{ ...formData.agency, profileLogoUrl }}
-            onChange={(agency) => updateFormSection("agency", agency)}
-            errors={fieldErrors.agency}
-            showAllErrors={showAllValidationErrors}
-          />
-        );
-      case "client":
-        return (
-          <ClientDetailsSection
-            value={formData.client}
-            onChange={(client) => updateFormSection("client", client)}
-            onClientSelect={handleClientSelect}
-            errors={fieldErrors.client}
-            showAllErrors={showAllValidationErrors}
-            savedClients={savedClients}
-            agency={formData.agency}
-          />
-        );
-      case "deliverables":
-        return (
-          <DeliverablesSection
-            embedded
-            value={formData.lineItems}
-            currency={displayCurrency}
-            onChange={(lineItems) =>
-              setFormData((prev) => ({
+const renderStepContent = (step: InvoiceStepperStep) => {
+  switch (step) {
+    case "agency":
+      return (
+        <AgencyDetailsSection
+          embedded
+          value={{ ...formData.agency, profileLogoUrl }}
+          onChange={(agency) => updateFormSection("agency", agency)}
+          errors={fieldErrors.agency}
+          showAllErrors={showAllValidationErrors}
+        />
+      );
+    case "client":
+      return (
+        <ClientDetailsSection
+          value={formData.client}
+          onChange={(client) => updateFormSection("client", client)}
+          onClientSelect={handleClientSelect}
+          errors={fieldErrors.client}
+          showAllErrors={showAllValidationErrors}
+          savedClients={savedClients}
+          agency={formData.agency}
+        />
+      );
+    case "deliverables":
+      return (
+        <DeliverablesSection
+          embedded
+          value={formData.lineItems}
+          currency={displayCurrency}
+          onChange={(lineItems) =>
+            setFormData((prev) => ({
+              ...prev,
+              lineItems,
+            }))
+          }
+          errors={fieldErrors.lineItems}
+          showAllErrors={showAllValidationErrors}
+        />
+      );
+    case "payment":
+      return (
+        <TermsPaymentSection
+          embedded
+          value={{ ...formData.payment, profileQrUrl }}
+          meta={formData.meta}
+          clientLocation={formData.client.clientLocation}
+          selectedClientMsa={selectedClientMsa}
+          onChange={(payment) =>
+            setFormData((prev) =>
+              mergeInvoiceFormData({
                 ...prev,
-                lineItems,
-              }))
-            }
-            errors={fieldErrors.lineItems}
-            showAllErrors={showAllValidationErrors}
-          />
-        );
-      case "payment":
-        return (
-          <TermsPaymentSection
-            embedded
-            value={{ ...formData.payment, profileQrUrl }}
-            meta={formData.meta}
-            clientLocation={formData.client.clientLocation}
-            selectedClientMsa={selectedClientMsa}
-            onChange={(payment) =>
-              setFormData((prev) =>
-                mergeInvoiceFormData({
-                  ...prev,
-                  payment,
-                }),
-              )
-            }
-            onMetaChange={handleMetaChange}
-            paymentTermsError={fieldErrors.meta.paymentTerms}
-            errors={fieldErrors.payment}
-            showAllErrors={showAllValidationErrors}
-          />
-        );
-      case "meta":
-        return (
-          <InvoiceMetaSection
-            embedded
-            value={formData.meta}
-            onChange={handleMetaChange}
-            errors={{
-              invoiceNumber: fieldErrors.meta.invoiceNumber,
-              invoiceDate: fieldErrors.meta.invoiceDate,
-              dueDate: fieldErrors.meta.dueDate,
-            }}
-            showAllErrors={showAllValidationErrors}
-          />
-        );
-      case "totals":
-        return (
-          <TotalsTaxesSection
-            embedded
-            value={derivedTaxConfig}
-            computed={computedTotals}
-            currency={displayCurrency}
-            isLocked
-            modeLabel="Tax Type"
-            rateLabel="Total Tax %"
-            gstOptionLabel="CGST + SGST"
-            complianceMessage={totalsComplianceMessage}
-            complianceVariant={totalsComplianceVariant}
-            exportTaxDecision={effectiveExportTaxDecision}
-            exportTaxHelperNote={exportTaxHelperNote}
-            estimatedIgstLiability={estimatedIgstLiability}
-            grandTotalReferenceLabel={
-              showApproximateUsdReference
-                ? "Approx. USD total (reference only)"
-                : ""
-            }
-            grandTotalReferenceAmount={approximateUsdGrandTotal}
-            settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
-            onExportTaxDecisionChange={
-              showInternationalExportDecision
-                ? (noLutTaxHandling) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      agency: {
-                        ...prev.agency,
-                        noLutTaxHandling,
-                      },
-                    }))
-                : undefined
-            }
-            onChange={(tax) =>
-              setFormData((prev) => ({
-                ...prev,
-                tax,
-              }))
-            }
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  console.log("=== FINAL RENDER FORM DATA ===", {
-    agencyName: formData.agency.agencyName,
-    clientState: formData.client.clientState,
-    lineItemsRate: formData.lineItems[0]?.rate,
-    computedSubtotal: computedTotals.subtotal,
-  });
-
-  return (
-    <main suppressHydrationWarning className={appPageShellClass}>
-      <AnimatePresence>
-        {isProcessingAutofill && (
-          <motion.div
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--bg-canvas)]/60"
-          >
-            <div className="flex flex-col items-center gap-6">
-              <div className="relative flex h-24 w-24 items-center justify-center">
-                <div className="absolute inset-0 animate-ping rounded-full bg-[color:var(--interactive-primary)] opacity-20 duration-1000"></div>
-                <div className="absolute inset-2 animate-pulse rounded-full bg-[color:var(--interactive-secondary)] opacity-40 duration-700"></div>
-                <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
-                  Scanning & Translating {extractProgress}%
-                </h2>
-                <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
-                  Lance is scanning your brief to structure the invoice...
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <UploadToast message={toastMessage} visible={showToast} />
-
-      {/* Editor Background Aesthetic Elements */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl"></div>
-        <div className="absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl"></div>
-        <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl"></div>
-        {/* Subtle grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
+                payment,
+              }),
+            )
+          }
+          onMetaChange={handleMetaChange}
+          paymentTermsError={fieldErrors.meta.paymentTerms}
+          errors={fieldErrors.payment}
+          showAllErrors={showAllValidationErrors}
+        />
+      );
+    case "meta":
+      return (
+        <InvoiceMetaSection
+          embedded
+          value={formData.meta}
+          onChange={handleMetaChange}
+          errors={{
+            invoiceNumber: fieldErrors.meta.invoiceNumber,
+            invoiceDate: fieldErrors.meta.invoiceDate,
+            dueDate: fieldErrors.meta.dueDate,
           }}
-        ></div>
-      </div>
+          showAllErrors={showAllValidationErrors}
+        />
+      );
+    case "totals":
+      return (
+        <TotalsTaxesSection
+          embedded
+          value={derivedTaxConfig}
+          computed={computedTotals}
+          currency={displayCurrency}
+          isLocked
+          modeLabel="Tax Type"
+          rateLabel="Total Tax %"
+          gstOptionLabel="CGST + SGST"
+          complianceMessage={totalsComplianceMessage}
+          complianceVariant={totalsComplianceVariant}
+          exportTaxDecision={effectiveExportTaxDecision}
+          exportTaxHelperNote={exportTaxHelperNote}
+          estimatedIgstLiability={estimatedIgstLiability}
+          grandTotalReferenceLabel={
+            showApproximateUsdReference
+              ? "Approx. USD total (reference only)"
+              : ""
+          }
+          grandTotalReferenceAmount={approximateUsdGrandTotal}
+          settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
+          onExportTaxDecisionChange={
+            showInternationalExportDecision
+              ? (noLutTaxHandling) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  agency: {
+                    ...prev.agency,
+                    noLutTaxHandling,
+                  },
+                }))
+              : undefined
+          }
+          onChange={(tax) =>
+            setFormData((prev) => ({
+              ...prev,
+              tax,
+            }))
+          }
+        />
+      );
+    default:
+      return null;
+  }
+};
 
-      <AppHeader rightSlot={<LogoutButton />} />
+console.log("=== FINAL RENDER FORM DATA ===", {
+  agencyName: formData.agency.agencyName,
+  clientState: formData.client.clientState,
+  lineItemsRate: formData.lineItems[0]?.rate,
+  computedSubtotal: computedTotals.subtotal,
+});
 
-      <section
-        className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}
-      >
-        <div className="mx-auto w-full max-w-[1328px]">
-          {/* Profile Completion Prompt */}
-          {showProfilePrompt && (
-            <MotionReveal preset="fade-up" className="mb-6">
-              <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
-                    ✨
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
-                      Complete your professional profile
-                    </h3>
-                    <p className="text-[13px] text-[color:var(--text-secondary)]">
-                      Upload your agency logo, signature, and payment QR for
-                      faster, more compliant invoices.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowProfilePrompt(false)}
-                    className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
-                  >
-                    Later
-                  </button>
-                  <Link
-                    href="/profile"
-                    className={getAppButtonClass({
-                      variant: "primary",
-                      size: "sm",
-                    })}
-                  >
-                    Finish Profile
-                  </Link>
-                </div>
-              </div>
-            </MotionReveal>
-          )}
-        </div>
-        <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
-          <div
-            className={`mx-auto w-full max-w-4xl pb-32 lg:col-start-2 ${appSectionGapClass}`}
-          >
-            <div className="space-y-4">
-              {clientMsaNote && (
-                <MotionReveal preset="fade-up" className="mb-2">
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                        <svg
-                          className="h-4 w-4"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2.5}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800">
-                          Client Negotiation Note
-                        </h4>
-                        <p className="mt-1 text-sm leading-relaxed text-amber-900 font-medium">
-                          &quot;{clientMsaNote}&quot;
-                        </p>
-                        <p className="mt-2 text-[11px] text-amber-700">
-                          Please update the invoice details based on the
-                          client&apos;s request above.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </MotionReveal>
-              )}
-
-              <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
-                <BriefIntakeCard
-                  key={briefIntakeResetKey}
-                  onExtract={handleBriefAutofill}
-                  onPlaceholderAction={triggerToast}
-                  isCollapsed={isBriefIntakeCollapsed}
-                  onCollapsedChange={setIsBriefIntakeCollapsed}
-                  userEmail={userEmail}
-                />
-              </div>
-
-              <div
-                className={cn(
-                  getAppSubtlePanelClass("muted"),
-                  "px-4 py-3 lg:hidden",
-                )}
-                data-testid="compact-progress-summary"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                      Progress
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
-                      {completedStepCount} of {orderedSteps.length} sections
-                      ready
-                    </p>
-                  </div>
-                  <span
-                    className={getAppStatusPillClass(
-                      firstInvalidStep ? "default" : "success",
-                    )}
-                  >
-                    {firstInvalidStep
-                      ? `Next: ${getStepShortLabel(firstInvalidStep)}`
-                      : "Ready for preview"}
-                  </span>
-                </div>
-                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[color:var(--border-subtle)]">
-                  <div
-                    className="h-full rounded-full bg-[color:var(--interactive-secondary)] transition-all duration-500"
-                    style={{
-                      width: `${Math.round(
-                        (completedStepCount / orderedSteps.length) * 100,
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div
-                className="space-y-4 overflow-visible"
-                data-testid="invoice-vertical-stepper"
-              >
-                {orderedSteps.map((step) => {
-                  const isActive = currentStep === step;
-                  const isCompleted = displayStepValidityByStep[step];
-
-                  return (
-                    <div
-                      key={step}
-                      ref={(node) => {
-                        stepRefs.current[step] = node;
-                      }}
-                      onFocusCapture={() => {
-                        if (currentStep !== step) {
-                          setCurrentStep(step);
-                        }
-                      }}
-                      style={{ display: isActive ? "block" : "none" }}
-                    >
-                      <InlineStepSection
-                        step={step}
-                        isActive={isActive}
-                        isCompleted={isCompleted}
-                        issueCount={missingFieldCountByStep[step]}
-                        onActivate={() => guideToSection(step)}
-                        footer={
-                          getNextStep(step) ? (
-                            <div className="flex justify-end pt-2">
-                              <button
-                                type="button"
-                                disabled={!stepValidityByStep[step]}
-                                data-testid={`continue-${step}-to-${getNextStep(step)}`}
-                                onMouseDown={(event) => event.preventDefault()}
-                                onClick={() =>
-                                  guideToSection(getNextStep(step)!, {
-                                    focus: true,
-                                  })
-                                }
-                                className={cn(
-                                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
-                                  !stepValidityByStep[step]
-                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
-                                )}
-                              >
-                                Continue to{" "}
-                                {getStepShortLabel(getNextStep(step)!)}
-                              </button>
-                            </div>
-                          ) : null
-                        }
-                      >
-                        <div
-                          onKeyDownCapture={(event) =>
-                            handleSectionKeyDownCapture(step, event)
-                          }
-                        >
-                          {renderStepContent(step)}
-                        </div>
-                      </InlineStepSection>
-                    </div>
-                  );
-                })}
-              </div>
+return (
+  <main suppressHydrationWarning className={appPageShellClass}>
+    <AnimatePresence>
+      {isProcessingAutofill && (
+        <motion.div
+          initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+          exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--bg-canvas)]/60"
+        >
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative flex h-24 w-24 items-center justify-center">
+              <div className="absolute inset-0 animate-ping rounded-full bg-[color:var(--interactive-primary)] opacity-20 duration-1000"></div>
+              <div className="absolute inset-2 animate-pulse rounded-full bg-[color:var(--interactive-secondary)] opacity-40 duration-700"></div>
+              <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
+                Scanning & Translating {extractProgress}%
+              </h2>
+              <p className="max-w-xs text-center text-sm text-[color:var(--text-muted)] animate-pulse">
+                Lance is scanning your brief to structure the invoice...
+              </p>
             </div>
           </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    <UploadToast message={toastMessage} visible={showToast} />
 
-          <aside
-            className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]"
-            data-testid="desktop-support-rail"
-          >
-            <div className="space-y-3">
-              <MotionReveal
-                preset="fade-up"
-                delay={40}
-                className={cn(
-                  getAppSubtlePanelClass("muted"),
-                  "invoice-step-rail rounded-[16px] px-3 py-3",
-                )}
-              >
-                <div
-                  className="space-y-3"
-                  data-testid="support-rail-section-list"
+    {/* Editor Background Aesthetic Elements */}
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl"></div>
+      <div className="absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl"></div>
+      <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl"></div>
+      {/* Subtle grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      ></div>
+    </div>
+
+    <AppHeader rightSlot={<LogoutButton />} />
+
+    <section
+      className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}
+    >
+      <div className="mx-auto w-full max-w-[1328px]">
+        {/* Profile Completion Prompt */}
+        {showProfilePrompt && (
+          <MotionReveal preset="fade-up" className="mb-6">
+            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
+                  ✨
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
+                    Complete your professional profile
+                  </h3>
+                  <p className="text-[13px] text-[color:var(--text-secondary)]">
+                    Upload your agency logo, signature, and payment QR for
+                    faster, more compliant invoices.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowProfilePrompt(false)}
+                  className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
                 >
-                  <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                      Editor progress
-                    </p>
-                    <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
-                      {completedStepCount} of {orderedSteps.length} ready
-                    </p>
-                  </div>
-
-                  <div className="invoice-step-rail-track relative space-y-1 pl-3">
-                    {orderedSteps.map((step, index) => {
-                      const isActive = currentStep === step;
-                      const isCompleted =
-                        displayStepValidityByStep[step] && !isActive;
-                      const isIncomplete = !displayStepValidityByStep[step];
-                      const stepState = isActive
-                        ? "active"
-                        : isCompleted
-                          ? "completed"
-                          : "pending";
-                      const railStatus =
-                        step === "totals" && !invoiceReadyForPreview
-                          ? "Pending"
-                          : isActive
-                            ? missingFieldCountByStep[step] > 0
-                              ? `${missingFieldCountByStep[step]} required`
-                              : "In progress"
-                            : isCompleted
-                              ? "Ready"
-                              : isIncomplete &&
-                                  missingFieldCountByStep[step] > 0
-                                ? `${missingFieldCountByStep[step]} required`
-                                : firstInvalidStep === step
-                                  ? "Up next"
-                                  : "Pending";
-
-                      return (
-                        <button
-                          key={step}
-                          type="button"
-                          onClick={() => scrollToStep(step)}
-                          data-rail-state={stepState}
-                          className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
-                        >
-                          <div className="flex min-w-0 items-start gap-2">
-                            <span className="invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold">
-                              {isCompleted ? "✓" : index + 1}
-                            </span>
-                            <div className="min-w-0 space-y-1">
-                              <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
-                                {getStepShortLabel(step)}
-                              </p>
-                              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                                {railStatus}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+                  Later
+                </button>
+                <Link
+                  href="/profile"
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    size: "sm",
+                  })}
+                >
+                  Finish Profile
+                </Link>
+              </div>
+            </div>
+          </MotionReveal>
+        )}
+      </div>
+      <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
+        <div
+          className={`mx-auto w-full max-w-4xl pb-32 lg:col-start-2 ${appSectionGapClass}`}
+        >
+          <div className="space-y-4">
+            {clientMsaNote && (
+              <MotionReveal preset="fade-up" className="mb-2">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                        Client Negotiation Note
+                      </h4>
+                      <p className="mt-1 text-sm leading-relaxed text-amber-900 font-medium">
+                        &quot;{clientMsaNote}&quot;
+                      </p>
+                      <p className="mt-2 text-[11px] text-amber-700">
+                        Please update the invoice details based on the
+                        client&apos;s request above.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </MotionReveal>
+            )}
+
+            <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
+              <BriefIntakeCard
+                key={briefIntakeResetKey}
+                onExtract={handleBriefAutofill}
+                onPlaceholderAction={triggerToast}
+                isCollapsed={isBriefIntakeCollapsed}
+                onCollapsedChange={setIsBriefIntakeCollapsed}
+                userEmail={userEmail}
+              />
             </div>
-          </aside>
-        </div>
-      </section>
 
-      <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:bottom-auto sm:left-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2 sm:w-auto">
-        <div
-          className={cn(
-            "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3",
-          )}
-          data-testid="floating-editor-actions"
-        >
-          <button
-            type="button"
-            onClick={handleBackToHome}
-            className={cn(
-              getAppButtonClass({ variant: "ghost", size: "sm" }),
-              "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
-            )}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveDraft}
-            className={cn(
-              getAppButtonClass({ variant: "ghost", size: "sm" }),
-              "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
-            )}
-          >
-            <SaveIcon className="h-4 w-4" />
-            Draft
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePreviewInvoice}
-            disabled={!invoiceReadyForPreview}
-            aria-label={
-              invoiceReadyForPreview
-                ? "Preview and download your invoice"
-                : firstInvalidStep
-                  ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
-                  : "Complete all sections to preview"
-            }
-            className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
-              !invoiceReadyForPreview
-                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
-            )}
-          >
-            <EyeIcon className="h-4 w-4" />
-            Preview
-          </button>
-        </div>
-      </div>
-
-
-
-      {showExitModal && (
-        <ExitConfirmModal
-          onClose={() => setShowExitModal(false)}
-          onSkip={handleDiscardChanges}
-          onSaveDraft={handleSaveDraft}
-        />
-      )}
-
-      {briefSummaryData && (
-        <BriefSummaryModal
-          isOpen={true}
-          extractedData={briefSummaryData.nextFormData}
-          lowConfidenceFields={briefSummaryData.lowConfidence}
-          confidentFields={briefSummaryData.confident}
-          missingFieldsGroups={missingFieldGroups}
-          isNewClient={briefSummaryData.isNewClient}
-          isLoggedIn={!isGuestMode}
-          onContinueManually={handleContinueManually}
-          onParseAgain={handleParseAgain}
-          onSubmit={handleModalSubmit}
-        />
-      )}
-
-      {postSubmitActionModal?.isOpen && (
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 10 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="flex w-full max-w-sm flex-col overflow-hidden rounded-[20px] bg-[#111118] border border-[color:var(--border-subtle)] p-6 shadow-2xl"
+            <div
+              className={cn(
+                getAppSubtlePanelClass("muted"),
+                "px-4 py-3 lg:hidden",
+              )}
+              data-testid="compact-progress-summary"
             >
-              <h3 className="text-lg font-bold text-white mb-2">
-                {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
-              </h3>
-              <p className="text-sm text-[color:var(--text-muted)] mb-6">
-                {postSubmitActionModal.isReady
-                  ? "Your invoice is ready. What would you like to do next?"
-                  : "We need a few more details to generate the preview. Let's review the form."}
-              </p>
-              <div className="flex flex-col gap-3">
-                {postSubmitActionModal.isReady && (
-                  <button
-                    onClick={() => {
-                      setPostSubmitActionModal(null);
-                      handlePreviewInvoice();
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Progress
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
+                    {completedStepCount} of {orderedSteps.length} sections
+                    ready
+                  </p>
+                </div>
+                <span
+                  className={getAppStatusPillClass(
+                    firstInvalidStep ? "default" : "success",
+                  )}
+                >
+                  {firstInvalidStep
+                    ? `Next: ${getStepShortLabel(firstInvalidStep)}`
+                    : "Ready for preview"}
+                </span>
+              </div>
+              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[color:var(--border-subtle)]">
+                <div
+                  className="h-full rounded-full bg-[color:var(--interactive-secondary)] transition-all duration-500"
+                  style={{
+                    width: `${Math.round(
+                      (completedStepCount / orderedSteps.length) * 100,
+                    )}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div
+              className="space-y-4 overflow-visible"
+              data-testid="invoice-vertical-stepper"
+            >
+              {orderedSteps.map((step) => {
+                const isActive = currentStep === step;
+                const isCompleted = displayStepValidityByStep[step];
+
+                return (
+                  <div
+                    key={step}
+                    ref={(node) => {
+                      stepRefs.current[step] = node;
                     }}
-                    className={getAppButtonClass({
-                      variant: "primary",
-                      size: "md",
-                    })}
+                    onFocusCapture={() => {
+                      if (currentStep !== step) {
+                        setCurrentStep(step);
+                      }
+                    }}
+                    style={{ display: isActive ? "block" : "none" }}
                   >
-                    Check Preview
-                  </button>
-                )}
+                    <InlineStepSection
+                      step={step}
+                      isActive={isActive}
+                      isCompleted={isCompleted}
+                      issueCount={missingFieldCountByStep[step]}
+                      onActivate={() => guideToSection(step)}
+                      footer={
+                        getNextStep(step) ? (
+                          <div className="flex justify-end pt-2">
+                            <button
+                              type="button"
+                              disabled={!stepValidityByStep[step]}
+                              data-testid={`continue-${step}-to-${getNextStep(step)}`}
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() =>
+                                guideToSection(getNextStep(step)!, {
+                                  focus: true,
+                                })
+                              }
+                              className={cn(
+                                "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                                !stepValidityByStep[step]
+                                  ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+                                  : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                              )}
+                            >
+                              Continue to{" "}
+                              {getStepShortLabel(getNextStep(step)!)}
+                            </button>
+                          </div>
+                        ) : null
+                      }
+                    >
+                      <div
+                        onKeyDownCapture={(event) =>
+                          handleSectionKeyDownCapture(step, event)
+                        }
+                      >
+                        {renderStepContent(step)}
+                      </div>
+                    </InlineStepSection>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <aside
+          className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]"
+          data-testid="desktop-support-rail"
+        >
+          <div className="space-y-3">
+            <MotionReveal
+              preset="fade-up"
+              delay={40}
+              className={cn(
+                getAppSubtlePanelClass("muted"),
+                "invoice-step-rail rounded-[16px] px-3 py-3",
+              )}
+            >
+              <div
+                className="space-y-3"
+                data-testid="support-rail-section-list"
+              >
+                <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Editor progress
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
+                    {completedStepCount} of {orderedSteps.length} ready
+                  </p>
+                </div>
+
+                <div className="invoice-step-rail-track relative space-y-1 pl-3">
+                  {orderedSteps.map((step, index) => {
+                    const isActive = currentStep === step;
+                    const isCompleted =
+                      displayStepValidityByStep[step] && !isActive;
+                    const isIncomplete = !displayStepValidityByStep[step];
+                    const stepState = isActive
+                      ? "active"
+                      : isCompleted
+                        ? "completed"
+                        : "pending";
+                    const railStatus =
+                      step === "totals" && !invoiceReadyForPreview
+                        ? "Pending"
+                        : isActive
+                          ? missingFieldCountByStep[step] > 0
+                            ? `${missingFieldCountByStep[step]} required`
+                            : "In progress"
+                          : isCompleted
+                            ? "Ready"
+                            : isIncomplete &&
+                              missingFieldCountByStep[step] > 0
+                              ? `${missingFieldCountByStep[step]} required`
+                              : firstInvalidStep === step
+                                ? "Up next"
+                                : "Pending";
+
+                    return (
+                      <button
+                        key={step}
+                        type="button"
+                        onClick={() => scrollToStep(step)}
+                        data-rail-state={stepState}
+                        className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
+                      >
+                        <div className="flex min-w-0 items-start gap-2">
+                          <span className="invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold">
+                            {isCompleted ? "✓" : index + 1}
+                          </span>
+                          <div className="min-w-0 space-y-1">
+                            <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
+                              {getStepShortLabel(step)}
+                            </p>
+                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                              {railStatus}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </MotionReveal>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:bottom-auto sm:left-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2 sm:w-auto">
+      <div
+        className={cn(
+          "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3",
+        )}
+        data-testid="floating-editor-actions"
+      >
+        <button
+          type="button"
+          onClick={handleBackToHome}
+          className={cn(
+            getAppButtonClass({ variant: "ghost", size: "sm" }),
+            "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+          )}
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          onClick={handleSaveDraft}
+          className={cn(
+            getAppButtonClass({ variant: "ghost", size: "sm" }),
+            "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
+          )}
+        >
+          <SaveIcon className="h-4 w-4" />
+          Draft
+        </button>
+
+        <button
+          type="button"
+          onClick={handlePreviewInvoice}
+          disabled={!invoiceReadyForPreview}
+          aria-label={
+            invoiceReadyForPreview
+              ? "Preview and download your invoice"
+              : firstInvalidStep
+                ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
+                : "Complete all sections to preview"
+          }
+          className={cn(
+            "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
+            !invoiceReadyForPreview
+              ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+              : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+          )}
+        >
+          <EyeIcon className="h-4 w-4" />
+          Preview
+        </button>
+      </div>
+    </div>
+
+
+
+    {showExitModal && (
+      <ExitConfirmModal
+        onClose={() => setShowExitModal(false)}
+        onSkip={handleDiscardChanges}
+        onSaveDraft={handleSaveDraft}
+      />
+    )}
+
+    {briefSummaryData && (
+      <BriefSummaryModal
+        isOpen={true}
+        extractedData={briefSummaryData.nextFormData}
+        lowConfidenceFields={briefSummaryData.lowConfidence}
+        confidentFields={briefSummaryData.confident}
+        missingFieldsGroups={missingFieldGroups}
+        isNewClient={briefSummaryData.isNewClient}
+        isLoggedIn={!isGuestMode}
+        onContinueManually={handleContinueManually}
+        onParseAgain={handleParseAgain}
+        onSubmit={handleModalSubmit}
+      />
+    )}
+
+    {postSubmitActionModal?.isOpen && (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="flex w-full max-w-sm flex-col overflow-hidden rounded-[20px] bg-[#111118] border border-[color:var(--border-subtle)] p-6 shadow-2xl"
+          >
+            <h3 className="text-lg font-bold text-white mb-2">
+              {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
+            </h3>
+            <p className="text-sm text-[color:var(--text-muted)] mb-6">
+              {postSubmitActionModal.isReady
+                ? "Your invoice is ready. What would you like to do next?"
+                : "We need a few more details to generate the preview. Let's review the form."}
+            </p>
+            <div className="flex flex-col gap-3">
+              {postSubmitActionModal.isReady && (
                 <button
-                  onClick={() => setPostSubmitActionModal(null)}
+                  onClick={() => {
+                    setPostSubmitActionModal(null);
+                    handlePreviewInvoice();
+                  }}
                   className={getAppButtonClass({
-                    variant: postSubmitActionModal.isReady
-                      ? "ghost"
-                      : "primary",
+                    variant: "primary",
                     size: "md",
                   })}
                 >
-                  Review Invoice
+                  Check Preview
                 </button>
-              </div>
-            </motion.div>
+              )}
+              <button
+                onClick={() => setPostSubmitActionModal(null)}
+                className={getAppButtonClass({
+                  variant: postSubmitActionModal.isReady
+                    ? "ghost"
+                    : "primary",
+                  size: "md",
+                })}
+              >
+                Review Invoice
+              </button>
+            </div>
           </motion.div>
-        </AnimatePresence>
-      )}
-    </main>
-  );
+        </motion.div>
+      </AnimatePresence>
+    )}
+  </main>
+);
 }
