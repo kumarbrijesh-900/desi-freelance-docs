@@ -96,6 +96,9 @@ export default function DeliverablesSection({
   const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>(
     {},
   );
+  const milestoneTitleRefs = useRef<Record<string, HTMLInputElement | null>>(
+    {},
+  );
   const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
   const closeDescriptionAssist = (id: string) =>
     setActiveDescriptionId((current) => (current === id ? null : current));
@@ -363,15 +366,23 @@ export default function DeliverablesSection({
                     </div>
                     <div className="flex items-center gap-3 group/title">
                       <input
+                        ref={(el) => {
+                          milestoneTitleRefs.current[header.id] = el;
+                        }}
                         type="text"
                         value={header.description}
                         onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
                         placeholder="e.g. Phase 1: Discovery & Strategy"
                         className="flex-1 border-none bg-transparent p-0 text-[18px] font-extrabold tracking-tight text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] focus:ring-0"
                       />
-                      <div className="flex items-center justify-center h-8 w-8 rounded-full opacity-60 group-hover/title:opacity-100 group-hover/title:bg-gray-100/50 transition-all">
+                      <button
+                        type="button"
+                        onClick={() => milestoneTitleRefs.current[header.id]?.focus()}
+                        className="flex items-center justify-center h-8 w-8 rounded-full opacity-60 group-hover/title:opacity-100 group-hover/title:bg-gray-100/50 transition-all cursor-pointer"
+                        aria-label="Edit milestone title"
+                      >
                         <PencilIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
-                      </div>
+                      </button>
                     </div>
                   </div>
 
