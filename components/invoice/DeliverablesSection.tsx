@@ -354,7 +354,7 @@ export default function DeliverablesSection({
                 className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden"
               >
                 {/* Milestone Header / Title Bar */}
-                <div className="flex flex-col gap-4 bg-[color:var(--bg-surface-muted)]/30 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
+                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
