@@ -349,7 +349,8 @@ function isFormTouched(formData: InvoiceFormData) {
       item.rate > 0 ||
       item.qty !== 1 ||
       item.type !== "Other" ||
-      item.rateUnit !== "per-deliverable",
+      item.rateUnit !== "per-deliverable" ||
+      item.is_milestone_header,
     ),
   );
 

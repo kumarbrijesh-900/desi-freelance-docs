@@ -47,6 +47,8 @@ export type InvoiceRateUnit =
   | "per-video"
   | "per-image";
 
+export type MilestoneStatus = "PENDING" | "SETTLED";
+
 export interface InvoiceLineItem {
   id: string;
   type: InvoiceLineItemType;
@@ -55,6 +57,11 @@ export interface InvoiceLineItem {
   rate: number;
   rateUnit: InvoiceRateUnit;
   sacCode?: string;
+  // Milestone fields
+  is_milestone_header?: boolean;
+  milestone_group_id?: string;
+  milestone_status?: MilestoneStatus;
+  tds_amount?: number;
 }
 
 export interface AgencyDetails {

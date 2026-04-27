@@ -22,6 +22,8 @@ export interface TemplateLineItem {
   amount: number;
   amountFormatted: string;
   sacCode: string;
+  isMilestoneHeader?: boolean;
+  groupSubtotalFormatted?: string;
 }
 
 /* ─── Pre-computed template data ─────────────────── */

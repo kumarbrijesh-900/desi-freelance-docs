@@ -178,19 +178,22 @@ export function getInvoiceFieldErrors(
       itemErrors.description = "Description is required.";
     }
 
-    if (!Number.isFinite(item.qty) || item.qty < 1) {
-      itemErrors.qty = "Qty must be at least 1.";
-    }
+    // Skip qty/rate/sac validation for milestone headers
+    if (!item.is_milestone_header) {
+      if (!Number.isFinite(item.qty) || item.qty < 1) {
+        itemErrors.qty = "Qty must be at least 1.";
+      }
 
-    if (!Number.isFinite(item.rate) || item.rate <= 0) {
-      itemErrors.rate = "Rate must be greater than 0.";
-    }
+      if (!Number.isFinite(item.rate) || item.rate <= 0) {
+        itemErrors.rate = "Rate must be greater than 0.";
+      }
 
-    const resolvedSacCode = resolveLineItemSacCode(item);
-    if (isManualSacRequired(item.type) && isBlank(resolvedSacCode)) {
-      itemErrors.sacCode = "SAC code is required for custom deliverables.";
-    } else if (resolvedSacCode && !isValidSacCode(resolvedSacCode)) {
-      itemErrors.sacCode = "Enter a valid 6-digit SAC code.";
+      const resolvedSacCode = resolveLineItemSacCode(item);
+      if (isManualSacRequired(item.type) && isBlank(resolvedSacCode)) {
+        itemErrors.sacCode = "SAC code is required for custom deliverables.";
+      } else if (resolvedSacCode && !isValidSacCode(resolvedSacCode)) {
+        itemErrors.sacCode = "Enter a valid 6-digit SAC code.";
+      }
     }
 
     if (Object.keys(itemErrors).length > 0) {

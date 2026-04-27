@@ -194,7 +194,7 @@ export interface Database {
 
           form_data: Json
 
-          status: 'draft' | 'finalized' | 'settled' | 'overdue'
+          status: 'DRAFT' | 'SAVED' | 'SENT' | 'PARTIAL' | 'SETTLED'
 
           share_token: string | null
 
@@ -206,8 +206,8 @@ export interface Database {
 
           msa_id: string | null
 
-          msa_response: 'pending' | 'accepted' | 'rejected' | 'negotiating'
-
+          msa_response: 'PENDING' | 'ACCEPTED' | 'REVISION ASKED'
+          msa_status: 'PENDING' | 'ACCEPTED' | 'REVISION ASKED'
           msa_responded_at: string | null
 
           client_msa_note: string | null

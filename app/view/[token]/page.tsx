@@ -38,7 +38,7 @@ export default function PublicInvoiceViewPage({
 
   // MSA gating state
   const [msaRequired, setMsaRequired] = useState(false);
-  const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
+  const [msaResponse, setMsaResponse] = useState<MsaResponse>("PENDING");
   const [msaData, setMsaData] = useState<MsaData | null>(null);
   const [msaSubmitting, setMsaSubmitting] = useState(false);
 
@@ -49,36 +49,31 @@ export default function PublicInvoiceViewPage({
   // Agency name for rejection message
   const [agencyName, setAgencyName] = useState("The agency");
 
-  useEffect(() => {
-    async function load() {
-      const { data, error } = await loadInvoiceByToken(token);
-      if (error || !data) {
+  const loadInvoice = async () => {
+    try {
+      const res = await fetch(`/api/invoice/${token}`);
+      if (!res.ok) {
         setNotFound(true);
         setLoading(false);
         return;
       }
 
+      const data = await res.json();
       const fd = mergeInvoiceFormData(data.form_data);
       setFormData(fd);
       setTemplateId(data.template_id || "classic");
       setHasAddendum(data.has_addendum || false);
       setInvoiceNumber(data.invoice_number || "");
 
-      // Extract agency name for messaging
       if (fd.agency?.agencyName) {
         setAgencyName(fd.agency.agencyName);
       }
 
-      // ─── 1. MSA Status Check (Zero-Trust) ───
-      // We use msa_status as the primary source of truth.
-      const status = data.msa_status || data.msa_response || "pending";
-      setMsaResponse(status);
+      const status = data.msa_status || data.msa_response || "PENDING";
+      setMsaResponse(status as MsaResponse);
 
-      // If status is pending, we MUST show the gate.
-      if (status === "pending" || status === "negotiating") {
+      if (status === "PENDING" || status === "REVISION ASKED") {
         setMsaRequired(true);
-        
-        // Load custom MSA if it exists, otherwise we'll show defaults
         if (data.msa_id) {
           const msaContent = await loadMsaForSharedInvoice(data.id, data.msa_id);
           if (msaContent) setMsaData(msaContent);
@@ -87,7 +82,7 @@ export default function PublicInvoiceViewPage({
         setMsaRequired(false);
       }
 
-      // ─── 2. Telemetry (Track View) ───
+      // Telemetry
       fetch("/api/track-view", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,14 +91,19 @@ export default function PublicInvoiceViewPage({
           userAgent: navigator.userAgent 
         }),
       }).catch(err => console.error("Telemetry failed:", err));
-
+    } catch (err) {
+      console.error("LOAD_ERROR:", err);
+      setNotFound(true);
+    } finally {
       setLoading(false);
     }
+  };
 
-    load();
+  useEffect(() => {
+    loadInvoice();
   }, [token]);
 
-  const handleMsaRespond = async (response: "accepted" | "rejected") => {
+  const handleMsaRespond = async (response: "ACCEPTED" | "REVISION ASKED") => {
     setMsaSubmitting(true);
     try {
       const res = await fetch("/api/msa-response", {
@@ -114,8 +114,10 @@ export default function PublicInvoiceViewPage({
       
       if (res.ok) {
         setMsaResponse(response);
-        if (response === "accepted") {
+        if (response === "ACCEPTED") {
           setMsaRequired(false);
+          // Smooth reveal by re-fetching data
+          await loadInvoice();
         }
       } else {
         const err = await res.json();
@@ -140,13 +142,13 @@ export default function PublicInvoiceViewPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           shareToken: token, 
-          response: "negotiating", 
+          response: "REVISION ASKED", 
           note: proposalText 
         }),
       });
       
       if (res.ok) {
-        setMsaResponse("negotiating");
+        setMsaResponse("REVISION ASKED");
         setShowProposalForm(false);
       } else {
         const err = await res.json();
@@ -206,7 +208,7 @@ export default function PublicInvoiceViewPage({
 
   /* ─── MSA Rejected ─────────────────────────────────── */
 
-  if (msaResponse === "rejected") {
+  if (msaResponse === "REVISION ASKED") {
     return (
       <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto mb-6 flex max-w-2xl items-center">
@@ -240,61 +242,11 @@ export default function PublicInvoiceViewPage({
               </div>
 
               <h1 className="text-lg font-bold text-[color:var(--text-primary)]">
-                MSA Declined
+                MSA Revision Requested
               </h1>
               <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
                 <strong>{agencyName}</strong> has been notified of your
                 decision. They will contact you soon to discuss the terms.
-              </p>
-              <p className="mt-4 text-xs text-[color:var(--text-muted)]">
-                If you declined by mistake, please contact the agency directly.
-              </p>
-            </div>
-          </div>
-        </MotionReveal>
-      </main>
-    );
-  }
-
-  /* ─── MSA Negotiating (New Loop) ───────────────────── */
-
-  if (msaResponse === "negotiating") {
-    return (
-      <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12">
-        <div className="mx-auto mb-6 flex max-w-2xl items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
-              L
-            </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-              Lance
-            </span>
-          </Link>
-        </div>
-
-        <MotionReveal preset="fade-up">
-          <div className="mx-auto max-w-md px-4">
-            <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-50 border border-cyan-200">
-                <svg
-                  className="h-7 w-7 text-cyan-600"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-              </div>
-
-              <h1 className="text-lg font-bold text-[color:var(--text-primary)]">
-                Proposal Sent
-              </h1>
-              <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
-                Your proposed changes have been sent to{" "}
-                <strong>{agencyName}</strong> for review.
               </p>
               <p className="mt-4 text-xs text-[color:var(--text-muted)]">
                 The agency will contact you shortly to confirm the updated
@@ -309,7 +261,7 @@ export default function PublicInvoiceViewPage({
 
   /* ─── MSA Gate (pending) ───────────────────────────── */
 
-  if (msaRequired && msaResponse === "pending") {
+  if (msaRequired && msaResponse === "PENDING") {
     return (
       <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12">
         {/* Branding header */}
@@ -485,7 +437,7 @@ export default function PublicInvoiceViewPage({
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => handleMsaRespond("accepted")}
+                      onClick={() => handleMsaRespond("ACCEPTED")}
                       disabled={msaSubmitting}
                       className={getAppButtonClass({
                         variant: "primary",
@@ -620,7 +572,7 @@ export default function PublicInvoiceViewPage({
             </span>
           </Link>
           <div className="hidden items-center gap-3 md:flex">
-            {msaResponse === "accepted" && (
+            {msaResponse === "ACCEPTED" && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
                 <CheckCircleIcon className="h-3.5 w-3.5" />
                 {hasAddendum ? "MSA & Addendum Accepted" : "MSA Accepted"}
@@ -647,7 +599,7 @@ export default function PublicInvoiceViewPage({
           <h2 className="mt-2 text-4xl font-black tracking-tighter text-[color:var(--text-primary)] md:text-6xl lg:text-7xl">
             {prepareTemplateData(formData).grandTotalFormatted}
           </h2>
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 border border-[color:var(--border-subtle)] shadow-sm">
               <span className="h-2 w-2 rounded-full bg-[color:var(--color-lime-500)] animate-pulse" />
               <span className="text-xs font-bold text-[color:var(--text-secondary)]">Awaiting Settlement</span>
@@ -655,6 +607,11 @@ export default function PublicInvoiceViewPage({
             <p className="text-xs text-[color:var(--text-muted)]">
               Invoice #{invoiceNumber} • Due {formData.meta.dueDate || "on receipt"}
             </p>
+            {formData.lineItems.some(i => i.is_milestone_header) && (
+              <p className="text-[11px] font-bold text-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)] px-3 py-1 rounded-full border border-[color:var(--color-lime-200)]">
+                ★ PLEASE PAY RELEVANT MILESTONE SUBTOTAL
+              </p>
+            )}
           </div>
         </div>
 

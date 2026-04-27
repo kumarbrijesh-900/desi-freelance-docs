@@ -141,18 +141,32 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
       : null;
 
   // Prepare line items
-  const lineItems: TemplateLineItem[] = formData.lineItems.map((item) => ({
-    id: item.id,
-    type: item.type,
-    description: item.description || item.type,
-    qty: item.qty,
-    rate: item.rate,
-    rateFormatted: formatCurrency(item.rate, displayCurrency),
-    unit: getUnitLabel(item.rateUnit),
-    amount: item.qty * item.rate,
-    amountFormatted: formatCurrency(item.qty * item.rate, displayCurrency),
-    sacCode: resolveLineItemSacCode(item) || "pending",
-  }));
+  const lineItems: TemplateLineItem[] = formData.lineItems.map((item, index) => {
+    let groupSubtotalFormatted = "";
+    if (item.is_milestone_header) {
+      let groupSubtotal = 0;
+      for (let i = index + 1; i < formData.lineItems.length; i++) {
+        if (formData.lineItems[i].is_milestone_header) break;
+        groupSubtotal += (formData.lineItems[i].qty ?? 0) * (formData.lineItems[i].rate ?? 0);
+      }
+      groupSubtotalFormatted = formatCurrency(groupSubtotal, displayCurrency);
+    }
+
+    return {
+      id: item.id,
+      type: item.type,
+      description: item.description || item.type,
+      qty: item.qty,
+      rate: item.rate,
+      rateFormatted: formatCurrency(item.rate, displayCurrency),
+      unit: getUnitLabel(item.rateUnit),
+      amount: item.qty * item.rate,
+      amountFormatted: formatCurrency(item.qty * item.rate, displayCurrency),
+      sacCode: resolveLineItemSacCode(item) || "pending",
+      isMilestoneHeader: item.is_milestone_header,
+      groupSubtotalFormatted,
+    };
+  });
 
   // Payment details
   const hasDomesticBank = Boolean(

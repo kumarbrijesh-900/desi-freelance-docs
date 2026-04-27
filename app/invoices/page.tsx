@@ -15,6 +15,8 @@ import {
   listInvoices,
   deleteInvoice,
   markInvoiceSettled,
+  markMilestoneSettled,
+  requestNextMilestone,
   getCurrentUserId,
   getReadReceiptsBatch,
   type SavedInvoice,
@@ -22,6 +24,7 @@ import {
 } from "@/lib/supabase/invoices";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
+import SettlementModal from "@/components/invoice/SettlementModal";
 
 /* ─── Helpers ────────────────────────────────────── */
 
@@ -61,33 +64,42 @@ function getWorkType(inv: SavedInvoice) {
 /* ─── Badge components ─────────────────────────── */
 
 function StatusBadge({ status }: { status: string }) {
-  const fin = status === "finalized";
-  const set = status === "settled";
-  const ovr = status === "overdue";
+  const isDraft = status === "DRAFT";
+  const isSaved = status === "SAVED";
+  const isSent = status === "SENT";
+  const isPartial = status === "PARTIAL";
+  const isSettled = status === "SETTLED";
 
-  if (set)
+  if (isSettled)
     return (
       <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         Settled
       </span>
     );
 
-  if (ovr)
+  if (isPartial)
     return (
-      <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
-        Overdue
+      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+        Partial
+      </span>
+    );
+
+  if (isSent)
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+        Sent
       </span>
     );
 
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-        fin
-          ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
-          : "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+        isSaved
+          ? "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
+          : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]"
       }`}
     >
-      {fin ? "Finalized" : "Draft"}
+      {isSaved ? "Saved" : "Draft"}
     </span>
   );
 }
@@ -104,25 +116,20 @@ function MsaBadge({
       <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
     );
 
-  if (response === "negotiating")
+  if (response === "REVISION ASKED")
     return (
       <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
         Action Required
       </span>
     );
 
-  if (response === "accepted")
+  if (response === "ACCEPTED")
     return (
       <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         ✓ Accepted
       </span>
     );
-  if (response === "rejected")
-    return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-warning-text)]">
-        ✕ Rejected
-      </span>
-    );
+
   return (
     <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
       Pending
@@ -132,20 +139,12 @@ function MsaBadge({
 
 function ViewsBadge({
   count,
-  lastViewed,
 }: {
   count: number;
-  lastViewed: string | null;
 }) {
-  if (!count)
-    return (
-      <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
-    );
+  if (!count) return null;
   return (
-    <span
-      title={lastViewed ? `Last viewed ${fmtDate(lastViewed)}` : undefined}
-      className="inline-flex items-center gap-1 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--text-secondary)]"
-    >
+    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[color:var(--text-muted)] ml-1.5 opacity-60">
       👁 {count}
     </span>
   );
@@ -154,14 +153,8 @@ function ViewsBadge({
 /* ─── Filter/Sort bar ──────────────────────────── */
 
 type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
-type StatusFilter = "all" | "draft" | "finalized" | "settled" | "overdue";
-type MsaFilter =
-  | "all"
-  | "pending"
-  | "accepted"
-  | "rejected"
-  | "negotiating"
-  | "none";
+type StatusFilter = "all" | "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
+type MsaFilter = "all" | "PENDING" | "ACCEPTED" | "REVISION ASKED" | "none";
 
 function FilterBar({
   statusFilter,
@@ -202,10 +195,11 @@ function FilterBar({
         className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
       >
         <option value="all">All Status</option>
-        <option value="draft">Draft</option>
-        <option value="finalized">Finalized</option>
-        <option value="settled">Settled</option>
-        <option value="overdue">Overdue</option>
+        <option value="DRAFT">Draft</option>
+        <option value="SAVED">Saved</option>
+        <option value="SENT">Sent</option>
+        <option value="PARTIAL">Partial</option>
+        <option value="SETTLED">Settled</option>
       </select>
 
       {/* MSA filter */}
@@ -216,10 +210,9 @@ function FilterBar({
       >
         <option value="all">All MSA</option>
         <option value="none">No MSA</option>
-        <option value="pending">MSA Pending</option>
-        <option value="accepted">MSA Accepted</option>
-        <option value="rejected">MSA Rejected</option>
-        <option value="negotiating">Negotiating</option>
+        <option value="PENDING">MSA Pending</option>
+        <option value="ACCEPTED">MSA Accepted</option>
+        <option value="REVISION ASKED">Revision Asked</option>
       </select>
 
       {/* Sort */}
@@ -246,34 +239,56 @@ function FilterBar({
 function InvoiceRow({
   invoice,
   viewCount,
-  lastViewed,
   onView,
   onEdit,
   onDelete,
   onMarkSettled,
+  onRequestNext,
   deletingId,
   settlingId,
+  requestingId,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
-  lastViewed: string | null;
   onView: (inv: SavedInvoice) => void;
   onEdit: (inv: SavedInvoice) => void;
   onDelete: (id: string) => void;
-  onMarkSettled: (id: string) => void;
+  onMarkSettled: (id: string, milestoneId?: string) => void;
+  onRequestNext: (id: string, milestoneId: string) => void;
   deletingId: string | null;
   settlingId: string | null;
+  requestingId: string | null;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const lineItems = invoice.form_data?.lineItems ?? [];
+  const milestones = lineItems.filter(i => i.is_milestone_header);
+  const hasMilestones = milestones.length > 0;
+
   const canSettle =
-    invoice.status === "finalized" || invoice.status === "overdue";
+    invoice.status === "SENT" || invoice.status === "PARTIAL";
 
   return (
-    <tr className="border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group">
-      {/* Invoice # */}
-      <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
-        {invoice.invoice_number}
-      </td>
+    <>
+      <tr 
+        className={cn(
+          "border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group cursor-pointer",
+          isExpanded && "bg-[color:var(--bg-surface-soft)]/50"
+        )}
+        onClick={() => hasMilestones && setIsExpanded(!isExpanded)}
+      >
+        {/* Invoice # */}
+        <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
+          <div className="flex items-center gap-2">
+            {hasMilestones && (
+              <span className={cn("text-[10px] transition-transform duration-200", isExpanded && "rotate-180")}>
+                ▼
+              </span>
+            )}
+            {invoice.invoice_number}
+          </div>
+        </td>
 
       {/* Date */}
       <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] whitespace-nowrap">
@@ -311,13 +326,9 @@ function InvoiceRow({
 
       {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <div className="flex flex-col gap-1 items-start">
+        <div className="flex items-center">
           <StatusBadge status={invoice.status} />
-          {invoice.msa_response === "negotiating" && (
-            <span className="text-[10px] font-medium text-amber-600">
-              Client proposing changes
-            </span>
-          )}
+          <ViewsBadge count={viewCount} />
         </div>
       </td>
 
@@ -325,78 +336,145 @@ function InvoiceRow({
       <td className="px-4 py-3 whitespace-nowrap">
         <MsaBadge
           msaId={invoice.msa_id}
-          response={invoice.msa_response ?? "pending"}
+          response={invoice.msa_response ?? "PENDING"}
         />
       </td>
 
-      {/* Views */}
-      <td className="px-4 py-3 whitespace-nowrap">
-        <ViewsBadge count={viewCount} lastViewed={lastViewed} />
-      </td>
-
-      {/* Actions */}
-      <td className="px-4 py-3 whitespace-nowrap">
-        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {canSettle && (
-            <button
-              type="button"
-              onClick={() => onMarkSettled(invoice.id)}
-              disabled={settlingId === invoice.id}
-              className={getAppButtonClass({ variant: "primary", size: "sm" })}
-            >
-              {settlingId === invoice.id ? "…" : "Mark Settled"}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => onEdit(invoice)}
-            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-          >
-            Edit
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onView(invoice)}
-            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-          >
-            View
-          </button>
-
-          {confirmDelete ? (
-            <span className="inline-flex items-center gap-1">
+        {/* Actions */}
+        <td className="px-4 py-3 whitespace-nowrap text-right">
+          <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            {canSettle && !hasMilestones && (
               <button
                 type="button"
-                onClick={() => {
-                  onDelete(invoice.id);
-                  setConfirmDelete(false);
-                }}
-                disabled={deletingId === invoice.id}
-                className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--state-warning-text)] hover:bg-[color:var(--state-warning-bg)] transition-colors"
+                onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id); }}
+                disabled={settlingId === invoice.id}
+                className={getAppButtonClass({ variant: "primary", size: "sm" })}
               >
-                {deletingId === invoice.id ? "…" : "Yes"}
+                {settlingId === invoice.id ? "…" : "Mark Settled"}
               </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)] transition-colors"
-              >
-                No
-              </button>
-            </span>
-          ) : (
+            )}
+
             <button
               type="button"
-              onClick={() => setConfirmDelete(true)}
-              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              onClick={(e) => { e.stopPropagation(); onEdit(invoice); }}
+              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
             >
-              Delete
+              Edit
             </button>
-          )}
-        </div>
-      </td>
-    </tr>
+
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onView(invoice); }}
+              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+            >
+              View
+            </button>
+
+            {confirmDelete ? (
+              <span className="inline-flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onDelete(invoice.id);
+                    setConfirmDelete(false);
+                  }}
+                  disabled={deletingId === invoice.id}
+                  className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--state-warning-text)] hover:bg-[color:var(--state-warning-bg)] transition-colors"
+                >
+                  {deletingId === invoice.id ? "…" : "Yes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)] transition-colors"
+                >
+                  No
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
+                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+
+      {/* Milestone Accordion Rows */}
+      {isExpanded && hasMilestones && (
+        <>
+          {lineItems.map((item, idx) => {
+            if (!item.is_milestone_header) return null;
+            
+            // Calculate subtotal for this milestone
+            let subtotal = 0;
+            for (let i = idx + 1; i < lineItems.length; i++) {
+              if (lineItems[i].is_milestone_header) break;
+              subtotal += (lineItems[i].qty ?? 0) * (lineItems[i].rate ?? 0);
+            }
+            
+            // For now, milestone status is derived from parent or custom field if added later
+            const isSettled = item.milestone_status === "SETTLED";
+            const currency = invoice.form_data.client?.clientCurrency || "INR";
+            const symbol = currency === "USD" ? "$" : "₹";
+
+            return (
+              <tr key={item.id} className="bg-gray-50/30 border-b border-[color:var(--border-subtle)]">
+                <td className="pl-10 py-2.5 text-[11px] font-medium text-[color:var(--text-muted)] italic">
+                  ↳ {item.description}
+                </td>
+                <td className="px-4 py-2.5 text-[11px] text-[color:var(--text-muted)]">
+                  Milestone Stage
+                </td>
+                <td className="px-4 py-2.5 text-[11px] text-[color:var(--text-muted)]">
+                  —
+                </td>
+                <td className="px-4 py-2.5"></td>
+                <td className="px-4 py-2.5 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
+                  {symbol}{subtotal.toLocaleString("en-IN")}
+                </td>
+                <td className="px-4 py-2.5">
+                  <span className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                    isSettled 
+                      ? "bg-green-50 text-green-700 border border-green-100" 
+                      : "bg-gray-100 text-gray-500 border border-gray-200"
+                  )}>
+                    {isSettled ? "Settled" : "Pending"}
+                  </span>
+                </td>
+                <td className="px-4 py-2.5"></td>
+                <td className="px-4 py-2.5 text-right">
+                  {!isSettled && (
+                    <button
+                      type="button"
+                      onClick={() => onMarkSettled(invoice.id, item.id)}
+                      className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
+                    >
+                      Mark Settled
+                    </button>
+                  )}
+                  {isSettled && idx < lineItems.filter(i => i.is_milestone_header).length - 1 && (
+                    <button
+                      type="button"
+                      disabled={requestingId === item.id}
+                      onClick={() => onRequestNext(invoice.id, lineItems[idx + 1]?.id)}
+                      className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
+                    >
+                      {requestingId === lineItems[idx + 1]?.id ? "Requesting…" : "Request Next"}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </>
+      )}
+    </>
   );
 }
 
@@ -412,6 +490,16 @@ export default function InvoiceHistoryPage() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [settlingId, setSettlingId] = useState<string | null>(null);
+  const [requestingId, setRequestingId] = useState<string | null>(null);
+
+  // Settlement Modal State
+  const [activeSettlement, setActiveSettlement] = useState<{
+    invoiceId: string;
+    milestoneId: string;
+    name: string;
+    subtotal: number;
+    symbol: string;
+  } | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -474,17 +562,104 @@ export default function InvoiceHistoryPage() {
     setDeletingId(null);
   };
 
-  const handleMarkSettled = async (id: string) => {
+  const handleMarkSettled = async (id: string, milestoneId?: string) => {
+    // If it's a milestone, we open the modal
+    if (milestoneId) {
+      const inv = invoices.find(i => i.id === id);
+      if (!inv) return;
+      
+      const item = inv.form_data.lineItems.find(li => li.id === milestoneId);
+      if (!item) return;
+
+      // Calculate subtotal for this milestone
+      let subtotal = 0;
+      const idx = inv.form_data.lineItems.findIndex(li => li.id === milestoneId);
+      for (let i = idx + 1; i < inv.form_data.lineItems.length; i++) {
+        if (inv.form_data.lineItems[i].is_milestone_header) break;
+        subtotal += (inv.form_data.lineItems[i].qty ?? 0) * (inv.form_data.lineItems[i].rate ?? 0);
+      }
+
+      const currency = inv.form_data.client?.clientCurrency || "INR";
+      const symbol = currency === "USD" ? "$" : "₹";
+
+      setActiveSettlement({
+        invoiceId: id,
+        milestoneId,
+        name: item.description,
+        subtotal,
+        symbol
+      });
+      return;
+    }
+
+    // One-time invoices settle instantly (as per Phase 4 baseline)
     setSettlingId(id);
     const { error } = await markInvoiceSettled(id);
     if (!error) {
       setInvoices((prev) =>
         prev.map((inv) =>
-          inv.id === id ? { ...inv, status: "settled" as any } : inv,
+          inv.id === id ? { ...inv, status: "SETTLED" as any } : inv,
         ),
       );
     }
     setSettlingId(null);
+  };
+
+  const handleConfirmMilestoneSettlement = async (tdsAmount: number) => {
+    if (!activeSettlement) return;
+    
+    const { invoiceId, milestoneId } = activeSettlement;
+    setSettlingId(milestoneId);
+    
+    const { error } = await markMilestoneSettled(invoiceId, milestoneId, tdsAmount);
+    if (!error) {
+      setInvoices((prev) =>
+        prev.map((inv) => {
+          if (inv.id !== invoiceId) return inv;
+          
+          const updatedItems = (inv.form_data?.lineItems || []).map(item => 
+            item.id === milestoneId ? { ...item, milestone_status: "SETTLED" as const, tds_amount: tdsAmount } : item
+          );
+          
+          const allM = updatedItems.filter(i => i.is_milestone_header);
+          const settledM = allM.filter(i => i.milestone_status === "SETTLED");
+          const newStatus = settledM.length === allM.length ? "SETTLED" : "PARTIAL";
+
+          return {
+            ...inv,
+            status: newStatus as any,
+            form_data: {
+              ...inv.form_data,
+              lineItems: updatedItems
+            }
+          };
+        })
+      );
+      setActiveSettlement(null);
+    }
+    setSettlingId(null);
+  };
+
+  const handleRequestNext = async (id: string, milestoneId: string) => {
+    setRequestingId(milestoneId);
+    try {
+      const res = await fetch("/api/invoice/request-milestone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: id, milestoneId }),
+      });
+
+      if (res.ok) {
+        alert("Milestone request sent to client via email.");
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error || "Failed to send request"}`);
+      }
+    } catch (err) {
+      alert("Failed to send request. Check your connection.");
+    } finally {
+      setRequestingId(null);
+    }
   };
 
   // Filtered + sorted
@@ -508,7 +683,7 @@ export default function InvoiceHistoryPage() {
       if (msaFilter === "none") list = list.filter((i) => !i.msa_id);
       else
         list = list.filter(
-          (i) => i.msa_id && (i.msa_response ?? "pending") === msaFilter,
+          (i) => i.msa_id && (i.msa_response ?? "PENDING") === msaFilter,
         );
     }
 
@@ -539,13 +714,18 @@ export default function InvoiceHistoryPage() {
   const stats = useMemo(
     () => ({
       total: invoices.length,
-      finalized: invoices.filter((i) => i.status === "finalized").length,
+      revenueCaptured: invoices
+        .filter((i) => i.status === "SETTLED")
+        .reduce((sum, inv) => {
+          const items = inv.form_data?.lineItems ?? [];
+          return sum + items.reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+        }, 0),
       msaPending: invoices.filter(
-        (i) => i.msa_id && (i.msa_response ?? "pending") === "pending",
+        (i) => i.msa_id && (i.msa_response ?? "PENDING") === "PENDING",
       ).length,
-      msaNegotiating: invoices.filter((i) => i.msa_response === "negotiating")
+      msaNegotiating: invoices.filter((i) => i.msa_response === "REVISION ASKED")
         .length,
-      msaRejected: invoices.filter((i) => i.msa_response === "rejected").length,
+      msaRejected: 0, 
       totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
     }),
     [invoices, receipts],
@@ -627,11 +807,11 @@ export default function InvoiceHistoryPage() {
                   icon: "📄",
                 },
                 {
-                  label: "Finalized",
-                  value: stats.finalized,
+                  label: "Revenue Captured",
+                  value: `₹${stats.revenueCaptured.toLocaleString("en-IN")}`,
                   color: "text-[color:var(--state-success-text)]",
                   accent: "bg-[color:var(--state-success-border)]",
-                  icon: "✅",
+                  icon: "💰",
                 },
                 {
                   label: "Action Required",
@@ -770,13 +950,15 @@ export default function InvoiceHistoryPage() {
                           "Work Type",
                           "Amount",
                           "Status",
-                          "MSA",
-                          "Views",
+                          "MSA STATUS",
                           "",
                         ].map((h) => (
                           <th
                             key={h}
-                            className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]"
+                            className={cn(
+                              "px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]",
+                              h === "" && "text-right"
+                            )}
                           >
                             {h}
                           </th>
@@ -789,13 +971,14 @@ export default function InvoiceHistoryPage() {
                           key={inv.id}
                           invoice={inv}
                           viewCount={receipts[inv.id]?.count ?? 0}
-                          lastViewed={receipts[inv.id]?.lastViewed ?? null}
                           onView={handleView}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onMarkSettled={handleMarkSettled}
+                          onRequestNext={handleRequestNext}
                           deletingId={deletingId}
                           settlingId={settlingId}
+                          requestingId={requestingId}
                         />
                       ))}
                     </tbody>
@@ -817,6 +1000,16 @@ export default function InvoiceHistoryPage() {
               </span>
             </Link>
           </div>
+          {/* Settlement Modal */}
+          <SettlementModal
+            isOpen={!!activeSettlement}
+            onClose={() => setActiveSettlement(null)}
+            onConfirm={handleConfirmMilestoneSettlement}
+            milestoneName={activeSettlement?.name || ""}
+            subtotal={activeSettlement?.subtotal || 0}
+            currencySymbol={activeSettlement?.symbol || "₹"}
+            isSubmitting={!!settlingId}
+          />
         </div>
       </section>
     </main>

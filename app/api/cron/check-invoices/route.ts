@@ -42,16 +42,14 @@ export async function GET(request: Request) {
     const { data: toMarkOverdue, error: overdueErr } = await supabaseAdmin
       .from("invoices")
       .select("id")
-      .eq("status", "finalized")
+      .eq("status", "SENT")
       .lt("due_date", today);
 
     if (!overdueErr && toMarkOverdue?.length) {
       const ids = toMarkOverdue.map((i) => i.id);
-      await supabaseAdmin
-        .from("invoices")
-        .update({ status: "overdue" })
-        .in("id", ids);
-      console.log(`[CRON] Marked ${ids.length} invoices as overdue.`);
+      // We don't mark as 'overdue' anymore as per new strict enums.
+      // Status remains 'SENT' but we can still track via due_date.
+      console.log(`[CRON] Found ${ids.length} past-due invoices.`);
     }
 
     /* ─────────────────────────────────────────────────────────────────
@@ -62,7 +60,7 @@ export async function GET(request: Request) {
       .select("id, invoice_number, user_id, shared_to_email, form_data")
       .eq("due_date", today)
       .eq("reminded_due_date", false)
-      .in("status", ["finalized", "overdue"]);
+      .in("status", ["SENT", "PARTIAL"]);
 
     if (dueToday && dueToday.length > 0) {
       for (const inv of dueToday) {
@@ -124,7 +122,7 @@ export async function GET(request: Request) {
       .select("id, invoice_number, user_id, shared_to_email, form_data")
       .eq("due_date", twoDaysAgo)
       .eq("reminded_overdue", false)
-      .eq("status", "overdue"); // Ensure it hasn't been settled
+      .in("status", ["SENT", "PARTIAL"]); // Check SENT and PARTIAL for overdue
 
     if (twoDaysOverdue && twoDaysOverdue.length > 0) {
       for (const inv of twoDaysOverdue) {

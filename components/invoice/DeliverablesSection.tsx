@@ -170,6 +170,24 @@ export default function DeliverablesSection({
         rate: 0,
         rateUnit: invoiceDefaultUnitByType["UI/UX Design"],
         sacCode: getDefaultSacCodeForType("UI/UX Design"),
+        is_milestone_header: false,
+      },
+    ]);
+  };
+
+  const addMilestoneHeader = () => {
+    onChange([
+      ...value,
+      {
+        id: createLineItemId(value),
+        type: "Other",
+        description: "",
+        qty: 0,
+        rate: 0,
+        rateUnit: "per-deliverable",
+        sacCode: "",
+        is_milestone_header: true,
+        milestone_status: "PENDING",
       },
     ]);
   };
@@ -177,6 +195,17 @@ export default function DeliverablesSection({
   const removeLineItem = (id: string) => {
     if (value.length <= 1) return;
     onChange(value.filter((item) => item.id !== id));
+  };
+
+  const moveItem = (index: number, direction: "up" | "down") => {
+    const nextIndex = direction === "up" ? index - 1 : index + 1;
+    if (nextIndex < 0 || nextIndex >= value.length) return;
+
+    const newValue = [...value];
+    const temp = newValue[index];
+    newValue[index] = newValue[nextIndex];
+    newValue[nextIndex] = temp;
+    onChange(newValue);
   };
 
   const canDeleteRows = value.length > 1;
@@ -278,6 +307,78 @@ export default function DeliverablesSection({
           data-testid="line-items-list"
         >
           {value.map((item, index) => {
+            if (item.is_milestone_header) {
+              // Calculate group subtotal
+              let groupSubtotal = 0;
+              for (let i = index + 1; i < value.length; i++) {
+                if (value[i].is_milestone_header) break;
+                groupSubtotal += (value[i].qty ?? 0) * (value[i].rate ?? 0);
+              }
+
+              return (
+                <div
+                  key={item.id}
+                  className="relative z-10 -mx-2 mb-4 mt-8 rounded-lg bg-[color:var(--bg-surface-muted)]/60 border-y border-[color:var(--border-subtle)] px-6 py-4 xl:py-5 group/milestone"
+                >
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                    {/* Move controls for milestone */}
+                    <div className="flex flex-col gap-1 opacity-0 group-hover/milestone:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "up")}
+                        disabled={index === 0}
+                        className="p-1 hover:bg-white rounded transition-colors disabled:opacity-30"
+                      >
+                        <span className="text-[10px] block transform rotate-180">▼</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "down")}
+                        disabled={index === value.length - 1}
+                        className="p-1 hover:bg-white rounded transition-colors disabled:opacity-30"
+                      >
+                        <span className="text-[10px] block">▼</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+                          Milestone Section
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => updateItem(item.id, "description", e.target.value)}
+                        placeholder="e.g. Phase 1: Brand Strategy & Discovery"
+                        className="w-full border-none bg-transparent p-0 text-[16px] font-bold tracking-tight text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] focus:ring-0"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          Section Subtotal
+                        </p>
+                        <p className="text-[15px] font-black text-[color:var(--text-primary)]">
+                          {formatCurrency(groupSubtotal, currency)}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => removeLineItem(item.id)}
+                        className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
+                      >
+                        <span className="text-xl">×</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             const lineTotal = item.qty * item.rate;
             const allowedUnits = invoiceAllowedUnitsByType[item.type];
             const rowErrors = errors?.[item.id];
@@ -597,7 +698,27 @@ export default function DeliverablesSection({
                     </div>
                   </div>
 
-                  <div className="flex items-start justify-end xl:pt-1">
+                  <div className="flex items-start justify-end xl:pt-1 gap-1">
+                    {/* Move controls for item */}
+                    <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity mr-1">
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "up")}
+                        disabled={index === 0}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-20"
+                      >
+                        <span className="text-[9px] block transform rotate-180">▼</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveItem(index, "down")}
+                        disabled={index === value.length - 1}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-20"
+                      >
+                        <span className="text-[9px] block">▼</span>
+                      </button>
+                    </div>
+
                     {canDeleteRows ? (
                       <button
                         type="button"
@@ -635,20 +756,37 @@ export default function DeliverablesSection({
               lineItemDesktopGridClass
             )}
           >
-            <button
-              type="button"
-              onClick={addLineItem}
-              className={cn(
-                getAppButtonClass({
-                  variant: "ghost",
-                  size: "md",
-                }),
-                "justify-start px-4 font-bold tracking-[0.01em] hover:bg-[color:var(--bg-surface-muted)] text-[color:var(--color-lime-600)] transition-all",
-              )}
-            >
-              <span className="mr-2 text-xl font-medium">+</span>
-              Add line item
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={addLineItem}
+                className={cn(
+                  getAppButtonClass({
+                    variant: "ghost",
+                    size: "md",
+                  }),
+                  "justify-start px-4 font-bold tracking-[0.01em] hover:bg-[color:var(--bg-surface-muted)] text-[color:var(--color-lime-600)] transition-all",
+                )}
+              >
+                <span className="mr-2 text-xl font-medium">+</span>
+                Add line item
+              </button>
+
+              <button
+                type="button"
+                onClick={addMilestoneHeader}
+                className={cn(
+                  getAppButtonClass({
+                    variant: "ghost",
+                    size: "md",
+                  }),
+                  "justify-start px-4 font-bold tracking-[0.01em] hover:bg-[color:var(--color-lime-50)] text-[color:var(--color-lime-700)] transition-all border-dashed border-[color:var(--color-lime-200)]",
+                )}
+              >
+                <span className="mr-2 text-xl font-medium">⚑</span>
+                Add Milestone Section
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -163,43 +163,73 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         </p>
 
         <div className="mt-4 space-y-0">
-          {data.lineItems.map((item, i) => (
-            <div
-              key={item.id}
-              className={`flex items-start justify-between gap-6 py-3 ${
-                i > 0 ? "border-t border-[#EEEBE5] print:border-[#ddd]" : ""
-              }`}
-            >
-              <div className="min-w-0 flex-1">
-                <p className="font-['Georgia',_serif] text-[14px] italic leading-tight text-[#27272F]">
-                  {item.description}
-                </p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[#777]">
-                  {item.type} · {item.qty} × {item.rateFormatted}
-                </p>
-                {item.sacCode && (
-                  <p className="mt-0.5 text-[10px] text-[#555]">
-                    <span className="text-[#999]">HSN/SAC:</span>{" "}
-                    <span className="font-semibold text-[#27272F]">
-                      {item.sacCode}
-                    </span>
-                    {item.unit && (
-                      <span className="text-[#999]">
-                        {" "}
-                        · Unit:{" "}
-                        <span className="font-medium text-[#555]">
-                          {item.unit}
-                        </span>
-                      </span>
-                    )}
+          {data.lineItems.map((item, i) => {
+            if (item.isMilestoneHeader) {
+              return (
+                <div
+                  key={item.id}
+                  className="mt-6 flex items-end justify-between border-y border-[#EEEBE5] bg-[#EEEBE5]/40 px-4 py-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+                      Milestone Section
+                    </p>
+                    <p className="mt-1 font-['Georgia',_serif] text-[16px] font-bold italic text-[#27272F]">
+                      {item.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#999]">
+                      Subtotal
+                    </p>
+                    <p className="text-[16px] font-medium tabular-nums text-[#27272F]">
+                      {item.groupSubtotalFormatted}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={item.id}
+                className={`flex items-start justify-between gap-6 py-3 ${
+                  i > 0 && !data.lineItems[i - 1].isMilestoneHeader
+                    ? "border-t border-[#EEEBE5] print:border-[#ddd]"
+                    : ""
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-['Georgia',_serif] text-[14px] italic leading-tight text-[#27272F]">
+                    {item.description}
                   </p>
-                )}
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[#777]">
+                    {item.type} · {item.qty} × {item.rateFormatted}
+                  </p>
+                  {item.sacCode && (
+                    <p className="mt-0.5 text-[10px] text-[#555]">
+                      <span className="text-[#999]">HSN/SAC:</span>{" "}
+                      <span className="font-semibold text-[#27272F]">
+                        {item.sacCode}
+                      </span>
+                      {item.unit && (
+                        <span className="text-[#999]">
+                          {" "}
+                          · Unit:{" "}
+                          <span className="font-medium text-[#555]">
+                            {item.unit}
+                          </span>
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <p className="shrink-0 text-[15px] font-medium tabular-nums text-[#27272F]">
+                  {item.amountFormatted}
+                </p>
               </div>
-              <p className="shrink-0 text-[15px] font-medium tabular-nums text-[#27272F]">
-                {item.amountFormatted}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -253,6 +283,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                       <p>IBAN: {data.ibanRoutingCode}</p>
                     )}
                   </>
+                )}
+                {data.lineItems.some((i) => i.isMilestoneHeader) && (
+                  <p className="mt-2 text-[10px] italic text-[#999] border-t border-[#EEEBE5] pt-1.5">
+                    Note: Please transfer the relevant Milestone Subtotal as outlined above.
+                  </p>
                 )}
               </div>
             </div>

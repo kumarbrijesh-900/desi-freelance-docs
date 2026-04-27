@@ -70,29 +70,25 @@ function EyeIcon({ className }: { className?: string }) {
 
 function MsaStatusBadge({ response }: { response: MsaResponse }) {
   const map: Record<MsaResponse, { label: string; classes: string }> = {
-    accepted: {
+    ACCEPTED: {
       label: "Client Accepted",
       classes: "border-green-200 bg-green-50 text-green-700",
     },
-    rejected: {
-      label: "Client Rejected",
-      classes: "border-red-200 bg-red-50 text-red-600",
-    },
-    negotiating: {
-      label: "Negotiating",
+    "REVISION ASKED": {
+      label: "Revision Requested",
       classes: "border-cyan-200 bg-cyan-50 text-cyan-700",
     },
-    pending: {
+    PENDING: {
       label: "Pending",
       classes: "border-amber-200 bg-amber-50 text-amber-700",
     },
   };
-  const { label, classes } = map[response] ?? map.pending;
+  const { label, classes } = map[response] ?? map.PENDING;
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${classes}`}
     >
-      {response === "accepted" && <CheckCircleIcon className="h-3 w-3" />}
+      {response === "ACCEPTED" && <CheckCircleIcon className="h-3 w-3" />}
       {label}
     </span>
   );

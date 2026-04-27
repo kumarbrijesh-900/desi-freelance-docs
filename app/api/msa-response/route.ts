@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const { shareToken, response, note } = await req.json();
 
-    if (!shareToken || !["accepted", "rejected", "negotiating"].includes(response)) {
+    if (!shareToken || !["ACCEPTED", "REVISION ASKED", "PENDING"].includes(response)) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
 
     // 3. Send email notification to agency owner
     if (ownerEmail) {
-      const subject = response === "accepted" 
+      const subject = response === "ACCEPTED" 
         ? `Action Required: MSA Accepted for Invoice ${inv.invoice_number}`
         : `Action Required: MSA Changes Proposed for Invoice ${inv.invoice_number}`;
       
-      const message = response === "accepted"
+      const message = response === "ACCEPTED"
         ? `Great news! Your client (${inv.shared_to_email}) has accepted the Master Service Agreement and viewed Invoice ${inv.invoice_number}.`
         : `Your client (${inv.shared_to_email}) has proposed changes to the MSA for Invoice ${inv.invoice_number}.<br/><br/><strong>Proposal:</strong> "${note}"`;
 
@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Create in-app notification
-    const notificationTitle = response === "accepted" ? "MSA Approved" : "MSA Changes Proposed";
-    const notificationMessage = response === "accepted"
+    const notificationTitle = response === "ACCEPTED" ? "MSA Approved" : "MSA Changes Proposed";
+    const notificationMessage = response === "ACCEPTED"
       ? `Client has accepted the MSA and viewed Invoice ${inv.invoice_number}.`
       : `Client has proposed changes to the MSA for Invoice ${inv.invoice_number}. View Proposal.`;
 

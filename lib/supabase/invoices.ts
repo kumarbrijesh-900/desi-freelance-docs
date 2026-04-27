@@ -8,13 +8,13 @@
 
 /** Last updated: 2026-04-24 19:01 (IST) */
 import { supabase } from "@/lib/supabase/client";
-import type { InvoiceFormData } from "@/types/invoice";
+import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
-export type InvoiceStatus = "draft" | "finalized" | "settled" | "overdue";
+export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
 
-export type MsaResponse = "pending" | "accepted" | "rejected" | "negotiating";
+export type MsaResponse = "PENDING" | "ACCEPTED" | "REVISION ASKED";
 
 export interface SavedInvoice {
   id: string;
@@ -95,7 +95,7 @@ export async function saveInvoice(
   }
 
   const invoiceNumber = getInvoiceNumber(input.formData);
-  const status = input.status ?? "draft";
+  const status = input.status ?? "DRAFT";
 
   const row = {
     invoice_number: invoiceNumber,
@@ -176,7 +176,11 @@ export async function listInvoices(): Promise<{
   if (error) {
     return { data: [], error: error.message };
   }
-  return { data: (data ?? []) as SavedInvoice[], error: null };
+
+  // Ensure unique invoices by id (Post-processing to ensure "one invoice equals exactly one row")
+  const uniqueInvoices = Array.from(new Map((data ?? []).map(inv => [inv.id, inv])).values());
+  
+  return { data: uniqueInvoices as SavedInvoice[], error: null };
 }
 
 /* ─── Delete ──────────────────────────────────────────────── */
@@ -236,7 +240,7 @@ export async function shareInvoice(
     .update({
       share_token: token,
       shared_at: new Date().toISOString(),
-      status: "finalized" as InvoiceStatus,
+      status: "SENT" as InvoiceStatus,
     })
     .eq("id", invoiceId)
     .eq("user_id", userId);
@@ -367,7 +371,7 @@ export async function detachMsaFromInvoice(
 
   const { error } = await supabase
     .from("invoices")
-    .update({ msa_id: null, msa_response: "pending", msa_responded_at: null })
+    .update({ msa_id: null, msa_response: "PENDING", msa_responded_at: null })
     .eq("id", invoiceId)
     .eq("user_id", userId);
 
@@ -392,7 +396,7 @@ export async function loadMsaForSharedInvoice(
 /** Respond to MSA on a shared invoice (public — anon user) */
 export async function respondToMsa(
   shareToken: string,
-  response: "accepted" | "rejected",
+  response: "ACCEPTED" | "REVISION ASKED",
 ): Promise<{ error: string | null }> {
   const now = new Date().toISOString();
   const updateFields: Record<string, unknown> = {
@@ -416,9 +420,9 @@ export async function respondToMsa(
     user_id: inv.user_id,
     invoice_id: inv.id,
     type: `msa_${response}`,
-    title: response === "accepted" ? "MSA Approved" : "MSA Rejected",
+    title: response === "ACCEPTED" ? "MSA Approved" : "MSA Rejected",
     message:
-      response === "accepted"
+      response === "ACCEPTED"
         ? `Client approved MSA and seen invoice ${inv.invoice_number}.`
         : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
     is_read: false,
@@ -454,7 +458,7 @@ export async function proposeMsaChanges(
   const { data: inv, error: updateErr } = await supabase
     .from("invoices")
     .update({
-      msa_response: "negotiating" as MsaResponse,
+      msa_response: "REVISION ASKED" as MsaResponse,
       client_msa_note: noteText,
       msa_responded_at: new Date().toISOString(),
     })
@@ -478,6 +482,105 @@ export async function proposeMsaChanges(
   return { error: null };
 }
 
+export async function markMilestoneSettled(
+  invoiceId: string,
+  milestoneId: string,
+  tdsAmount: number = 0,
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  // 1. Fetch current invoice data
+  const { data: inv, error: fetchErr } = await supabase
+    .from("invoices")
+    .select("form_data, status, invoice_number")
+    .eq("id", invoiceId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchErr || !inv) return { error: fetchErr?.message || "Invoice not found" };
+
+  const formData = mergeInvoiceFormData(inv.form_data);
+  const lineItems = formData.lineItems || [];
+
+  // 2. Update the milestone status
+  let updated = false;
+  lineItems.forEach((item) => {
+    if (item.id === milestoneId) {
+      item.milestone_status = "SETTLED";
+      item.tds_amount = tdsAmount;
+      updated = true;
+    }
+  });
+
+  if (!updated) return { error: "Milestone not found" };
+
+  // 3. Determine new parent status
+  const allMilestones = lineItems.filter((i) => i.is_milestone_header);
+  const settledMilestones = allMilestones.filter((i) => i.milestone_status === "SETTLED");
+  
+  let newStatus = "PARTIAL";
+  if (settledMilestones.length === allMilestones.length) {
+    newStatus = "SETTLED";
+  }
+
+  // 4. Update Supabase
+  const { error: updateErr } = await supabase
+    .from("invoices")
+    .update({
+      form_data: formData as unknown as Record<string, unknown>,
+      status: newStatus as InvoiceStatus,
+    })
+    .eq("id", invoiceId)
+    .eq("user_id", userId);
+
+  if (!updateErr) {
+    const milestone = allMilestones.find(m => m.id === milestoneId);
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      invoice_id: invoiceId,
+      type: "milestone_settled",
+      title: "Milestone Paid",
+      message: `Milestone "${milestone?.description}" for Invoice ${inv.invoice_number} has been marked as SETTLED.`,
+      is_read: false,
+    });
+  }
+
+  return { error: updateErr?.message ?? null };
+}
+
+/** Trigger a "Request Next Milestone" notification for the client */
+export async function requestNextMilestone(
+  invoiceId: string,
+  milestoneId: string,
+): Promise<{ error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) return { error: "Not authenticated" };
+
+  const { data: inv, error: fetchErr } = await supabase
+    .from("invoices")
+    .select("invoice_number, form_data")
+    .eq("id", invoiceId)
+    .single();
+
+  if (fetchErr || !inv) return { error: fetchErr?.message || "Invoice not found" };
+
+  const formData = mergeInvoiceFormData(inv.form_data);
+  const milestone = formData.lineItems.find(m => m.id === milestoneId);
+
+  // Create notification
+  const { error: notifErr } = await supabase.from("notifications").insert({
+    user_id: userId,
+    invoice_id: invoiceId,
+    type: "milestone_requested",
+    title: "Milestone Requested",
+    message: `You have requested the next milestone "${milestone?.description}" for Invoice ${inv.invoice_number}.`,
+    is_read: false,
+  });
+
+  return { error: notifErr?.message ?? null };
+}
+
 /** Mark an invoice as fully paid/settled (freelancer action) */
 export async function markInvoiceSettled(
   invoiceId: string,
@@ -487,7 +590,7 @@ export async function markInvoiceSettled(
 
   const { data: inv, error } = await supabase
     .from("invoices")
-    .update({ status: "settled" as InvoiceStatus })
+    .update({ status: "SETTLED" as InvoiceStatus })
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .select("invoice_number, form_data")
@@ -533,7 +636,7 @@ export async function reissueNegotiatedInvoice(
     .update({
       form_data: newFormData as unknown as Record<string, unknown>,
       client_msa_note: null,
-      msa_response: "pending" as MsaResponse,
+      msa_response: "PENDING" as MsaResponse,
       msa_responded_at: null,
       applied_payment_terms: newFormData.meta?.paymentTerms || null,
       applied_late_fee_rate: newFormData.client?.msaLateFeeRate || null,

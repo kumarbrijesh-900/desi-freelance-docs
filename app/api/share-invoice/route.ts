@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
           share_token: token,
           shared_at: new Date().toISOString(),
           shared_to_email: clientEmail,
-          status: "finalized",
+          status: "SENT",
           ...(msaId ? { msa_id: msaId } : {}),
         })
         .eq("id", invoiceId);

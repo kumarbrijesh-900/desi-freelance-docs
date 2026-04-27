@@ -1,0 +1,113 @@
+"use client";
+
+import { useState } from "react";
+import { MotionReveal } from "@/components/ui/motion-primitives";
+import { getAppButtonClass } from "@/lib/ui-foundation";
+
+interface SettlementModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (tdsAmount: number) => void;
+  milestoneName: string;
+  subtotal: number;
+  currencySymbol: string;
+  isSubmitting: boolean;
+}
+
+export default function SettlementModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  milestoneName,
+  subtotal,
+  currencySymbol,
+  isSubmitting,
+}: SettlementModalProps) {
+  const [tdsPercent, setTdsPercent] = useState<number>(0);
+
+  if (!isOpen) return null;
+
+  const tdsAmount = (subtotal * tdsPercent) / 100;
+  const netReceived = subtotal - tdsAmount;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+      <MotionReveal preset="fade-up" className="w-full max-w-md">
+        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
+              Confirm Settlement
+            </h2>
+            <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+              Process payment for "{milestoneName}"
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Amount Summary */}
+            <div className="rounded-lg bg-[color:var(--bg-surface-soft)] p-4 border border-[color:var(--border-subtle)]">
+              <div className="flex justify-between text-sm">
+                <span className="text-[color:var(--text-muted)] font-medium">Milestone Subtotal</span>
+                <span className="font-bold text-[color:var(--text-primary)] tabular-nums">
+                  {currencySymbol}{subtotal.toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            {/* TDS Input */}
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1.5">
+                TDS Deduction (%)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={tdsPercent === 0 ? "" : tdsPercent}
+                  onChange={(e) => setTdsPercent(Number(e.target.value))}
+                  placeholder="0"
+                  className="w-full h-11 rounded-lg border border-[color:var(--border-default)] bg-white px-4 text-sm focus:border-[color:var(--color-lime-700)] outline-none transition-colors"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[color:var(--text-muted)]">
+                  %
+                </span>
+              </div>
+            </div>
+
+            {/* Math Breakdown */}
+            <div className="space-y-2 pt-2 border-t border-[color:var(--border-subtle)]">
+              <div className="flex justify-between text-xs text-[color:var(--text-muted)]">
+                <span>TDS Amount (-{tdsPercent}%)</span>
+                <span className="tabular-nums">-{currencySymbol}{tdsAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between items-baseline pt-1">
+                <span className="text-sm font-bold text-[color:var(--text-primary)]">Net Received</span>
+                <span className="text-xl font-black text-[color:var(--text-primary)] tabular-nums">
+                  {currencySymbol}{netReceived.toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className={`flex-1 ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => onConfirm(tdsAmount)}
+              disabled={isSubmitting}
+              className={`flex-[2] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+            >
+              {isSubmitting ? "Updating…" : "Confirm Settlement"}
+            </button>
+          </div>
+        </div>
+      </MotionReveal>
+    </div>
+  );
+}

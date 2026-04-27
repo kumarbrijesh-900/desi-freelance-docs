@@ -164,43 +164,70 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F0F0F2]">
-            {data.lineItems.map((item) => (
-              <tr key={item.id}>
-                <td className="py-6 pr-8">
-                  <div className="font-bold text-[15px] mb-1">
-                    {item.description}
-                  </div>
-                  <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#444]">
-                    {item.type && (
-                      <span className="font-medium">{item.type}</span>
-                    )}
-                    {item.sacCode && (
-                      <span>
-                        <span className="text-[#888]">HSN/SAC:</span>{" "}
-                        <span className="font-semibold text-[#222]">
-                          {item.sacCode}
+            {data.lineItems.map((item) => {
+              if (item.isMilestoneHeader) {
+                return (
+                  <tr key={item.id} className="bg-gray-50/60 border-y border-gray-100">
+                    <td colSpan={3} className="py-5 px-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A08E]">
+                          Milestone Section
                         </span>
-                      </span>
-                    )}
-                    {item.unit && (
-                      <span>
-                        <span className="text-[#888]">Unit:</span>{" "}
-                        <span className="font-medium">{item.unit}</span>
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="py-6 text-center text-[14px] font-medium">
-                  {item.qty}
-                </td>
-                <td className="py-6 text-right text-[14px] font-medium">
-                  {item.rateFormatted}
-                </td>
-                <td className="py-6 text-right text-[15px] font-bold">
-                  {item.amountFormatted}
-                </td>
-              </tr>
-            ))}
+                        <div className="text-[16px] font-bold text-[#111118]">
+                          {item.description}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-5 px-4 text-right align-bottom">
+                      <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-[#A8A08E] mb-1">
+                        Subtotal
+                      </div>
+                      <div className="text-[15px] font-black text-[#111118]">
+                        {item.groupSubtotalFormatted}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }
+
+              return (
+                <tr key={item.id}>
+                  <td className="py-6 pr-8">
+                    <div className="font-bold text-[15px] mb-1">
+                      {item.description}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#444]">
+                      {item.type && (
+                        <span className="font-medium">{item.type}</span>
+                      )}
+                      {item.sacCode && (
+                        <span>
+                          <span className="text-[#888]">HSN/SAC:</span>{" "}
+                          <span className="font-semibold text-[#222]">
+                            {item.sacCode}
+                          </span>
+                        </span>
+                      )}
+                      {item.unit && (
+                        <span>
+                          <span className="text-[#888]">Unit:</span>{" "}
+                          <span className="font-medium">{item.unit}</span>
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-6 text-center text-[14px] font-medium">
+                    {item.qty}
+                  </td>
+                  <td className="py-6 text-right text-[14px] font-medium">
+                    {item.rateFormatted}
+                  </td>
+                  <td className="py-6 text-right text-[15px] font-bold">
+                    {item.amountFormatted}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>
@@ -265,6 +292,11 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                     <p>SWIFT: {data.swiftBicCode}</p>
                     <p>Account: {data.accountNumber}</p>
                   </>
+                )}
+                {data.lineItems.some((i) => i.isMilestoneHeader) && (
+                  <p className="mt-3 text-[11px] font-medium italic text-[#A8A08E] border-t border-[#F0F0F2] pt-2">
+                    Note: Please transfer the relevant Milestone Subtotal as outlined above.
+                  </p>
                 )}
               </div>
             </div>
