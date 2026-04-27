@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Search, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
@@ -20,15 +19,13 @@ export default function NotFound() {
         </div>
 
         <div className="pt-4">
-          <Button 
-            asChild
-            className="w-full bg-[#111118] text-[#d4ff00] hover:bg-zinc-800 h-12 text-sm font-bold uppercase tracking-widest gap-2"
+          <Link 
+            href="/"
+            className="w-full bg-[#111118] text-[#d4ff00] hover:bg-zinc-800 h-12 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-lg transition-colors"
           >
-            <Link href="/">
-              <ArrowLeft size={16} />
-              Return to Safety
-            </Link>
-          </Button>
+            <ArrowLeft size={16} />
+            Return to Safety
+          </Link>
         </div>
 
         <div className="pt-8 border-t border-zinc-100">

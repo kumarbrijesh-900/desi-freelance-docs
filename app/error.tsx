@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCcw, Home } from "lucide-react";
 import Link from "next/link";
 
@@ -39,24 +38,21 @@ export default function Error({
         </div>
 
         <div className="flex flex-col gap-3 pt-4">
-          <Button 
+          <button 
             onClick={() => reset()}
-            className="w-full bg-[#111118] text-[#d4ff00] hover:bg-zinc-800 h-12 text-sm font-bold uppercase tracking-widest gap-2"
+            className="w-full bg-[#111118] text-[#d4ff00] hover:bg-zinc-800 h-12 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-lg transition-colors"
           >
             <RefreshCcw size={16} />
             Attempt Recovery
-          </Button>
+          </button>
           
-          <Button 
-            asChild
-            variant="outline"
-            className="w-full h-12 text-sm font-bold uppercase tracking-widest gap-2 border-[color:var(--border-subtle)]"
+          <Link 
+            href="/"
+            className="w-full h-12 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 border border-[color:var(--border-subtle)] rounded-lg hover:bg-zinc-50 transition-colors"
           >
-            <Link href="/">
-              <Home size={16} />
-              Return Home
-            </Link>
-          </Button>
+            <Home size={16} />
+            Return Home
+          </Link>
         </div>
 
         <p className="text-[11px] text-zinc-400 font-medium">
