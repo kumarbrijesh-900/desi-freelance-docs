@@ -806,7 +806,8 @@ function EditorContent() {
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
-    // 1. Check for anonymous draft (Progressive Profiling)
+    try {
+      // 1. Check for anonymous draft (Progressive Profiling)
     const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
     const isFresh = window.location.search.includes("fresh=1");
 
