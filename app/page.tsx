@@ -217,7 +217,7 @@ export default function Home() {
                 
                 <button
                   onClick={() => setIsLightboxOpen(true)}
-                  className="text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors underline underline-offset-4 decoration-[color:var(--border-subtle)]"
+                  className="sm:hidden text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors underline underline-offset-4 decoration-[color:var(--border-subtle)]"
                 >
                   View a sample invoice
                 </button>
