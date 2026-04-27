@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { extractInvoiceBriefWithAi } from "@/lib/ai-brief-extractor";
 import { ratelimit } from "@/lib/upstash";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
 
 const MAX_INPUT_BYTES = 10_240; // 10 KB max brief size
 
@@ -47,28 +48,37 @@ const BriefExtractSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  // ─── Rate limiting ────────────────────────────────────────
-  const clientIp = getClientIp(request);
-  const { success } = await ratelimit.limit(clientIp);
-
-  if (!success) {
-    return NextResponse.json(
-      {
-        extraction: null,
-        error: "Too many requests. Please try again in a minute.",
-      },
-      { status: 429 },
-    );
-  }
-
   try {
+    // ─── Auth verification ─────────────────────────────────────
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // ─── Rate limiting ────────────────────────────────────────
+    const clientIp = getClientIp(request);
+    const { success } = await ratelimit.limit(clientIp);
+
+    if (!success) {
+      return NextResponse.json(
+        {
+          error: "Too many requests. Please try again in a minute.",
+        },
+        { status: 429 },
+      );
+    }
+
     // ─── Input size guard ─────────────────────────────────────
     const contentLength = request.headers.get("content-length");
     if (contentLength && parseInt(contentLength, 10) > MAX_INPUT_BYTES * 50) {
       // Increased for images
       return NextResponse.json(
         {
-          extraction: null,
           error: "Request body too large.",
         },
         { status: 413 },
@@ -81,7 +91,6 @@ export async function POST(request: Request) {
     if (!result.success) {
       return NextResponse.json(
         {
-          extraction: null,
           error: "Invalid request payload.",
           details: result.error.format(),
         },
@@ -102,7 +111,6 @@ export async function POST(request: Request) {
     if (!extraction) {
       return NextResponse.json(
         {
-          extraction: null,
           error: "AI engine failed to parse the brief.",
         },
         { status: 502 },
@@ -117,10 +125,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Omniscient Agent extraction failed:", error);
     return NextResponse.json(
-      {
-        extraction: null,
-        error: "Brief extraction failed.",
-      },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }

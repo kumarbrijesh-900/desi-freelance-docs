@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +13,32 @@ const RequestMilestoneSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const supabaseAdmin = createClient(
+  const supabaseAdmin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   try {
+    // ─── Auth verification ─────────────────────────────────────
+    const supabase = await createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // ─── Zod Validation ────────────────────────────────────────
     const body = await req.json();
     const result = RequestMilestoneSchema.safeParse(body);
 
     if (!result.success) {
-      return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request payload.", details: result.error.format() },
+        { status: 400 }
+      );
     }
 
     const { invoiceId, milestoneId } = result.data;
@@ -114,6 +130,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("REQUEST_MILESTONE_ERROR:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
