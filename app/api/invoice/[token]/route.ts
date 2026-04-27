@@ -38,25 +38,37 @@ export async function GET(
   let formData = mergeInvoiceFormData(invoice.form_data);
 
   // 3. Strip sensitive data if gate is active and not accepted
-  if (hasMsaGate && !isAccepted) {
-    // Strip line items
+  const isGated = hasMsaGate && !isAccepted;
+  
+  if (isGated) {
+    // Strip financials
     formData.lineItems = [];
     
-    // Strip notes/license if they contain sensitive contract info
+    // Strip notes/license
     if (formData.payment) {
         formData.payment.notes = "";
         if (formData.payment.license) {
             formData.payment.license.isLicenseIncluded = false;
         }
     }
-    
-    // We keep the agency/client info and metadata (invoice number/date) 
-    // to render the MSA context, but we empty the "meat" of the invoice.
+
+    // Explicitly construct safe return payload (Zero-Trust)
+    return NextResponse.json({
+      id: invoice.id,
+      invoice_number: invoice.invoice_number,
+      share_token: invoice.share_token,
+      status: invoice.status,
+      msa_id: invoice.msa_id,
+      msa_status: msaStatus,
+      form_data: formData,
+      is_gated: true
+    });
   }
 
+  // 4. Return full payload for accepted MSAs
   return NextResponse.json({
     ...invoice,
     form_data: formData,
-    is_gated: hasMsaGate && !isAccepted
+    is_gated: false
   });
 }
