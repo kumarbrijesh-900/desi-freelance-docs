@@ -382,7 +382,6 @@ export default function Home() {
         </div>
       </footer>
 
-      </AnimatePresence>
     </main>
   );
 }
