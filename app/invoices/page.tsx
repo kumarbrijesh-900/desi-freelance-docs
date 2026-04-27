@@ -86,7 +86,7 @@ function StatusBadge({ status }: { status: string }) {
 
   if (isSent)
     return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
         Sent
       </span>
     );
@@ -580,7 +580,7 @@ export default function InvoiceHistoryPage() {
       }
 
       const currency = inv.form_data.client?.clientCurrency || "INR";
-      const symbol = currency === "USD" ? "$" : "₹";
+      const symbol = currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "₹";
 
       setActiveSettlement({
         invoiceId: id,

@@ -183,7 +183,31 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               </tr>
             </thead>
             <tbody>
-              {data.lineItems.map((item) => (
+              {data.lineItems.map((item) => {
+                if (item.isMilestoneHeader || (item as any).is_milestone_header) {
+                  return (
+                    <tr key={item.id} className="bg-[#2D5BFF]/5 border-y border-[#2D5BFF]/10">
+                      <td colSpan={2} className="p-4">
+                        <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#2D5BFF]">
+                          Milestone Section
+                        </span>
+                        <div className="font-outfit font-extrabold text-[16px] text-[#111118]">
+                          {item.description}
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#A8A08E] block mb-1">
+                          Subtotal
+                        </span>
+                        <div className="font-outfit font-extrabold text-[18px] text-[#2D5BFF]">
+                          {item.groupSubtotalFormatted}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
                 <tr key={item.id} className="border-b border-[#e8e6e1]">
                   <td className="p-4 align-top">
                     <div className="font-outfit font-extrabold text-[16px] text-[#111118] mb-1">
@@ -216,7 +240,8 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                     {item.amountFormatted}
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </section>

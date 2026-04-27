@@ -164,7 +164,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
 
         <div className="mt-4 space-y-0">
           {data.lineItems.map((item, i) => {
-            if (item.isMilestoneHeader) {
+            if (item.isMilestoneHeader || (item as any).is_milestone_header) {
               return (
                 <div
                   key={item.id}

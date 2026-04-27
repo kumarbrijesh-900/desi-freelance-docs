@@ -149,7 +149,34 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
 
           {/* Line Items */}
           <div className="divide-y divide-[#6C63FF]/8">
-            {data.lineItems.map((item) => (
+            {data.lineItems.map((item) => {
+              if (item.isMilestoneHeader || (item as any).is_milestone_header) {
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-[#6C63FF]/5 border-y border-[#6C63FF]/10 py-4 px-4 flex flex-col md:flex-row md:items-center justify-between gap-2"
+                  >
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6C63FF]">
+                        Milestone Section
+                      </span>
+                      <h3 className="text-[16px] font-black text-[#1A1A2E] mt-0.5">
+                        {item.description}
+                      </h3>
+                    </div>
+                    <div className="text-right flex flex-col items-end">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#888]">
+                        Subtotal
+                      </span>
+                      <span className="text-[18px] font-black text-[#1A1A2E]">
+                        {item.groupSubtotalFormatted}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
               <div
                 key={item.id}
                 className="grid grid-cols-1 md:grid-cols-[1fr_80px_120px_80px_110px] gap-2 md:gap-4 py-4 md:py-3 md:px-2 group"
@@ -210,7 +237,8 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                   {item.amountFormatted}
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         </div>
       </section>

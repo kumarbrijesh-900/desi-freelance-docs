@@ -165,7 +165,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           </thead>
           <tbody className="divide-y divide-[#F0F0F2]">
             {data.lineItems.map((item) => {
-              if (item.isMilestoneHeader) {
+              if (item.isMilestoneHeader || (item as any).is_milestone_header) {
                 return (
                   <tr key={item.id} className="bg-gray-50/60 border-y border-gray-100">
                     <td colSpan={3} className="py-5 px-4">
