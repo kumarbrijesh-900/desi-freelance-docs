@@ -13,6 +13,7 @@ import {
   Scale, 
   Link as LinkIcon 
 } from "lucide-react";
+import BentoFeatureGrid from "@/components/landing/BentoFeatureGrid";
 import {
   MotionReveal,
   MotionStagger,
@@ -30,84 +31,7 @@ import { supabase } from "@/lib/supabase/client";
 import InteractiveHeroGraphic from "@/components/InteractiveHeroGraphic";
 
 const HERO_TEXT = "Invoicing, stripped to the essentials.";
-const TRUST_ITEMS = [
-  {
-    icon: "shield",
-    title: "GST Compliant",
-    desc: "CGST, SGST, IGST — calculated automatically",
-  },
-  {
-    icon: "lock",
-    title: "Bulletproof Contracts",
-    desc: "Legally protective MSA terms included by default",
-  },
-  {
-    icon: "sparkle",
-    title: "Private by Design",
-    desc: "Your data stays yours. Nothing is stored.",
-  },
-];
 
-const FEATURES = [
-  {
-    icon: Terminal,
-    title: "Keyboard-First Precision",
-    desc: "A streamlined, zero-bloat interface designed to capture your agency's essentials. No endless dropdowns or confusing accounting jargon.",
-    accent: "var(--color-coral-400)",
-  },
-  {
-    icon: Scale,
-    title: "Automated Tax Nexus",
-    desc: "Built specifically for Indian tax laws. Lance automatically routes IGST, CGST, and enforces LUT compliance for zero-rated foreign exports.",
-    accent: "var(--color-lime-500)",
-  },
-  {
-    icon: LinkIcon,
-    title: "Tokenized Delivery",
-    desc: "Stop sending dead PDFs. Generate secure, tokenized web links that log client read-receipts and enforce digital MSA acceptance before viewing.",
-    accent: "var(--color-cyan-500)",
-  },
-];
-
-function ShieldIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2L3 7V12C3 17.5 7.5 22 12 22C16.5 22 21 17.5 21 12V7L12 2Z" />
-      <path d="M9 12L11 14L15 10" />
-    </svg>
-  );
-}
-
-function LockIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="5" y="11" width="14" height="10" rx="2" />
-      <path d="M8 11V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V11" />
-    </svg>
-  );
-}
-
-function TrustIcon({ type, className }: { type: string; className?: string }) {
-  if (type === "shield") return <ShieldIcon className={className} />;
-  if (type === "sparkle") return <SparklesIcon className={className} />;
-  return <LockIcon className={className} />;
-}
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -247,83 +171,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Trust Signals ─── */}
-      <section className={`${appPageContainerClass} pb-16 sm:pb-20`}>
-        <MotionStagger className="mx-auto grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
-          {TRUST_ITEMS.map((item) => (
-            <motion.div
-              key={item.title}
-              whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="group flex items-start gap-3 rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-white px-5 py-4 transition-shadow hover:shadow-[0_4px_16px_rgba(17,17,24,0.05)]"
-            >
-              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-lime-50)]">
-                <TrustIcon
-                  type={item.icon}
-                  className="h-4.5 w-4.5 text-[color:var(--color-lime-600)]"
-                />
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
-                  {item.title}
-                </p>
-                <p className="mt-0.5 text-[11px] leading-4 text-[color:var(--text-muted)]">
-                  {item.desc}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </MotionStagger>
-      </section>
-
-      {/* ─── How It Works ─── */}
-      <section
-        id="how-it-works"
-        className={`${appPageContainerClass} pb-20 sm:pb-28`}
-      >
-        <MotionReveal preset="fade-up" className="text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)]">
-            THE ARCHITECTURE
-          </p>
-          <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] text-[color:var(--text-primary)] sm:text-3xl">
-            Engineered for operators, not accountants.
-          </h2>
-        </MotionReveal>
-
-        <MotionStagger className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
-          {FEATURES.map((feat, i) => {
-            const Icon = feat.icon;
-            return (
-              <MotionReveal key={feat.title} preset="fade-up" delay={i * 120}>
-                <motion.div
-                  whileHover={{ y: -3, transition: { duration: 0.2 } }}
-                  className="group relative overflow-hidden rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-white p-6 transition-shadow hover:shadow-[0_8px_24px_rgba(17,17,24,0.06)]"
-                >
-                  {/* Step number */}
-                  <span className="absolute top-4 right-5 text-[64px] font-extrabold leading-none text-[color:var(--color-bg-subtle)] select-none">
-                    {i + 1}
-                  </span>
-
-                  <div
-                    className="relative flex h-11 w-11 items-center justify-center rounded-lg"
-                    style={{
-                      background: `color-mix(in srgb, ${feat.accent} 12%, white)`,
-                    }}
-                  >
-                    <Icon className="h-5 w-5" style={{ color: feat.accent }} />
-                  </div>
-
-                  <h3 className="relative mt-4 text-[15px] font-bold text-[color:var(--text-primary)]">
-                    {feat.title}
-                  </h3>
-                  <p className="relative mt-2 text-[13px] leading-5 text-[color:var(--text-muted)]">
-                    {feat.desc}
-                  </p>
-                </motion.div>
-              </MotionReveal>
-            );
-          })}
-        </MotionStagger>
-      </section>
+      {/* ─── Bento Feature Grid ─── */}
+      <BentoFeatureGrid />
 
       {/* ─── CTA Banner ─── */}
       <section className={`${appPageContainerClass} pb-24 sm:pb-32`}>
