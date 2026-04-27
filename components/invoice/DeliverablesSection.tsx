@@ -388,7 +388,7 @@ export default function DeliverablesSection({
                     <button
                       type="button"
                       onClick={() => removeMilestone(header.id)}
-                      className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"
+                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors"
                     >
                       <span className="text-xl">×</span>
                     </button>
@@ -401,7 +401,7 @@ export default function DeliverablesSection({
                   {items.length > 0 && (
                     <div
                       className={cn(
-                        "mb-2 hidden xl:grid xl:gap-4 xl:px-4 xl:py-2 opacity-60",
+                        "mb-0 hidden xl:grid xl:gap-4 xl:px-4 xl:py-1 opacity-60",
                         lineItemDesktopGridClass,
                       )}
                     >
@@ -415,7 +415,7 @@ export default function DeliverablesSection({
                     </div>
                   )}
 
-                  <div className="space-y-4 xl:space-y-1">
+                  <div className="space-y-4 xl:space-y-0">
                     {items.map((item) => {
                       const lineTotal = item.qty * item.rate;
                       const allowedUnits = invoiceAllowedUnitsByType[item.type];
@@ -573,7 +573,7 @@ export default function DeliverablesSection({
                               <button
                                 type="button"
                                 onClick={() => removeLineItem(item.id)}
-                                className="h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 hover:bg-red-50 text-red-400 transition-all"
+                                className="h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all"
                               >
                                 ×
                               </button>
@@ -585,11 +585,11 @@ export default function DeliverablesSection({
                   </div>
 
                   {/* Add Line Item Button (Inside Milestone Block) */}
-                  <div className="mt-4 px-3">
+                  <div className="mt-2 px-3">
                     <button
                       type="button"
                       onClick={() => addLineItemToMilestone(header.id)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-200 px-4 py-2 text-[12px] font-bold text-gray-500 hover:border-gray-300 hover:bg-gray-50 transition-all"
+                      className="inline-flex items-center gap-2 py-2 text-[12px] font-bold text-gray-400 hover:text-[color:var(--app-primary)] transition-colors"
                     >
                       <span className="text-lg">+</span>
                       Add Line Item
@@ -602,19 +602,15 @@ export default function DeliverablesSection({
         </div>
 
         {/* Add Milestone Button (At the Root level) */}
-        <div className="pt-4 border-t border-dashed border-gray-200">
+        <div className="pt-2">
           <button
             type="button"
             onClick={addMilestone}
             className={cn(
-              getAppButtonClass({
-                variant: "primary",
-                size: "lg",
-              }),
-              "w-full sm:w-auto px-8 bg-black text-white hover:bg-black/90 shadow-lg shadow-black/5"
+              "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600 transition-all group"
             )}
           >
-            <span className="mr-3 text-xl">+</span>
+            <span className="text-2xl text-gray-300 group-hover:text-gray-400 transition-colors">+</span>
             Add Project Milestone
           </button>
           <p className="mt-4 text-[11px] text-gray-400 text-center sm:text-left">
