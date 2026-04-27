@@ -57,13 +57,20 @@ export async function GET(request: Request) {
        ───────────────────────────────────────────────────────────────── */
     const { data: dueToday } = await supabaseAdmin
       .from("invoices")
-      .select("id, invoice_number, user_id, shared_to_email, form_data")
+      .select("id, invoice_number, user_id, shared_to_email, form_data, last_notified_at")
       .eq("due_date", today)
       .eq("reminded_due_date", false)
       .in("status", ["SENT", "PARTIAL"]);
 
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
     if (dueToday && dueToday.length > 0) {
       for (const inv of dueToday) {
+        // ANTI-SPAM: Check if already notified in last 24h
+        if (inv.last_notified_at && new Date(inv.last_notified_at) > twentyFourHoursAgo) {
+          continue;
+        }
         // Fetch agency profile to get their email
         const { data: profile } = await supabaseAdmin
           .from("user_profiles")
@@ -107,7 +114,10 @@ export async function GET(request: Request) {
           // Update flag
           await supabaseAdmin
             .from("invoices")
-            .update({ reminded_due_date: true })
+            .update({ 
+              reminded_due_date: true,
+              last_notified_at: now.toISOString() 
+            })
             .eq("id", inv.id);
         }
       }
@@ -119,13 +129,17 @@ export async function GET(request: Request) {
        ───────────────────────────────────────────────────────────────── */
     const { data: twoDaysOverdue } = await supabaseAdmin
       .from("invoices")
-      .select("id, invoice_number, user_id, shared_to_email, form_data")
+      .select("id, invoice_number, user_id, shared_to_email, form_data, last_notified_at")
       .eq("due_date", twoDaysAgo)
       .eq("reminded_overdue", false)
       .in("status", ["SENT", "PARTIAL"]); // Check SENT and PARTIAL for overdue
 
     if (twoDaysOverdue && twoDaysOverdue.length > 0) {
       for (const inv of twoDaysOverdue) {
+        // ANTI-SPAM: Check if already notified in last 24h
+        if (inv.last_notified_at && new Date(inv.last_notified_at) > twentyFourHoursAgo) {
+          continue;
+        }
         const { data: profile } = await supabaseAdmin
           .from("user_profiles")
           .select("email, agency_name")
@@ -147,7 +161,10 @@ export async function GET(request: Request) {
           // Update flag
           await supabaseAdmin
             .from("invoices")
-            .update({ reminded_overdue: true })
+            .update({ 
+              reminded_overdue: true,
+              last_notified_at: now.toISOString()
+            })
             .eq("id", inv.id);
         }
       }

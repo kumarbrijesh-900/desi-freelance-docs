@@ -8,7 +8,12 @@
 
 /** Last updated: 2026-04-24 19:01 (IST) */
 import { supabase } from "@/lib/supabase/client";
-import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
+import { 
+  mergeInvoiceFormData, 
+  invoiceSchema,
+  type InvoiceFormData 
+} from "@/types/invoice";
+import { z } from "zod";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
@@ -92,6 +97,17 @@ export async function saveInvoice(
       data: null,
       error: "Not authenticated. Please log in to save invoices.",
     };
+  }
+
+  // DATA GUARDRAIL: Enforce Zod validation before saving
+  try {
+    invoiceSchema.parse(input.formData);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      const firstError = err.errors[0]?.message || "Invalid invoice data";
+      return { data: null, error: `Validation Failed: ${firstError}` };
+    }
+    return { data: null, error: "Malformed invoice data detected." };
   }
 
   const invoiceNumber = getInvoiceNumber(input.formData);

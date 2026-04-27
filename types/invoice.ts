@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { IndiaStateOption } from "@/lib/india-state-options";
 import type {
   InternationalCountryOption,
@@ -428,3 +429,96 @@ export function mergeInvoiceFormData(
     },
   };
 }
+/* ─── Zod Schemas ────────────────────────────────────────── */
+
+export const agencySchema = z.object({
+  agencyName: z.string().min(1, "Agency name is required"),
+  address: z.string().optional(),
+  addressLine1: z.string().min(1, "Address is required"),
+  addressLine2: z.string().optional(),
+  city: z.string().min(1, "City is required"),
+  pinCode: z.string().min(6, "Pin code must be at least 6 digits"),
+  agencyState: z.string().min(1, "State is required"),
+  gstin: z.string().optional(),
+  pan: z.string().optional(),
+  logoUrl: z.string().optional(),
+  gstRegistrationStatus: z.enum(["registered", "not-registered"]),
+  lutAvailability: z.string().optional(),
+  lutNumber: z.string().optional(),
+  lutValidity: z.string().optional(),
+  noLutTaxHandling: z.string().optional(),
+  signatureUrl: z.string().optional(),
+  profileLogoUrl: z.string().optional(),
+});
+
+export const clientSchema = z.object({
+  clientName: z.string().min(1, "Client name is required"),
+  clientAddress: z.string().optional(),
+  clientAddressLine1: z.string().optional(),
+  clientAddressLine2: z.string().optional(),
+  clientCity: z.string().optional(),
+  clientPinCode: z.string().optional(),
+  clientPostalCode: z.string().optional(),
+  clientEmail: z.string().email("Invalid client email").optional().or(z.literal("")),
+  clientState: z.string().optional(),
+  clientCountry: z.string().optional(),
+  clientCurrency: z.string().optional(),
+  clientGstin: z.string().optional(),
+  clientLocation: z.enum(["domestic", "international"]),
+  isClientSezUnit: z.string().optional(),
+});
+
+export const metaSchema = z.object({
+  invoiceNumber: z.string().min(1, "Invoice number is required"),
+  invoiceDate: z.string().min(1, "Invoice date is required"),
+  dueDate: z.string().min(1, "Due date is required"),
+  paymentTerms: z.string().min(1, "Payment terms are required"),
+  hasAddendum: z.boolean().default(false),
+});
+
+export const lineItemSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  description: z.string().min(1, "Description is required"),
+  qty: z.number().min(0),
+  rate: z.number().min(0),
+  rateUnit: z.string(),
+  sacCode: z.string().optional(),
+  is_milestone_header: z.boolean().optional(),
+  milestone_group_id: z.string().optional(),
+  milestone_status: z.enum(["PENDING", "SETTLED"]).optional(),
+  tds_amount: z.number().optional(),
+});
+
+export const taxSchema = z.object({
+  taxMode: z.enum(["none", "gst", "igst"]),
+  taxRate: z.number().min(0),
+  isRcmEnabled: z.boolean().default(false),
+});
+
+export const paymentSchema = z.object({
+  license: z.object({
+    isLicenseIncluded: z.boolean(),
+    licenseType: z.string().optional(),
+    licenseDuration: z.string().optional(),
+  }),
+  notes: z.string().optional(),
+  paymentSettlementType: z.string().optional(),
+  accountName: z.string().optional(),
+  bankName: z.string().optional(),
+  bankAddress: z.string().optional(),
+  accountNumber: z.string().optional(),
+  ifscCode: z.string().optional(),
+  swiftBicCode: z.string().optional(),
+  ibanRoutingCode: z.string().optional(),
+  qrCodeUrl: z.string().optional(),
+});
+
+export const invoiceSchema = z.object({
+  agency: agencySchema,
+  client: clientSchema,
+  meta: metaSchema,
+  lineItems: z.array(lineItemSchema).min(1, "At least one line item is required"),
+  tax: taxSchema,
+  payment: paymentSchema,
+});
