@@ -2055,6 +2055,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           savedClients={savedClients}
           agency={formData.agency}
+          isNew={!parserDocumentId}
         />
       );
     case "deliverables":

@@ -62,6 +62,7 @@ interface ClientDetailsSectionProps {
   savedClients?: SavedClient[];
   onClientSelect?: (client: SavedClient) => void;
   agency?: AgencyDetails;
+  isNew?: boolean;
 }
 
 const SNIPER_DEFAULTS = {
@@ -81,9 +82,11 @@ export default function ClientDetailsSection({
   savedClients,
   onClientSelect,
   agency,
+  isNew = false,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
   const [isMsaOpen, setIsMsaOpen] = useState(false);
+  const [hasInteractedWithMSA, setHasInteractedWithMSA] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
@@ -449,9 +452,13 @@ export default function ClientDetailsSection({
       <div className="mt-2 space-y-4">
         <button
           type="button"
-          onClick={() => setIsMsaOpen(!isMsaOpen)}
+          onClick={() => {
+            setIsMsaOpen(!isMsaOpen);
+            setHasInteractedWithMSA(true);
+          }}
           className={cn(
-            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group"
+            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group",
+            isNew && !hasInteractedWithMSA && "animate-msa-attention border-[color:var(--color-lime-300)]"
           )}
         >
           <div className="flex flex-col flex-1 pr-4">
