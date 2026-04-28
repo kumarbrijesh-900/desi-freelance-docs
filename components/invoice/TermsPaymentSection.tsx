@@ -172,7 +172,7 @@ export default function TermsPaymentSection({
   const swiftBicCodeError = getVisibleError("swiftBicCode", errors?.swiftBicCode);
 
   const isAddendumMode = meta.hasAddendum;
-  const isReadOnly = selectedClientMsa ? !isAddendumMode : false;
+  const isReadOnly = !isAddendumMode;
 
   // Two-way sync handlers for payment terms and due date
   const handleDaysChange = (days: number) => {
@@ -216,61 +216,68 @@ export default function TermsPaymentSection({
         )}
 
         <div className="flex flex-col gap-6">
-          {selectedClientMsa && (
-            <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-5 shadow-sm ring-1 ring-inset ring-white/50">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--text-soft)]">Contract Authority</p>
-                {!isAddendumMode ? (
+          <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-5 shadow-sm ring-1 ring-inset ring-white/50">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--text-soft)]">Contract Authority</p>
+              {selectedClientMsa ? (
+                !isAddendumMode ? (
                   <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
                     <ShieldCheck size={12} className="text-emerald-600" />
-                    <span className="text-[10px] font-bold text-emerald-700">MSA ENFORCED</span>
+                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
                     <FileEdit size={12} className="text-amber-600" />
-                    <span className="text-[10px] font-bold text-amber-700">PROJECT ADDENDUM</span>
+                    <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT ADDENDUM</span>
                   </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <ChoiceCards
-                  name="addendum-toggle"
-                  value={isAddendumMode ? "addendum" : "msa"}
-                  onChange={(val) => {
-                    if (val === "msa") {
-                      updateMetaField("hasAddendum", false);
-                      // Re-sync with MSA
-                      onMetaChange({
-                        ...meta,
-                        hasAddendum: false,
-                        paymentTerms: selectedClientMsa.msa_payment_terms_days ?? 15,
-                        dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], selectedClientMsa.msa_payment_terms_days ?? 15)
-                      });
-                      updateField("terms", selectedClientMsa.msa_notes_boilerplate || "");
-                      updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
-                      updateLicenseField("licenseType", msaLicenseType);
-                    } else {
-                      updateMetaField("hasAddendum", true);
-                    }
-                  }}
-                  variant="inline"
-                  options={[
-                    { 
-                      value: "msa", 
-                      label: "Use Master Agreement",
-                      description: "Follow pre-negotiated terms. Fields locked." 
-                    },
-                    { 
-                      value: "addendum", 
-                      label: "Create Project Addendum",
-                      description: "Project-specific override. Flagged in draft."
-                    }
-                  ]}
-                />
-              </div>
+                )
+              ) : (
+                <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 ring-1 ring-inset ring-slate-400/20">
+                  <AlertTriangle size={12} className="text-slate-500" />
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">NO MSA LINKED</span>
+                </div>
+              )}
             </div>
-          )}
+
+            <div className="flex flex-col gap-1.5">
+              <ChoiceCards
+                name="addendum-toggle"
+                value={isAddendumMode ? "addendum" : "msa"}
+                onChange={(val) => {
+                  const nextHasAddendum = val === "addendum";
+                  updateMetaField("hasAddendum", nextHasAddendum);
+                  
+                  if (!nextHasAddendum && selectedClientMsa) {
+                    // Re-sync with MSA
+                    onMetaChange({
+                      ...meta,
+                      hasAddendum: false,
+                      paymentTerms: selectedClientMsa.msa_payment_terms_days ?? 15,
+                      dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], selectedClientMsa.msa_payment_terms_days ?? 15)
+                    });
+                    updateField("terms", selectedClientMsa.msa_notes_boilerplate || "");
+                    updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
+                    updateLicenseField("licenseType", msaLicenseType);
+                  }
+                }}
+                variant="inline"
+                options={[
+                  { 
+                    value: "msa", 
+                    label: "Use Master Agreement",
+                    description: selectedClientMsa 
+                      ? "Follow pre-negotiated terms. Fields locked." 
+                      : "No MSA found for this client. Fields locked to default."
+                  },
+                  { 
+                    value: "addendum", 
+                    label: "Create Project Addendum",
+                    description: "Project-specific override. Unlock all fields."
+                  }
+                ]}
+              />
+            </div>
+          </div>
 
           <AnimatePresence initial={false}>
             {isInternational && (
