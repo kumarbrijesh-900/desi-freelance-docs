@@ -322,7 +322,8 @@ export default function DeliverablesSection({
     );
 
   const currencySymbol = getCurrencySymbol(currency);
-  const lineItemErrorSlotClass = cn(appFieldErrorTextClass, "min-h-[18px]");
+  const errorSlotClass = "min-h-[18px] flex flex-col justify-end";
+
 
   // ─── Milestone Grouping Logic ───
   const milestones: {
@@ -395,7 +396,7 @@ export default function DeliverablesSection({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -20 }}
                   transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                  className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden"
+                  className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm"
                 >
                 {/* Milestone Header / Title Bar */}
                 <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
@@ -415,7 +416,14 @@ export default function DeliverablesSection({
                           value={header.description}
                           onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
                           placeholder="e.g. Phase 1: Discovery & Strategy"
-                          className="w-full text-xl font-bold text-gray-900 bg-transparent border border-gray-200 rounded px-2 -ml-2 hover:border-gray-300 focus:border-gray-900 focus:ring-0 transition-colors cursor-text"
+                          className={cn(
+                            "w-full text-xl font-bold text-gray-900 bg-transparent border rounded px-2 -ml-2 transition-colors cursor-text",
+                            errors?.[header.id]?.description && (showAllErrors || touchedFields[`${header.id}:description`])
+                              ? "border-red-500 ring-1 ring-red-500 bg-red-50/10"
+                              : "border-transparent hover:border-gray-300 focus:border-gray-900 focus:ring-0",
+                            "placeholder:text-gray-300 placeholder:font-medium"
+                          )}
+                          onBlur={() => markTouched(header.id, "description")}
                         />
                       </div>
                       <PencilIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
@@ -528,7 +536,9 @@ export default function DeliverablesSection({
                                     showSuggestionAssist ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]" : ""
                                   )}
                                 />
-                                {descriptionError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{descriptionError}</p>}
+                                <div className={errorSlotClass}>
+                                  {descriptionError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{descriptionError}</p>}
+                                </div>
                                 <button
                                   type="button"
                                   onMouseDown={(e) => e.preventDefault()}
@@ -577,7 +587,9 @@ export default function DeliverablesSection({
                                 className={cn(inputClass(qtyError, Number(item.qty) > 0), "h-9 text-[13px] text-center")}
                                 {...numberInputProps}
                               />
-                              {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
+                              <div className={errorSlotClass}>
+                                {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
+                              </div>
                             </div>
 
                             <div className="min-w-0">
@@ -593,7 +605,9 @@ export default function DeliverablesSection({
                                   {...numberInputProps}
                                 />
                               </div>
-                              {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
+                              <div className={errorSlotClass}>
+                                {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
+                              </div>
                             </div>
 
                             <div className="min-w-0">
