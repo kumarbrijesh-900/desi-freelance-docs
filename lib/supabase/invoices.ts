@@ -186,7 +186,7 @@ async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFor
   if (!userId) return;
 
   // 1. Clear existing milestones for this invoice (cascades to line_items)
-  await supabase.from("milestones").delete().eq("invoice_id", invoiceId);
+  await supabase.from("invoice_milestones").delete().eq("invoice_id", invoiceId);
 
   // 2. Extract and insert new ones
   const milestonesToInsert: any[] = [];
@@ -198,9 +198,8 @@ async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFor
         invoice_id: invoiceId,
         user_id: userId,
         description: item.description,
-        status: item.milestone_status || "PENDING",
-        order_index: idx,
-        temp_id: item.id // to link items
+        status: "PENDING",
+        temp_id: item.id, // used to link items later
       };
       milestonesToInsert.push(currentMilestone);
     }
@@ -209,37 +208,49 @@ async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFor
   if (milestonesToInsert.length === 0) return;
 
   // Insert milestones
-  const { data: insertedMilestones } = await supabase
-    .from("milestones")
+  const { data: insertedMilestones, error: mError } = await supabase
+    .from("invoice_milestones")
     .insert(milestonesToInsert.map(({ temp_id, ...m }) => m))
     .select();
 
-  if (!insertedMilestones) return;
+  if (mError || !insertedMilestones) {
+    console.error("Error inserting milestones:", mError);
+    return;
+  }
 
-  // Insert line items for each milestone
+  // 3. Link and insert line items
   const itemsToInsert: any[] = [];
-  insertedMilestones.forEach((m, mIdx) => {
+  insertedMilestones.forEach((insertedM, mIdx) => {
     const originalMilestone = milestonesToInsert[mIdx];
-    const startIndex = originalMilestone.order_index;
-    
-    // Find items following this header until next header
-    for (let i = startIndex + 1; i < formData.lineItems.length; i++) {
-      const item = formData.lineItems[i];
-      if (item.is_milestone_header) break;
+    const milestoneItems = formData.lineItems.filter(li => {
+      // Find items that belong to this milestone (items after this header until the next header)
+      const headerIdx = formData.lineItems.findIndex(h => h.id === originalMilestone.temp_id);
+      const itemIdx = formData.lineItems.findIndex(i => i.id === li.id);
+      if (itemIdx <= headerIdx) return false;
       
+      // Check if there's any header between them
+      for (let i = headerIdx + 1; i < itemIdx; i++) {
+        if (formData.lineItems[i].is_milestone_header) return false;
+      }
+      return !li.is_milestone_header;
+    });
+
+    milestoneItems.forEach((item, itemIdx) => {
       itemsToInsert.push({
-        milestone_id: m.id,
+        milestone_id: insertedM.id,
+        user_id: userId,
         description: item.description,
         qty: item.qty || 0,
         rate: item.rate || 0,
         amount: (item.qty || 0) * (item.rate || 0),
-        order_index: i
+        order_index: itemIdx
       });
-    }
+    });
   });
 
   if (itemsToInsert.length > 0) {
-    await supabase.from("line_items").insert(itemsToInsert);
+    const { error: liError } = await supabase.from("invoice_line_items").insert(itemsToInsert);
+    if (liError) console.error("Error inserting line items:", liError);
   }
 }
 
@@ -271,20 +282,36 @@ export async function listInvoices(): Promise<{
     return { data: [], error: "Not authenticated" };
   }
 
+  // Fetch with explicit LEFT JOIN structure (default in Supabase)
+  // We alias the tables to 'milestones' and 'line_items' for code compatibility
   const { data, error } = await supabase
     .from("invoices")
     .select(`
       *,
-      milestones (
+      milestones:invoice_milestones (
         *,
-        line_items (*)
+        line_items:invoice_line_items (*)
       )
     `)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {
-    return { data: [], error: error.message };
+    console.warn("Relational fetch failed, falling back to flat fetch:", error.message);
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from("invoices")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (fallbackError) return { data: [], error: fallbackError.message };
+    
+    // Process flat data with legacy fallback
+    const fallbackProcessed = (fallbackData || []).map((inv: any) => {
+      const items = inv.form_data?.lineItems ?? [];
+      const grandTotal = items.reduce((s: number, i: any) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+      return { ...inv, grand_total: grandTotal };
+    });
+    return { data: fallbackProcessed as SavedInvoice[], error: null };
   }
 
   // Aggregate data and calculate Grand Total manually
