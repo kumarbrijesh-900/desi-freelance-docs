@@ -202,7 +202,7 @@ export default function TermsPaymentSection({
           </div>
         )}
 
-        <div className="space-y-5">
+        <div className="flex flex-col gap-6">
           <AnimatePresence initial={false}>
             {isInternational && (
               <motion.div
@@ -250,7 +250,7 @@ export default function TermsPaymentSection({
             )}
           </AnimatePresence>
 
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               <label className={appFieldLabelClass}>Payment Terms *</label>
               {selectedClientMsa && (
@@ -265,9 +265,9 @@ export default function TermsPaymentSection({
             {isPaymentTermsDeviated && <p className={appFieldHelperTextClass}>MSA default: Net {selectedClientMsa.msa_payment_terms_days}</p>}
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Licensing</p>
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <label className={appFieldLabelClass}>License Included?</label>
               <ChoiceCards
                 name="license-included"
@@ -284,7 +284,7 @@ export default function TermsPaymentSection({
             <AnimatePresence initial={false}>
               {showLicenseFields && (
                 <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
-                  <div className="space-y-3">
+                  <div className="flex flex-col gap-3">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
                         <label className={appFieldLabelClass}>License Type *</label>
@@ -296,7 +296,7 @@ export default function TermsPaymentSection({
                     <AnimatePresence initial={false}>
                       {showLicenseDuration && (
                         <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden">
-                          <div className="max-w-[260px] space-y-1.5 pt-4">
+                          <div className="max-w-[260px] flex flex-col gap-1.5 pt-4">
                             <label className={appFieldLabelClass}>License Duration *</label>
                             <input suppressHydrationWarning type="text" value={value.license.licenseDuration} onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} onBlur={() => markTouched("licenseDuration")} placeholder="Example: 3 years" className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} />
                             {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
@@ -318,7 +318,7 @@ export default function TermsPaymentSection({
             </AnimatePresence>
           </div>
 
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               <label className={appFieldLabelClass}>Terms / Notes</label>
               {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && (
