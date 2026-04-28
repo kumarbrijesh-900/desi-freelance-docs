@@ -492,15 +492,21 @@ export default function ClientDetailsSection({
           type="button"
           onClick={() => setIsMsaOpen(!isMsaOpen)}
           className={cn(
-            "flex items-center gap-2 cursor-pointer text-sm font-medium transition-all py-4 border-t border-[color:var(--border-subtle)] mt-6 w-full text-left group",
-            "text-[color:var(--text-primary)]/70 hover:text-[color:var(--text-primary)] hover:border-[color:var(--border-strong)]"
+            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group"
           )}
         >
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-2 h-2 rounded-full bg-[#bfff00] shadow-[0_0_8px_rgba(191,255,0,0.4)]" />
-            <span>Default Contract & Payment Terms</span>
+          <div className="flex flex-col flex-1 pr-4">
+            <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
+            <p className="text-sm text-gray-500 mt-1 font-normal">
+              Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
+            </p>
           </div>
-          <ChevronDownIcon className={cn("h-4 w-4 transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]", isMsaOpen && "rotate-180")} />
+          <ChevronDownIcon 
+            className={cn(
+              "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
+              isMsaOpen && "rotate-180"
+            )} 
+          />
         </button>
 
         <AnimatePresence>
