@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import type {
   InvoiceLineItem,
   InvoiceLineItemType,
@@ -346,20 +347,26 @@ export default function DeliverablesSection({
 
       <div className="space-y-10">
         <div className="space-y-8" data-testid="milestones-list">
-          {milestones.map((milestone, mIndex) => {
-            const { header, items } = milestone;
-            
-            // Calculate subtotal for this milestone
-            const milestoneSubtotal = items.reduce(
-              (sum, item) => sum + (item.qty || 0) * (item.rate || 0),
-              0
-            );
+          <AnimatePresence mode="popLayout" initial={false}>
+            {milestones.map((milestone, mIndex) => {
+              const { header, items } = milestone;
+              
+              // Calculate subtotal for this milestone
+              const milestoneSubtotal = items.reduce(
+                (sum, item) => sum + (item.qty || 0) * (item.rate || 0),
+                0
+              );
 
-            return (
-              <div
-                key={header.id}
-                className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden"
-              >
+              return (
+                <motion.div
+                  layout
+                  key={header.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden"
+                >
                 {/* Milestone Header / Title Bar */}
                 <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
                   <div className="flex-1">
@@ -605,11 +612,11 @@ export default function DeliverablesSection({
                       Add Line Item
                     </button>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
 
         {/* Add Milestone Button (At the Root level) */}
         <div className="pt-2">
