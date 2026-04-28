@@ -449,9 +449,9 @@ export default function ClientDetailsSection({
         </AnimatePresence>
       </div>
 
-      <div className="mt-2 space-y-4">
+      <div className="mt-8 space-y-4">
         {isNew && !hasInteractedWithMSA ? (
-          <div className="relative overflow-hidden rounded-lg p-[2px] mt-4">
+          <div className="relative overflow-hidden rounded-lg p-[2px]">
             <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,var(--color-lime-300)_50%,transparent_100%)]" />
             <div className="relative h-full w-full rounded-md bg-white">
               <button
@@ -487,7 +487,7 @@ export default function ClientDetailsSection({
               setHasInteractedWithMSA(true);
             }}
             className={cn(
-              "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group"
+              "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-left group"
             )}
           >
             <div className="flex flex-col flex-1 pr-4">
