@@ -38,10 +38,14 @@ export function syncMsaToInvoice(
   // Convert DB row to form-friendly details
   const client = savedClientToClientDetails(savedClient);
 
-  // Start with current form but swap the client details
+  // Start with current form but swap the client details and reset addendum flag
   const updated: InvoiceFormData = {
     ...currentFormData,
     client: { ...client },
+    meta: {
+      ...currentFormData.meta,
+      hasAddendum: false, // Default to MSA mode when syncing client authority
+    },
   };
 
   // 1. Hydrate Payment Terms & Calculate Suggested Due Date
