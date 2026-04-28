@@ -65,7 +65,7 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     clientCountry: c.country as ClientDetails["clientCountry"],
     clientCurrency: c.client_currency as ClientDetails["clientCurrency"],
     clientGstin: c.gstin,
-    clientLocation: (c.client_type ||
+    clientLocation: (c.client_location ||
       "domestic") as ClientDetails["clientLocation"],
     clientType: (c.client_entity_type ||
       "agency") as ClientDetails["clientType"],

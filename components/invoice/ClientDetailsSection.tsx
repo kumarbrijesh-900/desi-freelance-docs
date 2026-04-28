@@ -84,7 +84,10 @@ export default function ClientDetailsSection({
   agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
-  const [isEditingClient, setIsEditingClient] = useState(false);
+  // Hydration Logic: On mount, determine if we show the form or summary
+  // We only show summary if we have a name and some address info
+  const isInitiallyValid = !!(value.clientName && (value.clientAddress || (value.clientCity && value.clientState)));
+  const [isEditingClient, setIsEditingClient] = useState(!isInitiallyValid);
   const [isMsaOpen, setIsMsaOpen] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -483,6 +486,19 @@ export default function ClientDetailsSection({
                 </motion.div>
               )}
             </AnimatePresence>
+            <div className="mt-6 flex justify-end border-t border-[color:var(--border-subtle)] pt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  markTouched("clientName");
+                  markTouched("clientAddress");
+                  setIsEditingClient(false);
+                }}
+                className="inline-flex items-center justify-center rounded-xl bg-[color:var(--app-primary)] px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-[color:var(--app-primary-dark)] hover:shadow-xl active:scale-95"
+              >
+                Confirm Client Details
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
