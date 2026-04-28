@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import { CheckCircleIcon, DocumentSparkIcon } from "@/components/ui/app-icons";
+import { CheckCircleIcon, DocumentSparkIcon, SparklesIcon } from "@/components/ui/app-icons";
 import { getAppButtonClass } from "@/lib/ui-foundation";
 import {
   attachMsaToInvoice,
@@ -297,15 +297,28 @@ export default function ShareLinkModal({
                 they can view the invoice.
               </p>
 
+              {/* Addendum Alert */}
+              {invoiceData?.meta?.hasAddendum && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-3 flex items-start gap-2.5">
+                  <SparklesIcon className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[12px] font-bold text-amber-900">Project-Specific Addendum Active</p>
+                    <p className="text-[11px] text-amber-700 leading-relaxed mt-0.5">
+                      This invoice includes custom terms that deviate from your Master MSA.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* MSA Protection Summary */}
               <div className="rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-canvas)] p-4">
                 <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)] mb-3">
-                  Terms Enforced:
+                  Effective Terms:
                 </h4>
                 <ul className="space-y-2.5">
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Payment:</span> Net {invoiceData?.client?.msaPaymentTermsDays || 15}
+                    <span className="font-semibold">Payment:</span> {invoiceData?.meta?.paymentTerms || (invoiceData?.client?.msaPaymentTermsDays ? `Net ${invoiceData.client.msaPaymentTermsDays}` : "Due on Receipt")}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />

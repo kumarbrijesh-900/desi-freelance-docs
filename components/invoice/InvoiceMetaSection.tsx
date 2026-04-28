@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { InvoiceMeta } from "@/types/invoice";
 import {
   appFieldErrorTextClass,
@@ -48,6 +48,31 @@ export default function InvoiceMetaSection({
       [key]: fieldValue,
     });
   };
+
+  // Task 1: Auto-Fill Master Defaults
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const updates: Partial<InvoiceMeta> = {};
+
+    // Generate temporary number if missing
+    if (!value.invoiceNumber || value.invoiceNumber.trim() === "") {
+      const year = new Date().getFullYear();
+      const random = Math.floor(Math.random() * 9000) + 1000;
+      updates.invoiceNumber = `INV-${year}-${random}`;
+    }
+
+    // Default to today's date if missing
+    if (!value.invoiceDate || value.invoiceDate === "") {
+      updates.invoiceDate = today;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      onChange({
+        ...value,
+        ...updates,
+      });
+    }
+  }, []);
   const markTouched = (field: string) => {
     setTouchedFields((prev) =>
       prev[field] ? prev : { ...prev, [field]: true },

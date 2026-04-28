@@ -1575,7 +1575,10 @@ const handlePreviewInvoice = () => {
     );
     triggerToast("Preview ready");
     playInteractionCue("previewReady");
-    router.push("/invoice/preview");
+    const previewUrl = parserDocumentId 
+      ? `/invoice/preview?id=${parserDocumentId}`
+      : "/invoice/preview";
+    router.push(previewUrl);
   } catch (error) {
     console.error("Failed to save preview data:", error);
     alert("Could not open preview. Please try again.");
@@ -1620,7 +1623,9 @@ const handleSaveDraft = async () => {
 
   if (!userId) {
     // Not logged in — send to login with restore flag
-    const returnUrl = `/invoice/new?restore=1`;
+    const returnUrl = parserDocumentId 
+      ? `/invoice/new?id=${parserDocumentId}&restore=1`
+      : "/invoice/new?restore=1";
     router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
     return;
   }
@@ -1643,6 +1648,9 @@ const handleSaveDraft = async () => {
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);
+        // Sync URL with ID without triggering full reload
+        const newUrl = `/invoice/new?id=${result.data.id}`;
+        window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, "", newUrl);
       }
     }
 
@@ -2126,7 +2134,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
               : ""
           }
           grandTotalReferenceAmount={approximateUsdGrandTotal}
-          settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
+          settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || formData.client?.msaPaymentTermsDays ? `Net ${formData.client.msaPaymentTermsDays}` : "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
           onExportTaxDecisionChange={
             showInternationalExportDecision
               ? (noLutTaxHandling) =>

@@ -119,6 +119,7 @@ export async function saveInvoice(
     // Fix: Prioritize meta.paymentTerms, fallback to client.msaPaymentTermsDays
     applied_payment_terms: input.formData.meta?.paymentTerms || 
       (input.formData.client?.msaPaymentTermsDays ? `Net ${input.formData.client.msaPaymentTermsDays}` : null),
+    has_addendum: input.formData.meta?.hasAddendum || false,
     user_id: userId,
   };
 

@@ -486,7 +486,7 @@ export default function ClientDetailsSection({
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="mt-6 flex justify-end border-t border-[color:var(--border-subtle)] pt-6">
+            <div className="mt-8 flex justify-end border-t border-[color:var(--border-subtle)] pt-6">
               <button
                 type="button"
                 onClick={() => {
@@ -494,9 +494,9 @@ export default function ClientDetailsSection({
                   markTouched("clientAddress");
                   setIsEditingClient(false);
                 }}
-                className="inline-flex items-center justify-center rounded-xl bg-[color:var(--app-primary)] px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-[color:var(--app-primary-dark)] hover:shadow-xl active:scale-95"
+                className="inline-flex items-center justify-center rounded-xl bg-black px-8 py-3.5 text-sm font-bold text-white shadow-xl transition-all hover:bg-gray-900 hover:scale-[1.02] active:scale-95"
               >
-                Confirm Client Details
+                Confirm Client
               </button>
             </div>
           </motion.div>

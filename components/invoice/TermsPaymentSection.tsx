@@ -182,6 +182,14 @@ export default function TermsPaymentSection({
   const isTermsDeviated = selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && value.terms !== selectedClientMsa.msa_notes_boilerplate;
   const hasMsaDeviation = isPaymentTermsDeviated || isLicenseTypeDeviated || isTermsDeviated;
 
+  // Task 4: Reactive Addendum Badge
+  useEffect(() => {
+    if (hasMsaDeviation && !meta.hasAddendum) {
+      console.log("MSA Deviation detected, auto-triggering Addendum flag");
+      updateMetaField("hasAddendum", true);
+    }
+  }, [hasMsaDeviation, meta.hasAddendum]);
+
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -323,6 +331,11 @@ export default function TermsPaymentSection({
                   <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">
                     {isTermsDeviated ? "Override" : "Synced with MSA"}
                   </span>
+                  {isTermsDeviated && (
+                    <span className="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 ring-1 ring-inset ring-amber-200">
+                      Addendum Active
+                    </span>
+                  )}
                 </div>
               )}
             </div>

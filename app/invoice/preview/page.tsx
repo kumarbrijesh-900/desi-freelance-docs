@@ -424,7 +424,10 @@ function PreviewContent() {
   };
 
   const handleLoginClick = async () => {
-    const next = encodeURIComponent("/invoice/preview?restore=1");
+    const nextPath = cloudInvoiceId 
+      ? `/invoice/preview?id=${cloudInvoiceId}&restore=1`
+      : "/invoice/preview?restore=1";
+    const next = encodeURIComponent(nextPath);
     const redirectTo = `${window.location.origin}/login?next=${next}`;
     // We already persisted the draft in handlePrint/Save/Download
     window.location.href = redirectTo;
@@ -686,7 +689,7 @@ function PreviewContent() {
           <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
-                href="/invoice/new"
+                href={cloudInvoiceId ? `/invoice/new?id=${cloudInvoiceId}` : "/invoice/new"}
                 onClick={handleBackToEdit}
                 className={getAppButtonClass({ variant: "ghost", size: "sm" })}
               >
