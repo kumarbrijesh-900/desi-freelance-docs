@@ -47,6 +47,7 @@ export interface SavedInvoice {
     id: string;
     description: string;
     status: string;
+    amount: number;
     line_items: {
       id: string;
       description: string;
