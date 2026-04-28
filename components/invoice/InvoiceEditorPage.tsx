@@ -2058,6 +2058,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           meta={formData.meta}
           clientLocation={formData.client.clientLocation}
           selectedClientMsa={selectedClientMsa}
+          client={formData.client}
           onChange={(payment) =>
             setFormData((prev) =>
               mergeInvoiceFormData({
