@@ -278,6 +278,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       },
       notes:
         "50% advance received. Remaining balance due within 15 days. Final editable files and exports will be delivered after full payment.",
+      terms: "50% advance received. Remaining balance due within 15 days.",
       paymentSettlementType: "",
       accountName: "Ashok Creative Studio",
       bankName: "HDFC Bank",
@@ -1996,12 +1997,23 @@ const updateFormSection = <K extends keyof InvoiceFormData>(
   section: K,
   data: InvoiceFormData[K],
 ) => {
-  setFormData((prev) =>
-    mergeInvoiceFormData({
+  setFormData((prev) => {
+    let next = mergeInvoiceFormData({
       ...prev,
       [section]: data,
-    }),
-  );
+    });
+
+    // Sync: If Client MSA boilerplate changes, update Payment terms
+    if (section === "client") {
+      const client = data as InvoiceFormData["client"];
+      // Only sync if it's not empty and payment.terms hasn't been manually overridden already
+      // Or just always sync if we want it to be reactive.
+      // The user said: "those values must immediately sync"
+      next.payment.terms = client.msaNotesBoilerplate || "";
+    }
+
+    return next;
+  });
 };
 
 const handleClientSelect = (client: SavedClient) => {

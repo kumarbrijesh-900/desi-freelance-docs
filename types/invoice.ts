@@ -169,6 +169,7 @@ export interface LicenseDetails {
 export interface PaymentDetails {
   license: LicenseDetails;
   notes: string;
+  terms: string;
   paymentSettlementType: "" | "forex" | "inr" | "unknown";
   accountName: string;
   bankName: string;
@@ -279,6 +280,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
       licenseDuration: "",
     },
     notes: "1.5% monthly late fee applies. Final files delivered after full payment.",
+    terms: "",
     paymentSettlementType: "",
     accountName: "",
     bankName: "",

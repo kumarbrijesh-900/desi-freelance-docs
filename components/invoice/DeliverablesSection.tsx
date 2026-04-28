@@ -53,7 +53,7 @@ interface DeliverablesSectionProps {
 }
 
 const lineItemDesktopGridClass =
-  "xl:grid-cols-[2fr_3fr_1fr_1.5fr_1.5fr_1fr_min-content]";
+  "xl:grid-cols-[140px_1fr_80px_120px_100px_100px_40px]";
 
 const MAX_MILESTONES = 5;
 
@@ -196,8 +196,24 @@ export default function DeliverablesSection({
 
   const addLineItemToMilestone = (milestoneId: string) => {
     const nextValue = [...value];
-    const milestoneIndex = nextValue.findIndex((item) => item.id === milestoneId);
-    if (milestoneIndex === -1) return;
+    let milestoneIndex = nextValue.findIndex((item) => item.id === milestoneId);
+    
+    // Fallback for virtual milestone (if ID isn't in value array)
+    if (milestoneIndex === -1) {
+      // Create the real header in the array first
+      const newHeader: InvoiceLineItem = {
+        id: milestoneId,
+        type: "Other",
+        description: "Project Deliverables",
+        qty: 0,
+        rate: 0,
+        rateUnit: "per-deliverable",
+        sacCode: "",
+        is_milestone_header: true,
+      };
+      nextValue.unshift(newHeader);
+      milestoneIndex = 0;
+    }
 
     // Find the end of this milestone's items
     let insertIndex = milestoneIndex + 1;
@@ -206,7 +222,7 @@ export default function DeliverablesSection({
     }
 
     nextValue.splice(insertIndex, 0, {
-      id: createLineItemId(value),
+      id: createLineItemId(nextValue),
       type: "UI/UX Design",
       description: "",
       qty: 1,
@@ -219,11 +235,25 @@ export default function DeliverablesSection({
   };
 
   const updateMilestoneTitle = (milestoneId: string, title: string) => {
-    onChange(
-      value.map((item) =>
-        item.id === milestoneId ? { ...item, description: title } : item
-      )
-    );
+    const nextValue = [...value];
+    const index = nextValue.findIndex((item) => item.id === milestoneId);
+
+    if (index !== -1) {
+      nextValue[index] = { ...nextValue[index], description: title };
+    } else {
+      // Virtual milestone being promoted to real
+      nextValue.unshift({
+        id: milestoneId,
+        type: "Other",
+        description: title,
+        qty: 0,
+        rate: 0,
+        rateUnit: "per-deliverable",
+        sacCode: "",
+        is_milestone_header: true,
+      });
+    }
+    onChange(nextValue);
   };
 
   const removeMilestone = (milestoneId: string) => {

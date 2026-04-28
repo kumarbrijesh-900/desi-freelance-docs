@@ -179,8 +179,8 @@ export default function TermsPaymentSection({
   };
   const msaLicenseType = getMsaLicenseType(selectedClientMsa?.msa_ip_trigger_type);
   const isLicenseTypeDeviated = selectedClientMsa && value.license.licenseType !== msaLicenseType;
-  const isNotesDeviated = selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && value.notes !== selectedClientMsa.msa_notes_boilerplate;
-  const hasMsaDeviation = isPaymentTermsDeviated || isLicenseTypeDeviated || isNotesDeviated;
+  const isTermsDeviated = selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && value.terms !== selectedClientMsa.msa_notes_boilerplate;
+  const hasMsaDeviation = isPaymentTermsDeviated || isLicenseTypeDeviated || isTermsDeviated;
 
   return (
     <>
@@ -313,9 +313,34 @@ export default function TermsPaymentSection({
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <label className={appFieldLabelClass}>Terms / Notes</label>
-              {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isNotesDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
+              {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && (
+                <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                  {isTermsDeviated ? (
+                    <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
+                  ) : (
+                    <Link size={14} strokeWidth={1.5} className="text-slate-400" />
+                  )}
+                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">
+                    {isTermsDeviated ? "Override" : "Synced with MSA"}
+                  </span>
+                </div>
+              )}
             </div>
-            <textarea suppressHydrationWarning rows={3} value={value.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment." className={inputClass(undefined, Boolean(value.notes), true)} />
+            <textarea
+              suppressHydrationWarning
+              rows={4}
+              value={value.terms || value.notes}
+              onChange={(e) => {
+                const nextTerms = e.target.value;
+                updateField("terms", nextTerms);
+                // If overridden, auto-set addendum if not already set
+                if (selectedClientMsa && nextTerms !== selectedClientMsa.msa_notes_boilerplate && !meta.hasAddendum) {
+                  onMetaChange({ ...meta, hasAddendum: true });
+                }
+              }}
+              placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
+              className={inputClass(undefined, Boolean(value.terms || value.notes), true)}
+            />
           </div>
         </div>
 
