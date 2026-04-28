@@ -36,7 +36,6 @@ import {
 } from "@/lib/invoice-compliance";
 import type { AgencyDetails } from "@/types/invoice";
 import {
-  PencilIcon,
   ChevronDownIcon,
 } from "@/components/ui/app-icons";
 import AppSwitch from "@/components/ui/AppSwitch";
@@ -84,10 +83,6 @@ export default function ClientDetailsSection({
   agency,
 }: ClientDetailsSectionProps) {
   const isInternational = value.clientLocation === "international";
-  // Hydration Logic: On mount, determine if we show the form or summary
-  // We only show summary if we have a name and some address info
-  const isInitiallyValid = !!(value.clientName && (value.clientAddress || (value.clientCity && value.clientState)));
-  const [isEditingClient, setIsEditingClient] = useState(!isInitiallyValid);
   const [isMsaOpen, setIsMsaOpen] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -230,278 +225,226 @@ export default function ClientDetailsSection({
         </div>
       )}
 
-      <AnimatePresence mode="wait">
-        {value.clientName && !isEditingClient ? (
-          <motion.div
-            key="summary"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex items-start justify-between rounded-xl bg-white p-4 shadow-sm ring-1 ring-[color:var(--border-subtle)] transition-shadow hover:shadow-md"
-          >
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Client</span>
-                {isInternational && (
-                  <span className="rounded-full bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[color:var(--text-secondary)] ring-1 ring-inset ring-[color:var(--border-subtle)]">International</span>
+      <div className={appFieldFullWidthStackClass}>
+        <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="relative">
+            <label className={appFieldLabelClass}>Client Name *</label>
+            <input
+              suppressHydrationWarning
+              type="text"
+              value={value.clientName}
+              onChange={(e) => {
+                updateField("clientName", e.target.value);
+                setShowSuggestions(true);
+              }}
+              onBlur={() => {
+                markTouched("clientName");
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              onFocus={() => {
+                setShowSuggestions(true);
+                performSafetyFetch();
+              }}
+              placeholder="Client or company name"
+              className={inputClass(clientNameError, Boolean(value.clientName))}
+            />
+
+            {showSuggestions && (isLoading || effectiveClients.length > 0) && (
+              <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                {isLoading ? (
+                  <div className="px-3 py-4 text-center">
+                    <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">{filteredClients.length === 0 ? "No matches found" : "Saved Clients"}</span>
+                    </div>
+                    {filteredClients.map((client) => (
+                      <button
+                        key={client.id}
+                        type="button"
+                        onClick={() => handleSelectClient(client)}
+                        className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
+                      >
+                        <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
+                        <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
+                          <span>{client.client_email}</span>
+                          {client.city && <span>• {client.city}</span>}
+                        </div>
+                      </button>
+                    ))}
+                  </>
                 )}
               </div>
-              <h3 className="text-[15px] font-bold tracking-tight text-[color:var(--text-primary)]">{value.clientName}</h3>
-              <p className="text-[12px] font-medium text-[color:var(--text-secondary)]">
-                {[value.clientCity, value.clientState, value.clientCountry].filter(Boolean).join(", ")}
-                {value.clientGstin ? ` • GSTIN: ${value.clientGstin}` : ""}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsEditingClient(true)}
-              className="group flex h-9 w-9 items-center justify-center rounded-full bg-white text-[color:var(--text-muted)] shadow-sm ring-1 ring-[color:var(--border-subtle)] transition-all hover:text-[color:var(--text-primary)] hover:ring-[color:var(--border-strong)]"
+            )}
+            {clientNameError && <p className={appFieldErrorTextClass}>{clientNameError}</p>}
+          </div>
+
+          <div>
+            <label className={appFieldLabelClass}>Client Location *</label>
+            <ChoiceCards
+              name="client-location"
+              value={value.clientLocation}
+              onChange={(nextValue) => syncClientDetails({ ...value, clientLocation: nextValue as ClientDetails["clientLocation"], clientCountry: nextValue === "domestic" ? "" : value.clientCountry, clientState: nextValue === "international" ? "" : value.clientState })}
+              variant="minimal-segmented"
+              columns={2}
+              options={[
+                { value: "domestic", label: "Domestic" },
+                { value: "international", label: "International" },
+              ]}
+            />
+          </div>
+        </div>
+
+        <AnimatePresence initial={false}>
+          {!isInternational && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+              animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+              exit={{ height: 0, opacity: 0, marginTop: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
             >
-              <PencilIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className={appFieldFullWidthStackClass}
-          >
-            <div className="grid grid-cols-1 gap-4 md:items-end lg:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="relative">
-                <label className={appFieldLabelClass}>Client Name *</label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.clientName}
-                  onChange={(e) => {
-                    updateField("clientName", e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onBlur={() => {
-                    markTouched("clientName");
-                    setTimeout(() => setShowSuggestions(false), 200);
-                  }}
-                  onFocus={() => {
-                    setShowSuggestions(true);
-                    performSafetyFetch();
-                  }}
-                  placeholder="Client or company name"
-                  className={inputClass(clientNameError, Boolean(value.clientName))}
-                />
-
-                {showSuggestions && (isLoading || effectiveClients.length > 0) && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
-                    {isLoading ? (
-                      <div className="px-3 py-4 text-center">
-                        <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">{filteredClients.length === 0 ? "No matches found" : "Saved Clients"}</span>
-                        </div>
-                        {filteredClients.map((client) => (
-                          <button
-                            key={client.id}
-                            type="button"
-                            onClick={() => handleSelectClient(client)}
-                            className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
-                          >
-                            <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
-                            <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
-                              <span>{client.client_email}</span>
-                              {client.city && <span>• {client.city}</span>}
-                            </div>
-                          </button>
-                        ))}
-                      </>
-                    )}
+              <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
+                <div className={appFieldPairGridClass}>
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.clientGstin}
+                      onChange={(e) => updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""))}
+                      onBlur={() => markTouched("clientGstin")}
+                      placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
+                      className={inputClass(clientGstinError, Boolean(value.clientGstin))}
+                    />
+                    {clientGstinError && <p className={appFieldErrorTextClass}>{clientGstinError}</p>}
                   </div>
+                  <div className="flex flex-col justify-end pb-1.5">
+                    <div className="flex items-center gap-3">
+                      <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
+                      <div className="space-y-0.5">
+                        <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">SEZ Unit</span>
+                        <p className="text-[11px] text-[color:var(--text-muted)]">Affects GST treatment</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className={appFieldLabelClass}>Client Email</label>
+                  <input
+                    suppressHydrationWarning
+                    type="email"
+                    value={value.clientEmail}
+                    onChange={(e) => updateField("clientEmail", e.target.value)}
+                    placeholder="Email address"
+                    className={inputClass(undefined, Boolean(value.clientEmail))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className={appFieldFullWidthStackClass}>
+                    <label className={appFieldLabelClass}>Address Line 1 *</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.clientAddressLine1}
+                      onChange={(e) => updateField("clientAddressLine1", e.target.value)}
+                      onBlur={() => markTouched("clientAddress")}
+                      placeholder="Building, street, or campus"
+                      className={inputClass(clientAddressError, Boolean(value.clientAddressLine1))}
+                    />
+                  </div>
+                  <div className={appFieldFullWidthStackClass}>
+                    <label className={appFieldLabelClass}>Address Line 2</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      value={value.clientAddressLine2}
+                      onChange={(e) => updateField("clientAddressLine2", e.target.value)}
+                      placeholder="Optional additional address details"
+                      className={inputClass(undefined, Boolean(value.clientAddressLine2))}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="min-w-0">
+                      <label className={appFieldLabelClass}>State *</label>
+                      <AppSelectField suppressHydrationWarning value={value.clientState} onChange={(e) => updateField("clientState", e.target.value as any)} onBlur={() => markTouched("clientState")} hasError={clientStateError} hasValue={Boolean(value.clientState)}>
+                        <option value="">Select state</option>
+                        {INDIA_STATE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </AppSelectField>
+                    </div>
+                    <div className="min-w-0">
+                      <label className={appFieldLabelClass}>City</label>
+                      <input suppressHydrationWarning type="text" value={value.clientCity} onChange={(e) => updateField("clientCity", e.target.value)} placeholder="City" className={inputClass(undefined, Boolean(value.clientCity))} />
+                    </div>
+                    <div className="min-w-0">
+                      <label className={appFieldLabelClass}>PIN Code</label>
+                      <input suppressHydrationWarning type="text" value={value.clientPinCode} onChange={(e) => updateField("clientPinCode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="PIN" className={inputClass(undefined, Boolean(value.clientPinCode))} />
+                    </div>
+                  </div>
+                </div>
+                {clientAddressError && <p className={appFieldErrorTextClass}>{clientAddressError}</p>}
+                {stateSignals.warning && (
+                  <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                    {stateSignals.warning}
+                  </p>
                 )}
-                {clientNameError && <p className={appFieldErrorTextClass}>{clientNameError}</p>}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <div>
-                <label className={appFieldLabelClass}>Client Location *</label>
-                <ChoiceCards
-                  name="client-location"
-                  value={value.clientLocation}
-                  onChange={(nextValue) => syncClientDetails({ ...value, clientLocation: nextValue as ClientDetails["clientLocation"], clientCountry: nextValue === "domestic" ? "" : value.clientCountry, clientState: nextValue === "international" ? "" : value.clientState })}
-                  variant="minimal-segmented"
-                  columns={2}
-                  options={[
-                    { value: "domestic", label: "Domestic" },
-                    { value: "international", label: "International" },
-                  ]}
-                />
+        <AnimatePresence initial={false}>
+          {isInternational && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+              animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+              exit={{ height: 0, opacity: 0, marginTop: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
+                <div className={appFieldPairGridClass}>
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>Country *</label>
+                    <AppSelectField suppressHydrationWarning value={value.clientCountry} onChange={(e) => updateField("clientCountry", e.target.value as any)} onBlur={() => markTouched("clientCountry")} hasError={clientCountryError} hasValue={Boolean(value.clientCountry)}>
+                      <option value="">Select country</option>
+                      {INTERNATIONAL_COUNTRY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </AppSelectField>
+                    {clientCountryError && <p className={appFieldErrorTextClass}>{clientCountryError}</p>}
+                  </div>
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>Currency</label>
+                    <AppSelectField suppressHydrationWarning value={value.clientCurrency} onChange={(e) => updateField("clientCurrency", e.target.value as any)} hasValue={Boolean(value.clientCurrency)}>
+                      <option value="">Keep INR (default)</option>
+                      {INTERNATIONAL_CURRENCY_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+                    </AppSelectField>
+                  </div>
+                </div>
+
+                <div>
+                  <label className={appFieldLabelClass}>Full Address *</label>
+                  <textarea suppressHydrationWarning rows={3} value={value.clientAddress} onChange={(e) => updateField("clientAddress", e.target.value)} onBlur={() => markTouched("clientAddress")} placeholder="Full international billing address" className={inputClass(clientAddressError, Boolean(value.clientAddress), true)} />
+                </div>
+
+                <div className={appFieldPairGridClass}>
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>Postal Code</label>
+                    <input suppressHydrationWarning type="text" value={value.clientPostalCode} onChange={(e) => updateField("clientPostalCode", e.target.value)} placeholder="ZIP" className={inputClass(undefined, Boolean(value.clientPostalCode))} />
+                  </div>
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}</label>
+                    <input suppressHydrationWarning type="text" value={value.clientGstin} onChange={(e) => updateField("clientGstin", e.target.value)} placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / ID"} className={inputClass(clientGstinError, Boolean(value.clientGstin))} />
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <AnimatePresence initial={false}>
-              {!isInternational && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                  animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
-                    <div className={appFieldPairGridClass}>
-                      <div className="min-w-0">
-                        <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}</label>
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          value={value.clientGstin}
-                          onChange={(e) => updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""))}
-                          onBlur={() => markTouched("clientGstin")}
-                          placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
-                          className={inputClass(clientGstinError, Boolean(value.clientGstin))}
-                        />
-                        {clientGstinError && <p className={appFieldErrorTextClass}>{clientGstinError}</p>}
-                      </div>
-                      <div className="flex flex-col justify-end pb-1.5">
-                        <div className="flex items-center gap-3">
-                          <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
-                          <div className="space-y-0.5">
-                            <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">SEZ Unit</span>
-                            <p className="text-[11px] text-[color:var(--text-muted)]">Affects GST treatment</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={appFieldLabelClass}>Client Email</label>
-                      <input
-                        suppressHydrationWarning
-                        type="email"
-                        value={value.clientEmail}
-                        onChange={(e) => updateField("clientEmail", e.target.value)}
-                        placeholder="Email address"
-                        className={inputClass(undefined, Boolean(value.clientEmail))}
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className={appFieldFullWidthStackClass}>
-                        <label className={appFieldLabelClass}>Address Line 1 *</label>
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          value={value.clientAddressLine1}
-                          onChange={(e) => updateField("clientAddressLine1", e.target.value)}
-                          onBlur={() => markTouched("clientAddress")}
-                          placeholder="Building, street, or campus"
-                          className={inputClass(clientAddressError, Boolean(value.clientAddressLine1))}
-                        />
-                      </div>
-                      <div className={appFieldFullWidthStackClass}>
-                        <label className={appFieldLabelClass}>Address Line 2</label>
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          value={value.clientAddressLine2}
-                          onChange={(e) => updateField("clientAddressLine2", e.target.value)}
-                          placeholder="Optional additional address details"
-                          className={inputClass(undefined, Boolean(value.clientAddressLine2))}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <div className="min-w-0">
-                          <label className={appFieldLabelClass}>State *</label>
-                          <AppSelectField suppressHydrationWarning value={value.clientState} onChange={(e) => updateField("clientState", e.target.value as any)} onBlur={() => markTouched("clientState")} hasError={clientStateError} hasValue={Boolean(value.clientState)}>
-                            <option value="">Select state</option>
-                            {INDIA_STATE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-                          </AppSelectField>
-                        </div>
-                        <div className="min-w-0">
-                          <label className={appFieldLabelClass}>City</label>
-                          <input suppressHydrationWarning type="text" value={value.clientCity} onChange={(e) => updateField("clientCity", e.target.value)} placeholder="City" className={inputClass(undefined, Boolean(value.clientCity))} />
-                        </div>
-                        <div className="min-w-0">
-                          <label className={appFieldLabelClass}>PIN Code</label>
-                          <input suppressHydrationWarning type="text" value={value.clientPinCode} onChange={(e) => updateField("clientPinCode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="PIN" className={inputClass(undefined, Boolean(value.clientPinCode))} />
-                        </div>
-                      </div>
-                    </div>
-                    {clientAddressError && <p className={appFieldErrorTextClass}>{clientAddressError}</p>}
-                    {stateSignals.warning && (
-                      <p className="rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                        {stateSignals.warning}
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence initial={false}>
-              {isInternational && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                  animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
-                    <div className={appFieldPairGridClass}>
-                      <div className="min-w-0">
-                        <label className={appFieldLabelClass}>Country *</label>
-                        <AppSelectField suppressHydrationWarning value={value.clientCountry} onChange={(e) => updateField("clientCountry", e.target.value as any)} onBlur={() => markTouched("clientCountry")} hasError={clientCountryError} hasValue={Boolean(value.clientCountry)}>
-                          <option value="">Select country</option>
-                          {INTERNATIONAL_COUNTRY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </AppSelectField>
-                        {clientCountryError && <p className={appFieldErrorTextClass}>{clientCountryError}</p>}
-                      </div>
-                      <div className="min-w-0">
-                        <label className={appFieldLabelClass}>Currency</label>
-                        <AppSelectField suppressHydrationWarning value={value.clientCurrency} onChange={(e) => updateField("clientCurrency", e.target.value as any)} hasValue={Boolean(value.clientCurrency)}>
-                          <option value="">Keep INR (default)</option>
-                          {INTERNATIONAL_CURRENCY_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
-                        </AppSelectField>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={appFieldLabelClass}>Full Address *</label>
-                      <textarea suppressHydrationWarning rows={3} value={value.clientAddress} onChange={(e) => updateField("clientAddress", e.target.value)} onBlur={() => markTouched("clientAddress")} placeholder="Full international billing address" className={inputClass(clientAddressError, Boolean(value.clientAddress), true)} />
-                    </div>
-
-                    <div className={appFieldPairGridClass}>
-                      <div className="min-w-0">
-                        <label className={appFieldLabelClass}>Postal Code</label>
-                        <input suppressHydrationWarning type="text" value={value.clientPostalCode} onChange={(e) => updateField("clientPostalCode", e.target.value)} placeholder="ZIP" className={inputClass(undefined, Boolean(value.clientPostalCode))} />
-                      </div>
-                      <div className="min-w-0">
-                        <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}</label>
-                        <input suppressHydrationWarning type="text" value={value.clientGstin} onChange={(e) => updateField("clientGstin", e.target.value)} placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / ID"} className={inputClass(clientGstinError, Boolean(value.clientGstin))} />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div className="mt-8 flex justify-end border-t border-[color:var(--border-subtle)] pt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  markTouched("clientName");
-                  markTouched("clientAddress");
-                  setIsEditingClient(false);
-                }}
-                className="inline-flex items-center justify-center rounded-xl bg-black px-8 py-3.5 text-sm font-bold text-white shadow-xl transition-all hover:bg-gray-900 hover:scale-[1.02] active:scale-95"
-              >
-                Confirm Client
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="mt-2 space-y-4">
         <button
