@@ -33,8 +33,6 @@ export interface SavedInvoice {
   client_msa_note: string | null;
   /** Bug 2: stored as TEXT (e.g. 'Net 30', 'Due on Receipt') */
   applied_payment_terms: string | null;
-  applied_late_fee_rate: number | null;
-  applied_license_type: string | null;
   due_date: string | null;
   reminded_due_date: boolean;
   reminded_overdue: boolean;
@@ -121,8 +119,6 @@ export async function saveInvoice(
     // Fix: Prioritize meta.paymentTerms, fallback to client.msaPaymentTermsDays
     applied_payment_terms: input.formData.meta?.paymentTerms || 
       (input.formData.client?.msaPaymentTermsDays ? `Net ${input.formData.client.msaPaymentTermsDays}` : null),
-    applied_late_fee_rate: input.formData.client?.msaLateFeeRate || input.formData.agency?.msaLateFeeRate || null,
-    applied_license_type: input.formData.payment?.license?.licenseType || null,
     user_id: userId,
   };
 
