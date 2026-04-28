@@ -39,6 +39,7 @@ export interface SavedInvoice {
   created_at: string;
   updated_at: string;
   has_addendum: boolean;
+  payment_terms_days: number | null;
   msa_status: MsaResponse;
   grand_total?: number;
   milestones?: {
@@ -116,10 +117,8 @@ export async function saveInvoice(
     status,
     template_id: input.templateId ?? "classic",
     due_date: input.formData.meta?.dueDate || null,
-    // Fix: Prioritize meta.paymentTerms, fallback to client.msaPaymentTermsDays
-    applied_payment_terms: input.formData.meta?.paymentTerms || 
-      (input.formData.client?.msaPaymentTermsDays ? `Net ${input.formData.client.msaPaymentTermsDays}` : null),
     has_addendum: input.formData.meta?.hasAddendum || false,
+    payment_terms_days: input.formData.meta?.paymentTerms || null,
     user_id: userId,
   };
 

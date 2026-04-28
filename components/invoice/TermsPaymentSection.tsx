@@ -21,6 +21,7 @@ import {
 } from "@/lib/form-foundation";
 import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { addDays, getDaysDifference } from "@/lib/date-math";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -173,6 +174,27 @@ export default function TermsPaymentSection({
   const isAddendumMode = meta.hasAddendum;
   const isReadOnly = selectedClientMsa ? !isAddendumMode : false;
 
+  // Two-way sync handlers for payment terms and due date
+  const handleDaysChange = (days: number) => {
+    const anchorDate = meta.invoiceDate || new Date().toISOString().split("T")[0];
+    const newDueDate = addDays(anchorDate, days);
+    onMetaChange({
+      ...meta,
+      paymentTerms: days,
+      dueDate: newDueDate,
+    });
+  };
+
+  const handleDateChange = (date: string) => {
+    const anchorDate = meta.invoiceDate || new Date().toISOString().split("T")[0];
+    const days = getDaysDifference(anchorDate, date);
+    onMetaChange({
+      ...meta,
+      paymentTerms: days,
+      dueDate: date,
+    });
+  };
+
   const getMsaLicenseType = (trigger?: string): LicenseType | "" => {
     if (!trigger) return "";
     if (trigger === "upon_full_payment") return "full-assignment";
@@ -195,48 +217,58 @@ export default function TermsPaymentSection({
 
         <div className="flex flex-col gap-6">
           {selectedClientMsa && (
-            <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-4 shadow-sm">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Contract Authority</p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateMetaField("hasAddendum", false);
-                    // Re-sync with MSA
-                    updateMetaField("paymentTerms", selectedClientMsa.msa_payment_terms_days ?? 15);
-                    updateField("terms", selectedClientMsa.msa_notes_boilerplate || "");
-                    updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
-                    updateLicenseField("licenseType", msaLicenseType);
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-                    !isAddendumMode 
-                      ? "border-[color:var(--interactive-primary)] bg-[color:var(--bg-surface)] text-[color:var(--interactive-primary)] shadow-sm ring-1 ring-[color:var(--interactive-primary)]" 
-                      : "border-[color:var(--border-subtle)] bg-white text-[color:var(--text-secondary)] hover:bg-gray-50"
-                  )}
-                >
-                  <ShieldCheck size={16} />
-                  Use Master Agreement
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateMetaField("hasAddendum", true)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-                    isAddendumMode 
-                      ? "border-[color:var(--color-amber-500)] bg-[color:var(--bg-surface)] text-[color:var(--color-amber-700)] shadow-sm ring-1 ring-[color:var(--color-amber-500)]" 
-                      : "border-[color:var(--border-subtle)] bg-white text-[color:var(--text-secondary)] hover:bg-gray-50"
-                  )}
-                >
-                  <FileEdit size={16} />
-                  Create Project Addendum
-                </button>
+            <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-5 shadow-sm ring-1 ring-inset ring-white/50">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--text-soft)]">Contract Authority</p>
+                {!isAddendumMode ? (
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
+                    <ShieldCheck size={12} className="text-emerald-600" />
+                    <span className="text-[10px] font-bold text-emerald-700">MSA ENFORCED</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
+                    <FileEdit size={12} className="text-amber-600" />
+                    <span className="text-[10px] font-bold text-amber-700">PROJECT ADDENDUM</span>
+                  </div>
+                )}
               </div>
-              <p className="text-[11px] text-[color:var(--text-soft)] mt-1">
-                {!isAddendumMode 
-                  ? "Following pre-negotiated terms from your Master Agreement. Fields are protected." 
-                  : "You are creating a project-specific override. These changes will be flagged as an addendum."}
-              </p>
+
+              <div className="flex flex-col gap-1.5">
+                <ChoiceCards
+                  name="addendum-toggle"
+                  value={isAddendumMode ? "addendum" : "msa"}
+                  onChange={(val) => {
+                    if (val === "msa") {
+                      updateMetaField("hasAddendum", false);
+                      // Re-sync with MSA
+                      onMetaChange({
+                        ...meta,
+                        hasAddendum: false,
+                        paymentTerms: selectedClientMsa.msa_payment_terms_days ?? 15,
+                        dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], selectedClientMsa.msa_payment_terms_days ?? 15)
+                      });
+                      updateField("terms", selectedClientMsa.msa_notes_boilerplate || "");
+                      updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
+                      updateLicenseField("licenseType", msaLicenseType);
+                    } else {
+                      updateMetaField("hasAddendum", true);
+                    }
+                  }}
+                  variant="inline"
+                  options={[
+                    { 
+                      value: "msa", 
+                      label: "Use Master Agreement",
+                      description: "Follow pre-negotiated terms. Fields locked." 
+                    },
+                    { 
+                      value: "addendum", 
+                      label: "Create Project Addendum",
+                      description: "Project-specific override. Flagged in draft."
+                    }
+                  ]}
+                />
+              </div>
             </div>
           )}
 
@@ -285,48 +317,57 @@ export default function TermsPaymentSection({
           </AnimatePresence>
 
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <label className={appFieldLabelClass}>Payment Terms *</label>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Due Date & Terms</p>
               {selectedClientMsa && !isAddendumMode && (
-                <div className="flex items-center gap-1 mb-1.5 opacity-80">
-                  <Link size={14} strokeWidth={1.5} className="text-slate-400" />
-                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Synced with MSA</span>
+                <div className="flex items-center gap-1 opacity-80">
+                  <Link size={12} strokeWidth={1.5} className="text-emerald-500" />
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Enforced by MSA</span>
                 </div>
               )}
               {isAddendumMode && (
-                <div className="flex items-center gap-1 mb-1.5 opacity-80">
-                  <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
-                  <span className="text-[10px] font-medium text-amber-600 uppercase tracking-wider">Project Override</span>
+                <div className="flex items-center gap-1 opacity-80">
+                  <Sparkles size={12} strokeWidth={1.5} className="text-amber-500" />
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Addendum Override</span>
                 </div>
               )}
             </div>
             
-            <div className="flex flex-col gap-1.5">
-              <select
-                disabled={isReadOnly}
-                value={meta.paymentTerms}
-                onChange={(e) => updateMetaField("paymentTerms", Number(e.target.value))}
-                onBlur={() => markTouched("paymentTerms")}
-                className={cn(
-                  inputClass(paymentTermsFieldError, true),
-                  "max-w-xs w-48 cursor-pointer appearance-none bg-[image:var(--app-select-icon)] pr-10"
-                )}
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 0.75rem center',
-                  backgroundSize: '1.25rem'
-                }}
-              >
-                <option value={0}>Due on Receipt</option>
-                <option value={7}>Net 7</option>
-                <option value={15}>Net 15</option>
-                <option value={30}>Net 30</option>
-                <option value={45}>Net 45</option>
-                <option value={60}>Net 60</option>
-              </select>
-              <p className="text-[11px] text-[color:var(--text-muted)]">Number of days from the invoice date until payment is due.</p>
-              {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
+            <div className={cn(appFieldPairGridClass, "items-start")}>
+              <div className="flex flex-col gap-1.5">
+                <label className={appFieldLabelClass}>Days until payment</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    disabled={isReadOnly}
+                    value={meta.paymentTerms}
+                    onChange={(e) => handleDaysChange(parseInt(e.target.value, 10) || 0)}
+                    onBlur={() => markTouched("paymentTerms")}
+                    placeholder="15"
+                    className={cn(
+                      inputClass(paymentTermsFieldError, true),
+                      "pr-12"
+                    )}
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
+                  </div>
+                </div>
+                <p className={cn(appFieldHelperTextClass, "text-[10px]")}>From invoice issue date.</p>
+                {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className={appFieldLabelClass}>Due Date</label>
+                <input
+                  type="date"
+                  disabled={isReadOnly}
+                  value={meta.dueDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className={inputClass(undefined, Boolean(meta.dueDate))}
+                />
+                <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
+              </div>
             </div>
           </div>
 
