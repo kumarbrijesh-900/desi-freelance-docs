@@ -211,6 +211,32 @@ export default function TermsPaymentSection({
   };
   const msaLicenseType = getMsaLicenseType(selectedClientMsa?.msa_ip_trigger_type);
 
+  // LIFECYCLE SYNC: Ensure MSA data populates on mount and stays synced while in "Use Master Agreement" mode.
+  useEffect(() => {
+    if (!isAddendumMode && hasAnyMsaAuthority) {
+      const targetDays = effectiveMsaDays ?? 0;
+      const targetBoilerplate = effectiveBoilerplate || "";
+
+      // Check if we already match to avoid redundant updates
+      const isAlreadySynced = 
+        meta.paymentTerms === targetDays && 
+        (value.terms === targetBoilerplate || value.notes === targetBoilerplate) &&
+        value.license.licenseType === msaLicenseType;
+
+      if (!isAlreadySynced) {
+        onMetaChange({
+          ...meta,
+          paymentTerms: targetDays,
+          dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], targetDays)
+        });
+        updateField("terms", targetBoilerplate);
+        updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
+        updateLicenseField("licenseType", msaLicenseType);
+      }
+    }
+  }, [isAddendumMode, hasAnyMsaAuthority, effectiveMsaDays, effectiveBoilerplate, msaLicenseType]);
+
+
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
