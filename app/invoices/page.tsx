@@ -39,7 +39,7 @@ function fmtDate(d: string) {
 }
 
 function fmtAmount(inv: SavedInvoice) {
-  const amount = inv.grand_total ?? (inv.form_data?.lineItems ?? []).reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+  const amount = inv.grand_total ?? (inv.form_data?.lineItems ?? []).reduce((s, i) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
   if (!amount) return "—";
   const currency = inv.form_data?.client?.clientCurrency || "INR";
   const symbol =
@@ -473,7 +473,7 @@ function InvoiceRow({
               let subtotal = 0;
               for (let i = idx + 1; i < lineItems.length; i++) {
                 if (lineItems[i].is_milestone_header) break;
-                subtotal += (lineItems[i].qty ?? 0) * (lineItems[i].rate ?? 0);
+                subtotal += Number(lineItems[i].qty ?? 0) * Number(lineItems[i].rate ?? 0);
               }
               
               const isSettled = item.milestone_status === "SETTLED";
@@ -641,7 +641,7 @@ export default function InvoiceHistoryPage() {
         const idx = inv.form_data.lineItems.findIndex(li => li.id === milestoneId);
         for (let i = idx + 1; i < inv.form_data.lineItems.length; i++) {
           if (inv.form_data.lineItems[i].is_milestone_header) break;
-          subtotal += (inv.form_data.lineItems[i].qty ?? 0) * (inv.form_data.lineItems[i].rate ?? 0);
+          subtotal += Number(inv.form_data.lineItems[i].qty ?? 0) * Number(inv.form_data.lineItems[i].rate ?? 0);
         }
       }
 
@@ -771,11 +771,11 @@ export default function InvoiceHistoryPage() {
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       const amtA = (a.form_data?.lineItems ?? []).reduce(
-        (s, i) => s + i.qty * i.rate,
+        (s, i) => s + Number(i.qty) * Number(i.rate),
         0,
       );
       const amtB = (b.form_data?.lineItems ?? []).reduce(
-        (s, i) => s + i.qty * i.rate,
+        (s, i) => s + Number(i.qty) * Number(i.rate),
         0,
       );
       return sortKey === "amount-desc" ? amtB - amtA : amtA - amtB;
@@ -792,7 +792,7 @@ export default function InvoiceHistoryPage() {
         .filter((i) => i.status === "SETTLED")
         .reduce((sum, inv) => {
           const items = inv.form_data?.lineItems ?? [];
-          return sum + items.reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+          return sum + items.reduce((s, i) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
         }, 0),
       msaPending: invoices.filter(
         (i) => i.msa_id && (i.msa_response ?? "PENDING") === "PENDING",

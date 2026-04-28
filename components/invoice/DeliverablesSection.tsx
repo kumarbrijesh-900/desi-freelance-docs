@@ -383,7 +383,7 @@ export default function DeliverablesSection({
               
               // Calculate subtotal for this milestone
               const milestoneSubtotal = items.reduce(
-                (sum, item) => sum + (item.qty || 0) * (item.rate || 0),
+                (sum, item) => sum + Number(item.qty || 0) * Number(item.rate || 0),
                 0
               );
 
@@ -464,7 +464,7 @@ export default function DeliverablesSection({
 
                   <div className="space-y-4 xl:space-y-0">
                     {items.map((item) => {
-                      const lineTotal = item.qty * item.rate;
+                      const lineTotal = Number(item.qty || 0) * Number(item.rate || 0);
                       const allowedUnits = invoiceAllowedUnitsByType[item.type];
                       const rowErrors = errors?.[item.id];
                       const descriptionError = getVisibleRowError(item.id, "description", rowErrors?.description);
@@ -528,6 +528,7 @@ export default function DeliverablesSection({
                                     showSuggestionAssist ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]" : ""
                                   )}
                                 />
+                                {descriptionError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{descriptionError}</p>}
                                 <button
                                   type="button"
                                   onMouseDown={(e) => e.preventDefault()}
@@ -571,11 +572,12 @@ export default function DeliverablesSection({
                               <input
                                 type="number"
                                 value={item.qty}
-                                onChange={(e) => updateItem(item.id, "qty", Math.max(0, Number(e.target.value) || 0))}
+                                onChange={(e) => updateItem(item.id, "qty", e.target.value)}
                                 onBlur={() => markTouched(item.id, "qty")}
-                                className={cn(inputClass(qtyError, item.qty > 0), "h-9 text-[13px] text-center")}
+                                className={cn(inputClass(qtyError, Number(item.qty) > 0), "h-9 text-[13px] text-center")}
                                 {...numberInputProps}
                               />
+                              {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
                             </div>
 
                             <div className="min-w-0">
@@ -585,12 +587,13 @@ export default function DeliverablesSection({
                                 <input
                                   type="number"
                                   value={item.rate}
-                                  onChange={(e) => updateItem(item.id, "rate", Math.max(0, Number(e.target.value) || 0))}
+                                  onChange={(e) => updateItem(item.id, "rate", e.target.value)}
                                   onBlur={() => markTouched(item.id, "rate")}
-                                  className={cn(rateInputClass(rateError, item.rate > 0), "h-9 text-[13px] pl-6")}
+                                  className={cn(rateInputClass(rateError, Number(item.rate) > 0), "h-9 text-[13px] pl-6")}
                                   {...numberInputProps}
                                 />
                               </div>
+                              {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
                             </div>
 
                             <div className="min-w-0">

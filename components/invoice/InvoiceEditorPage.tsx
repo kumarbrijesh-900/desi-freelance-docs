@@ -349,8 +349,8 @@ function isFormTouched(formData: InvoiceFormData) {
   const hasLineItemData = formData.lineItems.some((item) =>
     Boolean(
       item.description ||
-      item.rate > 0 ||
-      item.qty !== 1 ||
+      Number(item.rate) > 0 ||
+      Number(item.qty) !== 1 ||
       item.type !== "Other" ||
       item.rateUnit !== "per-deliverable" ||
       item.is_milestone_header,

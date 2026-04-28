@@ -167,7 +167,7 @@ export async function saveInvoice(
     
     // Task 3: Map calculated grand_total to the returned object so UI updates immediately
     const items = input.formData.lineItems || [];
-    const grand_total = items.reduce((s: number, i: any) => s + (i.qty || 0) * (i.rate || 0), 0);
+    const grand_total = items.reduce((s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0);
     (result.data as any).grand_total = grand_total;
   }
 
@@ -239,7 +239,7 @@ async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFor
         description: item.description,
         qty: item.qty || 0,
         rate: item.rate || 0,
-        amount: (item.qty || 0) * (item.rate || 0),
+        amount: Number(item.qty || 0) * Number(item.rate || 0),
         order_index: itemIdx
       });
     });
@@ -305,7 +305,7 @@ export async function listInvoices(): Promise<{
     // Process flat data with legacy fallback
     const fallbackProcessed = (fallbackData || []).map((inv: any) => {
       const items = inv.form_data?.lineItems ?? [];
-      const grandTotal = items.reduce((s: number, i: any) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+      const grandTotal = items.reduce((s: number, i: any) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
       return { ...inv, grand_total: grandTotal };
     });
     return { data: fallbackProcessed as SavedInvoice[], error: null };
@@ -318,7 +318,7 @@ export async function listInvoices(): Promise<{
     if (inv.milestones && inv.milestones.length > 0) {
       inv.milestones.forEach((m: any) => {
         const milestoneTotal = (m.line_items ?? []).reduce(
-          (sum: number, item: any) => sum + (item.qty ?? 0) * (item.rate ?? 0),
+          (sum: number, item: any) => sum + Number(item.qty ?? 0) * Number(item.rate ?? 0),
           0
         );
         m.amount = milestoneTotal;
@@ -327,7 +327,7 @@ export async function listInvoices(): Promise<{
     } else {
       // Fallback to form_data logic
       const items = inv.form_data?.lineItems ?? [];
-      grandTotal = items.reduce((s: number, i: any) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+      grandTotal = items.reduce((s: number, i: any) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
     }
 
     return {

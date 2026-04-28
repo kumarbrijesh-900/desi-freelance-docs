@@ -53,8 +53,8 @@ export interface InvoiceLineItem {
   id: string;
   type: InvoiceLineItemType;
   description: string;
-  qty: number;
-  rate: number;
+  qty: number | string;
+  rate: number | string;
   rateUnit: InvoiceRateUnit;
   sacCode?: string;
   // Milestone fields

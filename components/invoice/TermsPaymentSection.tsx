@@ -202,7 +202,7 @@ export default function TermsPaymentSection({
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           <AnimatePresence initial={false}>
             {isInternational && (
               <motion.div
@@ -265,7 +265,7 @@ export default function TermsPaymentSection({
             {isPaymentTermsDeviated && <p className={appFieldHelperTextClass}>MSA default: Net {selectedClientMsa.msa_payment_terms_days}</p>}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Licensing</p>
             <div className="space-y-1.5">
               <label className={appFieldLabelClass}>License Included?</label>
@@ -284,7 +284,7 @@ export default function TermsPaymentSection({
             <AnimatePresence initial={false}>
               {showLicenseFields && (
                 <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
-                  <div className="space-y-4 pt-4">
+                  <div className="space-y-3">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
                         <label className={appFieldLabelClass}>License Type *</label>

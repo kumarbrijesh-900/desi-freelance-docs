@@ -15,8 +15,8 @@ export interface TemplateLineItem {
   id: string;
   type: string;
   description: string;
-  qty: number;
-  rate: number;
+  qty: number | string;
+  rate: number | string;
   rateFormatted: string;
   unit: string;
   amount: number;

@@ -147,7 +147,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
       let groupSubtotal = 0;
       for (let i = index + 1; i < formData.lineItems.length; i++) {
         if (formData.lineItems[i].is_milestone_header) break;
-        groupSubtotal += (formData.lineItems[i].qty ?? 0) * (formData.lineItems[i].rate ?? 0);
+        groupSubtotal += Number(formData.lineItems[i].qty ?? 0) * Number(formData.lineItems[i].rate ?? 0);
       }
       groupSubtotalFormatted = formatCurrency(groupSubtotal, displayCurrency);
     }
@@ -158,10 +158,10 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
       description: item.description || item.type,
       qty: item.qty,
       rate: item.rate,
-      rateFormatted: formatCurrency(item.rate, displayCurrency),
+      rateFormatted: formatCurrency(Number(item.rate || 0), displayCurrency),
       unit: getUnitLabel(item.rateUnit),
-      amount: item.qty * item.rate,
-      amountFormatted: formatCurrency(item.qty * item.rate, displayCurrency),
+      amount: Number(item.qty || 0) * Number(item.rate || 0),
+      amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
       sacCode: resolveLineItemSacCode(item) || "pending",
       isMilestoneHeader: item.is_milestone_header,
       groupSubtotalFormatted,

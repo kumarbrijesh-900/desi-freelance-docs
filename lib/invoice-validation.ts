@@ -180,12 +180,15 @@ export function getInvoiceFieldErrors(
 
     // Skip qty/rate/sac validation for milestone headers
     if (!item.is_milestone_header) {
-      if (!Number.isFinite(item.qty) || item.qty < 1) {
+      const parsedQty = Number(item.qty);
+      const parsedRate = Number(item.rate);
+
+      if (isNaN(parsedQty) || parsedQty < 1) {
         itemErrors.qty = "Qty must be at least 1.";
       }
 
-      if (!Number.isFinite(item.rate) || item.rate <= 0) {
-        itemErrors.rate = "Rate must be greater than 0.";
+      if (isNaN(parsedRate) || parsedRate < 0) {
+        itemErrors.rate = "Rate must be 0 or more.";
       }
 
       const resolvedSacCode = resolveLineItemSacCode(item);
