@@ -450,30 +450,60 @@ export default function ClientDetailsSection({
       </div>
 
       <div className="mt-2 space-y-4">
-        <button
-          type="button"
-          onClick={() => {
-            setIsMsaOpen(!isMsaOpen);
-            setHasInteractedWithMSA(true);
-          }}
-          className={cn(
-            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group",
-            isNew && !hasInteractedWithMSA && "animate-msa-attention border-[color:var(--color-lime-300)]"
-          )}
-        >
-          <div className="flex flex-col flex-1 pr-4">
-            <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
-            <p className="text-sm text-gray-500 mt-1 font-normal">
-              Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
-            </p>
+        {isNew && !hasInteractedWithMSA ? (
+          <div className="relative overflow-hidden rounded-lg p-[2px] mt-4">
+            <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,var(--color-lime-300)_50%,transparent_100%)]" />
+            <div className="relative h-full w-full rounded-md bg-white">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMsaOpen(!isMsaOpen);
+                  setHasInteractedWithMSA(true);
+                }}
+                className={cn(
+                  "flex justify-between items-center w-full p-4 border border-transparent rounded-md bg-white hover:bg-gray-50 transition-colors cursor-pointer text-left group"
+                )}
+              >
+                <div className="flex flex-col flex-1 pr-4">
+                  <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
+                  <p className="text-sm text-gray-500 mt-1 font-normal">
+                    Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
+                  </p>
+                </div>
+                <ChevronDownIcon 
+                  className={cn(
+                    "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
+                    isMsaOpen && "rotate-180"
+                  )} 
+                />
+              </button>
+            </div>
           </div>
-          <ChevronDownIcon 
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setIsMsaOpen(!isMsaOpen);
+              setHasInteractedWithMSA(true);
+            }}
             className={cn(
-              "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
-              isMsaOpen && "rotate-180"
-            )} 
-          />
-        </button>
+              "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer mt-4 text-left group"
+            )}
+          >
+            <div className="flex flex-col flex-1 pr-4">
+              <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
+              <p className="text-sm text-gray-500 mt-1 font-normal">
+                Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
+              </p>
+            </div>
+            <ChevronDownIcon 
+              className={cn(
+                "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
+                isMsaOpen && "rotate-180"
+              )} 
+            />
+          </button>
+        )}
 
         <AnimatePresence>
           {isMsaOpen && (
