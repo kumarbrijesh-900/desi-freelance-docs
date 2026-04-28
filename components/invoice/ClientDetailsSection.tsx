@@ -581,7 +581,7 @@ export default function ClientDetailsSection({
                         Auto-Generate
                       </button>
                     </div>
-                    <textarea suppressHydrationWarning rows={4} value={value.msaNotesBoilerplate || ""} onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)} placeholder="Terms specific to this client..." className={inputClass(undefined, Boolean(value.msaNotesBoilerplate), true)} />
+                    <textarea suppressHydrationWarning rows={10} value={value.msaNotesBoilerplate || ""} onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)} placeholder="Terms specific to this client..." className={inputClass(undefined, Boolean(value.msaNotesBoilerplate), true)} />
                   </div>
                 </div>
               </div>
