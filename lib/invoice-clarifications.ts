@@ -11,6 +11,8 @@ import type {
   InvoiceBriefLineItemExtraction,
 } from "@/lib/invoice-brief-intake";
 
+import { inferCommercialTermsFromText } from "@/lib/commercial-terms-inference";
+
 type ClarificationContext = {
   normalizedText: string;
   extraction: InvoiceBriefExtractionSchema;
@@ -339,7 +341,7 @@ export function buildBriefClarificationSuggestions(
           helper: paymentScheduleSnippet,
           action: {
             kind: "set-payment-terms",
-            value: paymentScheduleSnippet,
+            value: inferCommercialTermsFromText(paymentScheduleSnippet).dueDays ?? 15,
           },
         },
         {

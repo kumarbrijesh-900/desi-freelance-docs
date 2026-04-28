@@ -204,7 +204,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     invoiceNumber: formData.meta?.invoiceNumber || "—",
     invoiceDate: formatDate(formData.meta?.invoiceDate),
     dueDate: formatDate(formData.meta?.dueDate),
-    paymentTerms: formData.meta?.paymentTerms || "—",
+    paymentTerms: formData.meta?.paymentTerms === 0 ? "Due on Receipt" : `Net ${formData.meta?.paymentTerms || 15} Days`,
     displayCurrency,
 
     lineItems,

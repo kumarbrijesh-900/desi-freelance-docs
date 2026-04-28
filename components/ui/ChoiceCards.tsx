@@ -16,6 +16,7 @@ interface ChoiceCardsProps<T extends string> {
   onChange: (value: T) => void;
   variant?: "segmented" | "cards" | "inline" | "minimal-segmented";
   columns?: 1 | 2;
+  disabled?: boolean;
 }
 
 export default function ChoiceCards<T extends string>({
@@ -25,6 +26,7 @@ export default function ChoiceCards<T extends string>({
   onChange,
   variant = "cards",
   columns = 1,
+  disabled = false,
 }: ChoiceCardsProps<T>) {
   const reducedMotion = useReducedMotion();
   const wrapperClass =
@@ -84,7 +86,10 @@ export default function ChoiceCards<T extends string>({
           <motion.label
             key={option.value}
             htmlFor={id}
-            className="block h-full min-w-0 cursor-pointer"
+            className={cn(
+              "block h-full min-w-0",
+              disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+            )}
             whileHover={
               reducedMotion || variant === "minimal-segmented"
                 ? undefined
@@ -106,7 +111,8 @@ export default function ChoiceCards<T extends string>({
               name={name}
               value={option.value}
               checked={isSelected}
-              onChange={() => onChange(option.value)}
+              onChange={() => !disabled && onChange(option.value)}
+              disabled={disabled}
               aria-label={option.label}
               aria-describedby={descriptionId}
               className="peer sr-only"

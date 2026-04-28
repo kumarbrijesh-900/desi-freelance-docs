@@ -142,7 +142,7 @@ export function getInvoiceFieldErrors(
       "Enter a valid client GSTIN in standard 15-character format.";
   }
 
-  if (isBlank(formData.meta.paymentTerms)) {
+  if (formData.meta.paymentTerms === undefined || isNaN(Number(formData.meta.paymentTerms))) {
     errors.meta.paymentTerms = "Payment terms are required.";
   }
 

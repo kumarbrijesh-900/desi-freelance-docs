@@ -19,7 +19,7 @@ import {
   appFieldFullWidthStackClass,
   appFieldPairGridClass,
 } from "@/lib/form-foundation";
-import { Link, Sparkles, AlertTriangle } from "lucide-react";
+import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TermsPaymentSectionProps {
@@ -170,7 +170,9 @@ export default function TermsPaymentSection({
   const bankAddressError = getVisibleError("bankAddress", errors?.bankAddress);
   const swiftBicCodeError = getVisibleError("swiftBicCode", errors?.swiftBicCode);
 
-  const isPaymentTermsDeviated = selectedClientMsa && meta.paymentTerms !== `Net ${selectedClientMsa.msa_payment_terms_days}`;
+  const isAddendumMode = meta.hasAddendum;
+  const isReadOnly = selectedClientMsa ? !isAddendumMode : false;
+
   const getMsaLicenseType = (trigger?: string): LicenseType | "" => {
     if (!trigger) return "";
     if (trigger === "upon_full_payment") return "full-assignment";
@@ -178,17 +180,6 @@ export default function TermsPaymentSection({
     return "";
   };
   const msaLicenseType = getMsaLicenseType(selectedClientMsa?.msa_ip_trigger_type);
-  const isLicenseTypeDeviated = selectedClientMsa && value.license.licenseType !== msaLicenseType;
-  const isTermsDeviated = selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && value.terms !== selectedClientMsa.msa_notes_boilerplate;
-  const hasMsaDeviation = isPaymentTermsDeviated || isLicenseTypeDeviated || isTermsDeviated;
-
-  // Task 4: Reactive Addendum Badge
-  useEffect(() => {
-    if (hasMsaDeviation && !meta.hasAddendum) {
-      console.log("MSA Deviation detected, auto-triggering Addendum flag");
-      updateMetaField("hasAddendum", true);
-    }
-  }, [hasMsaDeviation, meta.hasAddendum]);
 
   return (
     <>
@@ -203,6 +194,52 @@ export default function TermsPaymentSection({
         )}
 
         <div className="flex flex-col gap-6">
+          {selectedClientMsa && (
+            <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-4 shadow-sm">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Contract Authority</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateMetaField("hasAddendum", false);
+                    // Re-sync with MSA
+                    updateMetaField("paymentTerms", selectedClientMsa.msa_payment_terms_days ?? 15);
+                    updateField("terms", selectedClientMsa.msa_notes_boilerplate || "");
+                    updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
+                    updateLicenseField("licenseType", msaLicenseType);
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
+                    !isAddendumMode 
+                      ? "border-[color:var(--interactive-primary)] bg-[color:var(--bg-surface)] text-[color:var(--interactive-primary)] shadow-sm ring-1 ring-[color:var(--interactive-primary)]" 
+                      : "border-[color:var(--border-subtle)] bg-white text-[color:var(--text-secondary)] hover:bg-gray-50"
+                  )}
+                >
+                  <ShieldCheck size={16} />
+                  Use Master Agreement
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateMetaField("hasAddendum", true)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
+                    isAddendumMode 
+                      ? "border-[color:var(--color-amber-500)] bg-[color:var(--bg-surface)] text-[color:var(--color-amber-700)] shadow-sm ring-1 ring-[color:var(--color-amber-500)]" 
+                      : "border-[color:var(--border-subtle)] bg-white text-[color:var(--text-secondary)] hover:bg-gray-50"
+                  )}
+                >
+                  <FileEdit size={16} />
+                  Create Project Addendum
+                </button>
+              </div>
+              <p className="text-[11px] text-[color:var(--text-soft)] mt-1">
+                {!isAddendumMode 
+                  ? "Following pre-negotiated terms from your Master Agreement. Fields are protected." 
+                  : "You are creating a project-specific override. These changes will be flagged as an addendum."}
+              </p>
+            </div>
+          )}
+
           <AnimatePresence initial={false}>
             {isInternational && (
               <motion.div
@@ -214,7 +251,10 @@ export default function TermsPaymentSection({
               >
                 <div className="space-y-1.5" data-testid="payment-settlement-control">
                   <label className={appFieldLabelClass}>Settlement Type</label>
-                  <div className="inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1">
+                  <div className={cn(
+                    "inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1",
+                    isReadOnly && "opacity-60 cursor-not-allowed pointer-events-none"
+                  )}>
                     {[
                       { value: "forex", label: "Forex" },
                       { value: "inr", label: "INR" },
@@ -229,6 +269,7 @@ export default function TermsPaymentSection({
                             value={option.value}
                             checked={value.paymentSettlementType === option.value}
                             onChange={() => updateField("paymentSettlementType", option.value as any)}
+                            disabled={isReadOnly}
                             className="sr-only"
                           />
                           <span className={cn("flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
@@ -238,13 +279,6 @@ export default function TermsPaymentSection({
                       );
                     })}
                   </div>
-                  <AnimatePresence initial={false}>
-                    {value.paymentSettlementType && value.paymentSettlementType !== "forex" && (
-                      <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 8 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.2, ease: "easeOut" }} className="overflow-hidden">
-                        <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">Confirm the settlement route before final delivery.</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
               </motion.div>
             )}
@@ -253,32 +287,66 @@ export default function TermsPaymentSection({
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               <label className={appFieldLabelClass}>Payment Terms *</label>
-              {selectedClientMsa && (
+              {selectedClientMsa && !isAddendumMode && (
                 <div className="flex items-center gap-1 mb-1.5 opacity-80">
-                  {isPaymentTermsDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}
-                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{isPaymentTermsDeviated ? "Override" : "Synced with MSA"}</span>
+                  <Link size={14} strokeWidth={1.5} className="text-slate-400" />
+                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Synced with MSA</span>
+                </div>
+              )}
+              {isAddendumMode && (
+                <div className="flex items-center gap-1 mb-1.5 opacity-80">
+                  <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
+                  <span className="text-[10px] font-medium text-amber-600 uppercase tracking-wider">Project Override</span>
                 </div>
               )}
             </div>
-            <input suppressHydrationWarning type="text" value={meta.paymentTerms} onChange={(e) => updateMetaField("paymentTerms", e.target.value)} onBlur={() => markTouched("paymentTerms")} placeholder="Net 15" className={inputClass(paymentTermsFieldError, Boolean(meta.paymentTerms))} />
-            {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
-            {isPaymentTermsDeviated && <p className={appFieldHelperTextClass}>MSA default: Net {selectedClientMsa.msa_payment_terms_days}</p>}
+            
+            <div className="flex flex-col gap-1.5">
+              <select
+                disabled={isReadOnly}
+                value={meta.paymentTerms}
+                onChange={(e) => updateMetaField("paymentTerms", Number(e.target.value))}
+                onBlur={() => markTouched("paymentTerms")}
+                className={cn(
+                  inputClass(paymentTermsFieldError, true),
+                  "max-w-xs w-48 cursor-pointer appearance-none bg-[image:var(--app-select-icon)] pr-10"
+                )}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.75rem center',
+                  backgroundSize: '1.25rem'
+                }}
+              >
+                <option value={0}>Due on Receipt</option>
+                <option value={7}>Net 7</option>
+                <option value={15}>Net 15</option>
+                <option value={30}>Net 30</option>
+                <option value={45}>Net 45</option>
+                <option value={60}>Net 60</option>
+              </select>
+              <p className="text-[11px] text-[color:var(--text-muted)]">Number of days from the invoice date until payment is due.</p>
+              {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[color:var(--text-primary)]">Licensing</p>
             <div className="flex flex-col gap-1.5">
               <label className={appFieldLabelClass}>License Included?</label>
-              <ChoiceCards
-                name="license-included"
-                value={value.license.isLicenseIncluded ? "yes" : "no"}
-                onChange={(nextValue) => {
-                  if (nextValue === "yes") { updateLicenseField("isLicenseIncluded", true); return; }
-                  onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
-                }}
-                variant="inline"
-                options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
-              />
+              <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
+                <ChoiceCards
+                  name="license-included"
+                  value={value.license.isLicenseIncluded ? "yes" : "no"}
+                  disabled={isReadOnly}
+                  onChange={(nextValue) => {
+                    if (nextValue === "yes") { updateLicenseField("isLicenseIncluded", true); return; }
+                    onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
+                  }}
+                  variant="inline"
+                  options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
+                />
+              </div>
             </div>
 
             <AnimatePresence initial={false}>
@@ -288,9 +356,17 @@ export default function TermsPaymentSection({
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
                         <label className={appFieldLabelClass}>License Type *</label>
-                        {selectedClientMsa && <div className="flex items-center gap-1 mb-1.5 opacity-80">{isLicenseTypeDeviated ? <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" /> : <Link size={14} strokeWidth={1.5} className="text-slate-400" />}</div>}
                       </div>
-                      <ChoiceCards name="license-type" value={value.license.licenseType} onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} variant="inline" options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} />
+                      <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
+                        <ChoiceCards 
+                          name="license-type" 
+                          value={value.license.licenseType} 
+                          disabled={isReadOnly}
+                          onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} 
+                          variant="inline" 
+                          options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} 
+                        />
+                      </div>
                     </div>
 
                     <AnimatePresence initial={false}>
@@ -298,7 +374,16 @@ export default function TermsPaymentSection({
                         <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 0 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.25, ease: "easeOut" }} className="overflow-hidden">
                           <div className="max-w-[260px] flex flex-col gap-1.5 pt-4">
                             <label className={appFieldLabelClass}>License Duration *</label>
-                            <input suppressHydrationWarning type="text" value={value.license.licenseDuration} onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} onBlur={() => markTouched("licenseDuration")} placeholder="Example: 3 years" className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} />
+                            <input 
+                              disabled={isReadOnly}
+                              suppressHydrationWarning 
+                              type="text" 
+                              value={value.license.licenseDuration} 
+                              onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} 
+                              onBlur={() => markTouched("licenseDuration")} 
+                              placeholder="Example: 3 years" 
+                              className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} 
+                            />
                             {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
                           </div>
                         </motion.div>
@@ -321,61 +406,18 @@ export default function TermsPaymentSection({
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               <label className={appFieldLabelClass}>Terms / Notes</label>
-              {selectedClientMsa && selectedClientMsa.msa_notes_boilerplate && (
-                <div className="flex items-center gap-1 mb-1.5 opacity-80">
-                  {isTermsDeviated ? (
-                    <Sparkles size={14} strokeWidth={1.5} className="text-amber-500" />
-                  ) : (
-                    <Link size={14} strokeWidth={1.5} className="text-slate-400" />
-                  )}
-                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">
-                    {isTermsDeviated ? "Override" : "Synced with MSA"}
-                  </span>
-                  {isTermsDeviated && (
-                    <span className="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 ring-1 ring-inset ring-amber-200">
-                      Addendum Active
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
             <textarea
+              disabled={isReadOnly}
               suppressHydrationWarning
               rows={4}
               value={value.terms || value.notes}
-              onChange={(e) => {
-                const nextTerms = e.target.value;
-                updateField("terms", nextTerms);
-                // If overridden, auto-set addendum if not already set
-                if (selectedClientMsa && nextTerms !== selectedClientMsa.msa_notes_boilerplate && !meta.hasAddendum) {
-                  onMetaChange({ ...meta, hasAddendum: true });
-                }
-              }}
+              onChange={(e) => updateField("terms", e.target.value)}
               placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
               className={inputClass(undefined, Boolean(value.terms || value.notes), true)}
             />
           </div>
         </div>
-
-        {hasMsaDeviation && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="flex gap-3">
-              <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-bold text-amber-900">Deviation from Master MSA detected</p>
-                  <p className="text-xs text-amber-700 leading-relaxed mt-1">You are changing terms that were previously agreed upon in your Master Service Agreement with this client.</p>
-                </div>
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative flex items-center mt-1">
-                    <input type="checkbox" checked={meta.hasAddendum} onChange={(e) => updateMetaField("hasAddendum", e.target.checked)} className="peer h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer" />
-                  </div>
-                  <span className="text-[13px] font-semibold text-amber-900 group-hover:text-black transition-colors">Apply overrides as a Project-Specific Addendum<span className="block text-[11px] font-normal text-amber-700 mt-0.5">Required to proceed with modified terms.</span></span>
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
 
         <AnimatePresence initial={false}>
           {!isInternational && (

@@ -20,24 +20,10 @@ function addDays(dateString: string, days: number) {
  * Derives a suggested due date based on payment terms and an invoice date.
  * Matches "Net X" or "Due on Receipt".
  */
-export function getSuggestedDueDate(paymentTerms: string, invoiceDate: string) {
-  const normalized = paymentTerms.trim().toLowerCase();
-
+export function getSuggestedDueDate(paymentTerms: number, invoiceDate: string) {
   if (!invoiceDate) return "";
-
-  if (normalized.includes("due on receipt")) {
-    return invoiceDate;
-  }
-
-  const netMatch = normalized.match(/net[\s-]?(\d+)/i);
-  if (netMatch) {
-    const days = Number(netMatch[1]);
-    if (!Number.isNaN(days)) {
-      return addDays(invoiceDate, days);
-    }
-  }
-
-  return "";
+  const days = Number(paymentTerms) || 0;
+  return addDays(invoiceDate, days);
 }
 
 /**
@@ -61,13 +47,12 @@ export function syncMsaToInvoice(
   // 1. Hydrate Payment Terms & Calculate Suggested Due Date
   if (client.msaPaymentTermsDays !== undefined) {
     const days = client.msaPaymentTermsDays;
-    const termsLabel = days === 0 ? "Due on Receipt" : `Net ${days}`;
 
     updated.meta = {
       ...updated.meta,
-      paymentTerms: termsLabel,
+      paymentTerms: days,
       dueDate: getSuggestedDueDate(
-        termsLabel,
+        days,
         updated.meta.invoiceDate || new Date().toISOString().split("T")[0],
       ),
     };

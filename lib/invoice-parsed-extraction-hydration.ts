@@ -199,6 +199,60 @@ function applyStringField(params: {
   );
 }
 
+function applyNumberField(params: {
+  ctx: HydrationContext;
+  path: string;
+  label: string;
+  incoming?: number | string | null;
+  currentValue: number;
+  originalValue: number;
+  defaultValue: number;
+  assign: (value: number) => void;
+}) {
+  let incoming: number | null = null;
+  if (typeof params.incoming === "number") {
+    incoming = params.incoming;
+  } else if (typeof params.incoming === "string") {
+    incoming = parseInt(params.incoming, 10);
+  }
+
+  if (incoming === null || Number.isNaN(incoming)) {
+    if (params.currentValue !== params.originalValue) {
+      params.assign(params.originalValue);
+    }
+    return;
+  }
+
+  const confidence = getConfidence(params.ctx.parserResponse, params.path);
+  if (!shouldHydrate(confidence)) {
+    params.ctx.unresolvedFields.push(params.path);
+    return;
+  }
+
+  if (
+    params.originalValue === params.defaultValue ||
+    params.currentValue === params.defaultValue
+  ) {
+    if (params.currentValue !== incoming) {
+      params.assign(incoming);
+      recordHydration(
+        params.ctx.hydratedFields,
+        params.path,
+        params.label,
+        confidence,
+      );
+    }
+    return;
+  }
+
+  recordHydration(
+    params.ctx.preservedFields,
+    params.path,
+    params.label,
+    confidence,
+  );
+}
+
 function applyToggleField<T extends string>(params: {
   ctx: HydrationContext;
   path: string;
@@ -959,7 +1013,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
 
   hydrateLineItems(ctx);
 
-  applyStringField({
+  applyNumberField({
     ctx,
     path: "payment.terms",
     label: "Payment terms",
@@ -1113,7 +1167,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     nextFormData.meta.paymentTerms
   ) {
     const inferredTerms = inferCommercialTermsFromText(
-      nextFormData.meta.paymentTerms,
+      nextFormData.meta.paymentTerms.toString(),
       { invoiceDate: nextFormData.meta.invoiceDate },
     );
 

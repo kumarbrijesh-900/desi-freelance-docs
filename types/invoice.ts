@@ -135,7 +135,7 @@ export interface InvoiceMeta {
   invoiceNumber: string;
   invoiceDate: string;
   dueDate: string;
-  paymentTerms: string;
+  paymentTerms: number;
   hasAddendum: boolean;
 }
 
@@ -251,7 +251,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     invoiceNumber: "",
     invoiceDate: "",
     dueDate: "",
-    paymentTerms: "",
+    paymentTerms: 15,
     hasAddendum: false,
   },
   lineItems: [

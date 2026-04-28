@@ -149,24 +149,10 @@ function addDays(dateString: string, days: number) {
   return `${year}-${month}-${day}`;
 }
 
-function getSuggestedDueDate(paymentTerms: string, invoiceDate: string) {
-  const normalized = paymentTerms.trim().toLowerCase();
-
+function getSuggestedDueDate(paymentTerms: number, invoiceDate: string) {
   if (!invoiceDate) return "";
-
-  if (normalized.includes("due on receipt")) {
-    return invoiceDate;
-  }
-
-  const netMatch = normalized.match(/net[\s-]?(\d+)/i);
-  if (netMatch) {
-    const days = Number(netMatch[1]);
-    if (!Number.isNaN(days)) {
-      return addDays(invoiceDate, days);
-    }
-  }
-
-  return "";
+  const days = Number(paymentTerms) || 0;
+  return addDays(invoiceDate, days);
 }
 
 function getInvoiceSequenceMap(): InvoiceSequenceMap {
@@ -244,7 +230,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       invoiceNumber,
       invoiceDate: today,
       dueDate: addDays(today, 15),
-      paymentTerms: "Net 15",
+      paymentTerms: 15,
       hasAddendum: false,
     },
     lineItems: [

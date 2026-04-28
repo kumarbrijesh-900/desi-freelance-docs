@@ -161,10 +161,10 @@ export type BriefClarificationAction =
       kind: "set-agency-lut-availability";
       value: AgencyDetails["lutAvailability"];
     }
-  | {
-      kind: "set-payment-terms";
-      value: string;
-    }
+    | {
+        kind: "set-payment-terms";
+        value: number;
+      }
   | {
       kind: "append-payment-note";
       value: string;
@@ -4489,7 +4489,12 @@ export function mapBriefExtractionToInvoiceForm(params: {
     label: "Payment terms",
     currentValue: nextFormData.meta.paymentTerms,
     defaultValue: defaultInvoiceFormData.meta.paymentTerms,
-    candidate: extraction.paymentTerms,
+    candidate: extraction.paymentTerms
+      ? {
+          ...extraction.paymentTerms,
+          value: parseInt(extraction.paymentTerms.value, 10) || 15,
+        }
+      : undefined,
     assign: (value) => {
       nextFormData.meta.paymentTerms = value;
     },

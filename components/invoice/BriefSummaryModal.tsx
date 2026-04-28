@@ -102,7 +102,7 @@ function getExtractedValueForLabel(
   if (l.includes("description") || l.includes("deliverable"))
     return data.lineItems[0]?.description || "";
 
-  if (l.includes("payment terms")) return data.meta.paymentTerms || "";
+  if (l.includes("payment terms")) return data.meta.paymentTerms?.toString() || "15";
   if (l.includes("bank name")) return data.payment.bankName || "";
   if (l.includes("account number")) return data.payment.accountNumber || "";
   if (l.includes("ifsc")) return data.payment.ifscCode || "";
@@ -192,6 +192,7 @@ function setFormDataValue(
   if (l.includes("invoice number")) next.meta.invoiceNumber = value;
   if (l.includes("invoice date")) next.meta.invoiceDate = value;
   if (l.includes("due date")) next.meta.dueDate = value;
+  if (l.includes("payment terms")) next.meta.paymentTerms = parseInt(value, 10) || 15;
 
   return next;
 }
