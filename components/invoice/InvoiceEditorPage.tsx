@@ -59,6 +59,7 @@ import { supabase } from "@/lib/supabase/client";
 import {
   getCurrentUserId,
   saveInvoice,
+  loadInvoice,
   reissueNegotiatedInvoice,
   getCurrentUserEmail,
 } from "@/lib/supabase/invoices";
@@ -741,6 +742,7 @@ function EditorContent() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedClientMsa, setSelectedClientMsa] =
     useState<SavedClient | null>(null);
+  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
 
   // Modal States
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -806,7 +808,42 @@ function EditorContent() {
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
+    async function loadCloudInvoice(invoiceId: string) {
+      setIsLoadingInvoice(true);
+      const { data, error } = await loadInvoice(invoiceId);
+      setIsLoadingInvoice(false);
+
+      if (error || !data) {
+        console.error("Failed to load cloud invoice:", error);
+        triggerToast("Could not load invoice from cloud. Starting fresh.");
+        initializeFresh();
+        return;
+      }
+
+      console.log("HYDRATION: Found cloud invoice", data.id);
+      const hydratedData = mergeInvoiceFormData(data.form_data as any);
+      setFormData(hydratedData);
+      setParserDocumentId(data.id);
+      setIsBootstrapped(true);
+      hasInitializedRef.current = true;
+      triggerToast("Invoice hydrated from cloud ☁");
+    }
+
+    function initializeFresh() {
+      const freshData = getFreshInvoiceData();
+      setFormData(freshData);
+      setIsBootstrapped(true);
+      hasInitializedRef.current = true;
+    }
+
     try {
+      // 0. Check for explicit ID in URL (Cloud Hydration)
+      const urlId = searchParams.get("id");
+      if (urlId) {
+        void loadCloudInvoice(urlId);
+        return;
+      }
+
       // 1. Check for anonymous draft (Progressive Profiling)
     const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
     const isFresh = window.location.search.includes("fresh=1");
@@ -1033,6 +1070,17 @@ useEffect(() => {
   }
   void checkAssets();
 }, [isBootstrapped]);
+
+  /* ── Sync selectedClientMsa with current draft ── */
+  useEffect(() => {
+    if (!isBootstrapped || savedClients.length === 0) return;
+    const client = savedClients.find(
+      (c) => c.client_name.trim().toLowerCase() === formData.client.clientName.trim().toLowerCase()
+    );
+    if (client && (!selectedClientMsa || selectedClientMsa.id !== client.id)) {
+      setSelectedClientMsa(client);
+    }
+  }, [isBootstrapped, savedClients, formData.client.clientName]);
 
 useEffect(() => {
   if (!hasInitializedRef.current) return;
@@ -1968,6 +2016,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
     case "agency":
       return (
         <AgencyDetailsSection
+          key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           value={{ ...formData.agency, profileLogoUrl }}
           onChange={(agency) => updateFormSection("agency", agency)}
@@ -1978,6 +2027,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
     case "client":
       return (
         <ClientDetailsSection
+          key={isBootstrapped ? "hydrated" : "loading"}
           value={formData.client}
           onChange={(client) => updateFormSection("client", client)}
           onClientSelect={handleClientSelect}
@@ -1990,6 +2040,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
     case "deliverables":
       return (
         <DeliverablesSection
+          key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           value={formData.lineItems}
           currency={displayCurrency}
@@ -2006,6 +2057,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
     case "payment":
       return (
         <TermsPaymentSection
+          key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           value={{ ...formData.payment, profileQrUrl }}
           meta={formData.meta}
@@ -2028,6 +2080,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
     case "meta":
       return (
         <InvoiceMetaSection
+          key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           value={formData.meta}
           onChange={handleMetaChange}
