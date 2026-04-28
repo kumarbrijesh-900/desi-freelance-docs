@@ -39,9 +39,8 @@ function fmtDate(d: string) {
 }
 
 function fmtAmount(inv: SavedInvoice) {
-  const items = inv.form_data?.lineItems ?? [];
-  const subtotal = items.reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
-  if (!subtotal) return "—";
+  const amount = inv.grand_total ?? (inv.form_data?.lineItems ?? []).reduce((s, i) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+  if (!amount) return "—";
   const currency = inv.form_data?.client?.clientCurrency || "INR";
   const symbol =
     currency === "USD"
@@ -51,7 +50,7 @@ function fmtAmount(inv: SavedInvoice) {
         : currency === "GBP"
           ? "£"
           : "₹";
-  return `${symbol}${subtotal.toLocaleString("en-IN")}`;
+  return `${symbol}${amount.toLocaleString("en-IN")}`;
 }
 
 function getWorkType(inv: SavedInvoice) {
@@ -263,8 +262,9 @@ function InvoiceRow({
   const [isExpanded, setIsExpanded] = useState(false);
   
   const lineItems = invoice.form_data?.lineItems ?? [];
-  const milestones = lineItems.filter(i => i.is_milestone_header);
-  const hasMilestones = milestones.length > 0;
+  const hasRelationalMilestones = (invoice.milestones ?? []).length > 0;
+  const hasLegacyMilestones = lineItems.some(i => i.is_milestone_header);
+  const hasMilestones = hasRelationalMilestones || hasLegacyMilestones;
 
   const canSettle =
     invoice.status === "SENT" || invoice.status === "PARTIAL";
@@ -282,8 +282,8 @@ function InvoiceRow({
         <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
           <div className="flex items-center gap-2">
             {hasMilestones && (
-              <span className={cn("text-[10px] transition-transform duration-200", isExpanded && "rotate-180")}>
-                ▼
+              <span className={cn("text-[14px] transition-all duration-200 text-[color:var(--text-muted)]", isExpanded ? "rotate-90 text-[color:var(--text-primary)]" : "rotate-0")}>
+                ›
               </span>
             )}
             {invoice.invoice_number}
@@ -342,7 +342,7 @@ function InvoiceRow({
 
         {/* Actions */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {canSettle && !hasMilestones && (
               <button
                 type="button"
@@ -356,22 +356,22 @@ function InvoiceRow({
 
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onEdit(invoice); }}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-            >
-              Edit
-            </button>
-
-            <button
-              type="button"
               onClick={(e) => { e.stopPropagation(); onView(invoice); }}
               className={getAppButtonClass({ variant: "secondary", size: "sm" })}
             >
               View
             </button>
 
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(invoice); }}
+              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+            >
+              Edit
+            </button>
+
             {confirmDelete ? (
-              <span className="inline-flex items-center gap-1" onClick={e => e.stopPropagation()}>
+              <span className="inline-flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                 <button
                   type="button"
                   onClick={() => {
@@ -379,23 +379,23 @@ function InvoiceRow({
                     setConfirmDelete(false);
                   }}
                   disabled={deletingId === invoice.id}
-                  className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--state-warning-text)] hover:bg-[color:var(--state-warning-bg)] transition-colors"
+                  className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
                 >
-                  {deletingId === invoice.id ? "…" : "Yes"}
+                  {deletingId === invoice.id ? "…" : "Confirm"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="rounded px-2 py-1 text-[11px] font-semibold text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)] transition-colors"
+                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
                 >
-                  No
+                  Cancel
                 </button>
               </span>
             ) : (
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
-                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
               >
                 Delete
               </button>
@@ -407,71 +407,131 @@ function InvoiceRow({
       {/* Milestone Accordion Rows */}
       {isExpanded && hasMilestones && (
         <>
-          {lineItems.map((item, idx) => {
-            if (!item.is_milestone_header) return null;
-            
-            // Calculate subtotal for this milestone
-            let subtotal = 0;
-            for (let i = idx + 1; i < lineItems.length; i++) {
-              if (lineItems[i].is_milestone_header) break;
-              subtotal += (lineItems[i].qty ?? 0) * (lineItems[i].rate ?? 0);
-            }
-            
-            // For now, milestone status is derived from parent or custom field if added later
-            const isSettled = item.milestone_status === "SETTLED";
-            const currency = invoice.form_data.client?.clientCurrency || "INR";
-            const symbol = currency === "USD" ? "$" : "₹";
+          {(invoice.milestones ?? []).length > 0 ? (
+            // Render from relational milestones if available
+            invoice.milestones!.map((m: any, idx: number) => {
+              const isSettled = m.status === "SETTLED";
+              const currency = invoice.form_data?.client?.clientCurrency || "INR";
+              const symbol = currency === "USD" ? "$" : "₹";
+              
+              return (
+                <tr key={m.id} className="bg-[color:var(--bg-surface-soft)]/30 border-b border-[color:var(--border-subtle)]">
+                  <td className="pl-12 py-3 text-[11px] font-medium text-[color:var(--text-muted)] italic">
+                    ↳ {m.description}
+                  </td>
+                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
+                    Milestone Stage
+                  </td>
+                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
+                    —
+                  </td>
+                  <td className="px-4 py-3 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
+                    {symbol}{(m.amount ?? 0).toLocaleString("en-IN")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={cn(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      isSettled 
+                        ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)]" 
+                        : "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] border border-[color:var(--border-subtle)]"
+                    )}>
+                      {isSettled ? "Settled" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-3">
+                      {!isSettled && (
+                        <button
+                          type="button"
+                          onClick={() => onMarkSettled(invoice.id, m.id)}
+                          className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
+                        >
+                          Mark Settled
+                        </button>
+                      )}
+                      {isSettled && idx < (invoice.milestones ?? []).length - 1 && (
+                        <button
+                          type="button"
+                          disabled={requestingId === invoice.milestones![idx + 1]?.id}
+                          onClick={() => onRequestNext(invoice.id, invoice.milestones![idx + 1]?.id)}
+                          className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
+                        >
+                          {requestingId === invoice.milestones![idx + 1]?.id ? "Requesting…" : "Request Next"}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            // Fallback to form_data logic
+            lineItems.map((item, idx) => {
+              if (!item.is_milestone_header) return null;
+              
+              let subtotal = 0;
+              for (let i = idx + 1; i < lineItems.length; i++) {
+                if (lineItems[i].is_milestone_header) break;
+                subtotal += (lineItems[i].qty ?? 0) * (lineItems[i].rate ?? 0);
+              }
+              
+              const isSettled = item.milestone_status === "SETTLED";
+              const currency = invoice.form_data.client?.clientCurrency || "INR";
+              const symbol = currency === "USD" ? "$" : "₹";
 
-            return (
-              <tr key={item.id} className="bg-gray-50/30 border-b border-[color:var(--border-subtle)]">
-                <td className="pl-10 py-2.5 text-[11px] font-medium text-[color:var(--text-muted)] italic">
-                  ↳ {item.description}
-                </td>
-                <td className="px-4 py-2.5 text-[11px] text-[color:var(--text-muted)]">
-                  Milestone Stage
-                </td>
-                <td className="px-4 py-2.5 text-[11px] text-[color:var(--text-muted)]">
-                  —
-                </td>
-                <td className="px-4 py-2.5"></td>
-                <td className="px-4 py-2.5 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
-                  {symbol}{subtotal.toLocaleString("en-IN")}
-                </td>
-                <td className="px-4 py-2.5">
-                  <span className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-                    isSettled 
-                      ? "bg-green-50 text-green-700 border border-green-100" 
-                      : "bg-gray-100 text-gray-500 border border-gray-200"
-                  )}>
-                    {isSettled ? "Settled" : "Pending"}
-                  </span>
-                </td>
-                <td className="px-4 py-2.5"></td>
-                <td className="px-4 py-2.5 text-right">
-                  {!isSettled && (
-                    <button
-                      type="button"
-                      onClick={() => onMarkSettled(invoice.id, item.id)}
-                      className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
-                    >
-                      Mark Settled
-                    </button>
-                  )}
-                  {isSettled && idx < lineItems.filter(i => i.is_milestone_header).length - 1 && (
-                    <button
-                      type="button"
-                      disabled={requestingId === item.id}
-                      onClick={() => onRequestNext(invoice.id, lineItems[idx + 1]?.id)}
-                      className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
-                    >
-                      {requestingId === lineItems[idx + 1]?.id ? "Requesting…" : "Request Next"}
-                    </button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
+              return (
+                <tr key={item.id} className="bg-[color:var(--bg-surface-soft)]/30 border-b border-[color:var(--border-subtle)]">
+                  <td className="pl-12 py-3 text-[11px] font-medium text-[color:var(--text-muted)] italic">
+                    ↳ {item.description}
+                  </td>
+                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
+                    Milestone Stage
+                  </td>
+                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
+                    —
+                  </td>
+                  <td className="px-4 py-3 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
+                    {symbol}{subtotal.toLocaleString("en-IN")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={cn(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      isSettled 
+                        ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)]" 
+                        : "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] border border-[color:var(--border-subtle)]"
+                    )}>
+                      {isSettled ? "Settled" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-3">
+                      {!isSettled && (
+                        <button
+                          type="button"
+                          onClick={() => onMarkSettled(invoice.id, item.id)}
+                          className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
+                        >
+                          Mark Settled
+                        </button>
+                      )}
+                      {isSettled && idx < lineItems.filter(i => i.is_milestone_header).length - 1 && (
+                        <button
+                          type="button"
+                          disabled={requestingId === item.id}
+                          onClick={() => onRequestNext(invoice.id, lineItems[idx + 1]?.id)}
+                          className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
+                        >
+                          {requestingId === lineItems[idx + 1]?.id ? "Requesting…" : "Request Next"}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </>
       )}
     </>
@@ -561,22 +621,28 @@ export default function InvoiceHistoryPage() {
     if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
   };
-
   const handleMarkSettled = async (id: string, milestoneId?: string) => {
     // If it's a milestone, we open the modal
     if (milestoneId) {
       const inv = invoices.find(i => i.id === id);
       if (!inv) return;
       
-      const item = inv.form_data.lineItems.find(li => li.id === milestoneId);
+      // Try to find in relational milestones first
+      const relMilestone = inv.milestones?.find(m => m.id === milestoneId);
+      const item = relMilestone || inv.form_data.lineItems.find(li => li.id === milestoneId);
+      
       if (!item) return;
 
       // Calculate subtotal for this milestone
       let subtotal = 0;
-      const idx = inv.form_data.lineItems.findIndex(li => li.id === milestoneId);
-      for (let i = idx + 1; i < inv.form_data.lineItems.length; i++) {
-        if (inv.form_data.lineItems[i].is_milestone_header) break;
-        subtotal += (inv.form_data.lineItems[i].qty ?? 0) * (inv.form_data.lineItems[i].rate ?? 0);
+      if (relMilestone) {
+        subtotal = relMilestone.amount ?? (relMilestone.line_items ?? []).reduce((s: number, li: any) => s + (li.qty ?? 0) * (li.rate ?? 0), 0);
+      } else {
+        const idx = inv.form_data.lineItems.findIndex(li => li.id === milestoneId);
+        for (let i = idx + 1; i < inv.form_data.lineItems.length; i++) {
+          if (inv.form_data.lineItems[i].is_milestone_header) break;
+          subtotal += (inv.form_data.lineItems[i].qty ?? 0) * (inv.form_data.lineItems[i].rate ?? 0);
+        }
       }
 
       const currency = inv.form_data.client?.clientCurrency || "INR";
@@ -585,14 +651,14 @@ export default function InvoiceHistoryPage() {
       setActiveSettlement({
         invoiceId: id,
         milestoneId,
-        name: item.description,
+        name: (item as any).description,
         subtotal,
         symbol
       });
       return;
     }
 
-    // One-time invoices settle instantly (as per Phase 4 baseline)
+    // One-time invoices settle instantly
     setSettlingId(id);
     const { error } = await markInvoiceSettled(id);
     if (!error) {
@@ -617,10 +683,17 @@ export default function InvoiceHistoryPage() {
         prev.map((inv) => {
           if (inv.id !== invoiceId) return inv;
           
+          // Update relational milestones if present
+          const updatedRelMilestones = (inv.milestones || []).map(m => 
+            m.id === milestoneId ? { ...m, status: "SETTLED" as const, tds_amount: tdsAmount } : m
+          );
+
+          // Update form_data line items for backward compatibility
           const updatedItems = (inv.form_data?.lineItems || []).map(item => 
             item.id === milestoneId ? { ...item, milestone_status: "SETTLED" as const, tds_amount: tdsAmount } : item
           );
           
+          // Determine overall status
           const allM = updatedItems.filter(i => i.is_milestone_header);
           const settledM = allM.filter(i => i.milestone_status === "SETTLED");
           const newStatus = settledM.length === allM.length ? "SETTLED" : "PARTIAL";
@@ -628,6 +701,7 @@ export default function InvoiceHistoryPage() {
           return {
             ...inv,
             status: newStatus as any,
+            milestones: updatedRelMilestones,
             form_data: {
               ...inv.form_data,
               lineItems: updatedItems

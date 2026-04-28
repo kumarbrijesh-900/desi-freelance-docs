@@ -42,6 +42,19 @@ export interface SavedInvoice {
   updated_at: string;
   has_addendum: boolean;
   msa_status: MsaResponse;
+  grand_total?: number;
+  milestones?: {
+    id: string;
+    description: string;
+    status: string;
+    line_items: {
+      id: string;
+      description: string;
+      qty: number;
+      rate: number;
+      amount: number;
+    }[];
+  }[];
 }
 
 export interface SaveInvoiceInput {
@@ -97,46 +110,136 @@ export async function saveInvoice(
   const invoiceNumber = getInvoiceNumber(input.formData);
   const status = input.status ?? "DRAFT";
 
-  const row = {
+  // Fix Bug 2: Map MSA fields correctly to database columns
+  const row: any = {
     invoice_number: invoiceNumber,
     form_data: input.formData as unknown as Record<string, unknown>,
     status,
     template_id: input.templateId ?? "classic",
     due_date: input.formData.meta?.dueDate || null,
+    // Fix: Prioritize meta.paymentTerms, fallback to client.msaPaymentTermsDays
+    applied_payment_terms: input.formData.meta?.paymentTerms || 
+      (input.formData.client?.msaPaymentTermsDays ? `Net ${input.formData.client.msaPaymentTermsDays}` : null),
+    applied_late_fee_rate: input.formData.client?.msaLateFeeRate || input.formData.agency?.msaLateFeeRate || null,
+    applied_license_type: input.formData.payment?.license?.licenseType || null,
+    user_id: userId,
   };
 
-  console.log("saveInvoice (v1.0.6) - sending row:", row);
+  console.log("saveInvoice - sending row:", row);
 
-  if (input.existingId) {
+  let result;
+  
+  // Task 1: Upsert logic — check for existing by ID or invoice_number
+  let targetId = input.existingId;
+  if (!targetId) {
+    const { data: existing } = await supabase
+      .from("invoices")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("invoice_number", invoiceNumber)
+      .limit(1)
+      .maybeSingle();
+    if (existing) targetId = existing.id;
+  }
+
+  if (targetId) {
     // Update existing
-    const { data, error } = await supabase
+    result = await supabase
       .from("invoices")
       .update(row)
-      .eq("id", input.existingId)
-      .eq("user_id", userId)
+      .eq("id", targetId)
       .select()
       .single();
+  } else {
+    // Insert new
+    result = await supabase
+      .from("invoices")
+      .insert(row)
+      .select()
+      .single();
+  }
 
-    if (error) {
-      return { data: null, error: error.message };
+  if (result.error) {
+    return { data: null, error: result.error.message };
+  }
+
+  // Task: Clear/Replace relational milestones if they exist in relational tables
+  if (result.data) {
+    await syncMilestonesFromInvoice(result.data.id, input.formData);
+    
+    // Task 3: Map calculated grand_total to the returned object so UI updates immediately
+    const items = input.formData.lineItems || [];
+    const grand_total = items.reduce((s: number, i: any) => s + (i.qty || 0) * (i.rate || 0), 0);
+    (result.data as any).grand_total = grand_total;
+  }
+
+  return { data: result.data as SavedInvoice, error: null };
+}
+
+/**
+ * Helper to sync the new relational milestones tables from the JSONB form_data.
+ * This ensures the 'JOIN explosion' logic has actual data to aggregate.
+ */
+async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFormData) {
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+
+  // 1. Clear existing milestones for this invoice (cascades to line_items)
+  await supabase.from("milestones").delete().eq("invoice_id", invoiceId);
+
+  // 2. Extract and insert new ones
+  const milestonesToInsert: any[] = [];
+  let currentMilestone: any = null;
+
+  formData.lineItems.forEach((item, idx) => {
+    if (item.is_milestone_header) {
+      currentMilestone = {
+        invoice_id: invoiceId,
+        user_id: userId,
+        description: item.description,
+        status: item.milestone_status || "PENDING",
+        order_index: idx,
+        temp_id: item.id // to link items
+      };
+      milestonesToInsert.push(currentMilestone);
     }
-    return { data: data as SavedInvoice, error: null };
-  }
+  });
 
-  // Insert new
-  const { data, error } = await supabase
-    .from("invoices")
-    .insert({
-      ...row,
-      user_id: userId,
-    })
-    .select()
-    .single();
+  if (milestonesToInsert.length === 0) return;
 
-  if (error) {
-    return { data: null, error: error.message };
+  // Insert milestones
+  const { data: insertedMilestones } = await supabase
+    .from("milestones")
+    .insert(milestonesToInsert.map(({ temp_id, ...m }) => m))
+    .select();
+
+  if (!insertedMilestones) return;
+
+  // Insert line items for each milestone
+  const itemsToInsert: any[] = [];
+  insertedMilestones.forEach((m, mIdx) => {
+    const originalMilestone = milestonesToInsert[mIdx];
+    const startIndex = originalMilestone.order_index;
+    
+    // Find items following this header until next header
+    for (let i = startIndex + 1; i < formData.lineItems.length; i++) {
+      const item = formData.lineItems[i];
+      if (item.is_milestone_header) break;
+      
+      itemsToInsert.push({
+        milestone_id: m.id,
+        description: item.description,
+        qty: item.qty || 0,
+        rate: item.rate || 0,
+        amount: (item.qty || 0) * (item.rate || 0),
+        order_index: i
+      });
+    }
+  });
+
+  if (itemsToInsert.length > 0) {
+    await supabase.from("line_items").insert(itemsToInsert);
   }
-  return { data: data as SavedInvoice, error: null };
 }
 
 /* ─── Load Single ─────────────────────────────────────────── */
@@ -169,7 +272,13 @@ export async function listInvoices(): Promise<{
 
   const { data, error } = await supabase
     .from("invoices")
-    .select("*")
+    .select(`
+      *,
+      milestones (
+        *,
+        line_items (*)
+      )
+    `)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -177,9 +286,36 @@ export async function listInvoices(): Promise<{
     return { data: [], error: error.message };
   }
 
-  // Ensure unique invoices by id (Post-processing to ensure "one invoice equals exactly one row")
-  const uniqueInvoices = Array.from(new Map((data ?? []).map(inv => [inv.id, inv])).values());
-  
+  // Aggregate data and calculate Grand Total manually
+  const processedInvoices = (data ?? []).map((inv: any) => {
+    // Calculate total amount from relational data if available, fallback to form_data
+    let grandTotal = 0;
+    if (inv.milestones && inv.milestones.length > 0) {
+      inv.milestones.forEach((m: any) => {
+        const milestoneTotal = (m.line_items ?? []).reduce(
+          (sum: number, item: any) => sum + (item.qty ?? 0) * (item.rate ?? 0),
+          0
+        );
+        m.amount = milestoneTotal;
+        grandTotal += milestoneTotal;
+      });
+    } else {
+      // Fallback to form_data logic
+      const items = inv.form_data?.lineItems ?? [];
+      grandTotal = items.reduce((s: number, i: any) => s + (i.qty ?? 0) * (i.rate ?? 0), 0);
+    }
+
+    return {
+      ...inv,
+      grand_total: grandTotal,
+    };
+  });
+
+  // Ensure unique invoices by id (Group by invoice.id)
+  const uniqueInvoices = Array.from(
+    new Map(processedInvoices.map((inv) => [inv.id, inv])).values()
+  );
+
   return { data: uniqueInvoices as SavedInvoice[], error: null };
 }
 

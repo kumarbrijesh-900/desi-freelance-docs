@@ -611,10 +611,11 @@ export default function DeliverablesSection({
                       <span className="text-lg">+</span>
                       Add Line Item
                     </button>
+                    </div>
                   </div>
-                  </motion.div>
-                );
-              })}
+                </motion.div>
+              );
+            })}
             </AnimatePresence>
           </div>
 
