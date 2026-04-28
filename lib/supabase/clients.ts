@@ -27,6 +27,7 @@ export interface SavedClient {
   client_currency: string;
   gstin: string;
   client_type: string;
+  client_location: string;
   client_entity_type: string; // new field for agency vs freelancer
   sez_status: string;
   invoice_count: number;
