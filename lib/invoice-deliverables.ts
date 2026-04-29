@@ -18,6 +18,9 @@ const knownTypes = [
   ...invoiceCanonicalLineItemTypeOptions,
   "UI/UX",
   "Social Media",
+  "Software Development",
+  "Animation/Video",
+  "Consulting",
 ] as const;
 
 type KnownInvoiceLineItemType = (typeof knownTypes)[number];

@@ -24,6 +24,9 @@ const knownSacTypes = [
   "Other",
   "UI/UX",
   "Social Media",
+  "Software Development",
+  "Animation/Video",
+  "Consulting",
 ] as const;
 
 export const defaultSacCodeByType = Object.fromEntries(

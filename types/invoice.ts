@@ -33,6 +33,9 @@ export type InvoiceLineItemType =
   | "Infographics & Presentation Design"
   | "UI/UX"
   | "Social Media"
+  | "Software Development"
+  | "Animation/Video"
+  | "Consulting"
   | "Other";
 
 export type InvoiceRateUnit =

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
 import type {
   InvoiceLineItem,
@@ -17,6 +17,10 @@ import {
   getCurrencySymbol,
   type InvoiceDisplayCurrency,
 } from "@/lib/international-billing-options";
+import {
+  getDefaultSacCodeForType,
+  isManualSacRequired,
+} from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
 import AppTextField from "@/components/ui/AppTextField";
 import { PencilIcon, SparklesIcon } from "@/components/ui/app-icons";
@@ -75,9 +79,34 @@ export default function DeliverablesSection({
   const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const milestoneTitleRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
+  // Ensure ONE default milestone if value is empty (State Initialization Level)
+  const initialItems = useMemo(() => {
+    if (value && value.length > 0) return value;
+    return [
+      {
+        id: crypto.randomUUID(),
+        type: "Other" as InvoiceLineItemType,
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: "per-deliverable" as InvoiceRateUnit,
+        is_milestone_header: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        type: "Other" as InvoiceLineItemType,
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: "per-deliverable" as InvoiceRateUnit,
+        is_milestone_header: false,
+      }
+    ];
+  }, [value]);
+
   const { register, control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
-      items: value,
+      items: initialItems,
     },
     mode: "onBlur",
   });
@@ -93,7 +122,9 @@ export default function DeliverablesSection({
   }, [onChange]);
 
   useEffect(() => {
-    reset({ items: value });
+    if (value && value.length > 0) {
+      reset({ items: value });
+    }
   }, [value, reset]);
 
   const markTouched = (itemId: string, field: string) => {
@@ -135,13 +166,6 @@ export default function DeliverablesSection({
     append([newMilestone, newLineItem]);
     onChange(updatedItems);
   }, [append, fields, onChange]);
-
-  // AUTO-INITIALIZATION: Ensure at least one milestone exists
-  useEffect(() => {
-    if (fields.length === 0) {
-      addMilestone();
-    }
-  }, [fields.length, addMilestone]);
 
   const removeMilestone = (headerId: string) => {
     const index = fields.findIndex((f) => f.id === headerId);
@@ -420,13 +444,25 @@ function LineItemRow({
   const allowedUnits = invoiceAllowedUnitsByType[type as InvoiceLineItemType] || [];
   const showSuggestions = activeDescriptionId === field.id;
   const suggestions = getInvoiceDescriptionSuggestions(type as InvoiceLineItemType);
+  
+  const sacCode = useMemo(() => getDefaultSacCodeForType(type as InvoiceLineItemType), [type]);
 
   return (
     <div className="group relative grid grid-cols-1 xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 items-start rounded-xl p-2 transition-all hover:bg-gray-50/50">
-      <div>
+      <div className="space-y-1">
         <AppSelectField {...register(`items.${index}.type`)} className="h-9 text-xs">
-          {invoiceLineItemTypeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+          {invoiceLineItemTypeOptions.map(opt => {
+            const code = getDefaultSacCodeForType(opt as InvoiceLineItemType);
+            return (
+              <option key={opt} value={opt}>
+                {opt}{code ? ` - SAC ${code}` : ""}
+              </option>
+            );
+          })}
         </AppSelectField>
+        {sacCode && (
+          <p className="text-[10px] text-gray-400 font-medium pl-1">SAC: {sacCode}</p>
+        )}
       </div>
 
       <div className="relative">
