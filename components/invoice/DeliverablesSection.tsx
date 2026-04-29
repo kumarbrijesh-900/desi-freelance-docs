@@ -380,136 +380,33 @@ export default function DeliverablesSection({
       <div className="space-y-10">
         <div className="space-y-8" data-testid="milestones-list">
           <AnimatePresence mode="popLayout" initial={false}>
-            {milestones.map((milestone, mIndex) => {
-              const { header, items } = milestone;
-              
-              // Calculate subtotal for this milestone
-              const milestoneSubtotal = items.reduce(
-                (sum, item) => sum + Number(item.qty || 0) * Number(item.rate || 0),
-                0
-              );
-
-              return (
-                <motion.div
-                  layout
-                  key={header.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                  className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm"
-                >
-                {/* Milestone Header / Title Bar */}
-                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
-                        {mIndex + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIndex + 1}`}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 group/title">
-                      <div className="relative max-w-md">
-                        <input
-                          ref={(el) => {
-                            milestoneTitleRefs.current[header.id] = el;
-                          }}
-                          type="text"
-                          value={header.description}
-                          onChange={(e) => updateMilestoneTitle(header.id, e.target.value)}
-                          placeholder="e.g. Phase 1: Discovery & Strategy"
-                          className={cn(
-                            "text-xl font-bold text-gray-900 bg-transparent border rounded px-2 -ml-2 transition-colors cursor-text",
-                            errors?.[header.id]?.description && (showAllErrors || touchedFields[`${header.id}:description`])
-                              ? "border-red-500 ring-1 ring-red-500 bg-red-50/10"
-                              : "border-transparent hover:border-gray-300 focus:border-gray-900 focus:ring-0",
-                            "placeholder:text-gray-300 placeholder:font-medium"
-                          )}
-                          onBlur={() => markTouched(header.id, "description")}
-                        />
-                      </div>
-                      <PencilIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                        Milestone Subtotal
-                      </p>
-                      <p className="text-[16px] font-black text-[color:var(--text-primary)]">
-                        {formatCurrency(milestoneSubtotal, currency)}
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeMilestone(header.id)}
-                      className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors"
-                    >
-                      <span className="text-xl">×</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Child Level: Line Items Table */}
-                <div className="p-2 sm:p-4">
-                  {/* Table Header (Desktop only) */}
-                  {items.length > 0 && (
-                    <div
-                      className={cn(
-                        "mb-0 hidden xl:grid xl:gap-4 xl:px-4 xl:py-1 opacity-60",
-                        lineItemDesktopGridClass,
-                      )}
-                    >
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Type</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Description</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)] text-center">Qty</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Rate</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Unit</span>
-                      <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)] text-right">Total</span>
-                      <span />
-                    </div>
-                  )}
-
-                  <div className="space-y-4 xl:space-y-0">
-                    {items.map((item) => (
-                      <LineItemRow
-                        key={item.id}
-                        item={item}
-                        currency={currency}
-                        errors={errors?.[item.id]}
-                        showAllErrors={showAllErrors}
-                        touchedFields={touchedFields}
-                        activeDescriptionId={activeDescriptionId}
-                        descriptionInputRefs={descriptionInputRefs}
-                        onUpdateItem={updateItem}
-                        onHandleTypeChange={handleTypeChange}
-                        onOpenDescriptionAssist={openDescriptionAssist}
-                        onCloseDescriptionAssist={closeDescriptionAssist}
-                        onApplyDescriptionSuggestion={applyDescriptionSuggestion}
-                        onMarkTouched={markTouched}
-                        onRemoveLineItem={removeLineItem}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Add Line Item Button (Inside Milestone Block) */}
-                  <div className="mt-2 px-3">
-                    <button
-                      type="button"
-                      onClick={() => addLineItemToMilestone(header.id)}
-                      className="inline-flex items-center gap-2 py-2 text-[12px] font-bold text-gray-400 hover:text-[color:var(--app-primary)] transition-colors"
-                    >
-                      <span className="text-lg">+</span>
-                      Add Line Item
-                    </button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-            </AnimatePresence>
-          </div>
+            {milestones.map((milestone, mIndex) => (
+              <MilestoneGroup
+                key={milestone.header.id}
+                milestone={milestone}
+                mIndex={mIndex}
+                currency={currency}
+                errors={errors}
+                showAllErrors={showAllErrors}
+                touchedFields={touchedFields}
+                activeDescriptionId={activeDescriptionId}
+                descriptionInputRefs={descriptionInputRefs}
+                milestoneTitleRefs={milestoneTitleRefs}
+                onUpdateMilestoneTitle={updateMilestoneTitle}
+                onRemoveMilestone={removeMilestone}
+                onAddLineItemToMilestone={addLineItemToMilestone}
+                // LineItemRow props
+                updateItem={updateItem}
+                handleTypeChange={handleTypeChange}
+                openDescriptionAssist={openDescriptionAssist}
+                closeDescriptionAssist={closeDescriptionAssist}
+                applyDescriptionSuggestion={applyDescriptionSuggestion}
+                markTouched={markTouched}
+                removeLineItem={removeLineItem}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
 
         {/* Add Milestone Button (At the Root level) */}
         <div className="pt-2">
@@ -536,31 +433,182 @@ export default function DeliverablesSection({
   );
 }
 
-// ─── Sub-Components (Extracted for Stability) ───
+// ─── Sub-Components (Extracted for Stability & Performance) ───
 
-interface LineItemRowProps {
-  item: InvoiceLineItem;
+import React, { memo } from "react";
+
+const MilestoneSubtotal = memo(({ items, currency }: { items: InvoiceLineItem[], currency: InvoiceDisplayCurrency }) => {
+  const subtotal = items.reduce(
+    (sum, item) => sum + Number(item.qty || 0) * Number(item.rate || 0),
+    0
+  );
+  return (
+    <div className="text-right">
+      <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+        Milestone Subtotal
+      </p>
+      <p className="text-[16px] font-black text-[color:var(--text-primary)]">
+        {formatCurrency(subtotal, currency)}
+      </p>
+    </div>
+  );
+});
+
+const LineItemTotal = memo(({ qty, rate, currency }: { qty: number | string, rate: number | string, currency: InvoiceDisplayCurrency }) => {
+  const total = Number(qty || 0) * Number(rate || 0);
+  return (
+    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+      {formatCurrency(total, currency)}
+    </span>
+  );
+});
+
+const MilestoneGroup = memo(({
+  milestone,
+  mIndex,
+  currency,
+  errors,
+  showAllErrors,
+  touchedFields,
+  activeDescriptionId,
+  descriptionInputRefs,
+  milestoneTitleRefs,
+  onUpdateMilestoneTitle,
+  onRemoveMilestone,
+  onAddLineItemToMilestone,
+  updateItem,
+  handleTypeChange,
+  openDescriptionAssist,
+  closeDescriptionAssist,
+  applyDescriptionSuggestion,
+  markTouched,
+  removeLineItem,
+}: {
+  milestone: { header: InvoiceLineItem; items: InvoiceLineItem[] };
+  mIndex: number;
   currency: InvoiceDisplayCurrency;
-  errors?: {
-    description?: string;
-    qty?: string;
-    rate?: string;
-    sacCode?: string;
-  };
+  errors?: Record<string, any>;
   showAllErrors: boolean;
   touchedFields: Record<string, boolean>;
   activeDescriptionId: string | null;
   descriptionInputRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
-  onUpdateItem: (id: string, key: keyof InvoiceLineItem, value: any) => void;
-  onHandleTypeChange: (id: string, nextType: InvoiceLineItemType) => void;
-  onOpenDescriptionAssist: (id: string) => void;
-  onCloseDescriptionAssist: (id: string) => void;
-  onApplyDescriptionSuggestion: (id: string, suggestion: string) => void;
-  onMarkTouched: (itemId: string, field: "description" | "qty" | "rate") => void;
-  onRemoveLineItem: (id: string) => void;
-}
+  milestoneTitleRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
+  onUpdateMilestoneTitle: (id: string, title: string) => void;
+  onRemoveMilestone: (id: string) => void;
+  onAddLineItemToMilestone: (id: string) => void;
+  updateItem: <K extends keyof InvoiceLineItem>(id: string, key: K, value: InvoiceLineItem[K]) => void;
+  handleTypeChange: (id: string, nextType: InvoiceLineItemType) => void;
+  openDescriptionAssist: (id: string) => void;
+  closeDescriptionAssist: (id: string) => void;
+  applyDescriptionSuggestion: (id: string, suggestion: string) => void;
+  markTouched: (itemId: string, field: "description" | "qty" | "rate") => void;
+  removeLineItem: (id: string) => void;
+}) => {
+  const { header, items } = milestone;
 
-function LineItemRow({
+  return (
+    <motion.div
+      layout
+      key={header.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -20 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className="group/milestone relative rounded-2xl border border-[color:var(--border-default)] bg-white shadow-sm"
+    >
+      <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)]">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+              {mIndex + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIndex + 1}`}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 group/title">
+            <div className="relative max-w-md">
+              <input
+                ref={(el) => { milestoneTitleRefs.current[header.id] = el; }}
+                type="text"
+                value={header.description}
+                onChange={(e) => onUpdateMilestoneTitle(header.id, e.target.value)}
+                placeholder="e.g. Phase 1: Discovery & Strategy"
+                className={cn(
+                  "text-xl font-bold text-gray-900 bg-transparent border rounded px-2 -ml-2 transition-colors cursor-text",
+                  errors?.[header.id]?.description && (showAllErrors || touchedFields[`${header.id}:description`])
+                    ? "border-red-500 ring-1 ring-red-500 bg-red-50/10"
+                    : "border-transparent hover:border-gray-300 focus:border-gray-900 focus:ring-0",
+                  "placeholder:text-gray-300 placeholder:font-medium"
+                )}
+                onBlur={() => markTouched(header.id, "description")}
+              />
+            </div>
+            <PencilIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <MilestoneSubtotal items={items} currency={currency} />
+          <button
+            type="button"
+            onClick={() => onRemoveMilestone(header.id)}
+            className="h-8 w-8 rounded-full flex items-center justify-center text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+          >
+            <span className="text-xl">×</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="p-2 sm:p-4 overflow-x-auto">
+        <table className="w-full table-fixed border-separate border-spacing-y-2">
+          <thead className="hidden xl:table-header-group">
+            <tr className="opacity-60 text-left">
+              <th className="w-[140px] px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Type</th>
+              <th className="px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Description</th>
+              <th className="w-[90px] px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)] text-center">Qty</th>
+              <th className="w-[130px] px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Rate</th>
+              <th className="w-[120px] px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Unit</th>
+              <th className="w-[110px] px-4 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)] text-right">Total</th>
+              <th className="w-[40px]" />
+            </tr>
+          </thead>
+          <tbody className="space-y-4 xl:space-y-0">
+            {items.map((item) => (
+              <LineItemRow
+                key={item.id}
+                item={item}
+                currency={currency}
+                errors={errors?.[item.id]}
+                showAllErrors={showAllErrors}
+                touchedFields={touchedFields}
+                activeDescriptionId={activeDescriptionId}
+                descriptionInputRefs={descriptionInputRefs}
+                onUpdateItem={updateItem}
+                onHandleTypeChange={handleTypeChange}
+                onOpenDescriptionAssist={openDescriptionAssist}
+                onCloseDescriptionAssist={closeDescriptionAssist}
+                onApplyDescriptionSuggestion={applyDescriptionSuggestion}
+                onMarkTouched={markTouched}
+                onRemoveLineItem={removeLineItem}
+              />
+            ))}
+          </tbody>
+        </table>
+
+        <div className="mt-2 px-3">
+          <button
+            type="button"
+            onClick={() => onAddLineItemToMilestone(header.id)}
+            className="inline-flex items-center gap-2 py-2 text-[12px] font-bold text-gray-400 hover:text-[color:var(--app-primary)] transition-colors"
+          >
+            <span className="text-lg">+</span>
+            Add Line Item
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+
+const LineItemRow = memo(({
   item,
   currency,
   errors,
@@ -575,8 +623,27 @@ function LineItemRow({
   onApplyDescriptionSuggestion,
   onMarkTouched,
   onRemoveLineItem,
-}: LineItemRowProps) {
-  const lineTotal = Number(item.qty || 0) * Number(item.rate || 0);
+}: {
+  item: InvoiceLineItem;
+  currency: InvoiceDisplayCurrency;
+  errors?: {
+    description?: string;
+    qty?: string;
+    rate?: string;
+    sacCode?: string;
+  };
+  showAllErrors: boolean;
+  touchedFields: Record<string, boolean>;
+  activeDescriptionId: string | null;
+  descriptionInputRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
+  onUpdateItem: <K extends keyof InvoiceLineItem>(id: string, key: K, value: InvoiceLineItem[K]) => void;
+  onHandleTypeChange: (id: string, nextType: InvoiceLineItemType) => void;
+  onOpenDescriptionAssist: (id: string) => void;
+  onCloseDescriptionAssist: (id: string) => void;
+  onApplyDescriptionSuggestion: (id: string, suggestion: string) => void;
+  onMarkTouched: (itemId: string, field: "description" | "qty" | "rate") => void;
+  onRemoveLineItem: (id: string) => void;
+}) => {
   const allowedUnits = invoiceAllowedUnitsByType[item.type];
   const descriptionError = (showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined;
   const qtyError = (showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined;
@@ -618,13 +685,13 @@ function LineItemRow({
   };
 
   return (
-    <div
+    <tr
       className={cn(
-        "relative px-3 py-3 xl:py-2 rounded-xl transition-colors hover:bg-gray-50/50 group/row border border-transparent xl:border-0 border-dashed border-gray-200",
+        "relative xl:table-row flex flex-col px-3 py-3 xl:py-2 rounded-xl transition-colors hover:bg-gray-50/50 group/row border border-dashed border-gray-200 xl:border-0",
         showSuggestionAssist ? "z-40" : "z-0",
       )}
     >
-      <div className={lineItemDesktopGridClass}>
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className="min-w-0">
           <label className={compactLabelClass}>Type</label>
           <AppSelectField
@@ -638,7 +705,9 @@ function LineItemRow({
             ))}
           </AppSelectField>
         </div>
+      </td>
 
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className={cn("min-w-0 space-y-1", showSuggestionAssist ? "relative z-30" : "")}>
           <label className={compactLabelClass}>Description</label>
           <div className="relative">
@@ -702,7 +771,9 @@ function LineItemRow({
             )}
           </div>
         </div>
+      </td>
 
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className="min-w-0">
           <label className={compactLabelClass}>Qty</label>
           <input
@@ -717,7 +788,9 @@ function LineItemRow({
             {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
           </div>
         </div>
+      </td>
 
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className="min-w-0">
           <label className={compactLabelClass}>Rate</label>
           <div className="relative">
@@ -735,7 +808,9 @@ function LineItemRow({
             {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
           </div>
         </div>
+      </td>
 
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className="min-w-0">
           <label className={compactLabelClass}>Unit</label>
           <AppSelectField
@@ -744,21 +819,23 @@ function LineItemRow({
             hasValue
             className="h-9 text-[12px] px-2 pr-8 w-full min-w-0"
           >
-            {allowedUnits.map((unit) => (
+            {allowedUnits.map((unit: InvoiceRateUnit) => (
               <option key={unit} value={unit}>{invoiceRateUnitLabels[unit]}</option>
             ))}
           </AppSelectField>
         </div>
+      </td>
 
-        <div className="min-w-0 xl:text-right">
+      <td className="xl:table-cell block px-0 xl:px-4 xl:text-right">
+        <div className="min-w-0">
           <label className={compactLabelClass}>Total</label>
           <div className="flex h-9 items-center justify-end">
-            <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-              {formatCurrency(lineTotal, currency)}
-            </span>
+            <LineItemTotal qty={item.qty} rate={item.rate} currency={currency} />
           </div>
         </div>
+      </td>
 
+      <td className="xl:table-cell block px-0 xl:px-4">
         <div className="flex items-center justify-end">
           <button
             type="button"
@@ -768,8 +845,9 @@ function LineItemRow({
             ×
           </button>
         </div>
-      </div>
-    </div>
+      </td>
+    </tr>
   );
-}
+});
+
 
