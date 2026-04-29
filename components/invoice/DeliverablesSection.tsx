@@ -53,7 +53,8 @@ interface DeliverablesSectionProps {
 }
 
 const lineItemDesktopGridClass =
-  "xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px]";
+  "xl:grid grid-cols-1 gap-3 xl:grid-cols-[1.2fr_2fr_80px_120px_110px_100px_40px] xl:gap-4 xl:items-start";
+
 
 const MAX_MILESTONES = 5;
 
@@ -471,181 +472,25 @@ export default function DeliverablesSection({
                   )}
 
                   <div className="space-y-4 xl:space-y-0">
-                    {items.map((item) => {
-                      const lineTotal = Number(item.qty || 0) * Number(item.rate || 0);
-                      const allowedUnits = invoiceAllowedUnitsByType[item.type];
-                      const rowErrors = errors?.[item.id];
-                      const descriptionError = getVisibleRowError(item.id, "description", rowErrors?.description);
-                      const qtyError = getVisibleRowError(item.id, "qty", rowErrors?.qty);
-                      const rateError = getVisibleRowError(item.id, "rate", rowErrors?.rate);
-                      const descriptionSuggestions = getInvoiceDescriptionSuggestions(item.type);
-                      const showSuggestionAssist = activeDescriptionId === item.id;
-                      const compactLabelClass = cn(
-                        appFieldLabelClass,
-                        "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0",
-                      );
-
-                      return (
-                        <div
-                          key={item.id}
-                          className={cn(
-                            "relative px-3 py-3 xl:py-2 rounded-xl transition-colors hover:bg-gray-50/50 group/row border border-transparent xl:border-0 border-dashed border-gray-200",
-                            showSuggestionAssist ? "z-40" : "z-0",
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              "grid grid-cols-1 gap-3 xl:items-start xl:gap-4",
-                              lineItemDesktopGridClass,
-                            )}
-                          >
-                            <div className="min-w-0">
-                              <label className={compactLabelClass}>Type</label>
-                              <AppSelectField
-                                value={item.type}
-                                onChange={(e) => handleTypeChange(item.id, e.target.value as InvoiceLineItemType)}
-                                hasValue
-                                className="h-9 text-[13px] px-2 pr-8"
-                              >
-                                {invoiceLineItemTypeOptions.map((option) => (
-                                  <option key={option} value={option}>{option}</option>
-                                ))}
-                              </AppSelectField>
-                            </div>
-
-                            <div className={cn("min-w-0 space-y-1", showSuggestionAssist ? "relative z-30" : "")}>
-                              <label className={compactLabelClass}>Description</label>
-                              <div className="relative">
-                                <input
-                                  ref={(node) => { descriptionInputRefs.current[item.id] = node; }}
-                                  type="text"
-                                  value={item.description}
-                                  onChange={(e) => {
-                                    updateItem(item.id, "description", e.target.value);
-                                    openDescriptionAssist(item.id);
-                                  }}
-                                  onFocus={() => openDescriptionAssist(item.id)}
-                                  onBlur={() => {
-                                    markTouched(item.id, "description");
-                                    closeDescriptionAssist(item.id);
-                                  }}
-                                  placeholder={invoiceDescriptionPlaceholderByType[item.type]}
-                                  className={cn(
-                                    inputClass(descriptionError, Boolean(item.description)),
-                                    "h-9 text-[13px] pr-10",
-                                    showSuggestionAssist ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]" : ""
-                                  )}
-                                />
-                                <div className={errorSlotClass}>
-                                  {descriptionError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{descriptionError}</p>}
-                                </div>
-                                <button
-                                  type="button"
-                                  onMouseDown={(e) => e.preventDefault()}
-                                  onClick={() => {
-                                    if (showSuggestionAssist) {
-                                      closeDescriptionAssist(item.id);
-                                      return;
-                                    }
-                                    openDescriptionAssist(item.id);
-                                    descriptionInputRefs.current[item.id]?.focus();
-                                  }}
-                                  className="absolute right-1 top-1 h-7 w-7 rounded-lg text-[color:var(--text-soft)] hover:bg-gray-100 flex items-center justify-center"
-                                >
-                                  <SparklesIcon className="h-3.5 w-3.5" />
-                                </button>
-                                {showSuggestionAssist && descriptionSuggestions.length > 0 && (
-                                  <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden border border-[color:var(--border-default)] bg-white shadow-xl rounded-lg">
-                                    <div className="flex items-center gap-2 border-b bg-gray-50 px-3 py-1.5">
-                                      <span className="text-[9px] font-bold uppercase tracking-wider text-gray-500">Suggestions</span>
-                                    </div>
-                                    <div className="max-h-40 overflow-y-auto py-1">
-                                      {descriptionSuggestions.map((suggestion) => (
-                                        <button
-                                          key={suggestion}
-                                          type="button"
-                                          onMouseDown={(e) => e.preventDefault()}
-                                          onClick={() => applyDescriptionSuggestion(item.id, suggestion)}
-                                          className="block w-full px-3 py-1.5 text-left text-[12px] hover:bg-gray-50"
-                                        >
-                                          {suggestion}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="min-w-0">
-                              <label className={compactLabelClass}>Qty</label>
-                              <input
-                                type="number"
-                                value={item.qty}
-                                onChange={(e) => updateItem(item.id, "qty", e.target.value)}
-                                onBlur={() => markTouched(item.id, "qty")}
-                                className={cn(inputClass(qtyError, Number(item.qty) > 0), "h-9 text-[13px] text-center")}
-                                {...numberInputProps}
-                              />
-                              <div className={errorSlotClass}>
-                                {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
-                              </div>
-                            </div>
-
-                            <div className="min-w-0">
-                              <label className={compactLabelClass}>Rate</label>
-                              <div className="relative">
-                                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400">{currencySymbol}</span>
-                                <input
-                                  type="number"
-                                  value={item.rate}
-                                  onChange={(e) => updateItem(item.id, "rate", e.target.value)}
-                                  onBlur={() => markTouched(item.id, "rate")}
-                                  className={cn(rateInputClass(rateError, Number(item.rate) > 0), "h-9 text-[13px] pl-6")}
-                                  {...numberInputProps}
-                                />
-                              </div>
-                              <div className={errorSlotClass}>
-                                {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
-                              </div>
-                            </div>
-
-                            <div className="min-w-0">
-                              <label className={compactLabelClass}>Unit</label>
-                              <AppSelectField
-                                value={item.rateUnit}
-                                onChange={(e) => updateItem(item.id, "rateUnit", e.target.value as InvoiceRateUnit)}
-                                hasValue
-                                className="h-9 text-[12px] px-2 pr-8"
-                              >
-                                {allowedUnits.map((unit) => (
-                                  <option key={unit} value={unit}>{invoiceRateUnitLabels[unit]}</option>
-                                ))}
-                              </AppSelectField>
-                            </div>
-
-                            <div className="min-w-0 xl:text-right">
-                              <label className={compactLabelClass}>Total</label>
-                              <div className="flex h-9 items-center justify-end">
-                                <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                                  {formatCurrency(lineTotal, currency)}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-end">
-                              <button
-                                type="button"
-                                onClick={() => removeLineItem(item.id)}
-                                className="h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {items.map((item) => (
+                      <LineItemRow
+                        key={item.id}
+                        item={item}
+                        currency={currency}
+                        errors={errors?.[item.id]}
+                        showAllErrors={showAllErrors}
+                        touchedFields={touchedFields}
+                        activeDescriptionId={activeDescriptionId}
+                        descriptionInputRefs={descriptionInputRefs}
+                        onUpdateItem={updateItem}
+                        onHandleTypeChange={handleTypeChange}
+                        onOpenDescriptionAssist={openDescriptionAssist}
+                        onCloseDescriptionAssist={closeDescriptionAssist}
+                        onApplyDescriptionSuggestion={applyDescriptionSuggestion}
+                        onMarkTouched={markTouched}
+                        onRemoveLineItem={removeLineItem}
+                      />
+                    ))}
                   </div>
 
                   {/* Add Line Item Button (Inside Milestone Block) */}
@@ -690,3 +535,241 @@ export default function DeliverablesSection({
     </section>
   );
 }
+
+// ─── Sub-Components (Extracted for Stability) ───
+
+interface LineItemRowProps {
+  item: InvoiceLineItem;
+  currency: InvoiceDisplayCurrency;
+  errors?: {
+    description?: string;
+    qty?: string;
+    rate?: string;
+    sacCode?: string;
+  };
+  showAllErrors: boolean;
+  touchedFields: Record<string, boolean>;
+  activeDescriptionId: string | null;
+  descriptionInputRefs: React.MutableRefObject<Record<string, HTMLInputElement | null>>;
+  onUpdateItem: (id: string, key: keyof InvoiceLineItem, value: any) => void;
+  onHandleTypeChange: (id: string, nextType: InvoiceLineItemType) => void;
+  onOpenDescriptionAssist: (id: string) => void;
+  onCloseDescriptionAssist: (id: string) => void;
+  onApplyDescriptionSuggestion: (id: string, suggestion: string) => void;
+  onMarkTouched: (itemId: string, field: "description" | "qty" | "rate") => void;
+  onRemoveLineItem: (id: string) => void;
+}
+
+function LineItemRow({
+  item,
+  currency,
+  errors,
+  showAllErrors,
+  touchedFields,
+  activeDescriptionId,
+  descriptionInputRefs,
+  onUpdateItem,
+  onHandleTypeChange,
+  onOpenDescriptionAssist,
+  onCloseDescriptionAssist,
+  onApplyDescriptionSuggestion,
+  onMarkTouched,
+  onRemoveLineItem,
+}: LineItemRowProps) {
+  const lineTotal = Number(item.qty || 0) * Number(item.rate || 0);
+  const allowedUnits = invoiceAllowedUnitsByType[item.type];
+  const descriptionError = (showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined;
+  const qtyError = (showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined;
+  const rateError = (showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined;
+  const descriptionSuggestions = getInvoiceDescriptionSuggestions(item.type);
+  const showSuggestionAssist = activeDescriptionId === item.id;
+  const currencySymbol = getCurrencySymbol(currency);
+
+  const errorSlotClass = "min-h-[18px] flex flex-col justify-end";
+  const compactLabelClass = cn(
+    appFieldLabelClass,
+    "xl:sr-only xl:absolute xl:h-px xl:w-px xl:overflow-hidden xl:whitespace-nowrap xl:border-0 xl:p-0",
+  );
+
+  const inputClass = (hasError?: string, hasValue?: boolean) =>
+    getAppFieldClass({
+      hasError,
+      hasValue,
+    });
+  
+  const rateInputClass = (hasError?: string, hasValue?: boolean) =>
+    cn(
+      getAppFieldClass({
+        hasError,
+        hasValue,
+      }),
+      "pl-9",
+    );
+
+  const numberInputProps = {
+    onWheel: (e: React.WheelEvent<HTMLInputElement>) => {
+      e.currentTarget.blur();
+    },
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+        e.preventDefault();
+      }
+    },
+  };
+
+  return (
+    <div
+      className={cn(
+        "relative px-3 py-3 xl:py-2 rounded-xl transition-colors hover:bg-gray-50/50 group/row border border-transparent xl:border-0 border-dashed border-gray-200",
+        showSuggestionAssist ? "z-40" : "z-0",
+      )}
+    >
+      <div className={lineItemDesktopGridClass}>
+        <div className="min-w-0">
+          <label className={compactLabelClass}>Type</label>
+          <AppSelectField
+            value={item.type}
+            onChange={(e) => onHandleTypeChange(item.id, e.target.value as InvoiceLineItemType)}
+            hasValue
+            className="h-9 text-[13px] px-2 pr-8 w-full min-w-0"
+          >
+            {invoiceLineItemTypeOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </AppSelectField>
+        </div>
+
+        <div className={cn("min-w-0 space-y-1", showSuggestionAssist ? "relative z-30" : "")}>
+          <label className={compactLabelClass}>Description</label>
+          <div className="relative">
+            <input
+              ref={(node) => { descriptionInputRefs.current[item.id] = node; }}
+              type="text"
+              value={item.description}
+              onChange={(e) => {
+                onUpdateItem(item.id, "description", e.target.value);
+                onOpenDescriptionAssist(item.id);
+              }}
+              onFocus={() => onOpenDescriptionAssist(item.id)}
+              onBlur={() => {
+                onMarkTouched(item.id, "description");
+                onCloseDescriptionAssist(item.id);
+              }}
+              placeholder={invoiceDescriptionPlaceholderByType[item.type]}
+              className={cn(
+                inputClass(descriptionError, Boolean(item.description)),
+                "h-9 text-[13px] pr-10 w-full min-w-0",
+                showSuggestionAssist ? "border-[color:var(--focus-ring)] shadow-[0_0_0_2px_var(--app-focus-ring)]" : ""
+              )}
+            />
+            <div className={errorSlotClass}>
+              {descriptionError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{descriptionError}</p>}
+            </div>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                if (showSuggestionAssist) {
+                  onCloseDescriptionAssist(item.id);
+                  return;
+                }
+                onOpenDescriptionAssist(item.id);
+                descriptionInputRefs.current[item.id]?.focus();
+              }}
+              className="absolute right-1 top-1 h-7 w-7 rounded-lg text-[color:var(--text-soft)] hover:bg-gray-100 flex items-center justify-center"
+            >
+              <SparklesIcon className="h-3.5 w-3.5" />
+            </button>
+            {showSuggestionAssist && descriptionSuggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden border border-[color:var(--border-default)] bg-white shadow-xl rounded-lg">
+                <div className="flex items-center gap-2 border-b bg-gray-50 px-3 py-1.5">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-gray-500">Suggestions</span>
+                </div>
+                <div className="max-h-40 overflow-y-auto py-1">
+                  {descriptionSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => onApplyDescriptionSuggestion(item.id, suggestion)}
+                      className="block w-full px-3 py-1.5 text-left text-[12px] hover:bg-gray-50"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <label className={compactLabelClass}>Qty</label>
+          <input
+            type="number"
+            value={item.qty}
+            onChange={(e) => onUpdateItem(item.id, "qty", e.target.value)}
+            onBlur={() => onMarkTouched(item.id, "qty")}
+            className={cn(inputClass(qtyError, Number(item.qty) > 0), "h-9 text-[13px] text-center w-full min-w-0")}
+            {...numberInputProps}
+          />
+          <div className={errorSlotClass}>
+            {qtyError && <p className={cn(appFieldErrorTextClass, "text-[10px] text-center")}>{qtyError}</p>}
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <label className={compactLabelClass}>Rate</label>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400">{currencySymbol}</span>
+            <input
+              type="number"
+              value={item.rate}
+              onChange={(e) => onUpdateItem(item.id, "rate", e.target.value)}
+              onBlur={() => onMarkTouched(item.id, "rate")}
+              className={cn(rateInputClass(rateError, Number(item.rate) > 0), "h-9 text-[13px] pl-6 w-full min-w-0")}
+              {...numberInputProps}
+            />
+          </div>
+          <div className={errorSlotClass}>
+            {rateError && <p className={cn(appFieldErrorTextClass, "text-[10px]")}>{rateError}</p>}
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <label className={compactLabelClass}>Unit</label>
+          <AppSelectField
+            value={item.rateUnit}
+            onChange={(e) => onUpdateItem(item.id, "rateUnit", e.target.value as InvoiceRateUnit)}
+            hasValue
+            className="h-9 text-[12px] px-2 pr-8 w-full min-w-0"
+          >
+            {allowedUnits.map((unit) => (
+              <option key={unit} value={unit}>{invoiceRateUnitLabels[unit]}</option>
+            ))}
+          </AppSelectField>
+        </div>
+
+        <div className="min-w-0 xl:text-right">
+          <label className={compactLabelClass}>Total</label>
+          <div className="flex h-9 items-center justify-end">
+            <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+              {formatCurrency(lineTotal, currency)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            onClick={() => onRemoveLineItem(item.id)}
+            className="h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
