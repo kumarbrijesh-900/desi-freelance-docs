@@ -52,7 +52,8 @@ interface DeliverablesSectionProps {
   showAllErrors?: boolean;
 }
 
-const MAX_MILESTONES = 5;
+// v1: single-milestone only. Will be raised to 5 in v1.5 when multi-milestone billing cycles ship.
+const MAX_MILESTONES = 1;
 
 // DEFAULT MILESTONE STRUCTURE
 const createDefaultMilestone = (): InvoiceLineItem[] => [
@@ -246,6 +247,7 @@ export default function DeliverablesSection({
                 <MilestoneGroup
                   milestone={milestone}
                   mIdx={mIdx}
+                  canRemoveMilestone={milestones.length > 1}
                   control={control}
                   register={register}
                   currency={currency}
@@ -268,20 +270,22 @@ export default function DeliverablesSection({
           </AnimatePresence>
         </div>
 
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={addMilestone}
-            disabled={milestones.length >= MAX_MILESTONES}
-            className={cn(
-              "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 transition-all group",
-              milestones.length >= MAX_MILESTONES ? "opacity-50 cursor-not-allowed" : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
-            )}
-          >
-            <span className="text-2xl text-gray-300 group-hover:text-gray-400">+</span>
-            Add Project Milestone ({MAX_MILESTONES - milestones.length}/{MAX_MILESTONES})
-          </button>
-        </div>
+        {MAX_MILESTONES > 1 && (
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={addMilestone}
+              disabled={milestones.length >= MAX_MILESTONES}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 transition-all group",
+                milestones.length >= MAX_MILESTONES ? "opacity-50 cursor-not-allowed" : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
+              )}
+            >
+              <span className="text-2xl text-gray-300 group-hover:text-gray-400">+</span>
+              Add Project Milestone ({MAX_MILESTONES - milestones.length}/{MAX_MILESTONES})
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -326,6 +330,7 @@ function MilestoneSubtotal({ control, items, currency }: { control: Control<any>
 function MilestoneGroup({
   milestone,
   mIdx,
+  canRemoveMilestone,
   control,
   register,
   currency,
@@ -350,7 +355,7 @@ function MilestoneGroup({
       <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100">
         <div className="flex-1">
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-            {mIdx + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIdx + 1}`}
+            {MAX_MILESTONES === 1 ? "Project Details" : (mIdx + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIdx + 1}`)}
           </p>
           <div className="flex items-center gap-2 max-w-md">
             <AppTextField
@@ -372,7 +377,9 @@ function MilestoneGroup({
         </div>
         <div className="flex items-center gap-6">
           <MilestoneSubtotal control={control} items={items} currency={currency} />
-          <button type="button" onClick={() => onRemoveMilestone(header.id)} className="text-gray-300 hover:text-red-500 text-xl transition-colors">×</button>
+          {canRemoveMilestone && (
+            <button type="button" onClick={() => onRemoveMilestone(header.id)} className="text-gray-300 hover:text-red-500 text-xl transition-colors">×</button>
+          )}
         </div>
       </div>
 
