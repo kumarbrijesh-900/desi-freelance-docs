@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
+import { AnimatePresence, motion } from "framer-motion";
 import type {
   InvoiceLineItem,
   InvoiceLineItemType,
@@ -53,6 +54,28 @@ interface DeliverablesSectionProps {
 
 const MAX_MILESTONES = 5;
 
+// DEFAULT MILESTONE STRUCTURE
+const createDefaultMilestone = (): InvoiceLineItem[] => [
+  {
+    id: crypto.randomUUID(),
+    type: "Other" as InvoiceLineItemType,
+    description: "",
+    qty: 1,
+    rate: 0,
+    rateUnit: "per-deliverable" as InvoiceRateUnit,
+    is_milestone_header: true,
+  },
+  {
+    id: crypto.randomUUID(),
+    type: "Other" as InvoiceLineItemType,
+    description: "",
+    qty: 1,
+    rate: 0,
+    rateUnit: "per-deliverable" as InvoiceRateUnit,
+    is_milestone_header: false,
+  }
+];
+
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
   try {
     return new Intl.NumberFormat("en-IN", {
@@ -82,26 +105,7 @@ export default function DeliverablesSection({
   // Ensure ONE default milestone if value is empty (State Initialization Level)
   const initialItems = useMemo(() => {
     if (value && value.length > 0) return value;
-    return [
-      {
-        id: crypto.randomUUID(),
-        type: "Other" as InvoiceLineItemType,
-        description: "",
-        qty: 1,
-        rate: 0,
-        rateUnit: "per-deliverable" as InvoiceRateUnit,
-        is_milestone_header: true,
-      },
-      {
-        id: crypto.randomUUID(),
-        type: "Other" as InvoiceLineItemType,
-        description: "",
-        qty: 1,
-        rate: 0,
-        rateUnit: "per-deliverable" as InvoiceRateUnit,
-        is_milestone_header: false,
-      }
-    ];
+    return createDefaultMilestone();
   }, [value]);
 
   const { register, control, handleSubmit, setValue, reset } = useForm({
@@ -122,9 +126,9 @@ export default function DeliverablesSection({
   }, [onChange]);
 
   useEffect(() => {
-    if (value && value.length > 0) {
-      reset({ items: value });
-    }
+    // Intercept empty arrays and inject default milestone
+    const nextItems = (value && value.length > 0) ? value : createDefaultMilestone();
+    reset({ items: nextItems });
   }, [value, reset]);
 
   const markTouched = (itemId: string, field: string) => {
@@ -144,26 +148,9 @@ export default function DeliverablesSection({
   };
 
   const addMilestone = useCallback(() => {
-    const newMilestone: InvoiceLineItem = {
-      id: crypto.randomUUID(),
-      type: "Other",
-      description: "",
-      qty: 1,
-      rate: 0,
-      rateUnit: "per-deliverable",
-      is_milestone_header: true,
-    };
-    const newLineItem: InvoiceLineItem = {
-      id: crypto.randomUUID(),
-      type: "Other",
-      description: "",
-      qty: 1,
-      rate: 0,
-      rateUnit: "per-deliverable",
-      is_milestone_header: false,
-    };
-    const updatedItems = [...fields, newMilestone, newLineItem];
-    append([newMilestone, newLineItem]);
+    const newItems = createDefaultMilestone();
+    const updatedItems = [...fields, ...newItems];
+    append(newItems);
     onChange(updatedItems);
   }, [append, fields, onChange]);
 
@@ -247,29 +234,38 @@ export default function DeliverablesSection({
 
       <div className="space-y-10">
         <div className="space-y-8">
-          {milestones.map((milestone, mIdx) => (
-            <MilestoneGroup
-              key={milestone.header.id}
-              milestone={milestone}
-              mIdx={mIdx}
-              control={control}
-              register={register}
-              currency={currency}
-              errors={errors}
-              showAllErrors={showAllErrors}
-              touchedFields={touchedFields}
-              markTouched={markTouched}
-              milestoneTitleRefs={milestoneTitleRefs}
-              descriptionInputRefs={descriptionInputRefs}
-              activeDescriptionId={activeDescriptionId}
-              openDescriptionAssist={openDescriptionAssist}
-              closeDescriptionAssist={closeDescriptionAssist}
-              applyDescriptionSuggestion={applyDescriptionSuggestion}
-              onRemoveMilestone={removeMilestone}
-              onAddLineItem={addLineItemToMilestone}
-              onRemoveLineItem={removeLineItem}
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {milestones.map((milestone, mIdx) => (
+              <motion.div
+                key={milestone.header.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                <MilestoneGroup
+                  milestone={milestone}
+                  mIdx={mIdx}
+                  control={control}
+                  register={register}
+                  currency={currency}
+                  errors={errors}
+                  showAllErrors={showAllErrors}
+                  touchedFields={touchedFields}
+                  markTouched={markTouched}
+                  milestoneTitleRefs={milestoneTitleRefs}
+                  descriptionInputRefs={descriptionInputRefs}
+                  activeDescriptionId={activeDescriptionId}
+                  openDescriptionAssist={openDescriptionAssist}
+                  closeDescriptionAssist={closeDescriptionAssist}
+                  applyDescriptionSuggestion={applyDescriptionSuggestion}
+                  onRemoveMilestone={removeMilestone}
+                  onAddLineItem={addLineItemToMilestone}
+                  onRemoveLineItem={removeLineItem}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         <div className="pt-2">
@@ -299,9 +295,12 @@ function RowTotal({ control, index, currency }: { control: Control<any>, index: 
   const total = Number(qty || 0) * Number(rate || 0);
 
   return (
-    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-      {formatCurrency(total, currency)}
-    </span>
+    <div className="flex flex-col items-end xl:block">
+      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden mb-1">Total</label>
+      <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+        {formatCurrency(total, currency)}
+      </span>
+    </div>
   );
 }
 
@@ -347,7 +346,7 @@ function MilestoneGroup({
   const { header, index: headerIndex, items } = milestone;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
       <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100">
         <div className="flex-1">
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
@@ -373,7 +372,7 @@ function MilestoneGroup({
         </div>
         <div className="flex items-center gap-6">
           <MilestoneSubtotal control={control} items={items} currency={currency} />
-          <button type="button" onClick={() => onRemoveMilestone(header.id)} className="text-gray-300 hover:text-red-500 text-xl">×</button>
+          <button type="button" onClick={() => onRemoveMilestone(header.id)} className="text-gray-300 hover:text-red-500 text-xl transition-colors">×</button>
         </div>
       </div>
 
@@ -389,34 +388,43 @@ function MilestoneGroup({
         </div>
 
         <div className="space-y-3">
-          {items.map((item: any) => (
-            <LineItemRow
-              key={item.field.id}
-              index={item.index}
-              field={item.field}
-              control={control}
-              register={register}
-              currency={currency}
-              errors={errors?.[item.field.id]}
-              showAllErrors={showAllErrors}
-              touchedFields={touchedFields}
-              markTouched={markTouched}
-              descriptionInputRefs={descriptionInputRefs}
-              activeDescriptionId={activeDescriptionId}
-              openDescriptionAssist={openDescriptionAssist}
-              closeDescriptionAssist={closeDescriptionAssist}
-              applyDescriptionSuggestion={applyDescriptionSuggestion}
-              onRemove={onRemoveLineItem}
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {items.map((item: any) => (
+              <motion.div
+                key={item.field.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <LineItemRow
+                  index={item.index}
+                  field={item.field}
+                  control={control}
+                  register={register}
+                  currency={currency}
+                  errors={errors?.[item.field.id]}
+                  showAllErrors={showAllErrors}
+                  touchedFields={touchedFields}
+                  markTouched={markTouched}
+                  descriptionInputRefs={descriptionInputRefs}
+                  activeDescriptionId={activeDescriptionId}
+                  openDescriptionAssist={openDescriptionAssist}
+                  closeDescriptionAssist={closeDescriptionAssist}
+                  applyDescriptionSuggestion={applyDescriptionSuggestion}
+                  onRemove={onRemoveLineItem}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         <button
           type="button"
           onClick={() => onAddLineItem(header.id)}
-          className="text-xs font-bold text-gray-400 hover:text-lime-600 transition-colors flex items-center gap-1"
+          className="text-xs font-bold text-gray-400 hover:text-lime-600 transition-colors flex items-center gap-1 group"
         >
-          <span className="text-lg">+</span> Add Line Item
+          <span className="text-lg transition-transform group-hover:scale-125">+</span> Add Line Item
         </button>
       </div>
     </div>
@@ -448,8 +456,10 @@ function LineItemRow({
   const sacCode = useMemo(() => getDefaultSacCodeForType(type as InvoiceLineItemType), [type]);
 
   return (
-    <div className="group relative grid grid-cols-1 xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 items-start rounded-xl p-2 transition-all hover:bg-gray-50/50">
+    <div className="group relative grid grid-cols-1 xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 items-start rounded-xl p-3 xl:p-2 transition-all hover:bg-gray-50/80 border border-transparent hover:border-gray-100 xl:border-none">
+      {/* Type & SAC */}
       <div className="space-y-1">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Type</label>
         <AppSelectField {...register(`items.${index}.type`)} className="h-9 text-xs">
           {invoiceLineItemTypeOptions.map(opt => {
             const code = getDefaultSacCodeForType(opt as InvoiceLineItemType);
@@ -465,7 +475,9 @@ function LineItemRow({
         )}
       </div>
 
+      {/* Description */}
       <div className="relative">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Description</label>
         <AppTextField
           {...register(`items.${index}.description`)}
           ref={(el: HTMLInputElement | null) => {
@@ -497,7 +509,9 @@ function LineItemRow({
         )}
       </div>
 
+      {/* Qty */}
       <div>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Quantity</label>
         <AppTextField
           {...register(`items.${index}.qty`)}
           type="number"
@@ -507,29 +521,43 @@ function LineItemRow({
         />
       </div>
 
+      {/* Rate */}
       <div className="relative">
-        <AppTextField
-          {...register(`items.${index}.rate`)}
-          type="number"
-          className="h-9 text-xs pl-6 w-full"
-          errorText={(showAllErrors || touchedFields[`${field.id}:rate`]) ? errors?.rate : undefined}
-          onBlur={() => markTouched(field.id, "rate")}
-        />
-        <span className="absolute left-2 top-[10px] text-[10px] text-gray-400">{getCurrencySymbol(currency)}</span>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Rate</label>
+        <div className="relative">
+          <AppTextField
+            {...register(`items.${index}.rate`)}
+            type="number"
+            className="h-9 text-xs pl-6 w-full"
+            errorText={(showAllErrors || touchedFields[`${field.id}:rate`]) ? errors?.rate : undefined}
+            onBlur={() => markTouched(field.id, "rate")}
+          />
+          <span className="absolute left-2 top-[10px] text-[10px] text-gray-400">{getCurrencySymbol(currency)}</span>
+        </div>
       </div>
 
+      {/* Unit */}
       <div>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Unit</label>
         <AppSelectField {...register(`items.${index}.rateUnit`)} className="h-9 text-xs">
           {allowedUnits.map(u => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
         </AppSelectField>
       </div>
 
-      <div className="flex h-9 items-center justify-end">
+      {/* Total */}
+      <div className="flex h-auto xl:h-9 items-center justify-end pt-1 xl:pt-0">
         <RowTotal control={control} index={index} currency={currency} />
       </div>
 
-      <div className="flex h-9 items-center justify-center">
-        <button type="button" onClick={() => onRemove(field.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 text-xl">×</button>
+      {/* Actions */}
+      <div className="flex h-auto xl:h-9 items-center justify-center pt-1 xl:pt-0">
+        <button 
+          type="button" 
+          onClick={() => onRemove(field.id)} 
+          className="xl:opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 text-xl transition-all p-1"
+        >
+          ×
+        </button>
       </div>
     </div>
   );
