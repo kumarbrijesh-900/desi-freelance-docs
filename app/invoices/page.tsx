@@ -785,25 +785,67 @@ export default function InvoiceHistoryPage() {
   }, [invoices, search, statusFilter, msaFilter, sortKey]);
 
   // Stats
-  const stats = useMemo(
-    () => ({
-      total: invoices.length,
-      revenueCaptured: invoices
-        .filter((i) => i.status === "SETTLED")
-        .reduce((sum, inv) => {
-          const items = inv.form_data?.lineItems ?? [];
-          return sum + items.reduce((s, i) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
-        }, 0),
-      msaPending: invoices.filter(
-        (i) => i.msa_id && (i.msa_response ?? "PENDING") === "PENDING",
-      ).length,
-      msaNegotiating: invoices.filter((i) => i.msa_response === "REVISION ASKED")
-        .length,
-      msaRejected: 0, 
-      totalViews: Object.values(receipts).reduce((s, r) => s + r.count, 0),
-    }),
-    [invoices, receipts],
-  );
+  const stats = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const endOf7Days = new Date(today);
+    endOf7Days.setDate(today.getDate() + 7);
+    
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const getAmount = (inv: SavedInvoice) => {
+      if (inv.grand_total !== undefined && inv.grand_total !== null) return inv.grand_total;
+      const items = inv.form_data?.lineItems ?? [];
+      return items.reduce((s, i) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
+    };
+
+    const isPending = (status: string) => status === "SENT" || status === "PARTIAL" || status === "SAVED";
+
+    let outstanding = 0;
+    let overdue = 0;
+    let dueThisWeek = 0;
+    let awaitingMsa = 0;
+    let settledThisMonth = 0;
+
+    invoices.forEach(inv => {
+      const amount = getAmount(inv);
+      const isIssued = isPending(inv.status);
+      
+      if (isIssued) {
+        outstanding += amount;
+        
+        if (inv.form_data?.meta?.dueDate) {
+          const dueDate = new Date(inv.form_data.meta.dueDate);
+          if (dueDate < today) {
+            overdue += amount;
+          } else if (dueDate <= endOf7Days) {
+            dueThisWeek += amount;
+          }
+        }
+      }
+
+      if ((inv.msa_status ?? inv.msa_response) === "PENDING") {
+        awaitingMsa++;
+      }
+
+      if (inv.status === "SETTLED") {
+        const settledDate = new Date(inv.updated_at);
+        if (settledDate >= startOfCurrentMonth) {
+          settledThisMonth += amount;
+        }
+      }
+    });
+
+    return {
+      outstanding,
+      overdue,
+      dueThisWeek,
+      awaitingMsa,
+      settledThisMonth,
+      msaRejected: invoices.filter((i) => i.msa_response === "REVISION ASKED").length,
+    };
+  }, [invoices]);
 
   /* ── Unauthenticated ── */
   if (authenticated === false) {
@@ -874,39 +916,39 @@ export default function InvoiceHistoryPage() {
             >
               {[
                 {
-                  label: "Total",
-                  value: stats.total,
+                  label: "Outstanding",
+                  value: `₹${stats.outstanding.toLocaleString("en-IN")}`,
                   color: "text-[color:var(--text-primary)]",
                   accent: "bg-[color:var(--text-primary)]",
-                  icon: "📄",
-                },
-                {
-                  label: "Revenue Captured",
-                  value: `₹${stats.revenueCaptured.toLocaleString("en-IN")}`,
-                  color: "text-[color:var(--state-success-text)]",
-                  accent: "bg-[color:var(--state-success-border)]",
-                  icon: "💰",
-                },
-                {
-                  label: "Action Required",
-                  value: stats.msaNegotiating,
-                  color: "text-amber-700",
-                  accent: "bg-amber-400",
-                  icon: "⚡",
-                },
-                {
-                  label: "MSA Pending",
-                  value: stats.msaPending,
-                  color: "text-amber-600",
-                  accent: "bg-amber-200",
                   icon: "⏳",
                 },
                 {
-                  label: "Views (All)",
-                  value: stats.totalViews,
-                  color: "text-[color:var(--text-secondary)]",
-                  accent: "bg-[color:var(--border-subtle)]",
-                  icon: "👁️",
+                  label: "Overdue",
+                  value: `₹${stats.overdue.toLocaleString("en-IN")}`,
+                  color: "text-red-600",
+                  accent: "bg-red-500",
+                  icon: "⚠️",
+                },
+                {
+                  label: "Due This Week",
+                  value: `₹${stats.dueThisWeek.toLocaleString("en-IN")}`,
+                  color: "text-amber-600",
+                  accent: "bg-amber-400",
+                  icon: "📅",
+                },
+                {
+                  label: "Awaiting MSA",
+                  value: stats.awaitingMsa,
+                  color: "text-amber-700",
+                  accent: "bg-amber-200",
+                  icon: "✍️",
+                },
+                {
+                  label: "Settled This Month",
+                  value: `₹${stats.settledThisMonth.toLocaleString("en-IN")}`,
+                  color: "text-[color:var(--state-success-text)]",
+                  accent: "bg-[color:var(--state-success-border)]",
+                  icon: "💰",
                 },
               ].map((s) => (
                 <div
