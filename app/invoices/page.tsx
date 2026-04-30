@@ -105,24 +105,24 @@ function StatusBadge({ status }: { status: string }) {
 
 function MsaBadge({
   msaId,
-  response,
+  status,
 }: {
   msaId: string | null;
-  response: MsaResponse;
+  status: MsaResponse;
 }) {
   if (!msaId)
     return (
       <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
     );
 
-  if (response === "REVISION ASKED")
+  if (status === "PROPOSED" || status === "REVISION ASKED")
     return (
       <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
-        Action Required
+        Negotiating
       </span>
     );
 
-  if (response === "ACCEPTED")
+  if (status === "ACCEPTED")
     return (
       <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         ✓ Accepted
@@ -345,7 +345,7 @@ function InvoiceRow({
       <td className="px-4 py-3 whitespace-nowrap">
         <MsaBadge
           msaId={invoice.msa_id}
-          response={invoice.msa_response ?? "PENDING"}
+          status={invoice.msa_status ?? "PENDING"}
         />
       </td>
 

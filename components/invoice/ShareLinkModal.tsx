@@ -82,6 +82,10 @@ function MsaStatusBadge({ response }: { response: MsaResponse }) {
       label: "Pending",
       classes: "border-amber-200 bg-amber-50 text-amber-700",
     },
+    PROPOSED: {
+      label: "Proposed",
+      classes: "border-cyan-200 bg-cyan-50 text-cyan-700",
+    },
   };
   const { label, classes } = map[response] ?? map.PENDING;
   return (

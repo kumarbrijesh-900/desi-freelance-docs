@@ -14,7 +14,7 @@ import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 
 export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
 
-export type MsaResponse = "PENDING" | "ACCEPTED" | "REVISION ASKED";
+export type MsaResponse = "PENDING" | "ACCEPTED" | "REVISION ASKED" | "PROPOSED";
 
 export interface SavedInvoice {
   id: string;
@@ -28,7 +28,7 @@ export interface SavedInvoice {
   template_id: string | null;
   msa_id: string | null;
   /** msa_accepted_at removed — use msa_responded_at instead */
-  msa_response: MsaResponse;
+  msa_response: string | null;
   msa_responded_at: string | null;
   client_msa_note: string | null;
   /** Bug 2: stored as TEXT (e.g. 'Net 30', 'Due on Receipt') */

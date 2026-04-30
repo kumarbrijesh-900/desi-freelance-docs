@@ -773,6 +773,12 @@ function EditorContent() {
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
       setFormData(hydratedData);
       setParserDocumentId(data.id);
+      
+      // Map cloud negotiation note to local state
+      if (data.msa_response) {
+        setClientMsaNote(data.msa_response);
+      }
+
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
       triggerToast("Invoice hydrated from cloud ☁");
