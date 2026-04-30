@@ -258,7 +258,6 @@ function InvoiceRow({
   settlingId: string | null;
   requestingId: string | null;
 }) {
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   
   const lineItems = invoice.form_data?.lineItems ?? [];
@@ -380,36 +379,17 @@ function InvoiceRow({
               Edit
             </button>
 
-            {confirmDelete ? (
-              <span className="inline-flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDelete(invoice.id);
-                    setConfirmDelete(false);
-                  }}
-                  disabled={deletingId === invoice.id}
-                  className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
-                >
-                  {deletingId === invoice.id ? "…" : "Confirm"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(false)}
-                  className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-                >
-                  Cancel
-                </button>
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
-                className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
-              >
-                Delete
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(invoice.id);
+              }}
+              disabled={deletingId === invoice.id}
+              className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
+            >
+              {deletingId === invoice.id ? "…" : "Delete"}
+            </button>
           </div>
         </td>
       </tr>
@@ -626,6 +606,9 @@ export default function InvoiceHistoryPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to permanently delete this invoice? This cannot be undone.")) {
+      return;
+    }
     setDeletingId(id);
     const { error } = await deleteInvoice(id);
     if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
