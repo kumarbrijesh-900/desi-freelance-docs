@@ -68,7 +68,8 @@ export interface SaveInvoiceInput {
 /* ─── Helpers ─────────────────────────────────────────────── */
 
 function getInvoiceNumber(data: InvoiceFormData): string {
-  return data.meta?.invoiceNumber || `DRAFT-${Date.now()}`;
+  const year = new Date().getFullYear();
+  return data.meta?.invoiceNumber || `INV-${year}-000`;
 }
 
 /**
