@@ -52,7 +52,7 @@ export type InvoiceFieldErrors = {
   };
 };
 
-const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
@@ -138,8 +138,7 @@ export function getInvoiceFieldErrors(
     formData.client.clientGstin.trim() &&
     !GSTIN_REGEX.test(formData.client.clientGstin.trim().toUpperCase())
   ) {
-    errors.client.clientGstin =
-      "Enter a valid client GSTIN in standard 15-character format.";
+    errors.client.clientGstin = "Invalid GSTIN format";
   }
 
   if (formData.meta.paymentTerms === undefined || isNaN(Number(formData.meta.paymentTerms))) {

@@ -2,7 +2,7 @@ import type { IndiaStateOption } from "@/lib/india-state-options";
 import { getStateFromGstinCode } from "@/lib/gstin-state-map";
 
 export const GSTIN_REGEX =
-  /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}Z[A-Z0-9]{1}$/;
+  /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 export const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
