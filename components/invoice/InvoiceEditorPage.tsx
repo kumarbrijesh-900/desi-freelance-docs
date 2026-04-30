@@ -770,7 +770,6 @@ function EditorContent() {
         return;
       }
 
-      console.log("HYDRATION: Found cloud invoice", data.id);
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
       setFormData(hydratedData);
       setParserDocumentId(data.id);
@@ -976,7 +975,6 @@ useEffect(() => {
     const { data: clients } = await listClients();
     if (cancelled) return;
 
-    console.log("CLIENT_LOAD: Found", clients?.length || 0, "saved clients");
     setSavedClients(clients || []);
 
     // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
@@ -991,10 +989,6 @@ useEffect(() => {
         client: clientDetails,
       }));
       setSelectedClientMsa(clients[0]);
-      console.log(
-        "CLIENT_AUTOFILL: Applied unique client",
-        clients[0].client_name,
-      );
     }
   }
 
@@ -1727,10 +1721,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
           const extractedText = await extractTextFromImage(file);
 
           if (extractedText.trim()) {
-            console.log(
-              `[Brief Intake OCR] Extracted text from ${file.name}:`,
-              extractedText,
-            );
             extractedChunks.push(extractedText.trim());
           }
         } catch (error) {
@@ -1840,20 +1830,10 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
         baseFormData: result.nextFormData,
         parserResponse,
       });
-      console.log(
-        "=== PARSER HYDRATION SUCCESS ===",
-        parserHydration.nextFormData.lineItems[0],
-      );
-    } else {
-      console.log("=== PARSER RESPONSE IS NULL ===");
     }
 
     const hydratedFormData =
       parserHydration?.nextFormData ?? result.nextFormData;
-    console.log(
-      "=== HYDRATED FORM DATA MERGE ===",
-      hydratedFormData.lineItems[0],
-    );
 
     const totalFilledFields = [
       ...result.filledFields,
@@ -2145,12 +2125,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
   }
 };
 
-console.log("=== FINAL RENDER FORM DATA ===", {
-  agencyName: formData.agency.agencyName,
-  clientState: formData.client.clientState,
-  lineItemsRate: formData.lineItems[0]?.rate,
-  computedSubtotal: computedTotals.subtotal,
-});
 
 return (
   <main suppressHydrationWarning className={appPageShellClass}>
