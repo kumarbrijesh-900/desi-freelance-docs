@@ -228,6 +228,25 @@ export default function DeliverablesSection({
     });
   }
 
+  // v1 UX guarantee: if the only milestone has zero line items, auto-add one empty row so the user
+  // can start typing immediately instead of clicking "+ Add Line Item" first. This runs once on
+  // initial render when the milestone is empty.
+  useEffect(() => {
+    if (milestones.length === 1 && milestones[0].items.length === 0 && fields.length === 1) {
+      const emptyLineItem: InvoiceLineItem = {
+        id: crypto.randomUUID(),
+        type: "Other",
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: "per-deliverable",
+        is_milestone_header: false,
+      };
+      append(emptyLineItem);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields.length]);
+
   return (
     <section
       className={cn(
