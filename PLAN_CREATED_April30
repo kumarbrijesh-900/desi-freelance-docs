@@ -1,0 +1,87 @@
+###Lance — Today's Progress (April 30, 2026)
+
+✅ Confirmed Path B-full segmented refactor; v1 = single-milestone, v1.5 = multi-milestone
+✅ Confirmed invoice_milestones and invoice_line_items tables exist in Supabase but are empty (never written to)
+✅ Antigravity workflow established: precise prompts, no acceptance prompts, auto-push, build-verified before push
+✅ Items step locked to single-milestone with one default line item (commits f3035dc, follow-ups for fallback + structure)
+
+Lance v1 Roadmap — Antigravity Prompt Bullets
+Phase A: Stabilize the editor
+
+Prompt #2 — Fix duplicate invoice number bug. Move getNextInvoiceNumber from localStorage counter to a Supabase query that reads the latest invoice number for the user and increments. SQL: no schema change, just a query against existing invoices table.
+Prompt #3 — Standardize invoice number format. Force INV-YYYY-NNN uppercase zero-padded everywhere. Remove DRAFT-{timestamp} placeholders. SQL: optional cleanup query to rename existing DRAFT-* and inv-* rows.
+Prompt #4 — Add basic GSTIN format validation on client form. Reject non-conforming strings on the Client step. No SQL.
+Prompt #5 — Remove console.log("=== FINAL RENDER FORM DATA") and other dev-only logs from InvoiceEditorPage.tsx. No SQL.
+
+Phase B: Invoice table polish
+
+Prompt #6 — Replace metric cards on /invoices page. Swap Total/Revenue/Action/MSA/Views for Outstanding/Overdue/Due This Week/Awaiting MSA/Settled This Month. SQL: may need an index on invoices.due_date and invoices.status for fast filtering.
+Prompt #7 — Make invoice rows clickable on full row, not just hover-revealed buttons. Mobile: always-show actions or three-dot menu. No SQL.
+Prompt #8 — Move "Delete" action behind a confirmation modal. No SQL.
+Prompt #9 — Auto-cleanup empty drafts older than 7 days. SQL: scheduled function or cron-triggered DELETE query in Supabase.
+
+Phase C: Client-side MSA acceptance loop (the big one)
+
+Prompt #10 — Build the public shared invoice view page (/share/[token]). New route. Reads share_token from invoices table, renders read-only invoice. SQL: confirm RLS policies allow anonymous read of invoices via valid share_token.
+Prompt #11 — Build the MSA acceptance pop-up on the shared invoice view. Modal that appears before the invoice is visible if msa_id is set and msa_status === 'PENDING'. Two actions: Accept / Propose New MSA. SQL: write to invoices.msa_status, msa_response, msa_accepted_at, msa_responded_at.
+Prompt #12 — Build the propose-new-MSA flow with comment box. Text area, submit handler, write to invoices row. SQL: ensure applied_payment_terms or similar column exists for storing the proposal text — verify in current schema before prompt.
+Prompt #13 — Wire agency-side notification when client accepts/proposes. Insert row into notifications table. Display notification badge on bell icon in AppHeader. SQL: confirm notifications table columns; may need to add invoice_id, notification_type, read_at.
+Prompt #14 — Surface client negotiation note in InvoiceEditorPage. Hook up the existing clientMsaNote state to actually load from Supabase when the user opens the invoice. No new SQL.
+
+Phase D: Settlement and PDF
+
+Prompt #15 — Add "Mark as Paid" button on invoices table row. Confirmation modal, write to invoices.status = 'SETTLED', set settled_at timestamp. SQL: add settled_at timestamptz nullable column to invoices if not present.
+Prompt #16 — Update invoice status pill colors and labels. Draft/Sent/Viewed/MSA Accepted/Paid/Overdue with proper colors. No SQL.
+Prompt #17 — Verify PDF download works end-to-end. Test on real templates, fix any rendering bugs in lib/templates/*. No SQL.
+Prompt #18 — Verify share-via-email flow end-to-end. Test the existing /api/share-invoice route, confirm email actually delivers (check Resend/Postmark/SES configuration). No SQL.
+
+Phase E: v1 launch polish
+
+Prompt #19 — Profile completion banner only shows when assets are missing. Already partially done; verify and harden. No SQL.
+Prompt #20 — Empty state design for /invoices when user has zero invoices. Welcoming illustration + CTA. No SQL.
+Prompt #21 — "Back to Home" link cleanup or removal across app. No SQL.
+
+v1 ships after Phase E. Test with real freelancers before v1.5.
+
+Lance v1.5 Roadmap — Multi-Milestone
+Phase F: Schema refactor (the Path B core)
+
+Prompt #22 — Sub-segment 1A: Restructure types/invoice.ts. Add Milestone interface, replace lineItems: InvoiceLineItem[] with milestones: Milestone[], remove is_milestone_header flag. Update defaultInvoiceFormData. SQL: no change yet.
+Prompt #23 — Sub-segment 1A-ii: Rewrite mergeInvoiceFormData for new shape with backward-compat for old localStorage drafts. SQL: no change.
+Prompt #24 — Sub-segment 1B: Update lib/invoice-calculations.ts and lib/invoice-validation.ts for milestone tree. No SQL.
+Prompt #25 — Sub-segment 1C: Rewrite DeliverablesSection.tsx to iterate real milestones. Remove all v1 fallback hacks added today. Restore MAX_MILESTONES = 5. No SQL.
+Prompt #26 — Sub-segment 1D: Update InvoiceEditorPage.tsx controller wiring for new shape. No SQL.
+Prompt #27 — Sub-segment 1F: Update preview templates to render milestone tree. No SQL.
+Prompt #28 — Sub-segment 1G: Migrate Supabase persistence. saveInvoice writes to invoice_milestones and invoice_line_items tables. loadInvoice joins them. SQL: add tds_amount numeric, status text columns to invoice_milestones. Migration query for existing 6 invoices to extract milestones from form_data JSON.
+
+Phase G: Multi-milestone billing flow
+
+Prompt #29 — Update share modal to show "Milestone 1 of N" framing. SQL: no change.
+Prompt #30 — Update PDF templates to render "Total project: X, Due now: Y, Remaining: Z." No SQL.
+Prompt #31 — "Mark Milestone-1 as Settled" auto-generates Milestone-2 invoice. Server action that creates new invoice row referencing parent invoice. SQL: add parent_invoice_id and milestone_index columns to invoices.
+Prompt #32 — Skip MSA gate on subsequent milestone invoices. Read parent invoice's msa_status. SQL: no change.
+Prompt #33 — Wire up TDS deduction on milestone settlement using SettlementModal. SQL: store tds_amount per milestone.
+
+Phase H: v1.5 polish
+
+Prompt #34 — Show milestone progress on invoices table. "M1 of 3 settled" badge. No SQL.
+Prompt #35 — Per-milestone due date logic. Sequential — calculated when previous milestone settles. No SQL beyond what exists.
+
+
+Locked for v2 (do NOT touch in v1 or v1.5)
+
+Brief Parsing Engine (currently locked, leave hidden)
+Email cron worker for due-date reminders
+Late fee accrual automation
+GSTIN auto-fetch from government API
+Onboarding modal/flow
+Read receipts wire-up
+
+
+Notes for tomorrow, (1st MAY2026)
+
+Three v1 hack-fixes live in DeliverablesSection.tsx from today; flagged in code as v1, must be removed during Phase F refactor
+Antigravity prompt format that worked: precise file path, exact code blocks, explicit do-not list, structured reply format, no verification footer in prompt body
+Auto-approve setting in Antigravity preferences — check if it can be enabled to skip per-edit accept clicks
+Run ?fresh=1 URL flag to bypass localStorage during testing
+Three duplicate INV-2026-046 invoices in production — Prompt #2 will fix the cause but existing dupes remain; manually rename or leave ###
