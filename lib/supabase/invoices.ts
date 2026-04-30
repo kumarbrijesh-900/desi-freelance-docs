@@ -38,6 +38,7 @@ export interface SavedInvoice {
   reminded_overdue: boolean;
   created_at: string;
   updated_at: string;
+  settled_at: string | null;
   has_addendum: boolean;
   payment_terms_days: number | null;
   msa_status: MsaResponse;
@@ -793,7 +794,10 @@ export async function markInvoiceSettled(
 
   const { data: inv, error } = await supabase
     .from("invoices")
-    .update({ status: "SETTLED" as InvoiceStatus })
+    .update({ 
+      status: "SETTLED" as InvoiceStatus,
+      settled_at: new Date().toISOString()
+    })
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .select("invoice_number, form_data")

@@ -266,7 +266,7 @@ function InvoiceRow({
   const hasMilestones = hasRelationalMilestones || hasLegacyMilestones;
 
   const canSettle =
-    invoice.status === "SENT" || invoice.status === "PARTIAL";
+    invoice.status === "SENT" || invoice.status === "PARTIAL" || invoice.status === "SAVED";
 
   return (
     <>
@@ -822,8 +822,8 @@ export default function InvoiceHistoryPage() {
         awaitingMsa++;
       }
 
-      if (inv.status === "SETTLED") {
-        const settledDate = new Date(inv.updated_at);
+      if (inv.status === "SETTLED" && inv.settled_at) {
+        const settledDate = new Date(inv.settled_at);
         if (settledDate >= startOfCurrentMonth) {
           settledThisMonth += amount;
         }
