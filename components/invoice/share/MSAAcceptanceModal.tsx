@@ -41,20 +41,33 @@ export default function MSAAcceptanceModal({
     
     setIsSubmittingProposal(true);
     try {
-      // Execute update as per specific prompt requirements
-      const { error } = await supabase
+      // Execute update and select ID/User ID for notification insertion
+      const { data: inv, error } = await supabase
         .from("invoices")
         .update({
           msa_status: 'PROPOSED',
           msa_response: proposalText,
           msa_responded_at: new Date().toISOString()
         })
-        .eq("share_token", token);
+        .eq("share_token", token)
+        .select("id, user_id")
+        .single();
 
       if (error) {
         console.error("PROPOSAL_SUBMIT_ERROR:", error);
         alert("Failed to submit proposal. Please try again.");
       } else {
+        // Trigger Freelancer Notification
+        if (inv) {
+          await supabase.from("notifications").insert({
+            user_id: inv.user_id,
+            invoice_id: inv.id,
+            type: 'MSA_PROPOSED',
+            title: 'New MSA Proposal',
+            message: 'The client has proposed new terms.',
+            is_read: false
+          });
+        }
         setMode("success");
       }
     } catch (err) {
@@ -193,7 +206,38 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     disabled={isSubmitting}
-                    onClick={onAccept}
+                    onClick={async () => {
+                      // Integrated Accept logic with Notifications
+                      const { data: inv, error } = await supabase
+                        .from("invoices")
+                        .update({ 
+                          msa_status: 'ACCEPTED', 
+                          msa_accepted_at: new Date().toISOString() 
+                        })
+                        .eq("share_token", token)
+                        .select("id, user_id")
+                        .single();
+
+                      if (error) {
+                        console.error("Supabase Update Error:", error);
+                        alert("Failed to accept terms. Please try again.");
+                        return;
+                      }
+
+                      // Trigger Freelancer Notification
+                      if (inv) {
+                        await supabase.from("notifications").insert({
+                          user_id: inv.user_id,
+                          invoice_id: inv.id,
+                          type: 'MSA_ACCEPTED',
+                          title: 'MSA Accepted',
+                          message: 'The client has accepted the terms for this invoice.',
+                          is_read: false
+                        });
+                      }
+
+                      onAccept();
+                    }}
                     className={`flex-[2] min-w-[160px] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
                   >
                     {isSubmitting ? "Processing…" : "Accept Terms"}
