@@ -103,10 +103,29 @@ export default function DeliverablesSection({
   const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const milestoneTitleRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  // Ensure ONE default milestone if value is empty (State Initialization Level)
+  // Ensure ONE default milestone with proper header + line item structure
   const initialItems = useMemo(() => {
-    if (value && value.length > 0) return value;
-    return createDefaultMilestone();
+    // No items at all → use the default milestone (header + one empty line item)
+    if (!value || value.length === 0) {
+      return createDefaultMilestone();
+    }
+    // Items exist but none flagged as milestone header → wrap them with a synthesized header
+    // so the grouping logic produces a valid milestone instead of an empty one.
+    const hasHeader = value.some((item) => item.is_milestone_header === true);
+    if (!hasHeader) {
+      const syntheticHeader: InvoiceLineItem = {
+        id: crypto.randomUUID(),
+        type: "Other" as InvoiceLineItemType,
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: "per-deliverable" as InvoiceRateUnit,
+        is_milestone_header: true,
+      };
+      return [syntheticHeader, ...value];
+    }
+    // Items already have proper structure
+    return value;
   }, [value]);
 
   const { register, control, handleSubmit, setValue, reset } = useForm({
@@ -127,8 +146,24 @@ export default function DeliverablesSection({
   }, [onChange]);
 
   useEffect(() => {
-    // Intercept empty arrays and inject default milestone
-    const nextItems = (value && value.length > 0) ? value : createDefaultMilestone();
+    // Mirror the same structure logic as initialItems so reset matches what the form expects
+    let nextItems: InvoiceLineItem[];
+    if (!value || value.length === 0) {
+      nextItems = createDefaultMilestone();
+    } else if (!value.some((item) => item.is_milestone_header === true)) {
+      const syntheticHeader: InvoiceLineItem = {
+        id: crypto.randomUUID(),
+        type: "Other" as InvoiceLineItemType,
+        description: "",
+        qty: 1,
+        rate: 0,
+        rateUnit: "per-deliverable" as InvoiceRateUnit,
+        is_milestone_header: true,
+      };
+      nextItems = [syntheticHeader, ...value];
+    } else {
+      nextItems = value;
+    }
     reset({ items: nextItems });
   }, [value, reset]);
 
@@ -218,34 +253,6 @@ export default function DeliverablesSection({
   }
   if (currentMilestone) milestones.push(currentMilestone);
 
-  // v1 fallback: if no milestone header was flagged, treat the first item as the implicit milestone
-  // header and the rest as its line items. Prevents empty render when default data has no header flag.
-  if (milestones.length === 0 && fields.length > 0) {
-    milestones.push({
-      header: fields[0],
-      index: 0,
-      items: fields.slice(1).map((field, idx) => ({ field, index: idx + 1 })),
-    });
-  }
-
-  // v1 UX guarantee: if the only milestone has zero line items, auto-add one empty row so the user
-  // can start typing immediately instead of clicking "+ Add Line Item" first. This runs once on
-  // initial render when the milestone is empty.
-  useEffect(() => {
-    if (milestones.length === 1 && milestones[0].items.length === 0 && fields.length === 1) {
-      const emptyLineItem: InvoiceLineItem = {
-        id: crypto.randomUUID(),
-        type: "Other",
-        description: "",
-        qty: 1,
-        rate: 0,
-        rateUnit: "per-deliverable",
-        is_milestone_header: false,
-      };
-      append(emptyLineItem);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields.length]);
 
   return (
     <section
