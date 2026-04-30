@@ -71,6 +71,48 @@ function getInvoiceNumber(data: InvoiceFormData): string {
   return data.meta?.invoiceNumber || `DRAFT-${Date.now()}`;
 }
 
+/**
+ * Query Supabase for the highest invoice number this year for the current user
+ * and return the next sequential number in INV-YYYY-NNN format.
+ *
+ * Returns null if not authenticated — caller should fall back to a draft placeholder.
+ */
+export async function generateNextInvoiceNumber(): Promise<string | null> {
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+
+  const year = String(new Date().getFullYear());
+  const prefix = `INV-${year}-`;
+
+  // Fetch all invoice_numbers for this user that match the current year prefix.
+  // We do an in-memory max because Postgres text comparison is unreliable for
+  // mixed-format strings (some users have INV-2026-046, others have inv-2026-10).
+  const { data, error } = await supabase
+    .from("invoices")
+    .select("invoice_number")
+    .eq("user_id", userId)
+    .ilike("invoice_number", `${prefix}%`);
+
+  if (error) {
+    console.error("Failed to query invoice numbers:", error);
+    return null;
+  }
+
+  let maxSequence = 0;
+  for (const row of data ?? []) {
+    const match = (row.invoice_number ?? "").match(/^INV-\d{4}-(\d+)$/i);
+    if (match) {
+      const seq = parseInt(match[1], 10);
+      if (Number.isFinite(seq) && seq > maxSequence) {
+        maxSequence = seq;
+      }
+    }
+  }
+
+  const nextSequence = maxSequence + 1;
+  return `${prefix}${String(nextSequence).padStart(3, "0")}`;
+}
+
 /* ─── Auth Check ──────────────────────────────────────────── */
 
 export async function getCurrentUserId(): Promise<string | null> {
