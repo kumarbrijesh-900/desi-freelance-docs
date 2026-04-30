@@ -276,15 +276,25 @@ function InvoiceRow({
           "border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group cursor-pointer",
           isExpanded && "bg-[color:var(--bg-surface-soft)]/50"
         )}
-        onClick={() => hasMilestones && setIsExpanded(!isExpanded)}
+        onClick={() => onEdit(invoice)}
       >
         {/* Invoice # */}
         <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
           <div className="flex items-center gap-2">
             {hasMilestones && (
-              <span className={cn("text-[14px] transition-all duration-200 text-[color:var(--text-muted)]", isExpanded ? "rotate-90 text-[color:var(--text-primary)]" : "rotate-0")}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                className={cn(
+                  "flex h-5 w-5 items-center justify-center rounded-md hover:bg-[color:var(--bg-surface-muted)] transition-all duration-200 text-[color:var(--text-muted)]",
+                  isExpanded ? "rotate-90 text-[color:var(--text-primary)]" : "rotate-0"
+                )}
+              >
                 ›
-              </span>
+              </button>
             )}
             {invoice.invoice_number}
           </div>
@@ -342,7 +352,7 @@ function InvoiceRow({
 
         {/* Actions */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             {canSettle && !hasMilestones && (
               <button
                 type="button"
