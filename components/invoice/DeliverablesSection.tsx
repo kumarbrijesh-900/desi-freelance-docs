@@ -218,6 +218,16 @@ export default function DeliverablesSection({
   }
   if (currentMilestone) milestones.push(currentMilestone);
 
+  // v1 fallback: if no milestone header was flagged, treat the first item as the implicit milestone
+  // header and the rest as its line items. Prevents empty render when default data has no header flag.
+  if (milestones.length === 0 && fields.length > 0) {
+    milestones.push({
+      header: fields[0],
+      index: 0,
+      items: fields.slice(1).map((field, idx) => ({ field, index: idx + 1 })),
+    });
+  }
+
   return (
     <section
       className={cn(
