@@ -45,7 +45,7 @@ export default function MSAAcceptanceModal({
       const { data: inv, error } = await supabase
         .from("invoices")
         .update({
-          msa_status: 'PROPOSED',
+          msa_status: 'proposed',
           msa_response: proposalText,
           msa_responded_at: new Date().toISOString()
         })
@@ -62,9 +62,9 @@ export default function MSAAcceptanceModal({
           await supabase.from("notifications").insert({
             user_id: inv.user_id,
             invoice_id: inv.id,
-            type: 'MSA_PROPOSED',
+            type: 'msa_negotiating',
             title: 'New MSA Proposal',
-            message: 'The client has proposed new terms.',
+            message: `Client proposed new terms: "${proposalText}"`,
             is_read: false
           });
         }
@@ -211,7 +211,7 @@ export default function MSAAcceptanceModal({
                       const { data: inv, error } = await supabase
                         .from("invoices")
                         .update({ 
-                          msa_status: 'ACCEPTED', 
+                          msa_status: 'accepted', 
                           msa_accepted_at: new Date().toISOString() 
                         })
                         .eq("share_token", token)
@@ -229,7 +229,7 @@ export default function MSAAcceptanceModal({
                         await supabase.from("notifications").insert({
                           user_id: inv.user_id,
                           invoice_id: inv.id,
-                          type: 'MSA_ACCEPTED',
+                          type: 'msa_accepted',
                           title: 'MSA Accepted',
                           message: 'The client has accepted the terms for this invoice.',
                           is_read: false

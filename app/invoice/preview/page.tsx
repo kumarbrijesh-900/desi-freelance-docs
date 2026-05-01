@@ -80,7 +80,7 @@ function PreviewContent() {
   const [showConversionModal, setShowConversionModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
-  const [msaResponse, setMsaResponse] = useState<MsaResponse>("PENDING");
+  const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");

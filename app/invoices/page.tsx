@@ -115,14 +115,14 @@ function MsaBadge({
       <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
     );
 
-  if (status === "PROPOSED" || status === "REVISION ASKED")
+  if (status === "proposed" || status === "rejected")
     return (
       <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
         Negotiating
       </span>
     );
 
-  if (status === "ACCEPTED")
+  if (status === "accepted")
     return (
       <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         ✓ Accepted
@@ -153,7 +153,7 @@ function ViewsBadge({
 
 type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
 type StatusFilter = "all" | "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
-type MsaFilter = "all" | "PENDING" | "ACCEPTED" | "REVISION ASKED" | "none";
+type MsaFilter = "all" | "pending" | "accepted" | "rejected" | "none";
 
 function FilterBar({
   statusFilter,
@@ -209,9 +209,9 @@ function FilterBar({
       >
         <option value="all">All MSA</option>
         <option value="none">No MSA</option>
-        <option value="PENDING">MSA Pending</option>
-        <option value="ACCEPTED">MSA Accepted</option>
-        <option value="REVISION ASKED">Revision Asked</option>
+        <option value="pending">MSA Pending</option>
+        <option value="accepted">MSA Accepted</option>
+        <option value="rejected">Revision Asked</option>
       </select>
 
       {/* Sort */}
@@ -345,7 +345,7 @@ function InvoiceRow({
       <td className="px-4 py-3 whitespace-nowrap">
         <MsaBadge
           msaId={invoice.msa_id}
-          status={invoice.msa_status ?? "PENDING"}
+          status={invoice.msa_status ?? "pending"}
         />
       </td>
 
@@ -750,7 +750,7 @@ export default function InvoiceHistoryPage() {
       if (msaFilter === "none") list = list.filter((i) => !i.msa_id);
       else
         list = list.filter(
-          (i) => i.msa_id && (i.msa_response ?? "PENDING") === msaFilter,
+          (i) => i.msa_id && (i.msa_status ?? "pending") === msaFilter,
         );
     }
 
@@ -818,7 +818,7 @@ export default function InvoiceHistoryPage() {
         }
       }
 
-      if ((inv.msa_status ?? inv.msa_response) === "PENDING") {
+      if ((inv.msa_status ?? "pending") === "pending") {
         awaitingMsa++;
       }
 

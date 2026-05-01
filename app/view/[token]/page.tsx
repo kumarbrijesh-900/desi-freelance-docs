@@ -38,7 +38,7 @@ export default function PublicInvoiceViewPage({
 
   // MSA gating state
   const [msaRequired, setMsaRequired] = useState(false);
-  const [msaResponse, setMsaResponse] = useState<MsaResponse>("PENDING");
+  const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [msaData, setMsaData] = useState<MsaData | null>(null);
   const [msaSubmitting, setMsaSubmitting] = useState(false);
 
@@ -69,10 +69,10 @@ export default function PublicInvoiceViewPage({
         setAgencyName(fd.agency.agencyName);
       }
 
-      const status = data.msa_status || data.msa_response || "PENDING";
+      const status = data.msa_status || "pending";
       setMsaResponse(status as MsaResponse);
 
-      if (status === "PENDING" || status === "REVISION ASKED") {
+      if (status === "pending" || status === "rejected" || status === "proposed") {
         setMsaRequired(true);
         if (data.msa_id) {
           const msaContent = await loadMsaForSharedInvoice(data.id, data.msa_id);
@@ -103,7 +103,7 @@ export default function PublicInvoiceViewPage({
     loadInvoice();
   }, [token]);
 
-  const handleMsaRespond = async (response: "ACCEPTED" | "REVISION ASKED") => {
+  const handleMsaRespond = async (response: "accepted" | "rejected") => {
     setMsaSubmitting(true);
     try {
       const res = await fetch("/api/msa-response", {
@@ -114,7 +114,7 @@ export default function PublicInvoiceViewPage({
       
       if (res.ok) {
         setMsaResponse(response);
-        if (response === "ACCEPTED") {
+        if (response === "accepted") {
           setMsaRequired(false);
           // Smooth reveal by re-fetching data
           await loadInvoice();
@@ -148,7 +148,7 @@ export default function PublicInvoiceViewPage({
       });
       
       if (res.ok) {
-        setMsaResponse("REVISION ASKED");
+        setMsaResponse("rejected");
         setShowProposalForm(false);
       } else {
         const err = await res.json();
@@ -208,7 +208,7 @@ export default function PublicInvoiceViewPage({
 
   /* ─── MSA Rejected ─────────────────────────────────── */
 
-  if (msaResponse === "REVISION ASKED") {
+  if (msaResponse === "rejected" || msaResponse === "proposed") {
     return (
       <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12">
         <div className="mx-auto mb-6 flex max-w-2xl items-center">
@@ -261,7 +261,7 @@ export default function PublicInvoiceViewPage({
 
   /* ─── MSA Gate (pending) ───────────────────────────── */
 
-  if (msaRequired && msaResponse === "PENDING") {
+  if (msaRequired && msaResponse === "pending") {
     return (
       <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12">
         {/* Branding header */}
@@ -437,7 +437,7 @@ export default function PublicInvoiceViewPage({
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => handleMsaRespond("ACCEPTED")}
+                      onClick={() => handleMsaRespond("accepted")}
                       disabled={msaSubmitting}
                       className={getAppButtonClass({
                         variant: "primary",
@@ -572,7 +572,7 @@ export default function PublicInvoiceViewPage({
             </span>
           </Link>
           <div className="hidden items-center gap-3 md:flex">
-            {msaResponse === "ACCEPTED" && (
+            {msaResponse === "accepted" && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
                 <CheckCircleIcon className="h-3.5 w-3.5" />
                 {hasAddendum ? "MSA & Addendum Accepted" : "MSA Accepted"}

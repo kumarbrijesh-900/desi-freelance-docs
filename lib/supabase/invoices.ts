@@ -14,7 +14,13 @@ import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 
 export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
 
-export type MsaResponse = "PENDING" | "ACCEPTED" | "REVISION ASKED" | "PROPOSED";
+export type MsaStatus = "pending" | "accepted" | "rejected" | "proposed";
+
+/**
+ * @deprecated Use MsaStatus instead. Kept temporarily for backward compatibility
+ * with code that hasn't been migrated yet.
+ */
+export type MsaResponse = MsaStatus;
 
 export interface SavedInvoice {
   id: string;
@@ -600,14 +606,18 @@ export async function loadMsaForSharedInvoice(
 /** Respond to MSA on a shared invoice (public — anon user) */
 export async function respondToMsa(
   shareToken: string,
-  response: "ACCEPTED" | "REVISION ASKED",
+  status: "accepted" | "rejected",
 ): Promise<{ error: string | null }> {
   const now = new Date().toISOString();
   const updateFields: Record<string, unknown> = {
-    msa_response: response,
-    msa_responded_at: now,
+    msa_status: status,
   };
-  // msa_accepted_at does not exist in the DB — msa_responded_at is the canonical field.
+
+  if (status === "accepted") {
+    updateFields.msa_accepted_at = now;
+  } else {
+    updateFields.msa_responded_at = now;
+  }
 
   const { data: inv, error: fetchErr } = await supabase
     .from("invoices")
@@ -623,11 +633,11 @@ export async function respondToMsa(
   await supabase.from("notifications").insert({
     user_id: inv.user_id,
     invoice_id: inv.id,
-    type: `msa_${response}`,
-    title: response === "ACCEPTED" ? "MSA Approved" : "MSA Rejected",
+    type: status === "accepted" ? "msa_accepted" : "msa_rejected",
+    title: status === "accepted" ? "MSA Accepted" : "MSA Rejected",
     message:
-      response === "ACCEPTED"
-        ? `Client approved MSA and seen invoice ${inv.invoice_number}.`
+      status === "accepted"
+        ? `Client accepted the MSA for invoice ${inv.invoice_number}.`
         : `Client rejected the MSA for invoice ${inv.invoice_number}.`,
     is_read: false,
   });
@@ -662,8 +672,8 @@ export async function proposeMsaChanges(
   const { data: inv, error: updateErr } = await supabase
     .from("invoices")
     .update({
-      msa_response: "REVISION ASKED" as MsaResponse,
-      client_msa_note: noteText,
+      msa_status: "proposed" as MsaStatus,
+      msa_response: noteText,
       msa_responded_at: new Date().toISOString(),
     })
     .eq("id", invoiceId)
@@ -679,7 +689,7 @@ export async function proposeMsaChanges(
     invoice_id: inv.id,
     type: "msa_negotiating",
     title: "MSA Changes Proposed",
-    message: `Client Proposing new MSA for ${inv.invoice_number}: "${noteText}"`,
+    message: `Client proposed new terms for invoice ${inv.invoice_number}: "${noteText}"`,
     is_read: false,
   });
 
@@ -838,13 +848,16 @@ export async function reissueNegotiatedInvoice(
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
+  // Reset status back to 'pending' so the client must accept the new version,
+  // but preserve msa_response (the client's previous proposal text) and
+  // msa_responded_at (when they made it) as a permanent audit trail.
+  // Also preserve client_msa_note for editor-side display of negotiation history.
   const { error } = await supabase
     .from("invoices")
     .update({
       form_data: newFormData as unknown as Record<string, unknown>,
-      client_msa_note: null,
-      msa_response: "PENDING" as MsaResponse,
-      msa_responded_at: null,
+      msa_status: "pending" as MsaStatus,
+      msa_accepted_at: null,
       applied_payment_terms: newFormData.meta?.paymentTerms || null,
       applied_late_fee_rate: newFormData.client?.msaLateFeeRate || null,
       applied_license_type: newFormData.payment?.license?.licenseType || null,

@@ -48,12 +48,14 @@ export default function PublicInvoiceSharePage({
         setTemplateId(data.template_id || "classic");
         setInvoiceNumber(data.invoice_number || "");
         
-        // Evaluate legal status
-        const currentMsaStatus = data.msa_status || data.msa_response || "ACCEPTED";
+        // Read canonical msa_status field. Default to 'accepted' so invoices without
+        // MSA gating render normally. Note: msa_response now holds proposal text only,
+        // not status — do not use it as a status fallback.
+        const currentMsaStatus = data.msa_status || "accepted";
         setMsaStatus(currentMsaStatus);
 
-        // Load MSA content if pending
-        if (currentMsaStatus === "PENDING" && data.msa_id) {
+        // Load MSA content if pending (so the gate modal can show the agreement)
+        if (currentMsaStatus === "pending" && data.msa_id) {
           const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
           if (msa) setMsaData(msa);
         }
@@ -74,7 +76,7 @@ export default function PublicInvoiceSharePage({
       const { error } = await supabase
         .from("invoices")
         .update({ 
-          msa_status: 'ACCEPTED', 
+          msa_status: 'accepted', 
           msa_accepted_at: new Date().toISOString() 
         })
         .eq("share_token", token);
@@ -86,7 +88,7 @@ export default function PublicInvoiceSharePage({
       }
 
       // Success: Reveal the invoice
-      setMsaStatus("ACCEPTED");
+      setMsaStatus("accepted");
     } catch (err) {
       console.error("ACCEPT_ERROR:", err);
       alert("An unexpected error occurred.");
@@ -133,7 +135,7 @@ export default function PublicInvoiceSharePage({
     );
   }
 
-  const isMsaPending = msaStatus === "PENDING";
+  const isMsaPending = msaStatus === "pending";
 
   return (
     <>
