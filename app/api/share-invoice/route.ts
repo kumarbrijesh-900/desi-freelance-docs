@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
         .eq("id", invoiceId);
     }
 
-    const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/view/${token}`;
+    const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/share/${token}`;
 
     /* ── 4. Send email to client (link only goes to inbox) ── */
     const hasMsa = !!msaId;

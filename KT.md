@@ -61,7 +61,7 @@ app/
 │   ├── new/page.tsx            # Invoice editor (stepper)
 │   └── preview/page.tsx        # Invoice preview (single-column, inline template picker)
 ├── invoices/page.tsx           # Invoice history (auth-gated, cloud-saved)
-├── view/[token]/page.tsx       # Public shared invoice view (read receipts tracked)
+├── share/[token]/page.tsx      # Public shared invoice view (read receipts tracked)
 ├── clients/
 │   ├── page.tsx                # Client directory (data table + inline form)
 │   └── [id]/page.tsx           # Client detail / MSA management
@@ -342,13 +342,13 @@ tests/
 - **Compact toolbar:** Reduced padding, shorter description copy, tighter gap
 - **TemplatePicker horizontal mode:** New `layout` prop ("vertical" | "horizontal") for flexible rendering
 - **Share invoice link system:** 12-char unique share tokens stored in `invoices.share_token`
-- **Public view route:** `/view/[token]` renders shared invoice with Lance branding header and print support
+- **Public view route:** `/share/[token]` renders shared invoice with Lance branding header and print support
 - **Read receipts:** `read_receipts` table tracks view count + timestamp + user agent
 - **Template persistence:** `template_id` saved with invoice for consistent rendering on public view
 - **New icons:** `ShareIcon`, `LinkCopyIcon`, `CheckCircleIcon` in app-icons
 
 ### Phase 9b.1 — MSA Gating
-- **MSA gate screen:** `/view/[token]` shows MSA text with blurred invoice preview when MSA is attached but not accepted
+- **MSA gate screen:** `/share/[token]` shows MSA text with blurred invoice preview when MSA is attached but not accepted
 - **ShareLinkModal MSA section:** Lists all user MSAs, radio-select to attach/detach
 - **Service functions:** `attachMsaToInvoice`, `detachMsaFromInvoice`, `loadMsaForSharedInvoice`
 - **listAllUserMsas:** Cross-client MSA listing for the share modal
@@ -494,7 +494,7 @@ tests/
   - **Deviation Detection**: Implemented logic in the editor (`TermsPaymentSection.tsx`) to compare active form values against Master MSA defaults.
   - **Visual Indicator System**: Added `Link` (Synced with MSA) vs `Sparkles` (Override/Deviation) icons to individual form fields.
   - **Addendum Safety Gate**: A mandatory checkbox appears in a high-contrast warning box if deviations are detected, requiring the agency to acknowledge the overrides as a project-specific addendum.
-  - **Client-Facing Addendum**: The public view (`/view/[token]`) now renders a distinct "Project Addendum" box detailing the overrides and updates the acceptance button to "Accept MSA & Addendum".
+  - **Client-Facing Addendum**: The public view (`/share/[token]`) now renders a distinct "Project Addendum" box detailing the overrides and updates the acceptance button to "Accept MSA & Addendum".
   - **Communication Bridge**: Updated Resend email payload to explicitly notify clients when a project-specific addendum is attached.
 
 ### Phase 12b — Omniscient Context Agent
@@ -676,7 +676,7 @@ tests/
 | Change template data pipeline | `lib/templates/template-data.ts`, `lib/templates/template-types.ts` |
 | Manage clients | `app/clients/page.tsx`, `lib/supabase/clients.ts` |
 | Share invoices | `components/invoice/ShareLinkModal.tsx`, `lib/supabase/invoices.ts` |
-| View shared invoices | `app/view/[token]/page.tsx` |
+| View shared invoices | `app/share/[token]/page.tsx` |
 | Check read receipts | `lib/supabase/invoices.ts` → `getReadReceipts()` |
 | Change default MSA template | `lib/default-msa.ts` |
 | Change MSA tooltip copy | `lib/default-msa.ts` → `MSA_TOOLTIP_CONTENT` |

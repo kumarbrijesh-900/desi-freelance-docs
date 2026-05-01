@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     const agencyName = profile?.agency_name || "Your Agency";
-    const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/view/${invoice.share_token}`;
+    const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/share/${invoice.share_token}`;
 
     // 3. Find milestone description
     const milestone = invoice.form_data.lineItems.find((li: any) => li.id === milestoneId);
