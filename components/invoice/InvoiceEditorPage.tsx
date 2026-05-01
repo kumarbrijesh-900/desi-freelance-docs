@@ -2140,13 +2140,15 @@ return (
           initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
           animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--bg-canvas)]/60"
+          className={cn(
+            "fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--bg-canvas)]/60",
+          )}
         >
           <div className="flex flex-col items-center gap-6">
             <div className="relative flex h-24 w-24 items-center justify-center">
-              <div className="absolute inset-0 animate-ping rounded-full bg-[color:var(--interactive-primary)] opacity-20 duration-1000"></div>
-              <div className="absolute inset-2 animate-pulse rounded-full bg-[color:var(--interactive-secondary)] opacity-40 duration-700"></div>
-              <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin"></div>
+              <div className="absolute inset-0 animate-ping rounded-full bg-[color:var(--interactive-primary)] opacity-20 duration-1000" />
+              <div className="absolute inset-2 animate-pulse rounded-full bg-[color:var(--interactive-secondary)] opacity-40 duration-700" />
+              <div className="relative h-12 w-12 rounded-full border-4 border-[color:var(--interactive-primary)] border-t-transparent animate-spin" />
             </div>
             <div className="flex flex-col items-center gap-2">
               <h2 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
