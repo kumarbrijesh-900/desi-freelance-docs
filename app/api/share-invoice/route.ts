@@ -99,19 +99,27 @@ export async function POST(req: NextRequest) {
     let token = invoice.share_token;
     if (!token) {
       token = generateShareToken();
-      await supabaseAdmin
+      const { error: updateError } = await supabaseAdmin
         .from("invoices")
         .update({
           share_token: token,
           shared_at: new Date().toISOString(),
           shared_to_email: clientEmail,
-          status: "SENT",
+          status: "finalized",
           ...(msaId ? { msa_id: msaId } : {}),
         })
         .eq("id", invoiceId);
+
+      if (updateError) {
+        console.error("SHARE_TOKEN_UPDATE_FAILED:", updateError);
+        return NextResponse.json(
+          { error: `Failed to save share token: ${updateError.message}` },
+          { status: 500 },
+        );
+      }
     } else {
       // Update email and MSA even if token already exists (resend scenario)
-      await supabaseAdmin
+      const { error: updateError } = await supabaseAdmin
         .from("invoices")
         .update({
           shared_to_email: clientEmail,
@@ -119,6 +127,14 @@ export async function POST(req: NextRequest) {
           ...(msaId !== undefined ? { msa_id: msaId } : {}),
         })
         .eq("id", invoiceId);
+
+      if (updateError) {
+        console.error("SHARE_RESEND_UPDATE_FAILED:", updateError);
+        return NextResponse.json(
+          { error: `Failed to update share details: ${updateError.message}` },
+          { status: 500 },
+        );
+      }
     }
 
     const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/share/${token}`;
