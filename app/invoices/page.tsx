@@ -742,6 +742,15 @@ export default function InvoiceHistoryPage() {
     
     const { error } = await markMilestoneSettled(invoiceId, milestoneId, tdsAmount);
     if (!error) {
+      // Also mark the parent invoice as settled (v1: single milestone = full invoice settlement)
+      await supabase
+        .from('invoices')
+        .update({
+          status: 'settled',
+          settled_at: new Date().toISOString(),
+        })
+        .eq('id', invoiceId);
+
       setInvoices((prev) =>
         prev.map((inv) => {
           if (inv.id !== invoiceId) return inv;
@@ -763,7 +772,8 @@ export default function InvoiceHistoryPage() {
 
           return {
             ...inv,
-            status: newStatus as any,
+            status: 'settled' as any,
+            settled_at: new Date().toISOString(),
             milestones: updatedRelMilestones,
             form_data: {
               ...inv.form_data,
