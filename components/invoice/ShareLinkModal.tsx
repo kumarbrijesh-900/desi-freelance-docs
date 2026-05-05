@@ -127,7 +127,7 @@ export default function ShareLinkModal({
   onShared,
 }: ShareLinkModalProps) {
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(!!existingToken);
+  const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // MSA state
@@ -185,7 +185,6 @@ export default function ShareLinkModal({
         body: JSON.stringify({
           invoiceId,
           clientEmail: clientEmail.trim(),
-          msaId: selectedMsaId,
         }),
       });
 
@@ -486,7 +485,7 @@ export default function ShareLinkModal({
                 >
                   <span className="inline-flex items-center gap-2">
                     <SendIcon className="h-4 w-4" />
-                    {sending ? "Sending…" : "Send Invoice to Client"}
+                    {sending ? "Sending…" : existingToken ? "Resend Invoice" : "Send Invoice to Client"}
                   </span>
                 </button>
               )}
