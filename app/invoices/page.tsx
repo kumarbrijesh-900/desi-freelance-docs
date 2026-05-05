@@ -22,6 +22,7 @@ import {
   type SavedInvoice,
   type MsaResponse,
 } from "@/lib/supabase/invoices";
+import { supabase } from "@/lib/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
 import SettlementModal from "@/components/invoice/SettlementModal";
@@ -62,43 +63,49 @@ function getWorkType(inv: SavedInvoice) {
 
 /* ─── Badge components ─────────────────────────── */
 
-function StatusBadge({ status }: { status: string }) {
-  const isDraft = status === "DRAFT";
-  const isSaved = status === "SAVED";
-  const isSent = status === "SENT";
-  const isPartial = status === "PARTIAL";
-  const isSettled = status === "SETTLED";
+function StatusBadge({ status, dueDate }: { status: string; dueDate?: string }) {
+  const normalized = status.toLowerCase();
+  const isDraft = normalized === "draft";
+  const isFinalized = normalized === "finalized";
+  const isSettled = normalized === "settled";
+
+  let isOverdue = false;
+  if (isFinalized && dueDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    if (due < today) {
+      isOverdue = true;
+    }
+  }
+
+  if (isOverdue)
+    return (
+      <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
+        Overdue
+      </span>
+    );
 
   if (isSettled)
     return (
       <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
-        Settled
+        Paid
       </span>
     );
 
-  if (isPartial)
+  if (isFinalized)
     return (
-      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-        Partial
-      </span>
-    );
-
-  if (isSent)
-    return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-700">
         Sent
       </span>
     );
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-        isSaved
-          ? "border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] text-[color:var(--state-info-text)]"
-          : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]"
-      }`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]`}
     >
-      {isSaved ? "Saved" : "Draft"}
+      Draft
     </span>
   );
 }
@@ -266,7 +273,7 @@ function InvoiceRow({
   const hasMilestones = hasRelationalMilestones || hasLegacyMilestones;
 
   const canSettle =
-    invoice.status === "SENT" || invoice.status === "PARTIAL" || invoice.status === "SAVED";
+    invoice.status.toLowerCase() === "finalized";
 
   return (
     <>
@@ -336,7 +343,7 @@ function InvoiceRow({
       {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
         <div className="flex items-center">
-          <StatusBadge status={invoice.status} />
+          <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
           <ViewsBadge count={viewCount} />
         </div>
       </td>
@@ -359,7 +366,7 @@ function InvoiceRow({
                 disabled={settlingId === invoice.id}
                 className={getAppButtonClass({ variant: "primary", size: "sm" })}
               >
-                {settlingId === invoice.id ? "…" : "Mark Settled"}
+                {settlingId === invoice.id ? "…" : "Mark as Settled"}
               </button>
             )}
 
@@ -530,6 +537,54 @@ function InvoiceRow({
 
 /* ─── Page ─────────────────────────────────────── */
 
+function InvoiceSettlementConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  isSubmitting,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  isSubmitting: boolean;
+}) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+      <MotionReveal preset="fade-up" className="w-full max-w-md">
+        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
+              Confirm Settlement
+            </h2>
+            <p className="mt-2 text-sm text-[color:var(--text-secondary)] leading-relaxed">
+              Mark this invoice as settled? This confirms you have received payment externally.
+            </p>
+          </div>
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className={`flex-1 ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={isSubmitting}
+              className={`flex-[2] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+            >
+              {isSubmitting ? "Updating…" : "Yes, Mark as Settled"}
+            </button>
+          </div>
+        </div>
+      </MotionReveal>
+    </div>
+  );
+}
+
 export default function InvoiceHistoryPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState<SavedInvoice[]>([]);
@@ -541,6 +596,7 @@ export default function InvoiceHistoryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [requestingId, setRequestingId] = useState<string | null>(null);
+  const [activeFullSettlementId, setActiveFullSettlementId] = useState<string | null>(null);
 
   // Settlement Modal State
   const [activeSettlement, setActiveSettlement] = useState<{
@@ -651,17 +707,31 @@ export default function InvoiceHistoryPage() {
       return;
     }
 
-    // One-time invoices settle instantly
-    setSettlingId(id);
-    const { error } = await markInvoiceSettled(id);
+    // Full invoice settlement opens confirmation modal
+    setActiveFullSettlementId(id);
+  };
+
+  const handleConfirmFullSettlement = async () => {
+    if (!activeFullSettlementId) return;
+    setSettlingId(activeFullSettlementId);
+    
+    const { error } = await supabase
+      .from('invoices')
+      .update({ 
+        status: 'settled', 
+        settled_at: new Date().toISOString() 
+      })
+      .eq('id', activeFullSettlementId);
+
     if (!error) {
       setInvoices((prev) =>
         prev.map((inv) =>
-          inv.id === id ? { ...inv, status: "SETTLED" as any } : inv,
+          inv.id === activeFullSettlementId ? { ...inv, status: "settled" as any } : inv,
         ),
       );
     }
     setSettlingId(null);
+    setActiveFullSettlementId(null);
   };
 
   const handleConfirmMilestoneSettlement = async (tdsAmount: number) => {
@@ -983,11 +1053,38 @@ export default function InvoiceHistoryPage() {
             </MotionReveal>
           )}
 
-          {/* Table */}
-          <MotionReveal preset="fade-up">
-            <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden">
-              {/* Filter bar */}
-              {invoices.length > 0 && (
+          {/* Main content */}
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <p className="text-sm text-[color:var(--text-secondary)]">Loading invoices…</p>
+            </div>
+          ) : invoices.length === 0 ? (
+            <MotionReveal preset="fade-up">
+              <div className="flex flex-col items-center gap-5 px-6 py-20 text-center rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm">
+                <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
+                  <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
+                </span>
+                <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
+                  No invoices yet
+                </h2>
+                <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
+                  Create your first invoice and send it to a client.
+                </p>
+                <Link
+                  href="/invoice/new"
+                  className={getAppButtonClass({
+                    variant: "primary",
+                    size: "md",
+                  })}
+                >
+                  Create Invoice
+                </Link>
+              </div>
+            </MotionReveal>
+          ) : (
+            <MotionReveal preset="fade-up">
+              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden">
+                {/* Filter bar */}
                 <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
                   <FilterBar
                     statusFilter={statusFilter}
@@ -1001,38 +1098,8 @@ export default function InvoiceHistoryPage() {
                     total={filtered.length}
                   />
                 </div>
-              )}
 
-              {loading ? (
-                <div className="flex items-center gap-3 px-6 py-10">
-                  <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-muted)]" />
-                  <p className="text-sm text-[color:var(--text-secondary)]">
-                    Loading invoices…
-                  </p>
-                </div>
-              ) : invoices.length === 0 ? (
-                <div className="flex flex-col items-center gap-5 px-6 py-16 text-center">
-                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
-                    <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
-                  </span>
-                  <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
-                    No invoices yet
-                  </h2>
-                  <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
-                    Create your first invoice using the smart brief extraction
-                    flow.
-                  </p>
-                  <Link
-                    href="/invoice/new?fresh=1"
-                    className={getAppButtonClass({
-                      variant: "primary",
-                      size: "md",
-                    })}
-                  >
-                    Create Invoice
-                  </Link>
-                </div>
-              ) : filtered.length === 0 ? (
+              {filtered.length === 0 ? (
                 <div className="px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
                   No invoices match your filters.{" "}
                   <button
@@ -1095,20 +1162,8 @@ export default function InvoiceHistoryPage() {
                 </div>
               )}
             </div>
-          </MotionReveal>
-
-          {/* Back */}
-          <div className="mt-6">
-            <Link
-              href="/"
-              className={getAppButtonClass({ variant: "ghost", size: "sm" })}
-            >
-              <span className="inline-flex items-center gap-2">
-                <ChevronLeftIcon className="h-4 w-4" />
-                Back to Home
-              </span>
-            </Link>
-          </div>
+            </MotionReveal>
+          )}
           {/* Settlement Modal */}
           <SettlementModal
             isOpen={!!activeSettlement}
@@ -1118,6 +1173,13 @@ export default function InvoiceHistoryPage() {
             subtotal={activeSettlement?.subtotal || 0}
             currencySymbol={activeSettlement?.symbol || "₹"}
             isSubmitting={!!settlingId}
+          />
+
+          <InvoiceSettlementConfirmModal
+            isOpen={!!activeFullSettlementId}
+            onClose={() => setActiveFullSettlementId(null)}
+            onConfirm={handleConfirmFullSettlement}
+            isSubmitting={!!settlingId && settlingId === activeFullSettlementId}
           />
         </div>
       </section>

@@ -147,10 +147,10 @@ export default function TermsPage() {
 
         <footer className="mt-16 border-t border-[color:var(--border-subtle)] pt-6">
           <Link
-            href="/"
+            href="/invoices"
             className="text-sm font-medium text-[color:var(--color-lime-700)] hover:text-[color:var(--text-primary)] transition-colors"
           >
-            ← Back to Home
+            ← Back to Invoices
           </Link>
         </footer>
       </article>

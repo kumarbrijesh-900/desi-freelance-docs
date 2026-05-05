@@ -628,13 +628,6 @@ export default function ProfilePage() {
             {/* Header */}
             <MotionReveal preset="fade-up">
               <div className="mb-6">
-                <Link
-                  href="/"
-                  className="mb-3 inline-flex items-center gap-1 text-[12px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
-                >
-                  <ChevronLeftIcon className="h-3.5 w-3.5" />
-                  Back to Home
-                </Link>
                 <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Your Profile
                 </h1>
@@ -644,6 +637,22 @@ export default function ProfilePage() {
                 </p>
               </div>
             </MotionReveal>
+
+            {(!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
+              <MotionReveal preset="fade-up" delay={5}>
+                <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                  <div className="flex gap-3">
+                    <span className="text-amber-600 text-lg">⚠️</span>
+                    <div>
+                      <h3 className="text-sm font-semibold text-amber-800">Complete your profile</h3>
+                      <p className="mt-1 text-sm text-amber-700">
+                        Please fill in your agency name, address, state, and account number to ensure your invoices are compliant and you can receive payments.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </MotionReveal>
+            )}
 
             {/* Agency Details */}
             <MotionReveal preset="fade-up" delay={10}>
