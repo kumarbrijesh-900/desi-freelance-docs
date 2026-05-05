@@ -49,6 +49,7 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/image-crop-utils";
+import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from '@/lib/default-msa';
 
 import SubmitFeedback from "@/components/feedback/SubmitFeedback";
 
@@ -137,6 +138,11 @@ export default function ProfilePage() {
   const [msaIpTriggerType, setMsaIpTriggerType] = useState("upon_full_payment");
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState("Bangalore");
 
+  const [globalMsaId, setGlobalMsaId] = useState<string | null>(null);
+  const [globalMsaTitle, setGlobalMsaTitle] = useState('');
+  const [globalMsaContent, setGlobalMsaContent] = useState('');
+  const [savingMsa, setSavingMsa] = useState(false);
+
   // Load auth + profile
   useEffect(() => {
     async function init() {
@@ -185,6 +191,24 @@ export default function ProfilePage() {
         setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_full_payment");
         setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bangalore");
       }
+
+      // Load global MSA
+      const { data: globalMsa } = await supabase
+        .from('client_msas')
+        .select('id, title, content')
+        .eq('user_id', user.id)
+        .is('client_id', null)
+        .maybeSingle();
+
+      if (globalMsa) {
+        setGlobalMsaId(globalMsa.id);
+        setGlobalMsaTitle(globalMsa.title);
+        setGlobalMsaContent(globalMsa.content);
+      } else {
+        setGlobalMsaTitle(DEFAULT_MSA_TITLE);
+        setGlobalMsaContent(DEFAULT_MSA_CONTENT);
+      }
+
       setIsLoading(false);
     }
     init();
@@ -450,6 +474,43 @@ export default function ProfilePage() {
       </div>
     );
   };
+
+  async function handleSaveGlobalMsa() {
+    if (!userId) return;
+    setSavingMsa(true);
+    try {
+      if (globalMsaId) {
+        const { error } = await supabase
+          .from('client_msas')
+          .update({
+            title: globalMsaTitle,
+            content: globalMsaContent,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', globalMsaId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from('client_msas')
+          .insert({
+            user_id: userId,
+            client_id: null,
+            title: globalMsaTitle,
+            content: globalMsaContent,
+            status: 'active',
+          })
+          .select('id')
+          .single();
+        if (error) throw error;
+        setGlobalMsaId(data.id);
+      }
+      playInteractionCue("saveSuccess");
+    } catch (err) {
+      console.error('Failed to save Global MSA:', err);
+    } finally {
+      setSavingMsa(false);
+    }
+  }
 
   const handleSave = async () => {
     setSaveState("saving");
@@ -949,6 +1010,49 @@ export default function ProfilePage() {
                     />
                   </FieldRow>
                 </div>
+              </div>
+            </MotionReveal>
+
+            {/* Global MSA */}
+            <MotionReveal preset="fade-up" delay={30}>
+              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span>📄</span>
+                  <h2 className="text-base font-semibold text-gray-900">Global MSA</h2>
+                </div>
+                <p className="text-sm text-gray-500 mb-5">
+                  Your default Master Services Agreement. Automatically attached to invoices when no client-specific MSA exists.
+                </p>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">MSA Title</label>
+                  <input
+                    type="text"
+                    value={globalMsaTitle}
+                    onChange={(e) => setGlobalMsaTitle(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="e.g. Standard Freelance Agreement"
+                  />
+                </div>
+
+                <div className="mb-5">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">MSA Content</label>
+                  <textarea
+                    value={globalMsaContent}
+                    onChange={(e) => setGlobalMsaContent(e.target.value)}
+                    rows={12}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-y font-mono"
+                    placeholder="Paste or type your MSA terms here..."
+                  />
+                </div>
+
+                <button
+                  onClick={handleSaveGlobalMsa}
+                  disabled={savingMsa || !globalMsaTitle.trim() || !globalMsaContent.trim()}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {savingMsa ? 'Saving...' : 'Save Global MSA'}
+                </button>
               </div>
             </MotionReveal>
 
