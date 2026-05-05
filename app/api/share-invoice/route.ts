@@ -33,7 +33,6 @@ function getClientIp(request: Request): string {
 const ShareInvoiceSchema = z.object({
   invoiceId: z.string().uuid(),
   clientEmail: z.string().email(),
-  msaId: z.string().uuid().optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -70,7 +69,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { invoiceId, clientEmail, msaId } = result.data;
+    const { invoiceId, clientEmail } = result.data;
 
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
@@ -83,6 +82,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Invoice not found." },
         { status: 404 },
+      );
+    }
+
+    /* ── 1.5. Resolve MSA via 3-tier lookup ── */
+    let resolvedMsaId: string | null = null;
+
+    // Tier 1: client-specific MSA
+    // Find the client record matching this email + invoice owner
+    const { data: matchedClient } = await supabaseAdmin
+      .from('clients')
+      .select('id')
+      .eq('client_email', clientEmail)
+      .eq('user_id', invoice.user_id)
+      .maybeSingle();
+
+    if (matchedClient) {
+      const { data: clientMsa } = await supabaseAdmin
+        .from('client_msas')
+        .select('id')
+        .eq('client_id', matchedClient.id)
+        .eq('user_id', invoice.user_id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (clientMsa) resolvedMsaId = clientMsa.id;
+    }
+
+    // Tier 2: global MSA (client_id IS NULL)
+    if (!resolvedMsaId) {
+      const { data: globalMsa } = await supabaseAdmin
+        .from('client_msas')
+        .select('id')
+        .is('client_id', null)
+        .eq('user_id', invoice.user_id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (globalMsa) resolvedMsaId = globalMsa.id;
+    }
+
+    // Tier 3: no MSA found — block send
+    if (!resolvedMsaId) {
+      return NextResponse.json(
+        { error: 'NO_MSA_FOUND', message: 'No MSA exists for this client. Please set up a Global MSA in your Profile before sharing.' },
+        { status: 422 }
       );
     }
 
@@ -106,7 +150,8 @@ export async function POST(req: NextRequest) {
           shared_at: new Date().toISOString(),
           shared_to_email: clientEmail,
           status: "finalized",
-          ...(msaId ? { msa_id: msaId } : {}),
+          msa_id: resolvedMsaId,
+          msa_response: 'PENDING',
         })
         .eq("id", invoiceId);
 
@@ -124,7 +169,8 @@ export async function POST(req: NextRequest) {
         .update({
           shared_to_email: clientEmail,
           shared_at: new Date().toISOString(),
-          ...(msaId !== undefined ? { msa_id: msaId } : {}),
+          msa_id: resolvedMsaId,
+          msa_response: 'PENDING',
         })
         .eq("id", invoiceId);
 
@@ -140,7 +186,7 @@ export async function POST(req: NextRequest) {
     const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/share/${token}`;
 
     /* ── 4. Send email to client (link only goes to inbox) ── */
-    const hasMsa = !!msaId;
+    const hasMsa = !!resolvedMsaId;
     const hasAddendum = false;
 
     const { error: emailError } = await resend.emails.send({
