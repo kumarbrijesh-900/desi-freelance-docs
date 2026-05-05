@@ -741,13 +741,7 @@ export default function InvoiceHistoryPage() {
     setSettlingId(milestoneId);
 
     // Step 1: Always settle the parent invoice first (v1: milestone = full invoice)
-    const { error: invoiceError } = await supabase
-      .from('invoices')
-      .update({
-        status: 'settled',
-        settled_at: new Date().toISOString(),
-      })
-      .eq('id', invoiceId);
+    const { error: invoiceError } = await markInvoiceSettled(invoiceId);
 
     if (invoiceError) {
       console.error('Failed to settle invoice:', invoiceError);
