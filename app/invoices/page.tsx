@@ -736,54 +736,61 @@ export default function InvoiceHistoryPage() {
 
   const handleConfirmMilestoneSettlement = async (tdsAmount: number) => {
     if (!activeSettlement) return;
-    
+
     const { invoiceId, milestoneId } = activeSettlement;
     setSettlingId(milestoneId);
-    
-    const { error } = await markMilestoneSettled(invoiceId, milestoneId, tdsAmount);
-    if (!error) {
-      // Also mark the parent invoice as settled (v1: single milestone = full invoice settlement)
-      await supabase
-        .from('invoices')
-        .update({
-          status: 'settled',
-          settled_at: new Date().toISOString(),
-        })
-        .eq('id', invoiceId);
 
-      setInvoices((prev) =>
-        prev.map((inv) => {
-          if (inv.id !== invoiceId) return inv;
-          
-          // Update relational milestones if present
-          const updatedRelMilestones = (inv.milestones || []).map(m => 
-            m.id === milestoneId ? { ...m, status: "SETTLED" as const, tds_amount: tdsAmount } : m
-          );
+    // Step 1: Always settle the parent invoice first (v1: milestone = full invoice)
+    const { error: invoiceError } = await supabase
+      .from('invoices')
+      .update({
+        status: 'settled',
+        settled_at: new Date().toISOString(),
+      })
+      .eq('id', invoiceId);
 
-          // Update form_data line items for backward compatibility
-          const updatedItems = (inv.form_data?.lineItems || []).map(item => 
-            item.id === milestoneId ? { ...item, milestone_status: "SETTLED" as const, tds_amount: tdsAmount } : item
-          );
-          
-          // Determine overall status
-          const allM = updatedItems.filter(i => i.is_milestone_header);
-          const settledM = allM.filter(i => i.milestone_status === "SETTLED");
-          const newStatus = settledM.length === allM.length ? "SETTLED" : "PARTIAL";
-
-          return {
-            ...inv,
-            status: 'settled' as any,
-            settled_at: new Date().toISOString(),
-            milestones: updatedRelMilestones,
-            form_data: {
-              ...inv.form_data,
-              lineItems: updatedItems
-            }
-          };
-        })
-      );
-      setActiveSettlement(null);
+    if (invoiceError) {
+      console.error('Failed to settle invoice:', invoiceError);
+      setSettlingId(null);
+      return;
     }
+
+    // Step 2: Try to settle the milestone row (best-effort, don't block on failure)
+    await markMilestoneSettled(invoiceId, milestoneId, tdsAmount).catch((e) =>
+      console.warn('markMilestoneSettled skipped:', e)
+    );
+
+    // Step 3: Update local UI state
+    setInvoices((prev) =>
+      prev.map((inv) => {
+        if (inv.id !== invoiceId) return inv;
+
+        const updatedRelMilestones = (inv.milestones || []).map((m) =>
+          m.id === milestoneId
+            ? { ...m, status: 'SETTLED' as const, tds_amount: tdsAmount }
+            : m
+        );
+
+        const updatedItems = (inv.form_data?.lineItems || []).map((item) =>
+          item.id === milestoneId
+            ? { ...item, milestone_status: 'SETTLED' as const, tds_amount: tdsAmount }
+            : item
+        );
+
+        return {
+          ...inv,
+          status: 'settled' as any,
+          settled_at: new Date().toISOString(),
+          milestones: updatedRelMilestones,
+          form_data: {
+            ...inv.form_data,
+            lineItems: updatedItems,
+          },
+        };
+      })
+    );
+
+    setActiveSettlement(null);
     setSettlingId(null);
   };
 
