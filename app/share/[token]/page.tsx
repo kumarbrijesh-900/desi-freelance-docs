@@ -51,7 +51,7 @@ export default function PublicInvoiceSharePage({
         // Read canonical msa_status field. Default to 'accepted' so invoices without
         // MSA gating render normally. Note: msa_response now holds proposal text only,
         // not status — do not use it as a status fallback.
-        const currentMsaStatus = data.msa_status || "accepted";
+        const currentMsaStatus = data.msa_response || "accepted";
         setMsaStatus(currentMsaStatus);
 
         // Load MSA content if pending (so the gate modal can show the agreement)
@@ -76,8 +76,8 @@ export default function PublicInvoiceSharePage({
       const { error } = await supabase
         .from("invoices")
         .update({ 
-          msa_status: 'accepted', 
-          msa_accepted_at: new Date().toISOString() 
+          msa_response: 'accepted',
+          msa_responded_at: new Date().toISOString(),
         })
         .eq("share_token", token);
 
