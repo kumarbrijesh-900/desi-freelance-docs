@@ -555,10 +555,10 @@ function InvoiceSettlementConfirmModal({
         <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
-              Confirm Settlement
+              Mark as Settled?
             </h2>
             <p className="mt-2 text-sm text-[color:var(--text-secondary)] leading-relaxed">
-              Mark this invoice as settled? This confirms you have received payment externally.
+              This confirms you've received payment externally. This action cannot be undone.
             </p>
           </div>
           <div className="mt-8 flex gap-3">
