@@ -62,6 +62,7 @@ export interface SavedInvoice {
       amount: number;
     }[];
   }[];
+  parent_invoice_id?: string | null;
 }
 
 export interface SaveInvoiceInput {

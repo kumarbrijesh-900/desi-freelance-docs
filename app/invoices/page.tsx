@@ -282,7 +282,7 @@ function InvoiceRow({
           "border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group cursor-pointer",
           isExpanded && "bg-[color:var(--bg-surface-soft)]/50"
         )}
-        onClick={() => onEdit(invoice)}
+        onClick={() => invoice.parent_invoice_id ? onView(invoice) : onEdit(invoice)}
       >
         {/* Invoice # */}
         <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
