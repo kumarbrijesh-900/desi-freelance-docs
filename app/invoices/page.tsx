@@ -597,6 +597,13 @@ export default function InvoiceHistoryPage() {
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [requestingId, setRequestingId] = useState<string | null>(null);
   const [activeFullSettlementId, setActiveFullSettlementId] = useState<string | null>(null);
+  const [activeNextMilestone, setActiveNextMilestone] = useState<{
+    parentInvoiceId: string;
+    nextMilestoneIndex: number;
+    nextMilestoneName: string;
+    totalMilestones: number;
+    sendingNext: boolean;
+  } | null>(null);
 
   // Settlement Modal State
   const [activeSettlement, setActiveSettlement] = useState<{
@@ -736,56 +743,112 @@ export default function InvoiceHistoryPage() {
 
   const handleConfirmMilestoneSettlement = async (tdsAmount: number) => {
     if (!activeSettlement) return;
-
     const { invoiceId, milestoneId } = activeSettlement;
     setSettlingId(milestoneId);
 
-    // Step 1: Always settle the parent invoice first (v1: milestone = full invoice)
-    const { error: invoiceError } = await markInvoiceSettled(invoiceId);
+    // Step 1: Settle the milestone row
+    await markMilestoneSettled(invoiceId, milestoneId, tdsAmount).catch((e) =>
+      console.warn('markMilestoneSettled skipped:', e)
+    );
 
+    // Step 2: Check if there are more milestones
+    const inv = invoices.find((i) => i.id === invoiceId);
+    const milestones = inv?.form_data?.milestones ?? [];
+    const currentMilestoneIndex = milestones.findIndex(
+      (m: any) => m.id === milestoneId
+    );
+    const nextMilestoneIndex = currentMilestoneIndex + 1;
+    const hasMoreMilestones = nextMilestoneIndex < milestones.length;
+
+    if (hasMoreMilestones) {
+      // Show next milestone modal instead of fully settling
+      const nextMilestone = milestones[nextMilestoneIndex];
+      setActiveSettlement(null);
+      setSettlingId(null);
+      setActiveNextMilestone({
+        parentInvoiceId: invoiceId,
+        nextMilestoneIndex,
+        nextMilestoneName: nextMilestone?.title || `Milestone ${nextMilestoneIndex + 1}`,
+        totalMilestones: milestones.length,
+        sendingNext: false,
+      });
+      return;
+    }
+
+    // No more milestones — settle the full invoice
+    const { error: invoiceError } = await markInvoiceSettled(invoiceId);
     if (invoiceError) {
       console.error('Failed to settle invoice:', invoiceError);
       setSettlingId(null);
       return;
     }
 
-    // Step 2: Try to settle the milestone row (best-effort, don't block on failure)
-    await markMilestoneSettled(invoiceId, milestoneId, tdsAmount).catch((e) =>
-      console.warn('markMilestoneSettled skipped:', e)
-    );
-
-    // Step 3: Update local UI state
+    // Update local UI state
     setInvoices((prev) =>
-      prev.map((inv) => {
-        if (inv.id !== invoiceId) return inv;
-
-        const updatedRelMilestones = (inv.milestones || []).map((m) =>
+      prev.map((i) => {
+        if (i.id !== invoiceId) return i;
+        const updatedRelMilestones = (i.milestones || []).map((m) =>
           m.id === milestoneId
             ? { ...m, status: 'SETTLED' as const, tds_amount: tdsAmount }
             : m
         );
-
-        const updatedItems = (inv.form_data?.lineItems || []).map((item) =>
-          item.id === milestoneId
-            ? { ...item, milestone_status: 'SETTLED' as const, tds_amount: tdsAmount }
-            : item
-        );
-
         return {
-          ...inv,
+          ...i,
           status: 'settled' as any,
           settled_at: new Date().toISOString(),
           milestones: updatedRelMilestones,
-          form_data: {
-            ...inv.form_data,
-            lineItems: updatedItems,
-          },
         };
       })
     );
 
     setActiveSettlement(null);
     setSettlingId(null);
+  };
+
+  const handleTriggerNextMilestone = async () => {
+    if (!activeNextMilestone) return;
+    setActiveNextMilestone((prev) => prev ? { ...prev, sendingNext: true } : null);
+
+    try {
+      const res = await fetch("/api/invoice/trigger-next-milestone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          parentInvoiceId: activeNextMilestone.parentInvoiceId,
+          nextMilestoneIndex: activeNextMilestone.nextMilestoneIndex,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        alert(`Failed to send next milestone: ${json.error}`);
+        return;
+      }
+
+      // Refresh invoice list to show new child invoice
+      const { data: refreshed } = await listInvoices();
+      setInvoices(refreshed);
+      setActiveNextMilestone(null);
+    } catch (err) {
+      alert("Network error. Please try again.");
+    } finally {
+      setActiveNextMilestone((prev) => prev ? { ...prev, sendingNext: false } : null);
+    }
+  };
+
+  const handleCloseProject = async () => {
+    if (!activeNextMilestone) return;
+    const { error } = await markInvoiceSettled(activeNextMilestone.parentInvoiceId);
+    if (!error) {
+      setInvoices((prev) =>
+        prev.map((i) =>
+          i.id === activeNextMilestone.parentInvoiceId
+            ? { ...i, status: 'settled' as any, settled_at: new Date().toISOString() }
+            : i
+        )
+      );
+    }
+    setActiveNextMilestone(null);
   };
 
   const handleRequestNext = async (id: string, milestoneId: string) => {
@@ -1192,6 +1255,43 @@ export default function InvoiceHistoryPage() {
             onConfirm={handleConfirmFullSettlement}
             isSubmitting={!!settlingId && settlingId === activeFullSettlementId}
           />
+
+          {activeNextMilestone && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+              <MotionReveal preset="fade-up" className="w-full max-w-md">
+                <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-2xl">🎉</span>
+                    <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
+                      Milestone settled!
+                    </h2>
+                  </div>
+                  <p className="mt-2 text-sm text-[color:var(--text-secondary)] leading-relaxed mb-6">
+                    Your project has {activeNextMilestone.totalMilestones} milestones. Based on your invoice, Lance noticed you have {activeNextMilestone.totalMilestones - activeNextMilestone.nextMilestoneIndex} more milestone{activeNextMilestone.totalMilestones - activeNextMilestone.nextMilestoneIndex > 1 ? 's' : ''} remaining. Would you like to send <strong>{activeNextMilestone.nextMilestoneName}</strong> to the client now?
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={handleCloseProject}
+                      className={`flex-1 ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+                    >
+                      Close Project
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleTriggerNextMilestone}
+                      disabled={activeNextMilestone.sendingNext}
+                      className={`flex-[2] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+                    >
+                      {activeNextMilestone.sendingNext
+                        ? "Sending…"
+                        : `Send ${activeNextMilestone.nextMilestoneName} Invoice`}
+                    </button>
+                  </div>
+                </div>
+              </MotionReveal>
+            </div>
+          )}
         </div>
       </section>
     </main>
