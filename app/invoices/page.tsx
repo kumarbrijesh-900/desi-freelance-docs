@@ -749,18 +749,16 @@ export default function InvoiceHistoryPage() {
 
   const handleConfirmMilestoneSettlement = async (tdsAmount: number) => {
     if (!activeSettlement) return;
-    const { invoiceId, milestoneId } = activeSettlement;
+    const { invoiceId, milestoneId, milestoneIndex: currentMilestoneIndex } = activeSettlement;
     setSettlingId(milestoneId);
 
     // Step 1: Settle the milestone row
-    await markMilestoneSettled(invoiceId, milestoneId, tdsAmount).catch((e) =>
-      console.warn('markMilestoneSettled skipped:', e)
-    );
+    const { error: msError } = await markMilestoneSettled(invoiceId, currentMilestoneIndex, tdsAmount);
+    if (msError) console.error("markMilestoneSettled failed:", msError);
 
     // Step 2: Check if there are more milestones
     const inv = invoices.find((i) => i.id === invoiceId);
     const milestones = inv?.form_data?.milestones ?? [];
-    const currentMilestoneIndex = activeSettlement.milestoneIndex;
     const nextMilestoneIndex = currentMilestoneIndex + 1;
     const hasMoreMilestones = nextMilestoneIndex < milestones.length;
 

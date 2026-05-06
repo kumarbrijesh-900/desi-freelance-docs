@@ -690,69 +690,79 @@ export async function proposeMsaChanges(
 
 export async function markMilestoneSettled(
   invoiceId: string,
-  milestoneId: string,
+  milestoneIndex: number,
   tdsAmount: number = 0,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
-  // 1. Fetch current invoice data
+  // 1. Find the current milestone by order_index (stable across saves)
+  const { data: milestone, error: findErr } = await supabase
+    .from("invoice_milestones")
+    .select("id")
+    .eq("invoice_id", invoiceId)
+    .eq("order_index", milestoneIndex)
+    .single();
+
+  if (findErr || !milestone) {
+    console.warn("Could not find milestone at index", milestoneIndex, findErr?.message);
+    return { error: findErr?.message ?? "Milestone not found" };
+  }
+
+  // 2. Update by the current UUID
+  const { error: milestoneUpdateErr } = await supabase
+    .from("invoice_milestones")
+    .update({
+      status: "SETTLED",
+      tds_amount: tdsAmount,
+    })
+    .eq("id", milestone.id);
+
+  if (milestoneUpdateErr) {
+    console.error("invoice_milestones update failed:", milestoneUpdateErr.message);
+    return { error: milestoneUpdateErr.message };
+  }
+
+  // 3. Fetch invoice for status update
   const { data: inv, error: fetchErr } = await supabase
     .from("invoices")
-    .select("form_data, status, invoice_number")
+    .select("invoice_number")
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .single();
 
   if (fetchErr || !inv) return { error: fetchErr?.message || "Invoice not found" };
 
-  const formData = mergeInvoiceFormData(inv.form_data);
-  const lineItems = formData.lineItems || [];
+  // 4. Check if all milestones are now settled
+  const { data: allMilestones } = await supabase
+    .from("invoice_milestones")
+    .select("id, status")
+    .eq("invoice_id", invoiceId);
 
-  // 2. Update the milestone status
-  let updated = false;
-  lineItems.forEach((item) => {
-    if (item.id === milestoneId) {
-      item.milestone_status = "SETTLED";
-      item.tds_amount = tdsAmount;
-      updated = true;
-    }
-  });
+  const allSettled = allMilestones?.length
+    ? allMilestones.every((m) => m.status === "SETTLED")
+    : false;
 
-  if (!updated) return { error: "Milestone not found" };
+  const newStatus = allSettled ? "SETTLED" : "PARTIAL";
 
-  // 3. Determine new parent status
-  const allMilestones = lineItems.filter((i) => i.is_milestone_header);
-  const settledMilestones = allMilestones.filter((i) => i.milestone_status === "SETTLED");
-  
-  let newStatus = "PARTIAL";
-  if (settledMilestones.length === allMilestones.length) {
-    newStatus = "SETTLED";
-  }
-
-  // 4. Update Supabase
-  const { error: updateErr } = await supabase
+  // 5. Update invoice status
+  await supabase
     .from("invoices")
-    .update({
-      form_data: formData as unknown as Record<string, unknown>,
-      status: newStatus as InvoiceStatus,
-    })
+    .update({ status: newStatus as InvoiceStatus })
     .eq("id", invoiceId)
     .eq("user_id", userId);
 
-  if (!updateErr) {
-    const milestone = allMilestones.find(m => m.id === milestoneId);
-    await supabase.from("notifications").insert({
-      user_id: userId,
-      invoice_id: invoiceId,
-      type: "milestone_settled",
-      title: "Milestone Paid",
-      message: `Milestone "${milestone?.description}" for Invoice ${inv.invoice_number} has been marked as SETTLED.`,
-      is_read: false,
-    });
-  }
+  // 6. Notification
+  await supabase.from("notifications").insert({
+    user_id: userId,
+    invoice_id: invoiceId,
+    type: "milestone_settled",
+    title: "Milestone Paid",
+    message: `Milestone ${milestoneIndex + 1} for Invoice ${inv.invoice_number} settled. TDS deducted: ₹${tdsAmount.toLocaleString("en-IN")}.`,
+    is_read: false,
+  });
 
-  return { error: updateErr?.message ?? null };
+  return { error: null };
 }
 
 /** Trigger a "Request Next Milestone" notification for the client */
