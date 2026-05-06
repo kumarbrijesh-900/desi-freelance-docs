@@ -27,6 +27,8 @@ export default function PublicInvoiceSharePage({
   const [msaStatus, setMsaStatus] = useState<string>("ACCEPTED");
   const [msaData, setMsaData] = useState<{ title: string; content: string } | null>(null);
   const [isSubmittingMsa, setIsSubmittingMsa] = useState(false);
+  const [isChildInvoice, setIsChildInvoice] = useState(false);
+  const [parentMsaAcceptedOn, setParentMsaAcceptedOn] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadInvoice() {
@@ -48,16 +50,37 @@ export default function PublicInvoiceSharePage({
         setTemplateId(data.template_id || "classic");
         setInvoiceNumber(data.invoice_number || "");
         
-        // Read canonical msa_status field. Default to 'accepted' so invoices without
-        // MSA gating render normally. Note: msa_response now holds proposal text only,
-        // not status — do not use it as a status fallback.
-        const currentMsaStatus = data.msa_response || "accepted";
-        setMsaStatus(currentMsaStatus);
+        // Check if this is a child milestone invoice
+        if (data.parent_invoice_id) {
+          // Child invoice: skip MSA gate, look up when parent MSA was accepted
+          setIsChildInvoice(true);
+          setMsaStatus("accepted");
 
-        // Load MSA content if pending (so the gate modal can show the agreement)
-        if (currentMsaStatus === "pending" && data.msa_id) {
-          const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
-          if (msa) setMsaData(msa);
+          // Fetch parent invoice's msa_responded_at for the banner
+          const { data: parentInvoice } = await supabase
+            .from("invoices")
+            .select("msa_responded_at, milestone_index")
+            .eq("id", data.parent_invoice_id)
+            .single();
+
+          if (parentInvoice?.msa_responded_at) {
+            const acceptedDate = new Date(parentInvoice.msa_responded_at).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+            setParentMsaAcceptedOn(acceptedDate);
+          }
+        } else {
+          // Standard invoice: normal MSA gate flow
+          const currentMsaStatus = data.msa_response || "accepted";
+          setMsaStatus(currentMsaStatus);
+
+          // Load MSA content if pending
+          if (currentMsaStatus === "pending" && data.msa_id) {
+            const msa = await loadMsaForSharedInvoice(data.id, data.msa_id);
+            if (msa) setMsaData(msa);
+          }
         }
       } catch (err) {
         console.error("LOAD_ERROR:", err);
@@ -170,6 +193,22 @@ export default function PublicInvoiceSharePage({
             Print / Save PDF
           </button>
         </div>
+
+        {/* ── MSA Previously Accepted Banner (child invoices) ── */}
+        {isChildInvoice && (
+          <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
+            <div className="flex items-center gap-2.5 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5">
+              <span className="text-green-600 text-sm">✓</span>
+              <p className="text-sm text-green-800">
+                <span className="font-semibold">MSA previously accepted</span>
+                {parentMsaAcceptedOn && (
+                  <span className="text-green-700 font-normal"> — signed on {parentMsaAcceptedOn}</span>
+                )}
+                . This invoice is covered under the same agreement.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Read-only Invoice Sheet */}
         <div className={cn(
