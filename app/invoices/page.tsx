@@ -156,6 +156,18 @@ function ViewsBadge({
   );
 }
 
+function MilestoneProgressBadge({ milestones }: { milestones: any[] }) {
+  if (!milestones || milestones.length <= 1) return null;
+  const settled = milestones.filter((m) => m.status === "SETTLED").length;
+  const total = milestones.length;
+  if (settled === 0) return null;
+  return (
+    <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--text-muted)]">
+      M{settled} of {total} settled
+    </span>
+  );
+}
+
 /* ─── Filter/Sort bar ──────────────────────────── */
 
 type SortKey = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
@@ -342,9 +354,12 @@ function InvoiceRow({
 
       {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <div className="flex items-center">
-          <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
-          <ViewsBadge count={viewCount} />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center">
+            <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
+            <ViewsBadge count={viewCount} />
+          </div>
+          <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
         </div>
       </td>
 
