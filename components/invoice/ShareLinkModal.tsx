@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { CheckCircleIcon, DocumentSparkIcon, SparklesIcon } from "@/components/ui/app-icons";
 import { getAppButtonClass } from "@/lib/ui-foundation";
-import {
-  attachMsaToInvoice,
-  detachMsaFromInvoice,
-} from "@/lib/supabase/invoices";
 import type { MsaResponse } from "@/lib/supabase/invoices";
-import { listAllUserMsas, type ClientMsa } from "@/lib/supabase/msas";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from "@/lib/default-msa";
 
@@ -45,23 +40,6 @@ function SendIcon({ className }: { className?: string }) {
     >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  );
-}
-
-function EyeIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
@@ -155,44 +133,7 @@ export default function ShareLinkModal({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // MSA state
-  const [availableMsas, setAvailableMsas] = useState<ClientMsa[]>([]);
-  const [selectedMsaId, setSelectedMsaId] = useState<string | null>(
-    currentMsaId,
-  );
-  const [previewMsa, setPreviewMsa] = useState<ClientMsa | null>(null);
-  const [msaAttaching, setMsaAttaching] = useState(false);
-  const [loadingMsas, setLoadingMsas] = useState(false);
 
-  // Load available MSAs on mount
-  useEffect(() => {
-    async function loadMsas() {
-      setLoadingMsas(true);
-      const { data } = await listAllUserMsas();
-      setAvailableMsas(data);
-      
-      if (currentMsaId) {
-        // 1. Prioritize MSA already linked to this invoice
-        const match = data.find((m) => m.id === currentMsaId);
-        if (match) {
-          setSelectedMsaId(currentMsaId);
-          setPreviewMsa(match);
-        }
-      } else if (!selectedMsaId && data.length > 0) {
-        // 2. Fallback: Auto-select the first 'active' MSA found in user's library
-        const defaultActive = data.find(m => m.status === 'active');
-        if (defaultActive) {
-          console.log("Auto-selecting default active MSA:", defaultActive.title);
-          // We don't call handleMsaToggle here to avoid side effects on mount, 
-          // but we set the local state so it's pre-selected in the UI.
-          setSelectedMsaId(defaultActive.id);
-          setPreviewMsa(defaultActive);
-        }
-      }
-      setLoadingMsas(false);
-    }
-    loadMsas();
-  }, [currentMsaId]);
 
   /* ── Send invoice email via secure API route ── */
   const handleSend = async () => {
@@ -228,33 +169,6 @@ export default function ShareLinkModal({
     } finally {
       setSending(false);
     }
-  };
-
-  /* ── MSA attachment ── */
-  const handleMsaToggle = async (msaId: string | null) => {
-    setMsaAttaching(true);
-    setError(null);
-    if (msaId) {
-      const { error } = await attachMsaToInvoice(invoiceId, msaId);
-      if (error) {
-        setError(error);
-      } else {
-        setSelectedMsaId(msaId);
-        const match = availableMsas.find((m) => m.id === msaId);
-        setPreviewMsa(match ?? null);
-        playInteractionCue("saveSuccess");
-      }
-    } else {
-      const { error } = await detachMsaFromInvoice(invoiceId);
-      if (error) {
-        setError(error);
-      } else {
-        setSelectedMsaId(null);
-        setPreviewMsa(null);
-        playInteractionCue("saveSuccess");
-      }
-    }
-    setMsaAttaching(false);
   };
 
 
@@ -357,7 +271,7 @@ export default function ShareLinkModal({
                   <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                     MSA Gating
                   </span>
-                  {selectedMsaId && <MsaStatusBadge response={msaResponse} />}
+                  {currentMsaId && <MsaStatusBadge response={msaResponse} />}
                 </div>
               </div>
 
@@ -407,104 +321,7 @@ export default function ShareLinkModal({
                 </p>
               </div>
 
-              {loadingMsas ? (
-                <p className="text-xs text-[color:var(--text-muted)]">
-                  Loading MSAs…
-                </p>
-              ) : availableMsas.length > 0 ? (
-                <div className="space-y-3 pt-3 border-t border-[color:var(--border-subtle)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                    Override with Custom MSA
-                  </p>
-                  <div className="space-y-2">
-                    {/* No MSA radio */}
-                    <label
-                      className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                        !selectedMsaId
-                          ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
-                          : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="msa-select"
-                        checked={!selectedMsaId}
-                        onChange={() => handleMsaToggle(null)}
-                        disabled={msaAttaching}
-                        className="accent-[color:var(--color-lime-700)]"
-                      />
-                      <span className="text-sm text-[color:var(--text-primary)]">
-                        No MSA — send invoice directly
-                      </span>
-                    </label>
 
-                    {/* MSA options */}
-                    {availableMsas.map((msa) => (
-                      <label
-                        key={msa.id}
-                        className={`flex items-center gap-2.5 rounded-md border p-2.5 cursor-pointer transition-colors ${
-                          selectedMsaId === msa.id
-                            ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-50)]"
-                            : "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)]"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="msa-select"
-                          checked={selectedMsaId === msa.id}
-                          onChange={() => handleMsaToggle(msa.id)}
-                          disabled={msaAttaching}
-                          className="accent-[color:var(--color-lime-700)]"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-sm font-medium text-[color:var(--text-primary)]">
-                            {msa.title}
-                          </span>
-                          <span
-                            className={`ml-2 inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase ${
-                              msa.status === "active"
-                                ? "bg-green-50 text-green-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {msa.status}
-                          </span>
-                        </div>
-                        {/* Preview button — shows MSA text inline */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPreviewMsa(
-                              previewMsa?.id === msa.id ? null : msa,
-                            );
-                          }}
-                          className="shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
-                        >
-                          <EyeIcon className="h-3.5 w-3.5" />
-                          {previewMsa?.id === msa.id ? "Hide" : "Preview"}
-                        </button>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* ── Inline MSA Preview ── */}
-              {previewMsa && (
-                <div className="rounded-md border border-[color:var(--border-default)] bg-white overflow-hidden">
-                  <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-                      MSA Preview — {previewMsa.title}
-                    </p>
-                  </div>
-                  <div className="max-h-48 overflow-y-auto px-4 py-3">
-                    <p className="whitespace-pre-wrap text-[12px] leading-relaxed text-[color:var(--text-secondary)]">
-                      {previewMsa.content}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* ── Sent Success State ── */}
@@ -516,7 +333,7 @@ export default function ShareLinkModal({
                     Invoice sent to {clientEmail}
                   </p>
                   <p className="mt-0.5 text-xs text-green-700">
-                    {selectedMsaId
+                    {currentMsaId
                       ? "The client will need to accept your MSA before viewing the invoice."
                       : "The client can view the invoice directly via the secure link in their email."}
                   </p>
@@ -543,7 +360,7 @@ export default function ShareLinkModal({
                 <button
                   type="button"
                   onClick={handleSend}
-                  disabled={sending || !clientEmail?.trim() || msaAttaching}
+                  disabled={sending || !clientEmail?.trim()}
                   className={getAppButtonClass({
                     variant: "primary",
                     size: "md",
