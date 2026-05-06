@@ -609,6 +609,7 @@ export default function InvoiceHistoryPage() {
   const [activeSettlement, setActiveSettlement] = useState<{
     invoiceId: string;
     milestoneId: string;
+    milestoneIndex: number;
     name: string;
     subtotal: number;
     symbol: string;
@@ -704,10 +705,15 @@ export default function InvoiceHistoryPage() {
       const currency = inv.form_data.client?.clientCurrency || "INR";
       const symbol = currency === "USD" ? "$" : "₹";
 
+      // Find the index of this milestone
+      const relMilestoneIndex = inv.milestones?.findIndex((m: any) => m.id === milestoneId) ?? 0;
+      const formMilestoneIndex = relMilestoneIndex >= 0 ? relMilestoneIndex : 0;
+
       setActiveSettlement({
         invoiceId: id,
         milestoneId,
-        name: (item as any).description,
+        milestoneIndex: formMilestoneIndex,
+        name: (item as any).description || (item as any).title || `Milestone ${formMilestoneIndex + 1}`,
         subtotal,
         symbol
       });
@@ -754,9 +760,7 @@ export default function InvoiceHistoryPage() {
     // Step 2: Check if there are more milestones
     const inv = invoices.find((i) => i.id === invoiceId);
     const milestones = inv?.form_data?.milestones ?? [];
-    const currentMilestoneIndex = milestones.findIndex(
-      (m: any) => m.id === milestoneId
-    );
+    const currentMilestoneIndex = activeSettlement.milestoneIndex;
     const nextMilestoneIndex = currentMilestoneIndex + 1;
     const hasMoreMilestones = nextMilestoneIndex < milestones.length;
 
