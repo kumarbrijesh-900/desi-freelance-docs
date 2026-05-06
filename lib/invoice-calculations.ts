@@ -1,9 +1,14 @@
 import { calculateTax } from "@/lib/invoice-tax";
 import type { IndiaStateOption } from "@/lib/india-state-options";
-import type { InvoiceComputedValues, InvoiceLineItem } from "@/types/invoice";
+import type {
+  InvoiceComputedValues,
+  InvoiceLineItem,
+  Milestone,
+} from "@/types/invoice";
 
 type CalculateInvoiceTotalsInput = {
   lineItems: InvoiceLineItem[];
+  milestones?: Milestone[];
   agencyState: IndiaStateOption | "";
   clientState: IndiaStateOption | "";
   isInternational: boolean;
@@ -15,8 +20,19 @@ type CalculateInvoiceTotalsInput = {
   isRcmEnabled?: boolean;
 };
 
+/**
+ * Flatten milestones into a single array of line items for calculation.
+ * Used when the invoice uses the v1.5 milestone tree shape.
+ */
+export function flattenMilestonesToLineItems(
+  milestones: Milestone[]
+): InvoiceLineItem[] {
+  return milestones.flatMap((m) => m.lineItems);
+}
+
 export function calculateInvoiceTotals({
   lineItems,
+  milestones,
   agencyState,
   clientState,
   isInternational,
@@ -27,7 +43,13 @@ export function calculateInvoiceTotals({
   taxRate,
   isRcmEnabled = false,
 }: CalculateInvoiceTotalsInput): InvoiceComputedValues {
-  const subtotal = lineItems.reduce((sum, item) => {
+  // Use milestones if provided and non-empty, otherwise fall back to lineItems
+  const effectiveItems =
+    milestones && milestones.length > 0
+      ? flattenMilestonesToLineItems(milestones)
+      : lineItems;
+
+  const subtotal = effectiveItems.reduce((sum, item) => {
     const qty = Number(item.qty) || 0;
     const rate = Number(item.rate) || 0;
     return sum + qty * rate;

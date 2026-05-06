@@ -214,6 +214,7 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
         rateUnit: "per-item" as const,
       },
     ],
+    milestones: [],
     tax: {
       taxMode: "gst" as const,
       taxRate: 18,
@@ -295,7 +296,7 @@ function isFormTouched(formData: InvoiceFormData) {
     formData.meta.paymentTerms || formData.meta.dueDate,
   );
 
-  const hasLineItemData = formData.lineItems.some((item) =>
+  const hasLineItemData = formData.milestones.some((m) => m.lineItems.some((item) =>
     Boolean(
       item.description ||
       Number(item.rate) > 0 ||
@@ -304,7 +305,7 @@ function isFormTouched(formData: InvoiceFormData) {
       item.rateUnit !== "per-deliverable" ||
       item.is_milestone_header,
     ),
-  );
+  ));
 
   const hasPaymentData = Boolean(
     formData.payment.notes ||
@@ -1132,7 +1133,8 @@ const displayCurrency = useMemo(
 const computedTotals = useMemo(
   () =>
     calculateInvoiceTotals({
-      lineItems: formData.lineItems,
+      lineItems: formData.milestones.flatMap((m) => m.lineItems),
+      milestones: formData.milestones,
       agencyState: formData.agency.agencyState,
       clientState: formData.client.clientState,
       isInternational: clientIsInternational,
@@ -2032,12 +2034,12 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <DeliverablesSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
-          value={formData.lineItems}
+          milestones={formData.milestones}
           currency={displayCurrency}
-          onChange={(lineItems) =>
+          onChange={(milestones) =>
             setFormData((prev) => ({
               ...prev,
-              lineItems,
+              milestones,
             }))
           }
           errors={fieldErrors.lineItems}

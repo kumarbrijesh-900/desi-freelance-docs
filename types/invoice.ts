@@ -52,6 +52,15 @@ export type InvoiceRateUnit =
 
 export type MilestoneStatus = "PENDING" | "SETTLED";
 
+export interface Milestone {
+  id: string;
+  title: string;
+  status: MilestoneStatus;
+  lineItems: InvoiceLineItem[];
+  tdsAmount?: number;
+  dueDate?: string;
+}
+
 export interface InvoiceLineItem {
   id: string;
   type: InvoiceLineItemType;
@@ -60,7 +69,7 @@ export interface InvoiceLineItem {
   rate: number | string;
   rateUnit: InvoiceRateUnit;
   sacCode?: string;
-  // Milestone fields
+  // Temporary backward-compat fields — remove after v1.5 migration complete
   is_milestone_header?: boolean;
   milestone_group_id?: string;
   milestone_status?: MilestoneStatus;
@@ -189,7 +198,8 @@ export interface InvoiceFormData {
   agency: AgencyDetails;
   client: ClientDetails;
   meta: InvoiceMeta;
-  lineItems: InvoiceLineItem[];
+  lineItems: InvoiceLineItem[];   // kept for backward compat with old localStorage drafts
+  milestones: Milestone[];        // canonical field from v1.5 onward
   tax: TaxConfig;
   payment: PaymentDetails;
 }
@@ -269,6 +279,27 @@ export const defaultInvoiceFormData: InvoiceFormData = {
         type: "UI/UX Design",
         sacCode: "",
       }),
+    },
+  ],
+  milestones: [
+    {
+      id: "milestone-1",
+      title: "Milestone 1",
+      status: "PENDING" as MilestoneStatus,
+      lineItems: [
+        {
+          id: "line-1",
+          type: "UI/UX Design" as InvoiceLineItemType,
+          description: "",
+          qty: 1,
+          rate: 0,
+          rateUnit: "per-screen" as InvoiceRateUnit,
+          sacCode: resolveLineItemSacCode({
+            type: "UI/UX Design",
+            sacCode: "",
+          }),
+        },
+      ],
     },
   ],
   tax: {
@@ -419,6 +450,29 @@ export function mergeInvoiceFormData(
     lineItems: Array.isArray(value?.lineItems)
       ? value.lineItems.map((item) => normalizeLineItem(item))
       : defaultInvoiceFormData.lineItems.map((item) => normalizeLineItem(item)),
+    milestones: Array.isArray(value?.milestones) && value.milestones.length > 0
+      ? value.milestones.map((m) => ({
+          ...m,
+          lineItems: Array.isArray(m.lineItems)
+            ? m.lineItems.map((item) => normalizeLineItem(item))
+            : defaultInvoiceFormData.milestones[0].lineItems,
+        }))
+      : // backward compat: if no milestones but has lineItems, wrap them in milestone-1
+        Array.isArray(value?.lineItems) && value.lineItems.some(i => !(i as any).is_milestone_header)
+        ? [
+            {
+              id: "milestone-1",
+              title: "Milestone 1",
+              status: "PENDING" as MilestoneStatus,
+              lineItems: value.lineItems
+                .filter(i => !(i as any).is_milestone_header)
+                .map(item => normalizeLineItem(item)),
+            },
+          ]
+        : defaultInvoiceFormData.milestones.map((m) => ({
+            ...m,
+            lineItems: m.lineItems.map((item) => normalizeLineItem(item)),
+          })),
     tax: {
       ...defaultInvoiceFormData.tax,
       ...value?.tax,

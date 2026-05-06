@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
+import { useState, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
+  Milestone,
   InvoiceLineItem,
   InvoiceLineItemType,
   InvoiceRateUnit,
+  MilestoneStatus,
 } from "@/types/invoice";
 import {
   getInvoiceDescriptionSuggestions,
@@ -20,62 +21,47 @@ import {
 } from "@/lib/international-billing-options";
 import {
   getDefaultSacCodeForType,
-  isManualSacRequired,
 } from "@/lib/invoice-sac";
 import AppSelectField from "@/components/ui/AppSelectField";
 import AppTextField from "@/components/ui/AppTextField";
-import { PencilIcon, SparklesIcon } from "@/components/ui/app-icons";
+import { PencilIcon } from "@/components/ui/app-icons";
 import {
-  appFieldErrorTextClass,
-  appFieldLabelClass,
   appSectionDescriptionClass,
   appSectionTitleClass,
   cn,
-  getAppFieldClass,
   getAppPanelClass,
 } from "@/lib/ui-foundation";
 
+const MAX_MILESTONES = 5;
+
 interface DeliverablesSectionProps {
-  value: InvoiceLineItem[];
+  milestones: Milestone[];
   currency?: InvoiceDisplayCurrency;
-  onChange: (value: InvoiceLineItem[]) => void;
+  onChange: (milestones: Milestone[]) => void;
   embedded?: boolean;
-  errors?: Record<
-    string,
-    {
-      description?: string;
-      qty?: string;
-      rate?: string;
-      sacCode?: string;
-    }
-  >;
+  errors?: Record<string, { description?: string; qty?: string; rate?: string; sacCode?: string }>;
   showAllErrors?: boolean;
 }
 
-// v1: single-milestone only. Will be raised to 5 in v1.5 when multi-milestone billing cycles ship.
-const MAX_MILESTONES = 1;
+function createDefaultLineItem(): InvoiceLineItem {
+  return {
+    id: crypto.randomUUID(),
+    type: "Other" as InvoiceLineItemType,
+    description: "",
+    qty: 1,
+    rate: 0,
+    rateUnit: "per-deliverable" as InvoiceRateUnit,
+  };
+}
 
-// DEFAULT MILESTONE STRUCTURE
-const createDefaultMilestone = (): InvoiceLineItem[] => [
-  {
+function createDefaultMilestone(index: number): Milestone {
+  return {
     id: crypto.randomUUID(),
-    type: "Other" as InvoiceLineItemType,
-    description: "",
-    qty: 1,
-    rate: 0,
-    rateUnit: "per-deliverable" as InvoiceRateUnit,
-    is_milestone_header: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    type: "Other" as InvoiceLineItemType,
-    description: "",
-    qty: 1,
-    rate: 0,
-    rateUnit: "per-deliverable" as InvoiceRateUnit,
-    is_milestone_header: false,
-  }
-];
+    title: `Milestone ${index + 1}`,
+    status: "PENDING" as MilestoneStatus,
+    lineItems: [createDefaultLineItem()],
+  };
+}
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
   try {
@@ -91,7 +77,7 @@ function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
 }
 
 export default function DeliverablesSection({
-  value,
+  milestones,
   currency = "INR",
   onChange,
   embedded = false,
@@ -100,159 +86,56 @@ export default function DeliverablesSection({
 }: DeliverablesSectionProps) {
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(null);
-  const descriptionInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const milestoneTitleRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  // Ensure ONE default milestone with proper header + line item structure
-  const initialItems = useMemo(() => {
-    // No items at all → use the default milestone (header + one empty line item)
-    if (!value || value.length === 0) {
-      return createDefaultMilestone();
+  const effectiveMilestones = useMemo(() => {
+    if (!milestones || milestones.length === 0) {
+      return [createDefaultMilestone(0)];
     }
-    // Items exist but none flagged as milestone header → wrap them with a synthesized header
-    // so the grouping logic produces a valid milestone instead of an empty one.
-    const hasHeader = value.some((item) => item.is_milestone_header === true);
-    if (!hasHeader) {
-      const syntheticHeader: InvoiceLineItem = {
-        id: crypto.randomUUID(),
-        type: "Other" as InvoiceLineItemType,
-        description: "",
-        qty: 1,
-        rate: 0,
-        rateUnit: "per-deliverable" as InvoiceRateUnit,
-        is_milestone_header: true,
-      };
-      return [syntheticHeader, ...value];
-    }
-    // Items already have proper structure
-    return value;
-  }, [value]);
+    return milestones;
+  }, [milestones]);
 
-  const { register, control, handleSubmit, setValue, reset } = useForm({
-    defaultValues: {
-      items: initialItems,
-    },
-    mode: "onBlur",
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "items",
-  });
-
-  // Sync with parent state ONLY on blur or structural changes
-  const syncToParent = useCallback((data: { items: InvoiceLineItem[] }) => {
-    onChange(data.items);
-  }, [onChange]);
-
-  useEffect(() => {
-    // Mirror the same structure logic as initialItems so reset matches what the form expects
-    let nextItems: InvoiceLineItem[];
-    if (!value || value.length === 0) {
-      nextItems = createDefaultMilestone();
-    } else if (!value.some((item) => item.is_milestone_header === true)) {
-      const syntheticHeader: InvoiceLineItem = {
-        id: crypto.randomUUID(),
-        type: "Other" as InvoiceLineItemType,
-        description: "",
-        qty: 1,
-        rate: 0,
-        rateUnit: "per-deliverable" as InvoiceRateUnit,
-        is_milestone_header: true,
-      };
-      nextItems = [syntheticHeader, ...value];
-    } else {
-      nextItems = value;
-    }
-    reset({ items: nextItems });
-  }, [value, reset]);
-
-  const markTouched = (itemId: string, field: string) => {
-    setTouchedFields((prev) => ({ ...prev, [`${itemId}:${field}`]: true }));
+  const markTouched = (id: string, field: string) => {
+    setTouchedFields((prev) => ({ ...prev, [`${id}:${field}`]: true }));
   };
 
-  const openDescriptionAssist = (id: string) => setActiveDescriptionId(id);
-  const closeDescriptionAssist = (id: string) => {
-    setTimeout(() => {
-      if (activeDescriptionId === id) setActiveDescriptionId(null);
-    }, 200);
-  };
-
-  const applyDescriptionSuggestion = (id: string, index: number, suggestion: string) => {
-    setValue(`items.${index}.description`, suggestion);
-    setActiveDescriptionId(null);
-  };
-
+  // Milestone-level operations
   const addMilestone = useCallback(() => {
-    const newItems = createDefaultMilestone();
-    const updatedItems = [...fields, ...newItems];
-    append(newItems);
-    onChange(updatedItems);
-  }, [append, fields, onChange]);
+    const next = [...effectiveMilestones, createDefaultMilestone(effectiveMilestones.length)];
+    onChange(next);
+  }, [effectiveMilestones, onChange]);
 
-  const removeMilestone = (headerId: string) => {
-    const index = fields.findIndex((f) => f.id === headerId);
-    if (index === -1) return;
-    
-    const toRemove = [index];
-    for (let i = index + 1; i < fields.length; i++) {
-      if (fields[i].is_milestone_header) break;
-      toRemove.push(i);
-    }
-    
-    remove(toRemove);
-    const updatedItems = fields.filter((_, i) => !toRemove.includes(i));
-    onChange(updatedItems);
-  };
+  const removeMilestone = useCallback((milestoneId: string) => {
+    onChange(effectiveMilestones.filter((m) => m.id !== milestoneId));
+  }, [effectiveMilestones, onChange]);
 
-  const addLineItemToMilestone = (headerId: string) => {
-    const index = fields.findIndex((f) => f.id === headerId);
-    if (index === -1) return;
-    
-    let insertAt = index + 1;
-    for (let i = index + 1; i < fields.length; i++) {
-      if (fields[i].is_milestone_header) break;
-      insertAt = i + 1;
-    }
+  const updateMilestoneTitle = useCallback((milestoneId: string, title: string) => {
+    onChange(effectiveMilestones.map((m) => m.id === milestoneId ? { ...m, title } : m));
+  }, [effectiveMilestones, onChange]);
 
-    const newItem: InvoiceLineItem = {
-      id: crypto.randomUUID(),
-      type: "Other",
-      description: "",
-      qty: 1,
-      rate: 0,
-      rateUnit: "per-deliverable",
-      is_milestone_header: false,
-    };
-    
-    const updatedItems = [...fields];
-    updatedItems.splice(insertAt, 0, newItem);
-    reset({ items: updatedItems });
-    onChange(updatedItems);
-  };
+  // Line item operations
+  const addLineItem = useCallback((milestoneId: string) => {
+    onChange(effectiveMilestones.map((m) =>
+      m.id === milestoneId
+        ? { ...m, lineItems: [...m.lineItems, createDefaultLineItem()] }
+        : m
+    ));
+  }, [effectiveMilestones, onChange]);
 
-  const removeLineItem = (id: string) => {
-    const index = fields.findIndex((f) => f.id === id);
-    if (index === -1) return;
-    remove(index);
-    const updatedItems = fields.filter((f) => f.id !== id);
-    onChange(updatedItems);
-  };
+  const removeLineItem = useCallback((milestoneId: string, itemId: string) => {
+    onChange(effectiveMilestones.map((m) =>
+      m.id === milestoneId
+        ? { ...m, lineItems: m.lineItems.filter((li) => li.id !== itemId) }
+        : m
+    ));
+  }, [effectiveMilestones, onChange]);
 
-  // Grouping for render
-  const milestones: { header: any; index: number; items: { field: any; index: number }[] }[] = [];
-  let currentMilestone: { header: any; index: number; items: { field: any; index: number }[] } | null = null;
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i];
-    if (field.is_milestone_header) {
-      if (currentMilestone) milestones.push(currentMilestone);
-      currentMilestone = { header: field, index: i, items: [] };
-    } else if (currentMilestone) {
-      currentMilestone.items.push({ field, index: i });
-    }
-  }
-  if (currentMilestone) milestones.push(currentMilestone);
-
+  const updateLineItem = useCallback((milestoneId: string, itemId: string, patch: Partial<InvoiceLineItem>) => {
+    onChange(effectiveMilestones.map((m) =>
+      m.id === milestoneId
+        ? { ...m, lineItems: m.lineItems.map((li) => li.id === itemId ? { ...li, ...patch } : li) }
+        : m
+    ));
+  }, [effectiveMilestones, onChange]);
 
   return (
     <section
@@ -260,7 +143,6 @@ export default function DeliverablesSection({
         "overflow-visible",
         embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass(),
       )}
-      onBlur={handleSubmit(syncToParent)}
     >
       {!embedded && (
         <div className="mb-6 space-y-2">
@@ -269,56 +151,126 @@ export default function DeliverablesSection({
         </div>
       )}
 
-      <div className="space-y-10">
-        <div className="space-y-8">
-          <AnimatePresence initial={false}>
-            {milestones.map((milestone, mIdx) => (
+      <div className="space-y-8">
+        <AnimatePresence initial={false}>
+          {effectiveMilestones.map((milestone, mIdx) => {
+            const milestoneSubtotal = milestone.lineItems.reduce(
+              (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0),
+              0
+            );
+
+            return (
               <motion.div
-                key={milestone.header.id}
+                key={milestone.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
+                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
               >
-                <MilestoneGroup
-                  milestone={milestone}
-                  mIdx={mIdx}
-                  canRemoveMilestone={milestones.length > 1}
-                  control={control}
-                  register={register}
-                  currency={currency}
-                  errors={errors}
-                  showAllErrors={showAllErrors}
-                  touchedFields={touchedFields}
-                  markTouched={markTouched}
-                  milestoneTitleRefs={milestoneTitleRefs}
-                  descriptionInputRefs={descriptionInputRefs}
-                  activeDescriptionId={activeDescriptionId}
-                  openDescriptionAssist={openDescriptionAssist}
-                  closeDescriptionAssist={closeDescriptionAssist}
-                  applyDescriptionSuggestion={applyDescriptionSuggestion}
-                  onRemoveMilestone={removeMilestone}
-                  onAddLineItem={addLineItemToMilestone}
-                  onRemoveLineItem={removeLineItem}
-                />
+                {/* Milestone header */}
+                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                      {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
+                        ? "Final Milestone"
+                        : `Milestone ${mIdx + 1}`}
+                    </p>
+                    <div className="flex items-center gap-2 max-w-md">
+                      <input
+                        type="text"
+                        value={milestone.title}
+                        placeholder="e.g. Phase 1: Research"
+                        onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
+                        className="text-xl font-bold bg-transparent border-transparent hover:border-gray-200 focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
+                      />
+                      <PencilIcon className="h-4 w-4 text-gray-300" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Milestone Subtotal</p>
+                      <p className="text-lg font-black text-gray-900">{formatCurrency(milestoneSubtotal, currency)}</p>
+                    </div>
+                    {effectiveMilestones.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMilestone(milestone.id)}
+                        className="text-gray-300 hover:text-red-500 text-xl transition-colors"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Line items */}
+                <div className="p-4 space-y-4">
+                  <div className="hidden xl:grid grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 px-4 opacity-40">
+                    <span className="text-[9px] font-bold uppercase">Type</span>
+                    <span className="text-[9px] font-bold uppercase">Description</span>
+                    <span className="text-[9px] font-bold uppercase text-center">Qty</span>
+                    <span className="text-[9px] font-bold uppercase">Rate</span>
+                    <span className="text-[9px] font-bold uppercase">Unit</span>
+                    <span className="text-[9px] font-bold uppercase text-right">Total</span>
+                    <span />
+                  </div>
+
+                  <div className="space-y-3">
+                    <AnimatePresence initial={false}>
+                      {milestone.lineItems.map((item) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <LineItemRow
+                            item={item}
+                            currency={currency}
+                            errors={errors?.[item.id]}
+                            showAllErrors={showAllErrors}
+                            touchedFields={touchedFields}
+                            markTouched={markTouched}
+                            activeDescriptionId={activeDescriptionId}
+                            setActiveDescriptionId={setActiveDescriptionId}
+                            onUpdate={(patch) => updateLineItem(milestone.id, item.id, patch)}
+                            onRemove={() => removeLineItem(milestone.id, item.id)}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => addLineItem(milestone.id)}
+                    className="text-xs font-bold text-gray-400 hover:text-lime-600 transition-colors flex items-center gap-1 group"
+                  >
+                    <span className="text-lg transition-transform group-hover:scale-125">+</span> Add Line Item
+                  </button>
+                </div>
               </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+            );
+          })}
+        </AnimatePresence>
 
         {MAX_MILESTONES > 1 && (
           <div className="pt-2">
             <button
               type="button"
               onClick={addMilestone}
-              disabled={milestones.length >= MAX_MILESTONES}
+              disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
                 "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 transition-all group",
-                milestones.length >= MAX_MILESTONES ? "opacity-50 cursor-not-allowed" : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
+                effectiveMilestones.length >= MAX_MILESTONES
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
               )}
             >
               <span className="text-2xl text-gray-300 group-hover:text-gray-400">+</span>
-              Add Project Milestone ({MAX_MILESTONES - milestones.length}/{MAX_MILESTONES})
+              Add Project Milestone ({MAX_MILESTONES - effectiveMilestones.length}/{MAX_MILESTONES} remaining)
             </button>
           </div>
         )}
@@ -327,184 +279,46 @@ export default function DeliverablesSection({
   );
 }
 
-// ─── Sub-Components ───
-
-function RowTotal({ control, index, currency }: { control: Control<any>, index: number, currency: InvoiceDisplayCurrency }) {
-  const qty = useWatch({ control, name: `items.${index}.qty` });
-  const rate = useWatch({ control, name: `items.${index}.rate` });
-  const total = Number(qty || 0) * Number(rate || 0);
-
-  return (
-    <div className="flex flex-col items-end xl:block">
-      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden mb-1">Total</label>
-      <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-        {formatCurrency(total, currency)}
-      </span>
-    </div>
-  );
-}
-
-function MilestoneSubtotal({ control, items, currency }: { control: Control<any>, items: { index: number }[], currency: InvoiceDisplayCurrency }) {
-  const watchedItems = useWatch({
-    control,
-    name: items.map(i => `items.${i.index}`),
-  });
-
-  const subtotal = (watchedItems || []).reduce(
-    (sum: number, item: any) => sum + (Number(item?.qty || 0) * Number(item?.rate || 0)),
-    0
-  );
-
-  return (
-    <div className="text-right">
-      <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Milestone Subtotal</p>
-      <p className="text-lg font-black text-gray-900">{formatCurrency(subtotal, currency)}</p>
-    </div>
-  );
-}
-
-function MilestoneGroup({
-  milestone,
-  mIdx,
-  canRemoveMilestone,
-  control,
-  register,
-  currency,
-  errors,
-  showAllErrors,
-  touchedFields,
-  markTouched,
-  milestoneTitleRefs,
-  descriptionInputRefs,
-  activeDescriptionId,
-  openDescriptionAssist,
-  closeDescriptionAssist,
-  applyDescriptionSuggestion,
-  onRemoveMilestone,
-  onAddLineItem,
-  onRemoveLineItem,
-}: any) {
-  const { header, index: headerIndex, items } = milestone;
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-      <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100">
-        <div className="flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-            {MAX_MILESTONES === 1 ? "Project Details" : (mIdx + 1 === MAX_MILESTONES ? "Final Milestone" : `Milestone ${mIdx + 1}`)}
-          </p>
-          <div className="flex items-center gap-2 max-w-md">
-            <AppTextField
-              {...register(`items.${headerIndex}.description`)}
-              ref={(el: HTMLInputElement | null) => {
-                const { ref } = register(`items.${headerIndex}.description`);
-                ref(el);
-                milestoneTitleRefs.current[header.id] = el;
-              }}
-              placeholder="e.g. Phase 1: Research"
-              className={cn(
-                "text-xl font-bold bg-transparent border-transparent hover:border-gray-200 focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all",
-                errors?.[header.id]?.description && (showAllErrors || touchedFields[`${header.id}:description`]) && "border-red-500 ring-1 ring-red-500"
-              )}
-              onBlur={() => markTouched(header.id, "description")}
-            />
-            <PencilIcon className="h-4 w-4 text-gray-300" />
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <MilestoneSubtotal control={control} items={items} currency={currency} />
-          {canRemoveMilestone && (
-            <button type="button" onClick={() => onRemoveMilestone(header.id)} className="text-gray-300 hover:text-red-500 text-xl transition-colors">×</button>
-          )}
-        </div>
-      </div>
-
-      <div className="p-4 space-y-4">
-        <div className="hidden xl:grid grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 px-4 opacity-40">
-          <span className="text-[9px] font-bold uppercase">Type</span>
-          <span className="text-[9px] font-bold uppercase">Description</span>
-          <span className="text-[9px] font-bold uppercase text-center">Qty</span>
-          <span className="text-[9px] font-bold uppercase">Rate</span>
-          <span className="text-[9px] font-bold uppercase">Unit</span>
-          <span className="text-[9px] font-bold uppercase text-right">Total</span>
-          <span />
-        </div>
-
-        <div className="space-y-3">
-          <AnimatePresence initial={false}>
-            {items.map((item: any) => (
-              <motion.div
-                key={item.field.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <LineItemRow
-                  index={item.index}
-                  field={item.field}
-                  control={control}
-                  register={register}
-                  currency={currency}
-                  errors={errors?.[item.field.id]}
-                  showAllErrors={showAllErrors}
-                  touchedFields={touchedFields}
-                  markTouched={markTouched}
-                  descriptionInputRefs={descriptionInputRefs}
-                  activeDescriptionId={activeDescriptionId}
-                  openDescriptionAssist={openDescriptionAssist}
-                  closeDescriptionAssist={closeDescriptionAssist}
-                  applyDescriptionSuggestion={applyDescriptionSuggestion}
-                  onRemove={onRemoveLineItem}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => onAddLineItem(header.id)}
-          className="text-xs font-bold text-gray-400 hover:text-lime-600 transition-colors flex items-center gap-1 group"
-        >
-          <span className="text-lg transition-transform group-hover:scale-125">+</span> Add Line Item
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function LineItemRow({
-  index,
-  field,
-  control,
-  register,
+  item,
   currency,
   errors,
   showAllErrors,
   touchedFields,
   markTouched,
-  descriptionInputRefs,
   activeDescriptionId,
-  openDescriptionAssist,
-  closeDescriptionAssist,
-  applyDescriptionSuggestion,
+  setActiveDescriptionId,
+  onUpdate,
   onRemove,
-}: any) {
-  const type = useWatch({ control, name: `items.${index}.type` });
-  const allowedUnits = invoiceAllowedUnitsByType[type as InvoiceLineItemType] || [];
-  const showSuggestions = activeDescriptionId === field.id;
-  const suggestions = getInvoiceDescriptionSuggestions(type as InvoiceLineItemType);
-  
-  const sacCode = useMemo(() => getDefaultSacCodeForType(type as InvoiceLineItemType), [type]);
+}: {
+  item: InvoiceLineItem;
+  currency: InvoiceDisplayCurrency;
+  errors?: { description?: string; qty?: string; rate?: string };
+  showAllErrors?: boolean;
+  touchedFields: Record<string, boolean>;
+  markTouched: (id: string, field: string) => void;
+  activeDescriptionId: string | null;
+  setActiveDescriptionId: (id: string | null) => void;
+  onUpdate: (patch: Partial<InvoiceLineItem>) => void;
+  onRemove: () => void;
+}) {
+  const allowedUnits = invoiceAllowedUnitsByType[item.type] || [];
+  const suggestions = getInvoiceDescriptionSuggestions(item.type);
+  const showSuggestions = activeDescriptionId === item.id && suggestions.length > 0;
+  const sacCode = useMemo(() => getDefaultSacCodeForType(item.type), [item.type]);
+  const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
     <div className="group relative grid grid-cols-1 xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 items-start rounded-xl p-3 xl:p-2 transition-all hover:bg-gray-50/80 border border-transparent hover:border-gray-100 xl:border-none">
-      {/* Type & SAC */}
+      {/* Type */}
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Type</label>
-        <AppSelectField {...register(`items.${index}.type`)} className="h-9 text-xs">
-          {invoiceLineItemTypeOptions.map(opt => {
+        <AppSelectField
+          value={item.type}
+          onChange={(e) => onUpdate({ type: e.target.value as InvoiceLineItemType })}
+          className="h-9 text-xs"
+        >
+          {invoiceLineItemTypeOptions.map((opt) => {
             const code = getDefaultSacCodeForType(opt as InvoiceLineItemType);
             return (
               <option key={opt} value={opt}>
@@ -513,36 +327,35 @@ function LineItemRow({
             );
           })}
         </AppSelectField>
-        {sacCode && (
-          <p className="text-[10px] text-gray-400 font-medium pl-1">SAC: {sacCode}</p>
-        )}
+        {sacCode && <p className="text-[10px] text-gray-400 font-medium pl-1">SAC: {sacCode}</p>}
       </div>
 
       {/* Description */}
       <div className="relative">
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Description</label>
         <AppTextField
-          {...register(`items.${index}.description`)}
-          ref={(el: HTMLInputElement | null) => {
-            const { ref } = register(`items.${index}.description`);
-            ref(el);
-            descriptionInputRefs.current[field.id] = el;
-          }}
           type="text"
-          placeholder={invoiceDescriptionPlaceholderByType[type as InvoiceLineItemType]}
+          value={item.description}
+          placeholder={invoiceDescriptionPlaceholderByType[item.type]}
           className="h-9 text-xs w-full"
-          errorText={(showAllErrors || touchedFields[`${field.id}:description`]) ? errors?.description : undefined}
-          onFocus={() => openDescriptionAssist(field.id)}
-          onBlur={() => { markTouched(field.id, "description"); closeDescriptionAssist(field.id); }}
+          errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
+          onChange={(e) => onUpdate({ description: e.target.value })}
+          onFocus={() => setActiveDescriptionId(item.id)}
+          onBlur={() => {
+            markTouched(item.id, "description");
+            setTimeout(() => {
+              if (activeDescriptionId === item.id) setActiveDescriptionId(null);
+            }, 200);
+          }}
         />
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && (
           <div className="absolute left-0 top-full z-50 mt-1 w-full bg-white border border-gray-100 shadow-xl rounded-lg py-1">
-            {suggestions.map(s => (
+            {suggestions.map((s) => (
               <button
                 key={s}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyDescriptionSuggestion(field.id, index, s)}
+                onClick={() => { onUpdate({ description: s }); setActiveDescriptionId(null); }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
               >
                 {s}
@@ -556,11 +369,12 @@ function LineItemRow({
       <div>
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Quantity</label>
         <AppTextField
-          {...register(`items.${index}.qty`)}
           type="number"
+          value={item.qty}
           className="h-9 text-xs text-center w-full"
-          errorText={(showAllErrors || touchedFields[`${field.id}:qty`]) ? errors?.qty : undefined}
-          onBlur={() => markTouched(field.id, "qty")}
+          errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
+          onChange={(e) => onUpdate({ qty: e.target.value })}
+          onBlur={() => markTouched(item.id, "qty")}
         />
       </div>
 
@@ -569,11 +383,12 @@ function LineItemRow({
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Rate</label>
         <div className="relative">
           <AppTextField
-            {...register(`items.${index}.rate`)}
             type="number"
+            value={item.rate}
             className="h-9 text-xs pl-6 w-full"
-            errorText={(showAllErrors || touchedFields[`${field.id}:rate`]) ? errors?.rate : undefined}
-            onBlur={() => markTouched(field.id, "rate")}
+            errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
+            onChange={(e) => onUpdate({ rate: e.target.value })}
+            onBlur={() => markTouched(item.id, "rate")}
           />
           <span className="absolute left-2 top-[10px] text-[10px] text-gray-400">{getCurrencySymbol(currency)}</span>
         </div>
@@ -582,21 +397,27 @@ function LineItemRow({
       {/* Unit */}
       <div>
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Unit</label>
-        <AppSelectField {...register(`items.${index}.rateUnit`)} className="h-9 text-xs">
-          {allowedUnits.map(u => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
+        <AppSelectField
+          value={item.rateUnit}
+          onChange={(e) => onUpdate({ rateUnit: e.target.value as InvoiceRateUnit })}
+          className="h-9 text-xs"
+        >
+          {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
         </AppSelectField>
       </div>
 
       {/* Total */}
       <div className="flex h-auto xl:h-9 items-center justify-end pt-1 xl:pt-0">
-        <RowTotal control={control} index={index} currency={currency} />
+        <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+          {formatCurrency(total, currency)}
+        </span>
       </div>
 
-      {/* Actions */}
+      {/* Remove */}
       <div className="flex h-auto xl:h-9 items-center justify-center pt-1 xl:pt-0">
-        <button 
-          type="button" 
-          onClick={() => onRemove(field.id)} 
+        <button
+          type="button"
+          onClick={onRemove}
           className="xl:opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 text-xl transition-all p-1"
         >
           ×

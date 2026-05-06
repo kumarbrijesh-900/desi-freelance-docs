@@ -165,7 +165,13 @@ export function getInvoiceFieldErrors(
     errors.meta.dueDate = "Due date cannot be earlier than the invoice date.";
   }
 
-  formData.lineItems.forEach((item) => {
+  // v1.5: validate across all milestones if present, otherwise fall back to lineItems
+  const itemsToValidate =
+    formData.milestones && formData.milestones.length > 0
+      ? formData.milestones.flatMap((m) => m.lineItems)
+      : formData.lineItems;
+
+  itemsToValidate.forEach((item) => {
     const itemErrors: {
       description?: string;
       qty?: string;
@@ -177,25 +183,22 @@ export function getInvoiceFieldErrors(
       itemErrors.description = "Description is required.";
     }
 
-    // Skip qty/rate/sac validation for milestone headers
-    if (!item.is_milestone_header) {
-      const parsedQty = Number(item.qty);
-      const parsedRate = Number(item.rate);
+    const parsedQty = Number(item.qty);
+    const parsedRate = Number(item.rate);
 
-      if (isNaN(parsedQty) || parsedQty < 1) {
-        itemErrors.qty = "Qty must be at least 1.";
-      }
+    if (isNaN(parsedQty) || parsedQty < 1) {
+      itemErrors.qty = "Qty must be at least 1.";
+    }
 
-      if (isNaN(parsedRate) || parsedRate < 0) {
-        itemErrors.rate = "Rate must be 0 or more.";
-      }
+    if (isNaN(parsedRate) || parsedRate < 0) {
+      itemErrors.rate = "Rate must be 0 or more.";
+    }
 
-      const resolvedSacCode = resolveLineItemSacCode(item);
-      if (isManualSacRequired(item.type) && isBlank(resolvedSacCode)) {
-        itemErrors.sacCode = "SAC code is required for custom deliverables.";
-      } else if (resolvedSacCode && !isValidSacCode(resolvedSacCode)) {
-        itemErrors.sacCode = "Enter a valid 6-digit SAC code.";
-      }
+    const resolvedSacCode = resolveLineItemSacCode(item);
+    if (isManualSacRequired(item.type) && isBlank(resolvedSacCode)) {
+      itemErrors.sacCode = "SAC code is required for custom deliverables.";
+    } else if (resolvedSacCode && !isValidSacCode(resolvedSacCode)) {
+      itemErrors.sacCode = "Enter a valid 6-digit SAC code.";
     }
 
     if (Object.keys(itemErrors).length > 0) {
