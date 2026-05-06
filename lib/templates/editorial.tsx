@@ -18,6 +18,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -316,6 +317,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         {/* Right: Totals */}
         <div className="self-end">
           <div className="space-y-2 text-[13px]">
+            <MilestoneSummaryBlock data={data} textColor="#777" borderColor="#EEEBE5" accentColor="#27272F" />
             <div className="flex justify-between text-[#777]">
               <span>Subtotal</span>
               <span className="tabular-nums">{data.subtotalFormatted}</span>

@@ -19,6 +19,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -253,6 +254,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
               Amount Due
             </p>
             <div className="mt-3 space-y-2 text-[12px] text-[#8B6F5E]">
+              <MilestoneSummaryBlock data={data} textColor="#8B6F5E" borderColor="#E8D5C4" accentColor="#C75B39" />
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="tabular-nums font-medium text-[#3D2517]">

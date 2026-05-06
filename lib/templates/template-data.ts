@@ -233,7 +233,24 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     formData.payment?.ibanRoutingCode,
   );
 
+  // Milestone billing summary
+  const isMilestoneInvoice = formData.milestones && formData.milestones.length > 1;
+  const milestoneCount = formData.milestones?.length ?? 1;
+  const milestoneAmounts = (formData.milestones ?? []).map((m) =>
+    m.lineItems.reduce((sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0)
+  );
+  const currentMilestoneAmount = milestoneAmounts[0] ?? 0;
+  const totalProjectAmount = milestoneAmounts.reduce((s, a) => s + a, 0);
+  const remainingAmount = totalProjectAmount - currentMilestoneAmount;
+
   return {
+    isMilestoneInvoice: !!isMilestoneInvoice,
+    milestoneCount,
+    currentMilestoneLabel: `Milestone 1 of ${milestoneCount}`,
+    currentMilestoneFormatted: formatCurrency(currentMilestoneAmount, displayCurrency),
+    remainingMilestonesFormatted: formatCurrency(remainingAmount, displayCurrency),
+    totalProjectFormatted: formatCurrency(totalProjectAmount, displayCurrency),
+
     agencyName: formData.agency?.agencyName || "Your Agency Name",
     agencyAddress: formData.agency?.address || "—",
     agencyState: formData.agency?.agencyState || "",

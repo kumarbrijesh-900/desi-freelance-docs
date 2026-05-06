@@ -17,6 +17,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -225,6 +226,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         <section className="mt-12">
           <div className="flex justify-end items-stretch mb-10">
             <div className="text-right mr-8 pt-4">
+              <MilestoneSummaryBlock data={data} textColor="#888" borderColor="#e8e6e1" accentColor="#2D5BFF" />
               <div className="text-[12px] text-[#888] mb-2">
                 Subtotal:{" "}
                 <span className="font-bold text-[#111118]">

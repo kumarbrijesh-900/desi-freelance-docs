@@ -18,6 +18,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -282,6 +283,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         {/* Totals — Violet accent */}
         <div>
           <div className="space-y-2 text-[12px] text-[#666]">
+            <MilestoneSummaryBlock data={data} textColor="#aaa" borderColor="#333" accentColor="#fff" />
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span className="tabular-nums font-medium text-[#1A1A2E]">

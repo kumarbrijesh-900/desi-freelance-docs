@@ -5,6 +5,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -243,6 +244,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
         />
 
         <div className="relative z-10 w-[320px] space-y-3">
+          <MilestoneSummaryBlock data={data} />
           <div className="flex justify-between text-[13px] text-[#555]">
             <span>Subtotal</span>
             <span className="font-medium text-[#111118]">

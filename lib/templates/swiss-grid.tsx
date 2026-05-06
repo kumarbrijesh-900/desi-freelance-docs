@@ -19,6 +19,7 @@
 import type { InvoiceTemplateProps } from "./template-types";
 import { InvoiceWatermark } from "./Watermark";
 import { LegalDisclaimer } from "./LegalDisclaimer";
+import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
@@ -310,6 +311,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
         {/* Totals — precise alignment */}
         <div>
           <div className="space-y-1.5 text-[11px]">
+            <MilestoneSummaryBlock data={data} textColor="#A8DADC" borderColor="#A8DADC" accentColor="#1D3557" />
             <div className="flex justify-between">
               <span className="font-bold uppercase tracking-[0.15em] text-[#A8DADC]">
                 Subtotal

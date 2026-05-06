@@ -58,6 +58,14 @@ export interface TemplateData {
   lineItems: TemplateLineItem[];
   itemCount: number;
 
+  /* ── Milestone Billing (v1.5) ──────────────────── */
+  isMilestoneInvoice: boolean;
+  milestoneCount: number;
+  currentMilestoneLabel: string;
+  currentMilestoneFormatted: string;
+  remainingMilestonesFormatted: string;
+  totalProjectFormatted: string;
+
   /* ── Totals ────────────────────────────── */
   subtotalFormatted: string;
   taxLabel: string;
