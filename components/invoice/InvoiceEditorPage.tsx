@@ -1146,7 +1146,7 @@ const computedTotals = useMemo(
       isRcmEnabled: formData.tax.isRcmEnabled,
     }),
   [
-    formData.lineItems,
+    formData.milestones,
     formData.agency.agencyState,
     clientIsInternational,
     formData.client,
