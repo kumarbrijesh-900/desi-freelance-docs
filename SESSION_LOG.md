@@ -12,9 +12,9 @@
 ### Phase G: Multi-milestone billing — IN PROGRESS
 - ✅ #29 — ShareLinkModal shows "Milestone 1 of N" framing with Due now / Remaining / Total project
 - ✅ #30 — All 6 PDF templates render MilestoneSummaryBlock (verified in exported PDF)
-- ❌ #31 — Mark Milestone 1 settled → auto-generate Milestone 2 invoice (NOT STARTED)
-- ❌ #32 — Skip MSA gate on subsequent milestone invoices (NOT STARTED)
-- ❌ #33 — TDS deduction wired into settlement (NOT STARTED)
+- ✅ #31 — Mark Milestone 1 settled → auto-generate Milestone 2 invoice (COMPLETE)
+- ✅ #32 — Skip MSA gate on subsequent milestone invoices (COMPLETE)
+- ✅ #33 — TDS deduction wired into settlement (COMPLETE)
 
 ## SQL migrations run today
 ```sql
@@ -46,13 +46,11 @@ CHECK (status = ANY (ARRAY[
 - Bell notification badge showing "8+" — not clearing — deprioritized
 
 ## Latest deployed commit
-20bef7e (HEAD -> main, origin/main) feat: add milestone billing summary to PDF templates
+092f30a (HEAD -> main, origin/main) fix: update markMilestoneSettled to match by order_index
 
 ## Next session starts with
-- Prompt #31: Mark Milestone settled → auto-generate next milestone invoice
-  - SQL needed first: add parent_invoice_id and milestone_index columns to invoices
-- Then #32 (skip MSA on subsequent invoices)
-- Then #33 (TDS into settlement)
+- Prompt #34: Implement TDS deduction field in Settlement Modal
+- Prompt #35: Implement "Settlement Summary" in history table
 - Phase H after that (#34, #35)
 
 ---
