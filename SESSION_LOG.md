@@ -1,3 +1,62 @@
+# Session Log — May 6, 2026 (Session 2)
+
+## What was built today (v1.5 Phase F + Phase G partial)
+
+### Phase F: Schema refactor — COMPLETE ✅
+- ✅ #22+23 — Added Milestone interface to types/invoice.ts, mergeInvoiceFormData handles both old (lineItems) and new (milestones) shapes
+- ✅ #24 — invoice-calculations.ts and invoice-validation.ts updated for milestone tree
+- ✅ #25+26 — DeliverablesSection.tsx fully rewritten for Milestone[], MAX_MILESTONES = 5, InvoiceEditorPage wired to milestones
+- ✅ #27 — All 6 PDF templates updated to render milestone tree
+- ✅ #28 — Supabase persistence: syncMilestonesFromInvoice uses formData.milestones, correct column names (quantity/total/item_type/unit), invoice_milestones gets status/tds_amount/amount columns
+
+### Phase G: Multi-milestone billing — IN PROGRESS
+- ✅ #29 — ShareLinkModal shows "Milestone 1 of N" framing with Due now / Remaining / Total project
+- ✅ #30 — All 6 PDF templates render MilestoneSummaryBlock (verified in exported PDF)
+- ❌ #31 — Mark Milestone 1 settled → auto-generate Milestone 2 invoice (NOT STARTED)
+- ❌ #32 — Skip MSA gate on subsequent milestone invoices (NOT STARTED)
+- ❌ #33 — TDS deduction wired into settlement (NOT STARTED)
+
+## SQL migrations run today
+```sql
+-- Added status, tds_amount, amount to invoice_milestones
+ALTER TABLE invoice_milestones
+ADD COLUMN IF NOT EXISTS status text DEFAULT 'PENDING',
+ADD COLUMN IF NOT EXISTS tds_amount numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS amount numeric DEFAULT 0;
+
+-- Expanded invoices status enum
+ALTER TABLE invoices DROP CONSTRAINT invoices_status_check;
+ALTER TABLE invoices ADD CONSTRAINT invoices_status_check
+CHECK (status = ANY (ARRAY[
+  'draft'::text, 'finalized'::text, 'settled'::text,
+  'SETTLED'::text, 'PARTIAL'::text, 'SENT'::text, 'SAVED'::text
+]));
+```
+
+## Schema state (invoice_milestones)
+- id, invoice_id, title, order_index, created_at, status, tds_amount, amount
+
+## Schema state (invoice_line_items)
+- id, milestone_id, item_type, description, quantity, rate, unit, total, order_index, created_at
+
+## Known issues / tech debt
+- ShareLinkModal still has handleMsaToggle with direct DB calls — remove in cleanup
+- Totals step shows ₹0 on first load for old invoices (lineItems path) — acceptable, new invoices use milestones
+- "Engine is out of fuel" banner still showing — UX cruft, deprioritized
+- Bell notification badge showing "8+" — not clearing — deprioritized
+
+## Latest deployed commit
+20bef7e (HEAD -> main, origin/main) feat: add milestone billing summary to PDF templates
+
+## Next session starts with
+- Prompt #31: Mark Milestone settled → auto-generate next milestone invoice
+  - SQL needed first: add parent_invoice_id and milestone_index columns to invoices
+- Then #32 (skip MSA on subsequent invoices)
+- Then #33 (TDS into settlement)
+- Phase H after that (#34, #35)
+
+---
+
 # Session Log — May 6, 2026
 
 ## All v1 features verified working in production
