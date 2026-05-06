@@ -114,6 +114,31 @@ interface ShareLinkModalProps {
   onShared: (token: string) => void;
 }
 
+function getMilestoneFraming(invoiceData?: InvoiceFormData) {
+  const milestones = invoiceData?.milestones;
+  if (!milestones || milestones.length <= 1) return null;
+
+  const totalCount = milestones.length;
+  const currency = invoiceData?.client?.clientCurrency || "INR";
+  const symbol = currency === "USD" ? "$" : currency === "EUR" ? "€" : "₹";
+
+  const milestoneAmounts = milestones.map((m) =>
+    m.lineItems.reduce((sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0)
+  );
+
+  const totalProject = milestoneAmounts.reduce((s, a) => s + a, 0);
+  const currentAmount = milestoneAmounts[0] ?? 0;
+  const remainingAmount = totalProject - currentAmount;
+
+  return {
+    totalCount,
+    symbol,
+    currentAmount,
+    totalProject,
+    remainingAmount,
+  };
+}
+
 /* ─── Main Component ────────────────────────────────── */
 
 export default function ShareLinkModal({
@@ -282,6 +307,47 @@ export default function ShareLinkModal({
                 </p>
               )}
             </div>
+
+            {/* ── Milestone Framing ── */}
+            {(() => {
+              const framing = getMilestoneFraming(invoiceData);
+              if (!framing) return null;
+              return (
+                <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                      Milestone Billing
+                    </span>
+                    <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                      Milestone 1 of {framing.totalCount}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[color:var(--text-secondary)]">Due now (Milestone 1)</span>
+                      <span className="font-bold text-[color:var(--text-primary)]">
+                        {framing.symbol}{framing.currentAmount.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[color:var(--text-secondary)]">Remaining milestones</span>
+                      <span className="font-medium text-[color:var(--text-muted)]">
+                        {framing.symbol}{framing.remainingAmount.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm border-t border-[color:var(--border-subtle)] pt-2 mt-1">
+                      <span className="font-semibold text-[color:var(--text-primary)]">Total project</span>
+                      <span className="font-bold text-[color:var(--text-primary)]">
+                        {framing.symbol}{framing.totalProject.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-[11px] text-[color:var(--text-muted)] leading-relaxed">
+                    The client will only see Milestone 1 details in this invoice. Future milestones will be sent separately.
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* ── MSA Section ── */}
             <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4 space-y-3">
