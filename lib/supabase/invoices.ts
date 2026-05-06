@@ -215,8 +215,14 @@ export async function saveInvoice(
     await syncMilestonesFromInvoice(result.data.id, input.formData);
     
     // Task 3: Map calculated grand_total to the returned object so UI updates immediately
-    const items = input.formData.lineItems || [];
-    const grand_total = items.reduce((s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0);
+    const milestones = input.formData.milestones || [];
+    const grand_total = milestones.length > 0
+      ? milestones.reduce((s, m) => s + m.lineItems.reduce(
+          (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0
+        ), 0)
+      : (input.formData.lineItems || []).reduce(
+          (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
+        );
     (result.data as any).grand_total = grand_total;
   }
 
@@ -228,35 +234,29 @@ export async function saveInvoice(
  * This ensures the 'JOIN explosion' logic has actual data to aggregate.
  */
 async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFormData) {
-  const userId = await getCurrentUserId();
-  if (!userId) return;
-
-  // 1. Clear existing milestones for this invoice (cascades to line_items)
+  // 1. Clear existing milestones for this invoice
   await supabase.from("invoice_milestones").delete().eq("invoice_id", invoiceId);
 
-  // 2. Extract and insert new ones
-  const milestonesToInsert: any[] = [];
-  let currentMilestone: any = null;
+  // 2. Use milestones array if available, otherwise skip (form_data JSON is the fallback)
+  const milestones = formData.milestones;
+  if (!milestones || milestones.length === 0) return;
 
-  formData.lineItems.forEach((item, idx) => {
-    if (item.is_milestone_header) {
-      currentMilestone = {
-        invoice_id: invoiceId,
-        user_id: userId,
-        description: item.description,
-        status: "PENDING",
-        temp_id: item.id, // used to link items later
-      };
-      milestonesToInsert.push(currentMilestone);
-    }
-  });
+  // 3. Insert milestones with correct column names
+  const milestonesToInsert = milestones.map((m, idx) => ({
+    invoice_id: invoiceId,
+    title: m.title || `Milestone ${idx + 1}`,
+    status: m.status || 'PENDING',
+    tds_amount: m.tdsAmount || 0,
+    amount: m.lineItems.reduce(
+      (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0),
+      0
+    ),
+    order_index: idx,
+  }));
 
-  if (milestonesToInsert.length === 0) return;
-
-  // Insert milestones
   const { data: insertedMilestones, error: mError } = await supabase
     .from("invoice_milestones")
-    .insert(milestonesToInsert.map(({ temp_id, ...m }) => m))
+    .insert(milestonesToInsert)
     .select();
 
   if (mError || !insertedMilestones) {
@@ -264,38 +264,29 @@ async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFor
     return;
   }
 
-  // 3. Link and insert line items
+  // 4. Insert line items with correct column names
   const itemsToInsert: any[] = [];
   insertedMilestones.forEach((insertedM, mIdx) => {
-    const originalMilestone = milestonesToInsert[mIdx];
-    const milestoneItems = formData.lineItems.filter(li => {
-      // Find items that belong to this milestone (items after this header until the next header)
-      const headerIdx = formData.lineItems.findIndex(h => h.id === originalMilestone.temp_id);
-      const itemIdx = formData.lineItems.findIndex(i => i.id === li.id);
-      if (itemIdx <= headerIdx) return false;
-      
-      // Check if there's any header between them
-      for (let i = headerIdx + 1; i < itemIdx; i++) {
-        if (formData.lineItems[i].is_milestone_header) return false;
-      }
-      return !li.is_milestone_header;
-    });
-
-    milestoneItems.forEach((item, itemIdx) => {
+    const milestone = milestones[mIdx];
+    if (!milestone) return;
+    milestone.lineItems.forEach((item, itemIdx) => {
       itemsToInsert.push({
         milestone_id: insertedM.id,
-        user_id: userId,
+        item_type: item.type,
         description: item.description,
-        qty: item.qty || 0,
-        rate: item.rate || 0,
-        amount: Number(item.qty || 0) * Number(item.rate || 0),
-        order_index: itemIdx
+        quantity: Number(item.qty || 0),
+        rate: Number(item.rate || 0),
+        unit: item.rateUnit,
+        total: Number(item.qty || 0) * Number(item.rate || 0),
+        order_index: itemIdx,
       });
     });
   });
 
   if (itemsToInsert.length > 0) {
-    const { error: liError } = await supabase.from("invoice_line_items").insert(itemsToInsert);
+    const { error: liError } = await supabase
+      .from("invoice_line_items")
+      .insert(itemsToInsert);
     if (liError) console.error("Error inserting line items:", liError);
   }
 }

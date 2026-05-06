@@ -108,6 +108,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
 
   const totals = calculateInvoiceTotals({
     lineItems: formData.lineItems,
+    milestones: formData.milestones?.length > 0 ? formData.milestones : undefined,
     agencyState: formData.agency.agencyState,
     clientState: formData.client.clientState,
     isInternational: international,
@@ -140,33 +141,81 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
       ? formatCurrency(convertInrToApproximateUsd(totals.grandTotal), "USD")
       : null;
 
-  // Prepare line items
-  const lineItems: TemplateLineItem[] = formData.lineItems.map((item, index) => {
-    let groupSubtotalFormatted = "";
-    if (item.is_milestone_header) {
-      let groupSubtotal = 0;
-      for (let i = index + 1; i < formData.lineItems.length; i++) {
-        if (formData.lineItems[i].is_milestone_header) break;
-        groupSubtotal += Number(formData.lineItems[i].qty ?? 0) * Number(formData.lineItems[i].rate ?? 0);
-      }
-      groupSubtotalFormatted = formatCurrency(groupSubtotal, displayCurrency);
-    }
+  // Prepare line items — v1.5: flatten milestones into template line items
+  const lineItems: TemplateLineItem[] = [];
 
-    return {
-      id: item.id,
-      type: item.type,
-      description: item.description || item.type,
-      qty: item.qty,
-      rate: item.rate,
-      rateFormatted: formatCurrency(Number(item.rate || 0), displayCurrency),
-      unit: getUnitLabel(item.rateUnit),
-      amount: Number(item.qty || 0) * Number(item.rate || 0),
-      amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
-      sacCode: resolveLineItemSacCode(item) || "pending",
-      isMilestoneHeader: item.is_milestone_header,
-      groupSubtotalFormatted,
-    };
-  });
+  const useMilestones = formData.milestones && formData.milestones.length > 0;
+
+  if (useMilestones) {
+    for (const milestone of formData.milestones) {
+      const milestoneSubtotal = milestone.lineItems.reduce(
+        (sum, li) => sum + Number(li.qty ?? 0) * Number(li.rate ?? 0),
+        0
+      );
+
+      // Milestone header row
+      lineItems.push({
+        id: milestone.id,
+        type: "Other",
+        description: milestone.title || "Milestone",
+        qty: 1,
+        rate: 0,
+        rateFormatted: "",
+        unit: "",
+        amount: milestoneSubtotal,
+        amountFormatted: "",
+        sacCode: "",
+        isMilestoneHeader: true,
+        groupSubtotalFormatted: formatCurrency(milestoneSubtotal, displayCurrency),
+      });
+
+      // Line items within this milestone
+      for (const item of milestone.lineItems) {
+        lineItems.push({
+          id: item.id,
+          type: item.type,
+          description: item.description || item.type,
+          qty: item.qty,
+          rate: item.rate,
+          rateFormatted: formatCurrency(Number(item.rate || 0), displayCurrency),
+          unit: getUnitLabel(item.rateUnit),
+          amount: Number(item.qty || 0) * Number(item.rate || 0),
+          amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
+          sacCode: resolveLineItemSacCode(item) || "pending",
+          isMilestoneHeader: false,
+          groupSubtotalFormatted: "",
+        });
+      }
+    }
+  } else {
+    // Backward compat: use flat lineItems array
+    for (let index = 0; index < formData.lineItems.length; index++) {
+      const item = formData.lineItems[index];
+      let groupSubtotalFormatted = "";
+      if (item.is_milestone_header) {
+        let groupSubtotal = 0;
+        for (let i = index + 1; i < formData.lineItems.length; i++) {
+          if (formData.lineItems[i].is_milestone_header) break;
+          groupSubtotal += Number(formData.lineItems[i].qty ?? 0) * Number(formData.lineItems[i].rate ?? 0);
+        }
+        groupSubtotalFormatted = formatCurrency(groupSubtotal, displayCurrency);
+      }
+      lineItems.push({
+        id: item.id,
+        type: item.type,
+        description: item.description || item.type,
+        qty: item.qty,
+        rate: item.rate,
+        rateFormatted: formatCurrency(Number(item.rate || 0), displayCurrency),
+        unit: getUnitLabel(item.rateUnit),
+        amount: Number(item.qty || 0) * Number(item.rate || 0),
+        amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
+        sacCode: resolveLineItemSacCode(item) || "pending",
+        isMilestoneHeader: item.is_milestone_header,
+        groupSubtotalFormatted,
+      });
+    }
+  }
 
   // Payment details
   const hasDomesticBank = Boolean(
@@ -246,6 +295,8 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     signatureUrl: formData.agency?.signatureUrl || "",
 
     isDraft: false,
-    projectName: formData.lineItems[0]?.description || "Project Invoice",
+    projectName: (useMilestones
+      ? formData.milestones[0]?.lineItems[0]?.description
+      : formData.lineItems[0]?.description) || "Project Invoice",
   };
 }
