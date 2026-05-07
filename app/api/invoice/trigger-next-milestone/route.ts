@@ -63,6 +63,12 @@ export async function POST(req: NextRequest) {
     const newInvoiceNumber = `INV-${year}-${String(maxNum + 1).padStart(4, "0")}`;
 
     // 3. Build child invoice form_data — only the next milestone
+    // Calculate due date: today + payment terms days
+    const paymentTermsDays = Number(formData?.meta?.paymentTerms) || 15;
+    const dueDateObj = new Date();
+    dueDateObj.setDate(dueDateObj.getDate() + paymentTermsDays);
+    const calculatedDueDate = dueDateObj.toISOString().split("T")[0];
+
     const childFormData = {
       ...formData,
       milestones: [nextMilestone],
@@ -70,6 +76,7 @@ export async function POST(req: NextRequest) {
         ...formData.meta,
         invoiceNumber: newInvoiceNumber,
         invoiceDate: new Date().toISOString().split("T")[0],
+        dueDate: calculatedDueDate,
       },
     };
 
@@ -94,7 +101,7 @@ export async function POST(req: NextRequest) {
         share_token: token,
         shared_to_email: parent.shared_to_email,
         shared_at: new Date().toISOString(),
-        due_date: parent.due_date,
+        due_date: calculatedDueDate,
       })
       .select()
       .single();
