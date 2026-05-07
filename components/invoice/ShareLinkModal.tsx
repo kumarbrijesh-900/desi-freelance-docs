@@ -88,6 +88,7 @@ interface ShareLinkModalProps {
   currentMsaId: string | null;
   msaResponse: MsaResponse;
   invoiceData?: InvoiceFormData;
+  sharedAt: string | null;
   onClose: () => void;
   onShared: (token: string) => void;
 }
@@ -126,6 +127,7 @@ export default function ShareLinkModal({
   currentMsaId,
   msaResponse,
   invoiceData,
+  sharedAt,
   onClose,
   onShared,
 }: ShareLinkModalProps) {
@@ -368,7 +370,7 @@ export default function ShareLinkModal({
                 >
                   <span className="inline-flex items-center gap-2">
                     <SendIcon className="h-4 w-4" />
-                    {sending ? "Sending…" : existingToken ? "Resend Invoice" : "Send Invoice to Client"}
+                    {sending ? "Sending…" : sharedAt ? "Resend Invoice" : "Send Invoice to Client"}
                   </span>
                 </button>
               )}

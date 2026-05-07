@@ -151,6 +151,8 @@ export default function BriefIntakeCard({
   const lockMessage =
     "Engine is out of fuel, waiting for Strait to straighten up.";
 
+  if (isEngineLocked) return null;
+
   if (isCollapsed) {
     return (
       <MotionReveal className="mb-3" preset="fade-up" delay={40}>

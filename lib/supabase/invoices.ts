@@ -358,12 +358,9 @@ export async function listInvoices(): Promise<{
     let grandTotal = 0;
     if (inv.milestones && inv.milestones.length > 0) {
       inv.milestones.forEach((m: any) => {
-        const milestoneTotal = (m.line_items ?? []).reduce(
-          (sum: number, item: any) => sum + Number(item.qty ?? 0) * Number(item.rate ?? 0),
-          0
-        );
-        m.amount = milestoneTotal;
-        grandTotal += milestoneTotal;
+        // Use the pre-calculated amount column in invoice_milestones
+        const milestoneAmount = Number(m.amount || 0);
+        grandTotal += milestoneAmount;
       });
     } else {
       // Fallback to form_data logic

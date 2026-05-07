@@ -162,9 +162,9 @@ function MilestoneProgressBadge({ milestones }: { milestones: any[] }) {
   const total = milestones.length;
   if (settled === 0) return null;
   return (
-    <span className="inline-flex items-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--text-muted)]">
+    <div className="text-[11px] font-normal text-[color:var(--text-secondary)]">
       M{settled} of {total} settled
-    </span>
+    </div>
   );
 }
 
@@ -314,7 +314,10 @@ function InvoiceRow({
                 ›
               </button>
             )}
-            {invoice.invoice_number}
+            <div className="flex flex-col">
+              <span className="text-[13px] font-semibold">{invoice.invoice_number}</span>
+              <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
+            </div>
           </div>
         </td>
 
@@ -352,14 +355,10 @@ function InvoiceRow({
         {fmtAmount(invoice)}
       </td>
 
-      {/* Status */}
       <td className="px-4 py-3 whitespace-nowrap">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center">
-            <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
-            <ViewsBadge count={viewCount} />
-          </div>
-          <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
+        <div className="flex items-center">
+          <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
+          <ViewsBadge count={viewCount} />
         </div>
       </td>
 
@@ -429,16 +428,19 @@ function InvoiceRow({
               return (
                 <tr key={m.id} className="bg-[color:var(--bg-surface-soft)]/30 border-b border-[color:var(--border-subtle)]">
                   <td className="pl-12 py-3 text-[11px] font-medium text-[color:var(--text-muted)] italic">
-                    ↳ {m.description}
+                    ↳
                   </td>
                   <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
-                    Milestone Stage
+                    —
+                  </td>
+                  <td className="px-4 py-3 text-[11px] font-medium text-[color:var(--text-primary)]">
+                    {m.title || `Milestone ${idx + 1}`}
                   </td>
                   <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
                     —
                   </td>
                   <td className="px-4 py-3 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
-                    {symbol}{(m.amount ?? 0).toLocaleString("en-IN")}
+                    {symbol}{(m.amount || 0).toLocaleString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
                     <span className={cn(
@@ -457,7 +459,7 @@ function InvoiceRow({
                         <button
                           type="button"
                           onClick={() => onMarkSettled(invoice.id, m.id)}
-                          className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
+                          className="h-[28px] px-2.5 text-[10px] font-bold text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)] rounded-full transition-colors hover:bg-[color:var(--state-success-bg)] active:scale-95"
                         >
                           Mark Settled
                         </button>
@@ -523,7 +525,7 @@ function InvoiceRow({
                         <button
                           type="button"
                           onClick={() => onMarkSettled(invoice.id, item.id)}
-                          className="text-[10px] font-bold text-[color:var(--color-lime-700)] hover:underline"
+                          className="h-[28px] px-2.5 text-[10px] font-bold text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)] rounded-full transition-colors hover:bg-[color:var(--state-success-bg)] active:scale-95"
                         >
                           Mark Settled
                         </button>

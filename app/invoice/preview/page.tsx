@@ -79,6 +79,7 @@ function PreviewContent() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [sharedAt, setSharedAt] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
@@ -371,6 +372,7 @@ function PreviewContent() {
 
       setCloudInvoiceId(saved.id);
       setShareToken(saved.share_token || null);
+      setSharedAt(saved.shared_at || null);
       setCurrentMsaId(saved.msa_id || null);
       setSaveState("cloud-saved");
 
@@ -794,6 +796,7 @@ function PreviewContent() {
           currentMsaId={currentMsaId}
           msaResponse={msaResponse}
           invoiceData={data}
+          sharedAt={sharedAt}
           onClose={() => setShowShareModal(false)}
           onShared={(token) => setShareToken(token)}
         />

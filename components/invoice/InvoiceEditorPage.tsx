@@ -1016,7 +1016,8 @@ useEffect(() => {
       const hasAssets = Boolean(
         profile.logo_url && profile.qr_code_url && profile.signature_url,
       );
-      setShowProfilePrompt(!hasAssets);
+      const isDismissed = localStorage.getItem("profile_banner_dismissed") === "true";
+      setShowProfilePrompt(!hasAssets && !isDismissed);
     }
   }
   void checkAssets();
@@ -2187,46 +2188,38 @@ return (
     <section
       className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}
     >
-      <div className="mx-auto w-full max-w-[1328px]">
-        {/* Profile Completion Prompt */}
-        {showProfilePrompt && (
-          <MotionReveal preset="fade-up" className="mb-6">
-            <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
-                  ✨
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
-                    Complete your professional profile
-                  </h3>
-                  <p className="text-[13px] text-[color:var(--text-secondary)]">
-                    Upload your agency logo, signature, and payment QR for
-                    faster, more compliant invoices.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowProfilePrompt(false)}
-                  className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
-                >
-                  Later
-                </button>
-                <Link
-                  href="/profile"
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    size: "sm",
-                  })}
-                >
-                  Finish Profile
-                </Link>
-              </div>
+      {showProfilePrompt && (
+        <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
+          <div className="mx-auto flex max-w-[1328px] items-center justify-between px-4 py-2 sm:px-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[14px]">✨</span>
+              <p className="text-[12px] font-medium text-[color:var(--text-primary)]">
+                Complete your profile for faster invoicing.
+              </p>
             </div>
-          </MotionReveal>
-        )}
-      </div>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/profile"
+                className="text-[12px] font-bold text-[color:var(--interactive-primary)] hover:underline"
+              >
+                Finish Profile
+              </Link>
+              <button
+                onClick={() => {
+                  setShowProfilePrompt(false);
+                  localStorage.setItem("profile_banner_dismissed", "true");
+                }}
+                className="text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors flex items-center justify-center h-6 w-6"
+                aria-label="Dismiss"
+              >
+                <span className="text-xl leading-none">&times;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto w-full max-w-[1328px] mt-6">
       <div className="mx-auto grid w-full max-w-[1328px] grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
         <div
           className={`mx-auto w-full max-w-4xl pb-32 lg:col-start-2 ${appSectionGapClass}`}
@@ -2346,26 +2339,33 @@ return (
                       footer={
                         getNextStep(step) ? (
                           <div className="flex justify-end pt-2">
-                            <button
-                              type="button"
-                              disabled={!stepValidityByStep[step]}
-                              data-testid={`continue-${step}-to-${getNextStep(step)}`}
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() =>
-                                guideToSection(getNextStep(step)!, {
-                                  focus: true,
-                                })
-                              }
-                              className={cn(
-                                "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
-                                !stepValidityByStep[step]
-                                  ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-                                  : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                            <div className="flex flex-col items-center">
+                              <button
+                                type="button"
+                                disabled={!stepValidityByStep[step]}
+                                data-testid={`continue-${step}-to-${getNextStep(step)}`}
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() =>
+                                  guideToSection(getNextStep(step)!, {
+                                    focus: true,
+                                  })
+                                }
+                                className={cn(
+                                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                                  !stepValidityByStep[step]
+                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                                )}
+                              >
+                                Continue to{" "}
+                                {getStepShortLabel(getNextStep(step)!)}
+                              </button>
+                              {step === "deliverables" && !stepValidityByStep[step] && (
+                                <p className="mt-2 text-[11px] text-[color:var(--text-secondary)]">
+                                  Add at least one item with a rate to continue.
+                                </p>
                               )}
-                            >
-                              Continue to{" "}
-                              {getStepShortLabel(getNextStep(step)!)}
-                            </button>
+                            </div>
                           </div>
                         ) : null
                       }
