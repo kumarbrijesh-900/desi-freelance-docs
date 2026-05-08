@@ -478,24 +478,20 @@ h3 {
 }
 
 .invoice-step-card[data-step-kind="final"] {
-  border-color: var(--color-lime-300);
+  border-color: var(--border-subtle);
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(190, 255, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(17, 17, 24, 0.03);
 }
 
 .invoice-step-card[data-step-state="active"] {
-  border-color: var(--color-lime-300);
+  border-color: var(--text-primary);
   background: #ffffff;
-  box-shadow:
-    0 0 0 1px rgba(190, 255, 0, 0.1),
-    0 4px 16px rgba(17, 17, 24, 0.04);
+  box-shadow: 0 4px 16px rgba(17, 17, 24, 0.04);
 }
 
 .invoice-step-card[data-step-kind="final"][data-step-state="active"] {
-  border-color: var(--color-lime-300);
-  box-shadow:
-    0 0 0 1px rgba(190, 255, 0, 0.12),
-    0 8px 24px rgba(17, 17, 24, 0.06);
+  border-color: var(--text-primary);
+  box-shadow: 0 8px 24px rgba(17, 17, 24, 0.06);
 }
 
 .invoice-step-card[data-step-state="completed"] {
@@ -533,9 +529,11 @@ h3 {
 }
 
 .invoice-step-rail-item[data-rail-state="active"] {
-  border: 1.5px solid var(--color-lime-300);
-  background: #ffffff;
-  box-shadow: 0 4px 16px rgba(190, 255, 0, 0.08);
+  border: 1px solid transparent;
+  border-left: 2px solid var(--text-primary);
+  background: var(--bg-surface-soft);
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .invoice-step-rail-item[data-rail-state="completed"] {
@@ -564,11 +562,11 @@ h3 {
 }
 
 .invoice-step-rail-item[data-rail-state="active"] .invoice-step-rail-index {
-  border-color: var(--color-lime-400);
-  background: var(--color-lime-300);
-  color: #111118;
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: #ffffff;
   font-weight: 800;
-  box-shadow: 0 2px 8px rgba(190, 255, 0, 0.25);
+  box-shadow: none;
 }
 
 .invoice-step-rail-item[data-rail-state="completed"] .invoice-step-rail-index {
@@ -661,9 +659,9 @@ h3 {
 }
 
 .invoice-total-hero {
-  border: 1px solid var(--color-lime-300);
+  border: 1.5px solid var(--border-default);
   border-radius: var(--app-radius-control);
-  background: var(--color-lime-50);
+  background: transparent;
   padding: 1rem;
 }
 

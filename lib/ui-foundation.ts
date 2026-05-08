@@ -114,7 +114,7 @@ export function getAppPanelClass(
 }
 
 export function getAppStatusPillClass(
-  tone: "default" | "success" | "muted" = "default",
+  tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
   return cn(
     "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
@@ -122,6 +122,8 @@ export function getAppStatusPillClass(
       ? "border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
       : tone === "muted"
         ? "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)]"
-        : "border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] text-[color:var(--color-lime-700)]",
+        : tone === "warning"
+          ? "border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
+          : "border-[color:var(--border-strong)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-primary)]",
   );
 }

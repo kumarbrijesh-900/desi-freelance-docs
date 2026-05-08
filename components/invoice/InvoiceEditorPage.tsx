@@ -634,7 +634,7 @@ function InlineStepSection({
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <span
               className={getAppStatusPillClass(
-                isCompleted ? "success" : isActive ? "default" : "muted",
+                isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
               )}
             >
               {statusLabel}
@@ -2200,7 +2200,7 @@ return (
             <div className="flex items-center gap-4">
               <Link
                 href="/profile"
-                className="text-[12px] font-bold text-[color:var(--interactive-primary)] hover:underline"
+                className="text-[12px] font-bold text-[color:var(--text-primary)] hover:underline"
               >
                 Finish Profile
               </Link>
@@ -2288,7 +2288,7 @@ return (
                 </div>
                 <span
                   className={getAppStatusPillClass(
-                    firstInvalidStep ? "default" : "success",
+                    firstInvalidStep ? "warning" : "success",
                   )}
                 >
                   {firstInvalidStep

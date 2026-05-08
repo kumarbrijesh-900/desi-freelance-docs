@@ -444,7 +444,7 @@ export default function TotalsTaxesSection({
               </dt>
               <dd
                 className={cn(
-                  "mt-2 text-[36px] font-semibold tracking-[-0.03em] [font-variant-numeric:tabular-nums]",
+                  "mt-2 text-[28px] font-semibold tracking-[-0.03em] [font-variant-numeric:tabular-nums]",
                   isRcmEnabled
                     ? "text-[color:var(--interactive-secondary)]"
                     : "text-[color:var(--text-primary)]",
