@@ -18,6 +18,8 @@ import {
   ListChecks,
   ShieldCheck,
   CreditCard,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
@@ -2221,7 +2223,7 @@ return (
 
       <div className="mx-auto grid w-full max-w-[1328px] mt-6 grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
         <div
-          className={`mx-auto w-full max-w-4xl pb-32 lg:col-start-2 ${appSectionGapClass}`}
+          className={`w-full pb-32 lg:col-start-2 ${appSectionGapClass}`}
         >
           <div className="space-y-4">
             {clientMsaNote && (
@@ -2382,6 +2384,48 @@ return (
               })}
             </div>
           </div>
+
+          {/* Sticky Bottom Action Bar */}
+          <div className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-[color:var(--border-tertiary)] bg-[color:var(--bg-primary)] px-6 py-4">
+            <div className="mx-auto flex h-14 items-center justify-between">
+              <button
+                type="button"
+                onClick={handleBackToHome}
+                className="flex items-center gap-2 text-sm font-semibold text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Close</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className={cn(
+                    getAppButtonClass({ variant: "ghost", size: "sm" }),
+                    "h-9 px-4 sm:h-10 sm:px-5",
+                  )}
+                >
+                  <SaveIcon className="mr-2 h-4 w-4" />
+                  Save Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePreviewInvoice}
+                  disabled={!invoiceReadyForPreview}
+                  className={cn(
+                    getAppButtonClass({ variant: "primary", size: "sm" }),
+                    "h-9 px-4 font-bold sm:h-10 sm:px-6",
+                    !invoiceReadyForPreview
+                      ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
+                      : "bg-[#bfff00] text-black hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                  )}
+                >
+                  Preview <ArrowRight className="ml-2 h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <aside
@@ -2468,59 +2512,6 @@ return (
         </aside>
       </div>
     </section>
-
-    <div className="pointer-events-none fixed bottom-4 left-3 right-3 z-30 sm:bottom-auto sm:left-auto sm:right-5 sm:top-1/2 sm:-translate-y-1/2 sm:w-auto">
-      <div
-        className={cn(
-          "invoice-action-dock pointer-events-auto flex w-full items-center justify-end gap-1.5 border px-2 py-2 sm:w-auto sm:flex-col sm:gap-2 sm:px-1.5 sm:py-3",
-        )}
-        data-testid="floating-editor-actions"
-      >
-        <button
-          type="button"
-          onClick={handleBackToHome}
-          className={cn(
-            getAppButtonClass({ variant: "ghost", size: "sm" }),
-            "h-9 px-2.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
-          )}
-        >
-          Close
-        </button>
-        <button
-          type="button"
-          onClick={handleSaveDraft}
-          className={cn(
-            getAppButtonClass({ variant: "ghost", size: "sm" }),
-            "h-9 px-3 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2 sm:text-[10px]",
-          )}
-        >
-          <SaveIcon className="h-4 w-4" />
-          Draft
-        </button>
-
-        <button
-          type="button"
-          onClick={handlePreviewInvoice}
-          disabled={!invoiceReadyForPreview}
-          aria-label={
-            invoiceReadyForPreview
-              ? "Preview and download your invoice"
-              : firstInvalidStep
-                ? `Complete ${getStepShortLabel(firstInvalidStep)} section first`
-                : "Complete all sections to preview"
-          }
-          className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[10px] h-9 px-3 transition-all duration-200 sm:h-auto sm:w-12 sm:flex-col sm:gap-0.5 sm:px-1 sm:py-2",
-            !invoiceReadyForPreview
-              ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-              : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
-          )}
-        >
-          <EyeIcon className="h-4 w-4" />
-          Preview
-        </button>
-      </div>
-    </div>
 
 
 

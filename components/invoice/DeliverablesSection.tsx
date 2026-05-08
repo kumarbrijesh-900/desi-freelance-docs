@@ -206,27 +206,17 @@ export default function DeliverablesSection({
 
                 {/* Line items */}
                 <div className="p-4 space-y-4">
-                  <div className="hidden xl:grid grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 px-4 opacity-40">
-                    <span className="text-[9px] font-bold uppercase">Type</span>
-                    <span className="text-[9px] font-bold uppercase">Description</span>
-                    <span className="text-[9px] font-bold uppercase text-center">Qty</span>
-                    <span className="text-[9px] font-bold uppercase">Rate</span>
-                    <span className="text-[9px] font-bold uppercase">Unit</span>
-                    <span className="text-[9px] font-bold uppercase text-right">Total</span>
-                    <span />
-                  </div>
-
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <AnimatePresence initial={false}>
                       {milestone.lineItems.map((item) => (
                         <motion.div
                           key={item.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <LineItemRow
+                          <LineItemCard
                             item={item}
                             currency={currency}
                             errors={errors?.[item.id]}
@@ -246,9 +236,10 @@ export default function DeliverablesSection({
                   <button
                     type="button"
                     onClick={() => addLineItem(milestone.id)}
-                    className="text-xs font-bold text-gray-400 hover:text-lime-600 transition-colors flex items-center gap-1 group"
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-400 transition-colors hover:text-lime-600 group"
                   >
-                    <span className="text-lg transition-transform group-hover:scale-125">+</span> Add Line Item
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full border border-gray-200 group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
+                    Add Line Item
                   </button>
                 </div>
               </motion.div>
@@ -279,7 +270,7 @@ export default function DeliverablesSection({
   );
 }
 
-function LineItemRow({
+function LineItemCard({
   item,
   currency,
   errors,
@@ -293,7 +284,7 @@ function LineItemRow({
 }: {
   item: InvoiceLineItem;
   currency: InvoiceDisplayCurrency;
-  errors?: { description?: string; qty?: string; rate?: string };
+  errors?: { description?: string; qty?: string; rate?: string; sacCode?: string };
   showAllErrors?: boolean;
   touchedFields: Record<string, boolean>;
   markTouched: (id: string, field: string) => void;
@@ -309,119 +300,117 @@ function LineItemRow({
   const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
-    <div className="group relative grid grid-cols-1 xl:grid-cols-[140px_1fr_90px_130px_120px_110px_40px] gap-4 items-start rounded-xl p-3 xl:p-2 transition-all hover:bg-gray-50/80 border border-transparent hover:border-gray-100 xl:border-none">
-      {/* Type */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Type</label>
-        <AppSelectField
-          value={item.type}
-          onChange={(e) => onUpdate({ type: e.target.value as InvoiceLineItemType })}
-          className="h-9 text-xs"
-        >
-          {invoiceLineItemTypeOptions.map((opt) => {
-            const code = getDefaultSacCodeForType(opt as InvoiceLineItemType);
-            return (
-              <option key={opt} value={opt}>
-                {opt}{code ? ` - SAC ${code}` : ""}
-              </option>
-            );
-          })}
-        </AppSelectField>
-        {sacCode && <p className="text-[10px] text-gray-400 font-medium pl-1">SAC: {sacCode}</p>}
-      </div>
+    <div className="group relative rounded-xl border border-[color:var(--border-tertiary)] bg-white p-4 transition-all hover:border-[color:var(--border-strong)] hover:shadow-sm">
+      {/* Delete button */}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 shadow-sm transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500 lg:opacity-0 lg:group-hover:opacity-100"
+      >
+        ×
+      </button>
 
-      {/* Description */}
-      <div className="relative">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Description</label>
-        <AppTextField
-          type="text"
-          value={item.description}
-          placeholder={invoiceDescriptionPlaceholderByType[item.type]}
-          className="h-9 text-xs w-full"
-          errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
-          onChange={(e) => onUpdate({ description: e.target.value })}
-          onFocus={() => setActiveDescriptionId(item.id)}
-          onBlur={() => {
-            markTouched(item.id, "description");
-            setTimeout(() => {
-              if (activeDescriptionId === item.id) setActiveDescriptionId(null);
-            }, 200);
-          }}
-        />
-        {showSuggestions && (
-          <div className="absolute left-0 top-full z-50 mt-1 w-full bg-white border border-gray-100 shadow-xl rounded-lg py-1">
-            {suggestions.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { onUpdate({ description: s }); setActiveDescriptionId(null); }}
-                className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50"
-              >
-                {s}
-              </button>
-            ))}
+      <div className="space-y-4">
+        {/* Row 1: Type & SAC */}
+        <div className="flex flex-col gap-1.5">
+          <div className="min-w-[200px] w-full md:w-fit">
+            <AppSelectField
+              value={item.type}
+              onChange={(e) => onUpdate({ type: e.target.value as InvoiceLineItemType })}
+              className="h-10 text-sm font-semibold"
+            >
+              {invoiceLineItemTypeOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </AppSelectField>
           </div>
-        )}
-      </div>
+          {sacCode && (
+            <p className="text-[11px] font-medium text-[color:var(--text-muted)] pl-1">
+              SAC: {sacCode}
+            </p>
+          )}
+        </div>
 
-      {/* Qty */}
-      <div>
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Quantity</label>
-        <AppTextField
-          type="number"
-          value={item.qty}
-          className="h-9 text-xs text-center w-full"
-          errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
-          onChange={(e) => onUpdate({ qty: e.target.value })}
-          onBlur={() => markTouched(item.id, "qty")}
-        />
-      </div>
-
-      {/* Rate */}
-      <div className="relative">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Rate</label>
+        {/* Row 2: Description */}
         <div className="relative">
           <AppTextField
-            type="number"
-            value={item.rate}
-            className="h-9 text-xs pl-6 w-full"
-            errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
-            onChange={(e) => onUpdate({ rate: e.target.value })}
-            onBlur={() => markTouched(item.id, "rate")}
+            type="text"
+            value={item.description}
+            placeholder={invoiceDescriptionPlaceholderByType[item.type] || "Description"}
+            className="w-full text-sm h-10"
+            errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
+            onChange={(e) => onUpdate({ description: e.target.value })}
+            onFocus={() => setActiveDescriptionId(item.id)}
+            onBlur={() => {
+              markTouched(item.id, "description");
+              setTimeout(() => {
+                if (activeDescriptionId === item.id) setActiveDescriptionId(null);
+              }, 200);
+            }}
           />
-          <span className="absolute left-2 top-[10px] text-[10px] text-gray-400">{getCurrencySymbol(currency)}</span>
+          {showSuggestions && (
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-2xl rounded-lg py-1 overflow-hidden ring-1 ring-black/5">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { onUpdate({ description: s }); setActiveDescriptionId(null); }}
+                  className="w-full text-left px-4 py-2.5 text-xs hover:bg-gray-50 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Unit */}
-      <div>
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight xl:hidden pl-1 mb-1 block">Unit</label>
-        <AppSelectField
-          value={item.rateUnit}
-          onChange={(e) => onUpdate({ rateUnit: e.target.value as InvoiceRateUnit })}
-          className="h-9 text-xs"
-        >
-          {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
-        </AppSelectField>
-      </div>
+        {/* Row 3: Qty / Rate / Unit */}
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="w-[80px]">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Qty</label>
+            <AppTextField
+              type="number"
+              value={item.qty}
+              className="h-10 text-sm w-full"
+              errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
+              onChange={(e) => onUpdate({ qty: e.target.value })}
+              onBlur={() => markTouched(item.id, "qty")}
+            />
+          </div>
 
-      {/* Total */}
-      <div className="flex h-auto xl:h-9 items-center justify-end pt-1 xl:pt-0">
-        <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-          {formatCurrency(total, currency)}
-        </span>
-      </div>
+          <div className="w-[160px]">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Rate</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">{getCurrencySymbol(currency)}</span>
+              <AppTextField
+                type="number"
+                value={item.rate}
+                className="h-10 text-sm pl-7 w-full"
+                errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
+                onChange={(e) => onUpdate({ rate: e.target.value })}
+                onBlur={() => markTouched(item.id, "rate")}
+              />
+            </div>
+          </div>
 
-      {/* Remove */}
-      <div className="flex h-auto xl:h-9 items-center justify-center pt-1 xl:pt-0">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="xl:opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 text-xl transition-all p-1"
-        >
-          ×
-        </button>
+          <div className="w-[160px]">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Unit</label>
+            <AppSelectField
+              value={item.rateUnit}
+              onChange={(e) => onUpdate({ rateUnit: e.target.value as InvoiceRateUnit })}
+              className="h-10 text-sm"
+            >
+              {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
+            </AppSelectField>
+          </div>
+
+          <div className="ml-auto pb-2 text-right">
+            <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
+              {formatCurrency(total, currency)}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -210,425 +210,435 @@ export default function AgencyDetailsSection({
           </div>
         ) : null}
 
-        <div className="space-y-6">
-          <div className="py-6">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-3">
-                <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
-                  GST Registration Status
-                </span>
-                <div className="group relative">
-                  <span className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[9px] font-bold text-[color:var(--text-muted)]">
-                    ?
-                  </span>
-                  <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-64 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 z-10">
-                    Toggle if your business is registered for Goods and Services Tax in India.
-                    <div className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
-                  </div>
-                </div>
-                <AppSwitch
-                  checked={value.gstRegistrationStatus === "registered"}
-                  onChange={(checked) =>
-                    updateField(
-                      "gstRegistrationStatus",
-                      checked ? "registered" : "not-registered",
-                    )
-                  }
-                />
-                <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
-                  {value.gstRegistrationStatus === "registered"
-                    ? "Registered"
-                    : "Not registered"}
-                </span>
-              </div>
-              <p className="text-[11px] text-[color:var(--text-muted)]">
-                Required for tax compliance in India
-              </p>
+        <div className="space-y-10">
+          {/* Section A: Tax & Identity */}
+          <div>
+            <div className="mb-4">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                Tax & Identity
+              </h3>
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
             </div>
 
-            <AnimatePresence initial={false}>
-              {showGstinField && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                  animate={{ height: "auto", opacity: 1, marginTop: 24 }}
-                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="space-y-4 pt-2">
-                    <div className={appFieldPairGridClass}>
-                      <div>
-                        <label className={appFieldLabelClass}>GSTIN</label>
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          aria-label="Agency GSTIN"
-                          value={value.gstin}
-                          onChange={(e) =>
-                            updateField(
-                              "gstin",
-                              e.target.value.toUpperCase().replace(/\s+/g, ""),
-                            )
-                          }
-                          onBlur={() => markTouched("gstin")}
-                          placeholder="GSTIN"
-                          autoCapitalize="characters"
-                          spellCheck={false}
-                          className={inputClass(gstinError, Boolean(value.gstin))}
-                        />
-                        {gstinError ? (
-                          <p className={appFieldErrorTextClass}>{gstinError}</p>
-                        ) : gstinInfo.state ? (
-                          <p className={appFieldHelperTextClass}>
-                            GSTIN state code maps to {gstinInfo.state}.
-                          </p>
-                        ) : null}
-                      </div>
-
-                      <div>
-                        <label className={appFieldLabelClass}>PAN</label>
-                        <input
-                          suppressHydrationWarning
-                          type="text"
-                          value={value.pan}
-                          onChange={(e) =>
-                            updateField(
-                              "pan",
-                              e.target.value.toUpperCase().replace(/\s+/g, ""),
-                            )
-                          }
-                          onBlur={() => markTouched("pan")}
-                          placeholder="PAN"
-                          autoCapitalize="characters"
-                          spellCheck={false}
-                          className={inputClass(panError, Boolean(value.pan))}
-                        />
-                        {panError ? (
-                          <p className={appFieldErrorTextClass}>{panError}</p>
-                        ) : panConflictWarning ? (
-                          <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                            {panConflictWarning}
-                          </p>
-                        ) : null}
-                      </div>
+            <div className="space-y-6">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-3">
+                  <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                    GST Registration Status
+                  </span>
+                  <div className="group relative">
+                    <span className="flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[9px] font-bold text-[color:var(--text-muted)]">
+                      ?
+                    </span>
+                    <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-64 rounded-lg bg-[color:var(--text-primary)] p-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 z-10">
+                      Toggle if your business is registered for Goods and Services Tax in India.
+                      <div className="absolute left-4 top-full -translate-x-1/2 border-4 border-transparent border-t-[color:var(--text-primary)]" />
                     </div>
+                  </div>
+                  <AppSwitch
+                    checked={value.gstRegistrationStatus === "registered"}
+                    onChange={(checked) =>
+                      updateField(
+                        "gstRegistrationStatus",
+                        checked ? "registered" : "not-registered",
+                      )
+                    }
+                  />
+                  <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                    {value.gstRegistrationStatus === "registered"
+                      ? "Registered"
+                      : "Not registered"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[color:var(--text-muted)]">
+                  Required for tax compliance in India
+                </p>
+              </div>
 
-                    <div className="space-y-4 border-t border-[color:var(--border-subtle)] pt-6">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
-                            Valid LUT for current financial year?
-                          </span>
-                          <AppSwitch
-                            checked={value.lutAvailability === "yes"}
-                            onChange={(checked) =>
-                              updateField("lutAvailability", checked ? "yes" : "no")
+              <AnimatePresence initial={false}>
+                {showGstinField ? (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap gap-4">
+                        <div className="w-full max-w-[360px]">
+                          <label className={appFieldLabelClass}>GSTIN</label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            aria-label="Agency GSTIN"
+                            value={value.gstin}
+                            onChange={(e) =>
+                              updateField(
+                                "gstin",
+                                e.target.value.toUpperCase().replace(/\s+/g, ""),
+                              )
                             }
+                            onBlur={() => markTouched("gstin")}
+                            placeholder="GSTIN"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            className={inputClass(gstinError, Boolean(value.gstin))}
                           />
-                          <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
-                            {value.lutAvailability === "yes" ? "Yes" : "No"}
-                          </span>
+                          {gstinError ? (
+                            <p className={appFieldErrorTextClass}>{gstinError}</p>
+                          ) : gstinInfo.state ? (
+                            <p className={appFieldHelperTextClass}>
+                              GSTIN state code maps to {gstinInfo.state}.
+                            </p>
+                          ) : null}
                         </div>
-                        <p className="text-[11px] text-[color:var(--text-muted)]">
-                          Required for Zero-Rated export invoices
-                        </p>
-                      </div>
-                      
-                      <AnimatePresence initial={false}>
-                        {value.lutAvailability === "yes" && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                            animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                            transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="overflow-hidden"
-                          >
-                            <div className="max-w-[280px] pt-2">
-                              <label className={appFieldLabelClass}>
-                                LUT Number / ARN
-                              </label>
-                              <input
-                                suppressHydrationWarning
-                                type="text"
-                                value={value.lutNumber}
-                                onChange={(e) =>
-                                  updateField("lutNumber", e.target.value)
-                                }
-                                placeholder="LUT ARN Number"
-                                className={inputClass(
-                                  undefined,
-                                  Boolean(value.lutNumber),
-                                )}
-                              />
-                              <p className="mt-2 text-[11px] leading-relaxed text-[color:var(--text-muted)]">
-                                Acknowledgement Reference Number from your RFD-11 filing.
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
 
-                      <AnimatePresence>
+                        <div className="w-full max-w-[280px]">
+                          <label className={appFieldLabelClass}>PAN</label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.pan}
+                            onChange={(e) =>
+                              updateField(
+                                "pan",
+                                e.target.value.toUpperCase().replace(/\s+/g, ""),
+                              )
+                            }
+                            onBlur={() => markTouched("pan")}
+                            placeholder="PAN"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            className={inputClass(panError, Boolean(value.pan))}
+                          />
+                          {panError ? (
+                            <p className={appFieldErrorTextClass}>{panError}</p>
+                          ) : panConflictWarning ? (
+                            <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                              {panConflictWarning}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 rounded-xl bg-[color:var(--bg-surface-muted)]/40 p-4 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                              Valid LUT for current financial year?
+                            </span>
+                            <AppSwitch
+                              checked={value.lutAvailability === "yes"}
+                              onChange={(checked) =>
+                                updateField("lutAvailability", checked ? "yes" : "no")
+                              }
+                            />
+                            <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                              {value.lutAvailability === "yes" ? "Yes" : "No"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[color:var(--text-muted)]">
+                            Required for Zero-Rated export invoices
+                          </p>
+                        </div>
+                        
+                        <AnimatePresence initial={false}>
+                          {value.lutAvailability === "yes" && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="max-w-[280px] pt-1">
+                                <label className={appFieldLabelClass}>
+                                  LUT Number / ARN
+                                </label>
+                                <input
+                                  suppressHydrationWarning
+                                  type="text"
+                                  value={value.lutNumber}
+                                  onChange={(e) =>
+                                    updateField("lutNumber", e.target.value)
+                                  }
+                                  placeholder="LUT ARN Number"
+                                  className={inputClass(
+                                    undefined,
+                                    Boolean(value.lutNumber),
+                                  )}
+                                />
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
                         {showNoLutTotalsNote && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-2"
-                          >
+                          <div className="rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-2">
                             <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="w-full max-w-[280px] pt-2">
+                      <label className={appFieldLabelClass}>PAN</label>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        value={value.pan}
+                        onChange={(e) =>
+                          updateField(
+                            "pan",
+                            e.target.value.toUpperCase().replace(/\s+/g, ""),
+                          )
+                        }
+                        onBlur={() => markTouched("pan")}
+                        placeholder="PAN"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        className={inputClass(panError, Boolean(value.pan))}
+                      />
+                      {panError ? (
+                        <p className={appFieldErrorTextClass}>{panError}</p>
+                      ) : panConflictWarning ? (
+                        <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                          {panConflictWarning}
+                        </p>
+                      ) : null}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
 
-            <AnimatePresence initial={false}>
-              {!showGstinField && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                  animate={{ height: "auto", opacity: 1, marginTop: 24 }}
-                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="w-full md:max-w-[240px] pt-2">
-                    <label className={appFieldLabelClass}>PAN</label>
+          {/* Section B: Business Details */}
+          <div>
+            <div className="mb-4">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                Business Details
+              </h3>
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className={appFieldLabelClass}>
+                  Business / Trade Name *
+                </label>
+                <input
+                  suppressHydrationWarning
+                  type="text"
+                  value={value.agencyName}
+                  onChange={(e) => updateField("agencyName", e.target.value)}
+                  onBlur={() => markTouched("agencyName")}
+                  placeholder="Your agency or freelance brand name"
+                  className={inputClass(agencyNameError, Boolean(value.agencyName))}
+                />
+                {agencyNameError ? (
+                  <p className={appFieldErrorTextClass}>{agencyNameError}</p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <label className={appFieldLabelClass}>Agency Logo</label>
+                {value.logoUrl ? (
+                  <div className="flex items-center justify-between rounded-xl bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                        <img
+                          src={value.logoUrl}
+                          alt="Logo"
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                          Agency Logo Attached
+                          {value.logoUrl === value.profileLogoUrl &&
+                            value.logoUrl !== "" && (
+                              <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
+                                Synced
+                              </span>
+                            )}
+                        </p>
+                        <p className="text-[11px] text-[color:var(--text-muted)]">
+                          Appears at the top of the invoice
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                      title="Remove Logo"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
+                      Upload Agency Logo
+                    </span>
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section C: Registered Address */}
+          <div>
+            <div className="mb-4">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                Registered Address
+              </h3>
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+            </div>
+
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 gap-5">
+                <div className={appFieldFullWidthStackClass}>
+                  <label className={appFieldLabelClass}>Address Line 1 *</label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.addressLine1}
+                    onChange={(e) => updateField("addressLine1", e.target.value)}
+                    onBlur={() => markTouched("address")}
+                    placeholder="Building, street, or area"
+                    className={inputClass(
+                      addressError,
+                      Boolean(value.addressLine1),
+                    )}
+                  />
+                </div>
+
+                <div className={appFieldFullWidthStackClass}>
+                  <label className={appFieldLabelClass}>Address Line 2</label>
+                  <input
+                    suppressHydrationWarning
+                    type="text"
+                    value={value.addressLine2}
+                    onChange={(e) => updateField("addressLine2", e.target.value)}
+                    placeholder="Suite, floor, landmark, or optional line"
+                    className={inputClass(undefined, Boolean(value.addressLine2))}
+                  />
+                </div>
+
+                <div className="grid grid-cols-[45%_35%_20%] gap-3">
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>State *</label>
+                    <AppSelectField
+                      suppressHydrationWarning
+                      aria-label="Agency state"
+                      value={value.agencyState}
+                      onChange={(e) =>
+                        updateField(
+                          "agencyState",
+                          e.target.value as AgencyDetails["agencyState"],
+                        )
+                      }
+                      onBlur={() => markTouched("agencyState")}
+                      hasError={agencyStateError}
+                      hasValue={Boolean(value.agencyState)}
+                    >
+                      <option value="">State</option>
+                      {INDIA_STATE_OPTIONS.map((stateName) => (
+                        <option key={stateName} value={stateName}>
+                          {stateName}
+                        </option>
+                      ))}
+                    </AppSelectField>
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>City</label>
                     <input
                       suppressHydrationWarning
                       type="text"
-                      value={value.pan}
+                      value={value.city}
+                      onChange={(e) => updateField("city", e.target.value)}
+                      placeholder="City"
+                      className={inputClass(undefined, Boolean(value.city))}
+                    />
+                  </div>
+
+                  <div className="min-w-0">
+                    <label className={appFieldLabelClass}>PIN</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      inputMode="numeric"
+                      value={value.pinCode}
                       onChange={(e) =>
                         updateField(
-                          "pan",
-                          e.target.value.toUpperCase().replace(/\s+/g, ""),
+                          "pinCode",
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
                         )
                       }
-                      onBlur={() => markTouched("pan")}
-                      placeholder="PAN"
-                      autoCapitalize="characters"
-                      spellCheck={false}
-                      className={inputClass(panError, Boolean(value.pan))}
+                      placeholder="PIN"
+                      className={inputClass(undefined, Boolean(value.pinCode))}
                     />
-                    {panError ? (
-                      <p className={appFieldErrorTextClass}>{panError}</p>
-                    ) : panConflictWarning ? (
-                      <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                        {panConflictWarning}
-                      </p>
-                    ) : null}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Business Name */}
-          <div>
-            <label className={appFieldLabelClass}>
-              Business / Trade Name *
-            </label>
-            <input
-              suppressHydrationWarning
-              type="text"
-              value={value.agencyName}
-              onChange={(e) => updateField("agencyName", e.target.value)}
-              onBlur={() => markTouched("agencyName")}
-              placeholder="Your agency or freelance brand name"
-              className={inputClass(agencyNameError, Boolean(value.agencyName))}
-            />
-            {agencyNameError ? (
-              <p className={appFieldErrorTextClass}>{agencyNameError}</p>
-            ) : null}
-          </div>
-
-          {/* Logo Upload Section */}
-          <div className="space-y-2">
-            <label className={appFieldLabelClass}>Agency Logo</label>
-            {value.logoUrl ? (
-              <div className="flex items-center justify-between rounded-md bg-gray-50 p-3 ring-1 ring-inset ring-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
-                    <img
-                      src={value.logoUrl}
-                      alt="Logo"
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-gray-900">
-                      Agency Logo Attached
-                      {value.logoUrl === value.profileLogoUrl &&
-                        value.logoUrl !== "" && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
-                            Synced from Profile
-                          </span>
-                        )}
-                    </p>
-                    <p className="text-[11px] text-gray-500">
-                      Will appear on the top of the invoice
-                    </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={removeLogo}
-                  className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                  title="Remove Logo"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
               </div>
-            ) : (
-              <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                  />
-                </svg>
-                <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
-                  Upload Agency Logo
-                </span>
-              </label>
-            )}
-          </div>
 
-          <div>
-            <div className="mb-2">
-              <label className={appFieldLabelClass}>Registered Address *</label>
+              {addressError ? (
+                <p className={appFieldErrorTextClass}>{addressError}</p>
+              ) : null}
+              {agencyStateError ? (
+                <p className={appFieldErrorTextClass}>{agencyStateError}</p>
+              ) : null}
+              {stateSignals.warning ? (
+                <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                  {stateSignals.warning}
+                </p>
+              ) : null}
             </div>
-
-            <div className="space-y-4">
-              <div className={appFieldFullWidthStackClass}>
-                <label className={appFieldLabelClass}>Address Line 1 *</label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.addressLine1}
-                  onChange={(e) => updateField("addressLine1", e.target.value)}
-                  onBlur={() => markTouched("address")}
-                  placeholder="Building, street, or area"
-                  className={inputClass(
-                    addressError,
-                    Boolean(value.addressLine1),
-                  )}
-                />
-              </div>
-
-              <div className={appFieldFullWidthStackClass}>
-                <label className={appFieldLabelClass}>Address Line 2</label>
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={value.addressLine2}
-                  onChange={(e) => updateField("addressLine2", e.target.value)}
-                  placeholder="Suite, floor, landmark, or optional line"
-                  className={inputClass(undefined, Boolean(value.addressLine2))}
-                />
-              </div>
-
-              <div className={appFieldTripleCompactGridClass}>
-                <div className="min-w-0">
-                  <label className={appFieldLabelClass}>State *</label>
-                  <AppSelectField
-                    suppressHydrationWarning
-                    aria-label="Agency state"
-                    value={value.agencyState}
-                    onChange={(e) =>
-                      updateField(
-                        "agencyState",
-                        e.target.value as AgencyDetails["agencyState"],
-                      )
-                    }
-                    onBlur={() => markTouched("agencyState")}
-                    hasError={agencyStateError}
-                    hasValue={Boolean(value.agencyState)}
-                  >
-                    <option value="">Select state or union territory</option>
-                    {INDIA_STATE_OPTIONS.map((stateName) => (
-                      <option key={stateName} value={stateName}>
-                        {stateName}
-                      </option>
-                    ))}
-                  </AppSelectField>
-                </div>
-
-                <div>
-                  <label className={appFieldLabelClass}>City</label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    value={value.city}
-                    onChange={(e) => updateField("city", e.target.value)}
-                    placeholder="Bengaluru"
-                    className={inputClass(undefined, Boolean(value.city))}
-                  />
-                </div>
-
-                <div className="min-w-0">
-                  <label className={appFieldLabelClass}>PIN Code</label>
-                  <input
-                    suppressHydrationWarning
-                    type="text"
-                    inputMode="numeric"
-                    value={value.pinCode}
-                    onChange={(e) =>
-                      updateField(
-                        "pinCode",
-                        e.target.value.replace(/\D/g, "").slice(0, 6),
-                      )
-                    }
-                    placeholder="560025"
-                    className={inputClass(undefined, Boolean(value.pinCode))}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {addressError ? (
-              <p className={appFieldErrorTextClass}>{addressError}</p>
-            ) : null}
-            {agencyStateError ? (
-              <p className={appFieldErrorTextClass}>{agencyStateError}</p>
-            ) : null}
-            {stateSignals.warning ? (
-              <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-                {stateSignals.warning}
-              </p>
-            ) : null}
           </div>
         </div>
       </section>

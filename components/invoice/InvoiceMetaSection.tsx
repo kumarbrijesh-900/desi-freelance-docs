@@ -110,58 +110,78 @@ export default function InvoiceMetaSection({
         </div>
       ) : null}
 
-      <div className={cn(appFieldFullWidthStackClass, "md:max-w-[640px]")}>
+      <div className="space-y-10">
+        {/* Section A: Identity */}
         <div>
-          <label className={appFieldLabelClass}>Invoice Number *</label>
-          <input
-            suppressHydrationWarning
-            type="text"
-            value={value.invoiceNumber}
-            onChange={(e) => updateField("invoiceNumber", e.target.value)}
-            onBlur={() => markTouched("invoiceNumber")}
-            placeholder="INV-2026-001"
-            className={inputClass(
-              invoiceNumberError,
-              Boolean(value.invoiceNumber),
-            )}
-          />
-          {invoiceNumberError ? (
-            <p className={appFieldErrorTextClass}>{invoiceNumberError}</p>
-          ) : null}
-        </div>
-
-        <div className={appFieldPairGridClass}>
-          <div className="md:max-w-[190px]">
-            <label className={appFieldLabelClass}>Invoice Date *</label>
-            <input
-              suppressHydrationWarning
-              type="date"
-              value={value.invoiceDate}
-              onChange={(e) => updateField("invoiceDate", e.target.value)}
-              onBlur={() => markTouched("invoiceDate")}
-              className={inputClass(
-                invoiceDateError,
-                Boolean(value.invoiceDate),
-              )}
-            />
-            {invoiceDateError ? (
-              <p className={appFieldErrorTextClass}>{invoiceDateError}</p>
-            ) : null}
+          <div className="mb-4">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              Identity
+            </h3>
+            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
           </div>
 
-          <div className="md:max-w-[190px]">
-            <label className={appFieldLabelClass}>Due Date *</label>
+          <div className="max-w-[320px]">
+            <label className={appFieldLabelClass}>Invoice Number *</label>
             <input
               suppressHydrationWarning
-              type="date"
-              value={value.dueDate}
-              onChange={(e) => updateField("dueDate", e.target.value)}
-              onBlur={() => markTouched("dueDate")}
-              className={inputClass(dueDateError, Boolean(value.dueDate))}
+              type="text"
+              value={value.invoiceNumber}
+              onChange={(e) => updateField("invoiceNumber", e.target.value)}
+              onBlur={() => markTouched("invoiceNumber")}
+              placeholder="INV-2026-001"
+              className={inputClass(
+                invoiceNumberError,
+                Boolean(value.invoiceNumber),
+              )}
             />
-            {dueDateError ? (
-              <p className={appFieldErrorTextClass}>{dueDateError}</p>
+            {invoiceNumberError ? (
+              <p className={appFieldErrorTextClass}>{invoiceNumberError}</p>
             ) : null}
+          </div>
+        </div>
+
+        {/* Section B: Timelines */}
+        <div>
+          <div className="mb-4">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              Timelines
+            </h3>
+            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+          </div>
+
+          <div className={appFieldPairGridClass}>
+            <div className="md:max-w-[240px]">
+              <label className={appFieldLabelClass}>Invoice Date *</label>
+              <input
+                suppressHydrationWarning
+                type="date"
+                value={value.invoiceDate}
+                onChange={(e) => updateField("invoiceDate", e.target.value)}
+                onBlur={() => markTouched("invoiceDate")}
+                className={inputClass(
+                  invoiceDateError,
+                  Boolean(value.invoiceDate),
+                )}
+              />
+              {invoiceDateError ? (
+                <p className={appFieldErrorTextClass}>{invoiceDateError}</p>
+              ) : null}
+            </div>
+
+            <div className="md:max-w-[240px]">
+              <label className={appFieldLabelClass}>Due Date *</label>
+              <input
+                suppressHydrationWarning
+                type="date"
+                value={value.dueDate}
+                onChange={(e) => updateField("dueDate", e.target.value)}
+                onBlur={() => markTouched("dueDate")}
+                className={inputClass(dueDateError, Boolean(value.dueDate))}
+              />
+              {dueDateError ? (
+                <p className={appFieldErrorTextClass}>{dueDateError}</p>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

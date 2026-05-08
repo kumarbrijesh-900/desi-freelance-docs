@@ -303,11 +303,11 @@ export default function ShareLinkModal({
                 <ul className="space-y-2.5">
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Payment:</span> {invoiceData?.meta?.paymentTerms || (invoiceData?.client?.msaPaymentTermsDays ? `Net ${invoiceData.client.msaPaymentTermsDays}` : "Due on Receipt")}
+                    <span className="font-semibold">Payment terms:</span> {invoiceData?.meta?.paymentTerms || (invoiceData?.client?.msaPaymentTermsDays ? `Net ${invoiceData.client.msaPaymentTermsDays} days` : "Due on Receipt")}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Late Penalty:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {invoiceData?.client?.msaLateFeeUnit || "monthly"}
+                    <span className="font-semibold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% per {invoiceData?.client?.msaLateFeeUnit?.replace("monthly", "month") || "month"}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
@@ -370,7 +370,7 @@ export default function ShareLinkModal({
                 >
                   <span className="inline-flex items-center gap-2">
                     <SendIcon className="h-4 w-4" />
-                    {sending ? "Sending…" : sharedAt ? "Resend Invoice" : "Send Invoice to Client"}
+                    {sending ? "Sending…" : sharedAt ? "Resend Invoice" : "Send Invoice"}
                   </span>
                 </button>
               )}
