@@ -578,6 +578,7 @@ function InlineStepSection({
   return (
     <motion.section
       layout
+      id={`step-${step}`}
       data-step-section={step}
       data-step-state={
         isActive ? "active" : isCompleted ? "completed" : "incomplete"
@@ -1464,17 +1465,19 @@ const scrollToStep = (
 ) => {
   guideToSection(step);
 
-  const stepNode = stepRefs.current[step];
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (stepNode) {
-    stepNode.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  }
+  // Delayed scroll to ensure React has rendered the new step content
+  setTimeout(() => {
+    const scrollContainer = document.querySelector(".invoice-editor-scroll-area");
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, 50);
 
   if (options?.focus) {
     const requestFocus = () => {
@@ -2138,7 +2141,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
 
 
 return (
-  <main suppressHydrationWarning className={appPageShellClass}>
+  <main className={cn(appPageShellClass, "relative invoice-editor-scroll-area")} suppressHydrationWarning>
     <AnimatePresence>
       {isProcessingAutofill && (
         <motion.div
