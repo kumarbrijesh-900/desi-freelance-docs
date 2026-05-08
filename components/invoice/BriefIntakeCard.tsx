@@ -146,12 +146,6 @@ export default function BriefIntakeCard({
     }
   };
 
-  const isAdmin = userEmail === "kumar.brijesh900@gmail.com";
-  const isEngineLocked = !isAdmin; // Manual lock override
-  const lockMessage =
-    "Engine is out of fuel, waiting for Strait to straighten up.";
-
-  if (isEngineLocked) return null;
 
   if (isCollapsed) {
     return (
@@ -174,17 +168,17 @@ export default function BriefIntakeCard({
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-[12px] shadow-sm">
-                ⛽
+                ✨
               </span>
               <div className="flex flex-col min-w-0">
                 <span
                   id="brief-intake-collapsed-heading"
                   className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700/60"
                 >
-                  Parsing Engine
+                  AI Autofill
                 </span>
                 <span className="truncate text-[12px] font-bold text-amber-900">
-                  {lockMessage}
+                  Ready to scan your brief
                 </span>
               </div>
             </div>
@@ -235,46 +229,8 @@ export default function BriefIntakeCard({
           </div>
         )}
 
-        {/* Maintenance Overlay - Hidden as per request */}
-        {false && isEngineLocked && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[1px] pointer-events-none">
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl pointer-events-auto">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
-                ⛽
-              </div>
-              <p className="max-w-[240px] text-center text-[14px] font-bold leading-relaxed text-amber-900">
-                {lockMessage}
-              </p>
-              {/* Parsing Engine status banner - Hidden as per request */}
-              {false && (
-                <div className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/50 px-4 py-3">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                    <span className="text-[10px] font-bold">!</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[11px] font-medium leading-relaxed text-amber-900">
-                      Engine is out of fuel, waiting for Strait to straighten up.
-                    </p>
-                  </div>
-                </div>
-              )}
-              <div className="h-1 w-32 rounded-full bg-gray-100 overflow-hidden">
-                <motion.div
-                  className="h-full bg-amber-400"
-                  animate={{ x: [-128, 128] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
-        <div
-          className={cn(
-            "space-y-2",
-            isEngineLocked && "opacity-20 grayscale pointer-events-none",
-          )}
-        >
+        <div className="space-y-2">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 max-w-3xl space-y-0.5">
               <h2 id="brief-intake-heading" className={appSectionTitleClass}>
@@ -302,7 +258,6 @@ export default function BriefIntakeCard({
                   <textarea
                     rows={4}
                     value={briefText}
-                    disabled={isEngineLocked}
                     onChange={(e) => {
                       setBriefText(e.target.value);
                       setLastExtractionState("idle");
@@ -353,7 +308,6 @@ export default function BriefIntakeCard({
                           type="file"
                           accept="image/png,image/jpeg"
                           multiple
-                          disabled={isEngineLocked}
                           onChange={(event) => {
                             handleFiles(event.target.files);
                             event.target.value = "";
@@ -364,7 +318,6 @@ export default function BriefIntakeCard({
 
                       <MotionButton
                         type="button"
-                        disabled={isEngineLocked}
                         className={getAppButtonClass({
                           variant: "ghost",
                           size: "sm",
@@ -384,7 +337,7 @@ export default function BriefIntakeCard({
                     <MotionButton
                       type="button"
                       onClick={handleExtract}
-                      disabled={isEngineLocked || isExtracting || !canExtract}
+                      disabled={isExtracting || !canExtract}
                       className={getAppButtonClass({
                         variant: "primary",
                         size: "md",

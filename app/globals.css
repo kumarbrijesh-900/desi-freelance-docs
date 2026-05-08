@@ -277,8 +277,8 @@ h3 {
 }
 
 .app-soft-field:focus-within {
-  border-color: var(--color-lime-300);
-  box-shadow: 0 0 0 2px rgba(190, 255, 0, 0.15);
+  border-color: #111118;
+  box-shadow: 0 0 0 1px #111118;
 }
 
 .app-soft-field-filled {

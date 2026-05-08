@@ -2340,7 +2340,7 @@ return (
                       isActive={isActive}
                       isCompleted={isCompleted}
                       issueCount={missingFieldCountByStep[step]}
-                      onActivate={() => guideToSection(step)}
+                      onActivate={() => scrollToStep(step)}
                       footer={
                         getNextStep(step) ? (
                           <div className="flex justify-end pt-2">
@@ -2351,7 +2351,7 @@ return (
                                 data-testid={`continue-${step}-to-${getNextStep(step)}`}
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() =>
-                                  guideToSection(getNextStep(step)!, {
+                                  scrollToStep(getNextStep(step)!, {
                                     focus: true,
                                   })
                                 }

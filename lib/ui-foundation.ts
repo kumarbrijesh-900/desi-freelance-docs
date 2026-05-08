@@ -82,7 +82,7 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--app-color-text-primary)] outline-none transition-[border-color,box-shadow] duration-[var(--app-duration-fast)] ease-[var(--app-ease-standard)] focus-visible:ring-2 focus-visible:ring-[#D4FF00] focus-visible:border-transparent",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border text-[14px] font-normal leading-6 text-[color:var(--text-primary)] outline-none transition-all duration-200 ease-[var(--app-ease-standard)] focus-visible:ring-1 focus-visible:ring-[#111118] focus-visible:border-[#111118]",
     multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
