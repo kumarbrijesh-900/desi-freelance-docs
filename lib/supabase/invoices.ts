@@ -51,9 +51,10 @@ export interface SavedInvoice {
   grand_total?: number;
   milestones?: {
     id: string;
-    description: string;
+    title: string;
     status: string;
     amount: number;
+    order_index: number;
     line_items: {
       id: string;
       description: string;
@@ -354,6 +355,11 @@ export async function listInvoices(): Promise<{
 
   // Aggregate data and calculate Grand Total manually
   const processedInvoices = (data ?? []).map((inv: any) => {
+    // Sort milestones by order_index ascending
+    if (inv.milestones && inv.milestones.length > 0) {
+      inv.milestones.sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0));
+    }
+
     // Calculate total amount from relational data if available, fallback to form_data
     let grandTotal = 0;
     if (inv.milestones && inv.milestones.length > 0) {
@@ -687,7 +693,7 @@ export async function proposeMsaChanges(
 
 export async function markMilestoneSettled(
   invoiceId: string,
-  milestoneIndex: number,
+  orderIndex: number,
   tdsAmount: number = 0,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
@@ -698,11 +704,11 @@ export async function markMilestoneSettled(
     .from("invoice_milestones")
     .select("id")
     .eq("invoice_id", invoiceId)
-    .eq("order_index", milestoneIndex)
+    .eq("order_index", orderIndex)
     .single();
 
   if (findErr || !milestone) {
-    console.warn("Could not find milestone at index", milestoneIndex, findErr?.message);
+    console.warn("Could not find milestone at index", orderIndex, findErr?.message);
     return { error: findErr?.message ?? "Milestone not found" };
   }
 
@@ -755,7 +761,7 @@ export async function markMilestoneSettled(
     invoice_id: invoiceId,
     type: "milestone_settled",
     title: "Milestone Paid",
-    message: `Milestone ${milestoneIndex + 1} for Invoice ${inv.invoice_number} settled. TDS deducted: ₹${tdsAmount.toLocaleString("en-IN")}.`,
+    message: `Milestone ${orderIndex + 1} for Invoice ${inv.invoice_number} settled. TDS deducted: ₹${tdsAmount.toLocaleString("en-IN")}.`,
     is_read: false,
   });
 

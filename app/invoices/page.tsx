@@ -167,7 +167,7 @@ function MilestoneProgressBadge({ milestones }: { milestones: any[] }) {
   const total = milestones.length;
   return (
     <div className="text-[11px] font-medium text-[color:var(--text-muted)] mt-0.5">
-      M{settled} of {total} settled
+      {settled} of {total} settled
     </div>
   );
 }
@@ -443,7 +443,7 @@ function InvoiceRow({
                 <tr key={m.id} className="bg-gray-50 border-b border-gray-100 group/sub">
                   <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
-                    ↳ Milestone {idx + 1}: {m.title || "Untitled"}
+                    ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
                   </td>
                   <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
