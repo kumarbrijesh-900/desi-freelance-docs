@@ -112,11 +112,28 @@ import { EyeIcon, SaveIcon } from "@/components/ui/app-icons";
 const orderedSteps: InvoiceStepperStep[] = [
   "agency",
   "client",
+  "meta",
   "deliverables",
   "payment",
-  "meta",
   "totals",
 ];
+
+const stepVariants = {
+  initial: (direction: number) => ({
+    x: direction > 0 ? 40 : -40,
+    opacity: 0,
+  }),
+  animate: {
+    x: 0,
+    opacity: 1,
+    transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] as const },
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -40 : 40,
+    opacity: 0,
+    transition: { duration: 0.2, ease: [0.32, 0.72, 0, 1] as const },
+  }),
+};
 
 const PREVIEW_STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -676,6 +693,7 @@ function EditorContent() {
     mergeInvoiceFormData(defaultInvoiceFormData),
   );
   const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
+  const [direction, setDirection] = useState(0);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -1370,6 +1388,10 @@ const guideToSection = (
   step: InvoiceStepperStep,
   options?: { focus?: boolean },
 ) => {
+  const currentIndex = orderedSteps.indexOf(currentStep);
+  const nextIndex = orderedSteps.indexOf(step);
+  setDirection(nextIndex > currentIndex ? 1 : -1);
+
   setCurrentStep(step);
 
   if (options?.focus) {
@@ -1435,6 +1457,15 @@ useEffect(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
   };
 }, [shouldConfirmExit]);
+
+useEffect(() => {
+  const container = document.querySelector(".invoice-editor-scroll-area");
+  if (container) {
+    container.scrollTo({ top: 0, behavior: "instant" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+}, [currentStep]);
 
 useEffect(() => {
   const handlePopState = () => {
@@ -2318,77 +2349,73 @@ return (
             </div>
 
             <div
-              className="space-y-4 overflow-visible"
+              className="overflow-visible"
               data-testid="invoice-vertical-stepper"
             >
-              {orderedSteps.map((step) => {
-                const isActive = currentStep === step;
-                const isCompleted = displayStepValidityByStep[step];
-
-                return (
-                  <div
-                    key={step}
-                    ref={(node) => {
-                      stepRefs.current[step] = node;
-                    }}
-                    onFocusCapture={() => {
-                      if (currentStep !== step) {
-                        setCurrentStep(step);
-                      }
-                    }}
-                    style={{ display: isActive ? "block" : "none" }}
-                  >
-                    <InlineStepSection
-                      step={step}
-                      isActive={isActive}
-                      isCompleted={isCompleted}
-                      issueCount={missingFieldCountByStep[step]}
-                      onActivate={() => scrollToStep(step)}
-                      footer={
-                        getNextStep(step) ? (
-                          <div className="flex justify-end pt-2">
-                            <div className="flex flex-col items-center">
-                              <button
-                                type="button"
-                                disabled={!stepValidityByStep[step]}
-                                data-testid={`continue-${step}-to-${getNextStep(step)}`}
-                                onMouseDown={(event) => event.preventDefault()}
-                                onClick={() =>
-                                  scrollToStep(getNextStep(step)!, {
-                                    focus: true,
-                                  })
-                                }
-                                className={cn(
-                                  "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
-                                  !stepValidityByStep[step]
-                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
-                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
-                                )}
-                              >
-                                Continue to{" "}
-                                {getStepShortLabel(getNextStep(step)!)}
-                              </button>
-                              {step === "deliverables" && !stepValidityByStep[step] && (
+              <AnimatePresence mode="wait" custom={direction} initial={false}>
+                <motion.div
+                  key={currentStep}
+                  custom={direction}
+                  variants={stepVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="w-full"
+                  ref={(node) => {
+                    stepRefs.current[currentStep] = node;
+                  }}
+                >
+                  <InlineStepSection
+                    step={currentStep}
+                    isActive={true}
+                    isCompleted={displayStepValidityByStep[currentStep]}
+                    issueCount={missingFieldCountByStep[currentStep]}
+                    onActivate={() => scrollToStep(currentStep)}
+                    footer={
+                      getNextStep(currentStep) ? (
+                        <div className="flex justify-end pt-2">
+                          <div className="flex flex-col items-center">
+                            <button
+                              type="button"
+                              disabled={!stepValidityByStep[currentStep]}
+                              data-testid={`continue-${currentStep}-to-${getNextStep(currentStep)}`}
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() =>
+                                scrollToStep(getNextStep(currentStep)!, {
+                                  focus: true,
+                                })
+                              }
+                              className={cn(
+                                "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                                !stepValidityByStep[currentStep]
+                                  ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
+                                  : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]",
+                              )}
+                            >
+                              Continue to{" "}
+                              {getStepShortLabel(getNextStep(currentStep)!)}
+                            </button>
+                            {currentStep === "deliverables" &&
+                              !stepValidityByStep[currentStep] && (
                                 <p className="mt-2 text-[11px] text-[color:var(--text-secondary)]">
                                   Add at least one item with a rate to continue.
                                 </p>
                               )}
-                            </div>
                           </div>
-                        ) : null
+                        </div>
+                      ) : null
+                    }
+                  >
+                    <div
+                      onKeyDownCapture={(event) =>
+                        handleSectionKeyDownCapture(currentStep, event)
                       }
                     >
-                      <div
-                        onKeyDownCapture={(event) =>
-                          handleSectionKeyDownCapture(step, event)
-                        }
-                      >
-                        {renderStepContent(step)}
-                      </div>
-                    </InlineStepSection>
-                  </div>
-                );
-              })}
+                      {renderStepContent(currentStep)}
+                    </div>
+                  </InlineStepSection>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
 
