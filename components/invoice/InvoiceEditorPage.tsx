@@ -649,7 +649,7 @@ function InlineStepSection({
           initial={false}
           className="invoice-step-divider pt-2"
         >
-          <div className="space-y-4">
+          <div className="mb-20 space-y-4">
             {children}
             {footer}
           </div>
@@ -2358,8 +2358,8 @@ return (
                                 className={cn(
                                   "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
                                   !stepValidityByStep[step]
-                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
+                                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
                                 )}
                               >
                                 Continue to{" "}
@@ -2390,7 +2390,7 @@ return (
           </div>
 
           {/* Sticky Bottom Action Bar */}
-          <div className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-[color:var(--border-tertiary)] bg-[color:var(--bg-primary)] px-6 py-4">
+          <div className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.06)] dark:bg-gray-950 dark:border-gray-800">
             <div className="mx-auto flex h-14 items-center justify-between">
               <button
                 type="button"
@@ -2421,8 +2421,8 @@ return (
                     getAppButtonClass({ variant: "primary", size: "sm" }),
                     "h-9 px-4 font-bold sm:h-10 sm:px-6",
                     !invoiceReadyForPreview
-                      ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-50 border border-[color:var(--border-subtle)]"
-                      : "bg-[#bfff00] text-black hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00]"
+                      ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
+                      : "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
                   )}
                 >
                   Preview <ArrowRight className="ml-2 h-4 w-4" />

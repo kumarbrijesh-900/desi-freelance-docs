@@ -52,7 +52,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-[0.97]",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border font-semibold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none cursor-pointer active:scale-[0.97]",
     size === "sm"
       ? "h-9 px-3 text-[13px]"
       : size === "lg"
