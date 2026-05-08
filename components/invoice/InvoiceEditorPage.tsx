@@ -796,7 +796,6 @@ function EditorContent() {
       setFormData(hydratedData);
       setParserDocumentId(data.id);
       
-      // Map cloud negotiation note to local state
       if (data.msa_response) {
         setClientMsaNote(data.msa_response);
       }
@@ -814,237 +813,216 @@ function EditorContent() {
     }
 
     try {
-      // 0. Check for explicit ID in URL (Cloud Hydration)
       const urlId = searchParams.get("id");
       if (urlId) {
         void loadCloudInvoice(urlId);
         return;
       }
 
-      // 1. Check for anonymous draft (Progressive Profiling)
-    const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
-    const isFresh = window.location.search.includes("fresh=1");
+      const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
+      const isFresh = window.location.search.includes("fresh=1");
 
-    if (anonymousRaw && !isFresh) {
-      try {
-        const parsed = JSON.parse(anonymousRaw);
-        if (parsed && typeof parsed === "object") {
-          nextFormData = mergeInvoiceFormData(parsed);
-          shouldShowRestoreToast = true;
-        }
-      } catch (e) {
-        console.error("Failed to parse anonymous draft", e);
-      }
-    }
-
-    // 2. Check for official draft (Legacy/Fallback)
-    if (!nextFormData && !isFresh) {
-      try {
-        const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-        if (rawDraft) {
-          const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
-          if (
-            parsedDraft?.formData &&
-            parsedDraft.currentStep &&
-            orderedSteps.includes(parsedDraft.currentStep)
-          ) {
-            nextFormData = mergeInvoiceFormData(parsedDraft.formData);
-            nextStep = parsedDraft.currentStep;
-            nextDocumentId = parsedDraft.documentId ?? null;
-            nextMsaNote = parsedDraft.clientMsaNote ?? null;
+      if (anonymousRaw && !isFresh) {
+        try {
+          const parsed = JSON.parse(anonymousRaw);
+          if (parsed && typeof parsed === "object") {
+            nextFormData = mergeInvoiceFormData(parsed);
             shouldShowRestoreToast = true;
           }
+        } catch (e) {
+          console.error("Failed to parse anonymous draft", e);
         }
-      } catch (error) {
-        console.error("Failed to restore draft:", error);
+      }
+
+      if (!nextFormData && !isFresh) {
+        try {
+          const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+          if (rawDraft) {
+            const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
+            if (
+              parsedDraft?.formData &&
+              parsedDraft.currentStep &&
+              orderedSteps.includes(parsedDraft.currentStep)
+            ) {
+              nextFormData = mergeInvoiceFormData(parsedDraft.formData);
+              nextStep = parsedDraft.currentStep;
+              nextDocumentId = parsedDraft.documentId ?? null;
+              nextMsaNote = parsedDraft.clientMsaNote ?? null;
+              shouldShowRestoreToast = true;
+            }
+          }
+        } catch (error) {
+          console.error("Failed to restore draft:", error);
+        }
+      }
+
+      if (!nextFormData) {
+        nextFormData = getFreshInvoiceData();
+      }
+
+      const suggestedDueDate = getSuggestedDueDate(
+        nextFormData.meta.paymentTerms,
+        nextFormData.meta.invoiceDate,
+      );
+
+      dueDateAutoManagedRef.current =
+        !nextFormData.meta.dueDate ||
+        nextFormData.meta.dueDate === suggestedDueDate;
+      lastAutoDueDateRef.current = suggestedDueDate;
+
+      setFormData(nextFormData);
+      setCurrentStep(nextStep);
+      setParserDocumentId(nextDocumentId);
+      setClientMsaNote(nextMsaNote);
+
+      void getCurrentUserEmail().then((email) => setUserEmail(email));
+    } catch (error) {
+      console.error("Failed to initialize invoice editor:", error);
+
+      const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
+      const fallbackSuggestedDueDate = getSuggestedDueDate(
+        fallbackFormData.meta.paymentTerms,
+        fallbackFormData.meta.invoiceDate,
+      );
+
+      dueDateAutoManagedRef.current =
+        !fallbackFormData.meta.dueDate ||
+        fallbackFormData.meta.dueDate === fallbackSuggestedDueDate;
+      lastAutoDueDateRef.current = fallbackSuggestedDueDate;
+
+      setFormData(fallbackFormData);
+      setCurrentStep("agency");
+      setClientMsaNote(null);
+      shouldShowFallbackToast = true;
+    } finally {
+      hasInitializedRef.current = true;
+      setIsBootstrapped(true);
+    }
+
+    if (shouldShowRestoreToast || shouldShowFallbackToast) {
+      frameId = window.requestAnimationFrame(() => {
+        triggerToast(
+          shouldShowRestoreToast
+            ? "Draft restored"
+            : "Could not restore saved invoice state. Starting fresh.",
+        );
+      });
+    }
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isBootstrapped) return;
+    if (searchParams.get("restore") !== "1") return;
+
+    async function autoCloudSave() {
+      const userId = await getCurrentUserId();
+      if (!userId) return;
+
+      const { error } = await saveInvoice({
+        formData,
+        status: "draft" as InvoiceStatus,
+        existingId: undefined,
+      });
+
+      if (!error) {
+        await syncProfileFromInvoice(formData);
+        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        playInteractionCue("saveSuccess");
+        const url = new URL(window.location.href);
+        url.searchParams.delete("restore");
+        window.history.replaceState({}, "", url.toString());
       }
     }
 
-    if (!nextFormData) {
-      nextFormData = getFreshInvoiceData();
-    }
+    void autoCloudSave();
+  }, [isBootstrapped]);
 
-    const suggestedDueDate = getSuggestedDueDate(
-      nextFormData.meta.paymentTerms,
-      nextFormData.meta.invoiceDate,
-    );
-
-    dueDateAutoManagedRef.current =
-      !nextFormData.meta.dueDate ||
-      nextFormData.meta.dueDate === suggestedDueDate;
-    lastAutoDueDateRef.current = suggestedDueDate;
-
-    setFormData(nextFormData);
-    setCurrentStep(nextStep);
-    setParserDocumentId(nextDocumentId);
-    setClientMsaNote(nextMsaNote);
-
-    // Fetch user email for admin check
-    void getCurrentUserEmail().then((email) => setUserEmail(email));
-  } catch (error) {
-    console.error("Failed to initialize invoice editor:", error);
-
-    // Logic gap: the page used to return null until this bootstrap finished.
-    // If refresh-time localStorage or invoice-sequence setup failed, the
-    // editor stayed blank. Fall back to a safe empty form instead.
-    const fallbackFormData = mergeInvoiceFormData(defaultInvoiceFormData);
-    const fallbackSuggestedDueDate = getSuggestedDueDate(
-      fallbackFormData.meta.paymentTerms,
-      fallbackFormData.meta.invoiceDate,
-    );
-
-    dueDateAutoManagedRef.current =
-      !fallbackFormData.meta.dueDate ||
-      fallbackFormData.meta.dueDate === fallbackSuggestedDueDate;
-    lastAutoDueDateRef.current = fallbackSuggestedDueDate;
-
-    setFormData(fallbackFormData);
-    setCurrentStep("agency");
-    setClientMsaNote(null);
-    shouldShowFallbackToast = true;
-  } finally {
-    hasInitializedRef.current = true;
-    setIsBootstrapped(true);
-  }
-
-  if (shouldShowRestoreToast || shouldShowFallbackToast) {
-    frameId = window.requestAnimationFrame(() => {
-      triggerToast(
-        shouldShowRestoreToast
-          ? "Draft restored"
-          : "Could not restore saved invoice state. Starting fresh.",
-      );
-    });
-  }
-
-  return () => {
-    if (frameId) {
-      window.cancelAnimationFrame(frameId);
-    }
-  };
-}, []);
-
-/* ── Auto cloud-save after login redirect (restore=1) ── */
-useEffect(() => {
-  if (!isBootstrapped) return;
-  if (searchParams.get("restore") !== "1") return;
-
-  async function autoCloudSave() {
-    const userId = await getCurrentUserId();
-    if (!userId) return;
-
-    const { error } = await saveInvoice({
-      formData,
-      status: "draft" as InvoiceStatus,
-      existingId: undefined,
-    });
-
-    if (!error) {
-      // NEW: Sync profile details from this restored draft
-      await syncProfileFromInvoice(formData);
-
-      triggerToast("Draft saved to cloud ☁ Welcome back!");
-      playInteractionCue("saveSuccess");
-      // Clean up URL without reloading
-      const url = new URL(window.location.href);
-      url.searchParams.delete("restore");
-      window.history.replaceState({}, "", url.toString());
-    }
-  }
-
-  void autoCloudSave();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isBootstrapped]);
-
-/* ── Profile auto-fill: load saved agency when starting fresh ── */
-useEffect(() => {
-  if (!isBootstrapped) return;
-  const isFresh = searchParams.get("fresh") === "1";
-  // Only auto-fill if agency name is empty (fresh form, not a restored draft) OR if explicitly fresh
-  if (formData.agency.agencyName.trim() && !isFresh) return;
-
-  let cancelled = false;
-  async function applyProfile() {
-    const { data: profile } = await loadProfile();
-    if (cancelled || !profile) return;
-
-    if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
-    if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
-
-    if (!profile.agency_name.trim()) return;
-
-    setFormData((prev) => {
-      // Double-check the form is still blank (user might have typed)
-      if (prev.agency.agencyName.trim()) return prev;
-
-      const agencyFromProfile = profileToAgencyDetails(profile);
-      const paymentFromProfile = profileToPaymentDefaults(profile);
-
-      return {
-        ...prev,
-        agency: { ...prev.agency, ...agencyFromProfile },
-        payment: { ...prev.payment, ...paymentFromProfile },
-      };
-    });
-  }
-  applyProfile();
-  return () => {
-    cancelled = true;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isBootstrapped]);
-
-/* ── Client auto-fill: load saved clients and handle single-client case ── */
-useEffect(() => {
-  if (!isBootstrapped) return;
-
-  let cancelled = false;
-  async function fetchClients() {
-    const { data: clients } = await listClients();
-    if (cancelled) return;
-
-    setSavedClients(clients || []);
-
-    // Rule: If exactly one client exists and the current form is blank (fresh), auto-fill it
+  useEffect(() => {
+    if (!isBootstrapped) return;
     const isFresh = searchParams.get("fresh") === "1";
-    if (
-      clients.length === 1 &&
-      (!formData.client.clientName.trim() || isFresh)
-    ) {
-      const clientDetails = savedClientToClientDetails(clients[0]);
-      setFormData((prev) => ({
-        ...prev,
-        client: clientDetails,
-      }));
-      setSelectedClientMsa(clients[0]);
+    if (formData.agency.agencyName.trim() && !isFresh) return;
+
+    let cancelled = false;
+    async function applyProfile() {
+      const { data: profile } = await loadProfile();
+      if (cancelled || !profile) return;
+
+      if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
+      if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
+
+      if (!profile.agency_name.trim()) return;
+
+      setFormData((prev) => {
+        if (prev.agency.agencyName.trim()) return prev;
+
+        const agencyFromProfile = profileToAgencyDetails(profile);
+        const paymentFromProfile = profileToPaymentDefaults(profile);
+
+        return {
+          ...prev,
+          agency: { ...prev.agency, ...agencyFromProfile },
+          payment: { ...prev.payment, ...paymentFromProfile },
+        };
+      });
     }
-  }
+    applyProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [isBootstrapped]);
 
-  void fetchClients();
-  return () => {
-    cancelled = true;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isBootstrapped]);
+  useEffect(() => {
+    if (!isBootstrapped) return;
 
-/* ── Check for missing profile assets (Logo, QR, Signature) ── */
-useEffect(() => {
-  if (!isBootstrapped) return;
+    let cancelled = false;
+    async function fetchClients() {
+      const { data: clients } = await listClients();
+      if (cancelled) return;
 
-  async function checkAssets() {
-    const { data: profile } = await loadProfile();
-    if (profile) {
-      const hasAssets = Boolean(
-        profile.logo_url && profile.qr_code_url && profile.signature_url,
-      );
-      const isDismissed = localStorage.getItem("profile_banner_dismissed") === "true";
-      setShowProfilePrompt(!hasAssets && !isDismissed);
+      setSavedClients(clients || []);
+
+      const isFresh = searchParams.get("fresh") === "1";
+      if (
+        clients.length === 1 &&
+        (!formData.client.clientName.trim() || isFresh)
+      ) {
+        const clientDetails = savedClientToClientDetails(clients[0]);
+        setFormData((prev) => ({
+          ...prev,
+          client: clientDetails,
+        }));
+        setSelectedClientMsa(clients[0]);
+      }
     }
-  }
-  void checkAssets();
-}, [isBootstrapped]);
 
-  /* ── Sync selectedClientMsa with current draft ── */
+    void fetchClients();
+    return () => {
+      cancelled = true;
+    };
+  }, [isBootstrapped]);
+
+  useEffect(() => {
+    if (!isBootstrapped) return;
+
+    async function checkAssets() {
+      const { data: profile } = await loadProfile();
+      if (profile) {
+        const hasAssets = Boolean(
+          profile.logo_url && profile.qr_code_url && profile.signature_url,
+        );
+        const isDismissed = localStorage.getItem("profile_banner_dismissed") === "true";
+        setShowProfilePrompt(!hasAssets && !isDismissed);
+      }
+    }
+    void checkAssets();
+  }, [isBootstrapped]);
+
   useEffect(() => {
     if (!isBootstrapped || savedClients.length === 0) return;
     const client = savedClients.find(
@@ -1055,391 +1033,391 @@ useEffect(() => {
     }
   }, [isBootstrapped, savedClients, formData.client.clientName]);
 
-useEffect(() => {
-  if (!hasInitializedRef.current) return;
+  useEffect(() => {
+    if (!hasInitializedRef.current) return;
 
-  const suggestedDueDate = getSuggestedDueDate(
-    formData.meta.paymentTerms,
-    formData.meta.invoiceDate,
-  );
-
-  const currentDueDate = formData.meta.dueDate;
-  const previousAutoDueDate = lastAutoDueDateRef.current;
-
-  const isStillAutoManaged =
-    dueDateAutoManagedRef.current ||
-    !currentDueDate ||
-    currentDueDate === previousAutoDueDate;
-
-  if (isStillAutoManaged) {
-    dueDateAutoManagedRef.current = true;
-    lastAutoDueDateRef.current = suggestedDueDate;
-
-    if (suggestedDueDate && currentDueDate !== suggestedDueDate) {
-      const frameId = window.requestAnimationFrame(() => {
-        setFormData((prev) => ({
-          ...prev,
-          meta: {
-            ...prev.meta,
-            dueDate: suggestedDueDate,
-          },
-        }));
-      });
-
-      return () => window.cancelAnimationFrame(frameId);
-    }
-
-    if (!suggestedDueDate && currentDueDate === previousAutoDueDate) {
-      const frameId = window.requestAnimationFrame(() => {
-        setFormData((prev) => ({
-          ...prev,
-          meta: {
-            ...prev.meta,
-            dueDate: "",
-          },
-        }));
-      });
-
-      return () => window.cancelAnimationFrame(frameId);
-    }
-
-    return;
-  }
-
-  dueDateAutoManagedRef.current = false;
-  lastAutoDueDateRef.current = suggestedDueDate;
-}, [
-  formData.meta.paymentTerms,
-  formData.meta.invoiceDate,
-  formData.meta.dueDate,
-]);
-
-useEffect(() => {
-  if (!focusRequestNonce) return;
-
-  const frameId = window.requestAnimationFrame(() => {
-    const activeStepRoot = stepRefs.current[currentStep];
-    if (!activeStepRoot) return;
-
-    const focusTarget = activeStepRoot.querySelector<HTMLElement>(
-      'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+    const suggestedDueDate = getSuggestedDueDate(
+      formData.meta.paymentTerms,
+      formData.meta.invoiceDate,
     );
 
-    focusTarget?.focus({ preventScroll: true });
-  });
+    const currentDueDate = formData.meta.dueDate;
+    const previousAutoDueDate = lastAutoDueDateRef.current;
 
-  return () => window.cancelAnimationFrame(frameId);
-}, [currentStep, focusRequestNonce]);
+    const isStillAutoManaged =
+      dueDateAutoManagedRef.current ||
+      !currentDueDate ||
+      currentDueDate === previousAutoDueDate;
 
-const fieldErrors = useMemo(
-  () => getInvoiceFieldErrors(formData),
-  [formData],
-);
+    if (isStillAutoManaged) {
+      dueDateAutoManagedRef.current = true;
+      lastAutoDueDateRef.current = suggestedDueDate;
 
-const clientIsInternational =
-  formData.client.clientLocation === "international";
-const agencyIsGstRegistered =
-  formData.agency.gstRegistrationStatus === "registered";
-const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
-  formData.agency,
-);
-const displayCurrency = useMemo(
-  () =>
-    getInvoiceDisplayCurrency({
-      clientLocation: formData.client.clientLocation,
-      clientCurrency: formData.client.clientCurrency,
-    }),
-  [formData.client.clientLocation, formData.client.clientCurrency],
-);
+      if (suggestedDueDate && currentDueDate !== suggestedDueDate) {
+        const frameId = window.requestAnimationFrame(() => {
+          setFormData((prev) => ({
+            ...prev,
+            meta: {
+              ...prev.meta,
+              dueDate: suggestedDueDate,
+            },
+          }));
+        });
 
-const computedTotals = useMemo(
-  () =>
-    calculateInvoiceTotals({
-      lineItems: formData.milestones.flatMap((m) => m.lineItems),
-      milestones: formData.milestones,
-      agencyState: formData.agency.agencyState,
-      clientState: formData.client.clientState,
-      isInternational: clientIsInternational,
-      isClientSezUnit: isDomesticSezClient(formData.client),
-      gstRegistered: agencyIsGstRegistered,
-      lutAvailability: formData.agency.lutAvailability,
-      noLutTaxHandling: effectiveExportTaxDecision,
-      taxRate: formData.tax.taxRate,
-      isRcmEnabled: formData.tax.isRcmEnabled,
-    }),
-  [
-    formData.milestones,
-    formData.agency.agencyState,
-    clientIsInternational,
-    formData.client,
-    agencyIsGstRegistered,
-    formData.agency.lutAvailability,
-    effectiveExportTaxDecision,
-    formData.tax.taxRate,
-    formData.tax.isRcmEnabled,
-  ],
-);
+        return () => window.cancelAnimationFrame(frameId);
+      }
 
-const derivedTaxConfig = useMemo(() => {
-  const currentRate = formData.tax.taxRate ?? 18;
-  const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
-  switch (computedTotals.taxType) {
-    case "CGST_SGST":
-      return {
-        taxMode: "gst" as const,
-        taxRate: currentRate,
-        isRcmEnabled,
-      };
-    case "IGST":
-      return {
-        taxMode: "igst" as const,
-        taxRate: currentRate,
-        isRcmEnabled,
-      };
-    default:
-      return {
-        taxMode: "none" as const,
-        taxRate: 0,
-        isRcmEnabled,
-      };
-  }
-}, [computedTotals.taxType, formData.tax.taxRate, formData.tax.isRcmEnabled]);
+      if (!suggestedDueDate && currentDueDate === previousAutoDueDate) {
+        const frameId = window.requestAnimationFrame(() => {
+          setFormData((prev) => ({
+            ...prev,
+            meta: {
+              ...prev.meta,
+              dueDate: "",
+            },
+          }));
+        });
 
-const totalsComplianceMessage = useMemo(() => {
-  const settlementWarning = getSettlementComplianceWarning({
-    client: formData.client,
-    payment: formData.payment,
-  });
+        return () => window.cancelAnimationFrame(frameId);
+      }
 
-  if (clientIsInternational && agencyIsGstRegistered) {
-    if (formData.agency.lutAvailability === "yes") {
-      return [getLutDeclarationText(formData.agency), settlementWarning]
-        .filter(Boolean)
-        .join(" ");
+      return;
     }
 
-    if (effectiveExportTaxDecision === "add-igst") {
+    dueDateAutoManagedRef.current = false;
+    lastAutoDueDateRef.current = suggestedDueDate;
+  }, [
+    formData.meta.paymentTerms,
+    formData.meta.invoiceDate,
+    formData.meta.dueDate,
+  ]);
+
+  useEffect(() => {
+    if (!focusRequestNonce) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      const activeStepRoot = stepRefs.current[currentStep];
+      if (!activeStepRoot) return;
+
+      const focusTarget = activeStepRoot.querySelector<HTMLElement>(
+        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+      );
+
+      focusTarget?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [currentStep, focusRequestNonce]);
+
+  const fieldErrors = useMemo(
+    () => getInvoiceFieldErrors(formData),
+    [formData],
+  );
+
+  const clientIsInternational =
+    formData.client.clientLocation === "international";
+  const agencyIsGstRegistered =
+    formData.agency.gstRegistrationStatus === "registered";
+  const effectiveExportTaxDecision = getEffectiveExportTaxHandling(
+    formData.agency,
+  );
+  const displayCurrency = useMemo(
+    () =>
+      getInvoiceDisplayCurrency({
+        clientLocation: formData.client.clientLocation,
+        clientCurrency: formData.client.clientCurrency,
+      }),
+    [formData.client.clientLocation, formData.client.clientCurrency],
+  );
+
+  const computedTotals = useMemo(
+    () =>
+      calculateInvoiceTotals({
+        lineItems: formData.milestones.flatMap((m) => m.lineItems),
+        milestones: formData.milestones,
+        agencyState: formData.agency.agencyState,
+        clientState: formData.client.clientState,
+        isInternational: clientIsInternational,
+        isClientSezUnit: isDomesticSezClient(formData.client),
+        gstRegistered: agencyIsGstRegistered,
+        lutAvailability: formData.agency.lutAvailability,
+        noLutTaxHandling: effectiveExportTaxDecision,
+        taxRate: formData.tax.taxRate,
+        isRcmEnabled: formData.tax.isRcmEnabled,
+      }),
+    [
+      formData.milestones,
+      formData.agency.agencyState,
+      clientIsInternational,
+      formData.client,
+      agencyIsGstRegistered,
+      formData.agency.lutAvailability,
+      effectiveExportTaxDecision,
+      formData.tax.taxRate,
+      formData.tax.isRcmEnabled,
+    ],
+  );
+
+  const derivedTaxConfig = useMemo(() => {
+    const currentRate = formData.tax.taxRate ?? 18;
+    const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
+    switch (computedTotals.taxType) {
+      case "CGST_SGST":
+        return {
+          taxMode: "gst" as const,
+          taxRate: currentRate,
+          isRcmEnabled,
+        };
+      case "IGST":
+        return {
+          taxMode: "igst" as const,
+          taxRate: currentRate,
+          isRcmEnabled,
+        };
+      default:
+        return {
+          taxMode: "none" as const,
+          taxRate: 0,
+          isRcmEnabled,
+        };
+    }
+  }, [computedTotals.taxType, formData.tax.taxRate, formData.tax.isRcmEnabled]);
+
+  const totalsComplianceMessage = useMemo(() => {
+    const settlementWarning = getSettlementComplianceWarning({
+      client: formData.client,
+      payment: formData.payment,
+    });
+
+    if (clientIsInternational && agencyIsGstRegistered) {
+      if (formData.agency.lutAvailability === "yes") {
+        return [getLutDeclarationText(formData.agency), settlementWarning]
+          .filter(Boolean)
+          .join(" ");
+      }
+
+      if (effectiveExportTaxDecision === "add-igst") {
+        return [
+          `International export without LUT: IGST ${formData.tax.taxRate}% applies.`,
+          settlementWarning,
+        ]
+          .filter(Boolean)
+          .join(" ");
+      }
+
+      return settlementWarning;
+    }
+
+    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+      if (formData.agency.lutAvailability === "yes") {
+        return formData.agency.lutNumber.trim()
+          ? `Domestic SEZ supply under LUT ${formData.agency.lutNumber.trim()}: no IGST is added on the invoice.`
+          : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
+      }
+
+      return `Domestic SEZ supply without LUT: IGST ${formData.tax.taxRate}% applies even if the client is in the same state.`;
+    }
+
+    if (clientIsInternational && !agencyIsGstRegistered) {
       return [
-        `International export without LUT: IGST ${formData.tax.taxRate}% applies.`,
+        "No GST applied because agency is marked as not registered under GST.",
         settlementWarning,
       ]
         .filter(Boolean)
         .join(" ");
     }
 
-    return settlementWarning;
-  }
-
-  if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
-    if (formData.agency.lutAvailability === "yes") {
-      return formData.agency.lutNumber.trim()
-        ? `Domestic SEZ supply under LUT ${formData.agency.lutNumber.trim()}: no IGST is added on the invoice.`
-        : "Domestic SEZ supply under LUT: no IGST is added on the invoice.";
+    if (computedTotals.taxType === "CGST_SGST") {
+      const halfRate = (formData.tax.taxRate ?? 18) / 2;
+      return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
     }
 
-    return `Domestic SEZ supply without LUT: IGST ${formData.tax.taxRate}% applies even if the client is in the same state.`;
-  }
+    if (computedTotals.taxType === "IGST") {
+      return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
+    }
 
-  if (clientIsInternational && !agencyIsGstRegistered) {
-    return [
-      "No GST applied because agency is marked as not registered under GST.",
-      settlementWarning,
-    ]
-      .filter(Boolean)
-      .join(" ");
-  }
+    if (!agencyIsGstRegistered) {
+      return "Tax is set to 0% because the agency is marked as not registered under GST.";
+    }
 
-  if (computedTotals.taxType === "CGST_SGST") {
-    const halfRate = (formData.tax.taxRate ?? 18) / 2;
-    return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
-  }
+    if (!formData.agency.agencyState || !formData.client.clientState) {
+      return "Select both agency and client state to determine whether GST should be split as CGST + SGST or applied as IGST.";
+    }
 
-  if (computedTotals.taxType === "IGST") {
-    return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
-  }
+    return "";
+  }, [
+    computedTotals.taxType,
+    clientIsInternational,
+    agencyIsGstRegistered,
+    formData.agency,
+    formData.client,
+    formData.payment,
+    effectiveExportTaxDecision,
+  ]);
 
-  if (!agencyIsGstRegistered) {
-    return "Tax is set to 0% because the agency is marked as not registered under GST.";
-  }
+  const totalsComplianceVariant = useMemo(() => {
+    if (
+      getSettlementComplianceWarning({
+        client: formData.client,
+        payment: formData.payment,
+      })
+    ) {
+      return "warning";
+    }
 
-  if (!formData.agency.agencyState || !formData.client.clientState) {
-    return "Select both agency and client state to determine whether GST should be split as CGST + SGST or applied as IGST.";
-  }
+    if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
+      return formData.agency.lutAvailability === "yes" ? "info" : "warning";
+    }
 
-  return "";
-}, [
-  computedTotals.taxType,
-  clientIsInternational,
-  agencyIsGstRegistered,
-  formData.agency,
-  formData.client,
-  formData.payment,
-  effectiveExportTaxDecision,
-]);
+    if (clientIsInternational && agencyIsGstRegistered) {
+      return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
+    }
 
-const totalsComplianceVariant = useMemo(() => {
-  if (
-    getSettlementComplianceWarning({
-      client: formData.client,
-      payment: formData.payment,
-    })
-  ) {
-    return "warning";
-  }
+    return "neutral";
+  }, [
+    clientIsInternational,
+    agencyIsGstRegistered,
+    formData.client,
+    formData.payment,
+    formData.agency.lutAvailability,
+  ]);
 
-  if (isDomesticSezClient(formData.client) && agencyIsGstRegistered) {
-    return formData.agency.lutAvailability === "yes" ? "info" : "warning";
-  }
+  const showInternationalExportDecision =
+    clientIsInternational &&
+    agencyIsGstRegistered &&
+    formData.agency.lutAvailability !== "yes";
 
-  if (clientIsInternational && agencyIsGstRegistered) {
-    return formData.agency.lutAvailability === "yes" ? "info" : "neutral";
-  }
-
-  return "neutral";
-}, [
-  clientIsInternational,
-  agencyIsGstRegistered,
-  formData.client,
-  formData.payment,
-  formData.agency.lutAvailability,
-]);
-
-const showInternationalExportDecision =
-  clientIsInternational &&
-  agencyIsGstRegistered &&
-  formData.agency.lutAvailability !== "yes";
-
-const exportTaxHelperNote =
-  showInternationalExportDecision &&
-    effectiveExportTaxDecision === "keep-zero-tax"
-    ? "You chose to handle the IGST liability separately."
-    : "";
-const estimatedIgstLiability =
-  showInternationalExportDecision &&
-    effectiveExportTaxDecision === "keep-zero-tax"
-    ? computedTotals.subtotal * 0.18
+  const exportTaxHelperNote =
+    showInternationalExportDecision &&
+      effectiveExportTaxDecision === "keep-zero-tax"
+      ? "You chose to handle the IGST liability separately."
+      : "";
+  const estimatedIgstLiability =
+    showInternationalExportDecision &&
+      effectiveExportTaxDecision === "keep-zero-tax"
+      ? computedTotals.subtotal * 0.18
+      : undefined;
+  const showApproximateUsdReference =
+    clientIsInternational && !formData.client.clientCurrency;
+  const approximateUsdGrandTotal = showApproximateUsdReference
+    ? convertInrToApproximateUsd(computedTotals.grandTotal)
     : undefined;
-const showApproximateUsdReference =
-  clientIsInternational && !formData.client.clientCurrency;
-const approximateUsdGrandTotal = showApproximateUsdReference
-  ? convertInrToApproximateUsd(computedTotals.grandTotal)
-  : undefined;
-const missingFieldGroups = useMemo(
-  () => getMissingFieldLabels(formData),
-  [formData],
-);
-const stepValidityByStep = useMemo(
-  () =>
-    orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
-      (result, step) => {
-        result[step] = isInvoiceStepValid(formData, step);
-        return result;
-      },
-      {
-        agency: false,
-        client: false,
-        deliverables: false,
-        payment: false,
-        meta: false,
-        totals: false,
-      },
-    ),
-  [formData],
-);
-const missingFieldCountByStep = useMemo(
-  () =>
-    missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
-      (counts, group) => {
-        counts[group.step] = group.fields.length;
-        return counts;
-      },
-      {
-        agency: 0,
-        client: 0,
-        deliverables: 0,
-        payment: 0,
-        meta: 0,
-        totals: 0,
-      },
-    ),
-  [missingFieldGroups],
-);
-const firstInvalidStep = useMemo(
-  () => getFirstInvalidStep(formData),
-  [formData],
-);
+  const missingFieldGroups = useMemo(
+    () => getMissingFieldLabels(formData),
+    [formData],
+  );
+  const stepValidityByStep = useMemo(
+    () =>
+      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
+        (result, step) => {
+          result[step] = isInvoiceStepValid(formData, step);
+          return result;
+        },
+        {
+          agency: false,
+          client: false,
+          deliverables: false,
+          payment: false,
+          meta: false,
+          totals: false,
+        },
+      ),
+    [formData],
+  );
+  const missingFieldCountByStep = useMemo(
+    () =>
+      missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
+        (counts, group) => {
+          counts[group.step] = group.fields.length;
+          return counts;
+        },
+        {
+          agency: 0,
+          client: 0,
+          deliverables: 0,
+          payment: 0,
+          meta: 0,
+          totals: 0,
+        },
+      ),
+    [missingFieldGroups],
+  );
+  const firstInvalidStep = useMemo(
+    () => getFirstInvalidStep(formData),
+    [formData],
+  );
 
-const invoiceReadyForPreview = useMemo(
-  () => isInvoiceReadyForPreview(formData),
-  [formData],
-);
-const displayStepValidityByStep = useMemo(
-  () => ({
-    ...stepValidityByStep,
-    totals: invoiceReadyForPreview,
-  }),
-  [stepValidityByStep, invoiceReadyForPreview],
-);
-const completedStepCount = useMemo(
-  () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
-  [displayStepValidityByStep],
-);
-const guideToSection = (
-  step: InvoiceStepperStep,
-  options?: { focus?: boolean },
-) => {
-  const currentIndex = orderedSteps.indexOf(currentStep);
-  const nextIndex = orderedSteps.indexOf(step);
-  setDirection(nextIndex > currentIndex ? 1 : -1);
+  const invoiceReadyForPreview = useMemo(
+    () => isInvoiceReadyForPreview(formData),
+    [formData],
+  );
+  const displayStepValidityByStep = useMemo(
+    () => ({
+      ...stepValidityByStep,
+      totals: invoiceReadyForPreview,
+    }),
+    [stepValidityByStep, invoiceReadyForPreview],
+  );
+  const completedStepCount = useMemo(
+    () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
+    [displayStepValidityByStep],
+  );
+  const guideToSection = (
+    step: InvoiceStepperStep,
+    options?: { focus?: boolean },
+  ) => {
+    const currentIndex = orderedSteps.indexOf(currentStep);
+    const nextIndex = orderedSteps.indexOf(step);
+    setDirection(nextIndex > currentIndex ? 1 : -1);
 
-  setCurrentStep(step);
+    setCurrentStep(step);
 
-  if (options?.focus) {
-    setFocusRequestNonce((prev) => prev + 1);
-  }
-};
+    if (options?.focus) {
+      setFocusRequestNonce((prev) => prev + 1);
+    }
+  };
 
-const handleSectionKeyDownCapture = (
-  step: InvoiceStepperStep,
-  event: ReactKeyboardEvent<HTMLDivElement>,
-) => {
-  if (
-    event.key !== "Enter" ||
-    event.shiftKey ||
-    event.altKey ||
-    event.ctrlKey ||
-    event.metaKey
-  ) {
-    return;
-  }
+  const handleSectionKeyDownCapture = (
+    step: InvoiceStepperStep,
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+      return;
+    }
 
-  if (!(event.target instanceof HTMLInputElement)) {
-    return;
-  }
+    if (!(event.target instanceof HTMLInputElement)) {
+      return;
+    }
 
-  const inputType = event.target.type.toLowerCase();
-  if (["checkbox", "radio", "file", "submit", "button"].includes(inputType)) {
-    return;
-  }
+    const inputType = event.target.type.toLowerCase();
+    if (["checkbox", "radio", "file", "submit", "button"].includes(inputType)) {
+      return;
+    }
 
-  event.preventDefault();
+    event.preventDefault();
 
-  const activeStepRoot = stepRefs.current[step];
-  if (!activeStepRoot) return;
+    const activeStepRoot = stepRefs.current[step];
+    if (!activeStepRoot) return;
 
-  const focusableFields = Array.from(
-    activeStepRoot.querySelectorAll<HTMLElement>(
-      'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
-    ),
-  ).filter((element) => element.offsetParent !== null);
+    const focusableFields = Array.from(
+      activeStepRoot.querySelectorAll<HTMLElement>(
+        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+      ),
+    ).filter((element) => element.offsetParent !== null);
 
-  const currentIndex = focusableFields.indexOf(event.target);
+    const currentIndex = focusableFields.indexOf(event.target);
 
-  if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
-    focusableFields[currentIndex + 1]?.focus();
-    return;
-  }
-};
+    if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
+      focusableFields[currentIndex + 1]?.focus();
+      return;
+    }
+  };
 
 const shouldConfirmExit = isFormTouched(formData);
 
@@ -1468,6 +1446,15 @@ useEffect(() => {
 }, [currentStep]);
 
 useEffect(() => {
+  const activePill = document.querySelector("[data-mobile-step-active]");
+  activePill?.scrollIntoView({
+    behavior: "smooth",
+    inline: "center",
+    block: "nearest",
+  });
+}, [currentStep]);
+
+useEffect(() => {
   const handlePopState = () => {
     if (!shouldConfirmExit) return;
 
@@ -1483,13 +1470,6 @@ useEffect(() => {
   };
 }, [shouldConfirmExit]);
 
-const goToStep = (
-  step: InvoiceStepperStep,
-  options?: { focus?: boolean },
-) => {
-  guideToSection(step, { focus: options?.focus });
-};
-
 const scrollToStep = (
   step: InvoiceStepperStep,
   options?: { focus?: boolean },
@@ -1500,7 +1480,6 @@ const scrollToStep = (
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Delayed scroll to ensure React has rendered the new step content
   setTimeout(() => {
     const scrollContainer = document.querySelector(".invoice-editor-scroll-area");
     if (scrollContainer) {
@@ -1534,7 +1513,6 @@ const handlePreviewInvoice = async () => {
   }
 
   try {
-    // Promote placeholder INV-YYYY-000 to real INV-YYYY-NNN if user is authenticated
     let invoiceNumberForPreview = formData.meta.invoiceNumber;
     if (invoiceNumberForPreview?.endsWith("-000")) {
       const userId = await getCurrentUserId();
@@ -1543,7 +1521,6 @@ const handlePreviewInvoice = async () => {
         const realNumber = await generateNextInvoiceNumber();
         if (realNumber) {
           invoiceNumberForPreview = realNumber;
-          // Update local form state so the editor reflects the real number
           setFormData((prev) => ({
             ...prev,
             meta: { ...prev.meta, invoiceNumber: realNumber },
@@ -1563,7 +1540,6 @@ const handlePreviewInvoice = async () => {
       JSON.stringify(previewFormData),
     );
 
-    // Save Client to Master if checked (only for registered users)
     if (shouldSaveNewClientMaster && !isGuestMode) {
       import("@/lib/supabase/clients").then(({ upsertClient }) => {
         upsertClient(formData.client).catch(console.error);
@@ -1623,13 +1599,11 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
 };
 
 const handleSaveDraft = async () => {
-  // Always persist locally first — survives login redirect
   persistDraft();
 
   const userId = await getCurrentUserId();
 
   if (!userId) {
-    // Not logged in — send to login with restore flag
     const returnUrl = parserDocumentId 
       ? `/invoice/new?id=${parserDocumentId}&restore=1`
       : "/invoice/new?restore=1";
@@ -1637,17 +1611,14 @@ const handleSaveDraft = async () => {
     return;
   }
 
-  // Logged in — cloud-save as draft
   try {
     let result;
     if (clientMsaNote && parserDocumentId) {
-      // Re-issuing after negotiation
       result = await reissueNegotiatedInvoice(parserDocumentId, formData);
       if (!result.error) {
-        setClientMsaNote(null); // Clear local note state
+        setClientMsaNote(null);
       }
     } else {
-      // Promote placeholder INV-YYYY-000 to real INV-YYYY-NNN if user is now authenticated
       let formDataForSave = formData;
       if (formData.meta.invoiceNumber?.endsWith("-000")) {
         const { generateNextInvoiceNumber } = await import("@/lib/supabase/invoices");
@@ -1657,12 +1628,10 @@ const handleSaveDraft = async () => {
             ...formData,
             meta: { ...formData.meta, invoiceNumber: realNumber },
           };
-          // Update local form state so UI reflects the new number
           setFormData(formDataForSave);
         }
       }
 
-      // Regular save
       result = await saveInvoice({
         formData: formDataForSave,
         status: "draft" as InvoiceStatus,
@@ -1670,7 +1639,6 @@ const handleSaveDraft = async () => {
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);
-        // Sync URL with ID without triggering full reload
         const newUrl = `/invoice/new?id=${result.data.id}`;
         window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, "", newUrl);
       }
@@ -1740,11 +1708,8 @@ const handleClearDemoData = () => {
   setBriefIntakeResetKey((prev) => prev + 1);
   triggerToast("Demo data cleared");
 };
-void handleLoadDemoData;
-void handleClearDemoData;
 
 const handleBriefAutofill = async (input: BriefIntakeInput) => {
-  // 1. Wipe state immediately to prevent hybrid merge between subsequent extractions
   setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
   setIsProcessingAutofill(true);
   setExtractProgress(0);
@@ -1811,7 +1776,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
               .join("\n\n"),
             agency_context: {
               businessName: formData.agency.agencyName,
-              full_name: "", // Could pull from profile if needed
+              full_name: "",
               city: formData.agency.city,
               state: formData.agency.agencyState,
               gstin: formData.agency.gstin,
@@ -1842,11 +1807,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
             extraction?: AiBriefExtraction | null;
           };
           aiExtraction = payload.extraction ?? null;
-
-          // Note: Parser response is now merged into extraction for Omniscient Agent
-          if (aiExtraction?.clientName?.value) {
-            // Optional: If AI identifies a specific client from context, we could sync it here
-          }
         }
       } catch (error) {
         console.error("AI brief extraction request failed:", error);
@@ -1869,21 +1829,8 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       return false;
     }
 
-    if (parserResponse) {
-      parserHydration = hydrateInvoiceFormFromParsedExtraction({
-        currentFormData: formData,
-        baseFormData: result.nextFormData,
-        parserResponse,
-      });
-    }
-
     const hydratedFormData =
       parserHydration?.nextFormData ?? result.nextFormData;
-
-    const totalFilledFields = [
-      ...result.filledFields,
-      ...(parserHydration?.hydratedFields.map((field) => field.label) ?? []),
-    ];
 
     const nextSuggestedDueDate = getSuggestedDueDate(
       hydratedFormData.meta.paymentTerms,
@@ -1903,7 +1850,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
 
     const mergedToSet = mergeInvoiceFormData(nextFormData);
 
-    // Check if Client is New
     const clientName = mergedToSet.client.clientName.trim();
     const isNewClient = Boolean(
       clientName &&
@@ -1914,7 +1860,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
 
     setExtractProgress(100);
 
-    // Open Summary Modal instead of instantly populating
     setBriefSummaryData({
       nextFormData: mergedToSet,
       lowConfidence: result.lowConfidenceFieldSummaries,
@@ -2019,12 +1964,8 @@ const updateFormSection = <K extends keyof InvoiceFormData>(
       [section]: data,
     });
 
-    // Sync: If Client MSA boilerplate changes, update Payment terms
     if (section === "client") {
       const client = data as InvoiceFormData["client"];
-      // Only sync if it's not empty and payment.terms hasn't been manually overridden already
-      // Or just always sync if we want it to be reactive.
-      // The user said: "those values must immediately sync"
       next.payment.terms = client.msaNotesBoilerplate || "";
     }
 
@@ -2309,43 +2250,43 @@ return (
               />
             </div>
 
+            {/* Mobile interactive step pills */}
             <div
-              className={cn(
-                getAppSubtlePanelClass("muted"),
-                "px-4 py-3 lg:hidden",
-              )}
-              data-testid="compact-progress-summary"
+              className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 py-4 lg:hidden"
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                WebkitOverflowScrolling: "touch",
+              }}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                    Progress
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
-                    {completedStepCount} of {orderedSteps.length} sections
-                    ready
-                  </p>
-                </div>
-                <span
-                  className={getAppStatusPillClass(
-                    firstInvalidStep ? "warning" : "success",
-                  )}
-                >
-                  {firstInvalidStep
-                    ? `Next: ${getStepShortLabel(firstInvalidStep)}`
-                    : "Ready for preview"}
-                </span>
-              </div>
-              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[color:var(--border-subtle)]">
-                <div
-                  className="h-full rounded-full bg-[color:var(--interactive-secondary)] transition-all duration-500"
-                  style={{
-                    width: `${Math.round(
-                      (completedStepCount / orderedSteps.length) * 100,
-                    )}%`,
-                  }}
-                />
-              </div>
+              {orderedSteps.map((step, idx) => {
+                const isActive = currentStep === step;
+                const isCompleted = displayStepValidityByStep[step];
+                const stepNumber = idx + 1;
+                const label = getStepShortLabel(step);
+
+                return (
+                  <button
+                    key={step}
+                    type="button"
+                    onClick={() => scrollToStep(step)}
+                    data-mobile-step-active={isActive ? "true" : undefined}
+                    className={cn(
+                      "flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-[12px] font-bold transition-all duration-200 active:scale-95",
+                      isActive
+                        ? "bg-gray-900 text-white shadow-md ring-2 ring-gray-900/10"
+                        : isCompleted
+                          ? "bg-green-50 text-green-800 border border-green-200"
+                          : "bg-gray-100 text-gray-500 border border-transparent hover:bg-gray-200"
+                    )}
+                  >
+                    <span className="opacity-80">
+                      {isCompleted && !isActive ? "✓" : stepNumber}
+                    </span>
+                    <span className="whitespace-nowrap">{label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             <div
@@ -2546,8 +2487,6 @@ return (
         </aside>
       </div>
     </section>
-
-
 
     {showExitModal && (
       <ExitConfirmModal
