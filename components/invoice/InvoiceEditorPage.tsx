@@ -2430,24 +2430,27 @@ return (
           </div>
 
           {/* Sticky Bottom Action Bar */}
-          <div className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.06)] dark:bg-gray-950 dark:border-gray-800">
+          <div 
+            className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-gray-200 bg-white px-6 py-3"
+            style={{ boxShadow: '0 -1px 3px rgba(0,0,0,0.04)' }}
+          >
             <div className="mx-auto flex h-14 items-center justify-between">
               <button
                 type="button"
                 onClick={handleBackToHome}
-                className="flex items-center gap-2 text-sm font-semibold text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[color:var(--text-primary)] transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Close</span>
               </button>
-
+  
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
                   className={cn(
                     getAppButtonClass({ variant: "ghost", size: "sm" }),
-                    "h-9 px-4 sm:h-10 sm:px-5",
+                    "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5",
                   )}
                 >
                   <SaveIcon className="mr-2 h-4 w-4" />
