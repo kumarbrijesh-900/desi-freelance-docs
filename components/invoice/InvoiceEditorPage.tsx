@@ -2172,7 +2172,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
 
 
 return (
-  <main className={cn(appPageShellClass, "relative invoice-editor-scroll-area")} suppressHydrationWarning>
+  <main className={cn(appPageShellClass, "relative")} suppressHydrationWarning>
     <AnimatePresence>
       {isProcessingAutofill && (
         <motion.div
