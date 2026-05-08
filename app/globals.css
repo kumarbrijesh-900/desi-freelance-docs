@@ -404,8 +404,8 @@ h3 {
 }
 
 .app-soft-choice-option-active {
-  border-color: var(--color-lime-300);
-  background: #ffffff;
+  border-color: var(--text-primary);
+  background: var(--bg-surface-soft);
   box-shadow: 0 1px 3px rgba(17, 17, 24, 0.04);
 }
 
@@ -417,9 +417,9 @@ h3 {
 }
 
 .app-soft-step-surface[data-step-state="active"] {
-  border-color: var(--color-lime-300);
+  border-color: var(--border-strong);
   background: #ffffff;
-  box-shadow: 0 4px 16px rgba(190, 255, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(17, 17, 24, 0.04);
 }
 
 .app-soft-step-surface[data-step-state="completed"] {
@@ -484,7 +484,7 @@ h3 {
 }
 
 .invoice-step-card[data-step-state="active"] {
-  border-color: var(--text-primary);
+  border-color: var(--border-default);
   background: #ffffff;
   box-shadow: 0 4px 16px rgba(17, 17, 24, 0.04);
 }
@@ -626,8 +626,8 @@ h3 {
 }
 
 .invoice-line-item-row:focus-within {
-  border-color: var(--color-lime-300);
-  box-shadow: 0 0 0 2px rgba(190, 255, 0, 0.08);
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 2px rgba(17, 17, 24, 0.04);
 }
 
 /* ---------- Utility widgets ---------- */
@@ -659,9 +659,9 @@ h3 {
 }
 
 .invoice-total-hero {
-  border: 1.5px solid var(--border-default);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--app-radius-control);
-  background: transparent;
+  background: #ffffff;
   padding: 1rem;
 }
 

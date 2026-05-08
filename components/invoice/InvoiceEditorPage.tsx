@@ -2223,7 +2223,11 @@ return (
 
       <div className="mx-auto grid w-full max-w-[1328px] mt-6 grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
         <div
-          className={`w-full pb-32 lg:col-start-2 ${appSectionGapClass}`}
+          className={cn(
+            "w-full pb-20 lg:col-start-2",
+            "max-w-2xl mx-auto",
+            appSectionGapClass,
+          )}
         >
           <div className="space-y-4">
             {clientMsaNote && (

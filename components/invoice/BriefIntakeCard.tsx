@@ -235,8 +235,8 @@ export default function BriefIntakeCard({
           </div>
         )}
 
-        {/* Maintenance Overlay */}
-        {isEngineLocked && (
+        {/* Maintenance Overlay - Hidden as per request */}
+        {false && isEngineLocked && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[1px] pointer-events-none">
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl pointer-events-auto">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl">
@@ -245,6 +245,19 @@ export default function BriefIntakeCard({
               <p className="max-w-[240px] text-center text-[14px] font-bold leading-relaxed text-amber-900">
                 {lockMessage}
               </p>
+              {/* Parsing Engine status banner - Hidden as per request */}
+              {false && (
+                <div className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50/50 px-4 py-3">
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <span className="text-[10px] font-bold">!</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-medium leading-relaxed text-amber-900">
+                      Engine is out of fuel, waiting for Strait to straighten up.
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="h-1 w-32 rounded-full bg-gray-100 overflow-hidden">
                 <motion.div
                   className="h-full bg-amber-400"
@@ -330,7 +343,7 @@ export default function BriefIntakeCard({
                           }),
                           "cursor-pointer",
                           isDragOver
-                            ? "border-[color:var(--border-accent)] bg-[color:var(--bg-surface)] text-[color:var(--text-primary)]"
+                            ? "border-[color:var(--text-primary)] bg-[color:var(--bg-surface)] text-[color:var(--text-primary)]"
                             : "",
                         )}
                       >

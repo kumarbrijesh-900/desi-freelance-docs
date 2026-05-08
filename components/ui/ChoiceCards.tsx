@@ -124,7 +124,7 @@ export default function ChoiceCards<T extends string>({
                 getCardClass(isSelected),
                 "peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
                 isSelected && variant !== "minimal-segmented"
-                  ? "ring-1 ring-[color:var(--color-lime-300)]"
+                  ? "ring-1 ring-[color:var(--text-primary)]/10"
                   : "",
               )}
               data-selected={isSelected ? "true" : "false"}
@@ -174,7 +174,7 @@ export default function ChoiceCards<T extends string>({
                   aria-hidden="true"
                   className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-full ${
                     isSelected
-                      ? "bg-[color:var(--color-lime-500)]"
+                      ? "bg-[color:var(--text-primary)]"
                       : "bg-[color:var(--border-strong)]"
                   }`}
                   animate={
