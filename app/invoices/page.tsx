@@ -1,8 +1,19 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { 
+  MoreHorizontal, 
+  ChevronRight, 
+  ChevronDown, 
+  Eye, 
+  Edit2, 
+  Trash2, 
+  CheckCircle, 
+  Share2,
+  FileText
+} from "lucide-react";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
 import {
@@ -63,21 +74,55 @@ function getWorkType(inv: SavedInvoice) {
 
 /* ─── Badge components ─────────────────────────── */
 
-function StatusBadge({ status, dueDate }: { status: string; dueDate?: string }) {
-  const normalized = status.toLowerCase();
-  const isDraft = normalized === "draft";
-  const isFinalized = normalized === "finalized";
-  const isSettled = normalized === "settled";
+function CombinedStatusBadge({ 
+  status, 
+  msaStatus, 
+  msaId, 
+  dueDate 
+}: { 
+  status: string; 
+  msaStatus: MsaResponse; 
+  msaId: string | null; 
+  dueDate?: string; 
+}) {
+  const normalizedInv = status.toLowerCase();
+  
+  // Priority 1: Settled (Paid)
+  if (normalizedInv === "settled") {
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+        Paid
+      </span>
+    );
+  }
 
+  // Priority 2: MSA Pending/Proposed/Rejected
+  if (msaId && (msaStatus === "proposed" || msaStatus === "rejected" || msaStatus === "pending")) {
+    const label = msaStatus === "rejected" ? "Revision Asked" : "MSA Pending";
+    return (
+      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+        {label}
+      </span>
+    );
+  }
+
+  // Priority 3: MSA Accepted
+  if (msaId && msaStatus === "accepted") {
+    return (
+      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+        Accepted
+      </span>
+    );
+  }
+
+  // Priority 4: Overdue
   let isOverdue = false;
-  if (isFinalized && dueDate) {
+  if (normalizedInv === "finalized" && dueDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(dueDate);
     due.setHours(0, 0, 0, 0);
-    if (due < today) {
-      isOverdue = true;
-    }
+    if (due < today) isOverdue = true;
   }
 
   if (isOverdue)
@@ -87,58 +132,18 @@ function StatusBadge({ status, dueDate }: { status: string; dueDate?: string }) 
       </span>
     );
 
-  if (isSettled)
-    return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
-        Paid
-      </span>
-    );
-
-  if (isFinalized)
+  // Priority 5: Sent (Finalized)
+  if (normalizedInv === "finalized")
     return (
       <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-700">
         Sent
       </span>
     );
 
+  // Priority 6: Draft
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]`}
-    >
+    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]">
       Draft
-    </span>
-  );
-}
-
-function MsaBadge({
-  msaId,
-  status,
-}: {
-  msaId: string | null;
-  status: MsaResponse;
-}) {
-  if (!msaId)
-    return (
-      <span className="text-[12px] text-[color:var(--text-muted)]">—</span>
-    );
-
-  if (status === "proposed" || status === "rejected")
-    return (
-      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700 animate-pulse">
-        Negotiating
-      </span>
-    );
-
-  if (status === "accepted")
-    return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
-        ✓ Accepted
-      </span>
-    );
-
-  return (
-    <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-      Pending
     </span>
   );
 }
@@ -160,9 +165,8 @@ function MilestoneProgressBadge({ milestones }: { milestones: any[] }) {
   if (!milestones || milestones.length <= 1) return null;
   const settled = milestones.filter((m) => m.status === "SETTLED").length;
   const total = milestones.length;
-  if (settled === 0) return null;
   return (
-    <div className="text-[11px] font-normal text-[color:var(--text-secondary)]">
+    <div className="text-[11px] font-medium text-[color:var(--text-muted)] mt-0.5">
       M{settled} of {total} settled
     </div>
   );
@@ -278,6 +282,8 @@ function InvoiceRow({
   requestingId: string | null;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   
   const lineItems = invoice.form_data?.lineItems ?? [];
   const hasRelationalMilestones = (invoice.milestones ?? []).length > 0;
@@ -287,18 +293,33 @@ function InvoiceRow({
   const canSettle =
     invoice.status.toLowerCase() === "finalized";
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleRowClick = () => {
+    if (invoice.parent_invoice_id) onView(invoice);
+    else onEdit(invoice);
+  };
+
   return (
     <>
       <tr 
         className={cn(
-          "border-b border-[color:var(--border-subtle)] hover:bg-[color:var(--bg-surface-soft)] transition-colors group cursor-pointer",
-          isExpanded && "bg-[color:var(--bg-surface-soft)]/50"
+          "border-b border-[color:var(--border-subtle)] hover:bg-gray-50 transition-colors group cursor-pointer",
+          isExpanded && "bg-gray-50/50"
         )}
-        onClick={() => invoice.parent_invoice_id ? onView(invoice) : onEdit(invoice)}
+        onClick={handleRowClick}
       >
         {/* Invoice # */}
-        <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
-          <div className="flex items-center gap-2">
+        <td className="px-4 py-4 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
+          <div className="flex items-center gap-3">
             {hasMilestones && (
               <button
                 type="button"
@@ -306,111 +327,105 @@ function InvoiceRow({
                   e.stopPropagation();
                   setIsExpanded(!isExpanded);
                 }}
-                className={cn(
-                  "flex h-5 w-5 items-center justify-center rounded-md hover:bg-[color:var(--bg-surface-muted)] transition-all duration-200 text-[color:var(--text-muted)]",
-                  isExpanded ? "rotate-90 text-[color:var(--text-primary)]" : "rotate-0"
-                )}
+                className="flex h-5 w-5 shrink-0 items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
               >
-                ›
+                {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
             )}
+            {!hasMilestones && <div className="w-5 shrink-0" />}
             <div className="flex flex-col">
-              <span className="text-[13px] font-semibold">{invoice.invoice_number}</span>
+              <span className="text-[13px] font-bold">{invoice.invoice_number}</span>
+              <span className="text-[11px] font-medium text-[color:var(--text-muted)]">
+                {fmtDate(invoice.created_at)}
+                {invoice.form_data?.meta?.dueDate && (
+                  <> · Due {fmtDate(invoice.form_data.meta.dueDate)}</>
+                )}
+              </span>
               <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
             </div>
           </div>
         </td>
 
-      {/* Date */}
-      <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] whitespace-nowrap">
-        {fmtDate(invoice.created_at)}
-        {invoice.form_data?.meta?.dueDate ? (
-          <div className="text-[11px] text-[color:var(--text-muted)]">
-            Due {fmtDate(invoice.form_data.meta.dueDate)}
+        {/* Client */}
+        <td className="px-4 py-4">
+          <div className="text-[13px] font-bold text-[color:var(--text-primary)] truncate max-w-[200px]">
+            {invoice.form_data?.client?.clientName || (
+              <span className="text-[color:var(--text-muted)]">—</span>
+            )}
           </div>
-        ) : null}
-      </td>
-
-      {/* Client */}
-      <td className="px-4 py-3">
-        <div className="text-[13px] font-medium text-[color:var(--text-primary)] truncate max-w-[160px]">
-          {invoice.form_data?.client?.clientName || (
-            <span className="text-[color:var(--text-muted)]">—</span>
+          {invoice.shared_to_email && (
+            <div className="text-[11px] font-medium text-[color:var(--text-muted)] truncate max-w-[200px]">
+              {invoice.shared_to_email}
+            </div>
           )}
-        </div>
-        {invoice.shared_to_email && (
-          <div className="text-[11px] text-[color:var(--text-muted)] truncate max-w-[160px]">
-            {invoice.shared_to_email}
+        </td>
+
+        {/* Amount */}
+        <td className="px-4 py-4 text-[13px] font-bold text-[color:var(--text-primary)] text-right whitespace-nowrap tabular-nums">
+          {fmtAmount(invoice)}
+        </td>
+
+        {/* Status */}
+        <td className="px-4 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <CombinedStatusBadge 
+              status={invoice.status} 
+              msaStatus={invoice.msa_status ?? "pending"} 
+              msaId={invoice.msa_id}
+              dueDate={invoice.form_data?.meta?.dueDate}
+            />
+            <ViewsBadge count={viewCount} />
           </div>
-        )}
-      </td>
-
-      {/* Work Type */}
-      <td className="px-4 py-3 text-[12px] text-[color:var(--text-secondary)] max-w-[140px]">
-        <span className="truncate block">{getWorkType(invoice)}</span>
-      </td>
-
-      {/* Amount */}
-      <td className="px-4 py-3 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap tabular-nums">
-        {fmtAmount(invoice)}
-      </td>
-
-      <td className="px-4 py-3 whitespace-nowrap">
-        <div className="flex items-center">
-          <StatusBadge status={invoice.status} dueDate={invoice.form_data?.meta?.dueDate} />
-          <ViewsBadge count={viewCount} />
-        </div>
-      </td>
-
-      {/* MSA Status */}
-      <td className="px-4 py-3 whitespace-nowrap">
-        <MsaBadge
-          msaId={invoice.msa_id}
-          status={invoice.msa_status ?? "pending"}
-        />
-      </td>
+        </td>
 
         {/* Actions */}
-        <td className="px-4 py-3 whitespace-nowrap text-right">
-          <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            {canSettle && !hasMilestones && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id); }}
-                disabled={settlingId === invoice.id}
-                className={getAppButtonClass({ variant: "primary", size: "sm" })}
-              >
-                {settlingId === invoice.id ? "…" : "Mark as Settled"}
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onView(invoice); }}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-            >
-              View
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onEdit(invoice); }}
-              className={getAppButtonClass({ variant: "secondary", size: "sm" })}
-            >
-              Edit
-            </button>
-
+        <td className="px-4 py-4 whitespace-nowrap text-right w-[120px]">
+          <div className="relative inline-block text-left" ref={dropdownRef}>
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(invoice.id);
+                setShowDropdown(!showDropdown);
               }}
-              disabled={deletingId === invoice.id}
-              className={getAppButtonClass({ variant: "destructive-lite", size: "sm" })}
+              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
             >
-              {deletingId === invoice.id ? "…" : "Delete"}
+              <MoreHorizontal size={18} />
             </button>
+
+            {showDropdown && (
+              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right rounded-xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden text-left">
+                <div className="py-1">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onView(invoice); }}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Eye size={14} className="text-gray-400" /> View
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onEdit(invoice); }}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Edit2 size={14} className="text-gray-400" /> Edit
+                  </button>
+                  {canSettle && !hasMilestones && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onMarkSettled(invoice.id); }}
+                      disabled={settlingId === invoice.id}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-lime-600 hover:bg-lime-50"
+                    >
+                      <CheckCircle size={14} /> {settlingId === invoice.id ? "Updating…" : "Mark Settled"}
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onDelete(invoice.id); }}
+                    disabled={deletingId === invoice.id}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={14} /> {deletingId === invoice.id ? "…" : "Delete"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </td>
       </tr>
@@ -419,72 +434,55 @@ function InvoiceRow({
       {isExpanded && hasMilestones && (
         <>
           {(invoice.milestones ?? []).length > 0 ? (
-            // Render from relational milestones if available
             invoice.milestones!.map((m: any, idx: number) => {
               const isSettled = m.status === "SETTLED";
               const currency = invoice.form_data?.client?.clientCurrency || "INR";
               const symbol = currency === "USD" ? "$" : "₹";
               
               return (
-                <tr key={m.id} className="bg-[color:var(--bg-surface-soft)]/30 border-b border-[color:var(--border-subtle)]">
-                  <td className="pl-12 py-3 text-[11px] font-medium text-[color:var(--text-muted)] italic">
-                    ↳
+                <tr key={m.id} className="bg-gray-50 border-b border-gray-100 group/sub">
+                  <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
+                    <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                    ↳ Milestone {idx + 1}: {m.title || "Untitled"}
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
-                    —
-                  </td>
-                  <td className="px-4 py-3 text-[11px] font-medium text-[color:var(--text-primary)]">
-                    {m.title || `Milestone ${idx + 1}`}
-                  </td>
-                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
-                    —
-                  </td>
-                  <td className="px-4 py-3 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
                     {symbol}{(m.amount || 0).toLocaleString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
-                        ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)]" 
-                        : "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] border border-[color:var(--border-subtle)]"
+                        ? "bg-lime-50 text-lime-700 border border-lime-200" 
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
                     )}>
                       {isSettled ? "Settled" : "Pending"}
                     </span>
                   </td>
-                  <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-3">
-                      {!isSettled && (
-                        <button
-                          type="button"
-                          onClick={() => onMarkSettled(invoice.id, m.id)}
-                          className="h-[28px] px-2.5 text-[10px] font-bold text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)] rounded-full transition-colors hover:bg-[color:var(--state-success-bg)] active:scale-95"
-                        >
-                          Mark Settled
-                        </button>
-                      )}
-                      {isSettled && idx < (invoice.milestones ?? []).length - 1 && (
-                        <button
-                          type="button"
-                          disabled={requestingId === invoice.milestones![idx + 1]?.id}
-                          onClick={() => onRequestNext(invoice.id, invoice.milestones![idx + 1]?.id)}
-                          className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
-                        >
-                          {requestingId === invoice.milestones![idx + 1]?.id ? "Requesting…" : "Request Next"}
-                        </button>
-                      )}
-                    </div>
+                    {!isSettled && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, m.id); }}
+                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border border-lime-200 rounded-full bg-white hover:bg-lime-50 transition-colors"
+                      >
+                        Settle
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
             })
           ) : (
-            // Fallback to form_data logic
             lineItems.map((item, idx) => {
               if (!item.is_milestone_header) return null;
               
               let subtotal = 0;
+              let mCount = 0;
+              lineItems.forEach((li, i) => {
+                if (i <= idx && li.is_milestone_header) mCount++;
+              });
+
               for (let i = idx + 1; i < lineItems.length; i++) {
                 if (lineItems[i].is_milestone_header) break;
                 subtotal += Number(lineItems[i].qty ?? 0) * Number(lineItems[i].rate ?? 0);
@@ -495,52 +493,35 @@ function InvoiceRow({
               const symbol = currency === "USD" ? "$" : "₹";
 
               return (
-                <tr key={item.id} className="bg-[color:var(--bg-surface-soft)]/30 border-b border-[color:var(--border-subtle)]">
-                  <td className="pl-12 py-3 text-[11px] font-medium text-[color:var(--text-muted)] italic">
-                    ↳ {item.description}
+                <tr key={item.id} className="bg-gray-50 border-b border-gray-100 group/sub">
+                  <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
+                    <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                    ↳ Milestone {mCount}: {item.description}
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
-                    Milestone Stage
-                  </td>
-                  <td className="px-4 py-3 text-[11px] text-[color:var(--text-muted)]">
-                    —
-                  </td>
-                  <td className="px-4 py-3 text-[12px] font-semibold text-[color:var(--text-secondary)] tabular-nums">
+                  <td className="px-4 py-3"></td>
+                  <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
                     {symbol}{subtotal.toLocaleString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
                     <span className={cn(
                       "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
-                        ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)]" 
-                        : "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] border border-[color:var(--border-subtle)]"
+                        ? "bg-lime-50 text-lime-700 border border-lime-200" 
+                        : "bg-gray-100 text-gray-500 border border-gray-200"
                     )}>
                       {isSettled ? "Settled" : "Pending"}
                     </span>
                   </td>
-                  <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-3">
-                      {!isSettled && (
-                        <button
-                          type="button"
-                          onClick={() => onMarkSettled(invoice.id, item.id)}
-                          className="h-[28px] px-2.5 text-[10px] font-bold text-[color:var(--state-success-text)] border border-[color:var(--state-success-border)] rounded-full transition-colors hover:bg-[color:var(--state-success-bg)] active:scale-95"
-                        >
-                          Mark Settled
-                        </button>
-                      )}
-                      {isSettled && idx < lineItems.filter(i => i.is_milestone_header).length - 1 && (
-                        <button
-                          type="button"
-                          disabled={requestingId === item.id}
-                          onClick={() => onRequestNext(invoice.id, lineItems[idx + 1]?.id)}
-                          className="text-[10px] font-bold text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] disabled:opacity-50"
-                        >
-                          {requestingId === lineItems[idx + 1]?.id ? "Requesting…" : "Request Next"}
-                        </button>
-                      )}
-                    </div>
+                    {!isSettled && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, item.id); }}
+                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border border-lime-200 rounded-full bg-white hover:bg-lime-50 transition-colors"
+                      >
+                        Settle
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
@@ -1095,6 +1076,7 @@ export default function InvoiceHistoryPage() {
                 {
                   label: "Awaiting MSA",
                   value: stats.awaitingMsa,
+                  subValue: `${stats.awaitingMsa} invoice${stats.awaitingMsa !== 1 ? 's' : ''}`,
                   color: "text-amber-700",
                   accent: "bg-amber-200",
                   icon: "✍️",
@@ -1115,10 +1097,15 @@ export default function InvoiceHistoryPage() {
                     className={cn("absolute left-0 top-0 h-1 w-full", s.accent)}
                   />
                   <div className="relative z-10">
-                    <div
-                      className={`text-xl font-bold tabular-nums ${s.color}`}
-                    >
-                      {s.value}
+                    <div className="flex flex-col">
+                      <span className={cn("text-xl font-bold tabular-nums", s.color)}>
+                        {s.value}
+                      </span>
+                      {s.subValue && (
+                        <span className="text-[10px] font-medium text-[color:var(--text-muted)] -mt-0.5">
+                          {s.subValue}
+                        </span>
+                      )}
                     </div>
                     <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                       {s.label}
@@ -1213,20 +1200,17 @@ export default function InvoiceHistoryPage() {
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
                         {[
-                          "Invoice #",
-                          "Date / Due",
+                          "Invoice",
                           "Client",
-                          "Work Type",
                           "Amount",
                           "Status",
-                          "MSA STATUS",
-                          "",
+                          "Actions",
                         ].map((h) => (
                           <th
                             key={h}
                             className={cn(
                               "px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]",
-                              h === "" && "text-right"
+                              (h === "Actions" || h === "Amount") && "text-right"
                             )}
                           >
                             {h}
