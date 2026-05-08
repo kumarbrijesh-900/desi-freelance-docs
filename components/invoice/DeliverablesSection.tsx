@@ -41,6 +41,8 @@ interface DeliverablesSectionProps {
   embedded?: boolean;
   errors?: Record<string, { description?: string; qty?: string; rate?: string; sacCode?: string }>;
   showAllErrors?: boolean;
+  autoFilledFields?: Set<string>;
+  onFieldManualEdit?: (fieldPath: string) => void;
 }
 
 function createDefaultLineItem(): InvoiceLineItem {
@@ -83,7 +85,14 @@ export default function DeliverablesSection({
   embedded = false,
   errors,
   showAllErrors = false,
+  autoFilledFields = new Set(),
+  onFieldManualEdit = () => {},
 }: DeliverablesSectionProps) {
+  const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
+    if (autoFilledFields.has(fieldPath)) return "input-autofilled";
+    return "input-manual";
+  };
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(null);
 
@@ -227,6 +236,11 @@ export default function DeliverablesSection({
                             setActiveDescriptionId={setActiveDescriptionId}
                             onUpdate={(patch) => updateLineItem(milestone.id, item.id, patch)}
                             onRemove={() => removeLineItem(milestone.id, item.id)}
+                            autoFilledFields={autoFilledFields}
+                            onFieldManualEdit={onFieldManualEdit}
+                            getInputStateClass={getInputStateClass}
+                            milestoneIndex={mIdx}
+                            itemIndex={milestone.lineItems.indexOf(item)}
                           />
                         </motion.div>
                       ))}
@@ -281,6 +295,11 @@ function LineItemCard({
   setActiveDescriptionId,
   onUpdate,
   onRemove,
+  autoFilledFields,
+  onFieldManualEdit,
+  getInputStateClass,
+  milestoneIndex,
+  itemIndex,
 }: {
   item: InvoiceLineItem;
   currency: InvoiceDisplayCurrency;
@@ -292,6 +311,11 @@ function LineItemCard({
   setActiveDescriptionId: (id: string | null) => void;
   onUpdate: (patch: Partial<InvoiceLineItem>) => void;
   onRemove: () => void;
+  autoFilledFields: Set<string>;
+  onFieldManualEdit: (fieldPath: string) => void;
+  getInputStateClass: (fieldPath: string, fieldValue: string | number) => string;
+  milestoneIndex: number;
+  itemIndex: number;
 }) {
   const allowedUnits = invoiceAllowedUnitsByType[item.type] || [];
   const suggestions = getInvoiceDescriptionSuggestions(item.type);
@@ -316,8 +340,14 @@ function LineItemCard({
           <div className="min-w-[200px] w-full md:w-fit">
             <AppSelectField
               value={item.type}
-              onChange={(e) => onUpdate({ type: e.target.value as InvoiceLineItemType })}
-              className="h-10 text-sm font-semibold"
+              onChange={(e) => {
+                onFieldManualEdit(`deliverables.${itemIndex}.type`);
+                onUpdate({ type: e.target.value as InvoiceLineItemType });
+              }}
+              className={cn(
+                "h-10 text-sm font-semibold",
+                getInputStateClass(`deliverables.${itemIndex}.type`, item.type)
+              )}
             >
               {invoiceLineItemTypeOptions.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
@@ -333,13 +363,25 @@ function LineItemCard({
 
         {/* Row 2: Description */}
         <div className="relative">
+          <label className="sr-only">
+            Description
+            {autoFilledFields.has(`deliverables.${itemIndex}.description`) && (
+              <span className="autofill-indicator">auto-filled</span>
+            )}
+          </label>
           <AppTextField
             type="text"
             value={item.description}
             placeholder={invoiceDescriptionPlaceholderByType[item.type] || "Description"}
-            className="w-full text-sm h-10"
+            className={cn(
+              "w-full text-sm h-10",
+              getInputStateClass(`deliverables.${itemIndex}.description`, item.description)
+            )}
             errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
-            onChange={(e) => onUpdate({ description: e.target.value })}
+            onChange={(e) => {
+              onFieldManualEdit(`deliverables.${itemIndex}.description`);
+              onUpdate({ description: e.target.value });
+            }}
             onFocus={() => setActiveDescriptionId(item.id)}
             onBlur={() => {
               markTouched(item.id, "description");
@@ -355,7 +397,11 @@ function LineItemCard({
                   key={s}
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => { onUpdate({ description: s }); setActiveDescriptionId(null); }}
+                  onClick={() => {
+                    onFieldManualEdit(`deliverables.${itemIndex}.description`);
+                    onUpdate({ description: s });
+                    setActiveDescriptionId(null);
+                  }}
                   className="w-full text-left px-4 py-2.5 text-xs hover:bg-gray-50 transition-colors"
                 >
                   {s}
@@ -368,38 +414,71 @@ function LineItemCard({
         {/* Row 3: Qty / Rate / Unit */}
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-[80px]">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Qty</label>
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+              Qty
+              {autoFilledFields.has(`deliverables.${itemIndex}.quantity`) && (
+                <span className="autofill-indicator ml-1">auto-filled</span>
+              )}
+            </label>
             <AppTextField
               type="number"
               value={item.qty}
-              className="h-10 text-sm w-full"
+              className={cn(
+                "h-10 text-sm w-full",
+                getInputStateClass(`deliverables.${itemIndex}.quantity`, item.qty)
+              )}
               errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
-              onChange={(e) => onUpdate({ qty: e.target.value })}
+              onChange={(e) => {
+                onFieldManualEdit(`deliverables.${itemIndex}.quantity`);
+                onUpdate({ qty: e.target.value });
+              }}
               onBlur={() => markTouched(item.id, "qty")}
             />
           </div>
 
           <div className="w-[160px]">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Rate</label>
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+              Rate
+              {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
+                <span className="autofill-indicator ml-1">auto-filled</span>
+              )}
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">{getCurrencySymbol(currency)}</span>
               <AppTextField
                 type="number"
                 value={item.rate}
-                className="h-10 text-sm pl-7 w-full"
+                className={cn(
+                  "h-10 text-sm pl-7 w-full",
+                  getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
+                )}
                 errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
-                onChange={(e) => onUpdate({ rate: e.target.value })}
+                onChange={(e) => {
+                  onFieldManualEdit(`deliverables.${itemIndex}.rate`);
+                  onUpdate({ rate: e.target.value });
+                }}
                 onBlur={() => markTouched(item.id, "rate")}
               />
             </div>
           </div>
 
           <div className="w-[160px]">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">Unit</label>
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+              Unit
+              {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
+                <span className="autofill-indicator ml-1">auto-filled</span>
+              )}
+            </label>
             <AppSelectField
               value={item.rateUnit}
-              onChange={(e) => onUpdate({ rateUnit: e.target.value as InvoiceRateUnit })}
-              className="h-10 text-sm"
+              onChange={(e) => {
+                onFieldManualEdit(`deliverables.${itemIndex}.unit`);
+                onUpdate({ rateUnit: e.target.value as InvoiceRateUnit });
+              }}
+              className={cn(
+                "h-10 text-sm",
+                getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
+              )}
             >
               {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
             </AppSelectField>

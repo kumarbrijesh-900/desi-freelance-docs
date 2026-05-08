@@ -41,6 +41,8 @@ interface TermsPaymentSectionProps {
     swiftBicCode?: string;
   };
   showAllErrors?: boolean;
+  autoFilledFields?: Set<string>;
+  onFieldManualEdit?: (fieldPath: string) => void;
   selectedClientMsa?: import("@/lib/supabase/clients").SavedClient | null;
   client: import("@/types/invoice").ClientDetails;
 }
@@ -96,7 +98,14 @@ export default function TermsPaymentSection({
   showAllErrors = false,
   selectedClientMsa,
   client,
+  autoFilledFields = new Set(),
+  onFieldManualEdit = () => {},
 }: TermsPaymentSectionProps) {
+  const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
+    if (autoFilledFields.has(fieldPath)) return "input-autofilled";
+    return "input-manual";
+  };
   const [isQrDragOver, setIsQrDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -374,9 +383,13 @@ export default function TermsPaymentSection({
               </AnimatePresence>
 
               <div className={cn(appFieldPairGridClass, "items-start")}>
-                <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
-                    <label className={appFieldLabelClass}>Days until payment</label>
+                    <label className={appFieldLabelClass}>
+                      Days until payment
+                      {autoFilledFields.has("meta.paymentTerms") && (
+                        <span className="autofill-indicator">auto-filled</span>
+                      )}
+                    </label>
                     {isAddendumMode && <Sparkles size={11} className="text-amber-500" />}
                   </div>
                   <div className="relative">
@@ -384,10 +397,17 @@ export default function TermsPaymentSection({
                       type="number"
                       disabled={isReadOnly}
                       value={meta.paymentTerms}
-                      onChange={(e) => handleDaysChange(parseInt(e.target.value, 10) || 0)}
+                      onChange={(e) => {
+                        onFieldManualEdit("meta.paymentTerms");
+                        handleDaysChange(parseInt(e.target.value, 10) || 0);
+                      }}
                       onBlur={() => markTouched("paymentTerms")}
                       placeholder="15"
-                      className={cn(inputClass(paymentTermsFieldError, true), "pr-12")}
+                      className={cn(
+                        inputClass(paymentTermsFieldError, true),
+                        getInputStateClass("meta.paymentTerms", meta.paymentTerms),
+                        "pr-12",
+                      )}
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                       <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
@@ -398,28 +418,49 @@ export default function TermsPaymentSection({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className={appFieldLabelClass}>Due Date</label>
+                  <label className={appFieldLabelClass}>
+                    Due Date
+                    {autoFilledFields.has("meta.dueDate") && (
+                      <span className="autofill-indicator">auto-filled</span>
+                    )}
+                  </label>
                   <input
                     type="date"
                     disabled={isReadOnly}
                     value={meta.dueDate}
-                    onChange={(e) => handleDateChange(e.target.value)}
-                    className={inputClass(undefined, Boolean(meta.dueDate))}
+                    onChange={(e) => {
+                      onFieldManualEdit("meta.dueDate");
+                      handleDateChange(e.target.value);
+                    }}
+                    className={cn(
+                      inputClass(undefined, Boolean(meta.dueDate)),
+                      getInputStateClass("meta.dueDate", meta.dueDate),
+                    )}
                   />
                   <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
                 </div>
-              </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={appFieldLabelClass}>Terms / Notes</label>
+                <label className={appFieldLabelClass}>
+                  Terms / Notes
+                  {autoFilledFields.has("payment.terms") && (
+                    <span className="autofill-indicator">auto-filled</span>
+                  )}
+                </label>
                 <textarea
                   disabled={isReadOnly}
                   suppressHydrationWarning
                   rows={3}
                   value={value.terms || value.notes}
-                  onChange={(e) => updateField("terms", e.target.value)}
+                  onChange={(e) => {
+                    onFieldManualEdit("payment.terms");
+                    updateField("terms", e.target.value);
+                  }}
                   placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
-                  className={inputClass(undefined, Boolean(value.terms || value.notes), true)}
+                  className={cn(
+                    inputClass(undefined, Boolean(value.terms || value.notes), true),
+                    getInputStateClass("payment.terms", value.terms || value.notes),
+                  )}
                 />
               </div>
             </div>
@@ -474,16 +515,27 @@ export default function TermsPaymentSection({
                         {showLicenseDuration && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                             <div className="max-w-[280px] flex flex-col gap-1.5">
-                              <label className={appFieldLabelClass}>License Duration *</label>
-                              <input 
+                              <label className={appFieldLabelClass}>
+                                License Duration *
+                                {autoFilledFields.has("payment.license.licenseDuration") && (
+                                  <span className="autofill-indicator">auto-filled</span>
+                                )}
+                              </label>
+                              <input
                                 disabled={isReadOnly}
-                                suppressHydrationWarning 
-                                type="text" 
-                                value={value.license.licenseDuration} 
-                                onChange={(e) => updateLicenseField("licenseDuration", e.target.value)} 
-                                onBlur={() => markTouched("licenseDuration")} 
-                                placeholder="Example: 3 years" 
-                                className={inputClass(licenseDurationError, Boolean(value.license.licenseDuration))} 
+                                suppressHydrationWarning
+                                type="text"
+                                value={value.license.licenseDuration}
+                                onChange={(e) => {
+                                  onFieldManualEdit("payment.license.licenseDuration");
+                                  updateLicenseField("licenseDuration", e.target.value);
+                                }}
+                                onBlur={() => markTouched("licenseDuration")}
+                                placeholder="Example: 3 years"
+                                className={cn(
+                                  inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
+                                  getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
+                                )}
                               />
                               {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
                             </div>
@@ -515,23 +567,99 @@ export default function TermsPaymentSection({
                     <div className="space-y-6">
                       <div className={appFieldPairGridClass}>
                         <div>
-                          <label className={appFieldLabelClass}>Bank Name</label>
-                          <input suppressHydrationWarning type="text" value={value.bankName} onChange={(e) => updateField("bankName", e.target.value)} onBlur={() => markTouched("bankName")} placeholder="Bank name" className={inputClass(bankNameError, Boolean(value.bankName))} />
+                          <label className={appFieldLabelClass}>
+                            Bank Name
+                            {autoFilledFields.has("payment.bankName") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.bankName}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.bankName");
+                              updateField("bankName", e.target.value);
+                            }}
+                            onBlur={() => markTouched("bankName")}
+                            placeholder="Bank name"
+                            className={cn(
+                              inputClass(bankNameError, Boolean(value.bankName)),
+                              getInputStateClass("payment.bankName", value.bankName),
+                            )}
+                          />
                           {bankNameError && <p className={appFieldErrorTextClass}>{bankNameError}</p>}
                         </div>
                         <div>
-                          <label className={appFieldLabelClass}>Account Name</label>
-                          <input suppressHydrationWarning type="text" value={value.accountName} onChange={(e) => updateField("accountName", e.target.value)} onBlur={() => markTouched("accountName")} placeholder="Name on account" className={inputClass(accountNameError, Boolean(value.accountName))} />
+                          <label className={appFieldLabelClass}>
+                            Account Name
+                            {autoFilledFields.has("payment.accountName") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.accountName}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.accountName");
+                              updateField("accountName", e.target.value);
+                            }}
+                            onBlur={() => markTouched("accountName")}
+                            placeholder="Name on account"
+                            className={cn(
+                              inputClass(accountNameError, Boolean(value.accountName)),
+                              getInputStateClass("payment.accountName", value.accountName),
+                            )}
+                          />
                           {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
                         </div>
                         <div>
-                          <label className={appFieldLabelClass}>Account Number</label>
-                          <input suppressHydrationWarning type="text" value={value.accountNumber} onChange={(e) => updateField("accountNumber", e.target.value)} onBlur={() => markTouched("accountNumber")} placeholder="Bank account number" className={inputClass(accountNumberError, Boolean(value.accountNumber))} />
+                          <label className={appFieldLabelClass}>
+                            Account Number
+                            {autoFilledFields.has("payment.accountNumber") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.accountNumber}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.accountNumber");
+                              updateField("accountNumber", e.target.value);
+                            }}
+                            onBlur={() => markTouched("accountNumber")}
+                            placeholder="Bank account number"
+                            className={cn(
+                              inputClass(accountNumberError, Boolean(value.accountNumber)),
+                              getInputStateClass("payment.accountNumber", value.accountNumber),
+                            )}
+                          />
                           {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                         <div>
-                          <label className={appFieldLabelClass}>IFSC Code</label>
-                          <input suppressHydrationWarning type="text" value={value.ifscCode} onChange={(e) => updateField("ifscCode", e.target.value)} onBlur={() => markTouched("ifscCode")} placeholder="Bank IFSC code" className={inputClass(ifscCodeError, Boolean(value.ifscCode))} />
+                          <label className={appFieldLabelClass}>
+                            IFSC Code
+                            {autoFilledFields.has("payment.ifscCode") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.ifscCode}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.ifscCode");
+                              updateField("ifscCode", e.target.value);
+                            }}
+                            onBlur={() => markTouched("ifscCode")}
+                            placeholder="Bank IFSC code"
+                            className={cn(
+                              inputClass(ifscCodeError, Boolean(value.ifscCode)),
+                              getInputStateClass("payment.ifscCode", value.ifscCode),
+                            )}
+                          />
                           {ifscCodeError && <p className={appFieldErrorTextClass}>{ifscCodeError}</p>}
                         </div>
                       </div>
@@ -575,8 +703,27 @@ export default function TermsPaymentSection({
                           {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                         <div>
-                          <label className={appFieldLabelClass}>SWIFT / BIC Code</label>
-                          <input suppressHydrationWarning type="text" value={value.swiftBicCode} onChange={(e) => updateField("swiftBicCode", e.target.value)} onBlur={() => markTouched("swiftBicCode")} placeholder="8 or 11 characters" className={inputClass(swiftBicCodeError, Boolean(value.swiftBicCode))} />
+                          <label className={appFieldLabelClass}>
+                            SWIFT / BIC Code
+                            {autoFilledFields.has("payment.swiftBicCode") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.swiftBicCode}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.swiftBicCode");
+                              updateField("swiftBicCode", e.target.value);
+                            }}
+                            onBlur={() => markTouched("swiftBicCode")}
+                            placeholder="8 or 11 characters"
+                            className={cn(
+                              inputClass(swiftBicCodeError, Boolean(value.swiftBicCode)),
+                              getInputStateClass("payment.swiftBicCode", value.swiftBicCode),
+                            )}
+                          />
                           {swiftBicCodeError && <p className={appFieldErrorTextClass}>{swiftBicCodeError}</p>}
                         </div>
                       </div>
@@ -585,13 +732,78 @@ export default function TermsPaymentSection({
                         <div className="space-y-4">
                           <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Structured Bank Address</p>
                           <div className="grid grid-cols-1 gap-3">
-                            <input suppressHydrationWarning type="text" value={bankAddressFields.line1} onChange={(e) => updateBankAddressField("line1", e.target.value)} placeholder="Building / Street" className={inputClass(undefined, Boolean(bankAddressFields.line1))} />
-                            <input suppressHydrationWarning type="text" value={bankAddressFields.line2} onChange={(e) => updateBankAddressField("line2", e.target.value)} placeholder="Suite / Floor (Optional)" className={inputClass(undefined, Boolean(bankAddressFields.line2))} />
+                            <input
+                              suppressHydrationWarning
+                              type="text"
+                              value={bankAddressFields.line1}
+                              onChange={(e) => {
+                                onFieldManualEdit("payment.bankAddress");
+                                updateBankAddressField("line1", e.target.value);
+                              }}
+                              placeholder="Building / Street"
+                              className={cn(
+                                inputClass(undefined, Boolean(bankAddressFields.line1)),
+                                getInputStateClass("payment.bankAddress", bankAddressFields.line1),
+                              )}
+                            />
+                            <input
+                              suppressHydrationWarning
+                              type="text"
+                              value={bankAddressFields.line2}
+                              onChange={(e) => {
+                                onFieldManualEdit("payment.bankAddress");
+                                updateBankAddressField("line2", e.target.value);
+                              }}
+                              placeholder="Suite / Floor (Optional)"
+                              className={cn(
+                                inputClass(undefined, Boolean(bankAddressFields.line2)),
+                                getInputStateClass("payment.bankAddress", bankAddressFields.line2),
+                              )}
+                            />
                             <div className="grid grid-cols-2 gap-3">
-                              <input suppressHydrationWarning type="text" value={bankAddressFields.cityRegion} onChange={(e) => updateBankAddressField("cityRegion", e.target.value)} placeholder="City / State" className={inputClass(undefined, Boolean(bankAddressFields.cityRegion))} />
-                              <input suppressHydrationWarning type="text" value={bankAddressFields.postalCode} onChange={(e) => updateBankAddressField("postalCode", e.target.value)} placeholder="Postal Code" className={inputClass(undefined, Boolean(bankAddressFields.postalCode))} />
+                              <input
+                                suppressHydrationWarning
+                                type="text"
+                                value={bankAddressFields.cityRegion}
+                                onChange={(e) => {
+                                  onFieldManualEdit("payment.bankAddress");
+                                  updateBankAddressField("cityRegion", e.target.value);
+                                }}
+                                placeholder="City / State"
+                                className={cn(
+                                  inputClass(undefined, Boolean(bankAddressFields.cityRegion)),
+                                  getInputStateClass("payment.bankAddress", bankAddressFields.cityRegion),
+                                )}
+                              />
+                              <input
+                                suppressHydrationWarning
+                                type="text"
+                                value={bankAddressFields.postalCode}
+                                onChange={(e) => {
+                                  onFieldManualEdit("payment.bankAddress");
+                                  updateBankAddressField("postalCode", e.target.value);
+                                }}
+                                placeholder="Postal Code"
+                                className={cn(
+                                  inputClass(undefined, Boolean(bankAddressFields.postalCode)),
+                                  getInputStateClass("payment.bankAddress", bankAddressFields.postalCode),
+                                )}
+                              />
                             </div>
-                            <input suppressHydrationWarning type="text" value={bankAddressFields.country} onChange={(e) => updateBankAddressField("country", e.target.value)} placeholder="Country" className={inputClass(bankAddressError, Boolean(bankAddressFields.country))} />
+                            <input
+                              suppressHydrationWarning
+                              type="text"
+                              value={bankAddressFields.country}
+                              onChange={(e) => {
+                                onFieldManualEdit("payment.bankAddress");
+                                updateBankAddressField("country", e.target.value);
+                              }}
+                              placeholder="Country"
+                              className={cn(
+                                inputClass(bankAddressError, Boolean(bankAddressFields.country)),
+                                getInputStateClass("payment.bankAddress", bankAddressFields.country),
+                              )}
+                            />
                           </div>
                         </div>
 

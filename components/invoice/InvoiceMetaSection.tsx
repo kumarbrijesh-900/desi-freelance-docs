@@ -26,6 +26,8 @@ interface InvoiceMetaSectionProps {
     dueDate?: string;
   };
   showAllErrors?: boolean;
+  autoFilledFields?: Set<string>;
+  onFieldManualEdit?: (fieldPath: string) => void;
 }
 
 export default function InvoiceMetaSection({
@@ -34,7 +36,14 @@ export default function InvoiceMetaSection({
   embedded = false,
   errors,
   showAllErrors = false,
+  autoFilledFields = new Set(),
+  onFieldManualEdit = () => {},
 }: InvoiceMetaSectionProps) {
+  const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
+    if (autoFilledFields.has(fieldPath)) return "input-autofilled";
+    return "input-manual";
+  };
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
@@ -121,17 +130,25 @@ export default function InvoiceMetaSection({
           </div>
 
           <div className="max-w-[320px]">
-            <label className={appFieldLabelClass}>Invoice Number *</label>
+            <label className={appFieldLabelClass}>
+              Invoice Number *
+              {autoFilledFields.has("meta.invoiceNumber") && (
+                <span className="autofill-indicator">auto-filled</span>
+              )}
+            </label>
             <input
               suppressHydrationWarning
               type="text"
               value={value.invoiceNumber}
-              onChange={(e) => updateField("invoiceNumber", e.target.value)}
+              onChange={(e) => {
+                onFieldManualEdit("meta.invoiceNumber");
+                updateField("invoiceNumber", e.target.value);
+              }}
               onBlur={() => markTouched("invoiceNumber")}
               placeholder="INV-2026-001"
-              className={inputClass(
-                invoiceNumberError,
-                Boolean(value.invoiceNumber),
+              className={cn(
+                inputClass(invoiceNumberError, Boolean(value.invoiceNumber)),
+                getInputStateClass("meta.invoiceNumber", value.invoiceNumber),
               )}
             />
             {invoiceNumberError ? (
@@ -151,16 +168,24 @@ export default function InvoiceMetaSection({
 
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
-              <label className={appFieldLabelClass}>Invoice Date *</label>
+              <label className={appFieldLabelClass}>
+                Invoice Date *
+                {autoFilledFields.has("meta.invoiceDate") && (
+                  <span className="autofill-indicator">auto-filled</span>
+                )}
+              </label>
               <input
                 suppressHydrationWarning
                 type="date"
                 value={value.invoiceDate}
-                onChange={(e) => updateField("invoiceDate", e.target.value)}
+                onChange={(e) => {
+                  onFieldManualEdit("meta.invoiceDate");
+                  updateField("invoiceDate", e.target.value);
+                }}
                 onBlur={() => markTouched("invoiceDate")}
-                className={inputClass(
-                  invoiceDateError,
-                  Boolean(value.invoiceDate),
+                className={cn(
+                  inputClass(invoiceDateError, Boolean(value.invoiceDate)),
+                  getInputStateClass("meta.invoiceDate", value.invoiceDate),
                 )}
               />
               {invoiceDateError ? (
@@ -169,14 +194,25 @@ export default function InvoiceMetaSection({
             </div>
 
             <div className="md:max-w-[240px]">
-              <label className={appFieldLabelClass}>Due Date *</label>
+              <label className={appFieldLabelClass}>
+                Due Date *
+                {autoFilledFields.has("meta.dueDate") && (
+                  <span className="autofill-indicator">auto-filled</span>
+                )}
+              </label>
               <input
                 suppressHydrationWarning
                 type="date"
                 value={value.dueDate}
-                onChange={(e) => updateField("dueDate", e.target.value)}
+                onChange={(e) => {
+                  onFieldManualEdit("meta.dueDate");
+                  updateField("dueDate", e.target.value);
+                }}
                 onBlur={() => markTouched("dueDate")}
-                className={inputClass(dueDateError, Boolean(value.dueDate))}
+                className={cn(
+                  inputClass(dueDateError, Boolean(value.dueDate)),
+                  getInputStateClass("meta.dueDate", value.dueDate),
+                )}
               />
               {dueDateError ? (
                 <p className={appFieldErrorTextClass}>{dueDateError}</p>

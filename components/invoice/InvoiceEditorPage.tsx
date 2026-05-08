@@ -730,6 +730,24 @@ function EditorContent() {
     isReady: boolean;
   } | null>(null);
   const [extractProgress, setExtractProgress] = useState(0);
+  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
+
+  const markFieldsAutoFilled = (fieldPaths: string[]) => {
+    setAutoFilledFields(prev => {
+      const next = new Set(prev);
+      fieldPaths.forEach(f => next.add(f));
+      return next;
+    });
+  };
+
+  const markFieldManual = (fieldPath: string) => {
+    setAutoFilledFields(prev => {
+      if (!prev.has(fieldPath)) return prev;
+      const next = new Set(prev);
+      next.delete(fieldPath);
+      return next;
+    });
+  };
 
   const hasInitializedRef = useRef(false);
   const dueDateAutoManagedRef = useRef(true);
@@ -963,6 +981,21 @@ function EditorContent() {
 
         const agencyFromProfile = profileToAgencyDetails(profile);
         const paymentFromProfile = profileToPaymentDefaults(profile);
+
+        markFieldsAutoFilled([
+          "agency.agencyName",
+          "agency.addressLine1",
+          "agency.city",
+          "agency.pinCode",
+          "agency.agencyState",
+          "agency.gstin",
+          "agency.pan",
+          "agency.gstRegistrationStatus",
+          "payment.bankName",
+          "payment.accountName",
+          "payment.accountNumber",
+          "payment.ifscCode",
+        ]);
 
         return {
           ...prev,
@@ -1818,7 +1851,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       input: normalizedInput,
       aiExtraction,
     });
-    let parserHydration: ParsedInvoiceHydrationResult | null = null;
 
     if (!result.normalizedText.trim()) {
       triggerToast(
@@ -1829,8 +1861,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       return false;
     }
 
-    const hydratedFormData =
-      parserHydration?.nextFormData ?? result.nextFormData;
+    const hydratedFormData = result.nextFormData;
 
     const nextSuggestedDueDate = getSuggestedDueDate(
       hydratedFormData.meta.paymentTerms,
@@ -1891,6 +1922,13 @@ const handleModalSubmit = (
 
   const missingStep = getFirstInvalidStep(finalData);
   const recommendedStep = missingStep ?? "totals";
+
+  if (briefSummaryData?.confident) {
+    markFieldsAutoFilled(
+      briefSummaryData.confident.map((f) => f.fieldPath).filter(Boolean) as string[],
+    );
+  }
+
   guideToSection(recommendedStep, { focus: true });
 };
 
@@ -1977,6 +2015,16 @@ const handleClientSelect = (client: SavedClient) => {
   const syncedData = syncMsaToInvoice(formData, client);
   setFormData(syncedData);
   setSelectedClientMsa(client);
+
+  markFieldsAutoFilled([
+    "client.clientName",
+    "client.clientEmail",
+    "client.clientState",
+    "client.clientCity",
+    "client.clientGstin",
+    "client.clientAddressLine1",
+  ]);
+
   playInteractionCue("stepComplete");
 };
 
@@ -1991,6 +2039,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           onChange={(agency) => updateFormSection("agency", agency)}
           errors={fieldErrors.agency}
           showAllErrors={showAllValidationErrors}
+          autoFilledFields={autoFilledFields}
+          onFieldManualEdit={markFieldManual}
         />
       );
     case "client":
@@ -2005,6 +2055,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           savedClients={savedClients}
           agency={formData.agency}
           isNew={!parserDocumentId}
+          autoFilledFields={autoFilledFields}
+          onFieldManualEdit={markFieldManual}
         />
       );
     case "deliverables":
@@ -2022,6 +2074,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           }
           errors={fieldErrors.lineItems}
           showAllErrors={showAllValidationErrors}
+          autoFilledFields={autoFilledFields}
+          onFieldManualEdit={markFieldManual}
         />
       );
     case "payment":
@@ -2046,6 +2100,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           paymentTermsError={fieldErrors.meta.paymentTerms}
           errors={fieldErrors.payment}
           showAllErrors={showAllValidationErrors}
+          autoFilledFields={autoFilledFields}
+          onFieldManualEdit={markFieldManual}
         />
       );
     case "meta":
@@ -2061,6 +2117,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
             dueDate: fieldErrors.meta.dueDate,
           }}
           showAllErrors={showAllValidationErrors}
+          autoFilledFields={autoFilledFields}
+          onFieldManualEdit={markFieldManual}
         />
       );
     case "totals":
@@ -2336,12 +2394,23 @@ return (
                               Continue to{" "}
                               {getStepShortLabel(getNextStep(currentStep)!)}
                             </button>
-                            {currentStep === "deliverables" &&
-                              !stepValidityByStep[currentStep] && (
-                                <p className="mt-2 text-[11px] text-[color:var(--text-secondary)]">
-                                  Add at least one item with a rate to continue.
-                                </p>
-                              )}
+                            {!stepValidityByStep[currentStep] && (
+                              <p className="mt-2 text-[11px] text-[color:var(--text-secondary)]">
+                                {(() => {
+                                  const group = missingFieldGroups.find(g => g.step === currentStep);
+                                  if (!group || group.fields.length === 0) {
+                                    return "Complete all required fields to continue.";
+                                  }
+                                  if (group.fields.length === 1) {
+                                    return `Fill in ${group.fields[0]} to continue.`;
+                                  }
+                                  if (group.fields.length <= 3) {
+                                    return `Missing: ${group.fields.join(", ")}.`;
+                                  }
+                                  return `${group.fields.length} required fields remaining.`;
+                                })()}
+                              </p>
+                            )}
                           </div>
                         </div>
                       ) : null

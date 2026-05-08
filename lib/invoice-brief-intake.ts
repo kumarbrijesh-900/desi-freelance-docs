@@ -138,10 +138,96 @@ export type InvoiceBriefExtractionSchema = {
 
 export type BriefAutofillFieldSummary = {
   label: string;
+  fieldPath?: string;
   step: InvoiceStepperStep;
   confidence: BriefExtractionConfidence;
   source: BriefExtractionSource;
   origin: "ai" | "parser";
+};
+
+function getFieldPathFromLabel(label: string): string | undefined {
+  const l = label.toLowerCase();
+  
+  // Agency
+  if (l === "agency name") return "agency.agencyName";
+  if (l === "agency address") return "agency.address";
+  if (l === "agency address line 1") return "agency.addressLine1";
+  if (l === "agency address line 2") return "agency.addressLine2";
+  if (l === "agency city") return "agency.city";
+  if (l === "agency pin code") return "agency.pinCode";
+  if (l === "agency state") return "agency.agencyState";
+  if (l === "gst registration status") return "agency.gstRegistrationStatus";
+  if (l === "agency gstin") return "agency.gstin";
+  if (l === "agency pan") return "agency.pan";
+  if (l === "lut availability") return "agency.lutAvailability";
+  if (l === "lut number") return "agency.lutNumber";
+
+  // Client
+  if (l === "client name") return "client.clientName";
+  if (l === "client address") return "client.clientAddress";
+  if (l === "client address line 1") return "client.clientAddressLine1";
+  if (l === "client address line 2") return "client.clientAddressLine2";
+  if (l === "client city") return "client.clientCity";
+  if (l === "client pin code") return "client.clientPinCode";
+  if (l === "client postal code") return "client.clientPostalCode";
+  if (l === "client location") return "client.clientLocation";
+  if (l === "client state") return "client.clientState";
+  if (l === "client country") return "client.clientCountry";
+  if (l === "invoice currency") return "client.clientCurrency";
+  if (l === "client gstin / tax id") return "client.clientGstin";
+
+  // Meta
+  if (l === "payment terms") return "meta.paymentTerms";
+  if (l === "invoice date") return "meta.invoiceDate";
+  if (l === "due date") return "meta.dueDate";
+
+  // Payment/License
+  if (l === "license type") return "payment.license.licenseType";
+  if (l === "license duration") return "payment.license.licenseDuration";
+  if (l === "beneficiary / account name") return "payment.accountName";
+  if (l === "bank name") return "payment.bankName";
+  if (l === "bank address") return "payment.bankAddress";
+  if (l === "account number") return "payment.accountNumber";
+  if (l === "ifsc code") return "payment.ifscCode";
+  if (l === "swift / bic code") return "payment.swiftBicCode";
+
+  // Deliverables (dynamic)
+  const deliverableMatch = l.match(/deliverable (\d+) (.+)/);
+  if (deliverableMatch) {
+    const index = parseInt(deliverableMatch[1], 10) - 1;
+    const field = deliverableMatch[2];
+    if (field === "type") return `deliverables.${index}.type`;
+    if (field === "description") return `deliverables.${index}.description`;
+    if (field === "quantity") return `deliverables.${index}.quantity`;
+    if (field === "rate") return `deliverables.${index}.rate`;
+    if (field === "rate unit") return `deliverables.${index}.unit`;
+    if (field === "sac code") return `deliverables.${index}.sacCode`;
+  }
+  
+  // Handle first deliverable (no index in label)
+  if (l === "deliverable type") return "deliverables.0.type";
+  if (l === "deliverable description") return "deliverables.0.description";
+  if (l === "quantity") return "deliverables.0.quantity";
+  if (l === "rate") return "deliverables.0.rate";
+  if (l === "rate unit") return "deliverables.0.unit";
+  if (l === "sac code") return "deliverables.0.sacCode";
+
+  return undefined;
+}
+
+function createFieldSummary(
+  label: string,
+  confidence: BriefExtractionConfidence,
+  source: BriefExtractionSource,
+): BriefAutofillFieldSummary {
+  return {
+    label,
+    fieldPath: getFieldPathFromLabel(label),
+    step: getFieldStepForLabel(label),
+    confidence,
+    source,
+    origin: source === "ai" ? "ai" : "parser",
+  };
 };
 
 export type BriefClarificationAction =
@@ -1010,19 +1096,7 @@ function getFieldStepForLabel(label: string): InvoiceStepperStep {
   return "totals";
 }
 
-function createFieldSummary(
-  label: string,
-  confidence: BriefExtractionConfidence,
-  source: BriefExtractionSource,
-): BriefAutofillFieldSummary {
-  return {
-    label,
-    step: getFieldStepForLabel(label),
-    confidence,
-    source,
-    origin: source === "ai" ? "ai" : "parser",
-  };
-}
+
 
 function dedupeFieldSummaries(summaries: BriefAutofillFieldSummary[]) {
   const seen = new Set<string>();

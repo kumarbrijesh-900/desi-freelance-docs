@@ -63,6 +63,8 @@ interface ClientDetailsSectionProps {
   onClientSelect?: (client: SavedClient) => void;
   agency?: AgencyDetails;
   isNew?: boolean;
+  autoFilledFields?: Set<string>;
+  onFieldManualEdit?: (fieldPath: string) => void;
 }
 
 const SNIPER_DEFAULTS = {
@@ -83,7 +85,14 @@ export default function ClientDetailsSection({
   onClientSelect,
   agency,
   isNew = false,
+  autoFilledFields = new Set(),
+  onFieldManualEdit = () => {},
 }: ClientDetailsSectionProps) {
+  const getInputStateClass = (fieldPath: string, fieldValue: string) => {
+    if (!fieldValue || !fieldValue.trim()) return "";
+    if (autoFilledFields.has(fieldPath)) return "input-autofilled";
+    return "input-manual";
+  };
   const isInternational = value.clientLocation === "international";
   const [isMsaOpen, setIsMsaOpen] = useState(false);
   const [hasInteractedWithMSA, setHasInteractedWithMSA] = useState(false);
@@ -241,12 +250,18 @@ export default function ClientDetailsSection({
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="relative">
-                <label className={appFieldLabelClass}>Client Name *</label>
+                <label className={appFieldLabelClass}>
+                  Client Name *
+                  {autoFilledFields.has("client.clientName") && (
+                    <span className="autofill-indicator">auto-filled</span>
+                  )}
+                </label>
                 <input
                   suppressHydrationWarning
                   type="text"
                   value={value.clientName}
                   onChange={(e) => {
+                    onFieldManualEdit("client.clientName");
                     updateField("clientName", e.target.value);
                     setShowSuggestions(true);
                   }}
@@ -259,7 +274,10 @@ export default function ClientDetailsSection({
                     performSafetyFetch();
                   }}
                   placeholder="Client or company name"
-                  className={inputClass(clientNameError, Boolean(value.clientName))}
+                  className={cn(
+                    inputClass(clientNameError, Boolean(value.clientName)),
+                    getInputStateClass("client.clientName", value.clientName),
+                  )}
                 />
 
                 {showSuggestions && (isLoading || effectiveClients.length > 0) && (
@@ -311,14 +329,25 @@ export default function ClientDetailsSection({
             </div>
 
             <div>
-              <label className={appFieldLabelClass}>Client Email</label>
+              <label className={appFieldLabelClass}>
+                Client Email
+                {autoFilledFields.has("client.clientEmail") && (
+                  <span className="autofill-indicator">auto-filled</span>
+                )}
+              </label>
               <input
                 suppressHydrationWarning
                 type="email"
                 value={value.clientEmail}
-                onChange={(e) => updateField("clientEmail", e.target.value)}
+                onChange={(e) => {
+                  onFieldManualEdit("client.clientEmail");
+                  updateField("clientEmail", e.target.value);
+                }}
                 placeholder="Email address"
-                className={inputClass(undefined, Boolean(value.clientEmail))}
+                className={cn(
+                  inputClass(undefined, Boolean(value.clientEmail)),
+                  getInputStateClass("client.clientEmail", value.clientEmail),
+                )}
               />
             </div>
           </div>
@@ -345,15 +374,26 @@ export default function ClientDetailsSection({
 
                   <div className="flex flex-wrap gap-6 items-end">
                     <div className="w-full max-w-[360px]">
-                      <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}</label>
+                      <label className={appFieldLabelClass}>
+                        {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
+                        {autoFilledFields.has("client.clientGstin") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
                       <input
                         suppressHydrationWarning
                         type="text"
                         value={value.clientGstin}
-                        onChange={(e) => updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""))}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientGstin");
+                          updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""));
+                        }}
                         onBlur={() => markTouched("clientGstin")}
                         placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
-                        className={inputClass(clientGstinError, Boolean(value.clientGstin))}
+                        className={cn(
+                          inputClass(clientGstinError, Boolean(value.clientGstin)),
+                          getInputStateClass("client.clientGstin", value.clientGstin),
+                        )}
                       />
                       {clientGstinError && <p className={appFieldErrorTextClass}>{clientGstinError}</p>}
                     </div>
@@ -379,43 +419,117 @@ export default function ClientDetailsSection({
 
                   <div className="space-y-5">
                     <div className={appFieldFullWidthStackClass}>
-                      <label className={appFieldLabelClass}>Address Line 1 *</label>
+                      <label className={appFieldLabelClass}>
+                        Address Line 1 *
+                        {autoFilledFields.has("client.clientAddressLine1") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
                       <input
                         suppressHydrationWarning
                         type="text"
                         value={value.clientAddressLine1}
-                        onChange={(e) => updateField("clientAddressLine1", e.target.value)}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientAddressLine1");
+                          updateField("clientAddressLine1", e.target.value);
+                        }}
                         onBlur={() => markTouched("clientAddress")}
                         placeholder="Building, street, or campus"
-                        className={inputClass(clientAddressError, Boolean(value.clientAddressLine1))}
+                        className={cn(
+                          inputClass(clientAddressError, Boolean(value.clientAddressLine1)),
+                          getInputStateClass("client.clientAddressLine1", value.clientAddressLine1),
+                        )}
                       />
                     </div>
                     <div className={appFieldFullWidthStackClass}>
-                      <label className={appFieldLabelClass}>Address Line 2</label>
+                      <label className={appFieldLabelClass}>
+                        Address Line 2
+                        {autoFilledFields.has("client.clientAddressLine2") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
                       <input
                         suppressHydrationWarning
                         type="text"
                         value={value.clientAddressLine2}
-                        onChange={(e) => updateField("clientAddressLine2", e.target.value)}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientAddressLine2");
+                          updateField("clientAddressLine2", e.target.value);
+                        }}
                         placeholder="Optional additional address details"
-                        className={inputClass(undefined, Boolean(value.clientAddressLine2))}
+                        className={cn(
+                          inputClass(undefined, Boolean(value.clientAddressLine2)),
+                          getInputStateClass("client.clientAddressLine2", value.clientAddressLine2),
+                        )}
                       />
                     </div>
                     <div className="grid grid-cols-[45%_35%_20%] gap-3">
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>State *</label>
-                        <AppSelectField suppressHydrationWarning value={value.clientState} onChange={(e) => updateField("clientState", e.target.value as any)} onBlur={() => markTouched("clientState")} hasError={clientStateError} hasValue={Boolean(value.clientState)}>
+                        <label className={appFieldLabelClass}>
+                          State *
+                          {autoFilledFields.has("client.clientState") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <AppSelectField
+                          suppressHydrationWarning
+                          value={value.clientState}
+                          onChange={(e) => {
+                            onFieldManualEdit("client.clientState");
+                            updateField("clientState", e.target.value as any);
+                          }}
+                          onBlur={() => markTouched("clientState")}
+                          hasError={clientStateError}
+                          hasValue={Boolean(value.clientState)}
+                          className={getInputStateClass("client.clientState", value.clientState)}
+                        >
                           <option value="">State</option>
                           {INDIA_STATE_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                         </AppSelectField>
                       </div>
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>City</label>
-                        <input suppressHydrationWarning type="text" value={value.clientCity} onChange={(e) => updateField("clientCity", e.target.value)} placeholder="City" className={inputClass(undefined, Boolean(value.clientCity))} />
+                        <label className={appFieldLabelClass}>
+                          City
+                          {autoFilledFields.has("client.clientCity") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.clientCity}
+                          onChange={(e) => {
+                            onFieldManualEdit("client.clientCity");
+                            updateField("clientCity", e.target.value);
+                          }}
+                          placeholder="City"
+                          className={cn(
+                            inputClass(undefined, Boolean(value.clientCity)),
+                            getInputStateClass("client.clientCity", value.clientCity),
+                          )}
+                        />
                       </div>
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>PIN</label>
-                        <input suppressHydrationWarning type="text" value={value.clientPinCode} onChange={(e) => updateField("clientPinCode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="PIN" className={inputClass(undefined, Boolean(value.clientPinCode))} />
+                        <label className={appFieldLabelClass}>
+                          PIN
+                          {autoFilledFields.has("client.clientPinCode") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.clientPinCode}
+                          onChange={(e) => {
+                            onFieldManualEdit("client.clientPinCode");
+                            updateField("clientPinCode", e.target.value.replace(/\D/g, "").slice(0, 6));
+                          }}
+                          placeholder="PIN"
+                          className={cn(
+                            inputClass(undefined, Boolean(value.clientPinCode)),
+                            getInputStateClass("client.clientPinCode", value.clientPinCode),
+                          )}
+                        />
                       </div>
                     </div>
                   </div>
@@ -448,18 +562,56 @@ export default function ClientDetailsSection({
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="min-w-0">
-                      <label className={appFieldLabelClass}>Country *</label>
-                      <AppSelectField suppressHydrationWarning value={value.clientCountry} onChange={(e) => updateField("clientCountry", e.target.value as any)} onBlur={() => markTouched("clientCountry")} hasError={clientCountryError} hasValue={Boolean(value.clientCountry)}>
+                      <label className={appFieldLabelClass}>
+                        Country *
+                        {autoFilledFields.has("client.clientCountry") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
+                      <AppSelectField
+                        suppressHydrationWarning
+                        value={value.clientCountry}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientCountry");
+                          updateField("clientCountry", e.target.value as any);
+                        }}
+                        onBlur={() => markTouched("clientCountry")}
+                        hasError={clientCountryError}
+                        hasValue={Boolean(value.clientCountry)}
+                        className={getInputStateClass("client.clientCountry", value.clientCountry)}
+                      >
                         <option value="">Select country</option>
-                        {INTERNATIONAL_COUNTRY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {INTERNATIONAL_COUNTRY_OPTIONS.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
                       </AppSelectField>
                       {clientCountryError && <p className={appFieldErrorTextClass}>{clientCountryError}</p>}
                     </div>
                     <div className="min-w-0">
-                      <label className={appFieldLabelClass}>Currency</label>
-                      <AppSelectField suppressHydrationWarning value={value.clientCurrency} onChange={(e) => updateField("clientCurrency", e.target.value as any)} hasValue={Boolean(value.clientCurrency)}>
+                      <label className={appFieldLabelClass}>
+                        Currency
+                        {autoFilledFields.has("client.clientCurrency") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
+                      <AppSelectField
+                        suppressHydrationWarning
+                        value={value.clientCurrency}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientCurrency");
+                          updateField("clientCurrency", e.target.value as any);
+                        }}
+                        hasValue={Boolean(value.clientCurrency)}
+                        className={getInputStateClass("client.clientCurrency", value.clientCurrency)}
+                      >
                         <option value="">Keep INR (default)</option>
-                        {INTERNATIONAL_CURRENCY_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+                        {INTERNATIONAL_CURRENCY_OPTIONS.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.label}
+                          </option>
+                        ))}
                       </AppSelectField>
                     </div>
                   </div>
@@ -476,18 +628,73 @@ export default function ClientDetailsSection({
 
                   <div className="space-y-5">
                     <div>
-                      <label className={appFieldLabelClass}>Full Address *</label>
-                      <textarea suppressHydrationWarning rows={3} value={value.clientAddress} onChange={(e) => updateField("clientAddress", e.target.value)} onBlur={() => markTouched("clientAddress")} placeholder="Full international billing address" className={inputClass(clientAddressError, Boolean(value.clientAddress), true)} />
+                      <label className={appFieldLabelClass}>
+                        Full Address *
+                        {autoFilledFields.has("client.clientAddress") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
+                      <textarea
+                        suppressHydrationWarning
+                        rows={3}
+                        value={value.clientAddress}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientAddress");
+                          updateField("clientAddress", e.target.value);
+                        }}
+                        onBlur={() => markTouched("clientAddress")}
+                        placeholder="Full international billing address"
+                        className={cn(
+                          inputClass(clientAddressError, Boolean(value.clientAddress), true),
+                          getInputStateClass("client.clientAddress", value.clientAddress),
+                        )}
+                      />
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>Postal Code</label>
-                        <input suppressHydrationWarning type="text" value={value.clientPostalCode} onChange={(e) => updateField("clientPostalCode", e.target.value)} placeholder="ZIP / Postal Code" className={inputClass(undefined, Boolean(value.clientPostalCode))} />
+                        <label className={appFieldLabelClass}>
+                          Postal Code
+                          {autoFilledFields.has("client.clientPostalCode") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.clientPostalCode}
+                          onChange={(e) => {
+                            onFieldManualEdit("client.clientPostalCode");
+                            updateField("clientPostalCode", e.target.value);
+                          }}
+                          placeholder="ZIP / Postal Code"
+                          className={cn(
+                            inputClass(undefined, Boolean(value.clientPostalCode)),
+                            getInputStateClass("client.clientPostalCode", value.clientPostalCode),
+                          )}
+                        />
                       </div>
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>{agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}</label>
-                        <input suppressHydrationWarning type="text" value={value.clientGstin} onChange={(e) => updateField("clientGstin", e.target.value)} placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / Tax ID"} className={inputClass(clientGstinError, Boolean(value.clientGstin))} />
+                        <label className={appFieldLabelClass}>
+                          {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
+                          {autoFilledFields.has("client.clientGstin") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          value={value.clientGstin}
+                          onChange={(e) => {
+                            onFieldManualEdit("client.clientGstin");
+                            updateField("clientGstin", e.target.value);
+                          }}
+                          placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "VAT / Tax ID"}
+                          className={cn(
+                            inputClass(clientGstinError, Boolean(value.clientGstin)),
+                            getInputStateClass("client.clientGstin", value.clientGstin),
+                          )}
+                        />
                       </div>
                     </div>
                   </div>

@@ -740,3 +740,39 @@ h3 {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ---------- Input State Distinctions ---------- */
+
+/* Auto-filled input: subtle blue-gray left accent + tinted background */
+.input-autofilled {
+  background-color: rgba(59, 130, 246, 0.04) !important;
+  border-left: 3px solid rgba(59, 130, 246, 0.4) !important;
+  padding-left: calc(0.75rem - 3px) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Manually filled input: subtle green left accent */
+.input-manual {
+  border-left: 3px solid rgba(34, 197, 94, 0.35) !important;
+  padding-left: calc(0.75rem - 3px) !important;
+}
+
+/* Placeholder text distinction */
+input::placeholder, select::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* Small label indicator for auto-filled fields */
+.autofill-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(59, 130, 246, 0.7);
+  letter-spacing: 0.04em;
+  margin-left: 6px;
+  text-transform: lowercase;
+}

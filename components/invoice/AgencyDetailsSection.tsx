@@ -44,6 +44,8 @@ interface AgencyDetailsSectionProps {
     pan?: string;
   };
   showAllErrors?: boolean;
+  autoFilledFields?: Set<string>;
+  onFieldManualEdit?: (fieldPath: string) => void;
 }
 
 export default function AgencyDetailsSection({
@@ -52,7 +54,14 @@ export default function AgencyDetailsSection({
   embedded = false,
   errors,
   showAllErrors = false,
+  autoFilledFields = new Set(),
+  onFieldManualEdit = () => {},
 }: AgencyDetailsSectionProps) {
+  const getInputStateClass = (fieldPath: string, fieldValue: string) => {
+    if (!fieldValue || !fieldValue.trim()) return "";
+    if (autoFilledFields.has(fieldPath)) return "input-autofilled";
+    return "input-manual";
+  };
   const [isDragOver, setIsDragOver] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -267,23 +276,32 @@ export default function AgencyDetailsSection({
                     <div className="space-y-5">
                       <div className="flex flex-wrap gap-4">
                         <div className="w-full max-w-[360px]">
-                          <label className={appFieldLabelClass}>GSTIN</label>
+                          <label className={appFieldLabelClass}>
+                            GSTIN
+                            {autoFilledFields.has("agency.gstin") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
                           <input
                             suppressHydrationWarning
                             type="text"
                             aria-label="Agency GSTIN"
                             value={value.gstin}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              onFieldManualEdit("agency.gstin");
                               updateField(
                                 "gstin",
                                 e.target.value.toUpperCase().replace(/\s+/g, ""),
-                              )
-                            }
+                              );
+                            }}
                             onBlur={() => markTouched("gstin")}
                             placeholder="GSTIN"
                             autoCapitalize="characters"
                             spellCheck={false}
-                            className={inputClass(gstinError, Boolean(value.gstin))}
+                            className={cn(
+                              inputClass(gstinError, Boolean(value.gstin)),
+                              getInputStateClass("agency.gstin", value.gstin),
+                            )}
                           />
                           {gstinError ? (
                             <p className={appFieldErrorTextClass}>{gstinError}</p>
@@ -295,22 +313,31 @@ export default function AgencyDetailsSection({
                         </div>
 
                         <div className="w-full max-w-[280px]">
-                          <label className={appFieldLabelClass}>PAN</label>
+                          <label className={appFieldLabelClass}>
+                            PAN
+                            {autoFilledFields.has("agency.pan") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
                           <input
                             suppressHydrationWarning
                             type="text"
                             value={value.pan}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              onFieldManualEdit("agency.pan");
                               updateField(
                                 "pan",
                                 e.target.value.toUpperCase().replace(/\s+/g, ""),
-                              )
-                            }
+                              );
+                            }}
                             onBlur={() => markTouched("pan")}
                             placeholder="PAN"
                             autoCapitalize="characters"
                             spellCheck={false}
-                            className={inputClass(panError, Boolean(value.pan))}
+                            className={cn(
+                              inputClass(panError, Boolean(value.pan)),
+                              getInputStateClass("agency.pan", value.pan),
+                            )}
                           />
                           {panError ? (
                             <p className={appFieldErrorTextClass}>{panError}</p>
@@ -354,18 +381,22 @@ export default function AgencyDetailsSection({
                               <div className="max-w-[280px] pt-1">
                                 <label className={appFieldLabelClass}>
                                   LUT Number / ARN
+                                  {autoFilledFields.has("agency.lutNumber") && (
+                                    <span className="autofill-indicator">auto-filled</span>
+                                  )}
                                 </label>
                                 <input
                                   suppressHydrationWarning
                                   type="text"
                                   value={value.lutNumber}
-                                  onChange={(e) =>
-                                    updateField("lutNumber", e.target.value)
-                                  }
+                                  onChange={(e) => {
+                                    onFieldManualEdit("agency.lutNumber");
+                                    updateField("lutNumber", e.target.value);
+                                  }}
                                   placeholder="LUT ARN Number"
-                                  className={inputClass(
-                                    undefined,
-                                    Boolean(value.lutNumber),
+                                  className={cn(
+                                    inputClass(undefined, Boolean(value.lutNumber)),
+                                    getInputStateClass("agency.lutNumber", value.lutNumber),
                                   )}
                                 />
                               </div>
@@ -435,15 +466,24 @@ export default function AgencyDetailsSection({
               <div>
                 <label className={appFieldLabelClass}>
                   Business / Trade Name *
+                  {autoFilledFields.has("agency.agencyName") && (
+                    <span className="autofill-indicator">auto-filled</span>
+                  )}
                 </label>
                 <input
                   suppressHydrationWarning
                   type="text"
                   value={value.agencyName}
-                  onChange={(e) => updateField("agencyName", e.target.value)}
+                  onChange={(e) => {
+                    onFieldManualEdit("agency.agencyName");
+                    updateField("agencyName", e.target.value);
+                  }}
                   onBlur={() => markTouched("agencyName")}
                   placeholder="Your agency or freelance brand name"
-                  className={inputClass(agencyNameError, Boolean(value.agencyName))}
+                  className={cn(
+                    inputClass(agencyNameError, Boolean(value.agencyName)),
+                    getInputStateClass("agency.agencyName", value.agencyName),
+                  )}
                 />
                 {agencyNameError ? (
                   <p className={appFieldErrorTextClass}>{agencyNameError}</p>
@@ -542,49 +582,78 @@ export default function AgencyDetailsSection({
             <div className="space-y-5">
               <div className="grid grid-cols-1 gap-5">
                 <div className={appFieldFullWidthStackClass}>
-                  <label className={appFieldLabelClass}>Address Line 1 *</label>
+                  <label className={appFieldLabelClass}>
+                    Address Line 1 *
+                    {autoFilledFields.has("agency.addressLine1") && (
+                      <span className="autofill-indicator">auto-filled</span>
+                    )}
+                  </label>
                   <input
                     suppressHydrationWarning
                     type="text"
                     value={value.addressLine1}
-                    onChange={(e) => updateField("addressLine1", e.target.value)}
+                    onChange={(e) => {
+                      onFieldManualEdit("agency.addressLine1");
+                      updateField("addressLine1", e.target.value);
+                    }}
                     onBlur={() => markTouched("address")}
                     placeholder="Building, street, or area"
-                    className={inputClass(
-                      addressError,
-                      Boolean(value.addressLine1),
+                    className={cn(
+                      inputClass(addressError, Boolean(value.addressLine1)),
+                      getInputStateClass("agency.addressLine1", value.addressLine1),
                     )}
                   />
                 </div>
 
                 <div className={appFieldFullWidthStackClass}>
-                  <label className={appFieldLabelClass}>Address Line 2</label>
+                  <label className={appFieldLabelClass}>
+                    Address Line 2
+                    {autoFilledFields.has("agency.addressLine2") && (
+                      <span className="autofill-indicator">auto-filled</span>
+                    )}
+                  </label>
                   <input
                     suppressHydrationWarning
                     type="text"
                     value={value.addressLine2}
-                    onChange={(e) => updateField("addressLine2", e.target.value)}
+                    onChange={(e) => {
+                      onFieldManualEdit("agency.addressLine2");
+                      updateField("addressLine2", e.target.value);
+                    }}
                     placeholder="Suite, floor, landmark, or optional line"
-                    className={inputClass(undefined, Boolean(value.addressLine2))}
+                    className={cn(
+                      inputClass(undefined, Boolean(value.addressLine2)),
+                      getInputStateClass("agency.addressLine2", value.addressLine2),
+                    )}
                   />
                 </div>
 
                 <div className="grid grid-cols-[45%_35%_20%] gap-3">
                   <div className="min-w-0">
-                    <label className={appFieldLabelClass}>State *</label>
+                    <label className={appFieldLabelClass}>
+                      State *
+                      {autoFilledFields.has("agency.agencyState") && (
+                        <span className="autofill-indicator">auto-filled</span>
+                      )}
+                    </label>
                     <AppSelectField
                       suppressHydrationWarning
                       aria-label="Agency state"
                       value={value.agencyState}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        onFieldManualEdit("agency.agencyState");
                         updateField(
                           "agencyState",
                           e.target.value as AgencyDetails["agencyState"],
-                        )
-                      }
+                        );
+                      }}
                       onBlur={() => markTouched("agencyState")}
                       hasError={agencyStateError}
                       hasValue={Boolean(value.agencyState)}
+                      className={getInputStateClass(
+                        "agency.agencyState",
+                        value.agencyState,
+                      )}
                     >
                       <option value="">State</option>
                       {INDIA_STATE_OPTIONS.map((stateName) => (
@@ -596,32 +665,52 @@ export default function AgencyDetailsSection({
                   </div>
 
                   <div>
-                    <label className={appFieldLabelClass}>City</label>
+                    <label className={appFieldLabelClass}>
+                      City
+                      {autoFilledFields.has("agency.city") && (
+                        <span className="autofill-indicator">auto-filled</span>
+                      )}
+                    </label>
                     <input
                       suppressHydrationWarning
                       type="text"
                       value={value.city}
-                      onChange={(e) => updateField("city", e.target.value)}
+                      onChange={(e) => {
+                        onFieldManualEdit("agency.city");
+                        updateField("city", e.target.value);
+                      }}
                       placeholder="City"
-                      className={inputClass(undefined, Boolean(value.city))}
+                      className={cn(
+                        inputClass(undefined, Boolean(value.city)),
+                        getInputStateClass("agency.city", value.city),
+                      )}
                     />
                   </div>
 
                   <div className="min-w-0">
-                    <label className={appFieldLabelClass}>PIN</label>
+                    <label className={appFieldLabelClass}>
+                      PIN
+                      {autoFilledFields.has("agency.pinCode") && (
+                        <span className="autofill-indicator">auto-filled</span>
+                      )}
+                    </label>
                     <input
                       suppressHydrationWarning
                       type="text"
                       inputMode="numeric"
                       value={value.pinCode}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        onFieldManualEdit("agency.pinCode");
                         updateField(
                           "pinCode",
                           e.target.value.replace(/\D/g, "").slice(0, 6),
-                        )
-                      }
+                        );
+                      }}
                       placeholder="PIN"
-                      className={inputClass(undefined, Boolean(value.pinCode))}
+                      className={cn(
+                        inputClass(undefined, Boolean(value.pinCode)),
+                        getInputStateClass("agency.pinCode", value.pinCode),
+                      )}
                     />
                   </div>
                 </div>
