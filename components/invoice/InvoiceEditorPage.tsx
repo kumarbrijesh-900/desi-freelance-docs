@@ -2298,7 +2298,7 @@ return (
     <AppHeader rightSlot={<LogoutButton />} />
 
     <section
-      className={`${appPageContainerClass} ${appPageSectionClass} relative z-10`}
+      className={`${appPageContainerClass} ${appPageSectionClass} relative z-10 pb-32`}
     >
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
@@ -2506,46 +2506,49 @@ return (
             </div>
           </div>
 
-          {/* Sticky Bottom Action Bar */}
-          <div 
-            className="sticky bottom-0 z-40 -mx-6 mt-12 border-t border-gray-200 bg-white px-6 py-3"
-            style={{ boxShadow: '0 -1px 3px rgba(0,0,0,0.04)' }}
-          >
-            <div className="mx-auto flex h-14 items-center justify-between">
-              <button
-                type="button"
-                onClick={handleBackToHome}
-                className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[color:var(--text-primary)] transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Close</span>
-              </button>
-  
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleSaveDraft}
-                  className={cn(
-                    getAppButtonClass({ variant: "ghost", size: "sm" }),
-                    "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5",
-                  )}
-                >
-                  <SaveIcon className="mr-2 h-4 w-4" />
-                  Save Draft
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePreviewInvoice}
-                  className={cn(
-                    getAppButtonClass({ variant: "primary", size: "sm" }),
-                    "h-9 px-4 font-bold sm:h-10 sm:px-6 transition-all duration-200",
-                    invoiceReadyForPreview
-                      ? "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
-                      : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] cursor-default hover:bg-[#bfff00]/5"
-                  )}
-                >
-                  Preview <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
+          {/* Fixed Bottom Action Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_minmax(0,2fr)] lg:gap-16 xl:grid-cols-[200px_minmax(0,1fr)]">
+                <div className="lg:col-start-2 px-0">
+                  <div className="flex h-16 items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handleBackToHome}
+                      className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[color:var(--text-primary)] transition-colors"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline">Close</span>
+                    </button>
+        
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveDraft}
+                        className={cn(
+                          getAppButtonClass({ variant: "ghost", size: "sm" }),
+                          "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5",
+                        )}
+                      >
+                        <SaveIcon className="mr-2 h-4 w-4" />
+                        Save Draft
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePreviewInvoice}
+                        className={cn(
+                          getAppButtonClass({ variant: "primary", size: "sm" }),
+                          "h-9 px-4 font-bold sm:h-10 sm:px-6 transition-all duration-200",
+                          invoiceReadyForPreview
+                            ? "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
+                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] cursor-default hover:bg-[#bfff00]/5"
+                        )}
+                      >
+                        Preview <ArrowRight className="ml-2 h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
