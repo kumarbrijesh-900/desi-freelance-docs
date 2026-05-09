@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
 import { amountToWords } from "@/lib/amount-to-words";
@@ -78,6 +79,7 @@ export default function TotalsTaxesSection({
   onExportTaxDecisionChange,
   onChange,
 }: TotalsTaxesSectionProps) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const subtotal = computed.subtotal;
   const taxAmount = computed.taxAmount;
   const grandTotal = computed.grandTotal;
@@ -184,7 +186,7 @@ export default function TotalsTaxesSection({
         </div>
       </div>
       <div className="max-w-md">
-        <div className="rounded-[20px] border border-[color:var(--border-subtle)] bg-white p-6 shadow-sm">
+        <div className="space-y-6">
           {/* Summary Rows */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-[14px]">
@@ -209,12 +211,12 @@ export default function TotalsTaxesSection({
             <div className="border-t border-dashed border-gray-200 my-2" />
 
             <div className="flex items-center justify-between">
-              <dt className="text-[18px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
+              <dt className="text-[14px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
               <dd className="flex flex-col items-end">
                 <span
                   className={cn(
-                    "text-[24px] font-bold tracking-tight [font-variant-numeric:tabular-nums]",
-                    grandTotal > 0 ? "text-[color:var(--text-primary)]" : "text-gray-400"
+                    "tracking-tight [font-variant-numeric:tabular-nums]",
+                    grandTotal > 0 ? "text-[22px] font-bold text-[color:var(--brand-indigo)]" : "text-[24px] font-bold text-gray-400"
                   )}
                 >
                   {formatCurrency(grandTotal, currency)}
@@ -236,41 +238,71 @@ export default function TotalsTaxesSection({
             </p>
           </div>
 
-          {/* RCM Toggle */}
-          <div className="mt-4 -mx-6 border-t border-b border-[color:var(--border-subtle)] bg-gray-50/30 px-6">
-            <div className="flex h-[44px] items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
-                  Reverse Charge (RCM)
-                </span>
-                <div className="group relative">
-                  <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
-                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
-                    RCM shifts the GST payment liability to your client. Tax is calculated for compliance but excluded from your payable total.
-                    <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
+          {/* Advanced Tax Disclosure */}
+          <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
+            {!showAdvanced ? (
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(true)}
+                className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
+              >
+                Advanced tax options →
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-medium text-[color:var(--text-muted)]">Advanced Options</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(false)}
+                    className="text-[11px] font-medium text-gray-400 hover:text-gray-600"
+                  >
+                    Hide
+                  </button>
+                </div>
+                {/* RCM Toggle */}
+                <div className="-mx-6 border-t border-b border-[color:var(--border-subtle)] bg-gray-50/30 px-6">
+                  <div className="flex h-[44px] items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                        Reverse Charge (RCM)
+                      </span>
+                      <div className="group relative">
+                        <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
+                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
+                          RCM shifts the GST payment liability to your client. Tax is calculated for compliance but excluded from your payable total.
+                          <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
+                        </div>
+                      </div>
+                    </div>
+                    <AppSwitch
+                      checked={isRcmEnabled}
+                      onChange={(checked) => updateField("isRcmEnabled", checked)}
+                    />
                   </div>
                 </div>
               </div>
-              <AppSwitch
-                checked={isRcmEnabled}
-                onChange={(checked) => updateField("isRcmEnabled", checked)}
-              />
-            </div>
+            )}
           </div>
 
           {/* Payment Footer */}
           {(paymentTerms || bankName) && (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              {paymentTerms && (
-                <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
-                  {paymentTerms}
-                </div>
-              )}
-              {bankName && (
-                <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
-                  Bank: {bankName}
-                </div>
-              )}
+            <div className="mt-4 pt-4 border-t border-[color:var(--border-subtle)]">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+                Settlement
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {paymentTerms && (
+                  <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                    {paymentTerms}
+                  </div>
+                )}
+                {bankName && (
+                  <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                    Bank: {bankName}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

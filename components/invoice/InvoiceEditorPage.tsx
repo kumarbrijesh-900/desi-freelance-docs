@@ -570,7 +570,7 @@ function InlineStepSection({
   const stepLabel = getStepShortLabel(step);
   const detailCopy = getStepDescription(step);
   const stepKind = getStepKind(step);
-  const statusLabel =
+  let statusLabel =
     !isCompleted && isMounted && issueCount > 0
       ? `${issueCount} required`
       : isCompleted
@@ -578,6 +578,10 @@ function InlineStepSection({
         : isActive
           ? "In progress"
           : "Pending";
+
+  if (step === "totals" && isActive && !isCompleted) {
+    statusLabel = "Pending";
+  }
 
   const StepIcon = {
     agency: Building2,
