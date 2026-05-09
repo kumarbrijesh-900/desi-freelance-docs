@@ -2539,9 +2539,9 @@ return (
                   className={cn(
                     getAppButtonClass({ variant: "primary", size: "sm" }),
                     "h-9 px-4 font-bold sm:h-10 sm:px-6 transition-all duration-200",
-                    !invoiceReadyForPreview
-                      ? "bg-transparent text-[#1a1a1a] border-[1.5px] border-[#bfff00] shadow-none hover:bg-[#bfff00]/5"
-                      : "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
+                    invoiceReadyForPreview
+                      ? "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
+                      : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] cursor-default hover:bg-[#bfff00]/5"
                   )}
                 >
                   Preview <ArrowRight className="ml-2 h-4 w-4" />
