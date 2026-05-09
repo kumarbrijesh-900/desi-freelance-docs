@@ -509,7 +509,7 @@ export default function ClientDetailsSection({
                           )}
                         />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 overflow-hidden">
                         <label className={appFieldLabelClass}>
                           PIN
                           {autoFilledFields.has("client.clientPinCode") && (
@@ -528,6 +528,7 @@ export default function ClientDetailsSection({
                           className={cn(
                             inputClass(undefined, Boolean(value.clientPinCode)),
                             getInputStateClass("client.clientPinCode", value.clientPinCode),
+                            "w-full max-w-full"
                           )}
                         />
                       </div>

@@ -2536,12 +2536,11 @@ return (
                 <button
                   type="button"
                   onClick={handlePreviewInvoice}
-                  disabled={!invoiceReadyForPreview}
                   className={cn(
                     getAppButtonClass({ variant: "primary", size: "sm" }),
-                    "h-9 px-4 font-bold sm:h-10 sm:px-6",
+                    "h-9 px-4 font-bold sm:h-10 sm:px-6 transition-all duration-200",
                     !invoiceReadyForPreview
-                      ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
+                      ? "bg-transparent text-[#1a1a1a] border-[1.5px] border-[#bfff00] shadow-none hover:bg-[#bfff00]/5"
                       : "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
                   )}
                 >

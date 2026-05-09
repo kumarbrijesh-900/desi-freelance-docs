@@ -687,7 +687,7 @@ export default function AgencyDetailsSection({
                     />
                   </div>
 
-                  <div className="min-w-0">
+                  <div className="min-w-0 overflow-hidden">
                     <label className={appFieldLabelClass}>
                       PIN
                       {autoFilledFields.has("agency.pinCode") && (
@@ -710,6 +710,7 @@ export default function AgencyDetailsSection({
                       className={cn(
                         inputClass(undefined, Boolean(value.pinCode)),
                         getInputStateClass("agency.pinCode", value.pinCode),
+                        "w-full max-w-full"
                       )}
                     />
                   </div>

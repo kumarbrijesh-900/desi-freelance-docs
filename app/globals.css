@@ -579,9 +579,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-rail-item[data-rail-state="active"] .invoice-step-rail-index {
-  border-color: var(--brand-indigo);
-  background: var(--brand-indigo);
-  color: #ffffff;
+  border-color: var(--brand-indigo) !important;
+  background: var(--brand-indigo) !important;
+  color: #ffffff !important;
   font-weight: 800;
   box-shadow: none;
 }
