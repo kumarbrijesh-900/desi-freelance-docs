@@ -181,255 +181,94 @@ export default function TotalsTaxesSection({
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-        <div className="space-y-10">
-          {/* Section A: Tax Setup */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
-                Tax Setup
-              </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
-            </div>
-
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center justify-between rounded-[14px] border border-[color:var(--border-subtle)] bg-gray-50/50 px-5 py-3 shadow-sm transition-colors duration-200 focus-within:bg-white">
-                <div className="flex items-center gap-2">
-                  <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
-                    Reverse Charge (RCM)
-                  </p>
-                  <div className="group relative">
-                    <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
-                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
-                      Reverse Charge Mechanism (RCM) shifts the GST payment
-                      liability to your client. If enabled, tax is calculated for
-                      compliance but is NOT added to your Grand Total payable.
-                      <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
-                    </div>
-                  </div>
-                </div>
-                <AppSwitch
-                  checked={isRcmEnabled}
-                  onChange={(checked) => updateField("isRcmEnabled", checked)}
-                />
-              </div>
-
-              <div className="space-y-4">
-                {isLocked ? (
-                  <div className={cn(getAppSubtlePanelClass("muted"), "px-4 py-4")}>
-                    {computed.taxType === "NONE" ? (
-                      <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
-                        Tax: 0% — agency not GST registered
-                      </p>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="space-y-1.5">
-                            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                              Tax summary
-                            </p>
-                            <p className="text-[17px] font-semibold tracking-[-0.02em] text-[color:var(--text-primary)]">
-                              {taxModeSummaryLabel}
-                            </p>
-                          </div>
-                          <span className={getAppStatusPillClass("default")}>
-                            {effectiveRate}% applied
-                          </span>
-                        </div>
-
-                        <dl className="space-y-3 border-t border-[color:var(--border-subtle)] pt-4 text-sm">
-                          <div className="flex items-start justify-between gap-4">
-                            <dt className="text-[color:var(--text-muted)]">Current outcome</dt>
-                            <dd className="max-w-[220px] text-right font-medium text-[color:var(--text-primary)]">{taxModeSummaryLabel}</dd>
-                          </div>
-                          <div className="flex items-start justify-between gap-4">
-                            <dt className="text-[color:var(--text-muted)]">Applied rate</dt>
-                            <dd className="text-right font-medium text-[color:var(--text-primary)]">{effectiveRate}% total tax</dd>
-                          </div>
-                          <div className="flex items-start justify-between gap-4">
-                            <dt className="text-[color:var(--text-muted)]">Breakdown</dt>
-                            <dd className="max-w-[260px] text-right leading-6 text-[color:var(--text-secondary)]">{taxAmountHelperText}</dd>
-                          </div>
-                        </dl>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={cn(getAppSubtlePanelClass("muted"), "space-y-4 px-4 py-4")}>
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-3">
-                        <label className="block text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">{modeLabel}</label>
-                        <AppSelectField
-                          value={value.taxMode}
-                          disabled={isLocked}
-                          onChange={(e) => {
-                            const nextMode = e.target.value as TaxConfig["taxMode"];
-                            updateField("taxMode", nextMode);
-                            if (nextMode === "none") {
-                              updateField("taxRate", 0);
-                            } else if ((value.taxRate ?? 0) === 0) {
-                              updateField("taxRate", 18);
-                            }
-                          }}
-                          className={cn(isLocked ? "cursor-not-allowed" : "", "text-base")}
-                          hasValue={Boolean(value.taxMode)}
-                        >
-                          <option value="gst">{gstOptionLabel}</option>
-                          {showIgstOption ? <option value="igst">IGST</option> : null}
-                          <option value="none">No Tax</option>
-                        </AppSelectField>
-                        <p className={appFieldHelperTextClass}>Choose how tax should appear.</p>
-                        {complianceMessage && <p className="mt-1 text-[11px] leading-4 text-[color:var(--text-muted)]">{complianceMessage}</p>}
-                      </div>
-
-                      <div className="space-y-3">
-                        <label className="block text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">{rateLabel}</label>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            inputMode="decimal"
-                            value={effectiveRate}
-                            disabled={isNoTax || isLocked}
-                            onChange={(e) => updateField("taxRate", Math.max(0, Number(e.target.value) || 0))}
-                            onWheel={(e) => e.currentTarget.blur()}
-                            className={cn(getAppFieldClass({ hasValue: true }), "text-base pr-8", (isNoTax || isLocked) && "cursor-not-allowed opacity-50")}
-                          />
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <span className="text-[12px] font-medium text-[color:var(--text-soft)]">%</span>
-                          </div>
-                        </div>
-                        <p className={appFieldHelperTextClass}>{rateHelperText}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {complianceMessage && <div className={complianceMessageClass}>{complianceMessage}</div>}
-              </div>
-            </div>
-          </div>
-
-          {/* Section B: Output Details */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
-                Output Details
-              </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {settlementSummary && (
-                <div className="flex items-center gap-2 rounded-full bg-gray-50 px-4 py-2 ring-1 ring-inset ring-gray-200/60 w-fit">
-                  <div className="h-1.5 w-1.5 rounded-full bg-gray-300" />
-                  <p className="text-[11px] font-medium tracking-wide text-gray-500">{settlementSummary}</p>
-                </div>
-              )}
-
-              {grandTotal > 0 && (
-                <div className="rounded-[16px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50 px-5 py-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">Amount in words</p>
-                  <p className="mt-2 text-[13px] font-semibold leading-relaxed text-[color:var(--text-primary)]">
-                    {amountToWords(grandTotal, currency)}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={cn(
-            getAppPanelClass(),
-            "invoice-final-review-panel sticky top-24 h-fit space-y-4 px-5 py-5 shadow-lg",
-          )}
-        >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1.5">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                Final review
-              </p>
-              <h3 className="text-[1.15rem] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
-                Invoice totals
-              </h3>
-            </div>
-
-            {computed.taxType !== "NONE" && (
-              <span className={getAppStatusPillClass("default")}>
-                {taxModeSummaryLabel}
-              </span>
-            )}
-          </div>
-
-          <dl className="invoice-total-summary-card space-y-3 rounded-[16px] px-4 py-4">
-            <div className="flex items-center justify-between gap-4 text-sm">
+      <div className="max-w-md">
+        <div className="rounded-[20px] border border-[color:var(--border-subtle)] bg-white p-6 shadow-sm">
+          {/* Summary Rows */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-[14px]">
               <dt className="text-[color:var(--text-muted)]">Subtotal</dt>
-              <dd className="font-semibold text-[color:var(--text-primary)]">
+              <dd className="font-medium text-[color:var(--text-primary)]">
                 {formatCurrency(subtotal, currency)}
               </dd>
             </div>
 
-            <div className="border-t border-[color:var(--border-subtle)] pt-3 text-sm">
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-[color:var(--text-muted)]">Tax</dt>
-                <dd className="text-right font-medium text-[color:var(--text-primary)]">
-                  {computed.taxType !== "NONE" && <span>{taxModeSummaryLabel}</span>}
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-[color:var(--text-muted)]">
-                      {formatCurrency(taxAmount, currency)}
-                    </span>
-                    {isRcmEnabled && (
-                      <span className="text-[10px] font-medium text-[color:var(--state-warning-text)] opacity-80">
-                        (Payable by Client under RCM)
-                      </span>
-                    )}
-                  </div>
-                </dd>
-              </div>
-              {computed.taxType !== "NONE" && (
-                <p className="mt-2 text-[11px] leading-5 text-[color:var(--text-muted)]">
-                  {taxAmountHelperText}
-                </p>
-              )}
-            </div>
-
-            <div className="invoice-total-hero">
-              <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                Grand total
+            <div className="flex items-start justify-between text-[14px]">
+              <dt className="text-[color:var(--text-muted)]">
+                {computed.taxType !== "NONE" 
+                  ? `Tax (${effectiveRate}% ${taxModeSummaryLabel})` 
+                  : "Tax (0%)"}
               </dt>
-              <dd
-                className={cn(
-                  "mt-2 text-[28px] font-semibold tracking-[-0.03em] [font-variant-numeric:tabular-nums]",
-                  isRcmEnabled
-                    ? "text-[color:var(--interactive-secondary)]"
-                    : "text-[color:var(--text-primary)]",
-                )}
-              >
-                {formatCurrency(grandTotal, currency)}
+              <dd className="text-right font-medium text-[color:var(--text-primary)]">
+                {formatCurrency(taxAmount, currency)}
               </dd>
             </div>
-          </dl>
 
-          {grandTotalReferenceLabel &&
-          typeof grandTotalReferenceAmount === "number" ? (
-            <p className="invoice-final-review-note rounded-[14px] px-4 py-3 text-[11px] leading-5 text-[color:var(--text-secondary)]">
-              {grandTotalReferenceLabel}:{" "}
-              <span className="font-medium text-[color:var(--text-primary)]">
-                {formatCurrency(grandTotalReferenceAmount, "USD")}
-              </span>
+            {/* Divider */}
+            <div className="border-t border-dashed border-gray-200 my-2" />
+
+            <div className="flex items-center justify-between">
+              <dt className="text-[18px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
+              <dd className="flex flex-col items-end">
+                <span
+                  className={cn(
+                    "text-[24px] font-bold tracking-tight [font-variant-numeric:tabular-nums]",
+                    grandTotal > 0 ? "text-[color:var(--text-primary)]" : "text-gray-400"
+                  )}
+                >
+                  {formatCurrency(grandTotal, currency)}
+                </span>
+              </dd>
+            </div>
+
+            {grandTotal === 0 && (
+              <p className="text-[12px] text-[color:var(--text-muted)] italic text-right">
+                Add billable items to see the final total.
+              </p>
+            )}
+          </div>
+
+          {/* Tax Explanation */}
+          <div className="mt-6 pt-4 border-t border-[color:var(--border-subtle)]">
+            <p className="text-[12px] leading-relaxed text-[color:var(--text-muted)]">
+              {complianceMessage || (computed.taxType === "NONE" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
             </p>
-          ) : null}
+          </div>
 
-          <p className="text-[11px] leading-5 text-[color:var(--text-muted)]">
-            {grandTotal > 0
-              ? isRcmEnabled
-                ? "Tax is calculated for compliance but excluded from your payable amount under RCM."
-                : "Final amount payable before any offline adjustments."
-              : "Add billable items to establish the final payable amount."}
-          </p>
+          {/* RCM Toggle */}
+          <div className="mt-4 -mx-6 border-t border-b border-[color:var(--border-subtle)] bg-gray-50/30 px-6">
+            <div className="flex h-[44px] items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                  Reverse Charge (RCM)
+                </span>
+                <div className="group relative">
+                  <InfoCircleIcon className="h-3.5 w-3.5 text-gray-400 cursor-help" />
+                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100">
+                    RCM shifts the GST payment liability to your client. Tax is calculated for compliance but excluded from your payable total.
+                    <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
+                  </div>
+                </div>
+              </div>
+              <AppSwitch
+                checked={isRcmEnabled}
+                onChange={(checked) => updateField("isRcmEnabled", checked)}
+              />
+            </div>
+          </div>
+
+          {/* Payment Footer */}
+          <div className="mt-4">
+            <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
+              {settlementSummary || "Payment terms and bank details not set"}
+            </p>
+          </div>
         </div>
+
+        {grandTotalReferenceLabel && typeof grandTotalReferenceAmount === "number" && (
+          <p className="mt-4 px-2 text-[11px] text-[color:var(--text-secondary)]">
+            {grandTotalReferenceLabel}: <span className="font-semibold text-[color:var(--text-primary)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
+          </p>
+        )}
       </div>
     </section>
   );
