@@ -724,7 +724,7 @@ export default function ClientDetailsSection({
                 <div className="flex flex-col flex-1 pr-4">
                   <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
                   <p className="text-sm text-gray-500 mt-1 font-normal">
-                    Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
+                    Set payment terms and legal conditions, then generate a contract clause for your MSA.
                   </p>
                 </div>
                 <ChevronDownIcon 
@@ -750,7 +750,7 @@ export default function ClientDetailsSection({
             <div className="flex flex-col flex-1 pr-4">
               <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
               <p className="text-sm text-gray-500 mt-1 font-normal">
-                Set late fees, payment and legal terms, this will be added to MSA for this particular Client in Client master .
+                Set payment terms and legal conditions, then generate a contract clause for your MSA.
               </p>
             </div>
             <ChevronDownIcon 
@@ -769,75 +769,183 @@ export default function ClientDetailsSection({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="overflow-hidden border-l-2 border-l-[#bfff00] ml-1 pl-4"
+              className="overflow-hidden ml-1 pl-4"
             >
-              <p className="text-sm text-[color:var(--text-muted)] mb-4 leading-relaxed">
-                Set the baseline rules for this client. Lance will enforce these globally unless overridden by project-specific terms.
-              </p>
-              <div className="grid grid-cols-1 gap-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-4 ring-1 ring-inset ring-[color:var(--border-subtle)] sm:grid-cols-2">
-                <div className="space-y-4">
-                  <div>
-                    <label className={appFieldLabelClass}>Payment Terms (Days)</label>
-                    <input type="number" value={value.msaPaymentTermsDays || ""} onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)} className={inputClass(undefined, Boolean(value.msaPaymentTermsDays))} />
-                  </div>
-                  <div>
-                    <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
-                    <div className="flex items-center gap-3">
-                      <input type="number" step="0.1" value={value.msaLateFeeRate || ""} onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)} className={inputClass(undefined, Boolean(value.msaLateFeeRate))} />
-                      <AppSelectField value={value.msaLateFeeUnit || "monthly"} onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)} hasValue={true}>
-                        <option value="monthly">per month</option>
-                        <option value="annually">per annum</option>
-                        <option value="daily">per day</option>
-                      </AppSelectField>
+              {/* ─── Section A: Contract Terms ─── */}
+              <div className="rounded-xl bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                <div className="mb-4">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    Contract Terms
+                  </h3>
+                  <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                </div>
+
+                <div className="space-y-5">
+                  {/* Row 1: Payment Terms + Late Fee (both about money/time) */}
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label className={appFieldLabelClass}>Payment Terms</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={value.msaPaymentTermsDays || ""}
+                          onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
+                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "max-w-[80px]")}
+                        />
+                        <span className="text-[13px] text-[color:var(--text-muted)]">days</span>
+                      </div>
+                      <p className={cn(appFieldHelperTextClass, "mt-1")}>Days until payment is due after invoice date</p>
+                    </div>
+                    <div>
+                      <label className={appFieldLabelClass}>Late Fee</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={value.msaLateFeeRate || ""}
+                          onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
+                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "max-w-[80px]")}
+                        />
+                        <span className="text-[13px] text-[color:var(--text-muted)]">%</span>
+                        <AppSelectField
+                          value={value.msaLateFeeUnit || "monthly"}
+                          onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
+                          hasValue={true}
+                          className="min-w-[130px]"
+                        >
+                          <option value="monthly">monthly</option>
+                          <option value="annually">annually</option>
+                          <option value="daily">daily</option>
+                        </AppSelectField>
+                      </div>
+                      <p className={cn(appFieldHelperTextClass, "mt-1")}>Penalty charged on overdue payments</p>
                     </div>
                   </div>
-                  <div>
-                    <label className={appFieldLabelClass}>Jurisdiction (City)</label>
-                    <input type="text" value={value.msaJurisdictionCity || ""} onChange={(e) => updateField("msaJurisdictionCity", e.target.value)} placeholder="e.g. Bengaluru" className={inputClass(undefined, Boolean(value.msaJurisdictionCity))} />
+
+                  {/* Row 2: IP Transfer + Jurisdiction (both legal) */}
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label className={appFieldLabelClass}>IP Transfer</label>
+                      <AppSelectField
+                        value={value.msaIpTriggerType || "upon_full_payment"}
+                        onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)}
+                        hasValue={true}
+                      >
+                        <option value="upon_full_payment">Upon Full Payment</option>
+                        <option value="upon_delivery">Upon Delivery</option>
+                        <option value="work_for_hire">Work for Hire</option>
+                      </AppSelectField>
+                      <p className={cn(appFieldHelperTextClass, "mt-1")}>When does IP ownership transfer to client?</p>
+                    </div>
+                    <div>
+                      <label className={appFieldLabelClass}>Jurisdiction</label>
+                      <input
+                        type="text"
+                        value={value.msaJurisdictionCity || ""}
+                        onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
+                        placeholder="e.g. Bengaluru"
+                        className={inputClass(undefined, Boolean(value.msaJurisdictionCity))}
+                      />
+                      <p className={cn(appFieldHelperTextClass, "mt-1")}>City for dispute resolution</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className={appFieldLabelClass}>Default License Type</label>
-                    <AppSelectField value={value.msaLicenseType || ""} onChange={(e) => updateField("msaLicenseType", e.target.value as any)} hasValue={Boolean(value.msaLicenseType)}>
-                      <option value="">Select license...</option>
+
+                  {/* Row 3: License Type (standalone) */}
+                  <div className="max-w-[50%]">
+                    <label className={appFieldLabelClass}>License Type</label>
+                    <AppSelectField
+                      value={value.msaLicenseType || ""}
+                      onChange={(e) => updateField("msaLicenseType", e.target.value as any)}
+                      hasValue={Boolean(value.msaLicenseType)}
+                    >
+                      <option value="">Select license…</option>
                       <option value="full-assignment">Full Assignment</option>
                       <option value="exclusive-license">Exclusive License</option>
                       <option value="non-exclusive-license">Non-Exclusive License</option>
                     </AppSelectField>
+                    <p className={cn(appFieldHelperTextClass, "mt-1")}>What rights does the client receive?</p>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className={appFieldLabelClass}>IP Trigger Type</label>
-                    <AppSelectField value={value.msaIpTriggerType || "upon_full_payment"} onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)} hasValue={true}>
-                      <option value="upon_full_payment">Upon Full Payment</option>
-                      <option value="upon_delivery">Upon Delivery</option>
-                      <option value="work_for_hire">Work for Hire</option>
-                    </AppSelectField>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <div className="flex items-center justify-between">
-                      <label className={appFieldLabelClass}>MSA Boilerplate / Notes</label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const ipLabels: Record<string, string> = { upon_full_payment: "upon receipt of full payment", upon_delivery: "upon delivery of materials", work_for_hire: "as a work-for-hire" };
-                          const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
-                          const unitLabels: Record<string, string> = { monthly: "per month", annually: "per annum", daily: "per day" };
-                          const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
-                          const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
-                          const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
-                          const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
-                          updateField("msaNotesBoilerplate", template);
-                        }}
-                        className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)]"
-                      >
-                        Auto-Generate
-                      </button>
-                    </div>
-                    <textarea suppressHydrationWarning rows={10} value={value.msaNotesBoilerplate || ""} onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)} placeholder="Terms specific to this client..." className={inputClass(undefined, Boolean(value.msaNotesBoilerplate), true)} />
-                  </div>
+
+                {/* Generate button */}
+                <div className="mt-6 border-t border-[color:var(--border-subtle)] pt-5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ipLabels: Record<string, string> = { upon_full_payment: "upon receipt of full payment", upon_delivery: "upon delivery of materials", work_for_hire: "as a work-for-hire" };
+                      const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
+                      const unitLabels: Record<string, string> = { monthly: "per month", annually: "per annum", daily: "per day" };
+                      const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
+                      const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
+                      const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
+                      const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
+                      updateField("msaNotesBoilerplate", template);
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-[13px] font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98]"
+                    style={{ height: 40 }}
+                  >
+                    <span>✨</span>
+                    <span>Generate Contract Text</span>
+                  </button>
+                  <p className="mt-2 text-center text-[11px] text-[color:var(--text-muted)]">
+                    Lance will create an MSA clause from the terms above. You can edit after.
+                  </p>
                 </div>
               </div>
+
+              {/* ─── Section B: Generated MSA (only shown when text exists) ─── */}
+              <AnimatePresence>
+                {value.msaNotesBoilerplate && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                      <div className="mb-3">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                          Generated MSA
+                        </h3>
+                        <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                      </div>
+                      <textarea
+                        suppressHydrationWarning
+                        value={value.msaNotesBoilerplate || ""}
+                        onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)}
+                        className={cn(inputClass(undefined, Boolean(value.msaNotesBoilerplate), true), "resize-y")}
+                        style={{ minHeight: 120, maxHeight: 300 }}
+                      />
+                      <div className="mt-2 flex items-center gap-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ipLabels: Record<string, string> = { upon_full_payment: "upon receipt of full payment", upon_delivery: "upon delivery of materials", work_for_hire: "as a work-for-hire" };
+                            const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
+                            const unitLabels: Record<string, string> = { monthly: "per month", annually: "per annum", daily: "per day" };
+                            const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
+                            const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
+                            const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
+                            const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
+                            updateField("msaNotesBoilerplate", template);
+                          }}
+                          className="text-[11px] font-semibold text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
+                        >
+                          Regenerate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateField("msaNotesBoilerplate", "")}
+                          className="text-[11px] font-semibold text-red-500 hover:text-red-600 transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
