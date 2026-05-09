@@ -463,7 +463,7 @@ export default function ClientDetailsSection({
                         )}
                       />
                     </div>
-                    <div className="grid grid-cols-[45%_35%_20%] gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[45%_35%_20%]">
                       <div className="min-w-0">
                         <label className={appFieldLabelClass}>
                           State *
@@ -509,7 +509,7 @@ export default function ClientDetailsSection({
                           )}
                         />
                       </div>
-                      <div className="min-w-0 overflow-hidden">
+                      <div className="min-w-0 overflow-visible">
                         <label className={appFieldLabelClass}>
                           PIN
                           {autoFilledFields.has("client.clientPinCode") && (

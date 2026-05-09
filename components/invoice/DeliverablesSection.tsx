@@ -175,10 +175,10 @@ export default function DeliverablesSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
+                className="overflow-visible rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
               >
                 {/* Milestone header */}
-                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100">
+                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100 rounded-t-2xl">
                   <div className="flex-1">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
                       {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
@@ -391,7 +391,7 @@ function LineItemCard({
             }}
           />
           {showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-2xl rounded-lg py-1 overflow-hidden ring-1 ring-black/5">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-2xl rounded-lg py-1 overflow-y-auto max-h-60 ring-1 ring-black/5">
               {suggestions.map((s) => (
                 <button
                   key={s}

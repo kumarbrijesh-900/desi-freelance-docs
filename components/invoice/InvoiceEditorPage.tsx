@@ -606,7 +606,7 @@ function InlineStepSection({
       }
       data-step-kind={stepKind}
       className={cn(
-        "invoice-step-card relative scroll-mt-32 overflow-hidden rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+        "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
       )}
     >
       <div className="flex flex-col gap-2">

@@ -788,7 +788,7 @@ export default function ClientsPage() {
                 </div>
               ) : (
                 /* Client table */
-                <div className="overflow-hidden rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)]">
+                <div className="overflow-visible rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)]">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>

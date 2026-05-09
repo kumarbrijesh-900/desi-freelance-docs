@@ -380,7 +380,7 @@ function InvoiceRow({
 
         {/* Actions */}
         <td className="px-4 py-4 whitespace-nowrap text-right w-[120px]">
-          <div className="relative inline-block text-left" ref={dropdownRef}>
+          <div className={cn("relative inline-block text-left", showDropdown && "z-50")} ref={dropdownRef}>
             <button
               type="button"
               onClick={(e) => {
@@ -393,7 +393,7 @@ function InvoiceRow({
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right rounded-xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden text-left">
+              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right rounded-xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5 focus:outline-none text-left">
                 <div className="py-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onView(invoice); }}
@@ -1173,9 +1173,9 @@ export default function InvoiceHistoryPage() {
             </MotionReveal>
           ) : (
             <MotionReveal preset="fade-up">
-              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-hidden">
+              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-visible">
                 {/* Filter bar */}
-                <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
+                <div className="rounded-t-xl border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
                   <FilterBar
                     statusFilter={statusFilter}
                     setStatusFilter={setStatusFilter}
@@ -1190,7 +1190,7 @@ export default function InvoiceHistoryPage() {
                 </div>
 
               {filtered.length === 0 ? (
-                <div className="px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
+                <div className="rounded-b-xl px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
                   No invoices match your filters.{" "}
                   <button
                     type="button"
@@ -1205,7 +1205,7 @@ export default function InvoiceHistoryPage() {
                   </button>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-visible rounded-b-xl">
                   <table className="w-full min-w-[900px]">
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
