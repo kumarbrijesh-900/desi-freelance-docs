@@ -444,14 +444,14 @@ function LineItemCard({
               )}
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none z-10">
                 {getCurrencySymbol(currency)}
               </span>
               <AppTextField
                 type="number"
                 value={item.rate}
                 className={cn(
-                  "h-10 text-sm pl-[34px] w-full",
+                  "h-10 text-sm !pl-10 w-full",
                   getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
                 )}
                 errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
