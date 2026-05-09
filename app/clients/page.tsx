@@ -2,8 +2,8 @@
  * ─── Client Directory Page ─────────────────────────
  *
  * Auth-gated page listing all saved clients in a
- * professional table view with inline add/edit via
- * a slide-down form panel.
+ * professional table view with a slide-out drawer
+ * for adding and editing client details.
  */
 
 "use client";
@@ -45,6 +45,18 @@ import type { ClientDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 
+/* ─── Section Label Component ─────────────────────── */
+
+function FormSectionLabel({ title }: { title: string }) {
+  return (
+    <div className="mt-8 mb-4 border-b border-gray-100 pb-2 first:mt-0">
+      <h4 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
+        {title}
+      </h4>
+    </div>
+  );
+}
+
 /* ─── Add / Edit Client Form ─────────────────────── */
 
 function ClientForm({
@@ -85,17 +97,12 @@ function ClientForm({
   const [msaJurisdictionCity, setMsaJurisdictionCity] = useState(
     initial?.msa_jurisdiction_city || "Bangalore",
   );
-  const [msaVersionLabel, setMsaVersionLabel] = useState(
-    initial?.msa_version_label || "Standard MSA v1.2",
-  );
   const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState(
     initial?.msa_notes_boilerplate || "",
   );
-  const [showMsa, setShowMsa] = useState(
-    Boolean(initial?.msa_notes_boilerplate),
-  );
   const [showMsaTooltip, setShowMsaTooltip] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showEffectiveDate, setShowEffectiveDate] = useState(false);
 
   const fc = getAppFieldClass;
 
@@ -126,7 +133,7 @@ function ClientForm({
       msaLateFeeUnit,
       msaIpTriggerType: msaIpTriggerType as ClientDetails["msaIpTriggerType"],
       msaJurisdictionCity,
-      msaVersionLabel,
+      msaVersionLabel: initial?.msa_version_label || "Standard MSA v1.2",
       msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,
     };
 
@@ -138,7 +145,6 @@ function ClientForm({
       return;
     }
     if (data) {
-      // Create MSA if boilerplate was provided (only for new clients)
       if (msaNotesBoilerplate.trim() && !initial) {
         const msaResult = await createMsa({
           clientId: data.id,
@@ -157,381 +163,341 @@ function ClientForm({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="overflow-hidden"
-    >
-      <form
-        onSubmit={handleSubmit}
-        className={`${getAppPanelClass()} mb-5 border-l-[3px] border-l-[color:var(--color-lime-400)]`}
+    <div className="fixed inset-0 z-50 flex justify-end">
+      {/* Overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onCancel}
+        className="absolute inset-0 bg-black/30"
+      />
+
+      {/* Drawer */}
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-2xl"
       >
-        <h3 className="mb-4 text-[15px] font-semibold text-[color:var(--text-primary)]">
-          {initial ? "Edit Client" : "Add New Client"}
-        </h3>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-gray-100 p-6">
+          <h3 className="text-lg font-bold text-[color:var(--text-primary)]">
+            {initial ? "Edit Client" : "Add New Client"}
+          </h3>
+          <button
+            onClick={onCancel}
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Name — required */}
-          <div>
-            <label className={appFieldLabelClass}>
-              Client / Company Name *
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Acme Studios"
-              required
-              className={fc({ hasValue: Boolean(name) })}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className={appFieldLabelClass}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="contact@acme.com"
-              className={fc({ hasValue: Boolean(email) })}
-            />
-          </div>
-
-          {/* Location type */}
-          <div>
-            <label className={appFieldLabelClass}>Location</label>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className={fc({ hasValue: true, isSelect: true })}
-            >
-              <option value="domestic">🇮🇳 Domestic (India)</option>
-              <option value="international">🌍 International</option>
-            </select>
-          </div>
-
-          {/* Client Entity Type — Agency vs Freelancer */}
-          <div>
-            <label className={appFieldLabelClass}>Entity Type</label>
-            <div className="flex p-0.5 bg-[color:var(--bg-secondary)] rounded-lg border border-[color:var(--border-subtle)]">
-              <button
-                type="button"
-                onClick={() => setClientEntityType("agency")}
-                className={cn(
-                  "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
-                  clientEntityType === "agency"
-                    ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
-                )}
-              >
-                Agency / Biz
-              </button>
-              <button
-                type="button"
-                onClick={() => setClientEntityType("freelancer")}
-                className={cn(
-                  "flex-1 py-1 text-[11px] font-bold rounded-md transition-all",
-                  clientEntityType === "freelancer"
-                    ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                    : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
-                )}
-              >
-                Individual
-              </button>
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="sm:col-span-2 lg:col-span-2">
-            <label className={appFieldLabelClass}>Address</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Full address"
-              className={fc({ hasValue: Boolean(address) })}
-            />
-          </div>
-
-          {/* City */}
-          <div>
-            <label className={appFieldLabelClass}>City</label>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g. Mumbai"
-              className={fc({ hasValue: Boolean(city) })}
-            />
-          </div>
-
-          {/* Conditional: Domestic fields */}
-          {location === "domestic" && (
-            <>
-              <div>
-                <label className={appFieldLabelClass}>State</label>
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  className={fc({ hasValue: Boolean(state), isSelect: true })}
-                >
-                  <option value="">Select state</option>
-                  {INDIA_STATE_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 pb-32">
+          <form id="client-form" onSubmit={handleSubmit}>
+            <FormSectionLabel title="CLIENT INFO" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
                 <label className={appFieldLabelClass}>
-                  GSTIN {clientEntityType === "agency" && "*"}
+                  Client / Company Name *
                 </label>
                 <input
                   type="text"
-                  value={gstin}
-                  onChange={(e) => setGstin(e.target.value.toUpperCase())}
-                  placeholder="e.g. 27AAACR5055K1ZK"
-                  maxLength={15}
-                  required={clientEntityType === "agency"}
-                  className={fc({ hasValue: Boolean(gstin) })}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Acme Studios"
+                  required
+                  className={fc({ hasValue: Boolean(name) })}
                 />
-                {clientEntityType === "freelancer" && (
-                  <p className="mt-1 text-[10px] text-[color:var(--text-muted)]">
-                    Optional for individuals
-                  </p>
-                )}
               </div>
-            </>
-          )}
 
-          {/* Conditional: International field */}
-          {location === "international" && (
-            <div>
-              <label className={appFieldLabelClass}>Country</label>
-              <input
-                type="text"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder="e.g. United States"
-                className={fc({ hasValue: Boolean(country) })}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Master Services Agreement (MSA) Defaults Section */}
-        <div className="mt-6 border-t border-[color:var(--border-subtle)] pt-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h4 className="text-[14px] font-bold text-[color:var(--text-primary)]">
-                Master Services Agreement (MSA) Defaults
-              </h4>
-            </div>
-            <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
-              Note: Invoice-specific briefs will override these defaults during
-              AI extraction.
-            </p>
-
-            <div className="relative">
-              <button
-                type="button"
-                onMouseEnter={() => setShowMsaTooltip(true)}
-                onMouseLeave={() => setShowMsaTooltip(false)}
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] font-bold text-[color:var(--text-muted)] hover:border-[color:var(--border-strong)] hover:text-[color:var(--text-primary)] transition-colors"
-              >
-                ?
-              </button>
-              <AnimatePresence>
-                {showMsaTooltip && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                    className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-[color:var(--border-subtle)] bg-white p-4 shadow-2xl"
-                  >
-                    <p className="text-[13px] font-bold text-[color:var(--text-primary)] mb-1">
-                      Source of Truth
-                    </p>
-                    <p className="text-[11px] leading-relaxed text-[color:var(--text-secondary)]">
-                      These settings act as defaults for every invoice you
-                      create for this client. They ensure legal consistency and
-                      automate payment logic like Net terms and late fees.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Payment Terms */}
-            <div>
-              <label className={appFieldLabelClass}>
-                Default Payment Terms (Days)
-              </label>
-              <input
-                type="number"
-                value={msaPaymentTermsDays}
-                onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
-                className={fc({ hasValue: true })}
-              />
-            </div>
-
-            {/* Late Fee Rate */}
-            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className={appFieldLabelClass}>Late Fee Rate (%)</label>
+                <label className={appFieldLabelClass}>Email</label>
                 <input
-                  type="number"
-                  step="0.1"
-                  value={msaLateFeeRate}
-                  onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                  className={fc({ hasValue: true })}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="contact@acme.com"
+                  className={fc({ hasValue: Boolean(email) })}
                 />
               </div>
+
               <div>
-                <label className={appFieldLabelClass}>Unit</label>
+                <label className={appFieldLabelClass}>Location</label>
                 <select
-                  value={msaLateFeeUnit}
-                  onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   className={fc({ hasValue: true, isSelect: true })}
                 >
-                  <option value="monthly">per month</option>
-                  <option value="annually">per annum</option>
-                  <option value="daily">per day</option>
+                  <option value="domestic">🇮🇳 Domestic (India)</option>
+                  <option value="international">🌍 International</option>
                 </select>
               </div>
-            </div>
 
-            {/* IP Trigger */}
-            <div>
-              <label className={appFieldLabelClass}>IP Transfer Trigger</label>
-              <select
-                value={msaIpTriggerType}
-                onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
-                className={fc({ hasValue: true, isSelect: true })}
-              >
-                <option value="upon_full_payment">Upon Full Payment</option>
-                <option value="upon_signing">Upon Signing</option>
-                <option value="upon_delivery">Upon Delivery</option>
-                <option value="proportional_transfer">
-                  Proportional (Per Milestone)
-                </option>
-                <option value="retained_by_creator">
-                  Retained by Creator (License Only)
-                </option>
-              </select>
-            </div>
-
-            {/* Jurisdiction */}
-            <div>
-              <label className={appFieldLabelClass}>Jurisdiction</label>
-              <input
-                type="text"
-                value={msaJurisdictionCity}
-                onChange={(e) => setMsaJurisdictionCity(e.target.value)}
-                placeholder="e.g. Bangalore"
-                className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
-              />
-            </div>
-
-            {/* Effective Date */}
-            <div>
-              <label className={appFieldLabelClass}>MSA Effective Date</label>
-              <input
-                type="date"
-                value={msaEffectiveDate}
-                onChange={(e) => setMsaEffectiveDate(e.target.value)}
-                className={fc({ hasValue: Boolean(msaEffectiveDate) })}
-              />
-            </div>
-
-            {/* Version Label */}
-            <div>
-              <label className={appFieldLabelClass}>Contract Version</label>
-              <input
-                type="text"
-                value={msaVersionLabel}
-                onChange={(e) => setMsaVersionLabel(e.target.value)}
-                placeholder="Standard MSA v1.2"
-                className={fc({ hasValue: Boolean(msaVersionLabel) })}
-              />
-            </div>
-
-            {/* Boilerplate / Notes */}
-            <div className="sm:col-span-2 lg:col-span-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <label className={appFieldLabelClass}>
-                  Default Notes / Boilerplate
-                </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const ipLabels: Record<string, string> = {
-                      upon_full_payment: "upon full payment",
-                      upon_signing: "upon signing",
-                      upon_delivery: "upon delivery",
-                      proportional_transfer: "proportionally per milestone",
-                      retained_by_creator:
-                        "retained by the creator (limited license)",
-                    };
-                    const ipLabel =
-                      ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
-
-                    const unitLabels: Record<string, string> = {
-                      monthly: "per month",
-                      annually: "per annum",
-                      daily: "per day",
-                    };
-                    const unitLabel =
-                      unitLabels[msaLateFeeUnit] || unitLabels.monthly;
-
-                    const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
-
-                    setMsaNotesBoilerplate(template);
-                  }}
-                  className="text-[10px] font-bold text-[color:var(--color-lime-600)] hover:text-[color:var(--color-lime-700)] transition-colors"
-                >
-                  + Generate Smart Template
-                </button>
+              <div className="sm:col-span-2">
+                <label className={appFieldLabelClass}>Entity Type</label>
+                <div className="flex p-1 bg-gray-50 rounded-lg border border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setClientEntityType("agency")}
+                    className={cn(
+                      "flex-1 py-1.5 text-[12px] font-bold rounded-md transition-all",
+                      clientEntityType === "agency"
+                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
+                        : "text-gray-500 hover:text-gray-700",
+                    )}
+                  >
+                    Agency / Biz
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClientEntityType("freelancer")}
+                    className={cn(
+                      "flex-1 py-1.5 text-[12px] font-bold rounded-md transition-all",
+                      clientEntityType === "freelancer"
+                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
+                        : "text-gray-500 hover:text-gray-700",
+                    )}
+                  >
+                    Individual
+                  </button>
+                </div>
               </div>
-              <textarea
-                value={msaNotesBoilerplate}
-                onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
-                rows={4}
-                placeholder="These notes will be pre-filled in the invoice editor..."
-                className={fc({
-                  hasValue: Boolean(msaNotesBoilerplate),
-                  multiline: true,
-                })}
-              />
             </div>
-          </div>
+
+            <FormSectionLabel title="ADDRESS" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className={appFieldLabelClass}>Address</label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Full address"
+                  className={fc({ hasValue: Boolean(address) })}
+                />
+              </div>
+
+              <div>
+                <label className={appFieldLabelClass}>City</label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="e.g. Mumbai"
+                  className={fc({ hasValue: Boolean(city) })}
+                />
+              </div>
+
+              {location === "domestic" ? (
+                <>
+                  <div>
+                    <label className={appFieldLabelClass}>State</label>
+                    <select
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className={fc({ hasValue: Boolean(state), isSelect: true })}
+                    >
+                      <option value="">Select state</option>
+                      {INDIA_STATE_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={appFieldLabelClass}>
+                      GSTIN {clientEntityType === "agency" && "*"}
+                    </label>
+                    <input
+                      type="text"
+                      value={gstin}
+                      onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                      placeholder="e.g. 27AAACR5055K1ZK"
+                      maxLength={15}
+                      required={clientEntityType === "agency"}
+                      className={fc({ hasValue: Boolean(gstin) })}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className={appFieldLabelClass}>Country</label>
+                  <input
+                    type="text"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    placeholder="e.g. United States"
+                    className={fc({ hasValue: Boolean(country) })}
+                  />
+                </div>
+              )}
+            </div>
+
+            <FormSectionLabel title="MSA DEFAULTS" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-1">
+                  <label className={appFieldLabelClass}>Terms (Days)</label>
+                  <input
+                    type="number"
+                    value={msaPaymentTermsDays}
+                    onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                    className={fc({ hasValue: true })}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className={appFieldLabelClass}>Late Fee (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={msaLateFeeRate}
+                    onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                    className={fc({ hasValue: true })}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className={appFieldLabelClass}>Unit</label>
+                  <select
+                    value={msaLateFeeUnit}
+                    onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
+                    className={cn(fc({ hasValue: true, isSelect: true }), "min-w-[130px]")}
+                    style={{ minWidth: '130px' }}
+                  >
+                    <option value="monthly">monthly</option>
+                    <option value="annually">annually</option>
+                    <option value="daily">per day</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-1">
+                  <label className={appFieldLabelClass}>IP Trigger</label>
+                  <select
+                    value={msaIpTriggerType}
+                    onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
+                    className={fc({ hasValue: true, isSelect: true })}
+                  >
+                    <option value="upon_full_payment">Upon Full Payment</option>
+                    <option value="upon_signing">Upon Signing</option>
+                    <option value="upon_delivery">Upon Delivery</option>
+                    <option value="proportional_transfer">
+                      Proportional
+                    </option>
+                    <option value="retained_by_creator">
+                      License Only
+                    </option>
+                  </select>
+                </div>
+                <div className="col-span-1">
+                  <label className={appFieldLabelClass}>Jurisdiction</label>
+                  <input
+                    type="text"
+                    value={msaJurisdictionCity}
+                    onChange={(e) => setMsaJurisdictionCity(e.target.value)}
+                    placeholder="e.g. Bangalore"
+                    className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                {!showEffectiveDate ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowEffectiveDate(true)}
+                    className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
+                  >
+                    Set effective date →
+                  </button>
+                ) : (
+                  <div>
+                    <label className={appFieldLabelClass}>MSA Effective Date</label>
+                    <input
+                      type="date"
+                      value={msaEffectiveDate}
+                      onChange={(e) => setMsaEffectiveDate(e.target.value)}
+                      className={fc({ hasValue: Boolean(msaEffectiveDate) })}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className={appFieldLabelClass}>
+                    Default Notes / Boilerplate
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ipLabels: Record<string, string> = {
+                        upon_full_payment: "upon full payment",
+                        upon_signing: "upon signing",
+                        upon_delivery: "upon delivery",
+                        proportional_transfer: "proportionally per milestone",
+                        retained_by_creator:
+                          "retained by the creator (limited license)",
+                      };
+                      const ipLabel =
+                        ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
+
+                      const unitLabels: Record<string, string> = {
+                        monthly: "monthly",
+                        annually: "annually",
+                        daily: "per day",
+                      };
+                      const unitLabel =
+                        unitLabels[msaLateFeeUnit] || unitLabels.monthly;
+
+                      const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+
+                      setMsaNotesBoilerplate(template);
+                    }}
+                    className="text-[11px] font-bold text-[color:var(--brand-indigo)] hover:text-[#4338CA] transition-colors"
+                  >
+                    + Generate Smart Template
+                  </button>
+                </div>
+                <textarea
+                  value={msaNotesBoilerplate}
+                  onChange={(e) => setMsaNotesBoilerplate(e.target.value)}
+                  rows={4}
+                  placeholder="These notes will be pre-filled in the invoice editor..."
+                  className={fc({
+                    hasValue: Boolean(msaNotesBoilerplate),
+                    multiline: true,
+                  })}
+                />
+              </div>
+            </div>
+          </form>
         </div>
 
-        {/* Actions */}
-        <div className="mt-4 flex items-center justify-end gap-2">
+        {/* Footer */}
+        <div className="sticky bottom-0 border-t border-gray-100 bg-white p-6 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+            className={getAppButtonClass({ variant: "ghost" })}
           >
             Cancel
           </button>
           <MotionButton
             type="submit"
+            form="client-form"
             disabled={isSaving || !name.trim()}
-            className={getAppButtonClass({ variant: "primary", size: "sm" })}
+            className={getAppButtonClass({ variant: "primary" })}
           >
             {isSaving ? "Saving…" : initial ? "Update Client" : "Save Client"}
           </MotionButton>
         </div>
-      </form>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -610,6 +576,24 @@ function TrashIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   );
 }
 
+/* ─── X Mark Icon ─────────────────────────────────── */
+
+function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 /* ─── Main Page ───────────────────────────────────── */
 
 export default function ClientsPage() {
@@ -664,7 +648,6 @@ export default function ClientsPage() {
   const handleEdit = (client: SavedClient) => {
     setEditingClient(client);
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteRequest = (clientId: string) => {
@@ -738,15 +721,8 @@ export default function ClientsPage() {
           <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
             {/* Header */}
             <MotionReveal preset="fade-up">
-              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <Link
-                    href="/"
-                    className="mb-3 inline-flex items-center gap-1 text-[12px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
-                  >
-                    <ChevronLeftIcon className="h-3.5 w-3.5" />
-                    Home
-                  </Link>
                   <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                     Clients
                   </h1>
@@ -769,20 +745,18 @@ export default function ClientsPage() {
                       />
                     </div>
                   )}
-                  {!showForm && (
-                    <MotionButton
-                      onClick={handleAddNew}
-                      className={getAppButtonClass({ variant: "primary" })}
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                      Add Client
-                    </MotionButton>
-                  )}
+                  <MotionButton
+                    onClick={handleAddNew}
+                    className={getAppButtonClass({ variant: "primary" })}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Add Client
+                  </MotionButton>
                 </div>
               </div>
             </MotionReveal>
 
-            {/* Add / Edit Form */}
+            {/* Add / Edit Drawer */}
             <AnimatePresence>
               {showForm && (
                 <ClientForm
@@ -796,10 +770,10 @@ export default function ClientsPage() {
 
             {/* Table */}
             <MotionReveal preset="fade-up" delay={10}>
-              {clients.length === 0 && !showForm ? (
+              {clients.length === 0 ? (
                 /* Empty state */
                 <div
-                  className={`${getAppPanelClass("muted")} flex flex-col items-center justify-center py-16 text-center`}
+                  className={`${getAppPanelClass("muted")} flex flex-col items-center justify-center py-16 text-center border-dashed`}
                 >
                   <div className="mb-3 text-[40px]">👥</div>
                   <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
@@ -812,7 +786,7 @@ export default function ClientsPage() {
                     started.
                   </p>
                 </div>
-              ) : clients.length > 0 ? (
+              ) : (
                 /* Client table */
                 <div className="overflow-hidden rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)]">
                   <div className="overflow-x-auto">
@@ -856,7 +830,7 @@ export default function ClientsPage() {
                             <td className="px-4 py-3">
                               <Link
                                 href={`/clients/${client.id}`}
-                                className="text-[13px] font-semibold text-[color:var(--text-primary)] hover:text-[color:var(--color-lime-600)] transition-colors"
+                                className="text-[13px] font-semibold text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo)] transition-colors"
                               >
                                 {client.client_name || "Unnamed"}
                               </Link>
@@ -969,7 +943,7 @@ export default function ClientsPage() {
                     </div>
                   )}
                 </div>
-              ) : null}
+              )}
             </MotionReveal>
           </div>
         </div>
