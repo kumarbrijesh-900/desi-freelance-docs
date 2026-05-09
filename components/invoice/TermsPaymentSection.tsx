@@ -259,73 +259,83 @@ export default function TermsPaymentSection({
         )}
 
         <div className="space-y-10">
-          {/* Section A: Contract Authority */}
+          {/* Section A: Contract Terms */}
           <div>
             <div className="mb-4">
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
-                Contract Authority
+                Contract Terms
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
             </div>
 
-            <div className="flex flex-col gap-3 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)]/40 p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+            <div className={cn(
+              "flex flex-col gap-1.5 rounded-xl border p-5 transition-all duration-300",
+              isAddendumMode 
+                ? "bg-amber-50/50 border-amber-200 ring-1 ring-amber-500/10" 
+                : "bg-green-50/50 border-emerald-200 ring-1 ring-emerald-500/10"
+            )}>
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--text-soft)]">Source of Truth</p>
-                {hasAnyMsaAuthority ? (
-                  !isAddendumMode ? (
-                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
-                      <ShieldCheck size={12} className="text-emerald-600" />
-                      <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
-                      <FileEdit size={12} className="text-amber-600" />
-                      <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT ADDENDUM</span>
-                    </div>
-                  )
+                <p className={cn(
+                  "text-[11px] font-bold uppercase tracking-widest",
+                  isAddendumMode ? "text-amber-700" : "text-emerald-700"
+                )}>
+                  Contract Terms
+                </p>
+                
+                {isAddendumMode ? (
+                  <div className="flex items-center gap-1.5 rounded-full bg-amber-100/80 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
+                    <FileEdit size={12} className="text-amber-600" />
+                    <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT OVERRIDE ⚠</span>
+                  </div>
                 ) : (
-                  <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 ring-1 ring-inset ring-slate-400/20">
-                    <AlertTriangle size={12} className="text-slate-500" />
-                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">NO MSA LINKED</span>
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
+                    <ShieldCheck size={12} className="text-emerald-600" />
+                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED ✓</span>
                   </div>
                 )}
               </div>
 
-              <ChoiceCards
-                name="addendum-toggle"
-                value={isAddendumMode ? "addendum" : "msa"}
-                onChange={(val) => {
-                  const nextHasAddendum = val === "addendum";
-                  updateMetaField("hasAddendum", nextHasAddendum);
-                  
-                  if (!nextHasAddendum && hasAnyMsaAuthority) {
-                    onMetaChange({
-                      ...meta,
-                      hasAddendum: false,
-                      paymentTerms: effectiveMsaDays ?? 0,
-                      dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], effectiveMsaDays ?? 0)
-                    });
-                    updateField("terms", effectiveBoilerplate);
-                    updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
-                    updateLicenseField("licenseType", msaLicenseType);
-                  }
-                }}
-                variant="inline"
-                options={[
-                  { 
-                    value: "msa", 
-                    label: "Use Master Agreement",
-                    description: hasAnyMsaAuthority 
-                      ? "Follow pre-negotiated terms. Fields locked." 
-                      : "No MSA found in local draft or DB. Fields locked."
-                  },
-                  { 
-                    value: "addendum", 
-                    label: "Create Project Addendum",
-                    description: "Project-specific override. Unlock all fields."
-                  }
-                ]}
-              />
+              <div className="mt-1">
+                <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                  {isAddendumMode 
+                    ? "You are overriding the MSA with project-specific terms." 
+                    : "Using your Master Service Agreement."}
+                </p>
+                <p className="text-[12px] text-[color:var(--text-muted)] mt-0.5">
+                  {isAddendumMode 
+                    ? "These will apply only to this invoice." 
+                    : "Payment terms and legal conditions are locked to your client's MSA defaults."}
+                </p>
+              </div>
+
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextHasAddendum = !isAddendumMode;
+                    updateMetaField("hasAddendum", nextHasAddendum);
+                    
+                    if (!nextHasAddendum && hasAnyMsaAuthority) {
+                      onMetaChange({
+                        ...meta,
+                        hasAddendum: false,
+                        paymentTerms: effectiveMsaDays ?? 0,
+                        dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], effectiveMsaDays ?? 0)
+                      });
+                      updateField("terms", effectiveBoilerplate);
+                      updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
+                      updateLicenseField("licenseType", msaLicenseType);
+                    }
+                  }}
+                  className="text-[12px] font-bold link-indigo hover:underline flex items-center gap-1.5"
+                >
+                  {isAddendumMode ? (
+                    <span>[← Revert to Master Agreement]</span>
+                  ) : (
+                    <span>[Override with project-specific terms →]</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
