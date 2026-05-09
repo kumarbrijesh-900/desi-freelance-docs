@@ -64,6 +64,11 @@ export interface SavedInvoice {
     }[];
   }[];
   parent_invoice_id?: string | null;
+  children?: {
+    id: string;
+    invoice_number: string;
+    milestone_index: number;
+  }[];
 }
 
 export interface SaveInvoiceInput {
@@ -330,9 +335,15 @@ export async function listInvoices(): Promise<{
       milestones:invoice_milestones (
         *,
         line_items:invoice_line_items (*)
+      ),
+      children:invoices!parent_invoice_id (
+        id,
+        invoice_number,
+        milestone_index
       )
     `)
     .eq("user_id", userId)
+    .is("parent_invoice_id", null)
     .order("created_at", { ascending: false });
 
   if (error) {

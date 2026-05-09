@@ -444,6 +444,11 @@ function InvoiceRow({
                   <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
+                    {invoice.children?.find(c => c.milestone_index === (m.order_index ?? idx) + 1) && (
+                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                        {invoice.children.find(c => c.milestone_index === (m.order_index ?? idx) + 1)?.invoice_number}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
@@ -497,6 +502,11 @@ function InvoiceRow({
                   <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {mCount}: {item.description}
+                    {invoice.children?.find(c => c.milestone_index === mCount) && (
+                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                        {invoice.children.find(c => c.milestone_index === mCount)?.invoice_number}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3"></td>
                   <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
