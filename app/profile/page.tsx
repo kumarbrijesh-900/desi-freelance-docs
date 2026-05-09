@@ -1123,7 +1123,7 @@ export default function ProfilePage() {
       </section>
 
       {/* Sticky Save Bar */}
-      <div className="sticky bottom-0 z-40 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
         <div className="mx-auto flex max-w-3xl items-center justify-end gap-3">
           {isDirty && (
             <button
