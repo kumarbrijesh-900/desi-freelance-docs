@@ -482,10 +482,41 @@ export default function BriefSummaryModal({
               </label>
             )}
 
+            {/* ─── Extracted Successfully ─── */}
+            {confidentFields.length > 0 && (() => {
+              const successFields = confidentFields.filter(f => {
+                const val = getExtractedValueForLabel(f.label, localData);
+                return val && val.trim().length > 0 && !lowConfLabels.has(f.label);
+              });
+              if (successFields.length === 0) return null;
+              return (
+                <div className="space-y-3">
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-500 px-1">
+                    Extracted Successfully
+                  </h3>
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
+                    {successFields.map((f) => {
+                      const val = getExtractedValueForLabel(f.label, localData);
+                      return (
+                        <div key={f.label} className="flex items-center justify-between px-4 py-2.5">
+                          <span className="text-[12px] text-gray-500 font-medium">{f.label}</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-[13px] text-white font-medium max-w-[220px] truncate">{val}</span>
+                            <CheckIcon className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ─── Needs Review ─── */}
             <div className="space-y-4">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-white/40">
-                  Review Required
+                <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-amber-500">
+                  Needs Review
                 </h3>
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-24 bg-white/5 rounded-full overflow-hidden">

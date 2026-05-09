@@ -1269,8 +1269,10 @@ function EditorContent() {
       return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
     }
 
+    // If agency is not GST registered, TotalsTaxesSection already shows
+    // "Tax: 0% — agency not GST registered" inline — don't add a second message
     if (!agencyIsGstRegistered) {
-      return "Tax is set to 0% because the agency is marked as not registered under GST.";
+      return "";
     }
 
     if (!formData.agency.agencyState || !formData.client.clientState) {
@@ -1952,6 +1954,19 @@ const handleModalSubmit = (
   saveClient: boolean,
 ) => {
   setShouldSaveNewClientMaster(saveClient);
+
+  // FIX 3: If extraction filled GSTIN, auto-toggle GST registered
+  if (
+    finalData.agency.gstin &&
+    finalData.agency.gstin.trim().length > 0 &&
+    finalData.agency.gstRegistrationStatus !== "registered"
+  ) {
+    finalData = {
+      ...finalData,
+      agency: { ...finalData.agency, gstRegistrationStatus: "registered" },
+    };
+  }
+
   setFormData(finalData);
 
   const readyForPreview = isInvoiceReadyForPreview(finalData);
@@ -1965,10 +1980,30 @@ const handleModalSubmit = (
   const missingStep = getFirstInvalidStep(finalData);
   const recommendedStep = missingStep ?? "totals";
 
+  // FIX 4: Mark ALL extracted fields as auto-filled (confident + client)
+  const autoFilledPaths: string[] = [];
+
   if (briefSummaryData?.confident) {
-    markFieldsAutoFilled(
-      briefSummaryData.confident.map((f) => f.fieldPath).filter(Boolean) as string[],
+    autoFilledPaths.push(
+      ...(briefSummaryData.confident.map((f) => f.fieldPath).filter(Boolean) as string[]),
     );
+  }
+  if (briefSummaryData?.lowConfidence) {
+    autoFilledPaths.push(
+      ...(briefSummaryData.lowConfidence.map((f) => f.fieldPath).filter(Boolean) as string[]),
+    );
+  }
+
+  // Also mark client fields that were populated by extraction
+  if (finalData.client.clientName) autoFilledPaths.push("client.clientName");
+  if (finalData.client.clientEmail) autoFilledPaths.push("client.clientEmail");
+  if (finalData.client.clientState) autoFilledPaths.push("client.clientState");
+  if (finalData.client.clientGstin) autoFilledPaths.push("client.clientGstin");
+  if (finalData.client.clientAddressLine1) autoFilledPaths.push("client.clientAddressLine1");
+  if (finalData.client.clientCity) autoFilledPaths.push("client.clientCity");
+
+  if (autoFilledPaths.length > 0) {
+    markFieldsAutoFilled([...new Set(autoFilledPaths)]);
   }
 
   guideToSection(recommendedStep, { focus: true });
