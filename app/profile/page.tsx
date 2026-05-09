@@ -1123,31 +1123,32 @@ export default function ProfilePage() {
       </section>
 
       {/* Sticky Save Bar */}
-      {isDirty && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 py-4 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-          <div className="max-w-4xl mx-auto flex items-center justify-end gap-3">
+      <div className="sticky bottom-0 z-40 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+        <div className="mx-auto flex max-w-3xl items-center justify-end gap-3">
+          {isDirty && (
             <button
               onClick={handleDiscard}
               className={getAppButtonClass({ variant: "ghost" })}
             >
               Discard
             </button>
-            <MotionButton
-              onClick={handleSave}
-              disabled={saveState === "saving"}
-              className={cn(getAppButtonClass({ variant: "primary" }), "min-w-[120px]")}
-            >
-              {saveState === "saving" ? (
-                "Saving…"
-              ) : saveState === "success" ? (
-                <SuccessPulse>✓ Saved!</SuccessPulse>
-              ) : (
-                "Save Changes"
-              )}
-            </MotionButton>
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveState === "saving"}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#bfff00] px-6 py-2.5 text-sm font-bold text-black shadow-sm hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saveState === "saving" ? (
+              "Saving…"
+            ) : saveState === "success" ? (
+              <SuccessPulse>✓ Saved!</SuccessPulse>
+            ) : (
+              "Save Profile"
+            )}
+          </button>
         </div>
-      )}
+      </div>
     </main>
   );
 }
