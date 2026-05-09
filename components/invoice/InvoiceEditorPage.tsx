@@ -667,7 +667,7 @@ function InlineStepSection({
           initial={false}
           className="invoice-step-divider pt-2"
         >
-          <div className="mb-20 space-y-4">
+          <div className={cn("space-y-4", footer ? "mb-20" : "mb-4")}>
             {children}
             {footer}
           </div>
@@ -2220,7 +2220,14 @@ const renderStepContent = (step: InvoiceStepperStep) => {
               : ""
           }
           grandTotalReferenceAmount={approximateUsdGrandTotal}
-          settlementSummary={`Payment Terms: ${formData.meta.paymentTerms || formData.client?.msaPaymentTermsDays ? `Net ${formData.client.msaPaymentTermsDays}` : "Due on Receipt"}${formData.payment.bankName ? ` | Bank: ${formData.payment.bankName}` : ""}`}
+          paymentTerms={
+            formData.meta.paymentTerms 
+              ? `Net ${formData.meta.paymentTerms} days` 
+              : formData.client?.msaPaymentTermsDays 
+                ? `Net ${formData.client.msaPaymentTermsDays} days` 
+                : ""
+          }
+          bankName={formData.payment.bankName}
           onExportTaxDecisionChange={
             showInternationalExportDecision
               ? (noLutTaxHandling) =>

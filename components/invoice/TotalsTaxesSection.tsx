@@ -37,7 +37,8 @@ type TotalsTaxesSectionProps = {
   estimatedIgstLiability?: number;
   grandTotalReferenceLabel?: string;
   grandTotalReferenceAmount?: number;
-  settlementSummary?: string;
+  paymentTerms?: string;
+  bankName?: string;
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
   onChange: (value: TaxConfig) => void;
 };
@@ -72,7 +73,8 @@ export default function TotalsTaxesSection({
   estimatedIgstLiability,
   grandTotalReferenceLabel = "",
   grandTotalReferenceAmount,
-  settlementSummary = "",
+  paymentTerms = "",
+  bankName = "",
   onExportTaxDecisionChange,
   onChange,
 }: TotalsTaxesSectionProps) {
@@ -257,11 +259,20 @@ export default function TotalsTaxesSection({
           </div>
 
           {/* Payment Footer */}
-          <div className="mt-4">
-            <p className="text-[12px] font-medium text-[color:var(--text-muted)]">
-              {settlementSummary || "Payment terms and bank details not set"}
-            </p>
-          </div>
+          {(paymentTerms || bankName) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {paymentTerms && (
+                <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                  {paymentTerms}
+                </div>
+              )}
+              {bankName && (
+                <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                  Bank: {bankName}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {grandTotalReferenceLabel && typeof grandTotalReferenceAmount === "number" && (
