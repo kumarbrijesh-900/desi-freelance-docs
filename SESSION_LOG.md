@@ -63,10 +63,11 @@
   - onFieldManualEdit handlers across all 5 editor sections
   - Full coverage: Agency, Client, Items, Payment, Meta
 
-### Phase O: Bottom Bar & Table Redesign (UX-T through UX-W)
+### Phase O: Bottom Bar & Table Redesign (UX-T through UX-X)
 - ✅ UX-T — Bottom action bar changed from dark/black background to light white with subtle border-top + shadow
 - ✅ UX-U — Invoices table redesigned: reduced from 7 columns to 5 (INVOICE, CLIENT, AMOUNT, STATUS, ACTIONS). Dates merged into INVOICE column. Actions in "..." dropdown. Milestone sub-rows with ↳ indent, left border, and "Settle" button.
 - ✅ UX-V/UX-W — Milestone sort order fix: sort by order_index ASC, use title column, fix badge to "1 of 2 settled"
+- ✅ UX-X — Child Invoice Hierarchy: child invoices (where parent_invoice_id IS NOT NULL) hidden from main list. Displayed as small bold tags (e.g. "INV-8758") within parent milestone sub-rows for traceability.
 
 ### Pending (not yet shipped)
 - 🔲 UX-O — Scroll fix: remove "invoice-editor-scroll-area" class from <main> (one-line change)
