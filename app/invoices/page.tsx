@@ -312,7 +312,7 @@ function InvoiceRow({
     <>
       <tr 
         className={cn(
-          "border-b border-[color:var(--border-subtle)] hover:bg-gray-50 transition-colors group cursor-pointer",
+          "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
           isExpanded && "bg-gray-50/50"
         )}
         onClick={handleRowClick}
@@ -334,7 +334,7 @@ function InvoiceRow({
             )}
             {!hasMilestones && <div className="w-5 shrink-0" />}
             <div className="flex flex-col">
-              <span className="text-[13px] font-bold">{invoice.invoice_number}</span>
+              <span className="text-[13px] font-semibold text-indigo-brand hover:underline">{invoice.invoice_number}</span>
               <span className="text-[11px] font-medium text-[color:var(--text-muted)]">
                 {fmtDate(invoice.created_at)}
                 {invoice.form_data?.meta?.dueDate && (

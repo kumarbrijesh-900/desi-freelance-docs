@@ -441,7 +441,7 @@ export default function BriefSummaryModal({
         >
           <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5 bg-gradient-to-r from-transparent to-white/[0.02]">
             <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[color:var(--color-lime-950)] text-[color:var(--color-lime-400)] shadow-inner">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-light text-indigo-brand shadow-inner">
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
@@ -491,7 +491,7 @@ export default function BriefSummaryModal({
               if (successFields.length === 0) return null;
               return (
                 <div className="space-y-3">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-500 px-1">
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-brand px-1">
                     Extracted Successfully
                   </h3>
                   <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
@@ -502,7 +502,7 @@ export default function BriefSummaryModal({
                           <span className="text-[12px] text-gray-500 font-medium">{f.label}</span>
                           <div className="flex items-center gap-2.5">
                             <span className="text-[13px] text-white font-medium max-w-[220px] truncate">{val}</span>
-                            <CheckIcon className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                            <CheckIcon className="h-3.5 w-3.5 text-indigo-brand shrink-0" />
                           </div>
                         </div>
                       );

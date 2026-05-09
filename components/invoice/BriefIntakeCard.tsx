@@ -152,7 +152,7 @@ export default function BriefIntakeCard({
       <MotionReveal className="mb-3" preset="fade-up" delay={40}>
         <section
           className={cn(
-            "app-soft-panel-muted overflow-hidden rounded-[14px] border-amber-200 bg-amber-50/30",
+            "app-soft-panel-muted overflow-hidden rounded-[14px] border-indigo-muted bg-indigo-light/30",
           )}
           aria-labelledby="brief-intake-collapsed-heading"
           data-brief-intake-state="collapsed"
@@ -167,17 +167,17 @@ export default function BriefIntakeCard({
             className="flex h-12 items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-[12px] shadow-sm">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-light text-[12px] shadow-sm">
                 ✨
               </span>
               <div className="flex flex-col min-w-0">
                 <span
                   id="brief-intake-collapsed-heading"
-                  className="text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700/60"
+                  className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-brand/60"
                 >
                   AI Autofill
                 </span>
-                <span className="truncate text-[12px] font-bold text-amber-900">
+                <span className="truncate text-[12px] font-bold text-indigo-brand">
                   Ready to scan your brief
                 </span>
               </div>
@@ -193,7 +193,7 @@ export default function BriefIntakeCard({
                 "shrink-0 bg-white/50 hover:bg-white shadow-sm",
               )}
             >
-              <ChevronDownIcon className="h-3.5 w-3.5 text-amber-700" />
+              <ChevronDownIcon className="h-3.5 w-3.5 text-indigo-brand" />
             </MotionButton>
           </motion.div>
         </section>

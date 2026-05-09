@@ -2312,7 +2312,7 @@ return (
             <div className="flex items-center gap-4">
               <Link
                 href="/profile"
-                className="text-[12px] font-bold text-[color:var(--text-primary)] hover:underline"
+                className="text-[12px] font-bold link-indigo hover:underline"
               >
                 Finish Profile
               </Link>
