@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import {
@@ -29,6 +29,7 @@ import {
   appSectionTitleClass,
   appSectionDescriptionClass,
   appFieldHelperTextClass,
+  cn,
 } from "@/lib/ui-foundation";
 import { ChevronLeftIcon, SaveIcon } from "@/components/ui/app-icons";
 import {
@@ -51,26 +52,21 @@ import "react-image-crop/dist/ReactCrop.css";
 import { getCroppedImg } from "@/lib/image-crop-utils";
 import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from '@/lib/default-msa';
 
-import SubmitFeedback from "@/components/feedback/SubmitFeedback";
-
 /* ─── Section Label Component ─────────────────────── */
 
 function SectionLabel({
-  icon,
   title,
   description,
 }: {
-  icon: string;
   title: string;
   description: string;
 }) {
   return (
-    <div className="mb-4">
-      <h2 className={appSectionTitleClass}>
-        <span className="mr-2">{icon}</span>
+    <div className="mb-6">
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
         {title}
       </h2>
-      <p className={`mt-1 ${appSectionDescriptionClass}`}>{description}</p>
+      <p className={`mt-1.5 ${appSectionDescriptionClass}`}>{description}</p>
     </div>
   );
 }
@@ -97,6 +93,8 @@ function FieldRow({
 
 /* ─── Main Page Component ─────────────────────────── */
 
+type ProfileTab = 'agency' | 'banking' | 'contract' | 'compliance';
+
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -104,6 +102,8 @@ export default function ProfilePage() {
     "idle",
   );
   const [userId, setUserId] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<ProfileTab>('agency');
+  const [isDirty, setIsDirty] = useState(false);
 
   // Form Fields - Agency fields
   const [agencyName, setAgencyName] = useState("");
@@ -141,7 +141,10 @@ export default function ProfilePage() {
   const [globalMsaId, setGlobalMsaId] = useState<string | null>(null);
   const [globalMsaTitle, setGlobalMsaTitle] = useState('');
   const [globalMsaContent, setGlobalMsaContent] = useState('');
-  const [savingMsa, setSavingMsa] = useState(false);
+
+  // UI States
+  const [isLutExpanded, setIsLutExpanded] = useState(false);
+  const [isMsaExpanded, setIsMsaExpanded] = useState(false);
 
   // Load auth + profile
   useEffect(() => {
@@ -210,6 +213,7 @@ export default function ProfilePage() {
       }
 
       setIsLoading(false);
+      setIsDirty(false); // Reset dirty after initial load
     }
     init();
   }, []);
@@ -287,6 +291,7 @@ export default function ProfilePage() {
 
         if (url) {
           onUrlChange(url);
+          setIsDirty(true);
         } else if (error) {
           alert("Upload failed: " + error);
         }
@@ -346,7 +351,10 @@ export default function ProfilePage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => onUrlChange("")}
+                    onClick={() => {
+                      onUrlChange("");
+                      setIsDirty(true);
+                    }}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                     title="Remove"
                   >
@@ -475,95 +483,95 @@ export default function ProfilePage() {
     );
   };
 
-  async function handleSaveGlobalMsa() {
-    if (!userId) return;
-    setSavingMsa(true);
-    try {
-      if (globalMsaId) {
-        const { error } = await supabase
-          .from('client_msas')
-          .update({
-            title: globalMsaTitle,
-            content: globalMsaContent,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', globalMsaId);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from('client_msas')
-          .insert({
-            user_id: userId,
-            client_id: null,
-            title: globalMsaTitle,
-            content: globalMsaContent,
-            status: 'active',
-          })
-          .select('id')
-          .single();
-        if (error) throw error;
-        setGlobalMsaId(data.id);
-      }
-      playInteractionCue("saveSuccess");
-    } catch (err) {
-      console.error('Failed to save Global MSA:', err);
-    } finally {
-      setSavingMsa(false);
-    }
-  }
-
   const handleSave = async () => {
     setSaveState("saving");
     playInteractionCue("stepComplete");
 
-    const agency: AgencyDetails = {
-      agencyName,
-      address: [addressLine1, addressLine2, city, agencyState, pinCode]
-        .filter(Boolean)
-        .join(", "),
-      addressLine1,
-      addressLine2,
-      city,
-      pinCode,
-      agencyState: agencyState as AgencyDetails["agencyState"],
-      gstin,
-      pan,
-      logoUrl,
-      gstRegistrationStatus:
-        gstStatus as AgencyDetails["gstRegistrationStatus"],
-      lutAvailability: lutNumber ? "yes" : "no",
-      lutNumber,
-      lutValidity,
-      noLutTaxHandling: "",
-      signatureUrl,
-      msaPaymentTermsDays,
-      msaLateFeeRate,
-      msaLateFeeUnit,
-      msaIpTriggerType: msaIpTriggerType as AgencyDetails["msaIpTriggerType"],
-      msaJurisdictionCity,
-    };
+    try {
+      const agency: AgencyDetails = {
+        agencyName,
+        address: [addressLine1, addressLine2, city, agencyState, pinCode]
+          .filter(Boolean)
+          .join(", "),
+        addressLine1,
+        addressLine2,
+        city,
+        pinCode,
+        agencyState: agencyState as AgencyDetails["agencyState"],
+        gstin,
+        pan,
+        logoUrl,
+        gstRegistrationStatus:
+          gstStatus as AgencyDetails["gstRegistrationStatus"],
+        lutAvailability: lutNumber ? "yes" : "no",
+        lutNumber,
+        lutValidity,
+        noLutTaxHandling: "",
+        signatureUrl,
+        msaPaymentTermsDays,
+        msaLateFeeRate,
+        msaLateFeeUnit,
+        msaIpTriggerType: msaIpTriggerType as AgencyDetails["msaIpTriggerType"],
+        msaJurisdictionCity,
+      };
 
-    const payment: Partial<PaymentDetails> = {
-      bankName,
-      accountName,
-      accountNumber,
-      ifscCode,
-      bankAddress,
-      swiftBicCode,
-      qrCodeUrl,
-    };
+      const payment: Partial<PaymentDetails> = {
+        bankName,
+        accountName,
+        accountNumber,
+        ifscCode,
+        bankAddress,
+        swiftBicCode,
+        qrCodeUrl,
+      };
 
-    const { error } = await upsertProfile(agency, payment);
+      const { error } = await upsertProfile(agency, payment);
 
-    if (error) {
-      console.error("Save failed:", error);
+      if (error) {
+        console.error("Save failed:", error);
+        setSaveState("idle");
+        return;
+      }
+
+      // Save Global MSA
+      if (userId) {
+        if (globalMsaId) {
+          await supabase
+            .from('client_msas')
+            .update({
+              title: globalMsaTitle,
+              content: globalMsaContent,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', globalMsaId);
+        } else {
+          const { data } = await supabase
+            .from('client_msas')
+            .insert({
+              user_id: userId,
+              client_id: null,
+              title: globalMsaTitle,
+              content: globalMsaContent,
+              status: 'active',
+            })
+            .select('id')
+            .single();
+          if (data) setGlobalMsaId(data.id);
+        }
+      }
+
+      setSaveState("success");
+      setIsDirty(false);
+      playInteractionCue("saveSuccess");
+      setTimeout(() => setSaveState("idle"), 2500);
+    } catch (err) {
+      console.error("Unexpected save error:", err);
       setSaveState("idle");
-      return;
     }
+  };
 
-    setSaveState("success");
-    playInteractionCue("saveSuccess");
-    setTimeout(() => setSaveState("idle"), 2500);
+  const handleDiscard = () => {
+    window.location.reload();
   };
 
   if (isLoading) {
@@ -599,35 +607,28 @@ export default function ProfilePage() {
     );
   }
 
-  return (
-    <main className={appPageShellClass}>
-      <AppHeader
-        rightSlot={
-          <MotionButton
-            onClick={handleSave}
-            disabled={saveState === "saving"}
-            className={getAppButtonClass({ variant: "primary" })}
-          >
-            {saveState === "saving" ? (
-              "Saving…"
-            ) : saveState === "success" ? (
-              <SuccessPulse>✓ Saved!</SuccessPulse>
-            ) : (
-              <>
-                <SaveIcon className="h-4 w-4" />
-                Save Profile
-              </>
-            )}
-          </MotionButton>
-        }
-      />
+  const tabs: { id: ProfileTab; label: string }[] = [
+    { id: 'agency', label: 'Agency' },
+    { id: 'banking', label: 'Banking' },
+    { id: 'contract', label: 'Contract & MSA' },
+    { id: 'compliance', label: 'Compliance' },
+  ];
 
-      <section className={`${appPageContainerClass} py-5 sm:py-8`}>
+  const updateVal = (setter: any) => (e: any) => {
+    setter(e.target.value);
+    setIsDirty(true);
+  };
+
+  return (
+    <main className={cn(appPageShellClass, "pb-24")}>
+      <AppHeader />
+
+      <section className={`${appPageContainerClass} pt-8`}>
         <div className={appGridClass}>
           <div className="col-span-4 sm:col-span-8 lg:col-span-8 lg:col-start-3">
             {/* Header */}
             <MotionReveal preset="fade-up">
-              <div className="mb-6">
+              <div className="mb-8">
                 <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Your Profile
                 </h1>
@@ -638,462 +639,515 @@ export default function ProfilePage() {
               </div>
             </MotionReveal>
 
+            {/* Tabs */}
+            <div className="sticky top-[64px] z-20 bg-white border-b border-gray-200 mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
+              <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "py-4 text-[13px] font-semibold transition-all relative whitespace-nowrap",
+                      activeTab === tab.id
+                        ? "text-[color:var(--brand-indigo)]"
+                        : "text-gray-500 hover:text-gray-700"
+                    )}
+                  >
+                    {tab.label}
+                    {activeTab === tab.id && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--brand-indigo)]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {(!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
+              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                <div className="flex gap-3">
+                  <span className="text-amber-600 text-lg">⚠️</span>
+                  <div>
+                    <h3 className="text-sm font-semibold text-amber-800">Complete your profile</h3>
+                    <p className="mt-1 text-sm text-amber-700">
+                      Please fill in your agency name, address, state, and account number to ensure your invoices are compliant.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Agency Details Tab */}
+            {activeTab === 'agency' && (
               <MotionReveal preset="fade-up" delay={5}>
-                <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
-                  <div className="flex gap-3">
-                    <span className="text-amber-600 text-lg">⚠️</span>
-                    <div>
-                      <h3 className="text-sm font-semibold text-amber-800">Complete your profile</h3>
-                      <p className="mt-1 text-sm text-amber-700">
-                        Please fill in your agency name, address, state, and account number to ensure your invoices are compliant and you can receive payments.
-                      </p>
+                <div className={getAppPanelClass()}>
+                  <SectionLabel
+                    title="Agency Details"
+                    description="Your studio or freelancer identity shown on invoices."
+                  />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <FieldRow label="Agency / Studio Name">
+                        <input
+                          type="text"
+                          value={agencyName}
+                          onChange={updateVal(setAgencyName)}
+                          placeholder="e.g. Ashok Creative Studio"
+                          className={fc({ hasValue: Boolean(agencyName) })}
+                        />
+                      </FieldRow>
                     </div>
+
+                    <FieldRow label="Address Line 1">
+                      <input
+                        type="text"
+                        value={addressLine1}
+                        onChange={updateVal(setAddressLine1)}
+                        placeholder="Building, street"
+                        className={fc({ hasValue: Boolean(addressLine1) })}
+                      />
+                    </FieldRow>
+
+                    <FieldRow label="Address Line 2">
+                      <input
+                        type="text"
+                        value={addressLine2}
+                        onChange={updateVal(setAddressLine2)}
+                        placeholder="Area, landmark"
+                        className={fc({ hasValue: Boolean(addressLine2) })}
+                      />
+                    </FieldRow>
+
+                    <FieldRow label="City">
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={updateVal(setCity)}
+                        placeholder="e.g. Bengaluru"
+                        className={fc({ hasValue: Boolean(city) })}
+                      />
+                    </FieldRow>
+
+                    <FieldRow label="PIN Code">
+                      <input
+                        type="text"
+                        value={pinCode}
+                        onChange={updateVal(setPinCode)}
+                        placeholder="e.g. 560001"
+                        className={fc({ hasValue: Boolean(pinCode) })}
+                      />
+                    </FieldRow>
+
+                    <FieldRow label="State">
+                      <select
+                        value={agencyState}
+                        onChange={updateVal(setAgencyState)}
+                        className={fc({
+                          hasValue: Boolean(agencyState),
+                          isSelect: true,
+                        })}
+                      >
+                        <option value="">Select state</option>
+                        {INDIA_STATE_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </FieldRow>
+
+                    <FieldRow label="GST Status">
+                      <select
+                        value={gstStatus}
+                        onChange={updateVal(setGstStatus)}
+                        className={fc({
+                          hasValue: Boolean(gstStatus),
+                          isSelect: true,
+                        })}
+                      >
+                        <option value="not-registered">Not registered</option>
+                        <option value="registered">GST registered</option>
+                      </select>
+                    </FieldRow>
+
+                    {gstStatus === "registered" && (
+                      <FieldRow label="GSTIN" helper="15-character GST number">
+                        <input
+                          type="text"
+                          value={gstin}
+                          onChange={(e) => {
+                            setGstin(e.target.value.toUpperCase());
+                            setIsDirty(true);
+                          }}
+                          placeholder="e.g. 29AAACR5055K1ZK"
+                          maxLength={15}
+                          className={fc({ hasValue: Boolean(gstin) })}
+                        />
+                      </FieldRow>
+                    )}
+
+                    <FieldRow label="PAN" helper="10-character PAN number">
+                      <input
+                        type="text"
+                        value={pan}
+                        onChange={(e) => {
+                          setPan(e.target.value.toUpperCase());
+                          setIsDirty(true);
+                        }}
+                        placeholder="e.g. AAACR5055K"
+                        maxLength={10}
+                        className={fc({ hasValue: Boolean(pan) })}
+                      />
+                    </FieldRow>
+
+                    <ImageUploadField
+                      label="Logo"
+                      helper="Upload your logo (PNG, SVG, 1:1 recommended)"
+                      value={logoUrl}
+                      onUrlChange={setLogoUrl}
+                      folder="logos"
+                    />
+
+                    <ImageUploadField
+                      label="Digital Signature"
+                      helper="Upload your signature image"
+                      value={signatureUrl}
+                      onUrlChange={setSignatureUrl}
+                      folder="signatures"
+                    />
+
+                    <ImageUploadField
+                      label="Payment QR Code"
+                      helper="Upload your UPI / Payment QR code"
+                      value={qrCodeUrl}
+                      onUrlChange={setQrCodeUrl}
+                      folder="qrcodes"
+                    />
                   </div>
                 </div>
               </MotionReveal>
             )}
 
-            {/* Agency Details */}
-            <MotionReveal preset="fade-up" delay={10}>
-              <div className={`${getAppPanelClass()} mb-4`}>
-                <SectionLabel
-                  icon="🏢"
-                  title="Agency Details"
-                  description="Your studio or freelancer identity shown on invoices."
-                />
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <FieldRow label="Agency / Studio Name">
-                      <input
-                        type="text"
-                        value={agencyName}
-                        onChange={(e) => setAgencyName(e.target.value)}
-                        placeholder="e.g. Ashok Creative Studio"
-                        className={fc({ hasValue: Boolean(agencyName) })}
-                      />
-                    </FieldRow>
-                  </div>
-
-                  <FieldRow label="Address Line 1">
-                    <input
-                      type="text"
-                      value={addressLine1}
-                      onChange={(e) => setAddressLine1(e.target.value)}
-                      placeholder="Building, street"
-                      className={fc({ hasValue: Boolean(addressLine1) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="Address Line 2">
-                    <input
-                      type="text"
-                      value={addressLine2}
-                      onChange={(e) => setAddressLine2(e.target.value)}
-                      placeholder="Area, landmark"
-                      className={fc({ hasValue: Boolean(addressLine2) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="City">
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      placeholder="e.g. Bengaluru"
-                      className={fc({ hasValue: Boolean(city) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="PIN Code">
-                    <input
-                      type="text"
-                      value={pinCode}
-                      onChange={(e) => setPinCode(e.target.value)}
-                      placeholder="e.g. 560001"
-                      className={fc({ hasValue: Boolean(pinCode) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="State">
-                    <select
-                      value={agencyState}
-                      onChange={(e) => setAgencyState(e.target.value)}
-                      className={fc({
-                        hasValue: Boolean(agencyState),
-                        isSelect: true,
-                      })}
-                    >
-                      <option value="">Select state</option>
-                      {INDIA_STATE_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </FieldRow>
-
-                  <FieldRow label="GST Status">
-                    <select
-                      value={gstStatus}
-                      onChange={(e) => setGstStatus(e.target.value)}
-                      className={fc({
-                        hasValue: Boolean(gstStatus),
-                        isSelect: true,
-                      })}
-                    >
-                      <option value="not-registered">Not registered</option>
-                      <option value="registered">GST registered</option>
-                    </select>
-                  </FieldRow>
-
-                  {gstStatus === "registered" && (
-                    <FieldRow label="GSTIN" helper="15-character GST number">
-                      <input
-                        type="text"
-                        value={gstin}
-                        onChange={(e) => setGstin(e.target.value.toUpperCase())}
-                        placeholder="e.g. 29AAACR5055K1ZK"
-                        maxLength={15}
-                        className={fc({ hasValue: Boolean(gstin) })}
-                      />
-                    </FieldRow>
-                  )}
-
-                  <FieldRow label="PAN" helper="10-character PAN number">
-                    <input
-                      type="text"
-                      value={pan}
-                      onChange={(e) => setPan(e.target.value.toUpperCase())}
-                      placeholder="e.g. AAACR5055K"
-                      maxLength={10}
-                      className={fc({ hasValue: Boolean(pan) })}
-                    />
-                  </FieldRow>
-
-                  <ImageUploadField
-                    label="Logo"
-                    helper="Direct link or upload your logo (PNG, SVG, 1:1 recommended)"
-                    value={logoUrl}
-                    onUrlChange={setLogoUrl}
-                    folder="logos"
+            {/* Banking Tab */}
+            {activeTab === 'banking' && (
+              <MotionReveal preset="fade-up" delay={5}>
+                <div className={getAppPanelClass()}>
+                  <SectionLabel
+                    title="Payment Defaults"
+                    description="Bank details pre-filled on every invoice. Update anytime."
                   />
 
-                  <ImageUploadField
-                    label="Digital Signature"
-                    helper="Direct link or upload your signature image (PNG with transparent background recommended)"
-                    value={signatureUrl}
-                    onUrlChange={setSignatureUrl}
-                    folder="signatures"
-                  />
-
-                  <ImageUploadField
-                    label="Payment QR Code"
-                    helper="Direct link or upload your UPI / Payment QR code image"
-                    value={qrCodeUrl}
-                    onUrlChange={setQrCodeUrl}
-                    folder="qrcodes"
-                  />
-                </div>
-              </div>
-            </MotionReveal>
-
-            {/* Export Compliance (LUT) */}
-            <MotionReveal preset="fade-up" delay={15}>
-              <div className={`${getAppPanelClass()} mb-4`}>
-                <SectionLabel
-                  icon="🌐"
-                  title="Export Compliance (LUT)"
-                  description="Details for zero-tax international or SEZ billing."
-                />
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldRow
-                    label="LUT Number"
-                    helper="Enter your Letter of Undertaking number if applicable."
-                  >
-                    <input
-                      type="text"
-                      value={lutNumber}
-                      onChange={(e) =>
-                        setLutNumber(e.target.value.toUpperCase())
-                      }
-                      placeholder="e.g., AD290324..."
-                      className={fc({ hasValue: Boolean(lutNumber) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow
-                    label="Validity Period"
-                    helper="Select the financial year for which the LUT is valid."
-                  >
-                    <select
-                      value={lutValidity}
-                      onChange={(e) => setLutValidity(e.target.value)}
-                      className={fc({
-                        hasValue: Boolean(lutValidity),
-                        isSelect: true,
-                      })}
-                    >
-                      <option value="">Select validity</option>
-                      <option value="fy_2025_26">FY 2025-26</option>
-                      <option value="fy_2026_27">FY 2026-27</option>
-                      <option value="fy_2027_28">FY 2027-28</option>
-                    </select>
-                  </FieldRow>
-
-                  <div className="sm:col-span-2">
-                    <p className={appFieldHelperTextClass}>
-                      If provided, this LUT will be automatically applied to
-                      International and SEZ invoices to legally enforce 0% IGST.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </MotionReveal>
-
-            {/* Payment Defaults */}
-            <MotionReveal preset="fade-up" delay={20}>
-              <div className={`${getAppPanelClass()} mb-4`}>
-                <SectionLabel
-                  icon="💳"
-                  title="Payment Defaults"
-                  description="Bank details pre-filled on every invoice. Update anytime."
-                />
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldRow label="Bank Name">
-                    <input
-                      type="text"
-                      value={bankName}
-                      onChange={(e) => setBankName(e.target.value)}
-                      placeholder="e.g. HDFC Bank"
-                      className={fc({ hasValue: Boolean(bankName) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="Account Holder Name">
-                    <input
-                      type="text"
-                      value={accountName}
-                      onChange={(e) => setAccountName(e.target.value)}
-                      placeholder="Name on account"
-                      className={fc({ hasValue: Boolean(accountName) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="Account Number">
-                    <input
-                      type="text"
-                      value={accountNumber}
-                      onChange={(e) => setAccountNumber(e.target.value)}
-                      placeholder="e.g. 1234567890"
-                      className={fc({ hasValue: Boolean(accountNumber) })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="IFSC Code">
-                    <input
-                      type="text"
-                      value={ifscCode}
-                      onChange={(e) =>
-                        setIfscCode(e.target.value.toUpperCase())
-                      }
-                      placeholder="e.g. HDFC0001234"
-                      className={fc({ hasValue: Boolean(ifscCode) })}
-                    />
-                  </FieldRow>
-
-                  <div className="sm:col-span-2">
-                    <FieldRow
-                      label="Bank Address"
-                      helper="For international payments (SWIFT transfers)"
-                    >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FieldRow label="Bank Name">
                       <input
                         type="text"
-                        value={bankAddress}
-                        onChange={(e) => setBankAddress(e.target.value)}
-                        placeholder="Optional — bank branch address"
-                        className={fc({ hasValue: Boolean(bankAddress) })}
+                        value={bankName}
+                        onChange={updateVal(setBankName)}
+                        placeholder="e.g. HDFC Bank"
+                        className={fc({ hasValue: Boolean(bankName) })}
                       />
                     </FieldRow>
-                  </div>
 
-                  <FieldRow
-                    label="SWIFT / BIC Code"
-                    helper="For international clients"
-                  >
-                    <input
-                      type="text"
-                      value={swiftBicCode}
-                      onChange={(e) =>
-                        setSwiftBicCode(e.target.value.toUpperCase())
-                      }
-                      placeholder="e.g. HDFCINBB"
-                      className={fc({ hasValue: Boolean(swiftBicCode) })}
-                    />
-                  </FieldRow>
-                </div>
-              </div>
-            </MotionReveal>
-
-            {/* MSA Defaults */}
-            <MotionReveal preset="fade-up" delay={25}>
-              <div className={`${getAppPanelClass()} mb-4`}>
-                <SectionLabel
-                  icon="⚖️"
-                  title="Global Contract Defaults"
-                  description="Your Master Services Agreement (MSA) blueprint for new clients."
-                />
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FieldRow label="Default Payment Terms (Days)">
-                    <input
-                      type="number"
-                      value={msaPaymentTermsDays}
-                      onChange={(e) =>
-                        setMsaPaymentTermsDays(Number(e.target.value))
-                      }
-                      className={fc({ hasValue: true })}
-                    />
-                  </FieldRow>
-
-                  <FieldRow label="Late Fee Rate (%)">
-                    <div className="grid grid-cols-2 gap-2">
+                    <FieldRow label="Account Holder Name">
                       <input
-                        type="number"
-                        step="0.1"
-                        value={msaLateFeeRate}
-                        onChange={(e) =>
-                          setMsaLateFeeRate(Number(e.target.value))
-                        }
-                        className={fc({ hasValue: true })}
+                        type="text"
+                        value={accountName}
+                        onChange={updateVal(setAccountName)}
+                        placeholder="Name on account"
+                        className={fc({ hasValue: Boolean(accountName) })}
                       />
-                      <select
-                        value={msaLateFeeUnit}
-                        onChange={(e) =>
-                          setMsaLateFeeUnit(e.target.value as any)
-                        }
-                        className={fc({ hasValue: true, isSelect: true })}
+                    </FieldRow>
+
+                    <FieldRow label="Account Number">
+                      <input
+                        type="text"
+                        value={accountNumber}
+                        onChange={updateVal(setAccountNumber)}
+                        placeholder="e.g. 1234567890"
+                        className={fc({ hasValue: Boolean(accountNumber) })}
+                      />
+                    </FieldRow>
+
+                    <FieldRow label="IFSC Code">
+                      <input
+                        type="text"
+                        value={ifscCode}
+                        onChange={(e) => {
+                          setIfscCode(e.target.value.toUpperCase());
+                          setIsDirty(true);
+                        }}
+                        placeholder="e.g. HDFC0001234"
+                        className={fc({ hasValue: Boolean(ifscCode) })}
+                      />
+                    </FieldRow>
+
+                    <div className="sm:col-span-2">
+                      <FieldRow
+                        label="Bank Address"
+                        helper="For international payments (SWIFT transfers)"
                       >
-                        <option value="monthly">per month</option>
-                        <option value="annually">per annum</option>
-                        <option value="daily">per day</option>
-                      </select>
+                        <input
+                          type="text"
+                          value={bankAddress}
+                          onChange={updateVal(setBankAddress)}
+                          placeholder="Optional — bank branch address"
+                          className={fc({ hasValue: Boolean(bankAddress) })}
+                        />
+                      </FieldRow>
                     </div>
-                  </FieldRow>
 
-                  <FieldRow
-                    label="IP Transfer Trigger"
-                    helper="Note: Invoice-specific briefs will override these defaults during AI extraction."
-                  >
-                    <select
-                      value={msaIpTriggerType}
-                      onChange={(e) =>
-                        setMsaIpTriggerType(e.target.value as any)
-                      }
-                      className={fc({ hasValue: true, isSelect: true })}
+                    <FieldRow
+                      label="SWIFT / BIC Code"
+                      helper="For international clients"
                     >
-                      <option value="upon_full_payment">
-                        Upon Full Payment
-                      </option>
-                      <option value="upon_signing">Upon Signing</option>
-                      <option value="upon_delivery">Upon Delivery</option>
-                      <option value="proportional_transfer">
-                        Proportional (Per Milestone)
-                      </option>
-                      <option value="retained_by_creator">
-                        Retained by Creator (License Only)
-                      </option>
-                    </select>
-                  </FieldRow>
+                      <input
+                        type="text"
+                        value={swiftBicCode}
+                        onChange={(e) => {
+                          setSwiftBicCode(e.target.value.toUpperCase());
+                          setIsDirty(true);
+                        }}
+                        placeholder="e.g. HDFCINBB"
+                        className={fc({ hasValue: Boolean(swiftBicCode) })}
+                      />
+                    </FieldRow>
+                  </div>
+                </div>
+              </MotionReveal>
+            )}
 
-                  <FieldRow label="Jurisdiction">
-                    <input
-                      type="text"
-                      value={msaJurisdictionCity}
-                      onChange={(e) => setMsaJurisdictionCity(e.target.value)}
-                      placeholder="e.g. Bangalore"
-                      className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+            {/* Contract & MSA Tab */}
+            {activeTab === 'contract' && (
+              <div className="space-y-4">
+                <MotionReveal preset="fade-up" delay={5}>
+                  <div className={getAppPanelClass()}>
+                    <SectionLabel
+                      title="Global Contract Defaults"
+                      description="Your Master Services Agreement (MSA) blueprint for new clients."
                     />
-                  </FieldRow>
-                </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FieldRow label="Default Payment Terms (Days)">
+                        <input
+                          type="number"
+                          value={msaPaymentTermsDays}
+                          onChange={(e) => {
+                            setMsaPaymentTermsDays(Number(e.target.value));
+                            setIsDirty(true);
+                          }}
+                          className={fc({ hasValue: true })}
+                        />
+                      </FieldRow>
+
+                      <FieldRow label="Late Fee Rate (%)">
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={msaLateFeeRate}
+                            onChange={(e) => {
+                              setMsaLateFeeRate(Number(e.target.value));
+                              setIsDirty(true);
+                            }}
+                            className={fc({ hasValue: true })}
+                          />
+                          <select
+                            value={msaLateFeeUnit}
+                            onChange={(e) => {
+                              setMsaLateFeeUnit(e.target.value as any);
+                              setIsDirty(true);
+                            }}
+                            className={fc({ hasValue: true, isSelect: true })}
+                          >
+                            <option value="monthly">per month</option>
+                            <option value="annually">per annum</option>
+                            <option value="daily">per day</option>
+                          </select>
+                        </div>
+                      </FieldRow>
+
+                      <FieldRow
+                        label="IP Transfer Trigger"
+                        helper="Note: Invoice-specific briefs will override these defaults during AI extraction."
+                      >
+                        <select
+                          value={msaIpTriggerType}
+                          onChange={(e) => {
+                            setMsaIpTriggerType(e.target.value as any);
+                            setIsDirty(true);
+                          }}
+                          className={fc({ hasValue: true, isSelect: true })}
+                        >
+                          <option value="upon_full_payment">
+                            Upon Full Payment
+                          </option>
+                          <option value="upon_signing">Upon Signing</option>
+                          <option value="upon_delivery">Upon Delivery</option>
+                          <option value="proportional_transfer">
+                            Proportional (Per Milestone)
+                          </option>
+                          <option value="retained_by_creator">
+                            Retained by Creator (License Only)
+                          </option>
+                        </select>
+                      </FieldRow>
+
+                      <FieldRow label="Jurisdiction">
+                        <input
+                          type="text"
+                          value={msaJurisdictionCity}
+                          onChange={updateVal(setMsaJurisdictionCity)}
+                          placeholder="e.g. Bangalore"
+                          className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                        />
+                      </FieldRow>
+                    </div>
+                  </div>
+                </MotionReveal>
+
+                <MotionReveal preset="fade-up" delay={10}>
+                  <div className={getAppPanelClass()}>
+                    <button
+                      onClick={() => setIsMsaExpanded(!isMsaExpanded)}
+                      className="flex w-full items-center justify-between text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+                          Global MSA Document
+                        </h2>
+                      </div>
+                      <span className="text-[color:var(--brand-indigo)] text-[12px] font-medium">
+                        {isMsaExpanded ? "Hide" : "View/Edit MSA Document →"}
+                      </span>
+                    </button>
+
+                    {isMsaExpanded && (
+                      <div className="mt-6 space-y-4">
+                        <p className="text-[12px] text-[color:var(--text-muted)]">
+                          Your default Master Services Agreement. Automatically attached to invoices when no client-specific MSA exists.
+                        </p>
+
+                        <FieldRow label="MSA Title">
+                          <input
+                            type="text"
+                            value={globalMsaTitle}
+                            onChange={updateVal(setGlobalMsaTitle)}
+                            className={fc({ hasValue: Boolean(globalMsaTitle) })}
+                            placeholder="e.g. Standard Freelance Agreement"
+                          />
+                        </FieldRow>
+
+                        <FieldRow label="MSA Content">
+                          <textarea
+                            value={globalMsaContent}
+                            onChange={updateVal(setGlobalMsaContent)}
+                            rows={12}
+                            className={cn(fc({ hasValue: Boolean(globalMsaContent), multiline: true }), "font-mono")}
+                            placeholder="Paste or type your MSA terms here..."
+                          />
+                        </FieldRow>
+                      </div>
+                    )}
+                  </div>
+                </MotionReveal>
               </div>
-            </MotionReveal>
+            )}
 
-            {/* Global MSA */}
-            <MotionReveal preset="fade-up" delay={30}>
-              <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span>📄</span>
-                  <h2 className="text-base font-semibold text-gray-900">Global MSA</h2>
+            {/* Compliance Tab */}
+            {activeTab === 'compliance' && (
+              <MotionReveal preset="fade-up" delay={5}>
+                <div className={getAppPanelClass()}>
+                  <button
+                    onClick={() => setIsLutExpanded(!isLutExpanded)}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <SectionLabel
+                      title="Export Compliance"
+                      description="Details for zero-tax international or SEZ billing."
+                    />
+                    <span className="text-[color:var(--brand-indigo)] text-[12px] font-medium">
+                      {isLutExpanded ? "Hide" : "Expand LUT Details →"}
+                    </span>
+                  </button>
+
+                  {isLutExpanded && (
+                    <div className="grid gap-4 sm:grid-cols-2 mt-4">
+                      <FieldRow
+                        label="LUT Number"
+                        helper="Enter your Letter of Undertaking number if applicable."
+                      >
+                        <input
+                          type="text"
+                          value={lutNumber}
+                          onChange={(e) => {
+                            setLutNumber(e.target.value.toUpperCase());
+                            setIsDirty(true);
+                          }}
+                          placeholder="e.g., AD290324..."
+                          className={fc({ hasValue: Boolean(lutNumber) })}
+                        />
+                      </FieldRow>
+
+                      <FieldRow
+                        label="Validity Period"
+                        helper="Select the financial year for which the LUT is valid."
+                      >
+                        <select
+                          value={lutValidity}
+                          onChange={updateVal(setLutValidity)}
+                          className={fc({
+                            hasValue: Boolean(lutValidity),
+                            isSelect: true,
+                          })}
+                        >
+                          <option value="">Select validity</option>
+                          <option value="fy_2025_26">FY 2025-26</option>
+                          <option value="fy_2026_27">FY 2026-27</option>
+                          <option value="fy_2027_28">FY 2027-28</option>
+                        </select>
+                      </FieldRow>
+
+                      <div className="sm:col-span-2">
+                        <p className={appFieldHelperTextClass}>
+                          If provided, this LUT will be automatically applied to
+                          International and SEZ invoices to legally enforce 0% IGST.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 mb-5">
-                  Your default Master Services Agreement. Automatically attached to invoices when no client-specific MSA exists.
-                </p>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">MSA Title</label>
-                  <input
-                    type="text"
-                    value={globalMsaTitle}
-                    onChange={(e) => setGlobalMsaTitle(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="e.g. Standard Freelance Agreement"
-                  />
-                </div>
-
-                <div className="mb-5">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">MSA Content</label>
-                  <textarea
-                    value={globalMsaContent}
-                    onChange={(e) => setGlobalMsaContent(e.target.value)}
-                    rows={12}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-y font-mono"
-                    placeholder="Paste or type your MSA terms here..."
-                  />
-                </div>
-
-                <button
-                  onClick={handleSaveGlobalMsa}
-                  disabled={savingMsa || !globalMsaTitle.trim() || !globalMsaContent.trim()}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {savingMsa ? 'Saving...' : 'Save Global MSA'}
-                </button>
-              </div>
-            </MotionReveal>
-
-            {/* Feedback Loop */}
-            <MotionReveal preset="fade-up" delay={35}>
-              <div className="mt-12 pt-12 border-t border-gray-100">
-                <SubmitFeedback />
-              </div>
-            </MotionReveal>
-
-            {/* Save bar (mobile) */}
-            <MotionReveal preset="fade-up" delay={30}>
-              <div className="flex justify-end sm:hidden">
-                <MotionButton
-                  onClick={handleSave}
-                  disabled={saveState === "saving"}
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    fullWidth: true,
-                  })}
-                >
-                  {saveState === "saving"
-                    ? "Saving…"
-                    : saveState === "success"
-                      ? "✓ Saved!"
-                      : "Save Profile"}
-                </MotionButton>
-              </div>
-            </MotionReveal>
+              </MotionReveal>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Sticky Save Bar */}
+      {isDirty && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 py-4 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+          <div className="max-w-4xl mx-auto flex items-center justify-end gap-3">
+            <button
+              onClick={handleDiscard}
+              className={getAppButtonClass({ variant: "ghost" })}
+            >
+              Discard
+            </button>
+            <MotionButton
+              onClick={handleSave}
+              disabled={saveState === "saving"}
+              className={cn(getAppButtonClass({ variant: "primary" }), "min-w-[120px]")}
+            >
+              {saveState === "saving" ? (
+                "Saving…"
+              ) : saveState === "success" ? (
+                <SuccessPulse>✓ Saved!</SuccessPulse>
+              ) : (
+                "Save Changes"
+              )}
+            </MotionButton>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
