@@ -83,7 +83,6 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   {data.agencyState && (
                     <span>
                       {data.agencyState}
-                      {data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}
                     </span>
                   )}
                   {data.showAgencyGstin && (

@@ -101,7 +101,6 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               {data.agencyState && (
                 <span>
                   {data.agencyState}
-                  {data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}
                 </span>
               )}
               {data.showAgencyGstin && <span>GSTIN {data.agencyGstin}</span>}

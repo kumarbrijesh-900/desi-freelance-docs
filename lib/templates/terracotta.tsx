@@ -80,7 +80,6 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
                 {data.agencyState && (
                   <span>
                     State: {data.agencyState}
-                    {data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}
                   </span>
                 )}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}

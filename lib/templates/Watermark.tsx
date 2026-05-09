@@ -10,8 +10,6 @@ export function InvoiceWatermark() {
         <span className="font-bold text-[color:var(--text-primary)]">
           LANCEINVOICE
         </span>
-        <span className="mx-2 opacity-50">|</span>
-        POWERED BY <span className="font-bold text-[#000000]">VERCEL</span>
       </p>
     </div>
   );

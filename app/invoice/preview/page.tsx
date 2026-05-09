@@ -84,7 +84,7 @@ function PreviewContent() {
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
@@ -589,14 +589,29 @@ function PreviewContent() {
             <MotionReveal className="mb-8 print:hidden" preset="fade-up">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--state-info-border)] bg-[color:var(--state-info-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-info-text)]">
-                      <DocumentSparkIcon className="h-4 w-4" />
-                      Preview Mode
-                    </span>
+                  <div className="relative flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
                       Ready to export
                     </span>
+                    <button
+                      onClick={() => setShowTemplatePicker(!showTemplatePicker)}
+                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-default)] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-secondary)] hover:bg-gray-50 transition-colors"
+                    >
+                      Templates
+                    </button>
+                    {showTemplatePicker && (
+                      <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-[300px] rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-xl">
+                        <TemplatePicker
+                          selectedId={selectedTemplate}
+                          onSelect={(id) => {
+                            setSelectedTemplate(id);
+                            setShowTemplatePicker(false);
+                          }}
+                          userTier="free"
+                          layout="vertical"
+                        />
+                      </div>
+                    )}
                   </div>
                   <h1 className="mt-2 text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
                     {invoiceNumber?.trim() || "New Invoice"}
@@ -644,10 +659,10 @@ function PreviewContent() {
               </MotionReveal>
             )}
 
-            {/* Main Layout Grid: Invoice (Left) + Templates (Right) */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px] print:block">
-              {/* ─── Invoice Sheet (Left) ─── */}
-              <div className="min-w-0">
+            {/* Main Layout: Centered Invoice */}
+            <div className="flex flex-col items-center print:block">
+              {/* ─── Invoice Sheet ─── */}
+              <div className="w-full max-w-[800px]">
                 <MotionReveal
                   className="invoice-sheet w-full rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
                   preset="scale-in"
@@ -659,29 +674,6 @@ function PreviewContent() {
                   />
                 </MotionReveal>
               </div>
-
-              {/* ─── Vertical Template Picker (Right Sidebar) ─── */}
-              <aside className="print:hidden">
-                <div className="sticky top-24 h-[calc(100vh-160px)] overflow-y-auto pr-2 scrollbar-hide">
-                  <MotionReveal preset="fade-up" delay={20}>
-                    <div className="rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-[var(--app-floating-shadow)]">
-                      <TemplatePicker
-                        selectedId={selectedTemplate}
-                        onSelect={setSelectedTemplate}
-                        userTier="free"
-                        layout="vertical"
-                      />
-                    </div>
-                  </MotionReveal>
-
-                  <div className="mt-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-4 text-center">
-                    <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
-                      Pro templates come with premium layout options and zero
-                      branding.
-                    </p>
-                  </div>
-                </div>
-              </aside>
             </div>
           </div>
         </section>
@@ -713,33 +705,9 @@ function PreviewContent() {
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                   Cloud Save Failed (Saved Locally)
                 </span>
-              ) : (
-                <span className="text-xs text-[color:var(--text-muted)]">
-                  Draft unsaved
-                </span>
-              )}
+              ) : null}
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSaveDraft}
-                className={getAppButtonClass({
-                  variant: "secondary",
-                  size: "md",
-                })}
-              >
-                <SaveIcon className="h-4 w-4" />
-                Save Draft
-              </button>
-              {cloudInvoiceId && (
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-mono text-green-600 uppercase tracking-tight">Sync Active</span>
-                  <span className="text-[8px] font-mono text-[color:var(--text-muted)]">
-                    {cloudInvoiceId.slice(0, 8)}
-                  </span>
-                </div>
-              )}
 
               <MotionButton
                 type="button"

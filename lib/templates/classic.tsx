@@ -31,24 +31,20 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       <div className="absolute bottom-40 -left-10 w-64 h-64 bg-[#E0E0E5] rounded-full blur-[100px] opacity-15 z-0 pointer-events-none" />
 
       {/* ── Top Accent ──────────────────────────── */}
-      <div className="relative z-10 h-1 w-full bg-[#111118] mb-12" />
+      <div className="relative z-10 h-px w-full bg-[#D1D1D6] mb-12" />
 
       {/* ── Header ────────────────────────────── */}
       <header className="flex justify-between items-start mb-16">
         <div className="max-w-[400px]">
-          <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-6 overflow-hidden">
-            {data.agencyLogoUrl ? (
+          {data.agencyLogoUrl && (
+            <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-6 overflow-hidden">
               <img
                 src={data.agencyLogoUrl}
                 alt="Agency Logo"
                 className="max-h-full max-w-full object-contain object-left"
               />
-            ) : (
-              <div className="w-full h-full border border-dashed border-[#D1D1D6] bg-gray-50/30 flex items-center justify-center text-[9px] font-bold text-[#A8A08E] uppercase tracking-[0.2em]">
-                Agency Logo
-              </div>
-            )}
-          </div>
+            </div>
+          )}
           <div className="text-[12px] leading-relaxed text-[#555] space-y-1">
             <p className="font-bold text-[#111118] text-[14px] mb-1">
               {data.agencyName}
@@ -60,8 +56,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               <div className="pt-2 flex flex-col gap-0.5 text-[11px] text-[#888]">
                 {data.agencyState && (
                   <span>
-                    {data.agencyState}
-                    {data.agencyStateCode ? ` (${data.agencyStateCode})` : ""}
+                    {data.agencyState?.replace(/\s*\(\d+\)/, '')}
                   </span>
                 )}
                 {data.showAgencyGstin && (
@@ -76,7 +71,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
         </div>
 
         <div className="text-right">
-          <h1 className="text-[42px] font-black tracking-tighter leading-none mb-6">
+          <h1 className="text-[30px] font-black tracking-tighter leading-none mb-6">
             INVOICE
           </h1>
           <div className="space-y-4">
@@ -120,13 +115,12 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             <div className="mt-3 flex gap-4 text-[11px] text-[#888]">
               {data.clientState && (
                 <span>
-                  {data.clientState}
-                  {data.clientStateCode ? ` (${data.clientStateCode})` : ""}
+                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
                 </span>
               )}
               {data.clientTaxId && (
                 <span>
-                  {data.clientTaxLabel}: {data.clientTaxId}
+                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}
                 </span>
               )}
             </div>
@@ -172,9 +166,9 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                     <td colSpan={3} className="py-5 px-4">
                       <div className="flex flex-col gap-1">
                         <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A08E]">
-                          Milestone Section
+                          Milestone
                         </span>
-                        <div className="text-[16px] font-bold text-[#111118]">
+                        <div className="text-[16px] font-bold text-[#111118] capitalize">
                           {item.description}
                         </div>
                       </div>
@@ -265,6 +259,11 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               {data.grandTotalFormatted}
             </span>
           </div>
+          {data.amountInWords && (
+            <p className="text-right text-[11px] font-medium text-[#555] italic pt-1">
+              {data.amountInWords}
+            </p>
+          )}
           {data.approximateUsd && (
             <p className="text-right text-[10px] text-[#888] italic pt-1">
               ≈ {data.approximateUsd}
@@ -295,11 +294,6 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                     <p>Account: {data.accountNumber}</p>
                   </>
                 )}
-                {data.lineItems.some((i) => i.isMilestoneHeader) && (
-                  <p className="mt-3 text-[11px] font-medium italic text-[#A8A08E] border-t border-[#F0F0F2] pt-2">
-                    Note: Please transfer the relevant Milestone Subtotal as outlined above.
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -315,27 +309,20 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             </div>
           )}
 
-          <div className="mt-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-3">
-              Payment QR
-            </p>
-            <div className="h-20 w-20 flex items-center justify-center overflow-hidden">
-              {data.hasQrCode ? (
+          {data.hasQrCode && (
+            <div className="mt-8">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-3">
+                Payment QR
+              </p>
+              <div className="h-20 w-20 flex items-center justify-center overflow-hidden">
                 <img
                   src={data.qrCodeUrl}
                   alt="Payment QR"
                   className="max-h-full max-w-full object-contain object-center"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#D1D1D6] bg-gray-50/30 flex flex-col items-center justify-center gap-1">
-                  <div className="w-6 h-6 opacity-10 border border-[#111118]" />
-                  <span className="text-[7px] font-bold text-[#A8A08E] uppercase tracking-widest">
-                    QR Code
-                  </span>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="text-right space-y-8">
@@ -362,16 +349,6 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             </div>
           </div>
 
-          {data.amountInWords && (
-            <div className="pt-4 border-t border-[#F0F0F2]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">
-                Amount in Words
-              </p>
-              <p className="text-[11px] font-medium text-[#555] italic">
-                {data.amountInWords}
-              </p>
-            </div>
-          )}
         </div>
       </section>
 
