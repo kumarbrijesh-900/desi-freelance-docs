@@ -1424,6 +1424,7 @@ function EditorContent() {
       return;
     }
 
+    // Only handle Enter on text-like inputs — let textareas keep newline behaviour
     if (!(event.target instanceof HTMLInputElement)) {
       return;
     }
@@ -1440,15 +1441,56 @@ function EditorContent() {
 
     const focusableFields = Array.from(
       activeStepRoot.querySelectorAll<HTMLElement>(
-        'input:not([type="file"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button[role="radio"]:not([disabled])',
+        'input:not([type="file"]):not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])',
       ),
-    ).filter((element) => element.offsetParent !== null);
+    ).filter((el) => el.offsetParent !== null);
 
     const currentIndex = focusableFields.indexOf(event.target);
+    if (currentIndex < 0) return;
 
-    if (currentIndex >= 0 && currentIndex < focusableFields.length - 1) {
-      focusableFields[currentIndex + 1]?.focus();
+    // Helper: check if a field is empty
+    const isFieldEmpty = (el: HTMLElement): boolean => {
+      if (el instanceof HTMLInputElement) {
+        if (["checkbox", "radio", "file", "hidden"].includes(el.type)) return false;
+        return !el.value.trim();
+      }
+      if (el instanceof HTMLSelectElement) {
+        return !el.value || el.selectedIndex === 0;
+      }
+      if (el instanceof HTMLTextAreaElement) {
+        return !el.value.trim();
+      }
+      return false;
+    };
+
+    // 1. Find next empty field AFTER current position
+    const nextEmptyField = focusableFields.slice(currentIndex + 1).find(isFieldEmpty);
+
+    if (nextEmptyField) {
+      nextEmptyField.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        nextEmptyField.focus({ preventScroll: true });
+      }, 300);
       return;
+    }
+
+    // 2. No empty fields below — if step is valid, auto-advance
+    if (stepValidityByStep[currentStep]) {
+      const nextStep = getNextStep(currentStep);
+      if (nextStep) {
+        guideToSection(nextStep, { focus: true });
+      }
+      return;
+    }
+
+    // 3. Step not valid — wrap around to first empty field in step
+    const firstEmptyInStep = focusableFields.find(isFieldEmpty);
+
+    if (firstEmptyInStep) {
+      firstEmptyInStep.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        firstEmptyInStep.focus({ preventScroll: true });
+      }, 300);
     }
   };
 
