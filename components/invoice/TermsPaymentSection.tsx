@@ -413,8 +413,8 @@ export default function TermsPaymentSection({
                       placeholder="15"
                       className={cn(
                         inputClass(paymentTermsFieldError, true),
-                        getInputStateClass("meta.paymentTerms", meta.paymentTerms),
-                        isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
+                        !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
+                        isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                         "pr-12",
                       )}
                     />
@@ -447,8 +447,8 @@ export default function TermsPaymentSection({
                     }}
                     className={cn(
                       inputClass(undefined, Boolean(meta.dueDate)),
-                      getInputStateClass("meta.dueDate", meta.dueDate),
-                      isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
+                      !isReadOnly && getInputStateClass("meta.dueDate", meta.dueDate),
+                      isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                     )}
                   />
                   <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
@@ -477,8 +477,8 @@ export default function TermsPaymentSection({
                   placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
                   className={cn(
                     inputClass(undefined, Boolean(value.terms || value.notes), true),
-                    getInputStateClass("payment.terms", value.terms || value.notes),
-                    isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
+                    !isReadOnly && getInputStateClass("payment.terms", value.terms || value.notes),
+                    isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                     "min-h-[80px]",
                   )}
                 />
@@ -567,8 +567,8 @@ export default function TermsPaymentSection({
                                 placeholder="Example: 3 years"
                                 className={cn(
                                   inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
-                                  getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
-                                  isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
+                                  !isReadOnly && getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
+                                  isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                                 )}
                               />
                               {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}

@@ -2537,11 +2537,10 @@ return (
                         type="button"
                         onClick={handlePreviewInvoice}
                         className={cn(
-                          getAppButtonClass({ variant: "primary", size: "sm" }),
-                          "h-9 px-4 font-bold sm:h-10 sm:px-6 transition-all duration-200",
+                          "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                           invoiceReadyForPreview
-                            ? "bg-[#bfff00] text-black hover:bg-[#bfff00] shadow-sm border border-[#bfff00]"
-                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] cursor-default hover:bg-[#bfff00]/5"
+                            ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105"
+                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)]"
                         )}
                       >
                         Preview <ArrowRight className="ml-2 h-4 w-4" />
@@ -2555,7 +2554,7 @@ return (
         </div>
 
         <aside
-          className="hidden w-full lg:col-start-1 lg:row-start-1 lg:block lg:w-[158px] lg:self-start lg:sticky lg:top-[88px] xl:w-[166px]"
+          className="hidden lg:block lg:fixed lg:top-[100px] lg:w-[158px] xl:w-[166px] lg:z-30"
           data-testid="desktop-support-rail"
         >
           <div className="space-y-3">
