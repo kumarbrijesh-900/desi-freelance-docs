@@ -19,7 +19,7 @@ import {
   appFieldFullWidthStackClass,
   appFieldPairGridClass,
 } from "@/lib/form-foundation";
-import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit } from "lucide-react";
+import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { addDays, getDaysDifference } from "@/lib/date-math";
 
@@ -262,53 +262,48 @@ export default function TermsPaymentSection({
           {/* Section A: Contract Terms */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Contract Terms
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
             </div>
 
             <div className={cn(
-              "flex flex-col gap-1.5 rounded-xl border p-5 transition-all duration-300",
+              "flex flex-col gap-1.5 rounded-xl border transition-all duration-300",
               isAddendumMode 
-                ? "bg-amber-50/50 border-amber-200 ring-1 ring-amber-500/10" 
-                : "bg-green-50/50 border-emerald-200 ring-1 ring-emerald-500/10"
+                ? "bg-amber-50 border-amber-200 py-3 px-4 ring-1 ring-amber-500/5" 
+                : "bg-transparent border-[color:var(--border-subtle)] p-5"
             )}>
-              <div className="flex items-center justify-between mb-1">
-                <p className={cn(
-                  "text-[11px] font-bold uppercase tracking-widest",
-                  isAddendumMode ? "text-amber-700" : "text-emerald-700"
-                )}>
-                  Contract Terms
-                </p>
-                
-                {isAddendumMode ? (
-                  <div className="flex items-center gap-1.5 rounded-full bg-amber-100/80 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
-                    <FileEdit size={12} className="text-amber-600" />
-                    <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT OVERRIDE ⚠</span>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[14px] font-medium text-[color:var(--text-primary)]">
+                      {isAddendumMode 
+                        ? "You are overriding the MSA with project-specific terms." 
+                        : "Using your Master Service Agreement."}
+                    </p>
+                    
+                    {isAddendumMode ? (
+                      <div className="flex items-center gap-1.5 rounded-full bg-amber-100/80 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
+                        <FileEdit size={12} className="text-amber-600" />
+                        <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT OVERRIDE ⚠</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
+                        <ShieldCheck size={12} className="text-emerald-600" />
+                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED ✓</span>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-100/80 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
-                    <ShieldCheck size={12} className="text-emerald-600" />
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED ✓</span>
-                  </div>
-                )}
+                  <p className="text-[12px] text-[color:var(--text-muted)]">
+                    {isAddendumMode 
+                      ? "These will apply only to this invoice." 
+                      : "Terms locked to client defaults."}
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-1">
-                <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
-                  {isAddendumMode 
-                    ? "You are overriding the MSA with project-specific terms." 
-                    : "Using your Master Service Agreement."}
-                </p>
-                <p className="text-[12px] text-[color:var(--text-muted)] mt-0.5">
-                  {isAddendumMode 
-                    ? "These will apply only to this invoice." 
-                    : "Payment terms and legal conditions are locked to your client's MSA defaults."}
-                </p>
-              </div>
-
-              <div className="mt-3">
+              <div className="mt-2.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -330,9 +325,9 @@ export default function TermsPaymentSection({
                   className="text-[12px] font-bold link-indigo hover:underline flex items-center gap-1.5"
                 >
                   {isAddendumMode ? (
-                    <span>[← Revert to Master Agreement]</span>
+                    <span>← Revert to Master Agreement</span>
                   ) : (
-                    <span>[Override with project-specific terms →]</span>
+                    <span>Override with project-specific terms →</span>
                   )}
                 </button>
               </div>
@@ -342,7 +337,7 @@ export default function TermsPaymentSection({
           {/* Section B: Settlement & Terms */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Settlement & Terms
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -392,20 +387,23 @@ export default function TermsPaymentSection({
                 )}
               </AnimatePresence>
 
-              <div className={cn(appFieldPairGridClass, "items-start")}>
+              <div className={cn(appFieldPairGridClass, "items-start", isReadOnly && "opacity-70")}>
                   <div className="flex items-center gap-2">
                     <label className={appFieldLabelClass}>
-                      Days until payment
+                      <span className="flex items-center gap-1.5">
+                        {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                        Days until payment
+                      </span>
                       {autoFilledFields.has("meta.paymentTerms") && (
                         <span className="autofill-indicator">auto-filled</span>
                       )}
                     </label>
-                    {isAddendumMode && <Sparkles size={11} className="text-amber-500" />}
                   </div>
                   <div className="relative">
                     <input
                       type="number"
-                      disabled={isReadOnly}
+                      readOnly={isReadOnly}
+                      tabIndex={isReadOnly ? -1 : 0}
                       value={meta.paymentTerms}
                       onChange={(e) => {
                         onFieldManualEdit("meta.paymentTerms");
@@ -416,6 +414,7 @@ export default function TermsPaymentSection({
                       className={cn(
                         inputClass(paymentTermsFieldError, true),
                         getInputStateClass("meta.paymentTerms", meta.paymentTerms),
+                        isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
                         "pr-12",
                       )}
                     />
@@ -427,16 +426,20 @@ export default function TermsPaymentSection({
                   {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
                 </div>
 
-                <div className="flex flex-col gap-1.5">
+                <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                   <label className={appFieldLabelClass}>
-                    Due Date
+                    <span className="flex items-center gap-1.5">
+                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                      Due Date
+                    </span>
                     {autoFilledFields.has("meta.dueDate") && (
                       <span className="autofill-indicator">auto-filled</span>
                     )}
                   </label>
                   <input
                     type="date"
-                    disabled={isReadOnly}
+                    readOnly={isReadOnly}
+                    tabIndex={isReadOnly ? -1 : 0}
                     value={meta.dueDate}
                     onChange={(e) => {
                       onFieldManualEdit("meta.dueDate");
@@ -445,20 +448,25 @@ export default function TermsPaymentSection({
                     className={cn(
                       inputClass(undefined, Boolean(meta.dueDate)),
                       getInputStateClass("meta.dueDate", meta.dueDate),
+                      isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
                     )}
                   />
                   <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
                 </div>
 
-              <div className="flex flex-col gap-1.5">
+              <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                 <label className={appFieldLabelClass}>
-                  Terms / Notes
+                  <span className="flex items-center gap-1.5">
+                    {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                    Terms / Notes
+                  </span>
                   {autoFilledFields.has("payment.terms") && (
                     <span className="autofill-indicator">auto-filled</span>
                   )}
                 </label>
                 <textarea
-                  disabled={isReadOnly}
+                  readOnly={isReadOnly}
+                  tabIndex={isReadOnly ? -1 : 0}
                   suppressHydrationWarning
                   rows={3}
                   value={value.terms || value.notes}
@@ -470,6 +478,8 @@ export default function TermsPaymentSection({
                   className={cn(
                     inputClass(undefined, Boolean(value.terms || value.notes), true),
                     getInputStateClass("payment.terms", value.terms || value.notes),
+                    isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
+                    "min-h-[80px]",
                   )}
                 />
               </div>
@@ -479,15 +489,20 @@ export default function TermsPaymentSection({
           {/* Section C: Licensing */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Licensing
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
             </div>
 
             <div className="space-y-6">
-              <div className="flex flex-col gap-1.5">
-                <label className={appFieldLabelClass}>License Included?</label>
+              <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
+                <label className={appFieldLabelClass}>
+                  <span className="flex items-center gap-1.5">
+                    {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                    License Included?
+                  </span>
+                </label>
                 <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
                   <ChoiceCards
                     name="license-included"
@@ -507,8 +522,13 @@ export default function TermsPaymentSection({
                 {showLicenseFields && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                     <div className="space-y-6 pt-2">
-                      <div className="space-y-1.5">
-                        <label className={appFieldLabelClass}>License Type *</label>
+                      <div className={cn("space-y-1.5", isReadOnly && "opacity-70")}>
+                        <label className={appFieldLabelClass}>
+                          <span className="flex items-center gap-1.5">
+                            {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                            License Type *
+                          </span>
+                        </label>
                         <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
                           <ChoiceCards 
                             name="license-type" 
@@ -524,9 +544,12 @@ export default function TermsPaymentSection({
                       <AnimatePresence initial={false}>
                         {showLicenseDuration && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="max-w-[280px] flex flex-col gap-1.5">
+                            <div className={cn("max-w-[280px] flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                               <label className={appFieldLabelClass}>
-                                License Duration *
+                                <span className="flex items-center gap-1.5">
+                                  {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                  License Duration *
+                                </span>
                                 {autoFilledFields.has("payment.license.licenseDuration") && (
                                   <span className="autofill-indicator">auto-filled</span>
                                 )}
@@ -545,6 +568,7 @@ export default function TermsPaymentSection({
                                 className={cn(
                                   inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
                                   getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
+                                  isReadOnly && "bg-gray-50 cursor-not-allowed text-gray-600 border-transparent shadow-none",
                                 )}
                               />
                               {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
@@ -564,7 +588,7 @@ export default function TermsPaymentSection({
           {/* Section D: Bank Details */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Bank Details
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
