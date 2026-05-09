@@ -14,7 +14,7 @@ interface MSAAcceptanceModalProps {
   addendumNotes?: string;
   isSubmitting: boolean;
   onAccept: () => void;
-  onPropose: () => void;
+  onPropose?: () => void;
 }
 
 type ModalMode = "view" | "propose" | "success";
@@ -28,6 +28,7 @@ export default function MSAAcceptanceModal({
   addendumNotes,
   isSubmitting,
   onAccept,
+  onPropose,
 }: MSAAcceptanceModalProps) {
   const params = useParams();
   const token = params?.token as string;
@@ -242,14 +243,16 @@ export default function MSAAcceptanceModal({
                   >
                     {isSubmitting ? "Processing…" : "Accept Terms"}
                   </button>
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => setMode("propose")}
-                    className={`flex-1 min-w-[160px] ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
-                  >
-                    Propose Changes
-                  </button>
+                  {onPropose && (
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={onPropose}
+                      className={`flex-1 min-w-[160px] ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+                    >
+                      Propose Changes
+                    </button>
+                  )}
                 </div>
               </>
             ) : (

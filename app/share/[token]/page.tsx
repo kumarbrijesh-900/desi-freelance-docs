@@ -10,6 +10,7 @@ import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import { PrinterIcon } from "@/components/ui/app-icons";
 import MSAAcceptanceModal from "@/components/invoice/share/MSAAcceptanceModal";
 import { loadMsaForSharedInvoice } from "@/lib/supabase/invoices";
+import { prepareTemplateData } from "@/lib/templates/template-data";
 
 export default function PublicInvoiceSharePage({
   params,
@@ -29,6 +30,7 @@ export default function PublicInvoiceSharePage({
   const [isSubmittingMsa, setIsSubmittingMsa] = useState(false);
   const [isChildInvoice, setIsChildInvoice] = useState(false);
   const [parentMsaAcceptedOn, setParentMsaAcceptedOn] = useState<string | null>(null);
+  const [showAcceptedToast, setShowAcceptedToast] = useState(false);
 
   useEffect(() => {
     async function loadInvoice() {
@@ -112,6 +114,7 @@ export default function PublicInvoiceSharePage({
 
       // Success: Reveal the invoice
       setMsaStatus("accepted");
+      setShowAcceptedToast(true);
     } catch (err) {
       console.error("ACCEPT_ERROR:", err);
       alert("An unexpected error occurred.");
@@ -120,9 +123,11 @@ export default function PublicInvoiceSharePage({
     }
   };
 
-  const handleProposeChanges = () => {
-    alert("Coming next: You will be able to propose changes to these terms.");
-  };
+  useEffect(() => {
+    if (!showAcceptedToast) return;
+    const timer = setTimeout(() => setShowAcceptedToast(false), 4000);
+    return () => clearTimeout(timer);
+  }, [showAcceptedToast]);
 
   if (loading) {
     return (
@@ -160,6 +165,11 @@ export default function PublicInvoiceSharePage({
 
   const isMsaPending = msaStatus === "pending";
 
+  const templateData = formData ? prepareTemplateData(formData) : null;
+  const grandTotal = templateData?.grandTotalRaw || 0;
+  const currencySymbol = templateData?.displayCurrency === "USD" ? "$" : "₹";
+  const formattedTotal = templateData?.grandTotalFormatted?.replace(/[₹$]/, "") || "0";
+
   return (
     <>
       <style>{`
@@ -176,22 +186,57 @@ export default function PublicInvoiceSharePage({
           "mx-auto mb-10 flex max-w-[210mm] items-center justify-between print:hidden",
           isMsaPending && "opacity-20 pointer-events-none"
         )}>
-          <div className="flex items-center gap-2">
+          <a
+            href="https://lanceinvoice.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
               L
             </span>
             <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
               Lance
             </span>
-          </div>
+          </a>
           <button
             type="button"
             onClick={() => window.print()}
             className={getAppButtonClass({ variant: "secondary", size: "sm" })}
           >
             <PrinterIcon className="h-4 w-4" />
-            Print / Save PDF
+            Download PDF
           </button>
+        </div>
+
+        {/* ── Payment Summary Banner ── */}
+        <div className={cn(
+          "mx-auto mb-6 max-w-[210mm] print:hidden",
+          isMsaPending && "opacity-20 pointer-events-none"
+        )}>
+          <div className="flex items-center justify-between rounded-xl border border-[color:var(--border-default)] bg-white px-6 py-5 shadow-sm">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
+                Amount Due
+              </p>
+              <p className="text-[28px] font-black tracking-tight text-[#111118]">
+                {currencySymbol}{formattedTotal}
+              </p>
+              {invoiceNumber && (
+                <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
+                  Invoice {invoiceNumber}
+                </p>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
+                Status
+              </p>
+              <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[12px] font-semibold text-amber-700">
+                Awaiting Payment
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
@@ -227,8 +272,19 @@ export default function PublicInvoiceSharePage({
           "mx-auto text-center text-xs text-[color:var(--text-muted)] print:hidden",
           isMsaPending && "opacity-0"
         )}>
-          Invoice #{invoiceNumber} • Read-only client view
+          Invoice #{invoiceNumber} • Shared via LanceInvoice
         </p>
+        {formData?.agency?.email && !isMsaPending && (
+          <p className="mx-auto mt-2 text-center text-xs text-[color:var(--text-muted)] print:hidden">
+            Questions? Contact{" "}
+            <a
+              href={`mailto:${formData.agency.email}`}
+              className="font-medium text-[color:var(--color-indigo)] hover:underline"
+            >
+              {formData.agency.email}
+            </a>
+          </p>
+        )}
 
         {isMsaPending && msaData && (
           <MSAAcceptanceModal
@@ -240,8 +296,18 @@ export default function PublicInvoiceSharePage({
             addendumNotes={formData.payment?.notes}
             isSubmitting={isSubmittingMsa}
             onAccept={handleAcceptMsa}
-            onPropose={handleProposeChanges}
           />
+        )}
+
+        {showAcceptedToast && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center gap-2.5 rounded-xl border border-green-200 bg-green-50 px-5 py-3 shadow-lg">
+              <span className="text-green-600 text-base">✓</span>
+              <p className="text-sm font-semibold text-green-800">
+                Terms accepted — invoice is now active
+              </p>
+            </div>
+          </div>
         )}
       </main>
     </>
