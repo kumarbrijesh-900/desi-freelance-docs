@@ -101,7 +101,43 @@
 - lib/invoice-brief-intake.ts
 - app/invoices/page.tsx
 
+---
+
+## v1.6 BRAND IDENTITY & EXTRACTION REFINEMENTS — May 9, 2026
+
+### Phase P: Extraction & UX Refinements (EX-1 through EX-6)
+- ✅ EX-1 — Rate field clearance: increased padding in Items step to prevent ₹ symbol overlap with digits.
+- ✅ EX-2 — Extraction Summary redesign: added "Extracted Successfully" section with ✓ indicators in BriefSummaryModal.
+- ✅ EX-3 — GST Registration Sync: auto-set `gstRegistrationStatus = "registered"` when AI extracts a GSTIN.
+- ✅ EX-4 — Autofill Consistency: ensuring all AI-extracted client fields (Name, Email, GSTIN, State) display indigo "auto-filled" styling.
+- ✅ EX-5 — Tax Compliance Messaging: resolved contradictory messaging in Totals step; suppressed redundant warnings when agency is unregistered.
+- ✅ EX-6 — UI Polish: fixed Late Fee dropdown truncation and ensured smooth field focus transitions.
+
+### Phase Q: Brand Identity Rollout — Deep Indigo (#4F46E5)
+- ✅ ID-1 — Token Integration: defined `--brand-indigo` system in `globals.css` and Tailwind 4 `@theme`.
+- ✅ ID-2 — Stepper Hierarchy: active step badge updated from neutral to brand indigo for better visibility.
+- ✅ ID-3 — AI Card Theming: BriefIntakeCard (AI Autofill) header updated to indigo, signaling "trust & depth".
+- ✅ ID-4 — Dashboard Presence: invoices table now uses indigo for invoice numbers (as clickable links) and subtle indigo row hover tints.
+- ✅ ID-5 — Modal Success States: extraction summary icons and "Success" headers updated to indigo, replacing generic green.
+- ✅ ID-6 — Interactive Links: introduced `.link-indigo` for interactive text (e.g., "Finish Profile").
+
+### Phase R: Layout & CTA Hierarchy (LH-1 through LH-3)
+- ✅ LH-1 — Preview CTA Hierarchy: Preview button in bottom bar now uses outline style when form is incomplete; "promotes" to solid fill only when form is ready.
+- ✅ LH-2 — Address Grid Stability: fixed PIN/Postal Code field overflow in Agency and Client sections via `overflow-hidden` + `min-w-0`.
+- LH-3 — Mobile navigation polish (in progress).
+
+## Files modified in v1.6
+- app/globals.css
+- tailwind.config.ts (via CSS theme)
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/BriefIntakeCard.tsx
+- components/invoice/BriefSummaryModal.tsx
+- components/invoice/DeliverablesSection.tsx
+- components/invoice/AgencyDetailsSection.tsx
+- components/invoice/ClientDetailsSection.tsx
+- app/invoices/page.tsx
+
 ## Next
-- Ship UX-O, UX-Q (scroll, mobile nav)
-- Begin real-user testing on v1.5 UX release
-- Locked for v2: brief parsing engine, email cron, late fees, GSTIN auto-fetch
+- Finalize mobile navigation (Phase Q/UX-Q)
+- Real-world load testing on parsing engine
+- Production deployment verification (v1.6 stable)
