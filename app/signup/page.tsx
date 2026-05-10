@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-import { MotionReveal, motion } from "@/components/ui/motion-primitives";
+import { MotionReveal } from "@/components/ui/motion-primitives";
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
 import Link from "next/link";
 
@@ -31,12 +31,11 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 /* ─── Inner component reads search params ─── */
-function LoginCard() {
+function SignupCard() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
-  const isRestoring = next.includes("restore");
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -53,17 +52,15 @@ function LoginCard() {
   return (
     <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
       <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
-        {isRestoring ? "Your draft is safe" : "Get started"}
+        Create account
       </h2>
       <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
-        {isRestoring
-          ? "Sign in to save your draft to the cloud. We'll restore exactly where you left off."
-          : "Sign in to create your first invoice."}
+        Join Lance to create and manage professional GST invoices.
       </p>
 
       <button
         type="button"
-        onClick={handleGoogleLogin}
+        onClick={handleGoogleSignup}
         className={`mt-6 ${getAppButtonClass({
           variant: "secondary",
           size: "lg",
@@ -71,25 +68,25 @@ function LoginCard() {
         })} hover:!border-[color:var(--border-strong)] hover:!shadow-[0_4px_16px_rgba(17,17,24,0.06)]`}
       >
         <GoogleIcon className="h-5 w-5" />
-        Continue with Google
+        Sign up with Google
       </button>
 
       <p className="mt-6 text-center text-[13px] text-[color:var(--text-secondary)]">
-        Don't have an account?{" "}
-        <Link href="/signup" className="font-semibold text-[color:var(--brand-indigo)] hover:underline">
-          Sign up
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-[color:var(--brand-indigo)] hover:underline">
+          Log in
         </Link>
       </p>
 
       <p className="mt-6 text-[11px] leading-4 text-[color:var(--text-soft)]">
-        By continuing, you agree to our Terms and Privacy Policy.
+        By signing up, you agree to our Terms and Privacy Policy.
       </p>
     </div>
   );
 }
 
 /* ─── Page ─── */
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <main className="relative min-h-screen overflow-hidden">
       {/* Subtle gradient accent */}
@@ -114,37 +111,33 @@ export default function LoginPage() {
         <MotionReveal preset="fade-up" delay={0}>
           <div className="max-w-lg">
             <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
-              Create invoices
+              Professional invoicing,
               <br />
               <span className="text-[color:var(--color-lime-500)]">
-                that get paid.
+                simplified for you.
               </span>
             </h1>
 
             <p className="mt-5 text-[15px] leading-7 text-[color:var(--text-muted)]">
-              Fast GST invoicing for Indian freelancers.
+              The fastest way for Indian freelancers to bill clients.
               <br className="hidden sm:block" />
-              Paste a brief, get an invoice in seconds.
+              Join thousands of creatives getting paid on time.
             </p>
           </div>
         </MotionReveal>
 
         <MotionReveal preset="fade-up" delay={200}>
-          {/* Suspense required because useSearchParams needs it during SSR */}
           <Suspense
             fallback={
               <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
                 <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
-                  Get started
+                  Creating account...
                 </h2>
-                <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
-                  Sign in to create your first invoice.
-                </p>
                 <div className="mt-6 h-11 rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
               </div>
             }
           >
-            <LoginCard />
+            <SignupCard />
           </Suspense>
         </MotionReveal>
       </div>

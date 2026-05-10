@@ -200,7 +200,7 @@ export default function Home() {
             <MotionReveal preset="fade-up" delay={300}>
               <div className="mt-10 flex flex-col items-center gap-6 sm:flex-row lg:justify-start">
                 <Link
-                  href={isLoggedIn ? "/invoice/new" : "/login"}
+                  href={isLoggedIn ? "/invoice/new" : "/signup"}
                   className={cn(
                     getAppButtonClass({
                       variant: "primary",
@@ -503,7 +503,7 @@ export default function Home() {
                 onClick={() =>
                   (window.location.href = isLoggedIn
                     ? "/invoice/new"
-                    : "/login")
+                    : "/signup")
                 }
                 tapScale={0.97}
                 className="inline-flex items-center gap-2.5 rounded-[var(--app-radius-button)] border border-[#111118]/15 bg-[#111118] px-6 py-3 text-sm font-semibold text-[color:var(--color-lime-300)] shadow-[0_2px_12px_rgba(17,17,24,0.15)] transition-all hover:shadow-[0_4px_20px_rgba(17,17,24,0.25)]"
@@ -537,7 +537,7 @@ export default function Home() {
             <div className="flex gap-12 text-xs">
               <div className="space-y-3">
                 <p className="font-semibold text-[color:var(--text-primary)] uppercase tracking-[0.1em] text-[10px]">Product</p>
-                <Link href={isLoggedIn ? "/invoice/new" : "/login"} className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                <Link href={isLoggedIn ? "/invoice/new" : "/signup"} className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
                   Create Invoice
                 </Link>
                 <Link href="#how-it-works" className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">

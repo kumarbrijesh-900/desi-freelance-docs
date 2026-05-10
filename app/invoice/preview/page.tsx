@@ -431,7 +431,7 @@ function PreviewContent() {
       ? `/invoice/preview?id=${cloudInvoiceId}&restore=1`
       : "/invoice/preview?restore=1";
     const next = encodeURIComponent(nextPath);
-    const redirectTo = `${window.location.origin}/login?next=${next}`;
+    const redirectTo = `${window.location.origin}/signup?next=${next}`;
     // We already persisted the draft in handlePrint/Save/Download
     window.location.href = redirectTo;
   };
@@ -595,7 +595,7 @@ function PreviewContent() {
                       Ready to export
                     </span>
                     {/* Mobile Template Toggle */}
-                    <div className="lg:hidden relative">
+                    <div className="xl:hidden relative">
                       <button
                         onClick={() => setShowTemplatePicker(!showTemplatePicker)}
                         className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-default)] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-secondary)] hover:bg-gray-50 transition-colors"
@@ -664,15 +664,20 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Sidebar + Invoice */}
-            <div className="flex items-start gap-8 lg:gap-12 print:block">
+            <div className="flex items-start gap-8 xl:gap-12 print:block">
               {/* Template Sidebar (Desktop) */}
-              <aside className="hidden lg:block sticky top-24 h-[calc(100vh-160px)] w-[240px] shrink-0 overflow-y-auto pr-2 scrollbar-hide print:hidden">
-                <TemplatePicker
-                  selectedId={selectedTemplate}
-                  onSelect={setSelectedTemplate}
-                  userTier="free"
-                  layout="vertical"
-                />
+              <aside className="hidden xl:block sticky top-[100px] h-[calc(100vh-140px)] w-[260px] shrink-0 overflow-y-auto pr-2 scrollbar-hide print:hidden">
+                <div className="pb-10">
+                  <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+                    Template Palette
+                  </h3>
+                  <TemplatePicker
+                    selectedId={selectedTemplate}
+                    onSelect={setSelectedTemplate}
+                    userTier="free"
+                    layout="vertical"
+                  />
+                </div>
               </aside>
 
               {/* Main Layout: Centered Invoice */}
