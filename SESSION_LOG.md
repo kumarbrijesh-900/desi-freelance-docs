@@ -259,3 +259,42 @@
 - Finalize mobile navigation (Phase Q/UX-Q)
 - Real-world load testing on parsing engine
 - Beta launch announcement preparation
+
+---
+
+## v1.7 AUTHENTICATION & GUEST ACCESS — May 10, 2026
+
+### Phase XII: OAuth & Signup Flow Fixes (AF-1 through AF-3)
+
+- ✅ AF-1 — Auth Callback Handler: Created `app/auth/callback/route.ts` to process Supabase OAuth codes. This resolves the 404 error users previously encountered after Google authentication.
+- ✅ AF-2 — Dynamic Redirects: Updated login/signup pages to use dynamic origins for `redirectTo`, ensuring local dev and production both work without code changes.
+- ✅ AF-3 — Intention Persistence: Implemented a `next` parameter in the auth flow to return users to their exact drafting context after signing in.
+
+### Phase XIII: Guest Access Flow (GA-1 through GA-5)
+
+- ✅ GA-1 — Frictionless Entry: Updated landing page CTAs to direct unauthenticated users to `/invoice/new?guest=1`. This allows immediate drafting without a login wall.
+- ✅ GA-2 — Guest Mode UI: Introduced a non-intrusive "Guest mode" banner in the editor, signaling that progress is saved locally and encouraging sign-in for cloud persistence.
+- ✅ GA-3 — Unified Editor Routes: Consolidated the "Sandbox" concept into the main editor flow, replacing `/sandbox` links with the standard `/invoice/new?guest=1` path.
+- ✅ GA-4 — Conversion Reassurance: Updated `ConversionModal` messaging to explicitly confirm that local drafts are safe and will be restored after account creation.
+- ✅ AF-4 — HTML Structure Fix: Resolved a nested `div` closing error in the editor's profile prompt section that was causing layout instability.
+
+## Deployment & Production state
+
+- **Latest Build:** `v1.7-final` (Auth Fix + Guest Access)
+- **Status:** Pushed to `main`.
+- **Verification:**
+  - OAuth callback redirects correctly to intended destination.
+  - Landing page "Get Started" bypasses login for guests.
+  - Editor correctly detects and displays "Guest Mode" for unauthenticated users.
+  - Sign-in from guest mode correctly restores and saves the draft to the cloud.
+
+## Files modified in v1.7
+
+- app/auth/callback/route.ts
+- app/login/page.tsx
+- app/signup/page.tsx
+- app/page.tsx
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/ConversionModal.tsx
+- components/AppHeader.tsx
+- app/sandbox/page.tsx (deprecated)

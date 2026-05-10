@@ -1,35 +1,49 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Building2, Briefcase, Sparkle } from "lucide-react";
-import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
+import React, { useRef, useState, useEffect } from "react";
+import { Building2, Briefcase } from "lucide-react";
+import { motion, useSpring, useTransform, useMotionValue, AnimatePresence } from "framer-motion";
 
 export default function InteractiveHeroGraphic() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState(0);
+
+  // Phase sequence:
+  // 0: Forward (Agency -> Client) - 3s
+  // 1: Client Received (Pulse) - 1s
+  // 2: Return (Client -> Agency) - 3s
+  // 3: Agency Received (Pulse) - 1s
+  useEffect(() => {
+    const durations = [3000, 1000, 3000, 1000];
+    const timer = setTimeout(() => {
+      setPhase((prev) => (prev + 1) % 4);
+    }, durations[phase]);
+    return () => clearTimeout(timer);
+  }, [phase]);
 
   // Motion values for mouse position
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
   // Smooth springs for parallax effect
-  const springConfig = { damping: 25, stiffness: 150 };
+  const springConfig = { damping: 30, stiffness: 120 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
-  // Layer transforms (depth mapping)
-  const blobX = useTransform(smoothX, [-300, 300], [15, -15]);
-  const blobY = useTransform(smoothY, [-300, 300], [15, -15]);
+  // Layer transforms (depth mapping) - Reduced to max ±15px as requested
+  const blobX = useTransform(smoothX, [-300, 300], [5, -5]);
+  const blobY = useTransform(smoothY, [-300, 300], [5, -5]);
 
-  const shapesX = useTransform(smoothX, [-300, 300], [-25, 25]);
-  const shapesY = useTransform(smoothY, [-300, 300], [-25, 25]);
+  const shapesX = useTransform(smoothX, [-300, 300], [-8, 8]);
+  const shapesY = useTransform(smoothY, [-300, 300], [-8, 8]);
 
-  const cardX = useTransform(smoothX, [-300, 300], [-40, 40]);
-  const cardY = useTransform(smoothY, [-300, 300], [-40, 40]);
-  const cardRotate = useTransform(smoothX, [-300, 300], [-5, 5]);
+  const cardX = useTransform(smoothX, [-300, 300], [-12, 12]);
+  const cardY = useTransform(smoothY, [-300, 300], [-12, 12]);
+  const cardRotate = useTransform(smoothX, [-300, 300], [-3, 3]);
 
-  // Front-most elements (icons) move fastest
-  const frontX = useTransform(smoothX, [-300, 300], [-55, 55]);
-  const frontY = useTransform(smoothY, [-300, 300], [-55, 55]);
+  // Front-most elements (icons)
+  const frontX = useTransform(smoothX, [-300, 300], [-15, 15]);
+  const frontY = useTransform(smoothY, [-300, 300], [-15, 15]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -44,6 +58,18 @@ export default function InteractiveHeroGraphic() {
     mouseX.set(0);
     mouseY.set(0);
   };
+
+  const getStatusText = () => {
+    switch (phase) {
+      case 0: return "Sending invoice...";
+      case 1: return "Invoice delivered ✓";
+      case 2: return "Processing payment...";
+      case 3: return "Payment received ✓";
+      default: return "";
+    }
+  };
+
+  const isGreenText = phase === 1 || phase === 3;
 
   return (
     <div
@@ -66,15 +92,15 @@ export default function InteractiveHeroGraphic() {
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <svg width="100%" height="100%">
           <pattern
-            id="hatch"
-            width="20"
-            height="20"
+            id="hatch-hero"
+            width="24"
+            height="24"
             patternUnits="userSpaceOnUse"
             patternTransform="rotate(45)"
           >
-            <line x1="0" y1="0" x2="0" y2="20" stroke="black" strokeWidth="1" />
+            <line x1="0" y1="0" x2="0" y2="24" stroke="black" strokeWidth="1" />
           </pattern>
-          <rect width="100%" height="100%" fill="url(#hatch)" />
+          <rect width="100%" height="100%" fill="url(#hatch-hero)" />
         </svg>
       </div>
 
@@ -83,13 +109,12 @@ export default function InteractiveHeroGraphic() {
         style={{ x: shapesX, y: shapesY }}
         className="absolute inset-0 pointer-events-none"
       >
-        {/* Floating Shapes */}
         <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rounded-lg rotate-12" />
         <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[#BEFF00]/10 rounded-full" />
         <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-sm -rotate-12" />
       </motion.div>
 
-      {/* LAYER 4: UI Hint (Glassmorphic Card) */}
+      {/* LAYER 4: Glassmorphic Card */}
       <motion.div
         style={{ x: cardX, y: cardY, rotateY: cardRotate }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none perspective-[1000px]"
@@ -109,68 +134,165 @@ export default function InteractiveHeroGraphic() {
               <div className="h-1.5 w-12 bg-gray-100 rounded-full" />
               <div className="h-3 w-20 bg-gray-900 rounded-full" />
             </div>
+            {/* Required Lime Square */}
             <div className="h-8 w-8 bg-[#BEFF00] rounded-lg shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
           </div>
         </div>
       </motion.div>
 
-      {/* LAYER 5: Interactive Spline & Connection Icons (Front-most) */}
+      {/* LAYER 5: Interactive Elements (Front-most) */}
       <motion.div
         style={{ x: frontX, y: frontY }}
         className="absolute inset-0 pointer-events-none z-10"
       >
-        {/* Agency Icon (Building) */}
-        <div className="absolute top-[45%] left-[12%] flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
-            <Building2 className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+        {/* Connection Path SVG */}
+        <svg
+          className="absolute inset-0 w-full h-full overflow-visible"
+          viewBox="0 0 1000 1000"
+          preserveAspectRatio="none"
+        >
+          {/* Main dashed path connecting icons */}
+          <motion.path
+            id="lifecycle-path"
+            d="M150,500 C300,500 400,350 500,500 C600,650 700,500 850,500"
+            fill="none"
+            stroke="#E5E7EB"
+            strokeWidth="3"
+            strokeDasharray="10 8"
+          />
+          
+          {/* Traveling Dot */}
+          <motion.circle
+            r="6"
+            fill={phase < 2 ? "#BEFF00" : "#10B981"}
+            style={{ 
+              offsetPath: "path('M150,500 C300,500 400,350 500,500 C600,650 700,500 850,500')",
+              filter: "drop-shadow(0 0 8px currentColor)"
+            }}
+            animate={{ 
+              offsetDistance: phase === 0 ? "100%" : phase === 2 ? "0%" : (phase === 1 ? "100%" : "0%"),
+              opacity: (phase === 0 || phase === 2) ? 1 : 0
+            }}
+            transition={{ 
+              duration: (phase === 0 || phase === 2) ? 3 : 0, 
+              ease: "easeInOut" 
+            }}
+          />
+
+          {/* Path Labels */}
+          <foreignObject x="250" y="420" width="200" height="40">
+            <AnimatePresence>
+              {phase === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[10px] font-bold uppercase tracking-widest text-[#BEFF00] text-center"
+                >
+                  Invoice sent →
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </foreignObject>
+
+          <foreignObject x="550" y="540" width="200" height="40">
+            <AnimatePresence>
+              {phase === 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="text-[10px] font-bold uppercase tracking-widest text-[#10B981] text-center"
+                >
+                  ← Payment received
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </foreignObject>
+        </svg>
+
+        {/* Agency Icon */}
+        <div className="absolute top-[50%] left-[10%] -translate-y-1/2 flex flex-col items-center gap-3">
+          <motion.div 
+            animate={{ 
+              backgroundColor: phase === 3 ? "#10B981" : "#FFFFFF",
+              borderColor: phase === 3 ? "#10B981" : "#F3F4F6",
+              color: phase === 3 ? "#FFFFFF" : "#111827",
+              scale: phase === 3 ? 1.1 : 1
+            }}
+            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl border-2"
+          >
+            <Building2 className="h-7 w-7" strokeWidth={1.5} />
+            {/* Radiating Pulse */}
+            <AnimatePresence>
+              {phase === 3 && (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0.5 }}
+                  animate={{ scale: 2, opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }}
+                  className="absolute inset-0 rounded-2xl border-2 border-[#10B981]"
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
             Agency
           </span>
         </div>
 
-        {/* Client Icon (Briefcase) */}
-        <div className="absolute top-[38%] right-[10%] flex flex-col items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-gray-100 text-gray-900">
-            <Briefcase className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+        {/* Client Icon */}
+        <div className="absolute top-[50%] right-[10%] -translate-y-1/2 flex flex-col items-center gap-3">
+          <motion.div 
+            animate={{ 
+              backgroundColor: (phase === 1 || phase === 2) ? "#10B981" : "#FFFFFF",
+              borderColor: (phase === 1 || phase === 2) ? "#10B981" : "#F3F4F6",
+              color: (phase === 1 || phase === 2) ? "#FFFFFF" : "#111827",
+              scale: phase === 1 ? 1.1 : 1
+            }}
+            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl border-2"
+          >
+            <Briefcase className="h-7 w-7" strokeWidth={1.5} />
+            {/* Radiating Pulse */}
+            <AnimatePresence>
+              {phase === 1 && (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0.5 }}
+                  animate={{ scale: 2, opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }}
+                  className="absolute inset-0 rounded-2xl border-2 border-[#10B981]"
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
             Client
           </span>
         </div>
-
-        {/* The Connection Spline */}
-        <svg
-          className="absolute top-[40%] left-[18%] w-[65%] h-32 overflow-visible"
-          viewBox="0 0 300 100"
-        >
-          <motion.path
-            d="M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40"
-            fill="none"
-            stroke="currentColor"
-            className="text-[#BEFF00]"
-            strokeWidth="2"
-            strokeDasharray="8, 6"
-            animate={{ strokeDashoffset: [0, -28] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Traveling "Pulse" Sparkle */}
-          <motion.g
-            animate={{
-              offsetDistance: ["0%", "100%"],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              offsetPath:
-                "path('M0,50 C60,50 100,0 150,50 C200,100 240,50 300,40')",
-            }}
-          >
-            <circle r="4" fill="#BEFF00" className="blur-[2px]" />
-            <Sparkle className="h-4 w-4 -translate-x-2 -translate-y-2 text-[#BEFF00] fill-[#BEFF00]" />
-          </motion.g>
-        </svg>
       </motion.div>
+
+      {/* Status Pill */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={phase}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center gap-2.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-100 px-4 py-2 shadow-sm"
+          >
+            {isGreenText ? (
+              <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+            ) : (
+              <div className="h-2 w-2 rounded-full bg-gray-300" />
+            )}
+            <span className={isGreenText ? "text-xs font-bold text-[#10B981]" : "text-xs font-medium text-gray-500"}>
+              {getStatusText()}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
