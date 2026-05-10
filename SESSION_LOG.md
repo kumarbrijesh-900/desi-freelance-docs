@@ -208,6 +208,10 @@
 
 - ✅ UX-Q — Mobile Hamburger Menu: Implemented a responsive slide-down navigation menu for mobile users. Includes active link highlighting, automatic menu closing on navigation, and access to all core product areas (Invoices, Clients, Profile, FAQ).
 
+### Phase VIII: Dashboard Summary Redesign (UX-DS)
+
+- ✅ UX-DS — Compact Financial Snapshot: Replaced the 5-card summary grid with a single horizontal strip. Includes a hero metric for total outstanding balance, patterned pattern metrics for settled/overdue/upcoming, and a collection health progress bar. Saves ~40px of vertical space.
+
 ## Deployment & Production state
 
 - **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)

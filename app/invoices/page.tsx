@@ -72,6 +72,10 @@ function getWorkType(inv: SavedInvoice) {
   return types.slice(0, 2).join(", ") + (types.length > 2 ? " …" : "");
 }
 
+function formatCurrency(amount: number): string {
+  return "₹" + amount.toLocaleString("en-IN");
+}
+
 /* ─── Badge components ─────────────────────────── */
 
 function CombinedStatusBadge({ 
@@ -963,6 +967,8 @@ export default function InvoiceHistoryPage() {
     let dueThisWeek = 0;
     let awaitingMsa = 0;
     let settledThisMonth = 0;
+    let totalSettled = 0;
+    let totalProject = 0;
 
     invoices.forEach(inv => {
       const amount = getAmount(inv);
@@ -985,13 +991,23 @@ export default function InvoiceHistoryPage() {
         awaitingMsa++;
       }
 
-      if (inv.status === "SETTLED" && inv.settled_at) {
-        const settledDate = new Date(inv.settled_at);
-        if (settledDate >= startOfCurrentMonth) {
-          settledThisMonth += amount;
+      if (inv.status === "SETTLED") {
+        totalSettled += amount;
+        if (inv.settled_at) {
+          const settledDate = new Date(inv.settled_at);
+          if (settledDate >= startOfCurrentMonth) {
+            settledThisMonth += amount;
+          }
         }
       }
+
+      if (!inv.parent_invoice_id) {
+        totalProject += amount;
+      }
     });
+
+    const activeInvoiceCount = invoices.filter(inv => !inv.parent_invoice_id).length;
+    const collectionPercent = totalProject > 0 ? Math.round((totalSettled / totalProject) * 100) : 0;
 
     return {
       outstanding,
@@ -999,6 +1015,10 @@ export default function InvoiceHistoryPage() {
       dueThisWeek,
       awaitingMsa,
       settledThisMonth,
+      totalSettled,
+      totalProject,
+      collectionPercent,
+      activeInvoiceCount,
       msaRejected: invoices.filter((i) => i.msa_response === "REVISION ASKED").length,
     };
   }, [invoices]);
@@ -1066,80 +1086,80 @@ export default function InvoiceHistoryPage() {
             </div>
           </MotionReveal>
 
-          {/* Stat cards */}
+          {/* Stat snapshot */}
           {!loading && invoices.length > 0 && (
-            <MotionReveal
-              className="mb-6 grid grid-cols-3 gap-3 sm:grid-cols-5"
-              preset="fade-up"
-            >
-              {[
-                {
-                  label: "Outstanding",
-                  value: `₹${stats.outstanding.toLocaleString("en-IN")}`,
-                  color: "text-[color:var(--text-primary)]",
-                  accent: "bg-[color:var(--text-primary)]",
-                  icon: "⏳",
-                },
-                {
-                  label: "Overdue",
-                  value: `₹${stats.overdue.toLocaleString("en-IN")}`,
-                  color: "text-red-600",
-                  accent: "bg-red-500",
-                  icon: "⚠️",
-                },
-                {
-                  label: "Due This Week",
-                  value: `₹${stats.dueThisWeek.toLocaleString("en-IN")}`,
-                  color: "text-amber-600",
-                  accent: "bg-amber-400",
-                  icon: "📅",
-                },
-                {
-                  label: "Awaiting MSA",
-                  value: stats.awaitingMsa,
-                  subValue: `${stats.awaitingMsa} invoice${stats.awaitingMsa !== 1 ? 's' : ''}`,
-                  color: "text-amber-700",
-                  accent: "bg-amber-200",
-                  icon: "✍️",
-                },
-                {
-                  label: "Settled This Month",
-                  value: `₹${stats.settledThisMonth.toLocaleString("en-IN")}`,
-                  color: "text-[color:var(--state-success-text)]",
-                  accent: "bg-[color:var(--state-success-border)]",
-                  icon: "💰",
-                },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className={cn(
-                    "relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md",
-                    (s.label === "Awaiting MSA" || s.label === "Settled This Month") && "hidden sm:block"
-                  )}
-                >
-                  <div
-                    className={cn("absolute left-0 top-0 h-1 w-full", s.accent)}
-                  />
-                  <div className="relative z-10">
-                    <div className="flex flex-col">
-                      <span className={cn("text-xl font-bold tabular-nums", s.color)}>
-                        {s.value}
-                      </span>
-                      {s.subValue && (
-                        <span className="text-[10px] font-medium text-[color:var(--text-muted)] -mt-0.5">
-                          {s.subValue}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                      {s.label}
-                    </div>
+            <MotionReveal preset="fade-up" className="mb-6">
+              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm px-5 py-4">
+                {/* Main row */}
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  {/* Hero metric — left */}
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)]">
+                      {formatCurrency(stats.outstanding)}
+                    </span>
+                    <span className="text-[12px] text-[color:var(--text-muted)]">
+                      outstanding · {stats.activeInvoiceCount} {stats.activeInvoiceCount === 1 ? 'invoice' : 'invoices'}
+                    </span>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 text-2xl opacity-[0.03] grayscale pointer-events-none select-none">
-                    {s.icon}
+
+                  {/* Secondary metrics — right */}
+                  <div className="flex items-center gap-4 sm:gap-5">
+                    {/* Settled */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-[4px] h-[20px] rounded-full bg-green-500 shrink-0" />
+                      <div>
+                        <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Settled</p>
+                        <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
+                          {formatCurrency(stats.totalSettled)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Overdue */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-[4px] h-[20px] rounded-full bg-red-500 shrink-0" />
+                      <div>
+                        <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Overdue</p>
+                        <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
+                          {formatCurrency(stats.overdue)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Due this week */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-[4px] h-[20px] rounded-full bg-amber-400 shrink-0" />
+                      <div>
+                        <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Due this week</p>
+                        <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
+                          {formatCurrency(stats.dueThisWeek)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Settled this month */}
+                    <div className="hidden sm:flex items-center gap-1.5">
+                      <div className="w-[4px] h-[20px] rounded-full bg-[#4F46E5] shrink-0" />
+                      <div>
+                        <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">This month</p>
+                        <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
+                          {formatCurrency(stats.settledThisMonth)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              ))}
+
+                {/* Progress bar */}
+                <div className="mt-3">
+                  <div className="w-full h-[4px] rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#4F46E5] transition-all duration-500"
+                      style={{ width: `${stats.collectionPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </MotionReveal>
           )}
 
