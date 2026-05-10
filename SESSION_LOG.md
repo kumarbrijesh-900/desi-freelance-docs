@@ -220,6 +220,10 @@
 
 - ✅ UI-TE — 5 New Professional Templates: Integrated 5 new high-fidelity invoice templates (Mono, Sakura, Brutalist, Ledger, Coastal) into the system. Updated the template renderer and registry to make these accessible to Pro-tier users.
 
+### Phase XI: Preview Layout Restoration (UX-PR)
+
+- ✅ UX-PR — Sidebar Restoration: Restored the fixed template sidebar in the invoice preview page. Removed the redundant toggle button on desktop and implemented a sticky, independently-scrollable sidebar. This ensures the invoice remains stable while browsing templates. Added a mobile-responsive toggle as a fallback.
+
 ## Deployment & Production state
 
 - **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)

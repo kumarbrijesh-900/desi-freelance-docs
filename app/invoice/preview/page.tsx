@@ -594,25 +594,28 @@ function PreviewContent() {
                     <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
                       Ready to export
                     </span>
-                    <button
-                      onClick={() => setShowTemplatePicker(!showTemplatePicker)}
-                      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-default)] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-secondary)] hover:bg-gray-50 transition-colors"
-                    >
-                      Templates
-                    </button>
-                    {showTemplatePicker && (
-                      <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-[300px] rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-xl">
-                        <TemplatePicker
-                          selectedId={selectedTemplate}
-                          onSelect={(id) => {
-                            setSelectedTemplate(id);
-                            setShowTemplatePicker(false);
-                          }}
-                          userTier="free"
-                          layout="vertical"
-                        />
-                      </div>
-                    )}
+                    {/* Mobile Template Toggle */}
+                    <div className="lg:hidden relative">
+                      <button
+                        onClick={() => setShowTemplatePicker(!showTemplatePicker)}
+                        className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-default)] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-secondary)] hover:bg-gray-50 transition-colors"
+                      >
+                        Templates
+                      </button>
+                      {showTemplatePicker && (
+                        <div className="absolute left-0 top-full mt-2 z-50 w-[280px] rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-xl">
+                          <TemplatePicker
+                            selectedId={selectedTemplate}
+                            onSelect={(id) => {
+                              setSelectedTemplate(id);
+                              setShowTemplatePicker(false);
+                            }}
+                            userTier="free"
+                            layout="vertical"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <h1 className="mt-2 text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
                     {invoiceNumber?.trim() || "New Invoice"}
@@ -660,20 +663,35 @@ function PreviewContent() {
               </MotionReveal>
             )}
 
-            {/* Main Layout: Centered Invoice */}
-            <div className="flex flex-col items-center print:block">
-              {/* ─── Invoice Sheet ─── */}
-              <div className="w-full max-w-[800px]">
-                <MotionReveal
-                  className="invoice-sheet w-full rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
-                  preset="scale-in"
-                  delay={10}
-                >
-                  <TemplateRenderer
-                    formData={data}
-                    templateId={selectedTemplate}
-                  />
-                </MotionReveal>
+            {/* Main Layout: Sidebar + Invoice */}
+            <div className="flex items-start gap-8 lg:gap-12 print:block">
+              {/* Template Sidebar (Desktop) */}
+              <aside className="hidden lg:block sticky top-24 h-[calc(100vh-160px)] w-[240px] shrink-0 overflow-y-auto pr-2 scrollbar-hide print:hidden">
+                <TemplatePicker
+                  selectedId={selectedTemplate}
+                  onSelect={setSelectedTemplate}
+                  userTier="free"
+                  layout="vertical"
+                />
+              </aside>
+
+              {/* Main Layout: Centered Invoice */}
+              <div className="flex-1 min-w-0 print:block">
+                <div className="flex flex-col items-center">
+                  {/* ─── Invoice Sheet ─── */}
+                  <div className="w-full max-w-[800px]">
+                    <MotionReveal
+                      className="invoice-sheet w-full rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
+                      preset="scale-in"
+                      delay={10}
+                    >
+                      <TemplateRenderer
+                        formData={data}
+                        templateId={selectedTemplate}
+                      />
+                    </MotionReveal>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
