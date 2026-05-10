@@ -44,27 +44,27 @@ const TRUST_ITEMS = [
   {
     icon: "sparkle",
     title: "Private by Design",
-    desc: "Your data stays yours. Nothing is stored.",
+    desc: "Your data stays yours. We never sell or share it.",
   },
 ];
 
 const FEATURES = [
   {
     icon: Terminal,
-    title: "Keyboard-First Precision",
-    desc: "A streamlined, zero-bloat interface designed to capture your agency's essentials. No endless dropdowns or confusing accounting jargon.",
+    title: "Fast Invoice Builder",
+    desc: "A clean, zero-bloat interface. Paste your project brief and AI fills in the details — client info, line items, tax codes. No accounting jargon.",
     accent: "var(--color-coral-400)",
   },
   {
     icon: Scale,
-    title: "Automated Tax Nexus",
-    desc: "Built specifically for Indian tax laws. Lance automatically routes IGST, CGST, and enforces LUT compliance for zero-rated foreign exports.",
+    title: "Auto GST Calculation",
+    desc: "Built for Indian tax rules. IGST, CGST, SGST calculated automatically. LUT compliance enforced for international exports. You just fill in the amount.",
     accent: "var(--color-lime-500)",
   },
   {
     icon: LinkIcon,
-    title: "Tokenized Delivery",
-    desc: "Stop sending dead PDFs. Generate secure, tokenized web links that log client read-receipts and enforce digital MSA acceptance before viewing.",
+    title: "Share via Secure Link",
+    desc: "Stop emailing PDFs. Generate a secure link your client can view, accept terms on, and use to pay. Track when they open it.",
     accent: "var(--color-cyan-500)",
   },
 ];
@@ -111,6 +111,7 @@ function TrustIcon({ type, className }: { type: string; className?: string }) {
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { scrollY } = useScroll();
 
   // Parallax values for background shapes
@@ -178,7 +179,7 @@ export default function Home() {
             <MotionReveal preset="fade-up" delay={0}>
               <p className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-lime-400)]" />
-                Precision Invoicing for Creatives
+                Free invoicing tool for Indian freelancers
               </p>
             </MotionReveal>
 
@@ -192,7 +193,7 @@ export default function Home() {
 
             <MotionReveal preset="fade-up" delay={150}>
               <p className="mx-auto lg:mx-0 mt-6 max-w-xl text-base leading-7 text-[color:var(--text-muted)] sm:text-lg sm:leading-8">
-                No clunky dashboards. No accounting jargon. Just a precision-engineered form to generate compliant, beautiful contracts and invoices for your international and domestic clients.
+                Paste your project brief, let AI fill in the details, and send a GST-compliant invoice in under 2 minutes. Works for domestic and international clients.
               </p>
             </MotionReveal>
 
@@ -209,7 +210,7 @@ export default function Home() {
                   )}
                 >
                   <span className="inline-flex items-center gap-2.5">
-                    Create Your First Invoice
+                    {isLoggedIn ? "Create Invoice" : "Get Started Free"}
                     <ArrowRightIcon className="h-4 w-4" />
                   </span>
                 </Link>
@@ -218,7 +219,7 @@ export default function Home() {
 
             <MotionReveal preset="fade-in" delay={1200}>
               <p className="mt-12 text-xs tracking-wide text-[color:var(--text-soft)]">
-                Trusted by 200+ Indian freelancers &amp; agencies
+                Built for Indian freelancers &amp; agencies
               </p>
             </MotionReveal>
           </div>
@@ -274,10 +275,10 @@ export default function Home() {
       >
         <MotionReveal preset="fade-up" className="text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)]">
-            THE ARCHITECTURE
+            HOW IT WORKS
           </p>
           <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] text-[color:var(--text-primary)] sm:text-3xl">
-            Engineered for operators, not accountants.
+            Built for freelancers, not accountants.
           </h2>
         </MotionReveal>
 
@@ -317,6 +318,165 @@ export default function Home() {
         </MotionStagger>
       </section>
 
+      {/* ─── Pricing ─── */}
+      <section className={`${appPageContainerClass} pb-20 sm:pb-28`}>
+        <MotionReveal preset="fade-up" className="text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)]">
+            PRICING
+          </p>
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] text-[color:var(--text-primary)] sm:text-3xl">
+            Start free. Upgrade when you grow.
+          </h2>
+        </MotionReveal>
+
+        <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
+          {/* Free tier */}
+          <MotionReveal preset="fade-up" delay={0}>
+            <div className="relative rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-white p-8 transition-shadow hover:shadow-[0_8px_24px_rgba(17,17,24,0.06)]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">Free</p>
+              <p className="mt-3 text-4xl font-extrabold tracking-tight text-[color:var(--text-primary)]">₹0</p>
+              <p className="mt-1 text-sm text-[color:var(--text-muted)]">forever</p>
+              <ul className="mt-8 space-y-3 text-[13px] text-[color:var(--text-secondary)]">
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[color:var(--color-lime-600)]">✓</span>
+                  5 invoices per month
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[color:var(--color-lime-600)]">✓</span>
+                  GST auto-calculation
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[color:var(--color-lime-600)]">✓</span>
+                  AI brief parsing
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[color:var(--color-lime-600)]">✓</span>
+                  1 invoice template
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[color:var(--color-lime-600)]">✓</span>
+                  Secure share links
+                </li>
+              </ul>
+              <div className="mt-8">
+                <Link
+                  href={isLoggedIn ? "/invoice/new" : "/login"}
+                  className={cn(
+                    getAppButtonClass({ variant: "secondary", size: "md" }),
+                    "w-full justify-center"
+                  )}
+                >
+                  {isLoggedIn ? "Create Invoice" : "Get Started"}
+                </Link>
+              </div>
+            </div>
+          </MotionReveal>
+
+          {/* Pro tier */}
+          <MotionReveal preset="fade-up" delay={120}>
+            <div className="relative rounded-[var(--app-radius-card)] border-2 border-[#4F46E5] bg-white p-8 transition-shadow hover:shadow-[0_8px_24px_rgba(79,70,229,0.1)]">
+              <div className="absolute -top-3 right-6">
+                <span className="rounded-full bg-[#4F46E5] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                  Popular
+                </span>
+              </div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#4F46E5]">Pro</p>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold tracking-tight text-[color:var(--text-primary)]">₹199</span>
+                <span className="text-sm text-[color:var(--text-muted)]">/month</span>
+              </div>
+              <p className="mt-1 text-sm text-[color:var(--text-muted)]">cancel anytime</p>
+              <ul className="mt-8 space-y-3 text-[13px] text-[color:var(--text-secondary)]">
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#4F46E5]">✓</span>
+                  Unlimited invoices
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#4F46E5]">✓</span>
+                  All premium templates
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#4F46E5]">✓</span>
+                  Remove LanceInvoice branding
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#4F46E5]">✓</span>
+                  Priority AI extraction
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-[#4F46E5]">✓</span>
+                  Client read receipts
+                </li>
+              </ul>
+              <div className="mt-8">
+                <Link
+                  href={isLoggedIn ? "/invoice/new" : "/login"}
+                  className={cn(
+                    "inline-flex w-full items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold text-[13px] h-10 px-6 transition-all duration-100",
+                    "bg-[#4F46E5] text-white hover:bg-[#4338CA] shadow-sm"
+                  )}
+                >
+                  Start Pro Trial
+                </Link>
+              </div>
+            </div>
+          </MotionReveal>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─── */}
+      <section className={`${appPageContainerClass} pb-20 sm:pb-28`}>
+        <MotionReveal preset="fade-up" className="text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)]">
+            FAQ
+          </p>
+          <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] text-[color:var(--text-primary)] sm:text-3xl">
+            Common questions
+          </h2>
+        </MotionReveal>
+
+        <div className="mx-auto mt-10 max-w-2xl divide-y divide-[color:var(--border-subtle)]">
+          {[
+            {
+              q: "Is LanceInvoice really free?",
+              a: "Yes. The free plan gives you 5 invoices per month with full GST compliance, AI brief parsing, and secure share links. No credit card required to start.",
+            },
+            {
+              q: "Do I need a GST registration to use this?",
+              a: "No. LanceInvoice works for both GST-registered and unregistered freelancers. If you have a GSTIN, the tax calculations happen automatically. If you don't, invoices are generated without tax fields.",
+            },
+            {
+              q: "Can I invoice international clients?",
+              a: "Absolutely. LanceInvoice supports multi-currency invoicing with LUT compliance for zero-rated exports. Just mark a client as international and the system handles the tax rules.",
+            },
+            {
+              q: "Is my data safe?",
+              a: "Your invoices and client data are stored securely and encrypted. We never sell, share, or use your data for advertising. You can delete your account and all data at any time.",
+            },
+          ].map((faq, i) => (
+            <div key={i} className="py-5">
+              <button
+                type="button"
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                className="flex w-full items-center justify-between text-left"
+              >
+                <span className="text-[14px] font-semibold text-[color:var(--text-primary)] pr-4">
+                  {faq.q}
+                </span>
+                <span className="shrink-0 text-[color:var(--text-muted)] text-lg">
+                  {openFaq === i ? "−" : "+"}
+                </span>
+              </button>
+              {openFaq === i && (
+                <p className="mt-3 text-[13px] leading-relaxed text-[color:var(--text-muted)] pr-8">
+                  {faq.a}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ─── CTA Banner ─── */}
       <section className={`${appPageContainerClass} pb-24 sm:pb-32`}>
         <MotionReveal preset="fade-up">
@@ -349,7 +509,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2.5 rounded-[var(--app-radius-button)] border border-[#111118]/15 bg-[#111118] px-6 py-3 text-sm font-semibold text-[color:var(--color-lime-300)] shadow-[0_2px_12px_rgba(17,17,24,0.15)] transition-all hover:shadow-[0_4px_20px_rgba(17,17,24,0.25)]"
               >
                 <SparklesIcon className="h-4 w-4" />
-                Create Your First Invoice
+                {isLoggedIn ? "Create Invoice" : "Get Started Free"}
                 <ArrowRightIcon className="h-4 w-4" />
               </MotionButton>
             </div>
@@ -359,25 +519,52 @@ export default function Home() {
 
       {/* ─── Footer ─── */}
       <footer className="border-t border-[color:var(--border-subtle)]">
-        <div
-          className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
-        >
-          <p className="text-xs font-medium text-[color:var(--text-muted)]">
-            © {new Date().getFullYear()} Lance. Built for Indian freelancers.
-          </p>
-          <div className="flex gap-6 text-xs text-[color:var(--text-soft)]">
-            <Link
-              href="/terms"
-              className="hover:text-[color:var(--text-primary)] transition-colors"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-[color:var(--text-primary)] transition-colors"
-            >
-              Privacy
-            </Link>
+        <div className={`${appPageContainerClass} py-10`}>
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+                  L
+                </span>
+                <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
+                  LanceInvoice
+                </span>
+              </div>
+              <p className="mt-3 max-w-xs text-[12px] leading-5 text-[color:var(--text-muted)]">
+                GST-compliant invoicing for Indian freelancers and agencies. Free to start.
+              </p>
+            </div>
+            <div className="flex gap-12 text-xs">
+              <div className="space-y-3">
+                <p className="font-semibold text-[color:var(--text-primary)] uppercase tracking-[0.1em] text-[10px]">Product</p>
+                <Link href={isLoggedIn ? "/invoice/new" : "/login"} className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                  Create Invoice
+                </Link>
+                <Link href="#how-it-works" className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                  How It Works
+                </Link>
+              </div>
+              <div className="space-y-3">
+                <p className="font-semibold text-[color:var(--text-primary)] uppercase tracking-[0.1em] text-[10px]">Legal</p>
+                <Link href="/terms" className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                  Terms
+                </Link>
+                <Link href="/privacy" className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                  Privacy
+                </Link>
+              </div>
+              <div className="space-y-3">
+                <p className="font-semibold text-[color:var(--text-primary)] uppercase tracking-[0.1em] text-[10px]">Contact</p>
+                <a href="mailto:hello@lanceinvoice.xyz" className="block text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors">
+                  hello@lanceinvoice.xyz
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 border-t border-[color:var(--border-subtle)] pt-6 text-center">
+            <p className="text-[11px] text-[color:var(--text-soft)]">
+              © {new Date().getFullYear()} LanceInvoice. Made in India.
+            </p>
           </div>
         </div>
       </footer>
