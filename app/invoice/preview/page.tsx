@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
 import AppHeader from "@/components/AppHeader";
-import { DEFAULT_TEMPLATE_ID } from "@/lib/templates/registry";
 import TemplateRenderer from "@/lib/templates/renderer";
+import { DEFAULT_TEMPLATE_ID, TEMPLATE_REGISTRY } from "@/lib/templates/registry";
 import Link from "next/link";
 import {
   ChevronLeftIcon,
@@ -85,10 +85,37 @@ function PreviewContent() {
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
-  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [scaleToFit, setScaleToFit] = useState(0.6);
+
+  useEffect(() => {
+    const updateScale = () => {
+      if (!previewContainerRef.current) return;
+      const containerHeight = previewContainerRef.current.clientHeight;
+      const containerWidth = previewContainerRef.current.clientWidth;
+      // A4 at 96dpi: ~794px wide, ~1123px tall
+      const a4Height = 1123;
+      const a4Width = 794;
+      const scaleH = (containerHeight - 32) / a4Height; // 32px for padding
+      const scaleW = (containerWidth - 32) / a4Width;
+      const scale = Math.min(scaleH, scaleW, 1); // never scale up, only down
+      setScaleToFit(Math.max(scale, 0.3)); // minimum 0.3 to prevent too tiny
+    };
+
+    updateScale();
+    const resizeObserver = new ResizeObserver(() => updateScale());
+    if (previewContainerRef.current) {
+      resizeObserver.observe(previewContainerRef.current);
+    }
+    window.addEventListener("resize", updateScale);
+    return () => {
+      window.removeEventListener("resize", updateScale);
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const triggerToast = (message: string) => {
     setToastMessage(message);
@@ -560,6 +587,9 @@ function PreviewContent() {
         .invoice-sheet {
           break-inside: avoid;
           page-break-inside: avoid;
+          transform: none !important;
+          width: 100% !important;
+          min-height: auto !important;
         }
 
         .avoid-break {
@@ -587,40 +617,14 @@ function PreviewContent() {
         >
           <div className="mx-auto w-full max-w-[1328px]">
             {/* Minimal Header */}
-            <MotionReveal className="mb-8 print:hidden" preset="fade-up">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="relative flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
-                      Ready to export
-                    </span>
-                    {/* Mobile Template Toggle */}
-                    <div className="xl:hidden relative">
-                      <button
-                        onClick={() => setShowTemplatePicker(!showTemplatePicker)}
-                        className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-default)] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-secondary)] hover:bg-gray-50 transition-colors"
-                      >
-                        Templates
-                      </button>
-                      {showTemplatePicker && (
-                        <div className="absolute left-0 top-full mt-2 z-50 w-[280px] rounded-xl border border-[color:var(--border-default)] bg-white p-4 shadow-xl">
-                          <TemplatePicker
-                            selectedId={selectedTemplate}
-                            onSelect={(id) => {
-                              setSelectedTemplate(id);
-                              setShowTemplatePicker(false);
-                            }}
-                            userTier="free"
-                            layout="vertical"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <h1 className="mt-2 text-2xl font-bold tracking-tight text-[color:var(--text-primary)]">
-                    {invoiceNumber?.trim() || "New Invoice"}
-                  </h1>
-                </div>
+            <MotionReveal className="mb-6 print:hidden" preset="fade-up">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
+                  Ready to export
+                </span>
+                <h1 className="text-xl font-bold tracking-tight text-[color:var(--text-primary)]">
+                  {invoiceNumber?.trim() || "New Invoice"}
+                </h1>
               </div>
             </MotionReveal>
 
@@ -663,41 +667,73 @@ function PreviewContent() {
               </MotionReveal>
             )}
 
-            {/* Main Layout: Sidebar + Invoice */}
-            <div className="flex items-start gap-8 xl:gap-12 print:block">
-              {/* Template Sidebar (Desktop) */}
-              <aside className="hidden xl:block sticky top-[100px] h-[calc(100vh-140px)] w-[260px] shrink-0 overflow-y-auto pr-2 scrollbar-hide print:hidden">
-                <div className="pb-10">
-                  <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
-                    Template Palette
-                  </h3>
-                  <TemplatePicker
-                    selectedId={selectedTemplate}
-                    onSelect={setSelectedTemplate}
-                    userTier="free"
-                    layout="vertical"
+            {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
+            <div className="flex gap-0 print:block" style={{ height: "calc(100vh - 220px)" }}>
+              {/* Left: Invoice area (Hero) */}
+              <div ref={previewContainerRef} className="flex-1 flex items-start justify-center overflow-hidden py-4 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-l-2xl border border-[color:var(--border-subtle)] border-r-0">
+                <div
+                  className="invoice-sheet origin-top rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-transform duration-200 print:rounded-none print:border-0 print:shadow-none print:transform-none"
+                  style={{
+                    width: "210mm",
+                    minHeight: "297mm",
+                    transform: `scale(${scaleToFit})`,
+                    transformOrigin: "top center",
+                  }}
+                >
+                  <TemplateRenderer
+                    formData={data}
+                    templateId={selectedTemplate}
                   />
                 </div>
-              </aside>
+              </div>
 
-              {/* Main Layout: Centered Invoice */}
-              <div className="flex-1 min-w-0 print:block">
-                <div className="flex flex-col items-center">
-                  {/* ─── Invoice Sheet ─── */}
-                  <div className="w-full max-w-[800px]">
-                    <MotionReveal
-                      className="invoice-sheet w-full rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none"
-                      preset="scale-in"
-                      delay={10}
-                    >
-                      <TemplateRenderer
-                        formData={data}
-                        templateId={selectedTemplate}
-                      />
-                    </MotionReveal>
+              {/* Right: Slim Template Picker Bar */}
+              <aside className="w-[200px] shrink-0 border border-[color:var(--border-subtle)] bg-white overflow-y-auto rounded-r-2xl print:hidden scrollbar-hide">
+                <div className="p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-4">
+                    Choose Template
+                  </p>
+                  <div className="space-y-3">
+                    {TEMPLATE_REGISTRY.sort((a, b) => a.order - b.order).map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => setSelectedTemplate(template.id)}
+                        className={cn(
+                          "w-full rounded-xl border p-2.5 text-left transition-all",
+                          selectedTemplate === template.id
+                            ? "border-[#4F46E5] bg-[#4F46E5]/5 shadow-sm ring-1 ring-[#4F46E5]/20"
+                            : "border-transparent hover:border-[color:var(--border-default)] hover:bg-gray-50"
+                        )}
+                      >
+                        {/* Color swatches */}
+                        <div className="flex gap-1.5 mb-2">
+                          <div
+                            className="h-5 flex-1 rounded-md"
+                            style={{ backgroundColor: template.palette.primary }}
+                          />
+                          <div
+                            className="h-5 flex-1 rounded-md border border-gray-100"
+                            style={{ backgroundColor: template.palette.secondary }}
+                          />
+                          <div
+                            className="h-5 w-5 rounded-md"
+                            style={{ backgroundColor: template.palette.text }}
+                          />
+                        </div>
+                        {/* Template metadata */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-[color:var(--text-primary)]">
+                            {template.name}
+                          </span>
+                          {selectedTemplate === template.id && (
+                            <div className="h-1.5 w-1.5 rounded-full bg-[#4F46E5]" />
+                          )}
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
+              </aside>
             </div>
           </div>
         </section>
