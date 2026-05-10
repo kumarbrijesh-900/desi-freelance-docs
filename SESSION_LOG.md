@@ -213,10 +213,10 @@
 - **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)
 - **Status:** Pushed to `main`. Vercel automatic deployment triggered.
 - **Verification:**
-    - Landing page: Responsive & trust-focused.
-    - Dashboard: Columns optimized for mobile.
-    - Editor: Stepper and dropdowns clear of mobile UI overlaps.
-    - Navigation: Hamburger menu active and functional.
+  - Landing page: Responsive & trust-focused.
+  - Dashboard: Columns optimized for mobile.
+  - Editor: Stepper and dropdowns clear of mobile UI overlaps.
+  - Navigation: Hamburger menu active and functional.
 
 - Invoice preview is professional and decluttered.
 - Share page optimized for quick payment (prominent amount due).
