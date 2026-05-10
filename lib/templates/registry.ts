@@ -80,6 +80,46 @@ export const TEMPLATE_REGISTRY: TemplateMetadata[] = [
     palette: { primary: "#E63946", secondary: "#F1FAEE", text: "#1D3557" },
     order: 6,
   },
+  {
+    id: "mono",
+    name: "Mono",
+    description: "Developer-grade precision with monospace typography",
+    tier: "pro" as TemplateTier,
+    palette: { primary: "#111111", secondary: "#f5f5f0", text: "#00cc66" },
+    order: 7,
+  },
+  {
+    id: "sakura",
+    name: "Sakura",
+    description: "Elegant Japanese-inspired minimalism with rose accents",
+    tier: "pro" as TemplateTier,
+    palette: { primary: "#E11D48", secondary: "#FFFFFF", text: "#2D2024" },
+    order: 8,
+  },
+  {
+    id: "brutalist",
+    name: "Brutalist",
+    description: "Raw concrete aesthetic with heavy borders and bold type",
+    tier: "pro" as TemplateTier,
+    palette: { primary: "#000000", secondary: "#FFFFFF", text: "#000000" },
+    order: 9,
+  },
+  {
+    id: "ledger",
+    name: "Ledger",
+    description: "Traditional accounting style with serif type and ruled lines",
+    tier: "pro" as TemplateTier,
+    palette: { primary: "#8B7355", secondary: "#FDFBF7", text: "#1a1a1a" },
+    order: 10,
+  },
+  {
+    id: "coastal",
+    name: "Coastal",
+    description: "Ocean-inspired clarity with deep blue accents and airy spacing",
+    tier: "pro" as TemplateTier,
+    palette: { primary: "#0369A1", secondary: "#FFFFFF", text: "#1E293B" },
+    order: 11,
+  },
 ];
 
 export const DEFAULT_TEMPLATE_ID = "classic";

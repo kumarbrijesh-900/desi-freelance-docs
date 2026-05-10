@@ -18,6 +18,11 @@ import NeonAtelierTemplate from "./neon-atelier";
 import MidnightTemplate from "./midnight";
 import TerracottaTemplate from "./terracotta";
 import SwissGridTemplate from "./swiss-grid";
+import MonoTemplate from "./mono";
+import SakuraTemplate from "./sakura";
+import BrutalistTemplate from "./brutalist";
+import LedgerTemplate from "./ledger";
+import CoastalTemplate from "./coastal";
 
 interface TemplateRendererProps {
   formData: InvoiceFormData;
@@ -41,6 +46,16 @@ export default function TemplateRenderer({
       return <TerracottaTemplate data={data} />;
     case "swiss-grid":
       return <SwissGridTemplate data={data} />;
+    case "mono":
+      return <MonoTemplate data={data} />;
+    case "sakura":
+      return <SakuraTemplate data={data} />;
+    case "brutalist":
+      return <BrutalistTemplate data={data} />;
+    case "ledger":
+      return <LedgerTemplate data={data} />;
+    case "coastal":
+      return <CoastalTemplate data={data} />;
     case "classic":
     default:
       return <ClassicTemplate data={data} />;

@@ -216,6 +216,10 @@
 
 - ✅ UX-CT — Compact Legal Controls: Redesigned the "Default Contract & Payment Terms" section in the invoice editor. Moved the "Generate" button to the section header for instant access, collapsed redundant headings, and transitioned helper text into native tooltips. The layout now uses a tight 3-column grid, reducing vertical height by ~50%.
 
+### Phase X: Template Expansion (UI-TE)
+
+- ✅ UI-TE — 5 New Professional Templates: Integrated 5 new high-fidelity invoice templates (Mono, Sakura, Brutalist, Ledger, Coastal) into the system. Updated the template renderer and registry to make these accessible to Pro-tier users.
+
 ## Deployment & Production state
 
 - **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)
