@@ -1038,10 +1038,12 @@ export default function InvoiceHistoryPage() {
                 <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[28px]">
                   Invoices
                 </h1>
-                <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
-                  {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}{" "}
-                  total
-                </p>
+                {invoices.length > 0 && (
+                  <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+                    {invoices.length} invoice{invoices.length !== 1 ? "s" : ""}{" "}
+                    total
+                  </p>
+                )}
               </div>
               <Link
                 href="/invoice/new"
@@ -1150,25 +1152,46 @@ export default function InvoiceHistoryPage() {
             </div>
           ) : invoices.length === 0 ? (
             <MotionReveal preset="fade-up">
-              <div className="flex flex-col items-center gap-5 px-6 py-20 text-center rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm">
-                <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
-                  <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
-                </span>
-                <h2 className="text-lg font-semibold text-[color:var(--text-primary)]">
-                  No invoices yet
-                </h2>
-                <p className="max-w-sm text-sm text-[color:var(--text-secondary)]">
-                  Create your first invoice and send it to a client.
-                </p>
-                <Link
-                  href="/invoice/new"
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    size: "md",
-                  })}
-                >
-                  Create Invoice
-                </Link>
+              <div className="flex flex-col items-center gap-6 px-6 py-16 text-center rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F5F3FF]">
+                  <DocumentSparkIcon className="h-8 w-8 text-[#4F46E5]" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
+                    Create your first invoice
+                  </h2>
+                  <p className="mx-auto max-w-md text-sm leading-relaxed text-[color:var(--text-secondary)]">
+                    Generate GST-compliant invoices in under 2 minutes. Paste your project brief and let AI fill the details — or build one from scratch.
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <Link
+                    href="/invoice/new"
+                    className={getAppButtonClass({
+                      variant: "primary",
+                      size: "lg",
+                    })}
+                  >
+                    + New Invoice
+                  </Link>
+                  <p className="text-xs text-[color:var(--text-muted)]">
+                    Takes about 2 minutes · No payment info required
+                  </p>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-6 border-t border-[color:var(--border-subtle)] pt-6 w-full max-w-lg">
+                  <div className="text-center">
+                    <p className="text-[20px] font-bold text-[#4F46E5]">AI</p>
+                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Auto-fill from brief</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[20px] font-bold text-[#4F46E5]">GST</p>
+                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Compliant by default</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[20px] font-bold text-[#4F46E5]">PDF</p>
+                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Export & share instantly</p>
+                  </div>
+                </div>
               </div>
             </MotionReveal>
           ) : (
