@@ -208,7 +208,15 @@
 
 - ✅ UX-Q — Mobile Hamburger Menu: Implemented a responsive slide-down navigation menu for mobile users. Includes active link highlighting, automatic menu closing on navigation, and access to all core product areas (Invoices, Clients, Profile, FAQ).
 
-## Production state (Update)
+## Deployment & Production state
+
+- **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)
+- **Status:** Pushed to `main`. Vercel automatic deployment triggered.
+- **Verification:**
+    - Landing page: Responsive & trust-focused.
+    - Dashboard: Columns optimized for mobile.
+    - Editor: Stepper and dropdowns clear of mobile UI overlaps.
+    - Navigation: Hamburger menu active and functional.
 
 - Invoice preview is professional and decluttered.
 - Share page optimized for quick payment (prominent amount due).
@@ -217,7 +225,7 @@
 - Zero-to-one experience is frictionless and high-signal (premium empty states).
 - Landing page is a high-conversion sales asset with clear pricing and credibility.
 - Fully responsive mobile experience across dashboard, editor, and landing page.
-- **NEW:** Intuitive mobile navigation with hamburger menu and active state feedback.
+- Intuitive mobile navigation with hamburger menu and active state feedback.
 
 ## Files modified in v1.6 Professionalization
 
