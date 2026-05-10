@@ -84,6 +84,7 @@ function PreviewContent() {
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const defaultTitleRef = useRef<string>("");
@@ -709,6 +710,7 @@ function PreviewContent() {
             </div>
 
 
+            <div className="flex items-center gap-3">
               <MotionButton
                 type="button"
                 onClick={handlePrint}

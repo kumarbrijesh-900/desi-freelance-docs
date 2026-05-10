@@ -274,17 +274,6 @@ export default function PublicInvoiceSharePage({
         )}>
           Invoice #{invoiceNumber} • Shared via LanceInvoice
         </p>
-        {formData?.agency?.email && !isMsaPending && (
-          <p className="mx-auto mt-2 text-center text-xs text-[color:var(--text-muted)] print:hidden">
-            Questions? Contact{" "}
-            <a
-              href={`mailto:${formData.agency.email}`}
-              className="font-medium text-[color:var(--color-indigo)] hover:underline"
-            >
-              {formData.agency.email}
-            </a>
-          </p>
-        )}
 
         {isMsaPending && msaData && (
           <MSAAcceptanceModal
