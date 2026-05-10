@@ -212,6 +212,10 @@
 
 - ✅ UX-DS — Compact Financial Snapshot: Replaced the 5-card summary grid with a single horizontal strip. Includes a hero metric for total outstanding balance, patterned pattern metrics for settled/overdue/upcoming, and a collection health progress bar. Saves ~40px of vertical space.
 
+### Phase IX: Contract Terms Section Redesign (UX-CT)
+
+- ✅ UX-CT — Compact Legal Controls: Redesigned the "Default Contract & Payment Terms" section in the invoice editor. Moved the "Generate" button to the section header for instant access, collapsed redundant headings, and transitioned helper text into native tooltips. The layout now uses a tight 3-column grid, reducing vertical height by ~50%.
+
 ## Deployment & Production state
 
 - **Latest Build:** `83e874f` (Mobile Navigation & Professionalization)
