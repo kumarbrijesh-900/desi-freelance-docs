@@ -1015,6 +1015,14 @@ function EditorContent() {
   }, [isBootstrapped]);
 
   useEffect(() => {
+    async function checkAuth() {
+      const userId = await getCurrentUserId();
+      setIsGuestMode(!userId);
+    }
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
     if (!isBootstrapped) return;
 
     let cancelled = false;
@@ -2338,6 +2346,22 @@ return (
                 <span className="text-xl leading-none">&times;</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {isGuestMode && (
+        <div className="mx-auto max-w-[1328px] mb-4 px-4 sm:px-6 print:hidden">
+          <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+            <p className="text-[13px] text-[color:var(--text-secondary)]">
+              <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+            </p>
+            <Link
+              href="/login"
+              className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
+            >
+              Sign in →
+            </Link>
           </div>
         </div>
       )}

@@ -67,7 +67,7 @@ export default function ConversionModal({
 
           <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
           <p className="text-[13px] text-gray-500 leading-relaxed mb-8">
-            {subtitle}
+            Your draft is saved locally and will be restored after sign-in. Create a free account to enable cloud save, PDF export, and sharing.
           </p>
 
           <button

@@ -45,7 +45,7 @@ function LoginCard() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "https://lanceinvoice.xyz/auth/callback",
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
   };
