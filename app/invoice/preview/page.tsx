@@ -99,10 +99,12 @@ function PreviewContent() {
       // A4 at 96dpi: ~794px wide, ~1123px tall
       const a4Height = 1123;
       const a4Width = 794;
-      const scaleH = (containerHeight - 32) / a4Height; // 32px for padding
-      const scaleW = (containerWidth - 32) / a4Width;
+      const verticalPadding = 64; // 24px * 2 (py-6) + extra buffer
+      const horizontalPadding = 48; // 16px * 2 (px-4) + extra buffer
+      const scaleH = (containerHeight - verticalPadding) / a4Height;
+      const scaleW = (containerWidth - horizontalPadding) / a4Width;
       const scale = Math.min(scaleH, scaleW, 1); // never scale up, only down
-      setScaleToFit(Math.max(scale, 0.3)); // minimum 0.3 to prevent too tiny
+      setScaleToFit(Math.max(scale, 0.2)); // minimum 0.2 to prevent too tiny
     };
 
     updateScale();
@@ -582,28 +584,28 @@ function PreviewContent() {
             --text-muted: #6E6E7A;
             --border-subtle: #E2E2EA;
           }
-        }
 
-        .invoice-sheet {
-          break-inside: avoid;
-          page-break-inside: avoid;
-          transform: none !important;
-          width: 100% !important;
-          min-height: auto !important;
-        }
+          .invoice-sheet {
+            transform: none !important;
+            width: 100% !important;
+            min-height: auto !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
 
-        .avoid-break {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
+          .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
 
-        .invoice-table thead {
-          display: table-header-group;
-        }
+          .invoice-table thead {
+            display: table-header-group;
+          }
 
-        .invoice-table tr {
-          break-inside: avoid;
-          page-break-inside: avoid;
+          .invoice-table tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
         }
       `}</style>
 
@@ -668,27 +670,39 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
-            <div className="flex gap-0 print:block" style={{ height: "calc(100vh - 220px)" }}>
+            <div className="flex flex-col xl:flex-row gap-0 print:block" style={{ height: "calc(100vh - 200px)" }}>
               {/* Left: Invoice area (Hero) */}
-              <div ref={previewContainerRef} className="flex-1 flex items-start justify-center overflow-hidden py-4 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-l-2xl border border-[color:var(--border-subtle)] border-r-0">
+              <div 
+                ref={previewContainerRef} 
+                className="flex-1 flex items-start justify-center overflow-auto py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all"
+              >
                 <div
-                  className="invoice-sheet origin-top rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-transform duration-200 print:rounded-none print:border-0 print:shadow-none print:transform-none"
+                  className="invoice-sheet-wrapper relative"
                   style={{
-                    width: "210mm",
-                    minHeight: "297mm",
-                    transform: `scale(${scaleToFit})`,
-                    transformOrigin: "top center",
+                    width: `${794 * scaleToFit}px`,
+                    height: `${1123 * scaleToFit}px`,
+                    flexShrink: 0,
                   }}
                 >
-                  <TemplateRenderer
-                    formData={data}
-                    templateId={selectedTemplate}
-                  />
+                  <div
+                    className="invoice-sheet absolute top-0 left-0 rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                    style={{
+                      width: "794px",
+                      height: "1123px",
+                      transform: `scale(${scaleToFit})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <TemplateRenderer
+                      formData={data}
+                      templateId={selectedTemplate}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Right: Slim Template Picker Bar */}
-              <aside className="w-[200px] shrink-0 border border-[color:var(--border-subtle)] bg-white overflow-y-auto rounded-r-2xl print:hidden scrollbar-hide">
+              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--border-subtle)] bg-white overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
                 <div className="p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-4">
                     Choose Template
