@@ -298,3 +298,13 @@
 - components/invoice/ConversionModal.tsx
 - components/AppHeader.tsx
 - app/sandbox/page.tsx (deprecated)
+
+## [v1.8] — 2026-05-10
+### **Landing Page Simplification & Preview Overhaul**
+- **Simplified Value Proposition**: Completely removed the Pricing section from the landing page.
+- **Preview Hero Experience**: Overhauled the Invoice Preview layout (`app/invoice/preview/page.tsx`):
+    - **Viewport Scaling**: Implemented automatic scaling to fit the invoice document to the user's viewport height, eliminating vertical scrolling for the preview.
+    - **Template Picker Redesign**: Replaced the wide thumbnails with a slim, color-coded right sidebar. Each template is now represented by its distinctive color palette swatches.
+    - **Print Scoping**: Fixed a critical CSS bug where global print overrides were causing the invoice to be cropped/cut-off on screen. Scoped all full-size resets to `@media print`.
+    - **Stability**: Restored missing state variables (`showProfilePrompt`) and fixed ReferenceErrors during the transition to the new scaled layout.
+- **Vercel Deployment**: Successfully pushed and verified deployment of the new preview experience.
