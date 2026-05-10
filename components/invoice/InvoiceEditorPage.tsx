@@ -2398,7 +2398,7 @@ return (
 
             {/* Mobile interactive step pills */}
             <div
-              className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 py-4 lg:hidden"
+              className="no-scrollbar flex items-center gap-2 overflow-x-auto px-4 py-4 lg:hidden flex-nowrap scrollbar-hide"
               style={{
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
@@ -2429,7 +2429,7 @@ return (
                     <span className="opacity-80">
                       {isCompleted && !isActive ? "✓" : stepNumber}
                     </span>
-                    <span className="whitespace-nowrap">{label}</span>
+                    <span className="hidden sm:inline whitespace-nowrap">{label}</span>
                   </button>
                 );
               })}

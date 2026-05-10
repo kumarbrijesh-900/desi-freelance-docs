@@ -324,7 +324,7 @@ function LineItemCard({
   const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
-    <div className="group relative rounded-xl border border-[color:var(--border-tertiary)] bg-white p-4 transition-all hover:border-[color:var(--border-strong)] hover:shadow-sm">
+    <div className="group relative rounded-xl border border-gray-200 sm:border-[color:var(--border-tertiary)] bg-white p-4 transition-all hover:border-[color:var(--border-strong)] hover:shadow-sm">
       {/* Delete button */}
       <button
         type="button"

@@ -185,7 +185,7 @@ export default function Home() {
 
             <MotionReveal preset="fade-up" delay={0}>
               <div className="mt-8">
-                <h1 className="text-4xl font-extrabold tracking-[-0.04em] text-[color:var(--text-primary)] sm:text-6xl lg:text-7xl leading-[0.95]">
+                <h1 className="text-3xl font-extrabold tracking-[-0.04em] text-[color:var(--text-primary)] sm:text-6xl lg:text-7xl leading-[0.95]">
                   {HERO_TEXT}
                 </h1>
               </div>

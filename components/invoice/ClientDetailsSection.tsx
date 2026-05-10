@@ -281,7 +281,7 @@ export default function ClientDetailsSection({
                 />
 
                 {showSuggestions && (isLoading || effectiveClients.length > 0) && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-64 overflow-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     {isLoading ? (
                       <div className="px-3 py-4 text-center">
                         <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>

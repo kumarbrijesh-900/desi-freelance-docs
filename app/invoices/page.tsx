@@ -342,6 +342,15 @@ function InvoiceRow({
                 )}
               </span>
               <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
+              <div className="sm:hidden mt-2 flex items-center gap-2">
+                <CombinedStatusBadge 
+                  status={invoice.status} 
+                  msaStatus={invoice.msa_status ?? "pending"} 
+                  msaId={invoice.msa_id}
+                  dueDate={invoice.form_data?.meta?.dueDate}
+                />
+                <ViewsBadge count={viewCount} />
+              </div>
             </div>
           </div>
         </td>
@@ -366,7 +375,7 @@ function InvoiceRow({
         </td>
 
         {/* Status */}
-        <td className="px-4 py-4 whitespace-nowrap">
+        <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
           <div className="flex items-center">
             <CombinedStatusBadge 
               status={invoice.status} 
@@ -379,7 +388,7 @@ function InvoiceRow({
         </td>
 
         {/* Actions */}
-        <td className="px-4 py-4 whitespace-nowrap text-right w-[120px]">
+        <td className="px-4 py-4 whitespace-nowrap text-right w-[120px] hidden sm:table-cell">
           <div className={cn("relative inline-block text-left", showDropdown && "z-50")} ref={dropdownRef}>
             <button
               type="button"
@@ -1060,7 +1069,7 @@ export default function InvoiceHistoryPage() {
           {/* Stat cards */}
           {!loading && invoices.length > 0 && (
             <MotionReveal
-              className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5"
+              className="mb-6 grid grid-cols-3 gap-3 sm:grid-cols-5"
               preset="fade-up"
             >
               {[
@@ -1103,7 +1112,10 @@ export default function InvoiceHistoryPage() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md"
+                  className={cn(
+                    "relative overflow-hidden rounded-lg border border-[color:var(--border-subtle)] bg-white p-3 shadow-sm transition-all hover:shadow-md",
+                    (s.label === "Awaiting MSA" || s.label === "Settled This Month") && "hidden sm:block"
+                  )}
                 >
                   <div
                     className={cn("absolute left-0 top-0 h-1 w-full", s.accent)}
@@ -1229,7 +1241,7 @@ export default function InvoiceHistoryPage() {
                 </div>
               ) : (
                 <div className="overflow-visible rounded-b-xl">
-                  <table className="w-full min-w-[900px]">
+                  <table className="w-full min-w-full sm:min-w-[900px]">
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
                         {[
@@ -1243,7 +1255,8 @@ export default function InvoiceHistoryPage() {
                             key={h}
                             className={cn(
                               "px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]",
-                              (h === "Actions" || h === "Amount") && "text-right"
+                              (h === "Actions" || h === "Amount") && "text-right",
+                              (h === "Status" || h === "Actions") && "hidden sm:table-cell"
                             )}
                           >
                             {h}
