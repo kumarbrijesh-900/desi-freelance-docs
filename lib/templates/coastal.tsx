@@ -11,12 +11,12 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1E293B] bg-white min-h-[297mm] box-border relative flex overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1E293B] bg-white min-h-[295mm] box-border relative flex overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
 
       {/* ── Left accent strip ─────────────────── */}
       <div className="w-[6px] bg-[#0369A1] shrink-0 print:bg-[#0369A1]" />
 
-      <div className="flex-1 p-[15mm] pl-[12mm]">
+      <div className="flex-1 pt-[15mm] px-[15mm] pb-[10mm] pl-[12mm]">
 
         {/* ── Header ──────────────────────────── */}
         <header className="flex justify-between items-start mb-14">

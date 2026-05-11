@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MonoTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[#1a1a1a] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[#1a1a1a] bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Dark Header Strip ─────────────────── */}

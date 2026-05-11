@@ -10,7 +10,7 @@ import React from "react";
  */
 export function LegalDisclaimer() {
   return (
-    <div className="mt-8 px-4 max-w-2xl mx-auto text-center print:hidden">
+    <div className="mt-8 px-4 max-w-2xl mx-auto text-center print:hidden print:m-0 print:p-0 print:h-0 print:overflow-hidden">
       <p className="text-[9px] md:text-[10px] text-gray-400 leading-tight">
         This is a computer-generated document and does not require a physical
         signature. We declare that this invoice shows the actual price of the

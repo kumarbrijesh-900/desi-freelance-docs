@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['Lora',_'Georgia',_serif] text-[#1a1a1a] bg-[#FDFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['Lora',_'Georgia',_serif] text-[#1a1a1a] bg-[#FDFBF7] min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* ── Header ────────────────────────────── */}

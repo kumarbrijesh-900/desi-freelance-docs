@@ -22,7 +22,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.04] rounded-full blur-[120px] pointer-events-none z-0 print:hidden" />
       <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.05] rounded-full blur-[100px] pointer-events-none z-0 print:hidden" />

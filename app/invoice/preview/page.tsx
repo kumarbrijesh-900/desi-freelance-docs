@@ -623,14 +623,22 @@ function PreviewContent() {
             width: 210mm !important;
             min-width: 210mm !important;
             max-width: 210mm !important;
-            min-height: auto !important;
-            height: auto !important;
+            min-height: 297mm !important;
+            max-height: 297mm !important;
+            height: 297mm !important;
             margin: 0 !important;
             padding: 0 !important;
             border: none !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
+            break-inside: avoid !important;
+          }
+          * {
+            break-inside: auto;
+          }
+          .milestone-summary, header, section, footer {
+            break-inside: avoid;
           }
         }
       `}</style>
@@ -724,7 +732,7 @@ function PreviewContent() {
                 onMouseUp={() => setIsPanning(false)}
                 onMouseLeave={() => setIsPanning(false)}
                 className={cn(
-                  "flex-1 flex items-start justify-center py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
+                  "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
                   "overflow-auto cursor-grab active:cursor-grabbing"
                 )}
                 style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
@@ -774,12 +782,12 @@ function PreviewContent() {
                   }}
                 >
                   <div
-                    className="invoice-sheet absolute top-0 left-0 rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                    className="invoice-sheet relative mx-auto rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                     style={{
                       width: "794px",
                       height: "1123px",
                       transform: `scale(${effectiveZoom}) translate(${panOffset.x / effectiveZoom}px, ${panOffset.y / effectiveZoom}px)`,
-                      transformOrigin: "top center",
+                      transformOrigin: "center center",
                     }}
                   >
                     <TemplateRenderer
