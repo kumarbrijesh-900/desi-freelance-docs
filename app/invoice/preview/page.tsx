@@ -704,13 +704,17 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
+            <div 
+              className="flex flex-col xl:flex-row gap-0 print:block print:h-auto print:overflow-visible" 
+              style={{ height: "calc(100vh - 200px)" }}
+            >
               {/* Left: Invoice area (Hero) */}
               <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
                 {/* Zoom Toolbar - Truly Sticky */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
-                      const newZoom = Math.max((zoom) - 0.1, 0.2);
+                      const newZoom = Math.max(zoom - 0.1, 0.2);
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
@@ -731,7 +735,7 @@ function PreviewContent() {
                   </button>
                   <button
                     onClick={() => {
-                      const newZoom = Math.min((zoom) + 0.1, 1.5);
+                      const newZoom = Math.min(zoom + 0.1, 1.5);
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
@@ -748,7 +752,7 @@ function PreviewContent() {
                     if (e.ctrlKey || e.metaKey) {
                       e.preventDefault();
                       const delta = e.deltaY > 0 ? -0.05 : 0.05;
-                      setZoom(Math.max(0.2, Math.min(1.5, (zoom) + delta)));
+                      setZoom(Math.max(0.2, Math.min(1.5, zoom + delta)));
                     }
                   }}
                   onMouseDown={(e) => {
