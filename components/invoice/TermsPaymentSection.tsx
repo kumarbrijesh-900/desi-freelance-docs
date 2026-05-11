@@ -961,6 +961,9 @@ export default function TermsPaymentSection({
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    </div>
       </section>
     </>
   );
