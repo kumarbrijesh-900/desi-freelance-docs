@@ -93,6 +93,7 @@ function PreviewContent() {
   const [zoom, setZoom] = useState<number>(1); // 1 = 100%
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const panStart = useRef({ x: 0, y: 0 });
 
   const effectiveZoom = zoom;
@@ -658,9 +659,23 @@ function PreviewContent() {
                 <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
                   Ready to export
                 </span>
-                <h1 className="text-xl font-bold tracking-tight text-[color:var(--text-primary)]">
-                  {invoiceNumber?.trim() || "New Invoice"}
-                </h1>
+                <button
+                  onClick={() => {
+                    if (!invoiceNumber) return;
+                    navigator.clipboard.writeText(invoiceNumber.trim());
+                    setCopiedField('invoiceNumber');
+                    setTimeout(() => setCopiedField(null), 1500);
+                  }}
+                  className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
+                  title="Click to copy"
+                >
+                  <span>{invoiceNumber?.trim() || "New Invoice"}</span>
+                  {invoiceNumber && (
+                    <span className="text-[14px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
+                      {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
+                    </span>
+                  )}
+                </button>
               </div>
             </MotionReveal>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
 import type { InvoiceDisplayCurrency } from "@/lib/international-billing-options";
 import { amountToWords } from "@/lib/amount-to-words";
@@ -83,6 +83,27 @@ export default function TotalsTaxesSection({
   const subtotal = computed.subtotal;
   const taxAmount = computed.taxAmount;
   const grandTotal = computed.grandTotal;
+
+  const [displayTotal, setDisplayTotal] = useState(grandTotal);
+
+  useEffect(() => {
+    const start = displayTotal;
+    const end = grandTotal;
+    if (start === end) return;
+    
+    const duration = 400; // ms
+    const startTime = Date.now();
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setDisplayTotal(Math.round(start + (end - start) * eased));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }, [grandTotal]);
   const isRcmEnabled = value.isRcmEnabled;
 
   const updateField = <K extends keyof TaxConfig>(
@@ -219,7 +240,7 @@ export default function TotalsTaxesSection({
                     grandTotal > 0 ? "text-[#4F46E5]" : "text-gray-300"
                   )}
                 >
-                  {formatCurrency(grandTotal, currency)}
+                  {formatCurrency(displayTotal, currency)}
                 </span>
               </dd>
             </div>
@@ -241,13 +262,21 @@ export default function TotalsTaxesSection({
           {/* Advanced Tax Disclosure */}
           <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
             {!showAdvanced ? (
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(true)}
-                className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
-              >
-                Advanced tax options →
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(true)}
+                  className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
+                >
+                  Advanced tax options →
+                </button>
+                <span
+                  className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                  title="Override the default tax rate, enable Reverse Charge Mechanism (RCM), or adjust for SEZ clients."
+                >
+                  ?
+                </span>
+              </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">

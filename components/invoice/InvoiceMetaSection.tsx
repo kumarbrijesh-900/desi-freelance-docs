@@ -47,6 +47,7 @@ export default function InvoiceMetaSection({
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const updateField = <K extends keyof InvoiceMeta>(
     key: K,
@@ -130,12 +131,30 @@ export default function InvoiceMetaSection({
           </div>
 
           <div className="max-w-[320px]">
-            <label className={appFieldLabelClass}>
-              Invoice Number *
-              {autoFilledFields.has("meta.invoiceNumber") && (
-                <span className="autofill-indicator">auto-filled</span>
-              )}
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                Invoice Number *
+                {autoFilledFields.has("meta.invoiceNumber") && (
+                  <span className="autofill-indicator">auto-filled</span>
+                )}
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!value.invoiceNumber) return;
+                  navigator.clipboard.writeText(value.invoiceNumber.trim());
+                  setCopiedField('invoiceNumber');
+                  setTimeout(() => setCopiedField(null), 1500);
+                }}
+                className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
+                title="Click to copy"
+              >
+                <span className="text-[11px] font-medium">Copy</span>
+                <span className="text-[12px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
+                  {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
+                </span>
+              </button>
+            </div>
             <input
               suppressHydrationWarning
               type="text"

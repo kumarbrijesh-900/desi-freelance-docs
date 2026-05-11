@@ -323,8 +323,16 @@ export default function ClientDetailsSection({
                 {clientNameError && <p className={appFieldErrorTextClass}>{clientNameError}</p>}
               </div>
 
-              <div>
-                <label className={appFieldLabelClass}>Client Location *</label>
+              <div className="mb-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
+                  <span
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                    title="Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency)."
+                  >
+                    ?
+                  </span>
+                </div>
                 <ChoiceCards
                   name="client-location"
                   value={value.clientLocation}
@@ -385,12 +393,20 @@ export default function ClientDetailsSection({
 
                   <div className="flex flex-wrap gap-6 items-end">
                     <div className="w-full max-w-[360px]">
-                      <label className={appFieldLabelClass}>
-                        {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
-                        {autoFilledFields.has("client.clientGstin") && (
-                          <span className="autofill-indicator">auto-filled</span>
-                        )}
-                      </label>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                          {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
+                          {autoFilledFields.has("client.clientGstin") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <span
+                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                          title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
+                        >
+                          ?
+                        </span>
+                      </div>
                       <input
                         suppressHydrationWarning
                         type="text"
@@ -687,12 +703,20 @@ export default function ClientDetailsSection({
                         />
                       </div>
                       <div className="min-w-0">
-                        <label className={appFieldLabelClass}>
-                          {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
-                          {autoFilledFields.has("client.clientGstin") && (
-                            <span className="autofill-indicator">auto-filled</span>
-                          )}
-                        </label>
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                            {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
+                            {autoFilledFields.has("client.clientGstin") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <span
+                            className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                            title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
+                          >
+                            ?
+                          </span>
+                        </div>
                         <input
                           suppressHydrationWarning
                           type="text"

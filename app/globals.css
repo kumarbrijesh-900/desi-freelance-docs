@@ -802,3 +802,17 @@ input::placeholder, select::placeholder, textarea::placeholder {
 .link-indigo:hover {
   color: #4338CA;
 }
+
+@keyframes pulse-once {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes field-shimmer {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); }
+}
+
+.field-needs-attention {
+  animation: field-shimmer 2s ease-in-out 1;
+}

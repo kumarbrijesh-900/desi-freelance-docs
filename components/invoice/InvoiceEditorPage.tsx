@@ -735,6 +735,7 @@ function EditorContent() {
   } | null>(null);
   const [extractProgress, setExtractProgress] = useState(0);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
+  const [autoSaveState, setAutoSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   const markFieldsAutoFilled = (fieldPaths: string[]) => {
     setAutoFilledFields(prev => {
@@ -1525,6 +1526,8 @@ useEffect(() => {
   };
 }, [shouldConfirmExit]);
 
+
+
 useEffect(() => {
   const container = document.querySelector(".invoice-editor-scroll-area");
   if (container) {
@@ -1748,6 +1751,39 @@ const handleSaveDraft = async () => {
     triggerToast("Saved locally");
   }
 };
+
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Ctrl+S or Cmd+S = Save Draft
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      handleSaveDraft();
+    }
+    // Ctrl+Enter = Continue to next step
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (stepValidityByStep[currentStep] && getNextStep(currentStep)) {
+        scrollToStep(getNextStep(currentStep)!, { focus: true });
+      }
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [handleSaveDraft, currentStep, stepValidityByStep]);
+
+useEffect(() => {
+  if (!formData || !isFormTouched(formData)) return;
+  
+  const timer = setTimeout(async () => {
+    setAutoSaveState('saving');
+    await handleSaveDraft();
+    setAutoSaveState('saved');
+    setTimeout(() => setAutoSaveState('idle'), 2000);
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, [formData, handleSaveDraft]);
 
 const handleLoadDemoData = () => {
   const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
@@ -2516,7 +2552,7 @@ return (
                               "inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-gray-100 text-gray-400 font-medium cursor-not-allowed"
-                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm transition-all",
+                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm active:scale-[0.97] transition-all",
                             )}
                           >
                             Continue to{" "}
@@ -2555,12 +2591,18 @@ return (
                     </button>
         
                     <div className="flex items-center gap-2">
+                      {autoSaveState === 'saving' && (
+                        <span className="text-[11px] text-[color:var(--text-muted)] animate-pulse hidden sm:inline-block">Saving...</span>
+                      )}
+                      {autoSaveState === 'saved' && (
+                        <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved ✓</span>
+                      )}
                       <button
                         type="button"
                         onClick={handleSaveDraft}
                         className={cn(
                           getAppButtonClass({ variant: "ghost", size: "sm" }),
-                          "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5",
+                          "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
                         )}
                       >
                         <SaveIcon className="mr-2 h-4 w-4" />
@@ -2572,8 +2614,8 @@ return (
                         className={cn(
                           "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                           invoiceReadyForPreview
-                            ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105"
-                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)]"
+                            ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
+                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] active:scale-[0.97] transition-transform"
                         )}
                       >
                         Preview <ArrowRight className="ml-2 h-4 w-4" />
@@ -2648,7 +2690,10 @@ return (
                         className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
                       >
                         <div className="flex min-w-0 items-start gap-2">
-                          <span className="invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold">
+                          <span className={cn(
+                            "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+                            isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
+                          )}>
                             {isCompleted ? "✓" : index + 1}
                           </span>
                           <div className="min-w-0 space-y-1">

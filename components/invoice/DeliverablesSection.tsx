@@ -355,9 +355,17 @@ function LineItemCard({
             </AppSelectField>
           </div>
           {sacCode && (
-            <p className="text-[11px] font-medium text-[color:var(--text-muted)] pl-1">
-              SAC: {sacCode}
-            </p>
+            <div className="flex items-center gap-1.5 pl-1">
+              <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
+                SAC: {sacCode}
+              </p>
+              <span
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                title="Service Accounting Code — identifies the type of service for GST classification. Auto-filled based on your selected category."
+              >
+                ?
+              </span>
+            </div>
           )}
         </div>
 
@@ -465,12 +473,20 @@ function LineItemCard({
           </div>
 
           <div className="w-[160px]">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
-              Unit
-              {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
-                <span className="autofill-indicator ml-1">auto-filled</span>
-              )}
-            </label>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight m-0 p-0 block ml-0.5">
+                Unit
+                {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
+                  <span className="autofill-indicator ml-1">auto-filled</span>
+                )}
+              </label>
+              <span
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                title="How you measure delivery — per screen, per hour, per deliverable, per video, etc."
+              >
+                ?
+              </span>
+            </div>
             <AppSelectField
               value={item.rateUnit}
               onChange={(e) => {

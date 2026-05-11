@@ -498,10 +498,18 @@ export default function TermsPaymentSection({
             <div className="space-y-6">
               <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                 <label className={appFieldLabelClass}>
-                  <span className="flex items-center gap-1.5">
-                    {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                    License Included?
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5">
+                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                      License Included?
+                    </span>
+                    <span
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                      title="Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer."
+                    >
+                      ?
+                    </span>
+                  </div>
                 </label>
                 <div className={cn("inline-flex rounded-lg border border-[color:var(--border-subtle)] overflow-hidden", isReadOnly && "opacity-60 pointer-events-none")}>
                   <button
@@ -690,12 +698,20 @@ export default function TermsPaymentSection({
                           {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                         <div>
-                          <label className={appFieldLabelClass}>
-                            IFSC Code
-                            {autoFilledFields.has("payment.ifscCode") && (
-                              <span className="autofill-indicator">auto-filled</span>
-                            )}
-                          </label>
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                              IFSC Code
+                              {autoFilledFields.has("payment.ifscCode") && (
+                                <span className="autofill-indicator">auto-filled</span>
+                              )}
+                            </label>
+                            <span
+                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                              title="11-character Indian Financial System Code. Found on your cheque book or bank's website (format: ABCD0123456)."
+                            >
+                              ?
+                            </span>
+                          </div>
                           <input
                             suppressHydrationWarning
                             type="text"
