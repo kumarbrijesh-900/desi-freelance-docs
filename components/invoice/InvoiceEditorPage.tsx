@@ -103,19 +103,27 @@ import {
 import {
   cn,
   getAppButtonClass,
+  getAppFieldClass,
   getAppPanelClass,
   getAppStatusPillClass,
   getAppSubtlePanelClass,
 } from "@/lib/ui-foundation";
 import { EyeIcon, SaveIcon } from "@/components/ui/app-icons";
 
-const orderedSteps: InvoiceStepperStep[] = [
+const VALIDATION_STEPS: InvoiceStepperStep[] = [
   "agency",
   "client",
   "meta",
   "deliverables",
   "payment",
   "totals",
+];
+
+const orderedSteps: InvoiceStepperStep[] = [
+  "agency",
+  "client",
+  "deliverables",
+  "payment",
 ];
 
 const stepVariants = {
@@ -259,6 +267,19 @@ function getDemoData(invoiceNumber: string): InvoiceFormData {
       qrCodeUrl: "/dummy-qr.svg",
     },
   };
+}
+
+function formatCurrency(amount = 0, currency: string = "INR") {
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency === "INR" ? "₹" : "$"}${amount.toLocaleString("en-IN")}`;
+  }
 }
 
 function getFreshInvoiceData(): InvoiceFormData {
@@ -427,7 +448,7 @@ function getStepShortLabel(step: InvoiceStepperStep) {
 
 function getFirstInvalidStep(formData: InvoiceFormData) {
   return (
-    orderedSteps.find((step) => !isInvoiceStepValid(formData, step)) ?? null
+    VALIDATION_STEPS.find((step) => !isInvoiceStepValid(formData, step)) ?? null
   );
 }
 
@@ -495,7 +516,7 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
     addField("totals", "Export tax handling choice");
   }
 
-  return orderedSteps
+  return VALIDATION_STEPS
     .map((step) => ({
       step,
       fields: Array.from(groups.get(step) ?? []),
@@ -504,7 +525,7 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
 }
 
 function isInvoiceReadyForPreview(formData: InvoiceFormData) {
-  return orderedSteps.every((step) => isInvoiceStepValid(formData, step));
+  return VALIDATION_STEPS.every((step) => isInvoiceStepValid(formData, step));
 }
 
 function getStepDescription(step: InvoiceStepperStep) {
@@ -704,7 +725,8 @@ function EditorContent() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
-  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
+  const [showAdvancedTax, setShowAdvancedTax] = useState(false);
+  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
   const [isBriefRetry, setIsBriefRetry] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
@@ -1356,7 +1378,7 @@ function EditorContent() {
   );
   const stepValidityByStep = useMemo(
     () =>
-      orderedSteps.reduce<Record<InvoiceStepperStep, boolean>>(
+      VALIDATION_STEPS.reduce<Record<InvoiceStepperStep, boolean>>(
         (result, step) => {
           result[step] = isInvoiceStepValid(formData, step);
           return result;
@@ -1566,6 +1588,23 @@ const scrollToStep = (
   step: InvoiceStepperStep,
   options?: { focus?: boolean },
 ) => {
+  if (step === "meta") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (options?.focus) {
+      setTimeout(() => {
+        const firstInput = document.querySelector('input[type="text"], input[type="date"]');
+        (firstInput as HTMLElement)?.focus();
+      }, 300);
+    }
+    return;
+  }
+
+  if (step === "totals") {
+    const footer = document.getElementById("live-totals-footer");
+    footer?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
   guideToSection(step);
 
   const prefersReducedMotion =
@@ -2404,6 +2443,22 @@ return (
         </div>
       )}
 
+      {isGuestMode && (
+        <div className="mx-auto max-w-[1328px] px-4 mb-3 print:hidden">
+          <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+            <p className="text-[13px] text-[color:var(--text-secondary)]">
+              <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+            </p>
+            <Link
+              href="/login"
+              className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
+            >
+              Sign in →
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto grid w-full max-w-[1328px] mt-6 grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
         <div
           className={cn(
@@ -2412,22 +2467,6 @@ return (
             appSectionGapClass,
           )}
         >
-          {isGuestMode && (
-            <div className="mb-6 print:hidden">
-              <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
-                <p className="text-[13px] text-[color:var(--text-secondary)]">
-                  <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
-                </p>
-                <Link
-                  href="/login"
-                  className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
-                >
-                  Sign in →
-                </Link>
-              </div>
-            </div>
-          )}
-
           <div className="space-y-4">
             {clientMsaNote && (
               <MotionReveal preset="fade-up" className="mb-2">
@@ -2472,6 +2511,67 @@ return (
                 onCollapsedChange={setIsBriefIntakeCollapsed}
                 userEmail={userEmail}
               />
+            </div>
+
+            {/* Persistent Meta Header */}
+            <div className="rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] p-5 shadow-sm relative z-20">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
+                    Invoice Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.meta.invoiceNumber}
+                    onChange={(e) => handleMetaChange({ ...formData.meta, invoiceNumber: e.target.value })}
+                    className={cn(
+                      getAppFieldClass({ 
+                        hasError: showAllValidationErrors ? fieldErrors.meta.invoiceNumber : undefined, 
+                        hasValue: !!formData.meta.invoiceNumber 
+                      }), 
+                      "h-10 text-sm font-medium"
+                    )}
+                    placeholder="INV-001"
+                  />
+                  {fieldErrors.meta.invoiceNumber && showAllValidationErrors && (
+                    <p className="mt-1 text-[11px] text-red-500 font-medium">{fieldErrors.meta.invoiceNumber}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
+                    Invoice Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.meta.invoiceDate}
+                    onChange={(e) => handleMetaChange({ ...formData.meta, invoiceDate: e.target.value })}
+                    className={cn(
+                      getAppFieldClass({ 
+                        hasError: showAllValidationErrors ? fieldErrors.meta.invoiceDate : undefined, 
+                        hasValue: !!formData.meta.invoiceDate 
+                      }), 
+                      "h-10 text-sm font-medium"
+                    )}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
+                    Due Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.meta.dueDate}
+                    onChange={(e) => handleMetaChange({ ...formData.meta, dueDate: e.target.value })}
+                    className={cn(
+                      getAppFieldClass({ 
+                        hasError: showAllValidationErrors ? fieldErrors.meta.dueDate : undefined, 
+                        hasValue: !!formData.meta.dueDate 
+                      }), 
+                      "h-10 text-sm font-medium"
+                    )}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Mobile interactive step pills */}
@@ -2590,6 +2690,55 @@ return (
                   </InlineStepSection>
                 </motion.div>
               </AnimatePresence>
+            </div>
+
+            {/* Live Totals Footer */}
+            <div id="live-totals-footer" className="mt-12 rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] p-6 shadow-sm relative z-20">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)]">Current Total</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className={cn(
+                      "text-3xl font-bold tracking-tight transition-colors",
+                      computedTotals.grandTotal > 0 ? "text-[color:var(--text-primary)]" : "text-gray-300"
+                    )}>
+                      {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                    </span>
+                    <span className="text-sm text-[color:var(--text-muted)] font-medium">
+                      ({computedTotals.taxType === 'NONE' ? 'No Tax' : `${formData.tax.taxRate}% ${computedTotals.taxType}`})
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedTax(!showAdvancedTax)}
+                    className="text-[12px] font-bold text-[#4F46E5] hover:underline"
+                  >
+                    {showAdvancedTax ? "Hide Tax Options" : "Advanced Tax Options →"}
+                  </button>
+                  <div className="h-8 w-[1px] bg-[color:var(--border-subtle)] hidden md:block" />
+                  <div className="text-right hidden sm:block">
+                     <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)]">Subtotal</p>
+                     <p className="text-sm font-semibold text-[color:var(--text-primary)]">{formatCurrency(computedTotals.subtotal, displayCurrency)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {showAdvancedTax && (
+                <div className="mt-6 pt-6 border-t border-[color:var(--border-subtle)] animate-in fade-in slide-in-from-top-2 duration-300">
+                   <TotalsTaxesSection
+                      embedded
+                      value={derivedTaxConfig}
+                      computed={computedTotals}
+                      currency={displayCurrency}
+                      isLocked={true}
+                      onChange={(tax) => updateFormSection('tax', tax)}
+                      onExportTaxDecisionChange={showInternationalExportDecision ? (val) => updateFormSection('agency', { ...formData.agency, noLutTaxHandling: val }) : undefined}
+                   />
+                </div>
+              )}
             </div>
           </div>
 

@@ -2,16 +2,15 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { mergeInvoiceFormData } from "@/types/invoice";
 
-// We use the service role key to bypass RLS for strict gating control in the API layer
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  );
+
   const { token } = await params;
 
   if (!token) {

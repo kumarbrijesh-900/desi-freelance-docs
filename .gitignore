@@ -45,3 +45,4 @@ next-env.d.ts
 .env
 <filename>.json
 client_secret_*.json
+.env*.local
