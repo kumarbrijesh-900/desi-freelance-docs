@@ -726,7 +726,7 @@ function EditorContent() {
   const [toastMessage, setToastMessage] = useState("");
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [showAdvancedTax, setShowAdvancedTax] = useState(false);
-  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(false);
+  const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
   const [isBriefRetry, setIsBriefRetry] = useState(false);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
@@ -2717,8 +2717,9 @@ return (
             </div>
 
             {showAdvancedTax && (
-              <div className="mt-6 pt-6 border-t border-[color:var(--border-subtle)] animate-in fade-in slide-in-from-top-2 duration-300">
-                 <TotalsTaxesSection
+              <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="rounded-xl border border-[color:var(--border-subtle)] bg-white p-6 shadow-sm">
+                  <TotalsTaxesSection
                     embedded
                     value={derivedTaxConfig}
                     computed={computedTotals}
@@ -2726,7 +2727,8 @@ return (
                     isLocked={true}
                     onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
                     onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
-                 />
+                  />
+                </div>
               </div>
             )}
           </div>
