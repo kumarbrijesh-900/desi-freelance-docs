@@ -353,8 +353,8 @@ export default function TermsPaymentSection({
                       <div className="col-span-2 md:col-span-1 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-[color:var(--border-subtle)] md:pl-6">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Payment Notes</p>
                         <div className="flex items-start gap-2">
-                          <p className="text-[12px] text-[color:var(--text-secondary)] italic line-clamp-2 leading-relaxed">
-                            {value.terms ? `"${value.terms.slice(0, 100)}${value.terms.length > 100 ? '...' : ''}"` : (value.notes ? `"${value.notes.slice(0, 100)}${value.notes.length > 100 ? '...' : ''}"` : "No specific notes applied.")}
+                          <p className="text-[12px] text-[color:var(--text-secondary)] italic leading-relaxed whitespace-pre-wrap">
+                            {value.terms || value.notes || "No specific notes applied."}
                           </p>
                         </div>
                       </div>
