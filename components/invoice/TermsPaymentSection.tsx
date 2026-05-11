@@ -327,308 +327,359 @@ export default function TermsPaymentSection({
             </div>
 
             <div className="space-y-6">
-              <AnimatePresence initial={false}>
-                {isInternational && (
+              <AnimatePresence mode="wait">
+                {isReadOnly ? (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
+                    key="summary"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="bg-[color:var(--bg-surface-soft)] rounded-xl border border-[color:var(--border-subtle)] p-4 shadow-sm"
                   >
-                    <div className="space-y-1.5">
-                      <label className={appFieldLabelClass}>Settlement Type</label>
-                      <div className={cn(
-                        "inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1",
-                        isReadOnly && "opacity-60 cursor-not-allowed pointer-events-none"
-                      )}>
-                        {[
-                          { value: "forex", label: "Forex" },
-                          { value: "inr", label: "INR" },
-                          { value: "unknown", label: "Not sure" },
-                        ].map((option) => {
-                          const isSelected = value.paymentSettlementType === option.value;
-                          return (
-                            <label key={option.value} className="block cursor-pointer">
-                              <input
-                                type="radio"
-                                name="payment-settlement-type"
-                                value={option.value}
-                                checked={value.paymentSettlementType === option.value}
-                                onChange={() => updateField("paymentSettlementType", option.value as any)}
-                                disabled={isReadOnly}
-                                className="sr-only"
-                              />
-                              <span className={cn("flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
-                                {option.label}
-                              </span>
-                            </label>
-                          );
-                        })}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Payment Schedule</p>
+                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                          {meta.paymentTerms === 0 ? "Due on Receipt" : `Net ${meta.paymentTerms} Days`}
+                        </p>
+                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5">
+                          {meta.dueDate ? `Due: ${new Date(meta.dueDate).toLocaleDateString('en-GB')}` : "No date set"}
+                        </p>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
-              <div className={cn("grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-end", isReadOnly && "opacity-70")}>
-                <div className="flex flex-col gap-2">
-                  <label className={appFieldLabelClass}>
-                    <span className="flex items-center gap-1.5">
-                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                      Days until payment
-                    </span>
-                    {autoFilledFields.has("meta.paymentTerms") && (
-                      <span className="autofill-indicator">auto-filled</span>
-                    )}
-                  </label>
-                  
-                  <div className="flex flex-wrap gap-1.5">
-                    {[0, 15, 30, 45, 60].map((days) => (
-                      <button
-                        key={days}
-                        type="button"
-                        disabled={isReadOnly}
-                        onClick={() => handleDaysChange(days)}
-                        className={cn(
-                          "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
-                          meta.paymentTerms === days
-                            ? "bg-[#111] border-[#111] text-white shadow-sm"
-                            : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
-                          isReadOnly && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        {days === 0 ? "Receipt" : `Net ${days}`}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Intellectual Property</p>
+                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                          {value.license.isLicenseIncluded ? "License Included ✓" : "No License"}
+                        </p>
+                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5 truncate max-w-[150px]">
+                          {value.license.isLicenseIncluded 
+                            ? `${value.license.licenseType?.split('-').join(' ')}` 
+                            : "Standard usage terms"}
+                        </p>
+                      </div>
 
-                <div className="relative min-w-[120px]">
-                  <input
-                    type="number"
-                    readOnly={isReadOnly}
-                    tabIndex={isReadOnly ? -1 : 0}
-                    value={meta.paymentTerms}
-                    onChange={(e) => {
-                      onFieldManualEdit("meta.paymentTerms");
-                      handleDaysChange(parseInt(e.target.value, 10) || 0);
-                    }}
-                    onBlur={() => markTouched("paymentTerms")}
-                    placeholder="15"
-                    className={cn(
-                      inputClass(paymentTermsFieldError, true),
-                      !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
-                      isReadOnly && "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100 shadow-none",
-                      "pr-12 text-right sm:text-left",
-                    )}
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-1.5">
-                <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
-                  {meta.paymentTerms === 0 
-                    ? "Payment expected as soon as client receives invoice." 
-                    : `Calculated as ${meta.paymentTerms} days after issue date.`}
-                </p>
-                {isReadOnly && (
-                  <button 
-                    type="button"
-                    onClick={() => updateMetaField("hasAddendum", true)}
-                    className="text-[10px] font-bold text-[#4F46E5] hover:underline"
-                  >
-                    Override to edit →
-                  </button>
-                )}
-              </div>
-              {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
-
-                <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
-                  <label className={appFieldLabelClass}>
-                    <span className="flex items-center gap-1.5">
-                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                      Due Date
-                    </span>
-                    {autoFilledFields.has("meta.dueDate") && (
-                      <span className="autofill-indicator">auto-filled</span>
-                    )}
-                  </label>
-                  <input
-                    type="date"
-                    readOnly={isReadOnly}
-                    tabIndex={isReadOnly ? -1 : 0}
-                    value={meta.dueDate}
-                    onChange={(e) => {
-                      onFieldManualEdit("meta.dueDate");
-                      handleDateChange(e.target.value);
-                    }}
-                    className={cn(
-                      inputClass(undefined, Boolean(meta.dueDate)),
-                      !isReadOnly && getInputStateClass("meta.dueDate", meta.dueDate),
-                      isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
-                    )}
-                  />
-                  <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
-                </div>
-
-              <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
-                <label className={appFieldLabelClass}>
-                  <span className="flex items-center gap-1.5">
-                    {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                    Terms / Notes
-                  </span>
-                  {autoFilledFields.has("payment.terms") && (
-                    <span className="autofill-indicator">auto-filled</span>
-                  )}
-                </label>
-                <textarea
-                  readOnly={isReadOnly}
-                  tabIndex={isReadOnly ? -1 : 0}
-                  suppressHydrationWarning
-                  rows={3}
-                  value={value.terms || value.notes}
-                  onChange={(e) => {
-                    onFieldManualEdit("payment.terms");
-                    updateField("terms", e.target.value);
-                  }}
-                  placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
-                  className={cn(
-                    inputClass(undefined, Boolean(value.terms || value.notes), true),
-                    !isReadOnly && getInputStateClass("payment.terms", value.terms || value.notes),
-                    isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
-                    "min-h-[80px]",
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section C: Licensing */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
-                Licensing
-              </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
-            </div>
-
-            <div className="space-y-6">
-              <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
-                <label className={appFieldLabelClass}>
-                  <div className="flex items-center gap-1.5">
-                    <span className="flex items-center gap-1.5">
-                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                      License Included?
-                    </span>
-                    <span
-                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
-                      title="Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer."
-                    >
-                      ?
-                    </span>
-                  </div>
-                </label>
-                <div className={cn("inline-flex rounded-lg border border-[color:var(--border-subtle)] overflow-hidden", isReadOnly && "opacity-60 pointer-events-none")}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      updateLicenseField("isLicenseIncluded", true);
-                    }}
-                    className={cn(
-                      "px-6 py-1.5 text-[13px] font-medium transition-colors",
-                      value.license.isLicenseIncluded
-                        ? "bg-[#111] text-white"
-                        : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
-                    )}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
-                    }}
-                    className={cn(
-                      "px-6 py-1.5 text-[13px] font-medium transition-colors",
-                      !value.license.isLicenseIncluded
-                        ? "bg-[#111] text-white"
-                        : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
-                    )}
-                  >
-                    No
-                  </button>
-                </div>
-              </div>
-
-              <AnimatePresence initial={false}>
-                {showLicenseFields && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="space-y-6 pt-2">
-                      <div className={cn("space-y-1.5", isReadOnly && "opacity-70")}>
-                        <label className={appFieldLabelClass}>
-                          <span className="flex items-center gap-1.5">
-                            {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                            License Type *
-                          </span>
-                        </label>
-                        <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
-                          <ChoiceCards 
-                            name="license-type" 
-                            value={value.license.licenseType} 
-                            disabled={isReadOnly}
-                            onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} 
-                            variant="inline" 
-                            options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} 
-                          />
+                      <div className="col-span-2 md:col-span-1 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-[color:var(--border-subtle)] md:pl-6">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Payment Notes</p>
+                        <div className="flex items-start gap-2">
+                          <p className="text-[12px] text-[color:var(--text-secondary)] italic line-clamp-2 leading-relaxed">
+                            {value.terms ? `"${value.terms.slice(0, 100)}${value.terms.length > 100 ? '...' : ''}"` : (value.notes ? `"${value.notes.slice(0, 100)}${value.notes.length > 100 ? '...' : ''}"` : "No specific notes applied.")}
+                          </p>
                         </div>
                       </div>
-
-                      <AnimatePresence initial={false}>
-                        {showLicenseDuration && (
-                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className={cn("max-w-[280px] flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
-                              <label className={appFieldLabelClass}>
-                                <span className="flex items-center gap-1.5">
-                                  {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                                  License Duration *
-                                </span>
-                                {autoFilledFields.has("payment.license.licenseDuration") && (
-                                  <span className="autofill-indicator">auto-filled</span>
-                                )}
-                              </label>
-                              <input
-                                disabled={isReadOnly}
-                                suppressHydrationWarning
-                                type="text"
-                                value={value.license.licenseDuration}
-                                onChange={(e) => {
-                                  onFieldManualEdit("payment.license.licenseDuration");
-                                  updateLicenseField("licenseDuration", e.target.value);
-                                }}
-                                onBlur={() => markTouched("licenseDuration")}
-                                placeholder="Example: 3 years"
-                                className={cn(
-                                  inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
-                                  !isReadOnly && getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
-                                  isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
-                                )}
-                              />
-                              {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="full-form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="space-y-8"
+                  >
+                    <AnimatePresence initial={false}>
+                      {isInternational && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="space-y-1.5">
+                            <label className={appFieldLabelClass}>Settlement Type</label>
+                            <div className={cn(
+                              "inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1",
+                              isReadOnly && "opacity-60 cursor-not-allowed pointer-events-none"
+                            )}>
+                              {[
+                                { value: "forex", label: "Forex" },
+                                { value: "inr", label: "INR" },
+                                { value: "unknown", label: "Not sure" },
+                              ].map((option) => {
+                                const isSelected = value.paymentSettlementType === option.value;
+                                return (
+                                  <label key={option.value} className="block cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name="payment-settlement-type"
+                                      value={option.value}
+                                      checked={value.paymentSettlementType === option.value}
+                                      onChange={() => updateField("paymentSettlementType", option.value as any)}
+                                      disabled={isReadOnly}
+                                      className="sr-only"
+                                    />
+                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
+                                      {option.label}
+                                    </span>
+                                  </label>
+                                );
+                              })}
                             </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                      <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)] bg-[color:var(--bg-surface-muted)]/50 p-3 rounded-lg border border-[color:var(--border-subtle)]">{licenseExplanation}</p>
+                    <div className="space-y-6">
+                      <div className={cn("grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-end", isReadOnly && "opacity-70")}>
+                        <div className="flex flex-col gap-2">
+                          <label className={appFieldLabelClass}>
+                            <span className="flex items-center gap-1.5">
+                              {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                              Days until payment
+                            </span>
+                            {autoFilledFields.has("meta.paymentTerms") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          
+                          <div className="flex flex-wrap gap-1.5">
+                            {[0, 15, 30, 45, 60].map((days) => (
+                              <button
+                                key={days}
+                                type="button"
+                                disabled={isReadOnly}
+                                onClick={() => handleDaysChange(days)}
+                                className={cn(
+                                  "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
+                                  meta.paymentTerms === days
+                                    ? "bg-[#111] border-[#111] text-white shadow-sm"
+                                    : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
+                                  isReadOnly && "opacity-50 cursor-not-allowed"
+                                )}
+                              >
+                                {days === 0 ? "Receipt" : `Net ${days}`}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="relative min-w-[120px]">
+                          <input
+                            type="number"
+                            readOnly={isReadOnly}
+                            tabIndex={isReadOnly ? -1 : 0}
+                            value={meta.paymentTerms}
+                            onChange={(e) => {
+                              onFieldManualEdit("meta.paymentTerms");
+                              handleDaysChange(parseInt(e.target.value, 10) || 0);
+                            }}
+                            onBlur={() => markTouched("paymentTerms")}
+                            placeholder="15"
+                            className={cn(
+                              inputClass(paymentTermsFieldError, true),
+                              !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
+                              isReadOnly && "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100 shadow-none",
+                              "pr-12 text-right sm:text-left",
+                            )}
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
+                          {meta.paymentTerms === 0 
+                            ? "Payment expected as soon as client receives invoice." 
+                            : `Calculated as ${meta.paymentTerms} days after issue date.`}
+                        </p>
+                        {isReadOnly && (
+                          <button 
+                            type="button"
+                            onClick={() => updateMetaField("hasAddendum", true)}
+                            className="text-[10px] font-bold text-[#4F46E5] hover:underline"
+                          >
+                            Override to edit →
+                          </button>
+                        )}
+                      </div>
+                      {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
+                    </div>
+
+                    <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
+                      <label className={appFieldLabelClass}>
+                        <span className="flex items-center gap-1.5">
+                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                          Due Date
+                        </span>
+                        {autoFilledFields.has("meta.dueDate") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
+                      <input
+                        type="date"
+                        readOnly={isReadOnly}
+                        tabIndex={isReadOnly ? -1 : 0}
+                        value={meta.dueDate}
+                        onChange={(e) => {
+                          onFieldManualEdit("meta.dueDate");
+                          handleDateChange(e.target.value);
+                        }}
+                        className={cn(
+                          inputClass(undefined, Boolean(meta.dueDate)),
+                          !isReadOnly && getInputStateClass("meta.dueDate", meta.dueDate),
+                          isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                        )}
+                      />
+                      <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
+                    </div>
+
+                    <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
+                      <label className={appFieldLabelClass}>
+                        <span className="flex items-center gap-1.5">
+                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                          Terms / Notes
+                        </span>
+                        {autoFilledFields.has("payment.terms") && (
+                          <span className="autofill-indicator">auto-filled</span>
+                        )}
+                      </label>
+                      <textarea
+                        readOnly={isReadOnly}
+                        tabIndex={isReadOnly ? -1 : 0}
+                        suppressHydrationWarning
+                        rows={3}
+                        value={value.terms || value.notes}
+                        onChange={(e) => {
+                          onFieldManualEdit("payment.terms");
+                          updateField("terms", e.target.value);
+                        }}
+                        placeholder="Example: 1.5% monthly late fee applies. Final files delivered after full payment."
+                        className={cn(
+                          inputClass(undefined, Boolean(value.terms || value.notes), true),
+                          !isReadOnly && getInputStateClass("payment.terms", value.terms || value.notes),
+                          isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                          "min-h-[80px]",
+                        )}
+                      />
+                    </div>
+
+                    <div className="pt-4 border-t border-[color:var(--border-subtle)]">
+                      <div className="space-y-6">
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-center gap-1.5">
+                            <label className={appFieldLabelClass}>
+                              <span className="flex items-center gap-1.5">
+                                {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                License Included?
+                              </span>
+                            </label>
+                            <span
+                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                              title="Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer."
+                            >
+                              ?
+                            </span>
+                          </div>
+                          
+                          <div className={cn(
+                            "flex overflow-hidden rounded-lg border border-[color:var(--border-subtle)] w-fit bg-white",
+                            isReadOnly && "opacity-60 pointer-events-none"
+                          )}>
+                            <button
+                              type="button"
+                              disabled={isReadOnly}
+                              onClick={() => {
+                                updateLicenseField("isLicenseIncluded", true);
+                              }}
+                              className={cn(
+                                "px-6 py-1.5 text-[13px] font-medium border-r border-[color:var(--border-subtle)] transition-colors",
+                                value.license.isLicenseIncluded
+                                  ? "bg-[#111] text-white"
+                                  : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                              )}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isReadOnly}
+                              onClick={() => {
+                                onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
+                              }}
+                              className={cn(
+                                "px-6 py-1.5 text-[13px] font-medium transition-colors",
+                                !value.license.isLicenseIncluded
+                                  ? "bg-[#111] text-white"
+                                  : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                              )}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+
+                        <AnimatePresence initial={false}>
+                          {showLicenseFields && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                              <div className="space-y-6 pt-2">
+                                <div className={cn("space-y-1.5", isReadOnly && "opacity-70")}>
+                                  <label className={appFieldLabelClass}>
+                                    <span className="flex items-center gap-1.5">
+                                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                      License Type *
+                                    </span>
+                                  </label>
+                                  <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
+                                    <ChoiceCards 
+                                      name="license-type" 
+                                      value={value.license.licenseType} 
+                                      disabled={isReadOnly}
+                                      onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} 
+                                      variant="inline" 
+                                      options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} 
+                                    />
+                                  </div>
+                                </div>
+
+                                <AnimatePresence initial={false}>
+                                  {showLicenseDuration && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                                      <div className={cn("max-w-[280px] flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
+                                        <label className={appFieldLabelClass}>
+                                          <span className="flex items-center gap-1.5">
+                                            {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                            License Duration *
+                                          </span>
+                                          {autoFilledFields.has("payment.license.licenseDuration") && (
+                                            <span className="autofill-indicator">auto-filled</span>
+                                          )}
+                                        </label>
+                                        <input
+                                          disabled={isReadOnly}
+                                          suppressHydrationWarning
+                                          type="text"
+                                          value={value.license.licenseDuration}
+                                          onChange={(e) => {
+                                            onFieldManualEdit("payment.license.licenseDuration");
+                                            updateLicenseField("licenseDuration", e.target.value);
+                                          }}
+                                          onBlur={() => markTouched("licenseDuration")}
+                                          placeholder="Example: 3 years"
+                                          className={cn(
+                                            inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
+                                            !isReadOnly && getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
+                                            isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                                          )}
+                                        />
+                                        {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+
+                                <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)] bg-[color:var(--bg-surface-muted)]/50 p-3 rounded-lg border border-[color:var(--border-subtle)]">{licenseExplanation}</p>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          </div>
-
           {/* Section D: Bank Details */}
           <div>
             <div className="mb-4">
