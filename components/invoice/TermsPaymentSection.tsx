@@ -443,8 +443,7 @@ export default function TermsPaymentSection({
                   </button>
                 )}
               </div>
-                  {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
-                </div>
+              {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
 
                 <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                   <label className={appFieldLabelClass}>
