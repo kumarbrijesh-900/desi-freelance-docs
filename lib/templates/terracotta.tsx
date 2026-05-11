@@ -77,7 +77,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
               <div className="mt-1.5 flex flex-wrap gap-3 text-[10px] text-[#B09080]">
                 {data.agencyState && (
                   <span>
-                    State: {data.agencyState}
+                    State: {data.agencyState?.replace(/\s*\(\d+\)/, '')}
                   </span>
                 )}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
