@@ -264,51 +264,43 @@ export default function TermsPaymentSection({
         )}
 
         <div className="space-y-10">
-          {/* Section A: Contract Terms */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
-                Contract Terms
-              </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
-            </div>
-
-            <div className={cn(
-              "flex flex-col gap-1.5 rounded-xl border transition-all duration-300",
-              isAddendumMode 
-                ? "bg-amber-50 border-amber-200 py-3 px-4 ring-1 ring-amber-500/5" 
-                : "bg-transparent border-[color:var(--border-subtle)] p-5"
-            )}>
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <p className="text-[14px] font-medium text-[color:var(--text-primary)]">
-                      {isAddendumMode 
-                        ? "You are overriding the MSA with project-specific terms." 
-                        : msaDetailLabel}
-                    </p>
-                    
-                    {isAddendumMode ? (
-                      <div className="flex items-center gap-1.5 rounded-full bg-amber-100/80 px-2.5 py-1 ring-1 ring-inset ring-amber-600/20">
-                        <FileEdit size={12} className="text-amber-600" />
-                        <span className="text-[10px] font-bold text-amber-700 uppercase tracking-tight">PROJECT OVERRIDE ⚠</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
-                        <ShieldCheck size={12} className="text-emerald-600" />
-                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">{msaSourceLabel}</span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[12px] text-[color:var(--text-muted)]">
-                    {isAddendumMode 
-                      ? "These will apply only to this invoice." 
-                      : "Terms locked to client defaults."}
-                  </p>
-                </div>
+          {/* Section: Payment & Contract Terms */}
+          <div className="space-y-6">
+            <div>
+              <div className="mb-4">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
+                  Payment & Contract Terms
+                </h3>
+                <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
               </div>
 
-              <div className="mt-2.5">
+              {/* Authority Status Bar */}
+              <div className={cn(
+                "flex items-center justify-between rounded-xl border px-4 py-3 transition-all duration-300 mb-6",
+                isAddendumMode 
+                  ? "bg-amber-50 border-amber-200 ring-1 ring-amber-500/5" 
+                  : "bg-[color:var(--bg-surface-soft)] border-[color:var(--border-subtle)]"
+              )}>
+                <div className="flex items-center gap-3">
+                  {isAddendumMode ? (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                      <FileEdit size={16} />
+                    </div>
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                      <ShieldCheck size={16} />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                      {isAddendumMode ? "Project Override Active" : msaSourceLabel}
+                    </p>
+                    <p className="text-[11px] text-[color:var(--text-muted)]">
+                      {isAddendumMode ? "Terms applied only to this invoice." : msaDetailLabel}
+                    </p>
+                  </div>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -327,25 +319,11 @@ export default function TermsPaymentSection({
                       updateLicenseField("licenseType", msaLicenseType);
                     }
                   }}
-                  className="text-[12px] font-bold link-indigo hover:underline flex items-center gap-1.5"
+                  className="text-[11px] font-bold text-[#4F46E5] hover:underline bg-white px-3 py-1.5 rounded-lg border border-[#4F46E5]/20 shadow-sm"
                 >
-                  {isAddendumMode ? (
-                    <span>← Revert to Master Agreement</span>
-                  ) : (
-                    <span>Override with project-specific terms →</span>
-                  )}
+                  {isAddendumMode ? "Revert to MSA" : "Override Terms"}
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Section B: Settlement & Terms */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
-                Settlement & Terms
-              </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
             </div>
 
             <div className="space-y-6">
@@ -392,66 +370,79 @@ export default function TermsPaymentSection({
                 )}
               </AnimatePresence>
 
-              <div className={cn(appFieldPairGridClass, "items-start", isReadOnly && "opacity-70")}>
-                  <div className="flex flex-col gap-2">
-                    <label className={appFieldLabelClass}>
-                      <span className="flex items-center gap-1.5">
-                        {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                        Days until payment
-                      </span>
-                      {autoFilledFields.has("meta.paymentTerms") && (
-                        <span className="autofill-indicator">auto-filled</span>
-                      )}
-                    </label>
-                    
-                    <div className="flex flex-wrap gap-1.5 mb-1">
-                      {[0, 15, 30, 45, 60].map((days) => (
-                        <button
-                          key={days}
-                          type="button"
-                          disabled={isReadOnly}
-                          onClick={() => handleDaysChange(days)}
-                          className={cn(
-                            "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
-                            meta.paymentTerms === days
-                              ? "bg-[#111] border-[#111] text-white shadow-sm"
-                              : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
-                            isReadOnly && "opacity-50 cursor-not-allowed"
-                          )}
-                        >
-                          {days === 0 ? "Receipt" : `Net ${days}`}
-                        </button>
-                      ))}
-                    </div>
+              <div className={cn("grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-end", isReadOnly && "opacity-70")}>
+                <div className="flex flex-col gap-2">
+                  <label className={appFieldLabelClass}>
+                    <span className="flex items-center gap-1.5">
+                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                      Days until payment
+                    </span>
+                    {autoFilledFields.has("meta.paymentTerms") && (
+                      <span className="autofill-indicator">auto-filled</span>
+                    )}
+                  </label>
+                  
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 15, 30, 45, 60].map((days) => (
+                      <button
+                        key={days}
+                        type="button"
+                        disabled={isReadOnly}
+                        onClick={() => handleDaysChange(days)}
+                        className={cn(
+                          "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
+                          meta.paymentTerms === days
+                            ? "bg-[#111] border-[#111] text-white shadow-sm"
+                            : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
+                          isReadOnly && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        {days === 0 ? "Receipt" : `Net ${days}`}
+                      </button>
+                    ))}
                   </div>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      readOnly={isReadOnly}
-                      tabIndex={isReadOnly ? -1 : 0}
-                      value={meta.paymentTerms}
-                      onChange={(e) => {
-                        onFieldManualEdit("meta.paymentTerms");
-                        handleDaysChange(parseInt(e.target.value, 10) || 0);
-                      }}
-                      onBlur={() => markTouched("paymentTerms")}
-                      placeholder="15"
-                      className={cn(
-                        inputClass(paymentTermsFieldError, true),
-                        !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
-                        isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
-                        "pr-12",
-                      )}
-                    />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
-                    </div>
+                </div>
+
+                <div className="relative min-w-[120px]">
+                  <input
+                    type="number"
+                    readOnly={isReadOnly}
+                    tabIndex={isReadOnly ? -1 : 0}
+                    value={meta.paymentTerms}
+                    onChange={(e) => {
+                      onFieldManualEdit("meta.paymentTerms");
+                      handleDaysChange(parseInt(e.target.value, 10) || 0);
+                    }}
+                    onBlur={() => markTouched("paymentTerms")}
+                    placeholder="15"
+                    className={cn(
+                      inputClass(paymentTermsFieldError, true),
+                      !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
+                      isReadOnly && "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100 shadow-none",
+                      "pr-12 text-right sm:text-left",
+                    )}
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
                   </div>
-                  <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
-                    {meta.paymentTerms === 0 
-                      ? "Payment expected as soon as client receives invoice." 
-                      : `Calculated as ${meta.paymentTerms} days after issue date.`}
-                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
+                  {meta.paymentTerms === 0 
+                    ? "Payment expected as soon as client receives invoice." 
+                    : `Calculated as ${meta.paymentTerms} days after issue date.`}
+                </p>
+                {isReadOnly && (
+                  <button 
+                    type="button"
+                    onClick={() => updateMetaField("hasAddendum", true)}
+                    className="text-[10px] font-bold text-[#4F46E5] hover:underline"
+                  >
+                    Override to edit →
+                  </button>
+                )}
+              </div>
                   {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
                 </div>
 
