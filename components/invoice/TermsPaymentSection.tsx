@@ -680,7 +680,7 @@ export default function TermsPaymentSection({
           </div>
 
           {/* Section D: Bank Details */}
-          <div>
+          <div className="mt-10">
             <div className="mb-4">
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Bank Details
