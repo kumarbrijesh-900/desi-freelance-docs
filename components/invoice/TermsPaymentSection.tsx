@@ -234,8 +234,8 @@ export default function TermsPaymentSection({
       const targetBoilerplate = effectiveBoilerplate || "";
 
       // Check if we already match to avoid redundant updates
-      const isAlreadySynced = 
-        meta.paymentTerms === targetDays && 
+      const isAlreadySynced =
+        meta.paymentTerms === targetDays &&
         (value.terms === targetBoilerplate || value.notes === targetBoilerplate) &&
         value.license.licenseType === msaLicenseType;
 
@@ -255,7 +255,7 @@ export default function TermsPaymentSection({
 
   return (
     <>
-      <UploadToast message={toastMessage} visible={showToast} />
+      <UploadToast message={toastMessage} visible={showToast}  />
 
       <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
         {!embedded && (
@@ -276,18 +276,18 @@ export default function TermsPaymentSection({
                 <div className="mt-1.5 flex items-center gap-2">
                   <span className={cn(
                     "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold ring-1 ring-inset",
-                    isReadOnly 
+                    isReadOnly
                       ? "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)] ring-[color:var(--border-subtle)]"
                       : "bg-[#EEF2FF] text-[#4F46E5] ring-[#4F46E5]/20"
                   )}>
                     {isReadOnly ? (
                       <>
-                        <Lock size={10} />
+                        <Lock size={10}  />
                         Locked by {msaSource === "global" ? "Global Agency Terms" : msaSource === "client" ? "Client MSA" : "System Default Terms"}
                       </>
                     ) : (
                       <>
-                        <div className="h-1 w-1 rounded-full bg-[#4F46E5] animate-pulse" />
+                        <div className="h-1 w-1 rounded-full bg-[#4F46E5] animate-pulse"  />
                         Project Specific Terms
                       </>
                     )}
@@ -316,11 +316,12 @@ export default function TermsPaymentSection({
                         "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
                         isAddendumMode ? "translate-x-4" : "translate-x-0"
                       )}
-                    />
+                    ></span>
                   </div>
                 </button>
               </div>
             </div>
+          </div>
 
             <div className="space-y-6">
               <AnimatePresence mode="wait">
@@ -348,17 +349,17 @@ export default function TermsPaymentSection({
                         <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                           {value.license.isLicenseIncluded ? "License Included ✓" : "No License"}
                         </p>
-                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5 truncate max-w-[150px]">
-                          {value.license.isLicenseIncluded 
-                            ? `${value.license.licenseType?.split('-').join(' ')}` 
+                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5">
+                          {value.license.isLicenseIncluded
+                            ? `${value.license.licenseType?.split('-').join(' ')}`
                             : "Standard usage terms"}
                         </p>
                       </div>
 
-                      <div className="col-span-2 md:col-span-1 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-[color:var(--border-subtle)] md:pl-6">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Payment Notes</p>
-                        <div className="flex items-start gap-2">
-                          <p className="text-[12px] text-[color:var(--text-secondary)] italic leading-relaxed whitespace-pre-wrap">
+                      <div className="col-span-2 md:col-span-1 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-[color:var(--border-subtle)] md:pl-6">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-2">Payment Notes</p>
+                        <div className="rounded-lg bg-[color:var(--bg-surface-muted)]/50 p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                          <p className="text-[12px] text-[color:var(--text-primary)] leading-relaxed whitespace-pre-wrap">
                             {value.terms || value.notes || "No specific notes applied."}
                           </p>
                         </div>
@@ -403,7 +404,7 @@ export default function TermsPaymentSection({
                                       onChange={() => updateField("paymentSettlementType", option.value as any)}
                                       disabled={isReadOnly}
                                       className="sr-only"
-                                    />
+                                     />
                                     <span className={cn("flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
                                       {option.label}
                                     </span>
@@ -421,14 +422,14 @@ export default function TermsPaymentSection({
                         <div className="flex flex-col gap-2">
                           <label className={appFieldLabelClass}>
                             <span className="flex items-center gap-1.5">
-                              {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                              {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                               Days until payment
                             </span>
                             {autoFilledFields.has("meta.paymentTerms") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
-                          
+
                           <div className="flex flex-wrap gap-1.5">
                             {[0, 15, 30, 45, 60].map((days) => (
                               <button
@@ -468,7 +469,7 @@ export default function TermsPaymentSection({
                               isReadOnly && "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100 shadow-none",
                               "pr-12 text-right sm:text-left",
                             )}
-                          />
+                           />
                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                             <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
                           </div>
@@ -476,12 +477,12 @@ export default function TermsPaymentSection({
                       </div>
                       <div className="flex items-center justify-between mt-1.5">
                         <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
-                          {meta.paymentTerms === 0 
-                            ? "Payment expected as soon as client receives invoice." 
+                          {meta.paymentTerms === 0
+                            ? "Payment expected as soon as client receives invoice."
                             : `Calculated as ${meta.paymentTerms} days after issue date.`}
                         </p>
                         {isReadOnly && (
-                          <button 
+                          <button
                             type="button"
                             onClick={() => updateMetaField("hasAddendum", true)}
                             className="text-[10px] font-bold text-[#4F46E5] hover:underline"
@@ -496,7 +497,7 @@ export default function TermsPaymentSection({
                     <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                       <label className={appFieldLabelClass}>
                         <span className="flex items-center gap-1.5">
-                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                           Due Date
                         </span>
                         {autoFilledFields.has("meta.dueDate") && (
@@ -517,14 +518,14 @@ export default function TermsPaymentSection({
                           !isReadOnly && getInputStateClass("meta.dueDate", meta.dueDate),
                           isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                         )}
-                      />
+                       />
                       <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
                     </div>
 
                     <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                       <label className={appFieldLabelClass}>
                         <span className="flex items-center gap-1.5">
-                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                           Terms / Notes
                         </span>
                         {autoFilledFields.has("payment.terms") && (
@@ -548,7 +549,7 @@ export default function TermsPaymentSection({
                           isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                           "min-h-[80px]",
                         )}
-                      />
+                       />
                     </div>
 
                     <div className="pt-4 border-t border-[color:var(--border-subtle)]">
@@ -557,7 +558,7 @@ export default function TermsPaymentSection({
                           <div className="flex items-center gap-1.5">
                             <label className={appFieldLabelClass}>
                               <span className="flex items-center gap-1.5">
-                                {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                 License Included?
                               </span>
                             </label>
@@ -568,7 +569,7 @@ export default function TermsPaymentSection({
                               ?
                             </span>
                           </div>
-                          
+
                           <div className={cn(
                             "flex overflow-hidden rounded-lg border border-[color:var(--border-subtle)] w-fit bg-white",
                             isReadOnly && "opacity-60 pointer-events-none"
@@ -613,19 +614,19 @@ export default function TermsPaymentSection({
                                 <div className={cn("space-y-1.5", isReadOnly && "opacity-70")}>
                                   <label className={appFieldLabelClass}>
                                     <span className="flex items-center gap-1.5">
-                                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                      {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                       License Type *
                                     </span>
                                   </label>
                                   <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
-                                    <ChoiceCards 
-                                      name="license-type" 
-                                      value={value.license.licenseType} 
+                                    <ChoiceCards
+                                      name="license-type"
+                                      value={value.license.licenseType}
                                       disabled={isReadOnly}
-                                      onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)} 
-                                      variant="inline" 
-                                      options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]} 
-                                    />
+                                      onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)}
+                                      variant="inline"
+                                      options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]}
+                                     />
                                   </div>
                                 </div>
 
@@ -635,7 +636,7 @@ export default function TermsPaymentSection({
                                       <div className={cn("max-w-[280px] flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                                         <label className={appFieldLabelClass}>
                                           <span className="flex items-center gap-1.5">
-                                            {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                                            {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                             License Duration *
                                           </span>
                                           {autoFilledFields.has("payment.license.licenseDuration") && (
@@ -658,7 +659,7 @@ export default function TermsPaymentSection({
                                             !isReadOnly && getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
                                             isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
                                           )}
-                                        />
+                                         />
                                         {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}
                                       </div>
                                     </motion.div>
@@ -684,7 +685,7 @@ export default function TermsPaymentSection({
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Bank Details
               </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]"  />
             </div>
 
             <div className="space-y-8">
@@ -701,7 +702,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.bankName}
@@ -713,9 +714,9 @@ export default function TermsPaymentSection({
                             placeholder="Example: HDFC Bank"
                             className={cn(
                               inputClass(bankNameError, Boolean(value.bankName)),
-                              !isReadOnly && getInputStateClass("payment.bankName", value.bankName),
+                              getInputStateClass("payment.bankName", value.bankName),
                             )}
-                          />
+                           />
                           {bankNameError && <p className={appFieldErrorTextClass}>{bankNameError}</p>}
                         </div>
                         <div>
@@ -726,7 +727,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.accountNumber}
@@ -738,9 +739,9 @@ export default function TermsPaymentSection({
                             placeholder="0000 0000 0000"
                             className={cn(
                               inputClass(accountNumberError, Boolean(value.accountNumber)),
-                              !isReadOnly && getInputStateClass("payment.accountNumber", value.accountNumber),
+                              getInputStateClass("payment.accountNumber", value.accountNumber),
                             )}
-                          />
+                           />
                           {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                       </div>
@@ -754,7 +755,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.ifscCode}
@@ -766,9 +767,9 @@ export default function TermsPaymentSection({
                             placeholder="HDFC0000123"
                             className={cn(
                               inputClass(ifscCodeError, Boolean(value.ifscCode)),
-                              !isReadOnly && getInputStateClass("payment.ifscCode", value.ifscCode),
+                              getInputStateClass("payment.ifscCode", value.ifscCode),
                             )}
-                          />
+                           />
                           {ifscCodeError && <p className={appFieldErrorTextClass}>{ifscCodeError}</p>}
                         </div>
                         <div>
@@ -779,7 +780,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.accountName}
@@ -791,9 +792,9 @@ export default function TermsPaymentSection({
                             placeholder="Your Registered Name"
                             className={cn(
                               inputClass(accountNameError, Boolean(value.accountName)),
-                              !isReadOnly && getInputStateClass("payment.accountName", value.accountName),
+                              getInputStateClass("payment.accountName", value.accountName),
                             )}
-                          />
+                           />
                           {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
                         </div>
                       </div>
@@ -811,7 +812,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.accountName}
@@ -823,9 +824,9 @@ export default function TermsPaymentSection({
                             placeholder="Your Registered Name"
                             className={cn(
                               inputClass(accountNameError, Boolean(value.accountName)),
-                              !isReadOnly && getInputStateClass("payment.accountName", value.accountName),
+                              getInputStateClass("payment.accountName", value.accountName),
                             )}
-                          />
+                           />
                           {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
                         </div>
                         <div>
@@ -836,7 +837,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.accountNumber}
@@ -848,9 +849,9 @@ export default function TermsPaymentSection({
                             placeholder="IBAN or Account Number"
                             className={cn(
                               inputClass(accountNumberError, Boolean(value.accountNumber)),
-                              !isReadOnly && getInputStateClass("payment.accountNumber", value.accountNumber),
+                              getInputStateClass("payment.accountNumber", value.accountNumber),
                             )}
-                          />
+                           />
                           {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                       </div>
@@ -864,7 +865,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.bankName}
@@ -876,9 +877,9 @@ export default function TermsPaymentSection({
                             placeholder="Example: HSBC London"
                             className={cn(
                               inputClass(bankNameError, Boolean(value.bankName)),
-                              !isReadOnly && getInputStateClass("payment.bankName", value.bankName),
+                              getInputStateClass("payment.bankName", value.bankName),
                             )}
-                          />
+                           />
                           {bankNameError && <p className={appFieldErrorTextClass}>{bankNameError}</p>}
                         </div>
                         <div>
@@ -889,7 +890,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
-                            disabled={isReadOnly}
+
                             suppressHydrationWarning
                             type="text"
                             value={value.swiftBicCode}
@@ -901,9 +902,9 @@ export default function TermsPaymentSection({
                             placeholder="ABCDGB2L"
                             className={cn(
                               inputClass(swiftBicCodeError, Boolean(value.swiftBicCode)),
-                              !isReadOnly && getInputStateClass("payment.swiftBicCode", value.swiftBicCode),
+                              getInputStateClass("payment.swiftBicCode", value.swiftBicCode),
                             )}
-                          />
+                           />
                           {swiftBicCodeError && <p className={appFieldErrorTextClass}>{swiftBicCodeError}</p>}
                         </div>
                       </div>
@@ -925,7 +926,7 @@ export default function TermsPaymentSection({
                                 inputClass(undefined, Boolean(bankAddressFields.line1)),
                                 getInputStateClass("payment.bankAddress", bankAddressFields.line1),
                               )}
-                            />
+                             />
                             <input
                               suppressHydrationWarning
                               type="text"
@@ -939,7 +940,7 @@ export default function TermsPaymentSection({
                                 inputClass(undefined, Boolean(bankAddressFields.line2)),
                                 getInputStateClass("payment.bankAddress", bankAddressFields.line2),
                               )}
-                            />
+                             />
                             <div className="grid grid-cols-2 gap-3">
                               <input
                                 suppressHydrationWarning
@@ -954,7 +955,7 @@ export default function TermsPaymentSection({
                                   inputClass(undefined, Boolean(bankAddressFields.cityRegion)),
                                   getInputStateClass("payment.bankAddress", bankAddressFields.cityRegion),
                                 )}
-                              />
+                               />
                               <input
                                 suppressHydrationWarning
                                 type="text"
@@ -968,7 +969,7 @@ export default function TermsPaymentSection({
                                   inputClass(undefined, Boolean(bankAddressFields.postalCode)),
                                   getInputStateClass("payment.bankAddress", bankAddressFields.postalCode),
                                 )}
-                              />
+                               />
                             </div>
                             <input
                               suppressHydrationWarning
@@ -983,7 +984,7 @@ export default function TermsPaymentSection({
                                 inputClass(bankAddressError, Boolean(bankAddressFields.country)),
                                 getInputStateClass("payment.bankAddress", bankAddressFields.country),
                               )}
-                            />
+                             />
                           </div>
                         </div>
 
@@ -996,7 +997,6 @@ export default function TermsPaymentSection({
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
           </div>
         </div>
       </section>
