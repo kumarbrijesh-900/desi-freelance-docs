@@ -295,24 +295,29 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {isAddendumMode && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FFFBEB] border border-[#FEF3C7] rounded-lg">
-                    <span className="text-[10px] font-bold text-[#92400E] uppercase tracking-wider">Drafting Addendum</span>
-                  </div>
-                )}
+              <div className="flex items-center gap-6">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isAddendumMode) {
-                      updateMetaField("hasAddendum", false);
-                    } else {
-                      updateMetaField("hasAddendum", true);
-                    }
-                  }}
-                  className="text-[11px] font-bold text-[#4F46E5] hover:underline bg-white px-3 py-1.5 rounded-lg border border-[#4F46E5]/20 shadow-sm"
+                  onClick={() => updateMetaField("hasAddendum", !isAddendumMode)}
+                  className="flex items-center gap-2.5 group focus:outline-none"
                 >
-                  {isAddendumMode ? "Revert to MSA" : "Override Terms"}
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase tracking-widest transition-colors",
+                    isAddendumMode ? "text-[#4F46E5]" : "text-[color:var(--text-soft)]"
+                  )}>
+                    {isAddendumMode ? "Override Active" : "Override Terms"}
+                  </span>
+                  <div className={cn(
+                    "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
+                    isAddendumMode ? "bg-[#4F46E5]" : "bg-gray-200 group-hover:bg-gray-300"
+                  )}>
+                    <span
+                      className={cn(
+                        "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
+                        isAddendumMode ? "translate-x-4" : "translate-x-0"
+                      )}
+                    />
+                  </div>
                 </button>
               </div>
             </div>
