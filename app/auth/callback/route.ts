@@ -13,7 +13,22 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // Successful auth — redirect to intended destination
+      // Check if user has a profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (!profile) {
+          // If no profile, redirect to onboarding
+          return NextResponse.redirect(new URL("/onboarding", requestUrl.origin));
+        }
+      }
+
+      // Successful auth + profile exists — redirect to intended destination
       return NextResponse.redirect(new URL(next, requestUrl.origin));
     }
   }
