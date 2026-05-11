@@ -1102,6 +1102,33 @@ function EditorContent() {
   }, [isBootstrapped, savedClients, formData.client.clientName]);
 
   useEffect(() => {
+    let needsUpdate = false;
+    const updates: any = {};
+    
+    if (!formData.meta?.invoiceNumber || formData.meta?.invoiceNumber.endsWith('-000')) {
+      updates.invoiceNumber = `INV-${new Date().getFullYear()}-${String(Math.floor(1000 + Math.random() * 9000))}`;
+      needsUpdate = true;
+    }
+    if (!formData.meta?.invoiceDate) {
+      updates.invoiceDate = new Date().toISOString().split('T')[0];
+      needsUpdate = true;
+    }
+    if (!formData.meta?.dueDate) {
+      const due = new Date();
+      due.setDate(due.getDate() + 15);
+      updates.dueDate = due.toISOString().split('T')[0];
+      needsUpdate = true;
+    }
+    
+    if (needsUpdate) {
+      setFormData((prev) => ({
+        ...prev,
+        meta: { ...prev.meta, ...updates },
+      }));
+    }
+  }, []); // Run once on mount
+
+  useEffect(() => {
     if (!hasInitializedRef.current) return;
 
     const suggestedDueDate = getSuggestedDueDate(
@@ -2360,7 +2387,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
 
 
 return (
-  <main className={cn(appPageShellClass, "relative")} suppressHydrationWarning>
+  <main className="relative bg-transparent" suppressHydrationWarning>
     <AnimatePresence>
       {isProcessingAutofill && (
         <motion.div
@@ -2409,6 +2436,22 @@ return (
 
     <AppHeader />
 
+    {isGuestMode && (
+      <div className="mx-4 sm:mx-8 mb-3 print:hidden">
+        <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+          <p className="text-[13px] text-[color:var(--text-secondary)]">
+            <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+          </p>
+          <Link
+            href="/login"
+            className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
+          >
+            Sign in →
+          </Link>
+        </div>
+      </div>
+    )}
+
     <section
       className={`${appPageContainerClass} ${appPageSectionClass} relative z-10 pb-32`}
     >
@@ -2439,22 +2482,6 @@ return (
                 <span className="text-xl leading-none">&times;</span>
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {isGuestMode && (
-        <div className="mx-auto max-w-[1328px] px-4 mb-3 print:hidden">
-          <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
-            <p className="text-[13px] text-[color:var(--text-secondary)]">
-              <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
-            </p>
-            <Link
-              href="/login"
-              className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
-            >
-              Sign in →
-            </Link>
           </div>
         </div>
       )}
@@ -2513,64 +2540,33 @@ return (
               />
             </div>
 
-            {/* Persistent Meta Header */}
-            <div className="rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] p-5 shadow-sm relative z-20">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
-                    Invoice Number
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.meta.invoiceNumber}
-                    onChange={(e) => handleMetaChange({ ...formData.meta, invoiceNumber: e.target.value })}
-                    className={cn(
-                      getAppFieldClass({ 
-                        hasError: showAllValidationErrors ? fieldErrors.meta.invoiceNumber : undefined, 
-                        hasValue: !!formData.meta.invoiceNumber 
-                      }), 
-                      "h-10 text-sm font-medium"
-                    )}
-                    placeholder="INV-001"
-                  />
-                  {fieldErrors.meta.invoiceNumber && showAllValidationErrors && (
-                    <p className="mt-1 text-[11px] text-red-500 font-medium">{fieldErrors.meta.invoiceNumber}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
-                    Invoice Date
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.meta.invoiceDate}
-                    onChange={(e) => handleMetaChange({ ...formData.meta, invoiceDate: e.target.value })}
-                    className={cn(
-                      getAppFieldClass({ 
-                        hasError: showAllValidationErrors ? fieldErrors.meta.invoiceDate : undefined, 
-                        hasValue: !!formData.meta.invoiceDate 
-                      }), 
-                      "h-10 text-sm font-medium"
-                    )}
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] mb-2 block">
-                    Due Date
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.meta.dueDate}
-                    onChange={(e) => handleMetaChange({ ...formData.meta, dueDate: e.target.value })}
-                    className={cn(
-                      getAppFieldClass({ 
-                        hasError: showAllValidationErrors ? fieldErrors.meta.dueDate : undefined, 
-                        hasValue: !!formData.meta.dueDate 
-                      }), 
-                      "h-10 text-sm font-medium"
-                    )}
-                  />
-                </div>
+            {/* ── Inline Meta Strip ── */}
+            <div className="mb-3 flex items-center gap-4 rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV</span>
+                <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                  {formData.meta?.invoiceNumber || '—'}
+                </span>
+              </div>
+              <div className="h-3 w-px bg-gray-200" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Date</span>
+                <input
+                  type="date"
+                  value={formData.meta?.invoiceDate || ''}
+                  onChange={(e) => handleMetaChange({ ...formData.meta, invoiceDate: e.target.value })}
+                  className="text-[12px] font-medium text-[color:var(--text-primary)] bg-transparent border-none outline-none w-[110px] cursor-pointer"
+                />
+              </div>
+              <div className="h-3 w-px bg-gray-200" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</span>
+                <input
+                  type="date"
+                  value={formData.meta?.dueDate || ''}
+                  onChange={(e) => handleMetaChange({ ...formData.meta, dueDate: e.target.value })}
+                  className="text-[12px] font-medium text-red-500 bg-transparent border-none outline-none w-[110px] cursor-pointer"
+                />
               </div>
             </div>
 
@@ -2614,7 +2610,7 @@ return (
             </div>
 
             <div
-              className="overflow-visible"
+              className="overflow-visible h-auto"
               data-testid="invoice-vertical-stepper"
             >
               <AnimatePresence mode="wait" custom={direction} initial={false}>
@@ -2625,7 +2621,7 @@ return (
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  className="w-full"
+                  className="w-full h-auto"
                   ref={(node) => {
                     stepRefs.current[currentStep] = node;
                   }}
@@ -2692,54 +2688,47 @@ return (
               </AnimatePresence>
             </div>
 
-            {/* Live Totals Footer */}
-            <div id="live-totals-footer" className="mt-12 rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface)] p-6 shadow-sm relative z-20">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)]">Current Total</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className={cn(
-                      "text-3xl font-bold tracking-tight transition-colors",
-                      computedTotals.grandTotal > 0 ? "text-[color:var(--text-primary)]" : "text-gray-300"
-                    )}>
-                      {formatCurrency(computedTotals.grandTotal, displayCurrency)}
-                    </span>
-                    <span className="text-sm text-[color:var(--text-muted)] font-medium">
-                      ({computedTotals.taxType === 'NONE' ? 'No Tax' : `${formData.tax.taxRate}% ${computedTotals.taxType}`})
-                    </span>
-                  </div>
+            {/* ── Live Totals Strip ── */}
+            <div id="live-totals-footer" className="mt-4 flex items-center justify-between rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2.5">
+              <div className="flex items-center gap-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
+                  <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
+                    {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                  </p>
                 </div>
-
-                <div className="flex items-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedTax(!showAdvancedTax)}
-                    className="text-[12px] font-bold text-[#4F46E5] hover:underline"
-                  >
-                    {showAdvancedTax ? "Hide Tax Options" : "Advanced Tax Options →"}
-                  </button>
-                  <div className="h-8 w-[1px] bg-[color:var(--border-subtle)] hidden md:block" />
-                  <div className="text-right hidden sm:block">
-                     <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)]">Subtotal</p>
-                     <p className="text-sm font-semibold text-[color:var(--text-primary)]">{formatCurrency(computedTotals.subtotal, displayCurrency)}</p>
-                  </div>
-                </div>
+                {computedTotals.taxAmount > 0 && (
+                  <>
+                    <div className="h-6 w-px bg-gray-200" />
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
+                      <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
+                    </div>
+                  </>
+                )}
               </div>
-
-              {showAdvancedTax && (
-                <div className="mt-6 pt-6 border-t border-[color:var(--border-subtle)] animate-in fade-in slide-in-from-top-2 duration-300">
-                   <TotalsTaxesSection
-                      embedded
-                      value={derivedTaxConfig}
-                      computed={computedTotals}
-                      currency={displayCurrency}
-                      isLocked={true}
-                      onChange={(tax) => updateFormSection('tax', tax)}
-                      onExportTaxDecisionChange={showInternationalExportDecision ? (val) => updateFormSection('agency', { ...formData.agency, noLutTaxHandling: val }) : undefined}
-                   />
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowAdvancedTax(!showAdvancedTax)}
+                className="text-[11px] font-medium text-[#4F46E5] hover:underline"
+              >
+                Tax options
+              </button>
             </div>
+
+            {showAdvancedTax && (
+              <div className="mt-6 pt-6 border-t border-[color:var(--border-subtle)] animate-in fade-in slide-in-from-top-2 duration-300">
+                 <TotalsTaxesSection
+                    embedded
+                    value={derivedTaxConfig}
+                    computed={computedTotals}
+                    currency={displayCurrency}
+                    isLocked={true}
+                    onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
+                    onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
+                 />
+              </div>
+            )}
           </div>
 
           {/* Fixed Bottom Action Bar */}
