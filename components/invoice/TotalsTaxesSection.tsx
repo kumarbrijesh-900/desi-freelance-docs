@@ -206,7 +206,7 @@ export default function TotalsTaxesSection({
           </div>
         </div>
       </div>
-      <div className="max-w-md">
+      <div className="w-full">
         <div className="space-y-6">
           {/* Summary Rows */}
           <div className="space-y-4">
