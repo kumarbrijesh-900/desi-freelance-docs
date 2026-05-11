@@ -264,59 +264,48 @@ export default function TermsPaymentSection({
         )}
 
         <div className="space-y-10">
-          {/* Section: Payment & Contract Terms */}
+          {/* Section A: Contract Source & Controls */}
           <div className="space-y-6">
-            <div>
-              <div className="mb-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                   Payment & Contract Terms
                 </h3>
-                <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                <div className="mt-1.5 flex items-center gap-2">
+                  <span className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold ring-1 ring-inset",
+                    isReadOnly 
+                      ? "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)] ring-[color:var(--border-subtle)]"
+                      : "bg-[#EEF2FF] text-[#4F46E5] ring-[#4F46E5]/20"
+                  )}>
+                    {isReadOnly ? (
+                      <>
+                        <Lock size={10} />
+                        Locked by {msaSource === "global" ? "Global Agency Terms" : "Client MSA"}
+                      </>
+                    ) : (
+                      <>
+                        <div className="h-1 w-1 rounded-full bg-[#4F46E5] animate-pulse" />
+                        Project Specific Terms
+                      </>
+                    )}
+                  </span>
+                </div>
               </div>
 
-              {/* Authority Status Bar */}
-              <div className={cn(
-                "flex items-center justify-between rounded-xl border px-4 py-3 transition-all duration-300 mb-6",
-                isAddendumMode 
-                  ? "bg-amber-50 border-amber-200 ring-1 ring-amber-500/5" 
-                  : "bg-[color:var(--bg-surface-soft)] border-[color:var(--border-subtle)]"
-              )}>
-                <div className="flex items-center gap-3">
-                  {isAddendumMode ? (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-                      <FileEdit size={16} />
-                    </div>
-                  ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                      <ShieldCheck size={16} />
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                      {isAddendumMode ? "Project Override Active" : msaSourceLabel}
-                    </p>
-                    <p className="text-[11px] text-[color:var(--text-muted)]">
-                      {isAddendumMode ? "Terms applied only to this invoice." : msaDetailLabel}
-                    </p>
+              <div className="flex items-center gap-3">
+                {isAddendumMode && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FFFBEB] border border-[#FEF3C7] rounded-lg">
+                    <span className="text-[10px] font-bold text-[#92400E] uppercase tracking-wider">Drafting Addendum</span>
                   </div>
-                </div>
-
+                )}
                 <button
                   type="button"
                   onClick={() => {
-                    const nextHasAddendum = !isAddendumMode;
-                    updateMetaField("hasAddendum", nextHasAddendum);
-                    
-                    if (!nextHasAddendum && hasAnyMsaAuthority) {
-                      onMetaChange({
-                        ...meta,
-                        hasAddendum: false,
-                        paymentTerms: effectiveMsaDays ?? 0,
-                        dueDate: addDays(meta.invoiceDate || new Date().toISOString().split("T")[0], effectiveMsaDays ?? 0)
-                      });
-                      updateField("terms", effectiveBoilerplate);
-                      updateLicenseField("isLicenseIncluded", Boolean(msaLicenseType));
-                      updateLicenseField("licenseType", msaLicenseType);
+                    if (isAddendumMode) {
+                      updateMetaField("hasAddendum", false);
+                    } else {
+                      updateMetaField("hasAddendum", true);
                     }
                   }}
                   className="text-[11px] font-bold text-[#4F46E5] hover:underline bg-white px-3 py-1.5 rounded-lg border border-[#4F46E5]/20 shadow-sm"
@@ -680,6 +669,8 @@ export default function TermsPaymentSection({
                 )}
               </AnimatePresence>
             </div>
+          </div>
+
           {/* Section D: Bank Details */}
           <div>
             <div className="mb-4">
@@ -703,6 +694,7 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
+                            disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
                             value={value.bankName}
@@ -711,138 +703,176 @@ export default function TermsPaymentSection({
                               updateField("bankName", e.target.value);
                             }}
                             onBlur={() => markTouched("bankName")}
-                            placeholder="Bank name"
+                            placeholder="Example: HDFC Bank"
                             className={cn(
                               inputClass(bankNameError, Boolean(value.bankName)),
-                              getInputStateClass("payment.bankName", value.bankName),
+                              !isReadOnly && getInputStateClass("payment.bankName", value.bankName),
                             )}
                           />
                           {bankNameError && <p className={appFieldErrorTextClass}>{bankNameError}</p>}
                         </div>
                         <div>
                           <label className={appFieldLabelClass}>
-                            Account Name
-                            {autoFilledFields.has("payment.accountName") && (
+                            Account Number
+                            {autoFilledFields.has("payment.bankAccountNumber") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
                           <input
+                            disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
-                            value={value.accountName}
+                            value={value.bankAccountNumber}
                             onChange={(e) => {
-                              onFieldManualEdit("payment.accountName");
-                              updateField("accountName", e.target.value);
+                              onFieldManualEdit("payment.bankAccountNumber");
+                              updateField("bankAccountNumber", e.target.value);
                             }}
-                            onBlur={() => markTouched("accountName")}
-                            placeholder="Name on account"
+                            onBlur={() => markTouched("bankAccountNumber")}
+                            placeholder="0000 0000 0000"
                             className={cn(
-                              inputClass(accountNameError, Boolean(value.accountName)),
-                              getInputStateClass("payment.accountName", value.accountName),
+                              inputClass(bankAccountNumberError, Boolean(value.bankAccountNumber)),
+                              !isReadOnly && getInputStateClass("payment.bankAccountNumber", value.bankAccountNumber),
                             )}
                           />
-                          {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
+                          {bankAccountNumberError && <p className={appFieldErrorTextClass}>{bankAccountNumberError}</p>}
                         </div>
+                      </div>
+
+                      <div className={appFieldPairGridClass}>
                         <div>
                           <label className={appFieldLabelClass}>
-                            Account Number
-                            {autoFilledFields.has("payment.accountNumber") && (
+                            IFSC Code
+                            {autoFilledFields.has("payment.ifscCode") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
                           <input
-                            suppressHydrationWarning
-                            type="text"
-                            value={value.accountNumber}
-                            onChange={(e) => {
-                              onFieldManualEdit("payment.accountNumber");
-                              updateField("accountNumber", e.target.value);
-                            }}
-                            onBlur={() => markTouched("accountNumber")}
-                            placeholder="Bank account number"
-                            className={cn(
-                              inputClass(accountNumberError, Boolean(value.accountNumber)),
-                              getInputStateClass("payment.accountNumber", value.accountNumber),
-                            )}
-                          />
-                          {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
-                              IFSC Code
-                              {autoFilledFields.has("payment.ifscCode") && (
-                                <span className="autofill-indicator">auto-filled</span>
-                              )}
-                            </label>
-                            <span
-                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
-                              title="11-character Indian Financial System Code. Found on your cheque book or bank's website (format: ABCD0123456)."
-                            >
-                              ?
-                            </span>
-                          </div>
-                          <input
+                            disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
                             value={value.ifscCode}
                             onChange={(e) => {
                               onFieldManualEdit("payment.ifscCode");
-                              updateField("ifscCode", e.target.value);
+                              updateField("ifscCode", e.target.value.toUpperCase());
                             }}
                             onBlur={() => markTouched("ifscCode")}
-                            placeholder="Bank IFSC code"
+                            placeholder="HDFC0000123"
                             className={cn(
                               inputClass(ifscCodeError, Boolean(value.ifscCode)),
-                              getInputStateClass("payment.ifscCode", value.ifscCode),
+                              !isReadOnly && getInputStateClass("payment.ifscCode", value.ifscCode),
                             )}
                           />
                           {ifscCodeError && <p className={appFieldErrorTextClass}>{ifscCodeError}</p>}
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className={appFieldLabelClass}>Payment QR Code <span className="text-[color:var(--text-soft)] text-[11px] font-normal">(Optional)</span></label>
-                        {value.qrCodeUrl ? (
-                          <div className="relative inline-block group">
-                            <div className="overflow-hidden rounded-xl border border-[color:var(--border-subtle)] bg-white p-2 shadow-sm transition-shadow group-hover:shadow-md">
-                              <img src={value.qrCodeUrl} alt="Payment QR" className="h-32 w-32 object-contain" />
-                            </div>
-                            <button type="button" onClick={removeQr} className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-transform hover:scale-110 active:scale-95">×</button>
-                          </div>
-                        ) : (
-                          <label onDragOver={(e) => { e.preventDefault(); setIsQrDragOver(true); }} onDragLeave={() => setIsQrDragOver(false)} onDrop={handleQrDrop} className={cn("w-48 h-48 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group", isQrDragOver ? "border-[#4F46E5] bg-[#4F46E5]/5" : "border-gray-200 bg-white hover:border-[#4F46E5] hover:bg-[#4F46E5]/5")}>
-                            <input type="file" accept="image/*" onChange={handleQrUpload} className="sr-only" />
-                            <div className="h-10 w-10 rounded-full bg-gray-100 group-hover:bg-[#4F46E5]/10 flex items-center justify-center transition-colors">
-                              <Sparkles size={16} className="text-gray-400 group-hover:text-[#4F46E5]" />
-                            </div>
-                            <div className="text-center">
-                              <p className="text-[12px] font-medium text-[color:var(--text-muted)] group-hover:text-[#4F46E5]">Upload QR code</p>
-                              <p className="text-[10px] text-[color:var(--text-muted)]">JPG, PNG</p>
-                            </div>
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            Beneficiary Name
+                            {autoFilledFields.has("payment.beneficiaryName") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
                           </label>
-                        )}
+                          <input
+                            disabled={isReadOnly}
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.beneficiaryName}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.beneficiaryName");
+                              updateField("beneficiaryName", e.target.value);
+                            }}
+                            onBlur={() => markTouched("beneficiaryName")}
+                            placeholder="Your Registered Name"
+                            className={cn(
+                              inputClass(beneficiaryNameError, Boolean(value.beneficiaryName)),
+                              !isReadOnly && getInputStateClass("payment.beneficiaryName", value.beneficiaryName),
+                            )}
+                          />
+                          {beneficiaryNameError && <p className={appFieldErrorTextClass}>{beneficiaryNameError}</p>}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 ) : (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                       <div className={appFieldPairGridClass}>
                         <div>
-                          <label className={appFieldLabelClass}>Bank Name</label>
-                          <input suppressHydrationWarning type="text" value={value.bankName} onChange={(e) => updateField("bankName", e.target.value)} onBlur={() => markTouched("bankName")} placeholder="Intermediary or local bank" className={inputClass(bankNameError, Boolean(value.bankName))} />
+                          <label className={appFieldLabelClass}>
+                            Beneficiary Name
+                            {autoFilledFields.has("payment.beneficiaryName") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            disabled={isReadOnly}
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.beneficiaryName}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.beneficiaryName");
+                              updateField("beneficiaryName", e.target.value);
+                            }}
+                            onBlur={() => markTouched("beneficiaryName")}
+                            placeholder="Your Registered Name"
+                            className={cn(
+                              inputClass(beneficiaryNameError, Boolean(value.beneficiaryName)),
+                              !isReadOnly && getInputStateClass("payment.beneficiaryName", value.beneficiaryName),
+                            )}
+                          />
+                          {beneficiaryNameError && <p className={appFieldErrorTextClass}>{beneficiaryNameError}</p>}
+                        </div>
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            Account Number (IBAN)
+                            {autoFilledFields.has("payment.bankAccountNumber") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            disabled={isReadOnly}
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.bankAccountNumber}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.bankAccountNumber");
+                              updateField("bankAccountNumber", e.target.value);
+                            }}
+                            onBlur={() => markTouched("bankAccountNumber")}
+                            placeholder="IBAN or Account Number"
+                            className={cn(
+                              inputClass(bankAccountNumberError, Boolean(value.bankAccountNumber)),
+                              !isReadOnly && getInputStateClass("payment.bankAccountNumber", value.bankAccountNumber),
+                            )}
+                          />
+                          {bankAccountNumberError && <p className={appFieldErrorTextClass}>{bankAccountNumberError}</p>}
+                        </div>
+                      </div>
+
+                      <div className={appFieldPairGridClass}>
+                        <div>
+                          <label className={appFieldLabelClass}>
+                            Bank Name
+                            {autoFilledFields.has("payment.bankName") && (
+                              <span className="autofill-indicator">auto-filled</span>
+                            )}
+                          </label>
+                          <input
+                            disabled={isReadOnly}
+                            suppressHydrationWarning
+                            type="text"
+                            value={value.bankName}
+                            onChange={(e) => {
+                              onFieldManualEdit("payment.bankName");
+                              updateField("bankName", e.target.value);
+                            }}
+                            onBlur={() => markTouched("bankName")}
+                            placeholder="Example: HSBC London"
+                            className={cn(
+                              inputClass(bankNameError, Boolean(value.bankName)),
+                              !isReadOnly && getInputStateClass("payment.bankName", value.bankName),
+                            )}
+                          />
                           {bankNameError && <p className={appFieldErrorTextClass}>{bankNameError}</p>}
-                        </div>
-                        <div>
-                          <label className={appFieldLabelClass}>Account Name</label>
-                          <input suppressHydrationWarning type="text" value={value.accountName} onChange={(e) => updateField("accountName", e.target.value)} onBlur={() => markTouched("accountName")} placeholder="Exact name on account" className={inputClass(accountNameError, Boolean(value.accountName))} />
-                          {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
-                        </div>
-                        <div>
-                          <label className={appFieldLabelClass}>Account Number / IBAN</label>
-                          <input suppressHydrationWarning type="text" value={value.accountNumber} onChange={(e) => updateField("accountNumber", e.target.value)} onBlur={() => markTouched("accountNumber")} placeholder="IBAN or account number" className={inputClass(accountNumberError, Boolean(value.accountNumber))} />
-                          {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                         <div>
                           <label className={appFieldLabelClass}>
@@ -852,18 +882,19 @@ export default function TermsPaymentSection({
                             )}
                           </label>
                           <input
+                            disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
                             value={value.swiftBicCode}
                             onChange={(e) => {
                               onFieldManualEdit("payment.swiftBicCode");
-                              updateField("swiftBicCode", e.target.value);
+                              updateField("swiftBicCode", e.target.value.toUpperCase());
                             }}
                             onBlur={() => markTouched("swiftBicCode")}
-                            placeholder="8 or 11 characters"
+                            placeholder="ABCDGB2L"
                             className={cn(
                               inputClass(swiftBicCodeError, Boolean(value.swiftBicCode)),
-                              getInputStateClass("payment.swiftBicCode", value.swiftBicCode),
+                              !isReadOnly && getInputStateClass("payment.swiftBicCode", value.swiftBicCode),
                             )}
                           />
                           {swiftBicCodeError && <p className={appFieldErrorTextClass}>{swiftBicCodeError}</p>}
@@ -961,9 +992,6 @@ export default function TermsPaymentSection({
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    </div>
       </section>
     </>
   );
