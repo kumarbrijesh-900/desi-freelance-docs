@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Header: asymmetric split ─────────── */}
@@ -53,7 +53,9 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
       <section className="grid grid-cols-2 gap-0 mb-10 border-2 border-black">
         <div className="p-5 border-r-2 border-black">
           <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40 mb-3">From</p>
-          <p className="text-[11px] leading-relaxed whitespace-pre-line">{data.agencyAddress}</p>
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="text-[11px] leading-relaxed whitespace-pre-line">{data.agencyAddress}</p>
+          )}
           {data.agencyState && <p className="text-[10px] text-black/50 mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
           {data.showAgencyGstin && <p className="text-[10px] font-bold mt-1">GSTIN {data.agencyGstin}</p>}
           {data.agencyPan && <p className="text-[10px] text-black/50">PAN {data.agencyPan}</p>}
@@ -61,7 +63,9 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
         <div className="p-5">
           <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40 mb-3">To</p>
           <p className="text-[14px] font-bold">{data.clientName}</p>
-          <p className="text-[11px] text-black/60 leading-relaxed whitespace-pre-line mt-1">{data.clientAddress}</p>
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="text-[11px] text-black/60 leading-relaxed whitespace-pre-line mt-1">{data.clientAddress}</p>
+          )}
           {data.clientState && <p className="text-[10px] text-black/40 mt-1">{data.clientState?.replace(/\s*\(\d+\)/, '')}</p>}
           {data.clientTaxId && <p className="text-[10px] mt-0.5">{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</p>}
         </div>
@@ -81,6 +85,9 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           <tbody>
             {data.lineItems.map((item) => {
               if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
                 return (
                   <tr key={item.id} className="bg-black/5 border-b-2 border-black">
                     <td colSpan={3} className="py-3 px-4">

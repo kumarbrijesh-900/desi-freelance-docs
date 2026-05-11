@@ -23,10 +23,10 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.04]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.04] print:hidden"
         style={{
           backgroundImage:
             "linear-gradient(#1D3557 1px, transparent 1px), linear-gradient(90deg, #1D3557 1px, transparent 1px)",
@@ -35,7 +35,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#1D3557 1px, transparent 1px)",
           backgroundSize: "25mm 25mm",
@@ -44,27 +44,27 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
 
       {/* Technical Cross-hatch in corners */}
       <div
-        className="absolute top-0 left-0 w-40 h-40 opacity-[0.04] pointer-events-none z-0"
+        className="absolute top-0 left-0 w-40 h-40 opacity-[0.04] pointer-events-none z-0 print:hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(-45deg, #E63946 0, #E63946 1px, transparent 0, transparent 4px)",
         }}
       />
       <div
-        className="absolute bottom-0 right-0 w-60 h-60 opacity-[0.04] pointer-events-none z-0"
+        className="absolute bottom-0 right-0 w-60 h-60 opacity-[0.04] pointer-events-none z-0 print:hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(45deg, #1D3557 0, #1D3557 1px, transparent 0, transparent 4px)",
         }}
       />
 
-      <div className="absolute top-[15%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">
+      <div className="absolute top-[15%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0 print:hidden">
         01
       </div>
-      <div className="absolute top-[45%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">
+      <div className="absolute top-[45%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0 print:hidden">
         02
       </div>
-      <div className="absolute top-[75%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0">
+      <div className="absolute top-[75%] right-4 select-none pointer-events-none text-[180px] font-black text-[#1D3557]/[0.01] z-0 print:hidden">
         03
       </div>
 
@@ -74,33 +74,31 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Header — Strict grid ─────────────── */}
       <header className="mt-4 grid gap-4 pb-4 md:grid-cols-[minmax(0,1fr)_200px]">
         <div className="min-w-0">
-          <div className="relative z-10 flex items-center justify-start h-12 w-32 mb-2 overflow-hidden">
-            {data.agencyLogoUrl ? (
+          {data.agencyLogoUrl && (
+            <div className="relative z-10 flex items-center justify-start h-12 w-32 mb-2 overflow-hidden">
               <img
                 src={data.agencyLogoUrl}
                 alt="Agency Logo"
                 className="max-h-full max-w-full object-contain object-left"
               />
-            ) : (
-              <div className="w-full h-full border border-dashed border-[#A8DADC] bg-[#f9fafa] flex items-center justify-center text-[7px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
-                Logo
-              </div>
-            )}
-          </div>
+            </div>
+          )}
           <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-[#E63946] print:text-[#666]">
             Invoice From
           </p>
           <h1 className="mt-1 text-[20px] font-extrabold uppercase leading-none tracking-[0.02em] text-[#1D3557]">
             {data.agencyName}
           </h1>
-          <p className="mt-2 max-w-md whitespace-pre-line text-[11px] leading-4 text-[#457B9D]">
-            {data.agencyAddress}
-          </p>
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="mt-2 max-w-md whitespace-pre-line text-[11px] leading-4 text-[#457B9D]">
+              {data.agencyAddress}
+            </p>
+          )}
           {(data.showAgencyGstin || data.agencyPan) && (
-            <div className="mt-1.5 flex gap-4 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
+            <div className="mt-1.5 flex flex-wrap gap-4 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
               {data.agencyState && (
                 <span>
-                  {data.agencyState}
+                  {data.agencyState?.replace(/\s*\(\d+\)/, '')}
                 </span>
               )}
               {data.showAgencyGstin && <span>GSTIN {data.agencyGstin}</span>}
@@ -153,9 +151,11 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1 text-[13px] font-bold uppercase text-[#1D3557]">
             {data.agencyName}
           </p>
-          <p className="mt-0.5 whitespace-pre-line text-[11px] text-[#457B9D]">
-            {data.agencyAddress}
-          </p>
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="mt-0.5 whitespace-pre-line text-[11px] text-[#457B9D]">
+              {data.agencyAddress}
+            </p>
+          )}
         </div>
         <div>
           <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">
@@ -164,13 +164,24 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1 text-[13px] font-bold uppercase text-[#1D3557]">
             {data.clientName}
           </p>
-          <p className="mt-0.5 whitespace-pre-line text-[11px] text-[#457B9D]">
-            {data.clientAddress}
-          </p>
-          {data.clientTaxId && (
-            <p className="mt-0.5 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
-              {data.clientTaxLabel} {data.clientTaxId}
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="mt-0.5 whitespace-pre-line text-[11px] text-[#457B9D]">
+              {data.clientAddress}
             </p>
+          )}
+          {(data.clientState || data.clientTaxId) && (
+            <div className="mt-1 flex flex-col gap-0.5 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
+              {data.clientState && (
+                <span>
+                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                </span>
+              )}
+              {data.clientTaxId && (
+                <span>
+                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')} {data.clientTaxId}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </section>
@@ -195,47 +206,77 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               </tr>
             </thead>
             <tbody>
-              {data.lineItems.map((item, i) => (
-                <tr
-                  key={item.id}
-                  className={`border-b border-[#1D3557]/10 text-[12px] print:border-[#eee] ${
-                    i % 2 === 1 ? "bg-[#F1FAEE] print:bg-[#f9f9f9]" : ""
-                  }`}
-                >
-                  <td className="px-2 py-2 align-top">
-                    <span className="font-semibold text-[#1D3557]">
-                      {item.description}
-                    </span>
-                    <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-[#457B9D]">
-                      {item.type && (
-                        <span className="font-bold uppercase tracking-[0.1em]">
-                          {item.type}
-                        </span>
-                      )}
-                      {item.sacCode && (
-                        <span>
-                          <span className="text-[#A8DADC]">HSN/SAC:</span>{" "}
-                          <span className="font-bold text-[#1D3557]">
-                            {item.sacCode}
+              {data.lineItems.map((item, i) => {
+                if (item.isMilestoneHeader) {
+                  const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                  if (milestoneHeaderCount <= 1) return null;
+
+                  return (
+                    <tr key={item.id} className="bg-[#1D3557]/5 border-b border-[#1D3557]/10">
+                      <td colSpan={2} className="px-2 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[7px] font-bold uppercase tracking-[0.4em] text-[#E63946]">
+                            Milestone
                           </span>
-                        </span>
-                      )}
-                    </span>
-                  </td>
-                  <td className="px-2 py-2 text-center align-top font-mono text-[11px] font-bold tabular-nums">
-                    {item.qty}
-                  </td>
-                  <td className="px-2 py-2 align-top font-mono text-[11px] tabular-nums">
-                    {item.rateFormatted}
-                  </td>
-                  <td className="px-2 py-2 align-top text-[11px] text-[#457B9D]">
-                    {item.unit}
-                  </td>
-                  <td className="px-2 py-2 text-right align-top font-mono text-[11px] font-bold tabular-nums text-[#1D3557]">
-                    {item.amountFormatted}
-                  </td>
-                </tr>
-              ))}
+                          <span className="text-[14px] font-extrabold uppercase text-[#1D3557] capitalize">
+                            {item.description}
+                          </span>
+                        </div>
+                      </td>
+                      <td colSpan={3} className="px-2 py-3 text-right align-bottom">
+                        <div className="text-[7px] font-bold uppercase tracking-[0.4em] text-[#A8DADC] mb-0.5">
+                          Subtotal
+                        </div>
+                        <div className="font-mono text-[14px] font-bold text-[#1D3557]">
+                          {item.groupSubtotalFormatted}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr
+                    key={item.id}
+                    className={`border-b border-[#1D3557]/10 text-[12px] print:border-[#eee] ${
+                      i % 2 === 1 ? "bg-[#F1FAEE] print:bg-[#f9f9f9]" : ""
+                    }`}
+                  >
+                    <td className="px-2 py-2 align-top">
+                      <span className="font-semibold text-[#1D3557]">
+                        {item.description}
+                      </span>
+                      <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-[#457B9D]">
+                        {item.type && (
+                          <span className="font-bold uppercase tracking-[0.1em]">
+                            {item.type}
+                          </span>
+                        )}
+                        {item.sacCode && (
+                          <span>
+                            <span className="text-[#A8DADC]">HSN/SAC:</span>{" "}
+                            <span className="font-bold text-[#1D3557]">
+                              {item.sacCode}
+                            </span>
+                          </span>
+                        )}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-center align-top font-mono text-[11px] font-bold tabular-nums">
+                      {item.qty}
+                    </td>
+                    <td className="px-2 py-2 align-top font-mono text-[11px] tabular-nums">
+                      {item.rateFormatted}
+                    </td>
+                    <td className="px-2 py-2 align-top text-[11px] text-[#457B9D]">
+                      {item.unit}
+                    </td>
+                    <td className="px-2 py-2 text-right align-top font-mono text-[11px] font-bold tabular-nums text-[#1D3557]">
+                      {item.amountFormatted}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -287,24 +328,20 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
           )}
-          <div>
-            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">
-              Scan
-            </p>
-            <div className="mt-1.5 h-16 w-16 flex items-center justify-center overflow-hidden">
-              {data.hasQrCode ? (
+          {data.hasQrCode && (
+            <div>
+              <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">
+                Scan
+              </p>
+              <div className="mt-1.5 h-16 w-16 flex items-center justify-center overflow-hidden">
                 <img
                   src={data.qrCodeUrl}
                   alt="Payment QR"
                   className="max-h-full max-w-full object-contain object-center"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#A8DADC] bg-[#f9fafa] flex items-center justify-center text-[7px] font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
-                  QR
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Totals — precise alignment */}

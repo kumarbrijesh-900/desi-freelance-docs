@@ -21,10 +21,10 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-visible print:overflow-visible print:m-0 print:border-none">
+    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-visible print:overflow-visible print:m-0 print:border-none print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#111118 1px, transparent 1px)",
           backgroundSize: "24px 24px",
@@ -32,29 +32,29 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.01]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.01] print:hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(0deg, #111118 0, #111118 1px, transparent 0, transparent 40px)",
         }}
       />
 
-      <div className="absolute top-[40%] -right-20 select-none pointer-events-none text-[320px] font-outfit font-black text-[#111118]/[0.01] -rotate-12 z-0">
+      <div className="absolute top-[40%] -right-20 select-none pointer-events-none text-[320px] font-outfit font-black text-[#111118]/[0.01] -rotate-12 z-0 print:hidden">
         STUDIO
       </div>
 
       {/* Technical Crosshairs */}
-      <div className="absolute top-[10mm] left-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0">
+      <div className="absolute top-[10mm] left-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0 print:hidden">
         <div className="absolute top-1/2 left-0 w-full h-px bg-current" />
         <div className="absolute top-0 left-1/2 w-px h-full bg-current" />
       </div>
-      <div className="absolute bottom-[10mm] right-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0">
+      <div className="absolute bottom-[10mm] right-[10mm] w-4 h-4 text-[#111118]/10 pointer-events-none z-0 print:hidden">
         <div className="absolute top-1/2 left-0 w-full h-px bg-current" />
         <div className="absolute top-0 left-1/2 w-px h-full bg-current" />
       </div>
 
       {/* ── A4 Header Accent (No Bleed) ────── */}
-      <div className="absolute top-0 right-[20mm] w-[280px] h-[280px] bg-[#2D5BFF] z-0 rounded-b-[20px] print:right-0" />
+      <div className="absolute top-0 right-[20mm] w-[280px] h-[280px] bg-[#2D5BFF] z-0 rounded-b-[20px] print:hidden" />
 
       {/* ── Content Wrapper ─────────────────── */}
       <div className="relative z-10 p-[20mm] box-border min-h-[297mm] flex flex-col">
@@ -63,26 +63,24 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
           <div className="max-w-[250px]">
             <div className="w-[60px] h-[6px] bg-[#FF725E] mb-4" />
             <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-4 overflow-hidden">
-              {data.agencyLogoUrl ? (
+              {data.agencyLogoUrl && (
                 <img
                   src={data.agencyLogoUrl}
                   alt="Agency Logo"
                   className="max-h-full max-w-full object-contain object-left"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#e8e6e1] bg-white/50 flex items-center justify-center text-[8px] font-extrabold text-[#A8A08E] uppercase tracking-[0.2em]">
-                  Logo
-                </div>
               )}
             </div>
             <div className="text-[11px] text-[#666] leading-relaxed space-y-1">
               <p className="font-semibold text-[#111118]">{data.agencyName}</p>
-              <p className="whitespace-pre-line">{data.agencyAddress}</p>
+              {data.agencyAddress && data.agencyAddress !== "—" && (
+                <p className="whitespace-pre-line">{data.agencyAddress}</p>
+              )}
               {(data.agencyState || data.showAgencyGstin) && (
                 <div className="flex flex-wrap gap-x-3 pt-1">
                   {data.agencyState && (
                     <span>
-                      {data.agencyState}
+                      {data.agencyState?.replace(/\s*\(\d+\)/, '')}
                     </span>
                   )}
                   {data.showAgencyGstin && (
@@ -139,13 +137,24 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             <div className="font-outfit text-[24px] font-extrabold text-[#111118] mb-2">
               {data.clientName}
             </div>
-            <p className="text-[12px] text-[#666] leading-relaxed whitespace-pre-line">
-              {data.clientAddress}
-            </p>
-            {data.clientTaxId && (
-              <p className="mt-2 text-[10px] font-bold text-[#A8A08E] uppercase tracking-wider">
-                {data.clientTaxLabel}: {data.clientTaxId}
+            {data.clientAddress && data.clientAddress !== "—" && (
+              <p className="text-[12px] text-[#666] leading-relaxed whitespace-pre-line">
+                {data.clientAddress}
               </p>
+            )}
+            {(data.clientState || data.clientTaxId) && (
+              <div className="mt-2 flex flex-col gap-0.5 text-[10px] font-bold text-[#A8A08E] uppercase tracking-wider">
+                {data.clientState && (
+                  <span>
+                    {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                  </span>
+                )}
+                {data.clientTaxId && (
+                  <span>
+                    {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')} {data.clientTaxId}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           <div className="text-right">
@@ -183,40 +192,70 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               </tr>
             </thead>
             <tbody>
-              {data.lineItems.map((item) => (
-                <tr key={item.id} className="border-b border-[#e8e6e1]">
-                  <td className="p-4 align-top">
-                    <div className="font-outfit font-extrabold text-[16px] text-[#111118] mb-1">
-                      {item.description}
-                    </div>
-                    <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-[#555]">
-                      {item.type && (
-                        <span className="font-semibold">{item.type}</span>
-                      )}
-                      {item.sacCode && (
-                        <span>
-                          <span className="text-[#999]">HSN/SAC:</span>{" "}
-                          <span className="font-bold text-[#333]">
-                            {item.sacCode}
+              {data.lineItems.map((item) => {
+                if (item.isMilestoneHeader) {
+                  const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                  if (milestoneHeaderCount <= 1) return null;
+
+                  return (
+                    <tr key={item.id} className="bg-[#FAF9F6] border-y border-[#e8e6e1]">
+                      <td colSpan={2} className="p-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E]">
+                            Milestone
                           </span>
-                        </span>
-                      )}
-                      {item.unit && (
-                        <span>
-                          <span className="text-[#999]">Unit:</span>{" "}
-                          <span className="font-medium">{item.unit}</span>
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-4 align-top text-center font-semibold text-[#111118]">
-                    {item.qty}
-                  </td>
-                  <td className="p-4 align-top text-right font-outfit font-extrabold text-[16px] text-[#111118]">
-                    {item.amountFormatted}
-                  </td>
-                </tr>
-              ))}
+                          <div className="font-outfit text-[18px] font-black text-[#111118] capitalize">
+                            {item.description}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right align-bottom">
+                        <div className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-1">
+                          Subtotal
+                        </div>
+                        <div className="font-outfit text-[16px] font-black text-[#111118]">
+                          {item.groupSubtotalFormatted}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr key={item.id} className="border-b border-[#e8e6e1]">
+                    <td className="p-4 align-top">
+                      <div className="font-outfit font-extrabold text-[16px] text-[#111118] mb-1">
+                        {item.description}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-[#555]">
+                        {item.type && (
+                          <span className="font-semibold">{item.type}</span>
+                        )}
+                        {item.sacCode && (
+                          <span>
+                            <span className="text-[#999]">HSN/SAC:</span>{" "}
+                            <span className="font-bold text-[#333]">
+                              {item.sacCode}
+                            </span>
+                          </span>
+                        )}
+                        {item.unit && (
+                          <span>
+                            <span className="text-[#999]">Unit:</span>{" "}
+                            <span className="font-medium">{item.unit}</span>
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 align-top text-center font-semibold text-[#111118]">
+                      {item.qty}
+                    </td>
+                    <td className="p-4 align-top text-right font-outfit font-extrabold text-[16px] text-[#111118]">
+                      {item.amountFormatted}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </section>
@@ -286,24 +325,20 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                       )}
                     </div>
                   )}
-                  <div>
-                    <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">
-                      Scan to Pay
-                    </p>
-                    <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
-                      {data.hasQrCode ? (
+                  {data.hasQrCode && (
+                    <div>
+                      <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">
+                        Scan to Pay
+                      </p>
+                      <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
                         <img
                           src={data.qrCodeUrl}
                           alt="Payment QR"
                           className="max-h-full max-w-full object-contain object-center"
                         />
-                      ) : (
-                        <div className="w-full h-full border border-dashed border-[#e8e6e1] bg-[#FAF9F6] flex items-center justify-center text-[8px] font-extrabold text-[#A8A08E] uppercase tracking-widest">
-                          QR
-                        </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
               <div className="mt-4">

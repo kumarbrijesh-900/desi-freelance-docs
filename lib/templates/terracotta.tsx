@@ -23,13 +23,13 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517] bg-[#FFFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517] bg-[#FFFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute top-[5%] -left-20 w-[400px] h-[400px] bg-[#C75B39]/[0.02] rounded-full blur-[120px] pointer-events-none z-0 rotate-12" />
-      <div className="absolute bottom-[15%] -right-20 w-[350px] h-[350px] bg-[#8B6F5E]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-[5%] -left-20 w-[400px] h-[400px] bg-[#C75B39]/[0.02] rounded-full blur-[120px] pointer-events-none z-0 rotate-12 print:hidden" />
+      <div className="absolute bottom-[15%] -right-20 w-[350px] h-[350px] bg-[#8B6F5E]/[0.03] rounded-full blur-[100px] pointer-events-none z-0 print:hidden" />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] mix-blend-multiply print:hidden"
         style={{
           backgroundImage:
             'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
@@ -37,14 +37,14 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#C75B39 1px, transparent 1px)",
           backgroundSize: "32px 32px",
         }}
       />
 
-      <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#C75B39]/[0.02] rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-[#C75B39]/[0.02] rounded-full blur-[140px] pointer-events-none z-0 print:hidden" />
 
       {/* ── Terracotta bar ────────────────────── */}
       <div className="relative z-10 h-[5px] w-full rounded-t-sm bg-[#C75B39] print:bg-[#999]" />
@@ -54,16 +54,12 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-3 overflow-hidden">
-              {data.agencyLogoUrl ? (
+              {data.agencyLogoUrl && (
                 <img
                   src={data.agencyLogoUrl}
                   alt="Agency Logo"
                   className="max-h-full max-w-full object-contain object-left"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
-                  Logo
-                </div>
               )}
             </div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
@@ -72,9 +68,11 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             <h1 className="mt-1 text-[24px] font-bold leading-none tracking-tight text-[#3D2517]">
               {data.agencyName}
             </h1>
-            <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#8B6F5E]">
-              {data.agencyAddress}
-            </p>
+            {data.agencyAddress && data.agencyAddress !== "—" && (
+              <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#8B6F5E]">
+                {data.agencyAddress}
+              </p>
+            )}
             {(data.agencyState || data.showAgencyGstin) && (
               <div className="mt-1.5 flex flex-wrap gap-3 text-[10px] text-[#B09080]">
                 {data.agencyState && (
@@ -114,9 +112,11 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">
             {data.agencyName}
           </p>
-          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
-            {data.agencyAddress}
-          </p>
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
+              {data.agencyAddress}
+            </p>
+          )}
         </div>
         <div className="rounded-lg border border-[#E8D5C4] bg-[#FFF8F3] px-4 py-3 print:bg-[#fafafa] print:border-[#ddd]">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
@@ -125,13 +125,24 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-1.5 text-[14px] font-semibold text-[#3D2517]">
             {data.clientName}
           </p>
-          <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
-            {data.clientAddress}
-          </p>
-          {data.clientTaxId && (
-            <p className="mt-1 text-[10px] text-[#B09080]">
-              {data.clientTaxLabel}: {data.clientTaxId}
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="mt-1 whitespace-pre-line text-[12px] text-[#8B6F5E]">
+              {data.clientAddress}
             </p>
+          )}
+          {(data.clientState || data.clientTaxId) && (
+            <div className="mt-1 flex flex-col gap-0.5 text-[10px] text-[#B09080]">
+              {data.clientState && (
+                <span>
+                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                </span>
+              )}
+              {data.clientTaxId && (
+                <span>
+                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')} {data.clientTaxId}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </section>
@@ -143,41 +154,72 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
         </p>
 
         <div className="mt-3 space-y-2">
-          {data.lineItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-start justify-between gap-4 rounded-lg border border-[#E8D5C4] border-l-[4px] border-l-[#C75B39] bg-white px-4 py-3 print:border-l-[#999]"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-[#3D2517]">
-                  {item.description}
-                </p>
-                <p className="mt-0.5 text-[10px] text-[#8B6F5E]">
-                  {item.type} · {item.qty} × {item.rateFormatted}
-                </p>
-                {item.sacCode && (
-                  <p className="mt-1 text-[10px] text-[#8B6F5E]">
-                    <span className="text-[#B09080]">HSN/SAC:</span>{" "}
-                    <span className="font-semibold text-[#3D2517]">
-                      {item.sacCode}
-                    </span>
-                    {item.unit && (
-                      <span className="text-[#B09080]">
-                        {" "}
-                        &nbsp;·&nbsp; Unit:{" "}
-                        <span className="font-medium text-[#3D2517]">
-                          {item.unit}
-                        </span>
-                      </span>
-                    )}
+          {data.lineItems.map((item) => {
+            if (item.isMilestoneHeader) {
+              const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+              if (milestoneHeaderCount <= 1) return null;
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-end justify-between border-y border-[#E8D5C4] bg-[#FFF8F3] px-4 py-4 rounded-lg"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                      Milestone
+                    </p>
+                    <p className="mt-1 text-[16px] font-bold text-[#3D2517] capitalize">
+                      {item.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#B09080]">
+                      Subtotal
+                    </p>
+                    <p className="text-[16px] font-bold tabular-nums text-[#3D2517]">
+                      {item.groupSubtotalFormatted}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={item.id}
+                className="flex items-start justify-between gap-4 rounded-lg border border-[#E8D5C4] border-l-[4px] border-l-[#C75B39] bg-white px-4 py-3 print:border-l-[#999]"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-[#3D2517]">
+                    {item.description}
                   </p>
-                )}
+                  <p className="mt-0.5 text-[10px] text-[#8B6F5E]">
+                    {item.type} · {item.qty} × {item.rateFormatted}
+                  </p>
+                  {item.sacCode && (
+                    <p className="mt-1 text-[10px] text-[#8B6F5E]">
+                      <span className="text-[#B09080]">HSN/SAC:</span>{" "}
+                      <span className="font-semibold text-[#3D2517]">
+                        {item.sacCode}
+                      </span>
+                      {item.unit && (
+                        <span className="text-[#B09080]">
+                          {" "}
+                          &nbsp;·&nbsp; Unit:{" "}
+                          <span className="font-medium text-[#3D2517]">
+                            {item.unit}
+                          </span>
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <p className="shrink-0 text-[15px] font-bold tabular-nums text-[#3D2517]">
+                  {item.amountFormatted}
+                </p>
               </div>
-              <p className="shrink-0 text-[15px] font-bold tabular-nums text-[#3D2517]">
-                {item.amountFormatted}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -226,24 +268,20 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
           )}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
-              Scan to Pay
-            </p>
-            <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
-              {data.hasQrCode ? (
+          {data.hasQrCode && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
+                Scan to Pay
+              </p>
+              <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
                 <img
                   src={data.qrCodeUrl}
                   alt="Payment QR"
                   className="max-h-full max-w-full object-contain object-center"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#E8D5C4] bg-white/50 flex items-center justify-center text-[8px] font-bold uppercase tracking-[0.2em] text-[#C75B39]">
-                  QR
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right: Totals */}

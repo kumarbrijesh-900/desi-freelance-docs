@@ -22,13 +22,13 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.04] rounded-full blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.05] rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.04] rounded-full blur-[120px] pointer-events-none z-0 print:hidden" />
+      <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.05] rounded-full blur-[100px] pointer-events-none z-0 print:hidden" />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#6C63FF 1px, transparent 1px)",
           backgroundSize: "32px 32px",
@@ -36,14 +36,14 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <svg
-        className="absolute top-0 right-0 w-[400px] h-[400px] text-[#6C63FF]/[0.02] pointer-events-none z-0"
+        className="absolute top-0 right-0 w-[400px] h-[400px] text-[#6C63FF]/[0.02] pointer-events-none z-0 print:hidden"
         viewBox="0 0 400 400"
       >
         <path d="M0,100 C150,200 250,0 400,100 V400 H0 Z" fill="currentColor" />
       </svg>
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] mix-blend-overlay"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] mix-blend-overlay print:hidden"
         style={{
           backgroundImage:
             'url("https://www.transparenttextures.com/patterns/stardust.png")',
@@ -57,16 +57,12 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-3 overflow-hidden">
-              {data.agencyLogoUrl ? (
+              {data.agencyLogoUrl && (
                 <img
                   src={data.agencyLogoUrl}
                   alt="Agency Logo"
                   className="max-h-full max-w-full object-contain object-left brightness-0 invert print:brightness-100 print:invert-0"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#6C63FF]/30 bg-[#6C63FF]/5 flex items-center justify-center text-[8px] uppercase tracking-[0.3em] text-[#6C63FF] font-bold">
-                  Logo
-                </div>
               )}
             </div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#6C63FF] print:text-[#666]">
@@ -75,11 +71,18 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             <h1 className="mt-1 text-[22px] font-bold leading-none tracking-tight text-[#F0F0F5] print:text-[#111]">
               {data.agencyName}
             </h1>
-            <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#F0F0F5]/50 print:text-[#777]">
-              {data.agencyAddress}
-            </p>
+            {data.agencyAddress && data.agencyAddress !== "—" && (
+              <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#F0F0F5]/50 print:text-[#777]">
+                {data.agencyAddress}
+              </p>
+            )}
             {(data.showAgencyGstin || data.agencyPan) && (
-              <div className="mt-1.5 flex gap-4 text-[10px] text-[#F0F0F5]/30 print:text-[#999]">
+              <div className="mt-1.5 flex flex-wrap gap-4 text-[10px] text-[#F0F0F5]/30 print:text-[#999]">
+                {data.agencyState && (
+                  <span>
+                    {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                  </span>
+                )}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
                 {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
               </div>
@@ -108,22 +111,25 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           Bill To
         </p>
         <p className="mt-1.5 text-[16px] font-semibold">{data.clientName}</p>
-        <p className="mt-1 whitespace-pre-line text-[12px] text-[#666]">
-          {data.clientAddress}
-        </p>
-        <div className="mt-1.5 flex gap-4 text-[10px] text-[#999]">
-          {!data.isInternational && data.clientState && (
-            <span>State: {data.clientState}</span>
-          )}
-          {data.isInternational && data.clientCountry && (
-            <span>Country: {data.clientCountry}</span>
-          )}
-          {data.clientTaxId && (
-            <span>
-              {data.clientTaxLabel}: {data.clientTaxId}
-            </span>
-          )}
-        </div>
+        {data.clientAddress && data.clientAddress !== "—" && (
+          <p className="mt-1 whitespace-pre-line text-[12px] text-[#666]">
+            {data.clientAddress}
+          </p>
+        )}
+        {(data.clientState || data.clientTaxId) && (
+          <div className="mt-1.5 flex flex-col gap-0.5 text-[10px] text-[#999]">
+            {data.clientState && (
+              <span>
+                {data.clientState?.replace(/\s*\(\d+\)/, '')}
+              </span>
+            )}
+            {data.clientTaxId && (
+              <span>
+                {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}
+              </span>
+            )}
+          </div>
+        )}
       </section>
 
       {/* ── Line Items — Violet separators ───── */}
@@ -150,68 +156,99 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
 
           {/* Line Items */}
           <div className="divide-y divide-[#6C63FF]/8">
-            {data.lineItems.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-1 md:grid-cols-[1fr_80px_120px_80px_110px] gap-2 md:gap-4 py-4 md:py-3 md:px-2 group"
-              >
-                {/* Mobile: Description + Total row */}
-                <div className="flex justify-between items-start md:block">
-                  <div className="min-w-0">
-                    <p className="text-[14px] font-bold text-[#1A1A2E] leading-tight md:font-semibold md:text-[13px]">
-                      {item.description}
-                    </p>
-                    {/* Desktop Subtext */}
-                    <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#888]">
-                      {item.type && (
-                        <span className="font-medium text-[#aaa]">{item.type}</span>
-                      )}
-                      {item.sacCode && (
-                        <span>
-                          HSN/SAC: <span className="font-semibold text-[#ccc]">{item.sacCode}</span>
-                        </span>
-                      )}
+            {data.lineItems.map((item) => {
+              if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex flex-col md:flex-row md:items-end justify-between border-y border-[#6C63FF]/10 bg-[#6C63FF]/5 px-4 py-4 my-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-[#6C63FF]">
+                        Milestone
+                      </p>
+                      <p className="mt-1 text-[16px] font-bold text-[#1A1A2E] capitalize">
+                        {item.description}
+                      </p>
+                    </div>
+                    <div className="text-right mt-2 md:mt-0">
+                      <p className="text-[9px] uppercase tracking-[0.16em] text-[#999]">
+                        Subtotal
+                      </p>
+                      <p className="text-[15px] font-bold tabular-nums text-[#1A1A2E]">
+                        {item.groupSubtotalFormatted}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right md:hidden">
-                    <p className="text-[15px] font-black text-[#1A1A2E] tabular-nums">
-                      {item.amountFormatted}
-                    </p>
-                  </div>
-                </div>
+                );
+              }
 
-                {/* Mobile: Type+SAC and Qty x Rate row */}
-                <div className="flex items-center justify-between md:hidden mt-1">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C63FF]/70">
-                      {item.type || "Service"}
-                    </span>
-                    {item.sacCode && (
-                      <span className="text-[10px] text-[#999]">SAC {item.sacCode}</span>
-                    )}
+              return (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-1 md:grid-cols-[1fr_80px_120px_80px_110px] gap-2 md:gap-4 py-4 md:py-3 md:px-2 group"
+                >
+                  {/* Mobile: Description + Total row */}
+                  <div className="flex justify-between items-start md:block">
+                    <div className="min-w-0">
+                      <p className="text-[14px] font-bold text-[#1A1A2E] leading-tight md:font-semibold md:text-[13px]">
+                        {item.description}
+                      </p>
+                      {/* Desktop Subtext */}
+                      <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#888]">
+                        {item.type && (
+                          <span className="font-medium text-[#aaa]">{item.type}</span>
+                        )}
+                        {item.sacCode && (
+                          <span>
+                            HSN/SAC: <span className="font-semibold text-[#ccc]">{item.sacCode}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right md:hidden">
+                      <p className="text-[15px] font-black text-[#1A1A2E] tabular-nums">
+                        {item.amountFormatted}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[11px] text-[#888] font-medium">
-                      {item.qty} {item.unit} × {item.rateFormatted}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Desktop-only Columns */}
-                <div className="hidden md:flex items-center justify-center tabular-nums text-[13px] font-medium">
-                  {item.qty}
+                  {/* Mobile: Type+SAC and Qty x Rate row */}
+                  <div className="flex items-center justify-between md:hidden mt-1">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C63FF]/70">
+                        {item.type || "Service"}
+                      </span>
+                      {item.sacCode && (
+                        <span className="text-[10px] text-[#999]">SAC {item.sacCode}</span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] text-[#888] font-medium">
+                        {item.qty} {item.unit} × {item.rateFormatted}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Desktop-only Columns */}
+                  <div className="hidden md:flex items-center justify-center tabular-nums text-[13px] font-medium">
+                    {item.qty}
+                  </div>
+                  <div className="hidden md:flex items-center tabular-nums text-[13px] font-medium">
+                    {item.rateFormatted}
+                  </div>
+                  <div className="hidden md:flex items-center text-[12px] text-[#666]">
+                    {item.unit}
+                  </div>
+                  <div className="hidden md:flex items-center justify-end tabular-nums font-bold text-[13px]">
+                    {item.amountFormatted}
+                  </div>
                 </div>
-                <div className="hidden md:flex items-center tabular-nums text-[13px] font-medium">
-                  {item.rateFormatted}
-                </div>
-                <div className="hidden md:flex items-center text-[12px] text-[#666]">
-                  {item.unit}
-                </div>
-                <div className="hidden md:flex items-center justify-end tabular-nums font-bold text-[13px]">
-                  {item.amountFormatted}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -260,24 +297,20 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
           )}
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">
-              Scan to Pay
-            </p>
-            <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
-              {data.hasQrCode ? (
+          {data.hasQrCode && (
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">
+                Scan to Pay
+              </p>
+              <div className="mt-2 h-16 w-16 flex items-center justify-center overflow-hidden">
                 <img
                   src={data.qrCodeUrl}
                   alt="Payment QR"
                   className="max-h-full max-w-full object-contain object-center"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#6C63FF]/20 bg-[#6C63FF]/5 flex items-center justify-center text-[8px] uppercase tracking-[0.2em] text-[#6C63FF] font-bold">
-                  QR
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Totals — Violet accent */}

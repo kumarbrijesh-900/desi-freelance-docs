@@ -90,12 +90,12 @@ function PreviewContent() {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [scaleToFit, setScaleToFit] = useState(0.6);
-  const [zoom, setZoom] = useState<number | null>(null); // null = auto-fit mode
+  const [zoom, setZoom] = useState<number>(1); // 1 = 100%
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStart = useRef({ x: 0, y: 0 });
 
-  const effectiveZoom = zoom ?? scaleToFit;
+  const effectiveZoom = zoom;
 
   useEffect(() => {
     const updateScale = () => {
@@ -704,7 +704,7 @@ function PreviewContent() {
                   if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     const delta = e.deltaY > 0 ? -0.05 : 0.05;
-                    setZoom(Math.max(0.2, Math.min(1.5, (zoom ?? scaleToFit) + delta)));
+                    setZoom(Math.max(0.2, Math.min(1.5, (zoom) + delta)));
                   }
                 }}
                 onMouseDown={(e) => {
@@ -725,15 +725,15 @@ function PreviewContent() {
                 onMouseLeave={() => setIsPanning(false)}
                 className={cn(
                   "flex-1 flex items-start justify-center py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
-                  effectiveZoom > scaleToFit ? "overflow-auto cursor-grab active:cursor-grabbing" : "overflow-hidden"
+                  "overflow-auto cursor-grab active:cursor-grabbing"
                 )}
                 style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
               >
                 {/* Zoom Toolbar */}
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-sm px-2 py-1 print:hidden">
+                <div className="sticky top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-sm px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
-                      const newZoom = Math.max((zoom ?? scaleToFit) - 0.1, 0.2);
+                      const newZoom = Math.max((zoom) - 0.1, 0.2);
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
@@ -744,7 +744,7 @@ function PreviewContent() {
                   </button>
                   <button
                     onClick={() => {
-                      setZoom(null);
+                      setZoom(1);
                       setPanOffset({ x: 0, y: 0 });
                     }}
                     className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-gray-100"
@@ -754,7 +754,7 @@ function PreviewContent() {
                   </button>
                   <button
                     onClick={() => {
-                      const newZoom = Math.min((zoom ?? scaleToFit) + 0.1, 1.5);
+                      const newZoom = Math.min((zoom) + 0.1, 1.5);
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
@@ -766,7 +766,7 @@ function PreviewContent() {
                 </div>
 
                 <div
-                  className="invoice-sheet-wrapper relative print:overflow-visible"
+                  className="invoice-sheet-wrapper relative print:overflow-visible flex justify-center"
                   style={{
                     width: `${794 * effectiveZoom}px`,
                     height: `${1123 * effectiveZoom}px`,

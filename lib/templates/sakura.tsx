@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#2D2024] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['DM_Sans',_sans-serif] text-[#2D2024] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
 
       {/* ── Soft rose accent line ─────────────── */}
       <div className="h-[3px] w-24 bg-[#E11D48] mb-12 rounded-full" />
@@ -23,7 +23,9 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
             <img src={data.agencyLogoUrl} alt="Logo" className="h-12 mb-5 object-contain object-left" />
           )}
           <p className="text-[16px] font-bold tracking-[-0.02em]">{data.agencyName}</p>
-          <p className="text-[11px] text-[#8B7078] leading-relaxed whitespace-pre-line mt-2 max-w-[260px]">{data.agencyAddress}</p>
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="text-[11px] text-[#8B7078] leading-relaxed whitespace-pre-line mt-2 max-w-[260px]">{data.agencyAddress}</p>
+          )}
           {(data.agencyState || data.showAgencyGstin || data.agencyPan) && (
             <div className="mt-2 text-[10px] text-[#B09098] space-y-0.5">
               {data.agencyState && <p>{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
@@ -54,7 +56,9 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           <div>
             <p className="text-[9px] uppercase tracking-[0.25em] text-[#B09098] mb-3">Billed to</p>
             <p className="text-[16px] font-bold">{data.clientName}</p>
-            <p className="text-[11px] text-[#8B7078] leading-relaxed whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
+            {data.clientAddress && data.clientAddress !== "—" && (
+              <p className="text-[11px] text-[#8B7078] leading-relaxed whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
+            )}
             <div className="mt-2 text-[10px] text-[#B09098] flex gap-4">
               {data.clientState && <span>{data.clientState?.replace(/\s*\(\d+\)/, '')}</span>}
               {data.clientTaxId && <span>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</span>}
@@ -82,6 +86,9 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           <tbody>
             {data.lineItems.map((item) => {
               if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
                 return (
                   <tr key={item.id} className="bg-[#FDF2F4]">
                     <td colSpan={3} className="py-4 px-4">

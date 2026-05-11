@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MonoTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[#1a1a1a] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[#1a1a1a] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Dark Header Strip ─────────────────── */}
@@ -22,7 +22,9 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
               <img src={data.agencyLogoUrl} alt="Logo" className="h-10 mb-4 brightness-0 invert object-contain" />
             )}
             <p className="text-[14px] font-bold">{data.agencyName}</p>
-            <p className="text-[11px] text-gray-400 whitespace-pre-line mt-1 max-w-[260px]">{data.agencyAddress}</p>
+            {data.agencyAddress && data.agencyAddress !== "—" && (
+              <p className="text-[11px] text-gray-400 whitespace-pre-line mt-1 max-w-[260px]">{data.agencyAddress}</p>
+            )}
             {data.agencyState && <p className="text-[10px] text-gray-500 mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
             {data.showAgencyGstin && <p className="text-[10px] text-green-400 mt-0.5">GSTIN {data.agencyGstin}</p>}
             {data.agencyPan && <p className="text-[10px] text-gray-500">PAN {data.agencyPan}</p>}
@@ -43,7 +45,9 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <div>
           <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">// billed_to</p>
           <p className="text-[15px] font-bold">{data.clientName}</p>
-          <p className="text-[11px] text-gray-500 whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="text-[11px] text-gray-500 whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
+          )}
           <div className="mt-2 text-[10px] text-gray-400 space-y-0.5">
             {data.clientState && <p>{data.clientState?.replace(/\s*\(\d+\)/, '')}</p>}
             {data.clientTaxId && <p>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</p>}
@@ -71,6 +75,9 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           <tbody>
             {data.lineItems.map((item) => {
               if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
                 return (
                   <tr key={item.id} className="bg-[#f5f5f0]">
                     <td colSpan={3} className="py-3 px-3">

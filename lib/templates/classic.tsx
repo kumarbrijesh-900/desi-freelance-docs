@@ -124,7 +124,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               )}
               {data.clientTaxId && (
                 <span>
-                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}
+                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')} {data.clientTaxId}
                 </span>
               )}
             </div>

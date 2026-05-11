@@ -22,15 +22,15 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#27272F] bg-[#F8F7F4] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['DM_Sans',_sans-serif] text-[#27272F] bg-[#F8F7F4] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[#27272F]/[0.02] -rotate-12 z-0">
+      <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[#27272F]/[0.02] -rotate-12 z-0 print:hidden">
         INV
       </div>
 
       {/* Linen Cross-hatch Pattern */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(45deg, #27272F 0, #27272F 1px, transparent 0, transparent 50%)",
@@ -39,17 +39,17 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#27272F 0.8px, transparent 0.8px)",
           backgroundSize: "20px 20px",
         }}
       />
 
-      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] bg-[#EEEBE5] rounded-full blur-[120px] opacity-20 z-0 pointer-events-none" />
+      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] bg-[#EEEBE5] rounded-full blur-[120px] opacity-20 z-0 pointer-events-none print:hidden" />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply print:hidden"
         style={{
           backgroundImage:
             'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
@@ -64,16 +64,12 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         <div className="flex items-start justify-between gap-8">
           <div className="min-w-0">
             <div className="relative z-10 flex items-center justify-start h-14 w-40 mb-4 overflow-hidden">
-              {data.agencyLogoUrl ? (
+              {data.agencyLogoUrl && (
                 <img
                   src={data.agencyLogoUrl}
                   alt="Agency Logo"
                   className="max-h-full max-w-full object-contain object-left"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#D8D5CE] bg-white/40 flex items-center justify-center text-[8px] uppercase tracking-[0.3em] text-[#999] font-bold">
-                  Logo
-                </div>
               )}
             </div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-[#999]">
@@ -128,13 +124,22 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">
             {data.agencyName}
           </p>
-          <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
-            {data.agencyAddress}
-          </p>
-          {data.showAgencyGstin && (
-            <p className="mt-1 text-[11px] text-[#999]">
-              GSTIN {data.agencyGstin}
+          {data.agencyAddress && data.agencyAddress !== "—" && (
+            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
+              {data.agencyAddress}
             </p>
+          )}
+          {data.showAgencyGstin && (
+            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[#999]">
+              {data.agencyState && (
+                <span>
+                  {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                </span>
+              )}
+              <span className="font-medium text-[#777]">
+                GSTIN {data.agencyGstin}
+              </span>
+            </div>
           )}
         </div>
         <div className="md:pl-6">
@@ -144,13 +149,24 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
           <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">
             {data.clientName}
           </p>
-          <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
-            {data.clientAddress}
-          </p>
-          {data.clientTaxId && (
-            <p className="mt-1 text-[11px] text-[#999]">
-              {data.clientTaxLabel} {data.clientTaxId}
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
+              {data.clientAddress}
             </p>
+          )}
+          {(data.clientState || data.clientTaxId) && (
+            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[#999]">
+              {data.clientState && (
+                <span>
+                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                </span>
+              )}
+              {data.clientTaxId && (
+                <span>
+                  {data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')} {data.clientTaxId}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </section>
@@ -164,32 +180,35 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         </p>
 
         <div className="mt-4 space-y-0">
-          {data.lineItems.map((item, i) => {
-            if (item.isMilestoneHeader) {
-              return (
-                <div
-                  key={item.id}
-                  className="mt-6 flex items-end justify-between border-y border-[#EEEBE5] bg-[#EEEBE5]/40 px-4 py-4"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
-                      Milestone Section
-                    </p>
-                    <p className="mt-1 font-['Georgia',_serif] text-[16px] font-bold italic text-[#27272F]">
-                      {item.description}
-                    </p>
+            {data.lineItems.map((item, i) => {
+              if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="mt-6 flex items-end justify-between border-y border-[#EEEBE5] bg-[#EEEBE5]/40 px-4 py-4"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+                        Milestone
+                      </p>
+                      <p className="mt-1 font-['Georgia',_serif] text-[16px] font-bold italic text-[#27272F] capitalize">
+                        {item.description}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-[#999]">
+                        Subtotal
+                      </p>
+                      <p className="text-[16px] font-medium tabular-nums text-[#27272F]">
+                        {item.groupSubtotalFormatted}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#999]">
-                      Subtotal
-                    </p>
-                    <p className="text-[16px] font-medium tabular-nums text-[#27272F]">
-                      {item.groupSubtotalFormatted}
-                    </p>
-                  </div>
-                </div>
-              );
-            }
+                );
+              }
 
             return (
               <div
@@ -294,24 +313,20 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
             </div>
           )}
 
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
-              Scan to Pay
-            </p>
-            <div className="mt-2 h-20 w-20 flex items-center justify-center overflow-hidden">
-              {data.hasQrCode ? (
+          {data.hasQrCode && (
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+                Scan to Pay
+              </p>
+              <div className="mt-2 h-20 w-20 flex items-center justify-center overflow-hidden">
                 <img
                   src={data.qrCodeUrl}
                   alt="Payment QR"
                   className="max-h-full max-w-full object-contain object-center"
                 />
-              ) : (
-                <div className="w-full h-full border border-dashed border-[#D8D5CE] bg-white/40 flex items-center justify-center text-[8px] uppercase tracking-[0.2em] text-[#999] font-bold">
-                  QR
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right: Totals */}

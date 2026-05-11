@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['Lora',_'Georgia',_serif] text-[#1a1a1a] bg-[#FDFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
+    <div className="font-['Lora',_'Georgia',_serif] text-[#1a1a1a] bg-[#FDFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* ── Header ────────────────────────────── */}
@@ -20,7 +20,9 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
           <img src={data.agencyLogoUrl} alt="Logo" className="h-14 mx-auto mb-4 object-contain" />
         )}
         <h1 className="text-[26px] font-bold tracking-[0.08em] uppercase">{data.agencyName}</h1>
-        <p className="text-[11px] text-[#8B7355] mt-2 max-w-[400px] mx-auto leading-relaxed">{data.agencyAddress}</p>
+        {data.agencyAddress && data.agencyAddress !== "—" && (
+          <p className="text-[11px] text-[#8B7355] mt-2 max-w-[400px] mx-auto leading-relaxed">{data.agencyAddress}</p>
+        )}
         <div className="mt-2 text-[10px] text-[#A89070] flex justify-center gap-4">
           {data.agencyState && <span>{data.agencyState?.replace(/\s*\(\d+\)/, '')}</span>}
           {data.showAgencyGstin && <span className="font-semibold text-[#6B5B3E]">GSTIN: {data.agencyGstin}</span>}
@@ -54,7 +56,9 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
         <p className="text-[10px] uppercase tracking-[0.2em] text-[#A89070] mb-2 font-semibold">Billed to</p>
         <div className="border-l-2 border-[#8B7355] pl-4">
           <p className="text-[15px] font-bold">{data.clientName}</p>
-          <p className="text-[11px] text-[#6B5B3E] leading-relaxed whitespace-pre-line mt-1">{data.clientAddress}</p>
+          {data.clientAddress && data.clientAddress !== "—" && (
+            <p className="text-[11px] text-[#6B5B3E] leading-relaxed whitespace-pre-line mt-1">{data.clientAddress}</p>
+          )}
           <div className="mt-1 text-[10px] text-[#A89070] flex gap-4">
             {data.clientState && <span>{data.clientState?.replace(/\s*\(\d+\)/, '')}</span>}
             {data.clientTaxId && <span>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</span>}
@@ -77,6 +81,9 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
           <tbody>
             {data.lineItems.map((item, idx) => {
               if (item.isMilestoneHeader) {
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
                 return (
                   <tr key={item.id} className="bg-[#F0EADB]/60 border-b border-[#D4C5A9]">
                     <td colSpan={3} className="py-3 px-4">
