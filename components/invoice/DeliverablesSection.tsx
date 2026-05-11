@@ -178,30 +178,30 @@ export default function DeliverablesSection({
                 className="overflow-visible rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
               >
                 {/* Milestone header */}
-                <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100 rounded-t-2xl">
-                  <div className="flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                      {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
-                        ? "Final Milestone"
-                        : `Milestone ${mIdx + 1}`}
-                    </p>
-                    <div className="flex items-center gap-2 max-w-md">
-                      <input
-                        type="text"
-                        value={milestone.title}
-                        placeholder="e.g. Phase 1: Research"
-                        onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
-                        className="text-xl font-bold bg-transparent border-transparent hover:border-gray-200 focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
-                      />
-                      <PencilIcon className="h-4 w-4 text-gray-300" />
+                {effectiveMilestones.length > 1 && (
+                  <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100 rounded-t-2xl">
+                    <div className="flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
+                          ? "Final Milestone"
+                          : `Milestone ${mIdx + 1}`}
+                      </p>
+                      <div className="flex items-center gap-2 max-w-md">
+                        <input
+                          type="text"
+                          value={milestone.title}
+                          placeholder="e.g. Phase 1: Research"
+                          onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
+                          className="text-xl font-bold bg-transparent border-transparent hover:border-gray-200 focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
+                        />
+                        <PencilIcon className="h-4 w-4 text-gray-300" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Milestone Subtotal</p>
-                      <p className="text-lg font-black text-gray-900">{formatCurrency(milestoneSubtotal, currency)}</p>
-                    </div>
-                    {effectiveMilestones.length > 1 && (
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Milestone Subtotal</p>
+                        <p className="text-lg font-black text-gray-900">{formatCurrency(milestoneSubtotal, currency)}</p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeMilestone(milestone.id)}
@@ -209,9 +209,9 @@ export default function DeliverablesSection({
                       >
                         ×
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Line items */}
                 <div className="p-4 space-y-4">

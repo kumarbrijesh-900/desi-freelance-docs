@@ -503,18 +503,35 @@ export default function TermsPaymentSection({
                     License Included?
                   </span>
                 </label>
-                <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
-                  <ChoiceCards
-                    name="license-included"
-                    value={value.license.isLicenseIncluded ? "yes" : "no"}
-                    disabled={isReadOnly}
-                    onChange={(nextValue) => {
-                      if (nextValue === "yes") { updateLicenseField("isLicenseIncluded", true); return; }
+                <div className={cn("inline-flex rounded-lg border border-[color:var(--border-subtle)] overflow-hidden", isReadOnly && "opacity-60 pointer-events-none")}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateLicenseField("isLicenseIncluded", true);
+                    }}
+                    className={cn(
+                      "px-6 py-1.5 text-[13px] font-medium transition-colors",
+                      value.license.isLicenseIncluded
+                        ? "bg-[#111] text-white"
+                        : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                    )}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
                       onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
                     }}
-                    variant="inline"
-                    options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
-                  />
+                    className={cn(
+                      "px-6 py-1.5 text-[13px] font-medium transition-colors",
+                      !value.license.isLicenseIncluded
+                        ? "bg-[#111] text-white"
+                        : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                    )}
+                  >
+                    No
+                  </button>
                 </div>
               </div>
 
@@ -708,10 +725,15 @@ export default function TermsPaymentSection({
                             <button type="button" onClick={removeQr} className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-transform hover:scale-110 active:scale-95">×</button>
                           </div>
                         ) : (
-                          <label onDragOver={(e) => { e.preventDefault(); setIsQrDragOver(true); }} onDragLeave={() => setIsQrDragOver(false)} onDrop={handleQrDrop} className={cn("flex min-h-[100px] max-w-[280px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all", isQrDragOver ? "border-[color:var(--color-lime-500)] bg-[color:var(--color-lime-50)]" : "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] hover:border-[color:var(--border-strong)] hover:bg-[color:var(--bg-surface-muted)]")}>
+                          <label onDragOver={(e) => { e.preventDefault(); setIsQrDragOver(true); }} onDragLeave={() => setIsQrDragOver(false)} onDrop={handleQrDrop} className={cn("w-48 h-48 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group", isQrDragOver ? "border-[#4F46E5] bg-[#4F46E5]/5" : "border-gray-200 bg-white hover:border-[#4F46E5] hover:bg-[#4F46E5]/5")}>
                             <input type="file" accept="image/*" onChange={handleQrUpload} className="sr-only" />
-                            <div className="rounded-full bg-white p-2 shadow-sm ring-1 ring-[color:var(--border-subtle)]"><Sparkles size={16} className="text-[color:var(--text-muted)]" /></div>
-                            <div className="text-center"><p className="text-[12px] font-semibold text-[color:var(--text-primary)]">Upload QR code</p><p className="text-[10px] text-[color:var(--text-soft)]">JPG, PNG</p></div>
+                            <div className="h-10 w-10 rounded-full bg-gray-100 group-hover:bg-[#4F46E5]/10 flex items-center justify-center transition-colors">
+                              <Sparkles size={16} className="text-gray-400 group-hover:text-[#4F46E5]" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-[12px] font-medium text-[color:var(--text-muted)] group-hover:text-[#4F46E5]">Upload QR code</p>
+                              <p className="text-[10px] text-[color:var(--text-muted)]">JPG, PNG</p>
+                            </div>
                           </label>
                         )}
                       </div>

@@ -540,7 +540,7 @@ export default function AgencyDetailsSection({
                     </button>
                   </div>
                 ) : (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[color:var(--border-strong)] hover:bg-gray-50">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
                     <input
                       type="file"
                       accept="image/*"
@@ -549,7 +549,7 @@ export default function AgencyDetailsSection({
                     />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400 group-hover:text-gray-600"
+                      className="h-4 w-4 text-gray-400 group-hover:text-[#4F46E5]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -561,7 +561,7 @@ export default function AgencyDetailsSection({
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900">
+                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-[#4F46E5]">
                       Upload Agency Logo
                     </span>
                   </label>

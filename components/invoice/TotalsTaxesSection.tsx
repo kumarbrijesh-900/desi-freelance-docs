@@ -208,15 +208,15 @@ export default function TotalsTaxesSection({
             </div>
 
             {/* Divider */}
-            <div className="border-t border-dashed border-gray-200 my-2" />
+            <div className="border-t-2 border-[#111] pt-4 mt-2" />
 
             <div className="flex items-center justify-between">
-              <dt className="text-[14px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
+              <dt className="text-[15px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
               <dd className="flex flex-col items-end">
                 <span
                   className={cn(
-                    "tracking-tight [font-variant-numeric:tabular-nums]",
-                    grandTotal > 0 ? "text-[22px] font-bold text-[color:var(--brand-indigo)]" : "text-[24px] font-bold text-gray-400"
+                    "tracking-tight [font-variant-numeric:tabular-nums] text-[28px] font-bold transition-colors",
+                    grandTotal > 0 ? "text-[#4F46E5]" : "text-gray-300"
                   )}
                 >
                   {formatCurrency(grandTotal, currency)}

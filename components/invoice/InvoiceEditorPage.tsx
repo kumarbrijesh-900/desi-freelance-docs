@@ -2513,14 +2513,14 @@ return (
                               })
                             }
                             className={cn(
-                              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                              "inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
-                                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
-                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]",
+                                ? "bg-gray-100 text-gray-400 font-medium cursor-not-allowed"
+                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm transition-all",
                             )}
                           >
                             Continue to{" "}
-                            {getStepShortLabel(getNextStep(currentStep)!)}
+                            {getStepShortLabel(getNextStep(currentStep)!)} →
                           </button>
                         </div>
                       ) : null
