@@ -45,6 +45,7 @@ interface TermsPaymentSectionProps {
   onFieldManualEdit?: (fieldPath: string) => void;
   selectedClientMsa?: import("@/lib/supabase/clients").SavedClient | null;
   client: import("@/types/invoice").ClientDetails;
+  agency: import("@/types/invoice").AgencyDetails;
 }
 
 type StructuredBankAddressFields = {
@@ -98,6 +99,7 @@ export default function TermsPaymentSection({
   showAllErrors = false,
   selectedClientMsa,
   client,
+  agency,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
 }: TermsPaymentSectionProps) {
@@ -186,10 +188,13 @@ export default function TermsPaymentSection({
   const isReadOnly = !isAddendumMode;
 
   // Derive effective MSA data from local form state (Step 2) or DB (persisted client)
-  const effectiveMsaDays = client.msaPaymentTermsDays ?? selectedClientMsa?.msa_payment_terms_days;
-  const effectiveBoilerplate = client.msaNotesBoilerplate ?? selectedClientMsa?.msa_notes_boilerplate ?? "";
-  const hasLocalMsaData = Boolean(client.msaPaymentTermsDays || client.msaNotesBoilerplate);
-  const hasAnyMsaAuthority = Boolean(selectedClientMsa || hasLocalMsaData);
+  const effectiveMsaDays = selectedClientMsa?.msa_payment_terms_days ?? agency.msaPaymentTermsDays ?? client.msaPaymentTermsDays;
+  const effectiveBoilerplate = selectedClientMsa?.msa_notes_boilerplate ?? agency.msaNotesBoilerplate ?? client.msaNotesBoilerplate ?? "";
+  const hasClientMsa = Boolean(selectedClientMsa);
+  const hasGlobalMsa = Boolean(agency.msaPaymentTermsDays || agency.msaNotesBoilerplate);
+  const hasAnyMsaAuthority = hasClientMsa || hasGlobalMsa;
+  const msaSourceLabel = hasClientMsa ? "CLIENT AGREEMENT ✓" : "GLOBAL TERMS APPLIED ✓";
+  const msaDetailLabel = hasClientMsa ? "Using specific client agreement." : "Using your global agency defaults.";
 
   // Two-way sync handlers for payment terms and due date
   const handleDaysChange = (days: number) => {
@@ -280,7 +285,7 @@ export default function TermsPaymentSection({
                     <p className="text-[14px] font-medium text-[color:var(--text-primary)]">
                       {isAddendumMode 
                         ? "You are overriding the MSA with project-specific terms." 
-                        : "Using your Master Service Agreement."}
+                        : msaDetailLabel}
                     </p>
                     
                     {isAddendumMode ? (
@@ -291,7 +296,7 @@ export default function TermsPaymentSection({
                     ) : (
                       <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 ring-1 ring-inset ring-emerald-600/20">
                         <ShieldCheck size={12} className="text-emerald-600" />
-                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">MSA ENFORCED ✓</span>
+                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-tight">{msaSourceLabel}</span>
                       </div>
                     )}
                   </div>
@@ -388,7 +393,7 @@ export default function TermsPaymentSection({
               </AnimatePresence>
 
               <div className={cn(appFieldPairGridClass, "items-start", isReadOnly && "opacity-70")}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
                     <label className={appFieldLabelClass}>
                       <span className="flex items-center gap-1.5">
                         {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
@@ -398,6 +403,26 @@ export default function TermsPaymentSection({
                         <span className="autofill-indicator">auto-filled</span>
                       )}
                     </label>
+                    
+                    <div className="flex flex-wrap gap-1.5 mb-1">
+                      {[0, 15, 30, 45, 60].map((days) => (
+                        <button
+                          key={days}
+                          type="button"
+                          disabled={isReadOnly}
+                          onClick={() => handleDaysChange(days)}
+                          className={cn(
+                            "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
+                            meta.paymentTerms === days
+                              ? "bg-[#111] border-[#111] text-white shadow-sm"
+                              : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
+                            isReadOnly && "opacity-50 cursor-not-allowed"
+                          )}
+                        >
+                          {days === 0 ? "Receipt" : `Net ${days}`}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div className="relative">
                     <input
@@ -422,7 +447,11 @@ export default function TermsPaymentSection({
                       <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
                     </div>
                   </div>
-                  <p className={cn(appFieldHelperTextClass, "text-[10px]")}>From invoice issue date.</p>
+                  <p className={cn(appFieldHelperTextClass, "text-[10px]")}>
+                    {meta.paymentTerms === 0 
+                      ? "Payment expected as soon as client receives invoice." 
+                      : `Calculated as ${meta.paymentTerms} days after issue date.`}
+                  </p>
                   {paymentTermsFieldError && <p className={appFieldErrorTextClass}>{paymentTermsFieldError}</p>}
                 </div>
 

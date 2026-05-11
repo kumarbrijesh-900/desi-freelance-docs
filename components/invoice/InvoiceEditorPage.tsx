@@ -2216,31 +2216,41 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           embedded
           value={{ ...formData.payment, profileQrUrl }}
           meta={formData.meta}
-          clientLocation={formData.client.clientLocation}
-          selectedClientMsa={selectedClientMsa}
           client={formData.client}
-          onChange={(payment) =>
-            setFormData((prev) =>
-              mergeInvoiceFormData({
-                ...prev,
-                payment,
-              }),
-            )
-          }
+          agency={formData.agency}
+          clientLocation={formData.client.clientLocation}
+          onChange={handlePaymentChange}
           onMetaChange={handleMetaChange}
-          paymentTermsError={fieldErrors.meta.paymentTerms}
-          errors={fieldErrors.payment}
+          selectedClientMsa={selectedClientMsa}
+          errors={{
+            licenseDuration: fieldErrors.payment.licenseDuration,
+            accountName: fieldErrors.payment.accountName,
+            bankName: fieldErrors.payment.bankName,
+            accountNumber: fieldErrors.payment.accountNumber,
+            ifscCode: fieldErrors.payment.ifscCode,
+            bankAddress: fieldErrors.payment.bankAddress,
+            swiftBicCode: fieldErrors.payment.swiftBicCode,
+          }}
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
         />
       );
-    case "meta":
+    case "meta": {
+      const msaSource = formData.meta.hasAddendum 
+        ? "project" 
+        : selectedClientMsa 
+          ? "client" 
+          : (formData.agency.msaPaymentTermsDays || formData.agency.msaNotesBoilerplate)
+            ? "global" 
+            : "default";
+
       return (
         <InvoiceMetaSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           value={formData.meta}
+          msaSource={msaSource}
           onChange={handleMetaChange}
           errors={{
             invoiceNumber: fieldErrors.meta.invoiceNumber,
@@ -2252,6 +2262,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           onFieldManualEdit={markFieldManual}
         />
       );
+    }
     case "totals":
       return (
         <TotalsTaxesSection

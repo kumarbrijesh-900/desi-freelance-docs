@@ -15,6 +15,7 @@ import {
   appFieldFullWidthStackClass,
   appFieldPairGridClass,
 } from "@/lib/form-foundation";
+import { getDaysDifference } from "@/lib/date-math";
 
 interface InvoiceMetaSectionProps {
   value: InvoiceMeta;
@@ -28,6 +29,7 @@ interface InvoiceMetaSectionProps {
   showAllErrors?: boolean;
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
+  msaSource?: "client" | "global" | "project" | "default";
 }
 
 export default function InvoiceMetaSection({
@@ -38,6 +40,7 @@ export default function InvoiceMetaSection({
   showAllErrors = false,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
+  msaSource = "default",
 }: InvoiceMetaSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
     if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
@@ -235,7 +238,25 @@ export default function InvoiceMetaSection({
               />
               {dueDateError ? (
                 <p className={appFieldErrorTextClass}>{dueDateError}</p>
-              ) : null}
+              ) : (
+                value.invoiceDate && value.dueDate && (
+                  <p className="mt-1 text-[10px] font-medium text-[color:var(--text-soft)]">
+                    {(() => {
+                      const days = getDaysDifference(value.invoiceDate, value.dueDate);
+                      const sourceLabel = {
+                        project: "Project Override",
+                        client: "Client Agreement",
+                        global: "Global Agency Terms",
+                        default: "System Default",
+                      }[msaSource];
+                      
+                      return days === 0 
+                        ? `${sourceLabel}: Due on receipt` 
+                        : `${sourceLabel}: Net ${days} (${days} days from date)`;
+                    })()}
+                  </p>
+                )
+              )}
             </div>
           </div>
         </div>
