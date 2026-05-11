@@ -46,6 +46,7 @@ interface TermsPaymentSectionProps {
   selectedClientMsa?: import("@/lib/supabase/clients").SavedClient | null;
   client: import("@/types/invoice").ClientDetails;
   agency: import("@/types/invoice").AgencyDetails;
+  msaSource?: "client" | "global" | "project" | "default" | null;
 }
 
 type StructuredBankAddressFields = {
@@ -100,6 +101,7 @@ export default function TermsPaymentSection({
   selectedClientMsa,
   client,
   agency,
+  msaSource = null,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
 }: TermsPaymentSectionProps) {
@@ -281,7 +283,7 @@ export default function TermsPaymentSection({
                     {isReadOnly ? (
                       <>
                         <Lock size={10} />
-                        Locked by {msaSource === "global" ? "Global Agency Terms" : "Client MSA"}
+                        Locked by {msaSource === "global" ? "Global Agency Terms" : msaSource === "client" ? "Client MSA" : "System Default Terms"}
                       </>
                     ) : (
                       <>
@@ -714,7 +716,7 @@ export default function TermsPaymentSection({
                         <div>
                           <label className={appFieldLabelClass}>
                             Account Number
-                            {autoFilledFields.has("payment.bankAccountNumber") && (
+                            {autoFilledFields.has("payment.accountNumber") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
@@ -722,19 +724,19 @@ export default function TermsPaymentSection({
                             disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
-                            value={value.bankAccountNumber}
+                            value={value.accountNumber}
                             onChange={(e) => {
-                              onFieldManualEdit("payment.bankAccountNumber");
-                              updateField("bankAccountNumber", e.target.value);
+                              onFieldManualEdit("payment.accountNumber");
+                              updateField("accountNumber", e.target.value);
                             }}
-                            onBlur={() => markTouched("bankAccountNumber")}
+                            onBlur={() => markTouched("accountNumber")}
                             placeholder="0000 0000 0000"
                             className={cn(
-                              inputClass(bankAccountNumberError, Boolean(value.bankAccountNumber)),
-                              !isReadOnly && getInputStateClass("payment.bankAccountNumber", value.bankAccountNumber),
+                              inputClass(accountNumberError, Boolean(value.accountNumber)),
+                              !isReadOnly && getInputStateClass("payment.accountNumber", value.accountNumber),
                             )}
                           />
-                          {bankAccountNumberError && <p className={appFieldErrorTextClass}>{bankAccountNumberError}</p>}
+                          {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                       </div>
 
@@ -767,7 +769,7 @@ export default function TermsPaymentSection({
                         <div>
                           <label className={appFieldLabelClass}>
                             Beneficiary Name
-                            {autoFilledFields.has("payment.beneficiaryName") && (
+                            {autoFilledFields.has("payment.accountName") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
@@ -775,19 +777,19 @@ export default function TermsPaymentSection({
                             disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
-                            value={value.beneficiaryName}
+                            value={value.accountName}
                             onChange={(e) => {
-                              onFieldManualEdit("payment.beneficiaryName");
-                              updateField("beneficiaryName", e.target.value);
+                              onFieldManualEdit("payment.accountName");
+                              updateField("accountName", e.target.value);
                             }}
-                            onBlur={() => markTouched("beneficiaryName")}
+                            onBlur={() => markTouched("accountName")}
                             placeholder="Your Registered Name"
                             className={cn(
-                              inputClass(beneficiaryNameError, Boolean(value.beneficiaryName)),
-                              !isReadOnly && getInputStateClass("payment.beneficiaryName", value.beneficiaryName),
+                              inputClass(accountNameError, Boolean(value.accountName)),
+                              !isReadOnly && getInputStateClass("payment.accountName", value.accountName),
                             )}
                           />
-                          {beneficiaryNameError && <p className={appFieldErrorTextClass}>{beneficiaryNameError}</p>}
+                          {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
                         </div>
                       </div>
                     </div>
@@ -799,7 +801,7 @@ export default function TermsPaymentSection({
                         <div>
                           <label className={appFieldLabelClass}>
                             Beneficiary Name
-                            {autoFilledFields.has("payment.beneficiaryName") && (
+                            {autoFilledFields.has("payment.accountName") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
@@ -807,24 +809,24 @@ export default function TermsPaymentSection({
                             disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
-                            value={value.beneficiaryName}
+                            value={value.accountName}
                             onChange={(e) => {
-                              onFieldManualEdit("payment.beneficiaryName");
-                              updateField("beneficiaryName", e.target.value);
+                              onFieldManualEdit("payment.accountName");
+                              updateField("accountName", e.target.value);
                             }}
-                            onBlur={() => markTouched("beneficiaryName")}
+                            onBlur={() => markTouched("accountName")}
                             placeholder="Your Registered Name"
                             className={cn(
-                              inputClass(beneficiaryNameError, Boolean(value.beneficiaryName)),
-                              !isReadOnly && getInputStateClass("payment.beneficiaryName", value.beneficiaryName),
+                              inputClass(accountNameError, Boolean(value.accountName)),
+                              !isReadOnly && getInputStateClass("payment.accountName", value.accountName),
                             )}
                           />
-                          {beneficiaryNameError && <p className={appFieldErrorTextClass}>{beneficiaryNameError}</p>}
+                          {accountNameError && <p className={appFieldErrorTextClass}>{accountNameError}</p>}
                         </div>
                         <div>
                           <label className={appFieldLabelClass}>
                             Account Number (IBAN)
-                            {autoFilledFields.has("payment.bankAccountNumber") && (
+                            {autoFilledFields.has("payment.accountNumber") && (
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
@@ -832,19 +834,19 @@ export default function TermsPaymentSection({
                             disabled={isReadOnly}
                             suppressHydrationWarning
                             type="text"
-                            value={value.bankAccountNumber}
+                            value={value.accountNumber}
                             onChange={(e) => {
-                              onFieldManualEdit("payment.bankAccountNumber");
-                              updateField("bankAccountNumber", e.target.value);
+                              onFieldManualEdit("payment.accountNumber");
+                              updateField("accountNumber", e.target.value);
                             }}
-                            onBlur={() => markTouched("bankAccountNumber")}
+                            onBlur={() => markTouched("accountNumber")}
                             placeholder="IBAN or Account Number"
                             className={cn(
-                              inputClass(bankAccountNumberError, Boolean(value.bankAccountNumber)),
-                              !isReadOnly && getInputStateClass("payment.bankAccountNumber", value.bankAccountNumber),
+                              inputClass(accountNumberError, Boolean(value.accountNumber)),
+                              !isReadOnly && getInputStateClass("payment.accountNumber", value.accountNumber),
                             )}
                           />
-                          {bankAccountNumberError && <p className={appFieldErrorTextClass}>{bankAccountNumberError}</p>}
+                          {accountNumberError && <p className={appFieldErrorTextClass}>{accountNumberError}</p>}
                         </div>
                       </div>
 

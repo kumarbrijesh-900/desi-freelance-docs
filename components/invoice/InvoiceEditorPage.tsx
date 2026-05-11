@@ -2160,6 +2160,14 @@ const handleClientSelect = (client: SavedClient) => {
 };
 
 const renderStepContent = (step: InvoiceStepperStep) => {
+  const msaSource = formData.meta.hasAddendum 
+    ? "project" 
+    : selectedClientMsa 
+      ? "client" 
+      : (formData.agency.msaPaymentTermsDays || formData.agency.msaNotesBoilerplate)
+        ? "global" 
+        : "default";
+
   switch (step) {
     case "agency":
       return (
@@ -2222,6 +2230,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           onChange={(payment) => updateFormSection("payment", payment)}
           onMetaChange={handleMetaChange}
           selectedClientMsa={selectedClientMsa}
+          msaSource={msaSource as any}
           errors={{
             licenseDuration: fieldErrors.payment.licenseDuration,
             accountName: fieldErrors.payment.accountName,
@@ -2237,14 +2246,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         />
       );
     case "meta": {
-      const msaSource = formData.meta.hasAddendum 
-        ? "project" 
-        : selectedClientMsa 
-          ? "client" 
-          : (formData.agency.msaPaymentTermsDays || formData.agency.msaNotesBoilerplate)
-            ? "global" 
-            : "default";
-
       return (
         <InvoiceMetaSection
           key={isBootstrapped ? "hydrated" : "loading"}
