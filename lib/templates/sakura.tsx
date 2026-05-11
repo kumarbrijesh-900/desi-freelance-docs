@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#2D2024] bg-white min-h-[297mm] p-[15mm] box-border relative">
+    <div className="font-['DM_Sans',_sans-serif] text-[#2D2024] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
 
       {/* ── Soft rose accent line ─────────────── */}
       <div className="h-[3px] w-24 bg-[#E11D48] mb-12 rounded-full" />

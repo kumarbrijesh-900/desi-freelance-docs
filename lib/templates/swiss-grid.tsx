@@ -23,7 +23,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
       {/* ── Background Elements ────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.04]"

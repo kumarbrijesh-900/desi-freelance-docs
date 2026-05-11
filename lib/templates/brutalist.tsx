@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[297mm] p-[15mm] box-border relative">
+    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
       <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Header: asymmetric split ─────────── */}

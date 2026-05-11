@@ -23,7 +23,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517] bg-[#FFFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+    <div className="font-['DM_Sans',_sans-serif] text-[#3D2517] bg-[#FFFBF7] min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible">
       {/* ── Background Elements ────────────────── */}
       <div className="absolute top-[5%] -left-20 w-[400px] h-[400px] bg-[#C75B39]/[0.02] rounded-full blur-[120px] pointer-events-none z-0 rotate-12" />
       <div className="absolute bottom-[15%] -right-20 w-[350px] h-[350px] bg-[#8B6F5E]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />

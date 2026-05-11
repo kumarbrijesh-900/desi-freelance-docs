@@ -9,10 +9,10 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-hidden">
+    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:bg-white">
       {/* ── Background Patterns ────────────────── */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage: "radial-gradient(#111118 1px, transparent 1px)",
           backgroundSize: "24px 24px",
@@ -20,21 +20,21 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       />
 
       <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]"
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] print:hidden"
         style={{
           backgroundImage:
             "repeating-linear-gradient(45deg, #111118 0, #111118 1px, transparent 0, transparent 10px)",
         }}
       />
 
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#F0F0F2] rounded-full blur-3xl opacity-20 z-0 pointer-events-none" />
-      <div className="absolute bottom-40 -left-10 w-64 h-64 bg-[#E0E0E5] rounded-full blur-[100px] opacity-15 z-0 pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#F0F0F2] rounded-full blur-3xl opacity-20 z-0 pointer-events-none print:hidden" />
+      <div className="absolute bottom-40 -left-10 w-64 h-64 bg-[#E0E0E5] rounded-full blur-[100px] opacity-15 z-0 pointer-events-none print:hidden" />
 
       {/* ── Top Accent ──────────────────────────── */}
-      <div className="relative z-10 h-px w-full bg-[#D1D1D6] mb-12" />
+      <div className="relative z-10 h-px w-full bg-[#D1D1D6] mb-8" />
 
       {/* ── Header ────────────────────────────── */}
-      <header className="flex justify-between items-start mb-16">
+      <header className="flex justify-between items-start mb-10">
         <div className="max-w-[400px]">
           {data.agencyLogoUrl && (
             <div className="relative z-10 flex items-center justify-start h-16 w-48 mb-6 overflow-hidden">
@@ -49,9 +49,11 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             <p className="font-bold text-[#111118] text-[14px] mb-1">
               {data.agencyName}
             </p>
-            <p className="whitespace-pre-line max-w-[280px]">
-              {data.agencyAddress}
-            </p>
+            {data.agencyAddress && data.agencyAddress !== "—" && (
+              <p className="whitespace-pre-line max-w-[280px]">
+                {data.agencyAddress}
+              </p>
+            )}
             {(data.agencyState || data.showAgencyGstin || data.agencyPan) && (
               <div className="pt-2 flex flex-col gap-0.5 text-[11px] text-[#888]">
                 {data.agencyState && (
@@ -71,7 +73,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
         </div>
 
         <div className="text-right">
-          <h1 className="text-[30px] font-black tracking-tighter leading-none mb-6">
+          <h1 className="text-[30px] font-black tracking-tighter leading-none mb-4">
             INVOICE
           </h1>
           <div className="space-y-4">
@@ -102,16 +104,18 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       </header>
 
       {/* ── Client Section ─────────────────────── */}
-      <section className="mb-16 pb-8 border-b border-[#F0F0F2]">
+      <section className="mb-10 pb-6 border-b border-[#F0F0F2]">
         <div className="grid grid-cols-[1fr_200px] gap-12">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-4">
               Billed To
             </p>
             <div className="text-[18px] font-bold mb-2">{data.clientName}</div>
-            <p className="text-[13px] text-[#555] leading-relaxed whitespace-pre-line max-w-[320px]">
-              {data.clientAddress}
-            </p>
+            {data.clientAddress && data.clientAddress !== "—" && (
+              <p className="text-[13px] text-[#555] leading-relaxed whitespace-pre-line max-w-[320px]">
+                {data.clientAddress}
+              </p>
+            )}
             <div className="mt-3 flex gap-4 text-[11px] text-[#888]">
               {data.clientState && (
                 <span>
@@ -140,7 +144,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {/* ── Line Items ────────────────────────── */}
-      <section className="mb-16">
+      <section className="mb-10">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b-2 border-[#111118]">
@@ -161,6 +165,10 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           <tbody className="divide-y divide-[#F0F0F2]">
             {data.lineItems.map((item) => {
               if (item.isMilestoneHeader) {
+                // Hide milestone header for single-milestone invoices
+                const milestoneHeaderCount = data.lineItems.filter(i => i.isMilestoneHeader).length;
+                if (milestoneHeaderCount <= 1) return null;
+
                 return (
                   <tr key={item.id} className="bg-gray-50/60 border-y border-gray-100">
                     <td colSpan={3} className="py-5 px-4">
@@ -228,9 +236,9 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {/* ── Totals ────────────────────────────── */}
-      <section className="flex justify-end mb-20 relative">
+      <section className="flex justify-end mb-12 relative">
         <div
-          className="absolute -inset-4 z-0 pointer-events-none opacity-[0.03]"
+          className="absolute -inset-4 z-0 pointer-events-none opacity-[0.03] print:hidden"
           style={{
             backgroundImage:
               "repeating-linear-gradient(45deg, #111118 0, #111118 1px, transparent 0, transparent 8px)",
@@ -273,7 +281,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {/* ── Footer / Legal ───────────────────── */}
-      <section className="mt-auto grid grid-cols-2 gap-16 items-start">
+      <section className="mt-auto grid grid-cols-2 gap-10 items-start">
         <div className="space-y-8">
           {data.hasBankDetails && (
             <div>

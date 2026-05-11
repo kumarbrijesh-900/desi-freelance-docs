@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1E293B] bg-white min-h-[297mm] box-border relative flex">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1E293B] bg-white min-h-[297mm] box-border relative flex overflow-visible print:overflow-visible">
 
       {/* ── Left accent strip ─────────────────── */}
       <div className="w-[6px] bg-[#0369A1] shrink-0 print:bg-[#0369A1]" />

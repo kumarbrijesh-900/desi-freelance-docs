@@ -21,7 +21,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-hidden print:m-0 print:border-none">
+    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[297mm] w-full max-w-[210mm] mx-auto relative overflow-visible print:overflow-visible print:m-0 print:border-none">
       {/* ── Background Elements ────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"

@@ -587,8 +587,11 @@ function PreviewContent() {
 
           .invoice-sheet {
             transform: none !important;
+            transform-origin: unset !important;
             width: 100% !important;
             min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
             break-inside: avoid;
             page-break-inside: avoid;
           }
@@ -670,14 +673,14 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
-            <div className="flex flex-col xl:flex-row gap-0 print:block" style={{ height: "calc(100vh - 200px)" }}>
+            <div className="flex flex-col xl:flex-row gap-0 print:block print:overflow-visible" style={{ height: "calc(100vh - 200px)" }}>
               {/* Left: Invoice area (Hero) */}
               <div 
                 ref={previewContainerRef} 
-                className="flex-1 flex items-start justify-center overflow-auto py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all"
+                className="flex-1 flex items-start justify-center overflow-auto py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:overflow-visible print:p-0 print:border-0"
               >
                 <div
-                  className="invoice-sheet-wrapper relative"
+                  className="invoice-sheet-wrapper relative print:overflow-visible"
                   style={{
                     width: `${794 * scaleToFit}px`,
                     height: `${1123 * scaleToFit}px`,
