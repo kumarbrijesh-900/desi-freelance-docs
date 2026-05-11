@@ -2436,21 +2436,6 @@ return (
 
     <AppHeader />
 
-    {isGuestMode && (
-      <div className="mx-4 sm:mx-8 mb-3 print:hidden">
-        <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
-          <p className="text-[13px] text-[color:var(--text-secondary)]">
-            <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
-          </p>
-          <Link
-            href="/login"
-            className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
-          >
-            Sign in →
-          </Link>
-        </div>
-      </div>
-    )}
 
     <section
       className={`${appPageContainerClass} ${appPageSectionClass} relative z-10 pb-32`}
@@ -2494,6 +2479,21 @@ return (
             appSectionGapClass,
           )}
         >
+          {isGuestMode && (
+            <div className="mb-6 print:hidden">
+              <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+                <p className="text-[13px] text-[color:var(--text-secondary)]">
+                  <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+                </p>
+                <Link
+                  href="/login"
+                  className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
+                >
+                  Sign in →
+                </Link>
+              </div>
+            </div>
+          )}
           <div className="space-y-4">
             {clientMsaNote && (
               <MotionReveal preset="fade-up" className="mb-2">
@@ -2689,36 +2689,44 @@ return (
             </div>
 
             {/* ── Live Totals Strip ── */}
-            <div id="live-totals-footer" className="mt-4 flex items-center justify-between rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2.5">
-              <div className="flex items-center gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
-                  <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
-                    {formatCurrency(computedTotals.grandTotal, displayCurrency)}
-                  </p>
+            <div 
+              id="live-totals-footer" 
+              className={cn(
+                "mt-4 border border-[color:var(--border-subtle)] transition-all duration-300",
+                showAdvancedTax 
+                  ? "rounded-xl bg-white p-6 shadow-sm" 
+                  : "rounded-lg bg-gray-50 px-4 py-2.5"
+              )}
+            >
+              <div className={cn("flex items-center justify-between", showAdvancedTax && "mb-6 pb-6 border-b border-gray-100")}>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
+                    <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
+                      {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                    </p>
+                  </div>
+                  {computedTotals.taxAmount > 0 && (
+                    <>
+                      <div className="h-6 w-px bg-gray-200" />
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
+                        <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
+                      </div>
+                    </>
+                  )}
                 </div>
-                {computedTotals.taxAmount > 0 && (
-                  <>
-                    <div className="h-6 w-px bg-gray-200" />
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
-                      <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
-                    </div>
-                  </>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedTax(!showAdvancedTax)}
+                  className="text-[11px] font-medium text-[#4F46E5] hover:underline"
+                >
+                  {showAdvancedTax ? "Hide tax options" : "Tax options"}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowAdvancedTax(!showAdvancedTax)}
-                className="text-[11px] font-medium text-[#4F46E5] hover:underline"
-              >
-                Tax options
-              </button>
-            </div>
 
-            {showAdvancedTax && (
-              <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="rounded-xl border border-[color:var(--border-subtle)] bg-white p-6 shadow-sm">
+              {showAdvancedTax && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                   <TotalsTaxesSection
                     embedded
                     value={derivedTaxConfig}
@@ -2729,8 +2737,8 @@ return (
                     onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
                   />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Fixed Bottom Action Bar */}
