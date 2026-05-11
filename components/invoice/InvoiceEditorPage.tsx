@@ -1773,17 +1773,23 @@ useEffect(() => {
 }, [handleSaveDraft, currentStep, stepValidityByStep]);
 
 useEffect(() => {
+  // Only auto-save for authenticated users — guests use localStorage only
+  if (isGuestMode) return;
   if (!formData || !isFormTouched(formData)) return;
   
   const timer = setTimeout(async () => {
     setAutoSaveState('saving');
-    await handleSaveDraft();
-    setAutoSaveState('saved');
-    setTimeout(() => setAutoSaveState('idle'), 2000);
+    try {
+      await handleSaveDraft();
+      setAutoSaveState('saved');
+      setTimeout(() => setAutoSaveState('idle'), 2000);
+    } catch {
+      setAutoSaveState('idle');
+    }
   }, 5000);
 
   return () => clearTimeout(timer);
-}, [formData, handleSaveDraft]);
+}, [formData, handleSaveDraft, isGuestMode]);
 
 const handleLoadDemoData = () => {
   const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
