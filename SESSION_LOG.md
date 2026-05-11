@@ -308,3 +308,47 @@
     - **Print Scoping**: Fixed a critical CSS bug where global print overrides were causing the invoice to be cropped/cut-off on screen. Scoped all full-size resets to `@media print`.
     - **Stability**: Restored missing state variables (`showProfilePrompt`) and fixed ReferenceErrors during the transition to the new scaled layout.
 - **Vercel Deployment**: Successfully pushed and verified deployment of the new preview experience.
+
+---
+
+## v1.9 WORKFLOW STREAMLINING — May 11-12, 2026
+
+### Phase XIII: Navigation & Workflow Overhaul (WF-1 through WF-5)
+
+- ✅ WF-1 — 4-Step Evolution: Condensed the 6-step wizard into a focused 4-step workflow (Agency → Client → Items → Payment).
+- ✅ WF-2 — Persistent Meta Header: Moved Invoice # and Dates into a compact, horizontal strip rendered above the editor steps. Replaced the "Meta" step.
+- ✅ WF-3 — Persistent Totals Footer: Moved real-time totals into a sticky strip above the action bar. Replaced the "Totals" step.
+- ✅ WF-4 — Navigation Logic: Updated `orderedSteps` and validation logic to skip Meta/Totals steps while ensuring data consistency.
+- ✅ WF-5 — Auto-population: Implemented `useEffect` hook to auto-populate Invoice # (sequential) and Dates (Today + 15d) on mount for new invoices.
+
+### Phase XIV: UI/UX Refinements (UR-1 through UR-7)
+
+- ✅ UR-1 — Guest Banner Alignment: Repositioned Guest Mode banner outside the sidebar grid to prevent clipping; equalized width with invoice cards (`max-w-2xl`).
+- ✅ UR-2 — Combined Totals Container: Merged "Live Totals" strip and "Advanced Tax" options into a single unified container.
+- ✅ UR-3 — Totals Alignment: Removed `max-w-md` constraints from `TotalsTaxesSection`, allowing content and dividers to span the full width of the container.
+- ✅ UR-4 — Layout Stability: Removed `min-h-screen` from the main container and added `h-auto` to step cards to prevent vertical stretching.
+- ✅ UR-5 — AI Autofill State: Set `BriefIntakeCard` to be collapsed by default to reduce initial cognitive load.
+- ✅ UR-6 — Expanded Totals Styling: Added white background and shadow to the expanded totals container for better visual separation.
+- ✅ UR-7 — Scroll Restoration: Fixed `live-totals-footer` ID to maintain "scroll to totals" functionality.
+
+### Phase XV: Technical & Build Stability (TS-1 through TS-2)
+
+- ✅ TS-1 — Supabase Build Fix: Moved `createClient` inside the `GET` handler in `app/api/invoice/[token]/route.ts` to resolve build-time crashes caused by missing environment variables during static analysis.
+- ✅ TS-2 — Type Safety: Resolved property access errors on `computedTotals` in `InvoiceEditorPage.tsx` by utilizing the `formatCurrency` helper instead of non-existent formatted fields.
+
+## Deployment & Production state
+
+- **Latest Build:** `v1.9-stable` (4-Step Workflow)
+- **Status:** Pushed to `main`. Verified successful build and deployment.
+- **Verification:**
+  - 4-step wizard navigation is smooth and valid.
+  - Meta and Totals strips update reactively to form changes.
+  - Guest banner is properly aligned and visible.
+  - Build-time environment variable errors are resolved.
+
+## Files modified in v1.9
+
+- components/invoice/InvoiceEditorPage.tsx
+- app/api/invoice/[token]/route.ts
+- components/invoice/TotalsTaxesSection.tsx
+- components/invoice/BriefIntakeCard.tsx
