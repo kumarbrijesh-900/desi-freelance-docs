@@ -119,6 +119,32 @@ function PreviewContent() {
     };
   }, []);
 
+  useEffect(() => {
+    const beforePrint = () => {
+      const sheet = document.querySelector(".invoice-sheet") as HTMLElement;
+      if (sheet) {
+        sheet.dataset.savedTransform = sheet.style.transform;
+        sheet.style.transform = "none";
+        sheet.style.width = "210mm";
+        sheet.style.minWidth = "210mm";
+      }
+    };
+    const afterPrint = () => {
+      const sheet = document.querySelector(".invoice-sheet") as HTMLElement;
+      if (sheet && sheet.dataset.savedTransform) {
+        sheet.style.transform = sheet.dataset.savedTransform;
+        sheet.style.width = "210mm";
+        sheet.style.minWidth = "";
+      }
+    };
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+    return () => {
+      window.removeEventListener("beforeprint", beforePrint);
+      window.removeEventListener("afterprint", afterPrint);
+    };
+  }, []);
+
   const triggerToast = (message: string) => {
     setToastMessage(message);
     setShowToast(false);
@@ -568,59 +594,50 @@ function PreviewContent() {
         @media print {
           @page {
             size: A4;
-            margin: 10mm;
+            margin: 0;
           }
           html, body {
             background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
           }
           body {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          /* Reset design system tokens to clean print values */
-          :root {
-            --text-primary: #111118;
-            --text-secondary: #27272F;
-            --text-muted: #6E6E7A;
-            --border-subtle: #E2E2EA;
+          main {
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: auto !important;
+            background: white !important;
           }
-
           .invoice-sheet {
             transform: none !important;
-            transform-origin: unset !important;
-            width: 100% !important;
+            width: 210mm !important;
+            min-width: 210mm !important;
+            max-width: 210mm !important;
             min-height: auto !important;
-            max-height: none !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
             overflow: visible !important;
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-
-          .avoid-break {
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-
-          .invoice-table thead {
-            display: table-header-group;
-          }
-
-          .invoice-table tr {
-            break-inside: avoid;
-            page-break-inside: avoid;
           }
         }
       `}</style>
 
       <main
-        className={`${appPageShellClass} print:bg-white print:p-0 min-h-screen pb-32`}
+        className={`${appPageShellClass} print:bg-white print:p-0 print:m-0 print:min-h-0 min-h-screen pb-32`}
       >
         <AppHeader />
         
         <section
-          className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0`}
+          className={`${appPageContainerClass} py-5 sm:py-8 print:px-0 print:py-0 print:m-0 print:max-w-none`}
         >
-          <div className="mx-auto w-full max-w-[1328px]">
+          <div className="mx-auto w-full max-w-[1328px] print:m-0 print:max-w-none">
             {/* Minimal Header */}
             <MotionReveal className="mb-6 print:hidden" preset="fade-up">
               <div className="flex items-center gap-3">
@@ -673,11 +690,11 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
-            <div className="flex flex-col xl:flex-row gap-0 print:block print:overflow-visible" style={{ height: "calc(100vh - 200px)" }}>
+            <div className="flex flex-col xl:flex-row gap-0 print:block print:h-auto print:overflow-visible" style={{ height: "calc(100vh - 200px)" }}>
               {/* Left: Invoice area (Hero) */}
               <div 
                 ref={previewContainerRef} 
-                className="flex-1 flex items-start justify-center overflow-auto py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:overflow-visible print:p-0 print:border-0"
+                className="flex-1 flex items-start justify-center overflow-auto py-6 px-4 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0"
               >
                 <div
                   className="invoice-sheet-wrapper relative print:overflow-visible"
@@ -798,6 +815,10 @@ function PreviewContent() {
                 <PrinterIcon className="h-4 w-4" />
                 Print
               </MotionButton>
+
+              <span className="hidden sm:inline text-[10px] text-[color:var(--text-muted)] mr-2">
+                Tip: Uncheck "Headers and footers" in print dialog
+              </span>
 
               <MotionButton
                 type="button"

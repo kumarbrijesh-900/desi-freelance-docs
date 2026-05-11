@@ -9,7 +9,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:bg-white">
+    <div className="font-['DM_Sans',_sans-serif] text-[#111118] bg-white min-h-[297mm] p-[15mm] box-border relative overflow-visible print:overflow-visible print:bg-white print:min-h-0 print:h-auto">
       {/* ── Background Patterns ────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
