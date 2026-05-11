@@ -704,41 +704,10 @@ function PreviewContent() {
             )}
 
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
-            <div className="flex flex-col xl:flex-row gap-0 print:block print:h-auto print:overflow-visible" style={{ height: "calc(100vh - 200px)" }}>
               {/* Left: Invoice area (Hero) */}
-              <div 
-                ref={previewContainerRef} 
-                onWheel={(e) => {
-                  if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.05 : 0.05;
-                    setZoom(Math.max(0.2, Math.min(1.5, (zoom) + delta)));
-                  }
-                }}
-                onMouseDown={(e) => {
-                  if (effectiveZoom > scaleToFit) {
-                    setIsPanning(true);
-                    panStart.current = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
-                  }
-                }}
-                onMouseMove={(e) => {
-                  if (isPanning) {
-                    setPanOffset({
-                      x: e.clientX - panStart.current.x,
-                      y: e.clientY - panStart.current.y,
-                    });
-                  }
-                }}
-                onMouseUp={() => setIsPanning(false)}
-                onMouseLeave={() => setIsPanning(false)}
-                className={cn(
-                  "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
-                  "overflow-auto cursor-grab active:cursor-grabbing"
-                )}
-                style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
-              >
-                {/* Zoom Toolbar */}
-                <div className="sticky top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-sm px-2 py-1 print:hidden">
+              <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
+                {/* Zoom Toolbar - Truly Sticky */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
                       const newZoom = Math.max((zoom) - 0.1, 0.2);
@@ -756,7 +725,7 @@ function PreviewContent() {
                       setPanOffset({ x: 0, y: 0 });
                     }}
                     className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-gray-100"
-                    title="Fit to page"
+                    title="Reset to 100%"
                   >
                     {Math.round(effectiveZoom * 100)}%
                   </button>
@@ -773,27 +742,59 @@ function PreviewContent() {
                   </button>
                 </div>
 
-                <div
-                  className="invoice-sheet-wrapper relative print:overflow-visible flex justify-center"
-                  style={{
-                    width: `${794 * effectiveZoom}px`,
-                    height: `${1123 * effectiveZoom}px`,
-                    flexShrink: 0,
+                <div 
+                  ref={previewContainerRef} 
+                  onWheel={(e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                      e.preventDefault();
+                      const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                      setZoom(Math.max(0.2, Math.min(1.5, (zoom) + delta)));
+                    }
                   }}
+                  onMouseDown={(e) => {
+                    if (effectiveZoom > scaleToFit) {
+                      setIsPanning(true);
+                      panStart.current = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+                    }
+                  }}
+                  onMouseMove={(e) => {
+                    if (isPanning) {
+                      setPanOffset({
+                        x: e.clientX - panStart.current.x,
+                        y: e.clientY - panStart.current.y,
+                      });
+                    }
+                  }}
+                  onMouseUp={() => setIsPanning(false)}
+                  onMouseLeave={() => setIsPanning(false)}
+                  className={cn(
+                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
+                    "overflow-auto cursor-grab active:cursor-grabbing scrollbar-hide"
+                  )}
+                  style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
                 >
                   <div
-                    className="invoice-sheet relative mx-auto rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                    className="invoice-sheet-wrapper relative print:overflow-visible flex justify-center"
                     style={{
-                      width: "794px",
-                      height: "1123px",
-                      transform: `scale(${effectiveZoom}) translate(${panOffset.x / effectiveZoom}px, ${panOffset.y / effectiveZoom}px)`,
-                      transformOrigin: "center center",
+                      width: `${794 * effectiveZoom}px`,
+                      height: `${1123 * effectiveZoom}px`,
+                      flexShrink: 0,
                     }}
                   >
-                    <TemplateRenderer
-                      formData={data}
-                      templateId={selectedTemplate}
-                    />
+                    <div
+                      className="invoice-sheet relative mx-auto rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      style={{
+                        width: "794px",
+                        height: "1123px",
+                        transform: `scale(${effectiveZoom}) translate(${panOffset.x / effectiveZoom}px, ${panOffset.y / effectiveZoom}px)`,
+                        transformOrigin: "center center",
+                      }}
+                    >
+                      <TemplateRenderer
+                        formData={data}
+                        templateId={selectedTemplate}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
