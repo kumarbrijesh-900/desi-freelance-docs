@@ -719,92 +719,45 @@ export default function ClientDetailsSection({
       </div>
 
       <div className="mt-8 space-y-4">
-        {isNew && !hasInteractedWithMSA ? (
-          <div className="relative overflow-hidden rounded-lg p-[2px]">
-            <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,var(--color-lime-300)_50%,transparent_100%)]" />
-            <div className="relative h-full w-full rounded-md bg-white">
-              <div
+        <div
+          className={cn(
+            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors text-left group"
+          )}
+        >
+          <div className="flex flex-col flex-1 pr-4">
+            <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
+            <p className="text-sm text-gray-500 mt-1 font-normal">
+              Set payment terms and legal conditions...
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleGenerateContract();
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-1.5 text-[12px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0"
+            >
+              ✨ Generate
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMsaOpen(!isMsaOpen);
+                setHasInteractedWithMSA(true);
+              }}
+              className="p-1"
+            >
+              <ChevronDownIcon 
                 className={cn(
-                  "flex justify-between items-center w-full p-4 border border-transparent rounded-md bg-white hover:bg-gray-50 transition-colors text-left group"
-                )}
-              >
-                <div className="flex flex-col flex-1 pr-4">
-                  <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
-                  <p className="text-sm text-gray-500 mt-1 font-normal">
-                    Set payment terms and legal conditions...
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleGenerateContract();
-                    }}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-1.5 text-[12px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0"
-                  >
-                    ✨ Generate
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsMsaOpen(!isMsaOpen);
-                      setHasInteractedWithMSA(true);
-                    }}
-                    className="p-1"
-                  >
-                    <ChevronDownIcon 
-                      className={cn(
-                        "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
-                        isMsaOpen && "rotate-180"
-                      )} 
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
+                  "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
+                  isMsaOpen && "rotate-180"
+                )} 
+              />
+            </button>
           </div>
-        ) : (
-          <div
-            className={cn(
-              "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors text-left group"
-            )}
-          >
-            <div className="flex flex-col flex-1 pr-4">
-              <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
-              <p className="text-sm text-gray-500 mt-1 font-normal">
-                Set payment terms and legal conditions...
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleGenerateContract();
-                }}
-                className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-1.5 text-[12px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0"
-              >
-                ✨ Generate
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMsaOpen(!isMsaOpen);
-                  setHasInteractedWithMSA(true);
-                }}
-                className="p-1"
-              >
-                <ChevronDownIcon 
-                  className={cn(
-                    "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
-                    isMsaOpen && "rotate-180"
-                  )} 
-                />
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
 
         <AnimatePresence>
           {isMsaOpen && (

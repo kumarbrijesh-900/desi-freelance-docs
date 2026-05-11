@@ -268,14 +268,14 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 py-6 text-sm font-bold text-gray-400 transition-all group",
+                "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white py-6 text-[13px] font-bold text-gray-500 transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-gray-300 hover:bg-gray-100/80 hover:text-gray-600"
+                  : "hover:border-[#4F46E5] hover:text-[#4F46E5] hover:bg-[#4F46E5]/5"
               )}
             >
-              <span className="text-2xl text-gray-300 group-hover:text-gray-400">+</span>
-              Add Project Milestone ({MAX_MILESTONES - effectiveMilestones.length}/{MAX_MILESTONES} remaining)
+              <span className="text-2xl text-gray-300 group-hover:text-[#4F46E5]">+</span>
+              Add Project Milestone · {MAX_MILESTONES - effectiveMilestones.length} of {MAX_MILESTONES} left
             </button>
           </div>
         )}
@@ -324,7 +324,7 @@ function LineItemCard({
   const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
-    <div className="group relative rounded-xl border border-gray-200 sm:border-[color:var(--border-tertiary)] bg-white p-4 transition-all hover:border-[color:var(--border-strong)] hover:shadow-sm">
+    <div className="group relative rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-400 hover:shadow-sm">
       {/* Delete button */}
       <button
         type="button"

@@ -2314,7 +2314,7 @@ return (
       ></div>
     </div>
 
-    <AppHeader rightSlot={<LogoutButton />} />
+    <AppHeader />
 
     <section
       className={`${appPageContainerClass} ${appPageSectionClass} relative z-10 pb-32`}
@@ -2484,46 +2484,44 @@ return (
                     onActivate={() => scrollToStep(currentStep)}
                     footer={
                       getNextStep(currentStep) ? (
-                        <div className="flex justify-end pt-2">
-                          <div className="flex flex-col items-center">
-                            <button
-                              type="button"
-                              disabled={!stepValidityByStep[currentStep]}
-                              data-testid={`continue-${currentStep}-to-${getNextStep(currentStep)}`}
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() =>
-                                scrollToStep(getNextStep(currentStep)!, {
-                                  focus: true,
-                                })
-                              }
-                              className={cn(
-                                "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
-                                !stepValidityByStep[currentStep]
-                                  ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
-                                  : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]",
-                              )}
-                            >
-                              Continue to{" "}
-                              {getStepShortLabel(getNextStep(currentStep)!)}
-                            </button>
-                            {!stepValidityByStep[currentStep] && (
-                              <p className="mt-2 text-[11px] text-[color:var(--text-secondary)]">
-                                {(() => {
-                                  const group = missingFieldGroups.find(g => g.step === currentStep);
-                                  if (!group || group.fields.length === 0) {
-                                    return "Complete all required fields to continue.";
-                                  }
-                                  if (group.fields.length === 1) {
-                                    return `Fill in ${group.fields[0]} to continue.`;
-                                  }
-                                  if (group.fields.length <= 3) {
-                                    return `Missing: ${group.fields.join(", ")}.`;
-                                  }
-                                  return `${group.fields.length} required fields remaining.`;
-                                })()}
-                              </p>
+                        <div className="mt-8 flex flex-col items-end gap-2">
+                          {!stepValidityByStep[currentStep] && (
+                            <p className="text-[12px] text-[color:var(--text-muted)]">
+                              {(() => {
+                                const group = missingFieldGroups.find(g => g.step === currentStep);
+                                if (!group || group.fields.length === 0) {
+                                  return "Complete all required fields to continue.";
+                                }
+                                if (group.fields.length === 1) {
+                                  return `Fill in ${group.fields[0]} to continue.`;
+                                }
+                                if (group.fields.length <= 3) {
+                                  return `Missing: ${group.fields.join(", ")}.`;
+                                }
+                                return `${group.fields.length} required fields remaining.`;
+                              })()}
+                            </p>
+                          )}
+                          <button
+                            type="button"
+                            disabled={!stepValidityByStep[currentStep]}
+                            data-testid={`continue-${currentStep}-to-${getNextStep(currentStep)}`}
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() =>
+                              scrollToStep(getNextStep(currentStep)!, {
+                                focus: true,
+                              })
+                            }
+                            className={cn(
+                              "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                              !stepValidityByStep[currentStep]
+                                ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border border-[color:var(--border-subtle)]"
+                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00] shadow-sm border border-[#bfff00]",
                             )}
-                          </div>
+                          >
+                            Continue to{" "}
+                            {getStepShortLabel(getNextStep(currentStep)!)}
+                          </button>
                         </div>
                       ) : null
                     }
