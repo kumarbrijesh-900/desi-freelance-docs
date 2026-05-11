@@ -2392,22 +2392,6 @@ return (
         </div>
       )}
 
-      {isGuestMode && (
-        <div className="mx-auto max-w-[1328px] mb-4 px-4 sm:px-6 print:hidden">
-          <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
-            <p className="text-[13px] text-[color:var(--text-secondary)]">
-              <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
-            </p>
-            <Link
-              href="/login"
-              className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
-            >
-              Sign in →
-            </Link>
-          </div>
-        </div>
-      )}
-
       <div className="mx-auto grid w-full max-w-[1328px] mt-6 grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
         <div
           className={cn(
@@ -2416,6 +2400,22 @@ return (
             appSectionGapClass,
           )}
         >
+          {isGuestMode && (
+            <div className="mb-6 print:hidden">
+              <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+                <p className="text-[13px] text-[color:var(--text-secondary)]">
+                  <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+                </p>
+                <Link
+                  href="/login"
+                  className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
+                >
+                  Sign in →
+                </Link>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
             {clientMsaNote && (
               <MotionReveal preset="fade-up" className="mb-2">
