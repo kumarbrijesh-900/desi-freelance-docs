@@ -2480,7 +2480,10 @@ return (
 
 
     <section
-      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32 overflow-x-clip max-w-full`}
+      className={cn(
+        "relative z-10 pb-32 max-w-full overflow-x-hidden",
+        appPageSectionClass
+      )}
     >
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
@@ -2513,7 +2516,7 @@ return (
         </div>
       )}
 
-      <div className={`${appEditorGridClass} mt-6`}>
+      <div className={cn(appEditorGridClass, "mt-6 px-4 lg:px-0")}>
         {/* ── COL 1: Desktop Stepper Rail ── */}
         <aside
           className={cn(
@@ -2676,10 +2679,9 @@ return (
               />
             </div>
 
-            {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
-            {/* Mobile Meta Summary Strip (Rectified for UX) */}
+            {/* Mobile Meta Summary Strip (Unified Alignment) */}
             <div className={cn(
-              "mx-4 mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
+              "mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
               isEditingMeta ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-gray-50"
             )}>
               <div className="flex flex-col gap-3">
