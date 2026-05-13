@@ -86,6 +86,7 @@ import {
 import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
+  getOptionalFieldEmptyCounts,
 } from "@/lib/invoice-validation";
 import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import {
@@ -577,6 +578,7 @@ function InlineStepSection({
   isActive,
   isCompleted,
   issueCount,
+  optionalIssueCount,
   onActivate,
   children,
   footer,
@@ -585,6 +587,7 @@ function InlineStepSection({
   isActive: boolean;
   isCompleted: boolean;
   issueCount: number;
+  optionalIssueCount: number;
   onActivate: () => void;
   children: ReactNode;
   footer?: ReactNode;
@@ -598,9 +601,9 @@ function InlineStepSection({
     !isCompleted && isMounted && issueCount > 0
       ? `${issueCount} mandatory`
       : isCompleted
-        ? "All done ✓"
+        ? optionalIssueCount > 0 ? "Ready" : "Complete ✓"
         : isActive && isMounted && issueCount === 0
-          ? "All done ✓"
+          ? optionalIssueCount > 0 ? "Ready" : "Complete ✓"
           : isActive
             ? "In progress"
             : "Pending";
@@ -1443,6 +1446,10 @@ function EditorContent() {
         },
       ),
     [missingFieldGroups],
+  );
+  const missingOptionalCountByStep = useMemo(
+    () => getOptionalFieldEmptyCounts(formData),
+    [formData]
   );
   const firstInvalidStep = useMemo(
     () => getFirstInvalidStep(formData),
@@ -2524,9 +2531,13 @@ return (
                         : isActive
                           ? missingFieldCountByStep[step] > 0
                             ? `${missingFieldCountByStep[step]} mandatory`
-                            : "All done ✓"
+                            : missingOptionalCountByStep[step] > 0
+                              ? "Ready"
+                              : "Complete ✓"
                           : isCompleted
-                            ? "All done ✓"
+                            ? missingOptionalCountByStep[step] > 0
+                              ? "Ready"
+                              : "Complete ✓"
                             : isIncomplete &&
                               missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} mandatory`
@@ -2726,6 +2737,7 @@ return (
                     isActive={true}
                     isCompleted={displayStepValidityByStep[currentStep]}
                     issueCount={missingFieldCountByStep[currentStep]}
+                    optionalIssueCount={missingOptionalCountByStep[currentStep]}
                     onActivate={() => scrollToStep(currentStep)}
                     footer={
                       getNextStep(currentStep) ? (

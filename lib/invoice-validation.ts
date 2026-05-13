@@ -60,6 +60,45 @@ function isBlank(value?: string) {
   return !value || !value.trim();
 }
 
+export function getOptionalFieldEmptyCounts(
+  formData: InvoiceFormData,
+): Record<InvoiceStepperStep, number> {
+  const counts: Record<InvoiceStepperStep, number> = {
+    agency: 0,
+    client: 0,
+    deliverables: 0,
+    payment: 0,
+    meta: 0,
+    totals: 0,
+  };
+
+  // Agency optional fields
+  if (isBlank(formData.agency.addressLine2)) counts.agency++;
+  if (isBlank(formData.agency.city)) counts.agency++;
+  if (isBlank(formData.agency.pinCode)) counts.agency++;
+  if (isBlank(formData.agency.pan)) counts.agency++;
+  if (!isAgencyGstRegistered(formData.agency) && isBlank(formData.agency.gstin)) counts.agency++;
+  if (isBlank(formData.agency.logoUrl)) counts.agency++;
+  if (isBlank(formData.agency.signatureUrl)) counts.agency++;
+
+  // Client optional fields
+  if (isBlank(formData.client.clientEmail)) counts.client++;
+  if (isBlank(formData.client.clientAddressLine2)) counts.client++;
+  if (isBlank(formData.client.clientCity)) counts.client++;
+  if (isInternationalClient(formData.client)) {
+    if (isBlank(formData.client.clientPostalCode)) counts.client++;
+  } else {
+    if (isBlank(formData.client.clientPinCode)) counts.client++;
+    if (isBlank(formData.client.clientGstin)) counts.client++;
+  }
+
+  // Payment optional fields
+  if (isBlank(formData.payment.terms)) counts.payment++;
+  if (isBlank(formData.payment.qrCodeUrl)) counts.payment++;
+
+  return counts;
+}
+
 export function getInvoiceFieldErrors(
   formData: InvoiceFormData,
 ): InvoiceFieldErrors {
