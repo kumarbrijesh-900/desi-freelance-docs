@@ -2677,32 +2677,79 @@ return (
             </div>
 
             {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
-            <div className="mb-3 flex items-center gap-4 rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2 xl:hidden">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV</span>
-                <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                  {formData.meta?.invoiceNumber || '—'}
-                </span>
-              </div>
-              <div className="h-3 w-px bg-gray-200" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Date</span>
-                <input
-                  type="date"
-                  value={formData.meta?.invoiceDate || ''}
-                  onChange={(e) => handleMetaChange({ ...formData.meta, invoiceDate: e.target.value })}
-                  className="text-[12px] font-medium text-[color:var(--text-primary)] bg-transparent border-none outline-none w-[110px] cursor-pointer"
-                />
-              </div>
-              <div className="h-3 w-px bg-gray-200" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</span>
-                <input
-                  type="date"
-                  value={formData.meta?.dueDate || ''}
-                  onChange={(e) => handleMetaChange({ ...formData.meta, dueDate: e.target.value })}
-                  className="text-[12px] font-medium text-red-500 bg-transparent border-none outline-none w-[110px] cursor-pointer"
-                />
+            {/* Mobile Meta Summary Strip (Rectified for UX) */}
+            <div className={cn(
+              "mx-4 mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
+              isEditingMeta ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-gray-50"
+            )}>
+              <div className="flex flex-col gap-3">
+                {/* Row 1: Invoice Number & Edit Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Invoice Reference</span>
+                    {isEditingMeta ? (
+                      <input
+                        type="text"
+                        value={formData.meta.invoiceNumber}
+                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
+                        className="mt-1 w-full rounded-md border-none bg-white p-0 text-[14px] font-bold text-[color:var(--text-primary)] focus:ring-0"
+                        placeholder="INV-000"
+                      />
+                    ) : (
+                      <span className="text-[14px] font-bold tracking-tight text-[color:var(--text-primary)]">
+                        {formData.meta?.invoiceNumber || '—'}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingMeta(!isEditingMeta)}
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold transition-all",
+                      isEditingMeta 
+                        ? "bg-[color:var(--brand-indigo)] text-white" 
+                        : "bg-white text-[color:var(--text-secondary)] border border-gray-200 shadow-sm"
+                    )}
+                  >
+                    {isEditingMeta ? 'Done' : 'Edit'}
+                  </button>
+                </div>
+
+                <div className="h-[1px] w-full bg-gray-100" />
+
+                {/* Row 2: Dates Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Issued</span>
+                    {isEditingMeta ? (
+                      <input
+                        type="date"
+                        value={formData.meta.invoiceDate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
+                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-medium text-[color:var(--text-primary)] focus:ring-0"
+                      />
+                    ) : (
+                      <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
+                        {formData.meta?.invoiceDate || '—'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Due</span>
+                    {isEditingMeta ? (
+                      <input
+                        type="date"
+                        value={formData.meta.dueDate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
+                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-medium text-red-500 focus:ring-0"
+                      />
+                    ) : (
+                      <span className="text-[12px] font-medium text-red-500">
+                        {formData.meta?.dueDate || '—'}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
