@@ -598,10 +598,12 @@ function InlineStepSection({
     !isCompleted && isMounted && issueCount > 0
       ? `${issueCount} mandatory`
       : isCompleted
-        ? "Ready"
-        : isActive
-          ? "In progress"
-          : "Pending";
+        ? "All done ✓"
+        : isActive && isMounted && issueCount === 0
+          ? "All done ✓"
+          : isActive
+            ? "In progress"
+            : "Pending";
 
   if (step === "totals" && isActive && !isCompleted) {
     statusLabel = "Pending";
@@ -2522,9 +2524,9 @@ return (
                         : isActive
                           ? missingFieldCountByStep[step] > 0
                             ? `${missingFieldCountByStep[step]} mandatory`
-                            : "In progress"
+                            : "All done ✓"
                           : isCompleted
-                            ? "Ready"
+                            ? "All done ✓"
                             : isIncomplete &&
                               missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} mandatory`
