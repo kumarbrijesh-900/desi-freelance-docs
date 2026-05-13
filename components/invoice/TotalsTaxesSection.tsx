@@ -38,6 +38,7 @@ type TotalsTaxesSectionProps = {
   estimatedIgstLiability?: number;
   grandTotalReferenceLabel?: string;
   grandTotalReferenceAmount?: number;
+  hasBillableItems?: boolean;
   paymentTerms?: string;
   bankName?: string;
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
@@ -74,6 +75,7 @@ export default function TotalsTaxesSection({
   estimatedIgstLiability,
   grandTotalReferenceLabel = "",
   grandTotalReferenceAmount,
+  hasBillableItems = false,
   paymentTerms = "",
   bankName = "",
   onExportTaxDecisionChange,
@@ -246,8 +248,13 @@ export default function TotalsTaxesSection({
             </div>
 
             {grandTotal === 0 && (
-              <p className="text-[12px] text-[color:var(--text-muted)] italic text-right">
-                Add billable items to see the final total.
+              <p className={cn(
+                "text-[12px] italic text-right",
+                hasBillableItems ? "text-[color:var(--state-warning-text)]" : "text-[color:var(--text-muted)]"
+              )}>
+                {hasBillableItems
+                  ? "Note: The grand total for this invoice is ₹0. Proceed?"
+                  : "Add billable items to see the final total."}
               </p>
             )}
           </div>
