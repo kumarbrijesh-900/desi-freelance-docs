@@ -89,10 +89,13 @@ import {
 } from "@/lib/invoice-validation";
 import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import {
-  appPageContainerClass,
+  appContainerCenteredClass,
+  appContainerFullClass,
+  appEditorGridClass,
   appPageSectionClass,
   appPageShellClass,
   appSectionGapClass,
+  appStickyTopClass,
 } from "@/lib/layout-foundation";
 import {
   defaultInvoiceFormData,
@@ -2438,7 +2441,7 @@ return (
 
 
     <section
-      className={`${appPageContainerClass} ${appPageSectionClass} relative z-10 pb-32`}
+      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32`}
     >
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
@@ -2471,11 +2474,101 @@ return (
         </div>
       )}
 
-      <div className="mx-auto grid w-full max-w-[1328px] mt-6 grid-cols-1 gap-5 lg:grid-cols-[158px_minmax(0,1fr)] lg:items-start lg:justify-center lg:gap-6 xl:max-w-[1392px] xl:grid-cols-[166px_minmax(0,1fr)] xl:gap-8">
+      <div className={`${appEditorGridClass} mt-6`}>
+        {/* ── COL 1: Desktop Stepper Rail ── */}
+        <aside
+          className={cn(
+            "hidden lg:block",
+            appStickyTopClass,
+          )}
+          data-testid="desktop-support-rail"
+        >
+          <div className="space-y-3">
+            <MotionReveal
+              preset="fade-up"
+              delay={40}
+              className={cn(
+                getAppSubtlePanelClass("muted"),
+                "invoice-step-rail rounded-[16px] px-3 py-3",
+              )}
+            >
+              <div
+                className="space-y-3"
+                data-testid="support-rail-section-list"
+              >
+                <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Editor progress
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
+                    {completedStepCount} of {orderedSteps.length} ready
+                  </p>
+                </div>
+
+                <div className="invoice-step-rail-track relative space-y-1 pl-3">
+                  {orderedSteps.map((step, index) => {
+                    const isActive = currentStep === step;
+                    const isCompleted =
+                      displayStepValidityByStep[step] && !isActive;
+                    const isIncomplete = !displayStepValidityByStep[step];
+                    const stepState = isActive
+                      ? "active"
+                      : isCompleted
+                        ? "completed"
+                        : "pending";
+                    const railStatus =
+                      step === "totals" && !invoiceReadyForPreview
+                        ? "Pending"
+                        : isActive
+                          ? missingFieldCountByStep[step] > 0
+                            ? `${missingFieldCountByStep[step]} required`
+                            : "In progress"
+                          : isCompleted
+                            ? "Ready"
+                            : isIncomplete &&
+                              missingFieldCountByStep[step] > 0
+                              ? `${missingFieldCountByStep[step]} required`
+                              : firstInvalidStep === step
+                                ? "Up next"
+                                : "Pending";
+
+                    return (
+                      <button
+                        key={step}
+                        type="button"
+                        onClick={() => scrollToStep(step)}
+                        data-rail-state={stepState}
+                        className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
+                      >
+                        <div className="flex min-w-0 items-start gap-2">
+                          <span className={cn(
+                            "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+                            isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
+                          )}>
+                            {isCompleted ? "✓" : index + 1}
+                          </span>
+                          <div className="min-w-0 space-y-1">
+                            <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
+                              {getStepShortLabel(step)}
+                            </p>
+                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                              {railStatus}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </MotionReveal>
+          </div>
+        </aside>
+
+        {/* ── COL 2: Wizard Content ── */}
         <div
           className={cn(
-            "w-full pb-20 lg:col-start-2",
-            "max-w-2xl mx-auto",
+            "w-full min-w-0 pb-20",
             appSectionGapClass,
           )}
         >
@@ -2741,142 +2834,168 @@ return (
             </div>
           </div>
 
-          {/* Fixed Bottom Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_minmax(0,2fr)] lg:gap-16 xl:grid-cols-[200px_minmax(0,1fr)]">
-                <div className="lg:col-start-2 px-0">
-                  <div className="flex h-16 items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={handleBackToHome}
-                      className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[color:var(--text-primary)] transition-colors"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                      <span className="hidden sm:inline">Close</span>
-                    </button>
-        
-                    <div className="flex items-center gap-2">
-                      {autoSaveState === 'saving' && (
-                        <span className="text-[11px] text-[color:var(--text-muted)] animate-pulse hidden sm:inline-block">Saving...</span>
-                      )}
-                      {autoSaveState === 'saved' && (
-                        <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved ✓</span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleSaveDraft}
-                        className={cn(
-                          getAppButtonClass({ variant: "ghost", size: "sm" }),
-                          "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
-                        )}
-                      >
-                        <SaveIcon className="mr-2 h-4 w-4" />
-                        Save Draft
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handlePreviewInvoice}
-                        className={cn(
-                          "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
-                          invoiceReadyForPreview
-                            ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                            : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] active:scale-[0.97] transition-transform"
-                        )}
-                      >
-                        Preview <ArrowRight className="ml-2 h-4 w-4" />
-                      </button>
+          {/* ── Mobile/Tablet Totals (visible below xl, after items are added) ── */}
+          {computedTotals.subtotal > 0 && (
+            <div className="xl:hidden mt-4">
+              <div
+                id="mobile-totals-footer"
+                className="rounded-lg border border-[color:var(--border-subtle)] bg-gray-50 px-4 py-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
+                      <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
+                        {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                      </p>
                     </div>
+                    {computedTotals.taxAmount > 0 && (
+                      <>
+                        <div className="h-6 w-px bg-gray-200" />
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
+                          <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Fixed Bottom Action Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200">
+            <div className={`${appEditorGridClass} px-4 sm:px-6 lg:px-8`}>
+              {/* Spacer for left column on lg+ */}
+              <div className="hidden lg:block" />
+              <div className="flex h-16 items-center justify-between">
+                <button
+                  type="button"
+                  onClick={handleBackToHome}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[color:var(--text-primary)] transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Close</span>
+                </button>
+    
+                <div className="flex items-center gap-2">
+                  {autoSaveState === 'saving' && (
+                    <span className="text-[11px] text-[color:var(--text-muted)] animate-pulse hidden sm:inline-block">Saving...</span>
+                  )}
+                  {autoSaveState === 'saved' && (
+                    <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved ✓</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    className={cn(
+                      getAppButtonClass({ variant: "ghost", size: "sm" }),
+                      "h-9 px-4 border border-gray-200 text-gray-600 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                    )}
+                  >
+                    <SaveIcon className="mr-2 h-4 w-4" />
+                    Save Draft
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePreviewInvoice}
+                    className={cn(
+                      "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
+                      invoiceReadyForPreview
+                        ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
+                        : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] active:scale-[0.97] transition-transform"
+                    )}
+                  >
+                    Preview <ArrowRight className="ml-2 h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              {/* Spacer for right column on xl+ */}
+              <div className="hidden xl:block" />
+            </div>
           </div>
         </div>
 
+        {/* ── COL 3: Right Sidebar – Meta + Totals (xl+) ── */}
         <aside
-          className="hidden lg:block lg:fixed lg:top-[100px] lg:w-[158px] xl:w-[166px] lg:z-30"
-          data-testid="desktop-support-rail"
+          className={cn(
+            "hidden xl:block",
+            appStickyTopClass,
+          )}
+          data-testid="desktop-right-sidebar"
         >
-          <div className="space-y-3">
-            <MotionReveal
-              preset="fade-up"
-              delay={40}
+          <div className="space-y-4">
+            {/* ── Invoice Meta Card ── */}
+            <div
               className={cn(
                 getAppSubtlePanelClass("muted"),
-                "invoice-step-rail rounded-[16px] px-3 py-3",
+                "rounded-[16px] px-4 py-4",
               )}
             >
-              <div
-                className="space-y-3"
-                data-testid="support-rail-section-list"
-              >
-                <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                    Editor progress
-                  </p>
-                  <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
-                    {completedStepCount} of {orderedSteps.length} ready
-                  </p>
+              <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  Invoice Details
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV #</span>
+                  <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                    {formData.meta?.invoiceNumber || '—'}
+                  </span>
                 </div>
-
-                <div className="invoice-step-rail-track relative space-y-1 pl-3">
-                  {orderedSteps.map((step, index) => {
-                    const isActive = currentStep === step;
-                    const isCompleted =
-                      displayStepValidityByStep[step] && !isActive;
-                    const isIncomplete = !displayStepValidityByStep[step];
-                    const stepState = isActive
-                      ? "active"
-                      : isCompleted
-                        ? "completed"
-                        : "pending";
-                    const railStatus =
-                      step === "totals" && !invoiceReadyForPreview
-                        ? "Pending"
-                        : isActive
-                          ? missingFieldCountByStep[step] > 0
-                            ? `${missingFieldCountByStep[step]} required`
-                            : "In progress"
-                          : isCompleted
-                            ? "Ready"
-                            : isIncomplete &&
-                              missingFieldCountByStep[step] > 0
-                              ? `${missingFieldCountByStep[step]} required`
-                              : firstInvalidStep === step
-                                ? "Up next"
-                                : "Pending";
-
-                    return (
-                      <button
-                        key={step}
-                        type="button"
-                        onClick={() => scrollToStep(step)}
-                        data-rail-state={stepState}
-                        className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
-                      >
-                        <div className="flex min-w-0 items-start gap-2">
-                          <span className={cn(
-                            "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
-                            isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
-                          )}>
-                            {isCompleted ? "✓" : index + 1}
-                          </span>
-                          <div className="min-w-0 space-y-1">
-                            <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
-                              {getStepShortLabel(step)}
-                            </p>
-                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                              {railStatus}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Date</span>
+                  <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
+                    {formData.meta?.invoiceDate || '—'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</span>
+                  <span className="text-[12px] font-medium text-red-500">
+                    {formData.meta?.dueDate || '—'}
+                  </span>
                 </div>
               </div>
-            </MotionReveal>
+            </div>
+
+            {/* ── Totals Card ── */}
+            <div
+              className={cn(
+                getAppSubtlePanelClass("muted"),
+                "rounded-[16px] px-4 py-4",
+              )}
+            >
+              <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  Totals
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Subtotal</span>
+                  <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                    {formatCurrency(computedTotals.subtotal, displayCurrency)}
+                  </span>
+                </div>
+                {computedTotals.taxAmount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
+                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                      {formatCurrency(computedTotals.taxAmount, displayCurrency)}
+                    </span>
+                  </div>
+                )}
+                <div className="h-px bg-[color:var(--border-subtle)]" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-primary)]">Grand Total</span>
+                  <span className={`text-[16px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
+                    {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
       </div>

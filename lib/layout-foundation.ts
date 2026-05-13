@@ -1,7 +1,18 @@
 export const appPageShellClass = "min-h-screen bg-transparent";
 
-export const appPageContainerClass =
-  "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10";
+export const appPageContainerClass = "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10";
+
+// New utility: centered container for pages/forms
+export function appContainerCenteredClass() {
+  return "flex justify-center w-full";
+}
+
+// Utility for a full‑width container that still respects the page max‑width
+export function appContainerFullClass() {
+  // Uses the global page container max‑width (1440px) and full‑width on smaller screens
+  return "w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8";
+}
+
 
 export const appPageSectionClass = "py-6 sm:py-8 lg:py-10";
 
@@ -53,3 +64,27 @@ export const appHistoryFoundationClass =
   "grid grid-cols-4 gap-4 sm:grid-cols-8 sm:gap-5 lg:grid-cols-12 lg:gap-6";
 
 export const appSectionHeaderStackClass = "space-y-2";
+
+/* ── Invoice Editor 3-Column Grid ── */
+
+/** Sticky helper – pins element to top with 16px offset */
+export const appStickyTopClass = "sticky top-4";
+
+/**
+ * Three-column grid for the invoice editor:
+ *  - Left:   stepper rail  (fixed ~160px)
+ *  - Center: wizard form   (flex 1fr, scrollable)
+ *  - Right:  meta + totals (fixed ~280px, hidden below lg)
+ *
+ * All gaps are multiples of 8px (Tailwind gap-4 = 16px, gap-6 = 24px).
+ * On mobile/tablet the layout collapses to a single column.
+ */
+export const appEditorGridClass = [
+  "mx-auto grid w-full max-w-[1440px]",
+  // Mobile: single column
+  "grid-cols-1 gap-4",
+  // lg: left stepper + center wizard (no right sidebar yet)
+  "lg:grid-cols-[160px_minmax(0,1fr)] lg:gap-6 lg:items-start",
+  // xl: full 3-column with right sidebar
+  "xl:grid-cols-[160px_minmax(0,1fr)_280px] xl:gap-6",
+].join(" ");

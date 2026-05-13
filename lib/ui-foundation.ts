@@ -113,6 +113,21 @@ export function getAppPanelClass(
   );
 }
 
+// New utility: centered container for pages/forms
+export function appContainerCenteredClass() {
+  return "flex justify-center w-full";
+}
+
+// New utility: bottom bar container styling
+export function appBottomBarClass() {
+  return "bg-white shadow-md rounded-t-lg p-4";
+}
+
+// Mobile‑only step pill class (numbers only)
+export function appMobileStepPillClass() {
+  return "hidden lg:flex items-center gap-2"; // placeholder, actual implementation can be refined later
+}
+
 export function getAppStatusPillClass(
   tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
