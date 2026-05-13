@@ -2480,7 +2480,7 @@ return (
 
 
     <section
-      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32`}
+      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32 overflow-x-clip max-w-full`}
     >
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
@@ -2793,7 +2793,7 @@ return (
             </div>
 
             <div
-              className="overflow-visible h-auto"
+              className="overflow-hidden h-auto min-w-0 w-full"
               data-testid="invoice-vertical-stepper"
             >
               <AnimatePresence mode="wait" custom={direction} initial={false}>

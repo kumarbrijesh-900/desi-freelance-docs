@@ -419,9 +419,9 @@ function LineItemCard({
           )}
         </div>
 
-        {/* Row 3: Qty / Rate / Unit */}
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="w-[80px]">
+        {/* Row 3: Qty / Rate / Unit (Rectified for Mobile) */}
+        <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:items-end">
+          <div className="col-span-1 sm:w-[80px]">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
               Qty
               {autoFilledFields.has(`deliverables.${itemIndex}.quantity`) && (
@@ -444,7 +444,7 @@ function LineItemCard({
             />
           </div>
 
-          <div className="w-[160px]">
+          <div className="col-span-1 sm:w-[160px]">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
               Rate
               {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
@@ -472,7 +472,7 @@ function LineItemCard({
             </div>
           </div>
 
-          <div className="w-[160px]">
+          <div className="col-span-2 sm:col-span-1 sm:w-[160px]">
             <div className="flex items-center gap-1.5 mb-1.5">
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight m-0 p-0 block ml-0.5">
                 Unit
@@ -502,8 +502,9 @@ function LineItemCard({
             </AppSelectField>
           </div>
 
-          <div className="ml-auto pb-2 text-right">
-            <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
+          <div className="col-span-2 sm:ml-auto sm:pb-2 text-right">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-1">Subtotal</p>
+            <p className="text-[15px] font-bold text-[color:var(--text-primary)]">
               {formatCurrency(total, currency)}
             </p>
           </div>
