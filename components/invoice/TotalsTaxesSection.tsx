@@ -43,6 +43,7 @@ type TotalsTaxesSectionProps = {
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
   onChange: (value: TaxConfig) => void;
   hasItems?: boolean;
+  defaultExpanded?: boolean;
 };
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
@@ -80,8 +81,9 @@ export default function TotalsTaxesSection({
   onExportTaxDecisionChange,
   onChange,
   hasItems = false,
+  defaultExpanded = false,
 }: TotalsTaxesSectionProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(defaultExpanded);
   const subtotal = computed.subtotal;
   const taxAmount = computed.taxAmount;
   const grandTotal = computed.grandTotal;

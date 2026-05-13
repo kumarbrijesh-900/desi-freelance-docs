@@ -739,7 +739,15 @@ function EditorContent() {
   const [direction, setDirection] = useState(0);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
+  const [isXl, setIsXl] = useState(false);
   const [isEditingMeta, setIsEditingMeta] = useState(false);
+  useEffect(() => {
+    const checkXl = () => setIsXl(window.innerWidth >= 1280);
+    checkXl();
+    window.addEventListener("resize", checkXl);
+    return () => window.removeEventListener("resize", checkXl);
+  }, []);
+
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -1422,6 +1430,8 @@ function EditorContent() {
   const approximateUsdGrandTotal = showApproximateUsdReference
     ? convertInrToApproximateUsd(computedTotals.grandTotal)
     : undefined;
+
+
   const missingFieldGroups = useMemo(
     () => getMissingFieldLabels(formData),
     [formData],
@@ -1444,6 +1454,11 @@ function EditorContent() {
       ),
     [formData],
   );
+
+  const showSummaryInline = !isXl && 
+    stepValidityByStep['agency'] && 
+    stepValidityByStep['client'] && 
+    stepValidityByStep['deliverables'];
   const missingFieldCountByStep = useMemo(
     () =>
       missingFieldGroups.reduce<Record<InvoiceStepperStep, number>>(
@@ -2810,58 +2825,106 @@ return (
               </AnimatePresence>
             </div>
 
-            {/* ── Live Totals Strip (hidden on xl+ where sidebar has it) ── */}
-            <div 
-              id="live-totals-footer" 
-              className={cn(
-                "mt-4 border border-[color:var(--border-subtle)] transition-all duration-300 xl:hidden",
-                showAdvancedTax 
-                  ? "rounded-xl bg-white p-6 shadow-sm" 
-                  : "rounded-lg bg-gray-50 px-4 py-2.5"
-              )}
-            >
-              <div className={cn("flex items-center justify-between", showAdvancedTax && "mb-6 pb-6 border-b border-gray-100")}>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
-                    <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
-                      {formatCurrency(computedTotals.grandTotal, displayCurrency)}
-                    </p>
-                  </div>
-                  {computedTotals.taxAmount > 0 && (
-                    <>
-                      <div className="h-6 w-px bg-gray-200" />
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
-                        <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formatCurrency(computedTotals.taxAmount, displayCurrency)}</p>
+            {/* ── Live Totals / Summary Block (Mobile/Tablet) ── */}
+            {!isXl && (
+              <div className="mt-6 space-y-4">
+                {showSummaryInline ? (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-4">
+                      {/* Inline Meta Card */}
+                      <div className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-4 py-4")}>
+                        <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                            Invoice Details
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
+                            <AppSwitch checked={isEditingMeta} onChange={setIsEditingMeta} />
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">INV #</span>
+                            {isEditingMeta ? (
+                              <input
+                                type="text"
+                                value={formData.meta.invoiceNumber}
+                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
+                                className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[12px] font-bold text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200"
+                              />
+                            ) : (
+                              <span className="text-[13px] font-bold text-[color:var(--text-primary)]">{formData.meta?.invoiceNumber || '—'}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Date</span>
+                            {isEditingMeta ? (
+                              <input
+                                type="date"
+                                value={formData.meta.invoiceDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
+                                className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200"
+                              />
+                            ) : (
+                              <span className="text-[12px] font-medium text-[color:var(--text-primary)]">{formData.meta?.invoiceDate || '—'}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</span>
+                            {isEditingMeta ? (
+                              <input
+                                type="date"
+                                value={formData.meta.dueDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
+                                className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-red-500 ring-1 ring-inset ring-gray-200"
+                              />
+                            ) : (
+                              <span className="text-[12px] font-medium text-red-500">{formData.meta?.dueDate || '—'}</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancedTax(!showAdvancedTax)}
-                  className="text-[11px] font-medium text-[#4F46E5] hover:underline"
-                >
-                  {showAdvancedTax ? "Hide tax options" : "Tax options"}
-                </button>
-              </div>
 
-              {showAdvancedTax && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <TotalsTaxesSection
-                    embedded
-                    value={derivedTaxConfig}
-                    computed={computedTotals}
-                    currency={displayCurrency}
-                    hasItems={hasItems}
-                    isLocked={true}
-                    onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
-                    onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
-                  />
-                </div>
-              )}
-            </div>
+                      {/* Expanded Totals Card */}
+                      <div className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-4 py-4")}>
+                        <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">Totals</p>
+                        </div>
+                        <TotalsTaxesSection
+                          embedded
+                          value={derivedTaxConfig}
+                          computed={computedTotals}
+                          currency={displayCurrency}
+                          hasItems={hasItems}
+                          defaultExpanded={true}
+                          isLocked={true}
+                          onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Fallback to simple footer strip if items not ready */
+                  <div 
+                    id="live-totals-footer" 
+                    className={cn(
+                      "border border-[color:var(--border-subtle)] transition-all duration-300 rounded-lg bg-gray-50 px-4 py-2.5"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Total</span>
+                          <p className={`text-[18px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
+                            {formatCurrency(computedTotals.grandTotal, displayCurrency)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── Mobile/Tablet Totals (visible below xl, after items are added) ── */}
