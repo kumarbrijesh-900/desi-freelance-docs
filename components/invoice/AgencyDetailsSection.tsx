@@ -42,6 +42,7 @@ interface AgencyDetailsSectionProps {
     agencyState?: string;
     gstin?: string;
     pan?: string;
+    pinCode?: string;
   };
   showAllErrors?: boolean;
   autoFilledFields?: Set<string>;
@@ -199,6 +200,7 @@ export default function AgencyDetailsSection({
   const agencyStateError = getVisibleError("agencyState", errors?.agencyState);
   const gstinError = getVisibleError("gstin", errors?.gstin);
   const panError = getVisibleError("pan", errors?.pan);
+  const pinCodeError = getVisibleError("pinCode", errors?.pinCode);
   return (
     <>
       <UploadToast message={toastMessage} visible={showToast} />
@@ -710,33 +712,37 @@ export default function AgencyDetailsSection({
                     />
                   </div>
 
-                  <div className="min-w-0 overflow-visible">
-                    <label className={appFieldLabelClass}>
-                      PIN
-                      {autoFilledFields.has("agency.pinCode") && (
-                        <span className="autofill-indicator">auto-filled</span>
-                      )}
-                    </label>
-                    <input
-                      suppressHydrationWarning
-                      type="text"
-                      inputMode="numeric"
-                      value={value.pinCode}
-                      onChange={(e) => {
-                        onFieldManualEdit("agency.pinCode");
-                        updateField(
-                          "pinCode",
-                          e.target.value.replace(/\D/g, "").slice(0, 6),
-                        );
-                      }}
-                      placeholder="PIN"
-                      className={cn(
-                        inputClass(undefined, Boolean(value.pinCode)),
-                        getInputStateClass("agency.pinCode", value.pinCode),
-                        "w-full max-w-full"
-                      )}
-                    />
-                  </div>
+                      <div className="min-w-0 overflow-visible">
+                        <label className={appFieldLabelClass}>
+                          PIN
+                          {autoFilledFields.has("agency.pinCode") && (
+                            <span className="autofill-indicator">auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          suppressHydrationWarning
+                          type="text"
+                          inputMode="numeric"
+                          value={value.pinCode}
+                          onChange={(e) => {
+                            onFieldManualEdit("agency.pinCode");
+                            updateField(
+                              "pinCode",
+                              e.target.value.replace(/\D/g, "").slice(0, 6),
+                            );
+                          }}
+                          onBlur={() => markTouched("pinCode")}
+                          placeholder="PIN"
+                          className={cn(
+                            inputClass(pinCodeError, Boolean(value.pinCode)),
+                            getInputStateClass("agency.pinCode", value.pinCode),
+                            "w-full max-w-full"
+                          )}
+                        />
+                        {pinCodeError && (
+                          <p className={cn(appFieldErrorTextClass, "mt-1")}>{pinCodeError}</p>
+                        )}
+                      </div>
                 </div>
               </div>
 

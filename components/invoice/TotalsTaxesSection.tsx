@@ -38,11 +38,11 @@ type TotalsTaxesSectionProps = {
   estimatedIgstLiability?: number;
   grandTotalReferenceLabel?: string;
   grandTotalReferenceAmount?: number;
-  hasBillableItems?: boolean;
   paymentTerms?: string;
   bankName?: string;
   onExportTaxDecisionChange?: (value: InternationalTaxHandling) => void;
   onChange: (value: TaxConfig) => void;
+  hasItems?: boolean;
 };
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
@@ -75,11 +75,11 @@ export default function TotalsTaxesSection({
   estimatedIgstLiability,
   grandTotalReferenceLabel = "",
   grandTotalReferenceAmount,
-  hasBillableItems = false,
   paymentTerms = "",
   bankName = "",
   onExportTaxDecisionChange,
   onChange,
+  hasItems = false,
 }: TotalsTaxesSectionProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const subtotal = computed.subtotal;
@@ -247,14 +247,15 @@ export default function TotalsTaxesSection({
               </dd>
             </div>
 
-            {grandTotal === 0 && (
-              <p className={cn(
-                "text-[12px] italic text-right",
-                hasBillableItems ? "text-[color:var(--state-warning-text)]" : "text-[color:var(--text-muted)]"
-              )}>
-                {hasBillableItems
-                  ? "Note: The grand total for this invoice is ₹0. Proceed?"
-                  : "Add billable items to see the final total."}
+            {grandTotal === 0 && !hasItems && (
+              <p className="text-[12px] text-[color:var(--text-muted)] italic text-right">
+                Add billable items to see the final total.
+              </p>
+            )}
+
+            {grandTotal === 0 && hasItems && (
+              <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                Note: The grand total for this invoice is {formatCurrency(0, currency)}. Proceed?
               </p>
             )}
           </div>

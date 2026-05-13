@@ -471,8 +471,6 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
   if (errors.agency.address) addField("agency", "Address line 1");
   if (errors.agency.agencyState) addField("agency", "Agency state");
   if (errors.agency.gstin) addField("agency", "Agency GSTIN");
-  if (errors.agency.pan) addField("agency", "Agency PAN");
-  if (errors.agency.pinCode) addField("agency", "Agency PIN code");
 
   if (errors.client.clientName) addField("client", "Client name");
   if (errors.client.clientAddress) {
@@ -485,8 +483,6 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
   }
   if (errors.client.clientState) addField("client", "Client state");
   if (errors.client.clientCountry) addField("client", "Client country");
-  if (errors.client.clientPinCode) addField("client", "Client PIN code");
-  if (errors.client.clientGstin) addField("client", "Client GSTIN");
 
   if (errors.meta.paymentTerms) addField("payment", "Payment terms");
   if (errors.meta.invoiceNumber) addField("meta", "Invoice number");
@@ -1274,6 +1270,10 @@ function EditorContent() {
     ],
   );
 
+  const hasItems = useMemo(() => {
+    return (formData.milestones && formData.milestones.length > 0 && formData.milestones.some(m => m.lineItems.length > 0)) || (formData.lineItems && formData.lineItems.length > 0);
+  }, [formData.milestones, formData.lineItems]);
+
   const derivedTaxConfig = useMemo(() => {
     const currentRate = formData.tax.taxRate ?? 18;
     const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
@@ -1464,11 +1464,6 @@ function EditorContent() {
     () => getOptionalFieldEmptyCounts(formData),
     [formData]
   );
-  const hasBillableItems = useMemo(() => {
-    return formData.milestones && formData.milestones.length > 0
-      ? formData.milestones.flatMap((m) => m.lineItems).length > 0
-      : formData.lineItems.length > 0;
-  }, [formData]);
   const firstInvalidStep = useMemo(
     () => getFirstInvalidStep(formData),
     [formData],
@@ -2367,7 +2362,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           value={derivedTaxConfig}
           computed={computedTotals}
           currency={displayCurrency}
-          hasBillableItems={hasBillableItems}
           isLocked
           modeLabel="Tax Type"
           rateLabel="Total Tax %"
@@ -2858,7 +2852,7 @@ return (
                     value={derivedTaxConfig}
                     computed={computedTotals}
                     currency={displayCurrency}
-                    hasBillableItems={hasBillableItems}
+                    hasItems={hasItems}
                     isLocked={true}
                     onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
                     onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
@@ -3036,7 +3030,7 @@ return (
                 value={derivedTaxConfig}
                 computed={computedTotals}
                 currency={displayCurrency}
-                hasBillableItems={hasBillableItems}
+                hasItems={hasItems}
                 isLocked={true}
                 onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
                 onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}

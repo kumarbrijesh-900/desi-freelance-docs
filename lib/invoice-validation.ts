@@ -27,7 +27,7 @@ export type InvoiceFieldErrors = {
     clientState?: string;
     clientCountry?: string;
     clientGstin?: string;
-    clientPinCode?: string;
+    pinCode?: string;
   };
   meta: {
     invoiceNumber?: string;
@@ -56,8 +56,8 @@ export type InvoiceFieldErrors = {
 };
 
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+const PIN_REGEX = /^[1-9][0-9]{5}$/;
 
 function isBlank(value?: string) {
   return !value || !value.trim();
@@ -134,12 +134,6 @@ export function getInvoiceFieldErrors(
     } else if (!GSTIN_REGEX.test(formData.agency.gstin.trim().toUpperCase())) {
       errors.agency.gstin =
         "Enter a valid GSTIN in standard 15-character format.";
-    } else if (
-      formData.agency.pan.trim() &&
-      PAN_REGEX.test(formData.agency.pan.trim().toUpperCase()) &&
-      derivePanFromGstin(formData.agency.gstin.trim().toUpperCase()) !== formData.agency.pan.trim().toUpperCase()
-    ) {
-      errors.agency.gstin = "GSTIN does not match the provided PAN.";
     }
   }
 
@@ -148,12 +142,18 @@ export function getInvoiceFieldErrors(
     !PAN_REGEX.test(formData.agency.pan.trim().toUpperCase())
   ) {
     errors.agency.pan = "Enter a valid PAN in the format AAAAA9999A.";
+  } else if (
+    formData.agency.pan.trim() &&
+    formData.agency.gstin.trim() &&
+    isAgencyGstRegistered(formData.agency)
+  ) {
+    const derivedPan = derivePanFromGstin(formData.agency.gstin);
+    if (derivedPan && derivedPan !== formData.agency.pan.trim().toUpperCase()) {
+      errors.agency.pan = "PAN does not match the one embedded in your GSTIN.";
+    }
   }
 
-  if (
-    formData.agency.pinCode.trim() &&
-    !/^[1-9][0-9]{5}$/.test(formData.agency.pinCode.trim())
-  ) {
+  if (formData.agency.pinCode.trim() && !PIN_REGEX.test(formData.agency.pinCode.trim())) {
     errors.agency.pinCode = "Enter a valid 6-digit PIN code.";
   }
 
@@ -181,6 +181,14 @@ export function getInvoiceFieldErrors(
   }
 
   if (
+    !isInternationalClient(formData.client) &&
+    formData.client.clientPinCode.trim() &&
+    !PIN_REGEX.test(formData.client.clientPinCode.trim())
+  ) {
+    errors.client.pinCode = "Enter a valid 6-digit PIN code.";
+  }
+
+  if (
     isInternationalClient(formData.client) &&
     isBlank(formData.client.clientCountry)
   ) {
@@ -194,33 +202,12 @@ export function getInvoiceFieldErrors(
     !GSTIN_REGEX.test(formData.client.clientGstin.trim().toUpperCase())
   ) {
     errors.client.clientGstin = "Invalid GSTIN format";
-  } else if (
-    !isInternationalClient(formData.client) &&
-    formData.client.clientGstin.trim() &&
-    formData.client.clientGstin.trim().length === 15 &&
-    formData.agency.pan.trim() &&
-    PAN_REGEX.test(formData.agency.pan.trim().toUpperCase()) &&
-    formData.agency.gstin.trim() &&
-    derivePanFromGstin(formData.agency.gstin.trim().toUpperCase()) === derivePanFromGstin(formData.client.clientGstin.trim().toUpperCase())
-  ) {
-    // Basic guard: if client GSTIN PAN matches agency GSTIN PAN, they are billing themselves
-    // Not explicitly requested, but good practice. We'll skip for now and just do the PIN code.
   }
 
-  if (
-    !isInternationalClient(formData.client) &&
-    formData.client.clientPinCode.trim() &&
-    !/^[1-9][0-9]{5}$/.test(formData.client.clientPinCode.trim())
-  ) {
-    errors.client.clientPinCode = "Enter a valid 6-digit PIN code.";
-  }
-
-  if (
-    formData.meta.paymentTerms === undefined ||
-    isNaN(Number(formData.meta.paymentTerms)) ||
-    Number(formData.meta.paymentTerms) < 0
-  ) {
-    errors.meta.paymentTerms = "Payment terms must be 0 or more days.";
+  if (formData.meta.paymentTerms === undefined || isNaN(Number(formData.meta.paymentTerms))) {
+    errors.meta.paymentTerms = "Payment terms are required.";
+  } else if (Number(formData.meta.paymentTerms) < 0) {
+    errors.meta.paymentTerms = "Payment terms cannot be negative.";
   }
 
   if (isBlank(formData.meta.invoiceNumber)) {
@@ -230,20 +217,20 @@ export function getInvoiceFieldErrors(
   if (isBlank(formData.meta.invoiceDate)) {
     errors.meta.invoiceDate = "Invoice date is required.";
   } else if (isNaN(Date.parse(formData.meta.invoiceDate))) {
-    errors.meta.invoiceDate = "Invalid invoice date format.";
+    errors.meta.invoiceDate = "Enter a valid invoice date.";
   }
 
   if (isBlank(formData.meta.dueDate)) {
     errors.meta.dueDate = "Due date is required.";
   } else if (isNaN(Date.parse(formData.meta.dueDate))) {
-    errors.meta.dueDate = "Invalid due date format.";
+    errors.meta.dueDate = "Enter a valid due date.";
   }
 
   if (
-    !errors.meta.invoiceDate &&
-    !errors.meta.dueDate &&
     formData.meta.invoiceDate &&
     formData.meta.dueDate &&
+    !isNaN(Date.parse(formData.meta.invoiceDate)) &&
+    !isNaN(Date.parse(formData.meta.dueDate)) &&
     new Date(formData.meta.dueDate) < new Date(formData.meta.invoiceDate)
   ) {
     errors.meta.dueDate = "Due date cannot be earlier than the invoice date.";

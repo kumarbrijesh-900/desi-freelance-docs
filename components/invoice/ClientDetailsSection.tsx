@@ -58,6 +58,7 @@ interface ClientDetailsSectionProps {
     clientState?: string;
     clientCountry?: string;
     clientGstin?: string;
+    pinCode?: string;
   };
   showAllErrors?: boolean;
   savedClients?: SavedClient[];
@@ -228,6 +229,7 @@ export default function ClientDetailsSection({
   const clientStateError = getVisibleError("clientState", errors?.clientState);
   const clientCountryError = getVisibleError("clientCountry", errors?.clientCountry);
   const clientGstinError = getVisibleError("clientGstin", errors?.clientGstin);
+  const clientPinCodeError = getVisibleError("pinCode", errors?.pinCode);
 
   const handleGenerateContract = () => {
     const ipLabels: Record<string, string> = { upon_full_payment: "upon receipt of full payment", upon_delivery: "upon delivery of materials", work_for_hire: "as a work-for-hire" };
@@ -552,13 +554,17 @@ export default function ClientDetailsSection({
                             onFieldManualEdit("client.clientPinCode");
                             updateField("clientPinCode", e.target.value.replace(/\D/g, "").slice(0, 6));
                           }}
+                          onBlur={() => markTouched("clientPinCode")}
                           placeholder="PIN"
                           className={cn(
-                            inputClass(undefined, Boolean(value.clientPinCode)),
+                            inputClass(clientPinCodeError, Boolean(value.clientPinCode)),
                             getInputStateClass("client.clientPinCode", value.clientPinCode),
                             "w-full max-w-full"
                           )}
                         />
+                        {clientPinCodeError && (
+                          <p className={cn(appFieldErrorTextClass, "mt-1")}>{clientPinCodeError}</p>
+                        )}
                       </div>
                     </div>
                   </div>
