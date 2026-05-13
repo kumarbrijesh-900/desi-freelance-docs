@@ -33,6 +33,7 @@ import {
 import {
   getClientTaxIdLabel,
   getClientTaxIdPlaceholder,
+  isAgencyGstRegistered,
 } from "@/lib/invoice-compliance";
 import type { AgencyDetails } from "@/types/invoice";
 import {
@@ -493,7 +494,7 @@ export default function ClientDetailsSection({
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-[9fr_7fr_4fr]">
                       <div className="min-w-0">
                         <label className={appFieldLabelClass}>
-                          State *
+                          State {agency && isAgencyGstRegistered(agency) ? '*' : ''}
                           {autoFilledFields.has("client.clientState") && (
                             <span className="autofill-indicator">auto-filled</span>
                           )}
