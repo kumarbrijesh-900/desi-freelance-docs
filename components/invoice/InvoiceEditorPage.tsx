@@ -2633,8 +2633,8 @@ return (
               />
             </div>
 
-            {/* ── Inline Meta Strip ── */}
-            <div className="mb-3 flex items-center gap-4 rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2">
+            {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
+            <div className="mb-3 flex items-center gap-4 rounded-lg bg-gray-50 border border-[color:var(--border-subtle)] px-4 py-2 xl:hidden">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV</span>
                 <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
@@ -2781,11 +2781,11 @@ return (
               </AnimatePresence>
             </div>
 
-            {/* ── Live Totals Strip ── */}
+            {/* ── Live Totals Strip (hidden on xl+ where sidebar has it) ── */}
             <div 
               id="live-totals-footer" 
               className={cn(
-                "mt-4 border border-[color:var(--border-subtle)] transition-all duration-300",
+                "mt-4 border border-[color:var(--border-subtle)] transition-all duration-300 xl:hidden",
                 showAdvancedTax 
                   ? "rounded-xl bg-white p-6 shadow-sm" 
                   : "rounded-lg bg-gray-50 px-4 py-2.5"
@@ -2960,7 +2960,7 @@ return (
               </div>
             </div>
 
-            {/* ── Totals Card ── */}
+            {/* ── Totals & Tax Section ── */}
             <div
               className={cn(
                 getAppSubtlePanelClass("muted"),
@@ -2972,29 +2972,15 @@ return (
                   Totals
                 </p>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Subtotal</span>
-                  <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
-                    {formatCurrency(computedTotals.subtotal, displayCurrency)}
-                  </span>
-                </div>
-                {computedTotals.taxAmount > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Tax</span>
-                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
-                      {formatCurrency(computedTotals.taxAmount, displayCurrency)}
-                    </span>
-                  </div>
-                )}
-                <div className="h-px bg-[color:var(--border-subtle)]" />
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-primary)]">Grand Total</span>
-                  <span className={`text-[16px] font-bold ${computedTotals.grandTotal > 0 ? 'text-[#4F46E5]' : 'text-gray-300'}`}>
-                    {formatCurrency(computedTotals.grandTotal, displayCurrency)}
-                  </span>
-                </div>
-              </div>
+              <TotalsTaxesSection
+                embedded
+                value={derivedTaxConfig}
+                computed={computedTotals}
+                currency={displayCurrency}
+                isLocked={true}
+                onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
+                onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
+              />
             </div>
           </div>
         </aside>
