@@ -596,7 +596,7 @@ function InlineStepSection({
   const stepKind = getStepKind(step);
   let statusLabel =
     !isCompleted && isMounted && issueCount > 0
-      ? `${issueCount} required`
+      ? `${issueCount} mandatory`
       : isCompleted
         ? "Ready"
         : isActive
@@ -2521,13 +2521,13 @@ return (
                         ? "Pending"
                         : isActive
                           ? missingFieldCountByStep[step] > 0
-                            ? `${missingFieldCountByStep[step]} required`
+                            ? `${missingFieldCountByStep[step]} mandatory`
                             : "In progress"
                           : isCompleted
                             ? "Ready"
                             : isIncomplete &&
                               missingFieldCountByStep[step] > 0
-                              ? `${missingFieldCountByStep[step]} required`
+                              ? `${missingFieldCountByStep[step]} mandatory`
                               : firstInvalidStep === step
                                 ? "Up next"
                                 : "Pending";
