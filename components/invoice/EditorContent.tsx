@@ -283,7 +283,7 @@ function formatCurrency(amount = 0, currency: string = "INR") {
       maximumFractionDigits: 2,
     }).format(amount);
   } catch {
-    return `${currency === "INR" ? "₹" : "$"}${amount.toLocaleString("en-IN")}`;
+    return `${currency === "INR" ? "Rs." : "$"}${amount.toLocaleString("en-IN")}`;
   }
 }
 
@@ -611,9 +611,9 @@ function InlineStepSection({
     !isCompleted && isMounted && issueCount > 0
       ? `${issueCount} mandatory`
       : isCompleted
-        ? optionalIssueCount > 0 ? "Ready" : "Complete ✓"
+        ? optionalIssueCount > 0 ? "Ready" : "Complete (ok)"
         : isActive && isMounted && issueCount === 0
-          ? optionalIssueCount > 0 ? "Ready" : "Complete ✓"
+          ? optionalIssueCount > 0 ? "Ready" : "Complete (ok)"
           : isActive
             ? "In progress"
             : "Pending";
@@ -720,15 +720,7 @@ function InlineStepSection({
   );
 }
 
-export default function InvoiceEditorPage() {
-  return (
-    <Suspense fallback={<div>Loading editor...</div>}>
-      <EditorContent />
-    </Suspense>
-  );
-}
-
-function EditorContent() {
+export default function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -874,7 +866,7 @@ function EditorContent() {
 
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
-      triggerToast("Invoice hydrated from cloud ☁");
+      triggerToast("Invoice hydrated from cloud (cloud)");
     }
 
     function initializeFresh() {
@@ -1004,7 +996,7 @@ function EditorContent() {
 
       if (!error) {
         await syncProfileFromInvoice(formData);
-        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        triggerToast("Draft saved to cloud (cloud) Welcome back!");
         playInteractionCue("saveSuccess");
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
@@ -1363,7 +1355,7 @@ function EditorContent() {
     }
 
     // If agency is not GST registered, TotalsTaxesSection already shows
-    // "Tax: 0% — agency not GST registered" inline — don't add a second message
+    // "Tax: 0% -- agency not GST registered" inline -- don't add a second message
     if (!agencyIsGstRegistered) {
       return "";
     }
@@ -1530,7 +1522,7 @@ function EditorContent() {
       return;
     }
 
-    // Only handle Enter on text-like inputs — let textareas keep newline behaviour
+    // Only handle Enter on text-like inputs -- let textareas keep newline behaviour
     if (!(event.target instanceof HTMLInputElement)) {
       return;
     }
@@ -1580,7 +1572,7 @@ function EditorContent() {
       return;
     }
 
-    // 2. No empty fields below — if step is valid, auto-advance
+    // 2. No empty fields below -- if step is valid, auto-advance
     if (stepValidityByStep[currentStep]) {
       const nextStep = getNextStep(currentStep);
       if (nextStep) {
@@ -1589,7 +1581,7 @@ function EditorContent() {
       return;
     }
 
-    // 3. Step not valid — wrap around to first empty field in step
+    // 3. Step not valid -- wrap around to first empty field in step
     const firstEmptyInStep = focusableFields.find(isFieldEmpty);
 
     if (firstEmptyInStep) {
@@ -1847,8 +1839,8 @@ const handleSaveDraft = async () => {
     if (!result.error) {
       triggerToast(
         clientMsaNote
-          ? "Reissued & saved to cloud ☁"
-          : "Draft saved to cloud ☁",
+          ? "Reissued & saved to cloud (cloud)"
+          : "Draft saved to cloud (cloud)",
       );
       playInteractionCue("saveSuccess");
     } else {
@@ -1881,7 +1873,7 @@ useEffect(() => {
 }, [handleSaveDraft, currentStep, stepValidityByStep]);
 
 useEffect(() => {
-  // Only auto-save for authenticated users — guests use localStorage only
+  // Only auto-save for authenticated users -- guests use localStorage only
   if (isGuestMode) return;
   if (!formData || !isFormTouched(formData)) return;
   
@@ -2480,13 +2472,16 @@ return (
 
 
     <section
-      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32`}
+      className={cn(
+        "relative z-10 pb-32 max-w-full overflow-x-hidden",
+        appPageSectionClass
+      )}
     >
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
           <div className="mx-auto flex max-w-[1328px] items-center justify-between px-4 py-2 sm:px-6">
             <div className="flex items-center gap-2">
-              <span className="text-[14px]">✨</span>
+              <span className="text-[14px]">(*)</span>
               <p className="text-[12px] font-medium text-[color:var(--text-primary)]">
                 Complete your profile for faster invoicing.
               </p>
@@ -2513,7 +2508,7 @@ return (
         </div>
       )}
 
-      <div className={`${appEditorGridClass} mt-6`}>
+      <div className={cn(appEditorGridClass, "mt-6 px-4 lg:px-0")}>
         {/* ── COL 1: Desktop Stepper Rail ── */}
         <aside
           className={cn(
@@ -2563,11 +2558,11 @@ return (
                             ? `${missingFieldCountByStep[step]} mandatory`
                             : missingOptionalCountByStep[step] > 0
                               ? "Ready"
-                              : "Complete ✓"
+                              : "Complete (ok)"
                           : isCompleted
                             ? missingOptionalCountByStep[step] > 0
                               ? "Ready"
-                              : "Complete ✓"
+                              : "Complete (ok)"
                             : isIncomplete &&
                               missingFieldCountByStep[step] > 0
                               ? `${missingFieldCountByStep[step]} mandatory`
@@ -2588,7 +2583,7 @@ return (
                             "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
                             isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
                           )}>
-                            {isCompleted ? "✓" : index + 1}
+                            {isCompleted ? "(ok)" : index + 1}
                           </span>
                           <div className="min-w-0 space-y-1">
                             <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
@@ -2619,13 +2614,13 @@ return (
             <div className="mb-6 print:hidden">
               <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
                 <p className="text-[13px] text-[color:var(--text-secondary)]">
-                  <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
+                  <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> -- your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
                 </p>
                 <Link
                   href="/login"
                   className="shrink-0 text-[12px] font-bold text-[#4F46E5] hover:underline"
                 >
-                  Sign in →
+                  Sign in &rarr;
                 </Link>
               </div>
             </div>
@@ -2676,10 +2671,9 @@ return (
               />
             </div>
 
-            {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
-            {/* Mobile Meta Summary Strip (Rectified for UX) */}
+            {/* Mobile Meta Summary Strip (Unified Alignment) */}
             <div className={cn(
-              "mx-4 mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
+              "mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
               isEditingMeta ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-gray-50"
             )}>
               <div className="flex flex-col gap-3">
@@ -2697,7 +2691,7 @@ return (
                       />
                     ) : (
                       <span className="text-[14px] font-bold tracking-tight text-[color:var(--text-primary)]">
-                        {formData.meta?.invoiceNumber || '—'}
+                        {formData.meta?.invoiceNumber || '--'}
                       </span>
                     )}
                   </div>
@@ -2730,7 +2724,7 @@ return (
                       />
                     ) : (
                       <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
-                        {formData.meta?.invoiceDate || '—'}
+                        {formData.meta?.invoiceDate || '--'}
                       </span>
                     )}
                   </div>
@@ -2745,7 +2739,7 @@ return (
                       />
                     ) : (
                       <span className="text-[12px] font-medium text-red-500">
-                        {formData.meta?.dueDate || '—'}
+                        {formData.meta?.dueDate || '--'}
                       </span>
                     )}
                   </div>
@@ -2784,7 +2778,7 @@ return (
                     )}
                   >
                     <span className="opacity-80">
-                      {isCompleted && !isActive ? "✓" : stepNumber}
+                      {isCompleted && !isActive ? "(ok)" : stepNumber}
                     </span>
                     <span className="hidden sm:inline whitespace-nowrap">{label}</span>
                   </button>
@@ -2793,7 +2787,7 @@ return (
             </div>
 
             <div
-              className="overflow-visible h-auto"
+              className="overflow-hidden h-auto min-w-0 w-full"
               data-testid="invoice-vertical-stepper"
             >
               <AnimatePresence mode="wait" custom={direction} initial={false}>
@@ -2854,7 +2848,7 @@ return (
                             )}
                           >
                             Continue to{" "}
-                            {getStepShortLabel(getNextStep(currentStep)!)} →
+                            {getStepShortLabel(getNextStep(currentStep)!)} &rarr;
                           </button>
                         </div>
                       ) : null
@@ -2902,7 +2896,7 @@ return (
                                 placeholder="INV-2026-000"
                               />
                             ) : (
-                              <p className="text-[14px] font-bold text-[color:var(--text-primary)]">{formData.meta?.invoiceNumber || '—'}</p>
+                              <p className="text-[14px] font-bold text-[color:var(--text-primary)]">{formData.meta?.invoiceNumber || '--'}</p>
                             )}
                           </div>
 
@@ -2918,7 +2912,7 @@ return (
                                   className="w-full rounded-lg border-none bg-white px-3 py-2 text-[12px] font-medium text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
                                 />
                               ) : (
-                                <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formData.meta?.invoiceDate || '—'}</p>
+                                <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formData.meta?.invoiceDate || '--'}</p>
                               )}
                             </div>
 
@@ -2933,7 +2927,7 @@ return (
                                   className="w-full rounded-lg border-none bg-white px-3 py-2 text-[12px] font-medium text-red-500 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500 transition-all"
                                 />
                               ) : (
-                                <p className="text-[13px] font-medium text-red-500">{formData.meta?.dueDate || '—'}</p>
+                                <p className="text-[13px] font-medium text-red-500">{formData.meta?.dueDate || '--'}</p>
                               )}
                             </div>
                           </div>
@@ -3032,7 +3026,7 @@ return (
                     <span className="text-[11px] text-[color:var(--text-muted)] animate-pulse hidden sm:inline-block">Saving...</span>
                   )}
                   {autoSaveState === 'saved' && (
-                    <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved ✓</span>
+                    <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved (ok)</span>
                   )}
                   <button
                     type="button"
@@ -3111,7 +3105,7 @@ return (
                     />
                   ) : (
                     <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                      {formData.meta?.invoiceNumber || '—'}
+                      {formData.meta?.invoiceNumber || '--'}
                     </span>
                   )}
                 </div>
@@ -3132,7 +3126,7 @@ return (
                     />
                   ) : (
                     <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
-                      {formData.meta?.invoiceDate || '—'}
+                      {formData.meta?.invoiceDate || '--'}
                     </span>
                   )}
                 </div>
@@ -3156,7 +3150,7 @@ return (
                     />
                   ) : (
                     <span className="text-[12px] font-medium text-red-500">
-                      {formData.meta?.dueDate || '—'}
+                      {formData.meta?.dueDate || '--'}
                     </span>
                   )}
                 </div>

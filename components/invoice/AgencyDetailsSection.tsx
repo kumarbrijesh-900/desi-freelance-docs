@@ -653,7 +653,7 @@ export default function AgencyDetailsSection({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[9fr_7fr_4fr]">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-[9fr_7fr_4fr]">
                   <div className="min-w-0">
                     <label className={appFieldLabelClass}>
                       State *
