@@ -2940,19 +2940,40 @@ return (
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV #</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
+                    INV #
+                    <span
+                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
+                      title="Unique invoice reference number. Auto-generated but editable in the Meta step."
+                    >?</span>
+                  </span>
                   <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
                     {formData.meta?.invoiceNumber || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Date</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
+                    Date
+                    <span
+                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
+                      title="Invoice issue date. This is when the invoice is formally raised."
+                    >?</span>
+                  </span>
                   <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
                     {formData.meta?.invoiceDate || '—'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
+                    Due
+                    <span
+                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
+                      title={formData.meta?.paymentTerms
+                        ? `Payment due ${formData.meta.paymentTerms} days after issue date (Net ${formData.meta.paymentTerms}).`
+                        : "Payment deadline. Set via Payment Terms in Step 4."
+                      }
+                    >?</span>
+                  </span>
                   <span className="text-[12px] font-medium text-red-500">
                     {formData.meta?.dueDate || '—'}
                   </span>
@@ -2968,8 +2989,12 @@ return (
               )}
             >
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)] flex items-center gap-1">
                   Totals
+                  <span
+                    className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
+                    title="Live totals calculated from your line items and tax configuration."
+                  >?</span>
                 </p>
               </div>
               <TotalsTaxesSection

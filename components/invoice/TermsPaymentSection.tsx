@@ -333,36 +333,34 @@ export default function TermsPaymentSection({
                     exit={{ opacity: 0, y: -10 }}
                     className="bg-[color:var(--bg-surface-soft)] rounded-xl border border-[color:var(--border-subtle)] p-4 shadow-sm"
                   >
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Payment Schedule</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Payment Schedule</p>
                         <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                           {meta.paymentTerms === 0 ? "Due on Receipt" : `Net ${meta.paymentTerms} Days`}
                         </p>
-                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5">
+                        <p className="text-[11px] text-[color:var(--text-muted)]">
                           {meta.dueDate ? `Due: ${new Date(meta.dueDate).toLocaleDateString('en-GB')}` : "No date set"}
                         </p>
                       </div>
 
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-1">Intellectual Property</p>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Intellectual Property</p>
                         <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                           {value.license.isLicenseIncluded ? "License Included ✓" : "No License"}
                         </p>
-                        <p className="text-[11px] text-[color:var(--text-muted)] mt-0.5">
+                        <p className="text-[11px] text-[color:var(--text-muted)]">
                           {value.license.isLicenseIncluded
                             ? `${value.license.licenseType?.split('-').join(' ')}`
                             : "Standard usage terms"}
                         </p>
                       </div>
 
-                      <div className="col-span-2 md:col-span-1 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-[color:var(--border-subtle)] md:pl-6">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-2">Payment Notes</p>
-                        <div className="rounded-lg bg-[color:var(--bg-surface-muted)]/50 p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
-                          <p className="text-[12px] text-[color:var(--text-primary)] leading-relaxed whitespace-pre-wrap">
-                            {value.terms || value.notes || "No specific notes applied."}
-                          </p>
-                        </div>
+                      <div className="space-y-1 sm:border-l sm:border-[color:var(--border-subtle)] sm:pl-4">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Payment Notes</p>
+                        <p className="text-[12px] text-[color:var(--text-primary)] leading-relaxed whitespace-pre-wrap">
+                          {value.terms || value.notes || "No specific notes applied."}
+                        </p>
                       </div>
                     </div>
                   </motion.div>
