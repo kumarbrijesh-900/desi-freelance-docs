@@ -504,14 +504,23 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
   if (errors.payment.swiftBicCode) addField("payment", "SWIFT / BIC code");
   if (errors.payment.licenseDuration) addField("payment", "License duration");
 
-  Object.values(errors.lineItems).forEach((lineItemErrors) => {
-    if (lineItemErrors.description) {
-      addField("deliverables", "Deliverable description");
-    }
-    if (lineItemErrors.qty) addField("deliverables", "Deliverable quantity");
-    if (lineItemErrors.rate) addField("deliverables", "Deliverable rate");
-    if (lineItemErrors.sacCode) addField("deliverables", "SAC code");
-  });
+  const itemsToValidate =
+    formData.milestones && formData.milestones.length > 0
+      ? formData.milestones.flatMap((m) => m.lineItems)
+      : formData.lineItems;
+
+  if (itemsToValidate.length === 0) {
+    addField("deliverables", "At least one line item");
+  } else {
+    Object.values(errors.lineItems).forEach((lineItemErrors) => {
+      if (lineItemErrors.description) {
+        addField("deliverables", "Deliverable description");
+      }
+      if (lineItemErrors.qty) addField("deliverables", "Deliverable quantity");
+      if (lineItemErrors.rate) addField("deliverables", "Deliverable rate");
+      if (lineItemErrors.sacCode) addField("deliverables", "SAC code");
+    });
+  }
 
   if (
     requiresExplicitExportTaxChoice(formData.agency, formData.client) &&

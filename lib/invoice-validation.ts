@@ -337,8 +337,13 @@ export function isInvoiceStepValid(
           !isBlank(formData.client.clientAddressLine1))
       );
 
-    case "deliverables":
-      return Object.keys(errors.lineItems).length === 0;
+    case "deliverables": {
+      const itemsToValidate =
+        formData.milestones && formData.milestones.length > 0
+          ? formData.milestones.flatMap((m) => m.lineItems)
+          : formData.lineItems;
+      return itemsToValidate.length > 0 && Object.keys(errors.lineItems).length === 0;
+    }
 
     case "payment":
       return !errors.meta.paymentTerms && !hasAnyErrors(errors.payment);
@@ -378,10 +383,16 @@ export function getInvoiceStepError(
         ? "Please fix the highlighted client fields."
         : "";
 
-    case "deliverables":
+    case "deliverables": {
+      const itemsToValidate =
+        formData.milestones && formData.milestones.length > 0
+          ? formData.milestones.flatMap((m) => m.lineItems)
+          : formData.lineItems;
+      if (itemsToValidate.length === 0) return "At least one billable item is required.";
       return Object.keys(errors.lineItems).length > 0
         ? "Each line item needs a description, valid quantity, valid rate, and resolved SAC code."
         : "";
+    }
 
     case "payment":
       return !errors.meta.paymentTerms && !hasAnyErrors(errors.payment)
