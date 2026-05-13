@@ -39,6 +39,7 @@ import DeliverablesSection from "@/components/invoice/DeliverablesSection";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import BriefSummaryModal from "@/components/invoice/BriefSummaryModal";
+import AppSwitch from "@/components/ui/AppSwitch";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import {
   getEffectiveExportTaxHandling,
@@ -738,6 +739,7 @@ function EditorContent() {
   const [direction, setDirection] = useState(0);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
+  const [isEditingMeta, setIsEditingMeta] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -2961,10 +2963,17 @@ return (
                 "rounded-[16px] px-4 py-4",
               )}
             >
-              <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
+              <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                   Invoice Details
                 </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
+                  <AppSwitch
+                    checked={isEditingMeta}
+                    onChange={setIsEditingMeta}
+                  />
+                </div>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -2972,12 +2981,21 @@ return (
                     INV #
                     <span
                       className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
-                      title="Unique invoice reference number. Auto-generated but editable in the Meta step."
+                      title="Unique invoice reference number. Toggle edit mode to modify."
                     >?</span>
                   </span>
-                  <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                    {formData.meta?.invoiceNumber || '—'}
-                  </span>
+                  {isEditingMeta ? (
+                    <input
+                      type="text"
+                      value={formData.meta.invoiceNumber}
+                      onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
+                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[12px] font-bold text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
+                    />
+                  ) : (
+                    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                      {formData.meta?.invoiceNumber || '—'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
@@ -2987,9 +3005,18 @@ return (
                       title="Invoice issue date. This is when the invoice is formally raised."
                     >?</span>
                   </span>
-                  <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
-                    {formData.meta?.invoiceDate || '—'}
-                  </span>
+                  {isEditingMeta ? (
+                    <input
+                      type="date"
+                      value={formData.meta.invoiceDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
+                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
+                    />
+                  ) : (
+                    <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
+                      {formData.meta?.invoiceDate || '—'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
@@ -2998,13 +3025,22 @@ return (
                       className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-200 text-[8px] text-gray-400 cursor-help shrink-0"
                       title={formData.meta?.paymentTerms
                         ? `Payment due ${formData.meta.paymentTerms} days after issue date (Net ${formData.meta.paymentTerms}).`
-                        : "Payment deadline. Set via Payment Terms in Step 4."
+                        : "Payment deadline. Toggle edit mode to override."
                       }
                     >?</span>
                   </span>
-                  <span className="text-[12px] font-medium text-red-500">
-                    {formData.meta?.dueDate || '—'}
-                  </span>
+                  {isEditingMeta ? (
+                    <input
+                      type="date"
+                      value={formData.meta.dueDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
+                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-red-500 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500"
+                    />
+                  ) : (
+                    <span className="text-[12px] font-medium text-red-500">
+                      {formData.meta?.dueDate || '—'}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
