@@ -43,27 +43,9 @@ interface DeliverablesSectionProps {
   showAllErrors?: boolean;
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
+  isGuestMode?: boolean;
 }
 
-function createDefaultLineItem(): InvoiceLineItem {
-  return {
-    id: crypto.randomUUID(),
-    type: "Other" as InvoiceLineItemType,
-    description: "",
-    qty: 1,
-    rate: 0,
-    rateUnit: "per-deliverable" as InvoiceRateUnit,
-  };
-}
-
-function createDefaultMilestone(index: number): Milestone {
-  return {
-    id: crypto.randomUUID(),
-    title: `Milestone ${index + 1}`,
-    status: "PENDING" as MilestoneStatus,
-    lineItems: [createDefaultLineItem()],
-  };
-}
 
 function formatCurrency(amount = 0, currency: InvoiceDisplayCurrency = "INR") {
   try {
@@ -87,7 +69,28 @@ export default function DeliverablesSection({
   showAllErrors = false,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
+  isGuestMode = false,
 }: DeliverablesSectionProps) {
+  const createDefaultLineItem = useCallback((): InvoiceLineItem => {
+    return {
+      id: crypto.randomUUID(),
+      type: (isGuestMode ? "" : "Other") as InvoiceLineItemType,
+      description: "",
+      qty: isGuestMode ? "" : 1,
+      rate: isGuestMode ? "" : 0,
+      rateUnit: (isGuestMode ? "" : "per-deliverable") as InvoiceRateUnit,
+    };
+  }, [isGuestMode]);
+
+  const createDefaultMilestone = useCallback((index: number): Milestone => {
+    return {
+      id: crypto.randomUUID(),
+      title: `Milestone ${index + 1}`,
+      status: "PENDING" as MilestoneStatus,
+      lineItems: [createDefaultLineItem()],
+    };
+  }, [createDefaultLineItem]);
+
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
     if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
@@ -241,6 +244,7 @@ export default function DeliverablesSection({
                             getInputStateClass={getInputStateClass}
                             milestoneIndex={mIdx}
                             itemIndex={milestone.lineItems.indexOf(item)}
+                            isGuestMode={isGuestMode}
                           />
                         </motion.div>
                       ))}
@@ -300,6 +304,7 @@ function LineItemCard({
   getInputStateClass,
   milestoneIndex,
   itemIndex,
+  isGuestMode,
 }: {
   item: InvoiceLineItem;
   currency: InvoiceDisplayCurrency;
@@ -316,6 +321,7 @@ function LineItemCard({
   getInputStateClass: (fieldPath: string, fieldValue: string | number) => string;
   milestoneIndex: number;
   itemIndex: number;
+  isGuestMode?: boolean;
 }) {
   const allowedUnits = invoiceAllowedUnitsByType[item.type] || [];
   const suggestions = getInvoiceDescriptionSuggestions(item.type);
@@ -349,6 +355,7 @@ function LineItemCard({
                 getInputStateClass(`deliverables.${itemIndex}.type`, item.type)
               )}
             >
+              {!item.type && <option value="" disabled selected>Select category...</option>}
               {invoiceLineItemTypeOptions.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
@@ -380,7 +387,11 @@ function LineItemCard({
           <AppTextField
             type="text"
             value={item.description}
-            placeholder={invoiceDescriptionPlaceholderByType[item.type] || "Description"}
+            placeholder={
+              isGuestMode 
+                ? "Select/Type item..." 
+                : (invoiceDescriptionPlaceholderByType[item.type] || "Description")
+            }
             className={cn(
               "w-full text-sm h-10",
               getInputStateClass(`deliverables.${itemIndex}.description`, item.description)
@@ -431,6 +442,7 @@ function LineItemCard({
             <AppTextField
               type="number"
               value={item.qty}
+              placeholder={isGuestMode ? "Enter" : "0"}
               className={cn(
                 "h-10 text-sm w-full",
                 getInputStateClass(`deliverables.${itemIndex}.quantity`, item.qty)
@@ -458,6 +470,7 @@ function LineItemCard({
               <AppTextField
                 type="number"
                 value={item.rate}
+                placeholder={isGuestMode ? "Enter" : "0"}
                 className={cn(
                   "h-10 text-sm !pl-10 w-full",
                   getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
@@ -498,6 +511,7 @@ function LineItemCard({
                 getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
               )}
             >
+              {!item.rateUnit && <option value="" disabled selected>Select unit...</option>}
               {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
             </AppSelectField>
           </div>

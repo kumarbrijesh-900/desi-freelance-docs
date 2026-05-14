@@ -2323,6 +2323,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
+          isGuestMode={isGuestMode}
         />
       );
     case "payment":
