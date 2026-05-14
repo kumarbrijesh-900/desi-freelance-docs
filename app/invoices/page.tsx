@@ -18,6 +18,8 @@ import {
   Trash
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
 import {
@@ -1026,9 +1028,48 @@ export default function InvoiceHistoryPage() {
     }
   };
 
-  const handleBulkExport = () => {
+  const handleBulkExport = async () => {
     const selectedInvoices = invoices.filter((inv) => selectedIds.has(inv.id));
-    const data = selectedInvoices.map((inv) => {
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Invoices");
+
+    // Define columns
+    worksheet.columns = [
+      { header: "Invoice #", key: "invoice_number", width: 15 },
+      { header: "Issue Date", key: "issue_date", width: 15 },
+      { header: "Project/Brief", key: "project", width: 30 },
+      { header: "Client Name", key: "client_name", width: 25 },
+      { header: "Client GSTIN", key: "client_gstin", width: 20 },
+      { header: "Place of Supply", key: "place_of_supply", width: 20 },
+      { header: "SAC Code", key: "sac_code", width: 10 },
+      { header: "Currency", key: "currency", width: 10 },
+      { header: "Base Amount", key: "base_amount", width: 15 },
+      { header: "CGST", key: "cgst", width: 12 },
+      { header: "SGST", key: "sgst", width: 12 },
+      { header: "IGST", key: "igst", width: 12 },
+      { header: "Total Tax", key: "total_tax", width: 15 },
+      { header: "Grand Total", key: "grand_total", width: 15 },
+      { header: "Est. TDS", key: "tds", width: 12 },
+      { header: "Net Receivable", key: "net_receivable", width: 15 },
+      { header: "Status", key: "status", width: 12 },
+      { header: "Due Date", key: "due_date", width: 15 },
+    ];
+
+    // Style Header Row
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF4F46E5" }, // Indigo-brand color
+    };
+    headerRow.alignment = { vertical: "middle", horizontal: "center" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    selectedInvoices.forEach((inv) => {
       const fd = inv.form_data || {};
       const client = fd.client || {};
       const agency = fd.agency || {};
@@ -1038,7 +1079,6 @@ export default function InvoiceHistoryPage() {
       const taxRate = taxSettings.taxRate || 0;
       const tdsRate = taxSettings.tdsRate || 0;
       
-      // Reverse calculate base and tax
       const subtotal = amount / (1 + taxRate / 100);
       const totalTax = amount - subtotal;
       
@@ -1057,38 +1097,56 @@ export default function InvoiceHistoryPage() {
 
       const expectedTds = (subtotal * tdsRate) / 100;
       const netPayable = amount - expectedTds;
-      
       const primaryItem = fd.lineItems?.[0] || {};
+      
+      const dueDateStr = fd.meta?.dueDate;
+      const isOverdue = dueDateStr && new Date(dueDateStr) < today && inv.status !== "SETTLED";
 
-      return {
-        "Invoice #": inv.invoice_number,
-        "Issue Date": fmtDate(inv.created_at),
-        "Project/Brief": primaryItem.description || "—",
-        "Client Name": client.clientName || "—",
-        "Client GSTIN": client.clientGstin || "—",
-        "Place of Supply": client.clientState || client.clientCountry || "—",
-        "SAC Code": primaryItem.sacCode || "9983",
-        "Currency": client.clientCurrency || "INR",
-        "Base Amount": Number(subtotal.toFixed(2)),
-        "CGST": Number(cgst.toFixed(2)),
-        "SGST": Number(sgst.toFixed(2)),
-        "IGST": Number(igst.toFixed(2)),
-        "Total Tax": Number(totalTax.toFixed(2)),
-        "Grand Total": Number(amount.toFixed(2)),
-        "Est. TDS Deduction": Number(expectedTds.toFixed(2)),
-        "Net Receivable": Number(netPayable.toFixed(2)),
-        "Status": inv.status,
-        "Due Date": fd.meta?.dueDate ? fmtDate(fd.meta.dueDate) : "—",
-      };
+      const row = worksheet.addRow({
+        invoice_number: inv.invoice_number,
+        issue_date: fmtDate(inv.created_at),
+        project: primaryItem.description || "—",
+        client_name: client.clientName || "—",
+        client_gstin: client.clientGstin || "—",
+        place_of_supply: client.clientState || client.clientCountry || "—",
+        sac_code: primaryItem.sacCode || "9983",
+        currency: client.clientCurrency || "INR",
+        base_amount: Number(subtotal.toFixed(2)),
+        cgst: Number(cgst.toFixed(2)),
+        sgst: Number(sgst.toFixed(2)),
+        igst: Number(igst.toFixed(2)),
+        total_tax: Number(totalTax.toFixed(2)),
+        grand_total: Number(amount.toFixed(2)),
+        tds: Number(expectedTds.toFixed(2)),
+        net_receivable: Number(netPayable.toFixed(2)),
+        status: inv.status,
+        due_date: dueDateStr ? fmtDate(dueDateStr) : "—",
+      });
+
+      // Style Late Payments
+      if (isOverdue) {
+        row.getCell("status").font = { color: { argb: "FFFF0000" }, bold: true };
+        row.getCell("due_date").font = { color: { argb: "FFFF0000" }, bold: true };
+      }
     });
 
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
-    XLSX.writeFile(
-      wb,
-      `Invoices_Export_${new Date().toISOString().split("T")[0]}.xlsx`
-    );
+    // Auto-width adjustment
+    worksheet.columns.forEach((column) => {
+      let maxColumnLength = 0;
+      column.eachCell?.({ includeEmpty: true }, (cell) => {
+        const columnLength = cell.value ? cell.value.toString().length : 10;
+        if (columnLength > maxColumnLength) {
+          maxColumnLength = columnLength;
+        }
+      });
+      column.width = maxColumnLength < 12 ? 12 : maxColumnLength + 2;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, `Invoices_Export_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
   const handleBulkDelete = async () => {
