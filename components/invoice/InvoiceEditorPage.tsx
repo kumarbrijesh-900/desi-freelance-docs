@@ -784,7 +784,7 @@ function EditorContent() {
   } | null>(null);
   const [extractProgress, setExtractProgress] = useState(0);
   const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
-  const [autoSaveState, setAutoSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  // autoSaveState removed as per user request
 
   const markFieldsAutoFilled = (fieldPaths: string[]) => {
     setAutoFilledFields(prev => {
@@ -1880,24 +1880,8 @@ useEffect(() => {
   return () => window.removeEventListener('keydown', handleKeyDown);
 }, [handleSaveDraft, currentStep, stepValidityByStep]);
 
-useEffect(() => {
-  // Only auto-save for authenticated users — guests use localStorage only
-  if (isGuestMode) return;
-  if (!formData || !isFormTouched(formData)) return;
-  
-  const timer = setTimeout(async () => {
-    setAutoSaveState('saving');
-    try {
-      await handleSaveDraft();
-      setAutoSaveState('saved');
-      setTimeout(() => setAutoSaveState('idle'), 2000);
-    } catch {
-      setAutoSaveState('idle');
-    }
-  }, 5000);
-
-  return () => clearTimeout(timer);
-}, [formData, handleSaveDraft, isGuestMode]);
+  // Autosave based on time is removed as per user request.
+  // Drafts are now explicitly saved via "Save Draft" or "Exit" workflow.
 
 const handleLoadDemoData = () => {
   const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
@@ -3029,12 +3013,7 @@ return (
                 </button>
     
                 <div className="flex items-center gap-2">
-                  {autoSaveState === 'saving' && (
-                    <span className="text-[11px] text-[color:var(--text-muted)] animate-pulse hidden sm:inline-block">Saving...</span>
-                  )}
-                  {autoSaveState === 'saved' && (
-                    <span className="text-[11px] text-green-600 hidden sm:inline-block">Saved ✓</span>
-                  )}
+                  {/* Auto-save status removed */}
                   <button
                     type="button"
                     onClick={handleSaveDraft}
