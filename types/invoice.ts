@@ -155,6 +155,7 @@ export interface TaxConfig {
   taxMode: "none" | "gst" | "igst";
   taxRate: number;
   isRcmEnabled: boolean;
+  tdsRate?: number;
 }
 
 export type InvoiceTaxType = "CGST_SGST" | "IGST" | "NONE";

@@ -1029,25 +1029,56 @@ export default function InvoiceHistoryPage() {
   const handleBulkExport = () => {
     const selectedInvoices = invoices.filter((inv) => selectedIds.has(inv.id));
     const data = selectedInvoices.map((inv) => {
+      const fd = inv.form_data || {};
+      const client = fd.client || {};
+      const agency = fd.agency || {};
+      const taxSettings = fd.tax || {};
+      
       const amount = inv.grand_total || 0;
-      const taxRate = inv.form_data?.tax?.taxRate || 0;
-      // Reverse calculate subtotal and tax if not explicitly stored
+      const taxRate = taxSettings.taxRate || 0;
+      const tdsRate = taxSettings.tdsRate || 0;
+      
+      // Reverse calculate base and tax
       const subtotal = amount / (1 + taxRate / 100);
-      const taxAmount = amount - subtotal;
+      const totalTax = amount - subtotal;
+      
+      const isInterState = agency.agencyState && client.clientState && agency.agencyState !== client.clientState;
+      const isInternational = client.clientLocation === "international";
+      
+      let cgst = 0, sgst = 0, igst = 0;
+      if (!isInternational && taxRate > 0) {
+        if (isInterState) {
+          igst = totalTax;
+        } else {
+          cgst = totalTax / 2;
+          sgst = totalTax / 2;
+        }
+      }
+
+      const expectedTds = (subtotal * tdsRate) / 100;
+      const netPayable = amount - expectedTds;
+      
+      const primaryItem = fd.lineItems?.[0] || {};
 
       return {
         "Invoice #": inv.invoice_number,
         "Issue Date": fmtDate(inv.created_at),
-        "Client Name": inv.form_data?.client?.clientName || "—",
-        "GSTIN (Client)": inv.form_data?.client?.clientGstin || "—",
-        "Currency": inv.form_data?.client?.clientCurrency || "INR",
-        "Subtotal": Number(subtotal.toFixed(2)),
-        "Tax Amount": Number(taxAmount.toFixed(2)),
+        "Project/Brief": primaryItem.description || "—",
+        "Client Name": client.clientName || "—",
+        "Client GSTIN": client.clientGstin || "—",
+        "Place of Supply": client.clientState || client.clientCountry || "—",
+        "SAC Code": primaryItem.sacCode || "9983",
+        "Currency": client.clientCurrency || "INR",
+        "Base Amount": Number(subtotal.toFixed(2)),
+        "CGST": Number(cgst.toFixed(2)),
+        "SGST": Number(sgst.toFixed(2)),
+        "IGST": Number(igst.toFixed(2)),
+        "Total Tax": Number(totalTax.toFixed(2)),
         "Grand Total": Number(amount.toFixed(2)),
+        "Est. TDS Deduction": Number(expectedTds.toFixed(2)),
+        "Net Receivable": Number(netPayable.toFixed(2)),
         "Status": inv.status,
-        "Due Date": inv.form_data?.meta?.dueDate
-          ? fmtDate(inv.form_data.meta.dueDate)
-          : "—",
+        "Due Date": fd.meta?.dueDate ? fmtDate(fd.meta.dueDate) : "—",
       };
     });
 
