@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   MoreHorizontal, 
   ChevronRight, 
@@ -12,8 +13,11 @@ import {
   Trash2, 
   CheckCircle, 
   Share2,
-  FileText
+  FileText,
+  Download,
+  Trash
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
 import {
@@ -275,6 +279,8 @@ function InvoiceRow({
   deletingId,
   settlingId,
   requestingId,
+  isSelected,
+  onToggleSelect,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
@@ -286,6 +292,8 @@ function InvoiceRow({
   deletingId: string | null;
   settlingId: string | null;
   requestingId: string | null;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -319,10 +327,24 @@ function InvoiceRow({
       <tr 
         className={cn(
           "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
-          isExpanded && "bg-gray-50/50"
+          isExpanded && "bg-gray-50/50",
+          isSelected && "bg-indigo-light/20 hover:bg-indigo-light/30"
         )}
-        onClick={handleRowClick}
+        onClick={(e) => {
+          // If clicking on checkbox or its label, let it handle
+          handleRowClick();
+        }}
       >
+        {/* Selection Checkbox */}
+        <td className="px-4 py-4 w-10 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggleSelect(invoice.id)}
+            className="h-4 w-4 rounded border-gray-300 text-indigo-brand focus:ring-indigo-brand cursor-pointer"
+          />
+        </td>
+
         {/* Invoice # */}
         <td className="px-4 py-4 text-[13px] font-semibold text-[color:var(--text-primary)] whitespace-nowrap">
           <div className="flex items-center gap-3">
@@ -644,6 +666,20 @@ export default function InvoiceHistoryPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [msaFilter, setMsaFilter] = useState<MsaFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("date-desc");
+
+  // Selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const masterCheckboxRef = useRef<HTMLInputElement>(null);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     let isActive = true;
@@ -972,6 +1008,78 @@ export default function InvoiceHistoryPage() {
 
     return list;
   }, [invoices, search, statusFilter, msaFilter, sortKey]);
+
+  const isAllSelected = filtered.length > 0 && selectedIds.size === filtered.length;
+  const isSomeSelected = selectedIds.size > 0 && selectedIds.size < filtered.length;
+
+  useEffect(() => {
+    if (masterCheckboxRef.current) {
+      masterCheckboxRef.current.indeterminate = isSomeSelected;
+    }
+  }, [isSomeSelected]);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length && filtered.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((i) => i.id)));
+    }
+  };
+
+  const handleBulkExport = () => {
+    const selectedInvoices = invoices.filter((inv) => selectedIds.has(inv.id));
+    const data = selectedInvoices.map((inv) => {
+      const amount = inv.grand_total || 0;
+      const taxRate = inv.form_data?.tax?.taxRate || 0;
+      // Reverse calculate subtotal and tax if not explicitly stored
+      const subtotal = amount / (1 + taxRate / 100);
+      const taxAmount = amount - subtotal;
+
+      return {
+        "Invoice #": inv.invoice_number,
+        "Issue Date": fmtDate(inv.created_at),
+        "Client Name": inv.form_data?.client?.clientName || "—",
+        "GSTIN (Client)": inv.form_data?.client?.clientGstin || "—",
+        "Currency": inv.form_data?.client?.clientCurrency || "INR",
+        "Subtotal": Number(subtotal.toFixed(2)),
+        "Tax Amount": Number(taxAmount.toFixed(2)),
+        "Grand Total": Number(amount.toFixed(2)),
+        "Status": inv.status,
+        "Due Date": inv.form_data?.meta?.dueDate
+          ? fmtDate(inv.form_data.meta.dueDate)
+          : "—",
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+    XLSX.writeFile(
+      wb,
+      `Invoices_Export_${new Date().toISOString().split("T")[0]}.xlsx`
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${selectedIds.size} invoices? This cannot be undone.`
+      )
+    )
+      return;
+
+    setIsBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("invoices").delete().in("id", ids);
+
+    if (!error) {
+      setInvoices((prev) => prev.filter((inv) => !selectedIds.has(inv.id)));
+      setSelectedIds(new Set());
+    } else {
+      alert("Error deleting some invoices. Please try again.");
+    }
+    setIsBulkDeleting(false);
+  };
 
   // Stats
   const stats = useMemo(() => {
@@ -1309,6 +1417,15 @@ export default function InvoiceHistoryPage() {
                   <table className="w-full min-w-full sm:min-w-[900px]">
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
+                        <th className="px-4 py-2.5 w-10 shrink-0">
+                          <input
+                            ref={masterCheckboxRef}
+                            type="checkbox"
+                            checked={isAllSelected}
+                            onChange={toggleSelectAll}
+                            className="h-4 w-4 rounded border-gray-300 text-indigo-brand focus:ring-indigo-brand cursor-pointer"
+                          />
+                        </th>
                         {[
                           "Invoice",
                           "Client",
@@ -1343,6 +1460,8 @@ export default function InvoiceHistoryPage() {
                           deletingId={deletingId}
                           settlingId={settlingId}
                           requestingId={requestingId}
+                          isSelected={selectedIds.has(inv.id)}
+                          onToggleSelect={toggleSelect}
                         />
                       ))}
                     </tbody>
