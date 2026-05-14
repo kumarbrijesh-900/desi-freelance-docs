@@ -47,6 +47,7 @@ interface AgencyDetailsSectionProps {
   showAllErrors?: boolean;
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
+  isGuestMode?: boolean;
 }
 
 export default function AgencyDetailsSection({
@@ -57,6 +58,7 @@ export default function AgencyDetailsSection({
   showAllErrors = false,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
+  isGuestMode = true,
 }: AgencyDetailsSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string) => {
     if (!fieldValue || !fieldValue.trim()) return "";
@@ -299,11 +301,18 @@ export default function AgencyDetailsSection({
                             placeholder="GSTIN"
                             autoCapitalize="characters"
                             spellCheck={false}
+                            readOnly={!isGuestMode}
                             className={cn(
                               inputClass(gstinError, Boolean(value.gstin)),
                               getInputStateClass("agency.gstin", value.gstin),
+                              !isGuestMode && "bg-gray-50 cursor-not-allowed opacity-80"
                             )}
                           />
+                          {!isGuestMode && (
+                            <p className="mt-1 text-[10px] font-medium text-indigo-600">
+                              Locked to your verified profile GSTIN.
+                            </p>
+                          )}
                           {gstinError ? (
                             <p className={appFieldErrorTextClass}>{gstinError}</p>
                           ) : gstinInfo.state ? (
@@ -505,11 +514,18 @@ export default function AgencyDetailsSection({
                   }}
                   onBlur={() => markTouched("agencyName")}
                   placeholder="Your agency or freelance brand name"
+                  readOnly={!isGuestMode}
                   className={cn(
                     inputClass(agencyNameError, Boolean(value.agencyName)),
                     getInputStateClass("agency.agencyName", value.agencyName),
+                    !isGuestMode && "bg-gray-50 cursor-not-allowed opacity-80"
                   )}
                 />
+                {!isGuestMode && (
+                  <p className="mt-1 text-[10px] font-medium text-indigo-600">
+                    Locked to your registered Agency Name.
+                  </p>
+                )}
                 {agencyNameError ? (
                   <p className={appFieldErrorTextClass}>{agencyNameError}</p>
                 ) : null}

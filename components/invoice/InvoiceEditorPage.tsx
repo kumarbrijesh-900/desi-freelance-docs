@@ -2266,6 +2266,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <AgencyDetailsSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
+          isGuestMode={isGuestMode}
           value={{ ...formData.agency, profileLogoUrl }}
           onChange={(agency) => updateFormSection("agency", agency)}
           errors={fieldErrors.agency}
