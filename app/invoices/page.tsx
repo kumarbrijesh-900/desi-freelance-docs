@@ -1527,6 +1527,41 @@ export default function InvoiceHistoryPage() {
           )}
         </div>
       </section>
+
+      {/* Bulk Action Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 50, x: "-50%" }}
+            className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 rounded-2xl border border-indigo-100 bg-white/95 px-6 py-4 shadow-[0_20px_50px_rgba(79,70,229,0.15)] backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3 pr-6 border-r border-gray-100">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-brand text-[11px] font-bold text-white tabular-nums">
+                {selectedIds.size}
+              </div>
+              <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Selected</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkExport}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl transition-colors whitespace-nowrap"
+              >
+                <Download size={16} /> Export All
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                disabled={isBulkDeleting}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                <Trash size={16} /> {isBulkDeleting ? "Deleting..." : "Delete All"}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
