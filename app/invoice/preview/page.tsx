@@ -90,7 +90,7 @@ function PreviewContent() {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [scaleToFit, setScaleToFit] = useState(0.6);
-  const [zoom, setZoom] = useState<number>(1); // 1 = 100%
+  const [zoom, setZoom] = useState<number>(0.7); // Default to 70% scale
   const [isPanning, setIsPanning] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [copiedField, setCopiedField] = useState<string | null>(null);
