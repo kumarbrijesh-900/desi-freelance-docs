@@ -37,7 +37,11 @@ import {
   upsertProfile,
   type UserProfile,
 } from "@/lib/supabase/profiles";
-import { supabase } from "@/lib/supabase/client";
+import {
+  getClientSessionUser,
+  supabase,
+  withTimeoutFallback,
+} from "@/lib/supabase/client";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { uploadProfessionalAsset } from "@/lib/supabase/storage";
 import type { AgencyDetails, PaymentDetails } from "@/types/invoice";
@@ -98,6 +102,7 @@ type ProfileTab = 'agency' | 'banking' | 'contract' | 'compliance';
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "success">(
     "idle",
   );
@@ -148,10 +153,12 @@ export default function ProfilePage() {
 
   // Load auth + profile
   useEffect(() => {
+    let isActive = true;
+
     async function init() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await withTimeoutFallback(getClientSessionUser(), 2000, null);
+      if (!isActive) return;
+
       if (!user) {
         setIsAuthenticated(false);
         setIsLoading(false);
@@ -160,9 +167,21 @@ export default function ProfilePage() {
       setIsAuthenticated(true);
       setUserId(user.id);
 
-      const { data: profile, error: loadError } = await loadProfile();
-      if (loadError) {
-        console.error("PROFILE_INIT_ERROR:", loadError);
+      const { data: profile, error: profileError } = await withTimeoutFallback(
+        loadProfile(),
+        4000,
+        {
+          data: null as UserProfile | null,
+          error: "Timed out while loading your profile.",
+        },
+      );
+      if (!isActive) return;
+
+      if (profileError && profileError !== "Not authenticated") {
+        console.error("PROFILE_INIT_ERROR:", profileError);
+        setLoadError(profileError);
+        setIsLoading(false);
+        return;
       }
 
       if (profile) {
@@ -196,12 +215,43 @@ export default function ProfilePage() {
       }
 
       // Load global MSA
-      const { data: globalMsa } = await supabase
-        .from('client_msas')
-        .select('id, title, content')
-        .eq('user_id', user.id)
-        .is('client_id', null)
-        .maybeSingle();
+      const globalMsaResult = (await Promise.race([
+        Promise.resolve(
+          supabase
+            .from("client_msas")
+            .select("id, title, content")
+            .eq("user_id", user.id)
+            .is("client_id", null)
+            .maybeSingle(),
+        ),
+        new Promise<{
+          data: { id: string; title: string; content: string } | null;
+          error: { message: string };
+        }>((resolve) =>
+          globalThis.setTimeout(
+            () =>
+              resolve({
+                data: null,
+                error: {
+                  message: "Timed out while loading your default contract.",
+                },
+              }),
+            4000,
+          ),
+        ),
+      ])) as {
+        data: { id: string; title: string; content: string } | null;
+        error: { message: string } | null;
+      };
+      const { data: globalMsa, error: globalMsaError } = globalMsaResult;
+      if (!isActive) return;
+
+      if (globalMsaError) {
+        console.error("PROFILE_GLOBAL_MSA_ERROR:", globalMsaError.message);
+        setLoadError(globalMsaError.message);
+        setIsLoading(false);
+        return;
+      }
 
       if (globalMsa) {
         setGlobalMsaId(globalMsa.id);
@@ -215,7 +265,12 @@ export default function ProfilePage() {
       setIsLoading(false);
       setIsDirty(false); // Reset dirty after initial load
     }
-    init();
+
+    void init();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const fc = getAppFieldClass;
@@ -580,6 +635,29 @@ export default function ProfilePage() {
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
           <p className="text-[color:var(--text-muted)]">Loading profile…</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className={appPageShellClass}>
+        <AppHeader />
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
+          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+            Could not load your profile
+          </p>
+          <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
+            {loadError} Check your connection and try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className={getAppButtonClass({ variant: "primary" })}
+          >
+            Retry
+          </button>
         </div>
       </main>
     );

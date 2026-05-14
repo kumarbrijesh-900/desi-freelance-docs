@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import AppHeader from "@/components/AppHeader";
-import LogoutButton from "@/components/LogoutButton";
 import {
   appPageContainerClass,
   appPageSectionClass,
@@ -16,7 +15,7 @@ const InvoiceEditorPage = dynamic(
     ssr: false,
     loading: () => (
       <main className={appPageShellClass}>
-        <AppHeader rightSlot={<LogoutButton />} />
+        <AppHeader />
 
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className="mx-auto w-full max-w-[1120px]">

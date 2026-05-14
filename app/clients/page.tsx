@@ -39,7 +39,10 @@ import {
   type SavedClient,
 } from "@/lib/supabase/clients";
 import { createMsa } from "@/lib/supabase/msas";
-import { supabase } from "@/lib/supabase/client";
+import {
+  getClientSessionUser,
+  withTimeoutFallback,
+} from "@/lib/supabase/client";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { ClientDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
@@ -599,6 +602,7 @@ function XMarkIcon({ className = "h-5 w-5" }: { className?: string }) {
 export default function ClientsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [clients, setClients] = useState<SavedClient[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -606,21 +610,38 @@ export default function ClientsPage() {
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
 
   useEffect(() => {
+    let isActive = true;
+
     async function init() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await withTimeoutFallback(getClientSessionUser(), 2000, null);
+      if (!isActive) return;
+
       if (!user) {
         setIsAuthenticated(false);
         setIsLoading(false);
         return;
       }
+
       setIsAuthenticated(true);
-      const { data } = await listClients();
-      setClients(data);
+      const { data, error } = await withTimeoutFallback(listClients(), 4000, {
+        data: [] as SavedClient[],
+        error: "Timed out while loading clients.",
+      });
+      if (!isActive) return;
+
+      if (error && error !== "Not authenticated") {
+        setLoadError(error);
+      }
+
+      setClients(data ?? []);
       setIsLoading(false);
     }
-    init();
+
+    void init();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const filteredClients = useMemo(() => {
@@ -688,6 +709,29 @@ export default function ClientsPage() {
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
           <p className="text-[color:var(--text-muted)]">Loading clients…</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className={appPageShellClass}>
+        <AppHeader />
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
+          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+            Could not load your clients
+          </p>
+          <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
+            {loadError} Check your connection and try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className={getAppButtonClass({ variant: "primary" })}
+          >
+            Retry
+          </button>
         </div>
       </main>
     );

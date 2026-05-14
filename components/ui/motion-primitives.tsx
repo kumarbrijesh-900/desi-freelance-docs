@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, Fragment, type ReactNode } from "react";
+import { Children, Fragment, useEffect, useState, type ReactNode } from "react";
 import {
   AnimatePresence,
   motion,
@@ -108,22 +108,29 @@ export function MotionReveal({
   durationMs,
 }: MotionRevealProps) {
   const reducedMotion = useReducedMotion();
+  const [canAnimateOnMount, setCanAnimateOnMount] = useState(false);
+
+  useEffect(() => {
+    setCanAnimateOnMount(true);
+  }, []);
+
+  const shouldAnimate = canAnimateOnMount && !reducedMotion;
 
   return (
     <motion.div
       className={className}
       variants={revealVariants[preset]}
-      initial={reducedMotion ? false : "hidden"}
+      initial={shouldAnimate ? "hidden" : false}
       animate="visible"
-      exit={reducedMotion ? undefined : "exit"}
+      exit={shouldAnimate ? "exit" : undefined}
       transition={
-        reducedMotion
-          ? undefined
-          : {
+        shouldAnimate
+          ? {
               duration: (durationMs ?? 200) / 1000,
               delay: delay / 1000,
               ease: appEaseStandard,
             }
+          : undefined
       }
     >
       {children}
@@ -159,14 +166,21 @@ export function MotionStagger({
   className?: string;
 }) {
   const reducedMotion = useReducedMotion();
+  const [canAnimateOnMount, setCanAnimateOnMount] = useState(false);
+
+  useEffect(() => {
+    setCanAnimateOnMount(true);
+  }, []);
+
+  const shouldAnimate = canAnimateOnMount && !reducedMotion;
 
   return (
     <motion.div
       className={cn(className)}
       variants={staggerVariants}
-      initial={reducedMotion ? false : "hidden"}
+      initial={shouldAnimate ? "hidden" : false}
       animate="visible"
-      exit={reducedMotion ? undefined : "exit"}
+      exit={shouldAnimate ? "exit" : undefined}
     >
       {Children.map(children, (child, index) => {
         if (child === null || child === undefined || child === false) {

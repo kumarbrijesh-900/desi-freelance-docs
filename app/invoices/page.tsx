@@ -28,14 +28,16 @@ import {
   markInvoiceSettled,
   markMilestoneSettled,
   requestNextMilestone,
-  getCurrentUserId,
   getReadReceiptsBatch,
   type SavedInvoice,
   type MsaResponse,
 } from "@/lib/supabase/invoices";
-import { supabase } from "@/lib/supabase/client";
+import {
+  getClientSessionUser,
+  supabase,
+  withTimeoutFallback,
+} from "@/lib/supabase/client";
 import AppHeader from "@/components/AppHeader";
-import LogoutButton from "@/components/LogoutButton";
 import SettlementModal from "@/components/invoice/SettlementModal";
 
 /* ─── Helpers ────────────────────────────────────── */
@@ -614,6 +616,7 @@ export default function InvoiceHistoryPage() {
   >({});
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [requestingId, setRequestingId] = useState<string | null>(null);
@@ -643,8 +646,13 @@ export default function InvoiceHistoryPage() {
   const [sortKey, setSortKey] = useState<SortKey>("date-desc");
 
   useEffect(() => {
+    let isActive = true;
+
     async function init() {
-      const userId = await getCurrentUserId();
+      const user = await withTimeoutFallback(getClientSessionUser(), 2000, null);
+      if (!isActive) return;
+
+      const userId = user?.id ?? null;
       if (!userId) {
         setAuthenticated(false);
         setLoading(false);
@@ -652,18 +660,39 @@ export default function InvoiceHistoryPage() {
       }
       setAuthenticated(true);
 
-      const { data } = await listInvoices();
-      setInvoices(data);
+      const { data, error } = await withTimeoutFallback(listInvoices(), 4000, {
+        data: [] as SavedInvoice[],
+        error: "Timed out while loading invoices.",
+      });
+      if (!isActive) return;
+
+      if (error && error !== "Not authenticated") {
+        setLoadError(error);
+        setLoading(false);
+        return;
+      }
+
+      setInvoices(data ?? []);
 
       // Batch-load read receipts
-      const sharedIds = data.filter((i) => i.share_token).map((i) => i.id);
+      const sharedIds = (data ?? []).filter((i) => i.share_token).map((i) => i.id);
       if (sharedIds.length) {
-        const batch = await getReadReceiptsBatch(sharedIds);
+        const batch = await withTimeoutFallback(
+          getReadReceiptsBatch(sharedIds),
+          3000,
+          {},
+        );
+        if (!isActive) return;
         setReceipts(batch);
       }
       setLoading(false);
     }
-    init();
+
+    void init();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const handleView = (inv: SavedInvoice) => {
@@ -1027,7 +1056,7 @@ export default function InvoiceHistoryPage() {
   if (authenticated === false) {
     return (
       <main className={appPageShellClass}>
-        <AppHeader rightSlot={<LogoutButton />} />
+        <AppHeader />
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className="mx-auto max-w-lg px-4 pt-16 text-center">
             <MotionReveal preset="fade-up">
@@ -1056,7 +1085,7 @@ export default function InvoiceHistoryPage() {
 
   return (
     <main className={appPageShellClass}>
-      <AppHeader rightSlot={<LogoutButton />} />
+      <AppHeader />
 
       <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
         <div className="mx-auto max-w-[1200px] px-4">
@@ -1178,7 +1207,23 @@ export default function InvoiceHistoryPage() {
           )}
 
           {/* Main content */}
-          {loading ? (
+          {loadError ? (
+            <div className="flex flex-col items-center gap-4 rounded-xl border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-6 py-12 text-center">
+              <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+                Could not load your invoices
+              </p>
+              <p className="max-w-md text-sm leading-6 text-[color:var(--text-secondary)]">
+                {loadError} Check your connection and try again.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className={getAppButtonClass({ variant: "primary" })}
+              >
+                Retry
+              </button>
+            </div>
+          ) : loading ? (
             <div className="flex justify-center py-20">
               <p className="text-sm text-[color:var(--text-secondary)]">Loading invoices…</p>
             </div>

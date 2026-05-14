@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { appPageContainerClass } from "@/lib/layout-foundation";
 import { cn } from "@/lib/ui-foundation";
-import { supabase } from "@/lib/supabase/client";
+import { getClientSessionUser, supabase } from "@/lib/supabase/client";
 import FeedbackModal from "./feedback/FeedbackModal";
 import NotificationBell from "./NotificationBell";
 import InstallPwaButton from "./ui/InstallPwaButton";
@@ -150,9 +150,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
   useEffect(() => {
     async function checkAuth() {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
+      const authUser = await getClientSessionUser();
       if (authUser) {
         setUser({
           email: authUser.email || "",
