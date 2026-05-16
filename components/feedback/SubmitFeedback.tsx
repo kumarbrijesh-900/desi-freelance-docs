@@ -71,10 +71,10 @@ export default function SubmitFeedback() {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-[color:var(--text-primary)] mb-2">
           Feedback Received!
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-[color:var(--text-secondary)] mb-6">
           Thank you for helping us improve Lance. Our team will review your
           feedback shortly.
         </p>
@@ -92,17 +92,17 @@ export default function SubmitFeedback() {
     <div
       className={cn(
         getAppPanelClass(),
-        "p-6 max-w-lg mx-auto shadow-sm border border-gray-100",
+        "p-6 max-w-lg mx-auto shadow-sm border border-[color:var(--border-subtle)]",
       )}
     >
       <h2 className={cn(appSectionTitleClass, "mb-1")}>Submit Feedback</h2>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-[color:var(--text-muted)] mb-6">
         Found a bug or have a suggestion? Let us know.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+          <label className="block text-xs font-bold uppercase tracking-widest text-[color:var(--text-muted)] mb-2">
             Feedback Type
           </label>
           <select
@@ -118,7 +118,7 @@ export default function SubmitFeedback() {
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+          <label className="block text-xs font-bold uppercase tracking-widest text-[color:var(--text-muted)] mb-2">
             Message
           </label>
           <textarea
@@ -135,7 +135,7 @@ export default function SubmitFeedback() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 p-3 border border-red-100">
+          <p className="text-sm text-[#FF5C00] bg-red-50 p-3 border border-red-100">
             {error}
           </p>
         )}

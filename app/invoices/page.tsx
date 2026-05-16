@@ -330,7 +330,7 @@ function InvoiceRow({
       <tr 
         className={cn(
           "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
-          isExpanded && "bg-gray-50/50",
+          isExpanded && "bg-[color:var(--bg-surface-soft)]/50",
           isSelected && "bg-indigo-light/20 hover:bg-indigo-light/30"
         )}
         onClick={(e) => {
@@ -344,7 +344,7 @@ function InvoiceRow({
             type="checkbox"
             checked={isSelected}
             onChange={() => onToggleSelect(invoice.id)}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-brand focus:ring-indigo-brand cursor-pointer"
+            className="h-4 w-4 rounded border-[#111118] text-indigo-brand focus:ring-indigo-brand cursor-pointer"
           />
         </td>
 
@@ -358,7 +358,7 @@ function InvoiceRow({
                   e.stopPropagation();
                   setIsExpanded(!isExpanded);
                 }}
-                className="flex h-5 w-5 shrink-0 items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                className="flex h-5 w-5 shrink-0 items-center justify-center text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)] transition-colors"
               >
                 {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
@@ -427,7 +427,7 @@ function InvoiceRow({
                 e.stopPropagation();
                 setShowDropdown(!showDropdown);
               }}
-              className="flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-gray-100 transition-colors text-gray-500"
+              className="flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]"
             >
               <MoreHorizontal size={18} />
             </button>
@@ -437,15 +437,15 @@ function InvoiceRow({
                 <div className="py-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onView(invoice); }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[#BEFF00] hover:text-[#111118]"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-[color:var(--text-secondary)] hover:bg-[#BEFF00] hover:text-[#111118]"
                   >
-                    <Eye size={14} className="text-gray-400" /> View
+                    <Eye size={14} className="text-[color:var(--text-muted)]" /> View
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onEdit(invoice); }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[#BEFF00] hover:text-[#111118]"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-[color:var(--text-secondary)] hover:bg-[#BEFF00] hover:text-[#111118]"
                   >
-                    <Edit2 size={14} className="text-gray-400" /> Edit
+                    <Edit2 size={14} className="text-[color:var(--text-muted)]" /> Edit
                   </button>
                   {canSettle && !hasMilestones && (
                     <button
@@ -459,7 +459,7 @@ function InvoiceRow({
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onDelete(invoice.id); }}
                     disabled={deletingId === invoice.id}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-[#FF5C00] hover:bg-[color:var(--state-danger-bg)]"
                   >
                     <Trash2 size={14} /> {deletingId === invoice.id ? "…" : "Delete"}
                   </button>
@@ -480,8 +480,8 @@ function InvoiceRow({
               const symbol = currency === "USD" ? "$" : "₹";
               
               return (
-                <tr key={m.id} className="bg-gray-50 border-b border-gray-100 group/sub">
-                  <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
+                <tr key={m.id} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
+                  <td className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
                     {invoice.children?.find(c => c.milestone_index === (m.order_index ?? idx) + 1) && (
@@ -491,7 +491,7 @@ function InvoiceRow({
                     )}
                   </td>
                   <td className="px-4 py-3"></td>
-                  <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
+                  <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
                     {symbol}{(m.amount || 0).toLocaleString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
@@ -538,8 +538,8 @@ function InvoiceRow({
               const symbol = currency === "USD" ? "$" : "₹";
 
               return (
-                <tr key={item.id} className="bg-gray-50 border-b border-gray-100 group/sub">
-                  <td className="pl-12 py-3 text-[12px] font-medium text-gray-600 relative">
+                <tr key={item.id} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
+                  <td className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {mCount}: {item.description}
                     {invoice.children?.find(c => c.milestone_index === mCount) && (
@@ -549,7 +549,7 @@ function InvoiceRow({
                     )}
                   </td>
                   <td className="px-4 py-3"></td>
-                  <td className="px-4 py-3 text-[13px] font-bold text-gray-700 text-right tabular-nums">
+                  <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
                     {symbol}{subtotal.toLocaleString("en-IN")}
                   </td>
                   <td className="px-4 py-3">
@@ -1380,7 +1380,7 @@ export default function InvoiceHistoryPage() {
 
                 {/* Progress bar */}
                 <div className="mt-3">
-                  <div className="w-full h-[4px] bg-gray-100 overflow-hidden">
+                  <div className="w-full h-[4px] bg-[color:var(--bg-surface-muted)] overflow-hidden">
                     <div
                       className="h-full bg-[#4F46E5] transition-all duration-500"
                       style={{ width: `${stats.collectionPercent}%` }}
@@ -1514,7 +1514,7 @@ export default function InvoiceHistoryPage() {
                             type="checkbox"
                             checked={isAllSelected}
                             onChange={toggleSelectAll}
-                            className="h-4 w-4 rounded border-gray-300 text-indigo-brand focus:ring-indigo-brand cursor-pointer"
+                            className="h-4 w-4 rounded border-[#111118] text-indigo-brand focus:ring-indigo-brand cursor-pointer"
                           />
                         </th>
                         {[
@@ -1629,24 +1629,24 @@ export default function InvoiceHistoryPage() {
             exit={{ opacity: 0, y: 50, x: "-50%" }}
             className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 border-2 border-[#111118] bg-white px-6 py-4 shadow-[var(--brutal-shadow-lg)]"
           >
-            <div className="flex items-center gap-3 pr-6 border-r border-gray-100">
+            <div className="flex items-center gap-3 pr-6 border-r border-[color:var(--border-subtle)]">
               <div className="flex h-6 w-6 items-center justify-center bg-[#111118] text-[11px] font-bold text-[#BEFF00] tabular-nums">
                 {selectedIds.size}
               </div>
-              <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Selected</span>
+              <span className="text-sm font-semibold text-[color:var(--text-secondary)] whitespace-nowrap">Selected</span>
             </div>
             
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBulkExport}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-soft)] transition-colors whitespace-nowrap"
               >
                 <Download size={16} /> Export All
               </button>
               <button
                 onClick={handleBulkDelete}
                 disabled={isBulkDeleting}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#FF5C00] hover:bg-[color:var(--state-danger-bg)] transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 <Trash size={16} /> {isBulkDeleting ? "Deleting..." : "Delete All"}
               </button>

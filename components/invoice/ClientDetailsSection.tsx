@@ -330,7 +330,7 @@ export default function ClientDetailsSection({
                 <div className="flex items-center gap-1.5 mb-2">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
                   <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                     title="Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency)."
                   >
                     ?
@@ -404,7 +404,7 @@ export default function ClientDetailsSection({
                           )}
                         </label>
                         <span
-                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                           title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
                         >
                           ?
@@ -718,7 +718,7 @@ export default function ClientDetailsSection({
                             )}
                           </label>
                           <span
-                            className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                            className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                             title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
                           >
                             ?
@@ -752,12 +752,12 @@ export default function ClientDetailsSection({
       <div className="mt-8 space-y-4">
         <div
           className={cn(
-            "flex justify-between items-center w-full p-4 border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-left group"
+            "flex justify-between items-center w-full p-4 border border-[color:var(--border-subtle)] bg-white hover:bg-[color:var(--bg-surface-soft)] transition-colors text-left group"
           )}
         >
           <div className="flex flex-col flex-1 pr-4">
-            <span className="text-gray-900 font-medium">Default Contract & Payment Terms</span>
-            <p className="text-sm text-gray-500 mt-1 font-normal">
+            <span className="text-[color:var(--text-primary)] font-medium">Default Contract & Payment Terms</span>
+            <p className="text-sm text-[color:var(--text-muted)] mt-1 font-normal">
               Set payment terms and legal conditions...
             </p>
           </div>
@@ -782,7 +782,7 @@ export default function ClientDetailsSection({
             >
               <ChevronDownIcon 
                 className={cn(
-                  "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-gray-400 group-hover:text-gray-600", 
+                  "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]", 
                   isMsaOpen && "rotate-180"
                 )} 
               />
@@ -944,7 +944,7 @@ export default function ClientDetailsSection({
                         <button
                           type="button"
                           onClick={() => updateField("msaNotesBoilerplate", "")}
-                          className="text-[11px] font-semibold text-red-500 hover:text-red-600 transition-colors"
+                          className="text-[11px] font-semibold text-[#FF5C00] hover:text-[#FF5C00] transition-colors"
                         >
                           Clear
                         </button>

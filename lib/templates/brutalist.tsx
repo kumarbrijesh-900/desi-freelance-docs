@@ -40,7 +40,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           </div>
           <div className="border-r-2 border-black py-3 px-4">
             <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40">Due</p>
-            <p className="text-[13px] font-bold mt-1 text-red-600">{data.dueDate}</p>
+            <p className="text-[13px] font-bold mt-1 text-[#FF5C00]">{data.dueDate}</p>
           </div>
           <div className="py-3 pl-4">
             <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40">Terms</p>

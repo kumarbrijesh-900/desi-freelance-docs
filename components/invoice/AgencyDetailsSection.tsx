@@ -241,7 +241,7 @@ export default function AgencyDetailsSection({
                       GST Registration Status
                     </span>
                     <span
-                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                       title="Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location."
                     >
                       ?
@@ -305,7 +305,7 @@ export default function AgencyDetailsSection({
                             className={cn(
                               inputClass(gstinError, Boolean(value.gstin)),
                               getInputStateClass("agency.gstin", value.gstin),
-                              !isGuestMode && "bg-gray-50 cursor-not-allowed opacity-80"
+                              !isGuestMode && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
                             )}
                           />
                           {!isGuestMode && (
@@ -331,7 +331,7 @@ export default function AgencyDetailsSection({
                               )}
                             </label>
                             <span
-                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                               title="10-character Permanent Account Number. Auto-derived from GSTIN if provided."
                             >
                               ?
@@ -375,7 +375,7 @@ export default function AgencyDetailsSection({
                                 Valid LUT for current financial year?
                               </span>
                               <span
-                                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                                 title="Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront."
                               >
                                 ?
@@ -451,7 +451,7 @@ export default function AgencyDetailsSection({
                       <div className="flex items-center gap-1.5 mb-2">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
                         <span
-                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                           title="10-character Permanent Account Number. Auto-derived from GSTIN if provided."
                         >
                           ?
@@ -518,7 +518,7 @@ export default function AgencyDetailsSection({
                   className={cn(
                     inputClass(agencyNameError, Boolean(value.agencyName)),
                     getInputStateClass("agency.agencyName", value.agencyName),
-                    !isGuestMode && "bg-gray-50 cursor-not-allowed opacity-80"
+                    !isGuestMode && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
                   )}
                 />
                 {!isGuestMode && (
@@ -561,7 +561,7 @@ export default function AgencyDetailsSection({
                     <button
                       type="button"
                       onClick={removeLogo}
-                      className="group flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                       title="Remove Logo"
                     >
                       <svg
@@ -581,7 +581,7 @@ export default function AgencyDetailsSection({
                     </button>
                   </div>
                 ) : (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
                     <input
                       type="file"
                       accept="image/*"
@@ -590,7 +590,7 @@ export default function AgencyDetailsSection({
                     />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-gray-400 group-hover:text-[#4F46E5]"
+                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[#4F46E5]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -602,7 +602,7 @@ export default function AgencyDetailsSection({
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-medium text-gray-600 group-hover:text-[#4F46E5]">
+                    <span className="text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[#4F46E5]">
                       Upload Agency Logo
                     </span>
                   </label>

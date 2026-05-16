@@ -733,7 +733,7 @@ function PreviewContent() {
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-gray-100 text-sm font-bold"
+                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-muted)] text-sm font-bold"
                     title="Zoom out"
                   >
                     −
@@ -743,7 +743,7 @@ function PreviewContent() {
                       setZoom(1);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-gray-100"
+                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)]"
                     title="Reset to 100%"
                   >
                     {Math.round(effectiveZoom * 100)}%
@@ -754,7 +754,7 @@ function PreviewContent() {
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-gray-100 text-sm font-bold"
+                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-muted)] text-sm font-bold"
                     title="Zoom in"
                   >
                     +
@@ -833,7 +833,7 @@ function PreviewContent() {
                           "w-full border p-2.5 text-left transition-all",
                           selectedTemplate === template.id
                             ? "border-[#4F46E5] bg-[#4F46E5]/5 shadow-sm ring-1 ring-[#4F46E5]/20"
-                            : "border-transparent hover:border-[color:var(--border-default)] hover:bg-gray-50"
+                            : "border-transparent hover:border-[color:var(--border-default)] hover:bg-[color:var(--bg-surface-soft)]"
                         )}
                       >
                         {/* Color swatches */}
@@ -843,7 +843,7 @@ function PreviewContent() {
                             style={{ backgroundColor: template.palette.primary }}
                           />
                           <div
-                            className="h-5 flex-1 border border-gray-100"
+                            className="h-5 flex-1 border border-[color:var(--border-subtle)]"
                             style={{ backgroundColor: template.palette.secondary }}
                           />
                           <div
@@ -892,7 +892,7 @@ function PreviewContent() {
                   All changes saved
                 </span>
               ) : saveState === "error" ? (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-red-600">
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-[#FF5C00]">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                   Cloud Save Failed (Saved Locally)
                 </span>

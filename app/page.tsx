@@ -233,8 +233,8 @@ export default function Home() {
               <InteractiveHeroGraphic />
 
               {/* Decorative elements around the graphic */}
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full border border-gray-100 bg-white/50 shadow-sm" />
-              <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border border-gray-100 bg-white/30 shadow-sm" />
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full border border-[color:var(--border-subtle)] bg-white/50 shadow-sm" />
+              <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border border-[color:var(--border-subtle)] bg-white/30 shadow-sm" />
             </div>
           </MotionReveal>
         </div>

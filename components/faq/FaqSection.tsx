@@ -39,10 +39,10 @@ export default async function FaqSection() {
   return (
     <div className="max-w-4xl mx-auto py-12 px-4">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold tracking-tight text-gray-900 mb-4">
+        <h2 className="text-4xl font-bold tracking-tight text-[color:var(--text-primary)] mb-4">
           Frequently Asked Questions
         </h2>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-[color:var(--text-secondary)]">
           Everything you need to know about professional billing with Lance.
         </p>
       </div>
@@ -50,7 +50,7 @@ export default async function FaqSection() {
       <div className="space-y-12">
         {Object.entries(groupedFaqs).map(([category, items]) => (
           <div key={category} className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900 border-l-4 border-[#D4FF00] pl-3 ml-1">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[color:var(--text-primary)] border-l-4 border-[#D4FF00] pl-3 ml-1">
               {category}
             </h3>
             <div

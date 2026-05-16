@@ -92,22 +92,22 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-[color:var(--text-primary)] mb-2">
               Feedback Received!
             </h3>
-            <p className="text-gray-500">
+            <p className="text-[color:var(--text-muted)]">
               Thank you for helping us improve Lance.
             </p>
           </div>
         ) : (
           <>
-            <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900">
+            <div className="border-b border-[color:var(--border-subtle)] px-6 py-4 flex items-center justify-between bg-[color:var(--bg-surface-soft)]/50">
+              <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
                 Help us improve Lance
               </h2>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)] transition-colors"
               >
                 <svg
                   className="h-5 w-5"
@@ -127,7 +127,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-2">
                   Category
                 </label>
                 <select
@@ -146,7 +146,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-2">
                   What's on your mind?
                 </label>
                 <textarea
@@ -163,7 +163,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </div>
 
               {error && (
-                <p className="text-xs text-red-600 bg-red-50 p-3 border border-red-100">
+                <p className="text-xs text-[#FF5C00] bg-red-50 p-3 border border-red-100">
                   {error}
                 </p>
               )}
@@ -172,7 +172,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 h-11 font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="flex-1 h-11 font-bold text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-muted)] transition-colors"
                   disabled={isSubmitting}
                 >
                   Cancel

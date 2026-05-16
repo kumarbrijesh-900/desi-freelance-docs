@@ -410,7 +410,7 @@ export default function ProfilePage() {
                       onUrlChange("");
                       setIsDirty(true);
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                     title="Remove"
                   >
                     <svg
@@ -718,7 +718,7 @@ export default function ProfilePage() {
             </MotionReveal>
 
             {/* Tabs */}
-            <div className="sticky top-[64px] z-20 bg-white border-b border-gray-200 mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
+            <div className="sticky top-[64px] z-20 bg-white border-b border-[color:var(--border-subtle)] mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
               <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
                 {tabs.map((tab) => (
                   <button
@@ -1198,7 +1198,7 @@ export default function ProfilePage() {
       </section>
 
       {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--border-subtle)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
         <div className="mx-auto flex max-w-3xl items-center justify-end gap-3">
           {isDirty && (
             <button

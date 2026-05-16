@@ -178,13 +178,13 @@ export default function DeliverablesSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="overflow-visible border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
+                className="overflow-visible border border-[color:var(--border-subtle)] bg-white shadow-sm transition-all hover:shadow-md"
               >
                 {/* Milestone header */}
                 {effectiveMilestones.length > 1 && (
-                  <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 md:flex-row md:items-center border-b border-gray-100 rounded-t-2xl">
+                  <div className="flex flex-col gap-4 bg-[color:var(--bg-surface-soft)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)] rounded-t-2xl">
                     <div className="flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] mb-1">
                         {mIdx + 1 === effectiveMilestones.length && effectiveMilestones.length === MAX_MILESTONES
                           ? "Final Milestone"
                           : `Milestone ${mIdx + 1}`}
@@ -195,20 +195,20 @@ export default function DeliverablesSection({
                           value={milestone.title}
                           placeholder="e.g. Phase 1: Research"
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
-                          className="text-xl font-bold bg-transparent border-transparent hover:border-gray-200 focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
+                          className="text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
                         />
                         <PencilIcon className="h-4 w-4 text-gray-300" />
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Milestone Subtotal</p>
-                        <p className="text-lg font-black text-gray-900">{formatCurrency(milestoneSubtotal, currency)}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Milestone Subtotal</p>
+                        <p className="text-lg font-black text-[color:var(--text-primary)]">{formatCurrency(milestoneSubtotal, currency)}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeMilestone(milestone.id)}
-                        className="text-gray-300 hover:text-red-500 text-xl transition-colors"
+                        className="text-gray-300 hover:text-[#FF5C00] text-xl transition-colors"
                       >
                         ×
                       </button>
@@ -254,9 +254,9 @@ export default function DeliverablesSection({
                   <button
                     type="button"
                     onClick={() => addLineItem(milestone.id)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-400 transition-colors hover:text-lime-600 group"
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--text-muted)] transition-colors hover:text-lime-600 group"
                   >
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full border border-gray-200 group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
                     Add Line Item
                   </button>
                 </div>
@@ -272,7 +272,7 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 bg-white py-6 text-[13px] font-bold text-gray-500 transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white py-6 text-[13px] font-bold text-[color:var(--text-muted)] transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[#4F46E5] hover:text-[#4F46E5] hover:bg-[#4F46E5]/5"
@@ -335,7 +335,7 @@ function LineItemCard({
       <button
         type="button"
         onClick={onRemove}
-        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center bg-white border-2 border-[#111118] text-gray-400 shadow-[var(--brutal-shadow-pressed)] transition-all hover:border-[#FF5C00] hover:bg-[#FFF0EC] hover:text-[#FF5C00] lg:opacity-0 lg:group-hover:opacity-100"
+        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center bg-white border-2 border-[#111118] text-[color:var(--text-muted)] shadow-[var(--brutal-shadow-pressed)] transition-all hover:border-[#FF5C00] hover:bg-[#FFF0EC] hover:text-[#FF5C00] lg:opacity-0 lg:group-hover:opacity-100"
       >
         ×
       </button>
@@ -344,7 +344,7 @@ function LineItemCard({
         {/* Row 1: Type & SAC */}
         <div className="flex flex-col gap-1.5">
           <div className="min-w-[200px] w-full md:w-fit">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
               Item Type
             </label>
             <AppSelectField
@@ -370,7 +370,7 @@ function LineItemCard({
                 SAC: {sacCode}
               </p>
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                 title="Service Accounting Code — identifies the type of service for GST classification. Auto-filled based on your selected category."
               >
                 ?
@@ -381,7 +381,7 @@ function LineItemCard({
 
         {/* Row 2: Description */}
         <div className="relative">
-          <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+          <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
             Description
             {autoFilledFields.has(`deliverables.${itemIndex}.description`) && (
               <span className="autofill-indicator">auto-filled</span>
@@ -438,14 +438,14 @@ function LineItemCard({
           {/* 1. UNIT */}
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight m-0 p-0 block ml-0.5">
+              <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight m-0 p-0 block ml-0.5">
                 Unit
                 {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
                   <span className="autofill-indicator ml-1">auto-filled</span>
                 )}
               </label>
               <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                 title="How you measure delivery — per screen, per hour, per deliverable, per video, etc."
               >
                 ?
@@ -469,14 +469,14 @@ function LineItemCard({
 
           {/* 2. RATE */}
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
               Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '') || ''}` : ''}
               {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
               )}
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none z-10">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[color:var(--text-muted)] font-medium pointer-events-none z-10">
                 {getCurrencySymbol(currency)}
               </span>
               <AppTextField
@@ -499,7 +499,7 @@ function LineItemCard({
 
           {/* 3. QTY */}
           <div className="w-full flex-[1_1_80px] sm:w-[80px] sm:flex-none">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+            <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
               {item.rateUnit === 'per-hour' ? 'Hours'
                : item.rateUnit === 'per-day' ? 'Days'
                : item.rateUnit === 'per-screen' ? 'Screens'
@@ -531,7 +531,7 @@ function LineItemCard({
           </div>
 
           <div className="w-full sm:w-auto sm:ml-auto pb-2 text-right">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block">
+            <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block">
               Total
             </label>
             <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
@@ -542,7 +542,7 @@ function LineItemCard({
 
         {/* Contextual helper strip */}
         {total > 0 && item.rateUnit && (
-          <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-400">
+          <div className="mt-1 flex items-center gap-2 text-[11px] text-[color:var(--text-muted)]">
             <span className="inline-block w-1 h-1 bg-gray-300" />
             <span>
               {item.rateUnit === 'per-hour' && Number(item.qty) > 0

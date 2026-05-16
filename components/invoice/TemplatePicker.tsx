@@ -199,7 +199,7 @@ function ThumbnailCard({
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow">
-              <LockIcon className="h-3 w-3 text-gray-500" />
+              <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
             </div>
           </div>
         )}

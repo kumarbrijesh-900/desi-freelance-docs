@@ -464,7 +464,7 @@ export default function TermsPaymentSection({
                             className={cn(
                               inputClass(paymentTermsFieldError, true),
                               !isReadOnly && getInputStateClass("meta.paymentTerms", meta.paymentTerms),
-                              isReadOnly && "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100 shadow-none",
+                              isReadOnly && "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
                               "pr-12 text-right sm:text-left",
                             )}
                            />
@@ -514,7 +514,7 @@ export default function TermsPaymentSection({
                         className={cn(
                           inputClass(undefined, Boolean(meta.dueDate)),
                           !isReadOnly && getInputStateClass("meta.dueDate", meta.dueDate),
-                          isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                          isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
                         )}
                        />
                       <p className={cn(appFieldHelperTextClass, "text-[10px]")}>Exact calendar deadline.</p>
@@ -544,7 +544,7 @@ export default function TermsPaymentSection({
                         className={cn(
                           inputClass(undefined, Boolean(value.terms || value.notes), true),
                           !isReadOnly && getInputStateClass("payment.terms", value.terms || value.notes),
-                          isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                          isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
                           "min-h-[80px]",
                         )}
                        />
@@ -561,7 +561,7 @@ export default function TermsPaymentSection({
                               </span>
                             </label>
                             <span
-                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
                               title="Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer."
                             >
                               ?
@@ -582,7 +582,7 @@ export default function TermsPaymentSection({
                                 "px-6 py-1.5 text-[13px] font-medium border-r border-[color:var(--border-subtle)] transition-colors",
                                 value.license.isLicenseIncluded
                                   ? "bg-[#111] text-white"
-                                  : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                                  : "bg-white text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)]"
                               )}
                             >
                               Yes
@@ -597,7 +597,7 @@ export default function TermsPaymentSection({
                                 "px-6 py-1.5 text-[13px] font-medium transition-colors",
                                 !value.license.isLicenseIncluded
                                   ? "bg-[#111] text-white"
-                                  : "bg-white text-[color:var(--text-muted)] hover:bg-gray-50"
+                                  : "bg-white text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)]"
                               )}
                             >
                               No
@@ -655,7 +655,7 @@ export default function TermsPaymentSection({
                                           className={cn(
                                             inputClass(licenseDurationError, Boolean(value.license.licenseDuration)),
                                             !isReadOnly && getInputStateClass("payment.license.licenseDuration", value.license.licenseDuration),
-                                            isReadOnly && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200 shadow-none",
+                                            isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
                                           )}
                                          />
                                         {licenseDurationError && <p className={appFieldErrorTextClass}>{licenseDurationError}</p>}

@@ -52,7 +52,7 @@ import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 
 function FormSectionLabel({ title }: { title: string }) {
   return (
-    <div className="mt-8 mb-4 border-b border-gray-100 pb-2 first:mt-0">
+    <div className="mt-8 mb-4 border-b border-[color:var(--border-subtle)] pb-2 first:mt-0">
       <h4 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
         {title}
       </h4>
@@ -185,13 +185,13 @@ function ClientForm({
         className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-[var(--brutal-shadow-lg)]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 p-6">
+        <div className="flex items-center justify-between border-b border-[color:var(--border-subtle)] p-6">
           <h3 className="text-lg font-bold text-[color:var(--text-primary)]">
             {initial ? "Edit Client" : "Add New Client"}
           </h3>
           <button
             onClick={onCancel}
-            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            className="rounded-full p-2 text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-secondary)] transition-colors"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
@@ -241,15 +241,15 @@ function ClientForm({
 
               <div className="sm:col-span-2">
                 <label className={appFieldLabelClass}>Entity Type</label>
-                <div className="flex p-1 bg-gray-50 border border-gray-200">
+                <div className="flex p-1 bg-[color:var(--bg-surface-soft)] border border-[color:var(--border-subtle)]">
                   <button
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "agency"
-                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
-                        : "text-gray-500 hover:text-gray-700",
+                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
+                        : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
                     )}
                   >
                     Agency / Biz
@@ -260,8 +260,8 @@ function ClientForm({
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "freelancer"
-                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
-                        : "text-gray-500 hover:text-gray-700",
+                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
+                        : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
                     )}
                   >
                     Individual
@@ -482,7 +482,7 @@ function ClientForm({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 border-t border-gray-100 bg-white p-6 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 border-t border-[color:var(--border-subtle)] bg-white p-6 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
@@ -946,7 +946,7 @@ export default function ClientsPage() {
                             <td className="px-4 py-3 text-right">
                               {deletingClientId === client.id ? (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  <span className="text-[11px] text-red-500 font-medium mr-1">
+                                  <span className="text-[11px] text-[#FF5C00] font-medium mr-1">
                                     Delete?
                                   </span>
                                   <button
@@ -979,7 +979,7 @@ export default function ClientsPage() {
                                     onClick={() =>
                                       handleDeleteRequest(client.id)
                                     }
-                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                                     title="Delete"
                                   >
                                     <TrashIcon />

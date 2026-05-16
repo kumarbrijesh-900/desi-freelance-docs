@@ -218,7 +218,7 @@ export default function ShareLinkModal({
                 </span>
               </div>
               {!clientEmail?.trim() && (
-                <p className="mt-1.5 text-xs text-red-500 font-medium">
+                <p className="mt-1.5 text-xs text-[#FF5C00] font-medium">
                   ← Go back to Step 2 and add the client email to continue.
                 </p>
               )}
