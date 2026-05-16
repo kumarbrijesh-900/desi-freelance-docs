@@ -256,7 +256,7 @@ export default function TotalsTaxesSection({
             )}
 
             {grandTotal === 0 && hasItems && (
-              <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+              <p className="mt-2 border-2 border-[#FF5C00] bg-[#FFF0EC] p-3 text-[11px] font-bold leading-relaxed text-[#FF5C00] shadow-[var(--brutal-shadow-sm)]">
                 Note: The grand total for this invoice is {formatCurrency(0, currency)}. Proceed?
               </p>
             )}
@@ -276,7 +276,7 @@ export default function TotalsTaxesSection({
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(true)}
-                  className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
+                  className="text-[#8B5CF6] font-bold text-[12px] hover:underline"
                 >
                   Advanced tax options →
                 </button>
@@ -332,12 +332,12 @@ export default function TotalsTaxesSection({
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 {paymentTerms && (
-                  <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                  <div className="border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     {paymentTerms}
                   </div>
                 )}
                 {bankName && (
-                  <div className="bg-gray-100 text-gray-600 text-[11px] font-medium px-3 py-1 rounded-full">
+                  <div className="border-2 border-[#111118] bg-gray-100 text-gray-600 text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     Bank: {bankName}
                   </div>
                 )}

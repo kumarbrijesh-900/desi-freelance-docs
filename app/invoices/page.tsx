@@ -103,7 +103,7 @@ function CombinedStatusBadge({
   // Priority 1: Settled (Paid)
   if (normalizedInv === "settled") {
     return (
-      <span className="inline-flex items-center border-2 border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
         Paid
       </span>
     );
@@ -113,7 +113,7 @@ function CombinedStatusBadge({
   if (msaId && (msaStatus === "proposed" || msaStatus === "rejected" || msaStatus === "pending")) {
     const label = msaStatus === "rejected" ? "Revision Asked" : "MSA Pending";
     return (
-      <span className="inline-flex items-center border-2 border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700">
+      <span className="border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
         {label}
       </span>
     );
@@ -122,7 +122,7 @@ function CombinedStatusBadge({
   // Priority 3: MSA Accepted
   if (msaId && msaStatus === "accepted") {
     return (
-      <span className="inline-flex items-center border-2 border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="border-2 border-[#111118] bg-[#BEFF00] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
         Accepted
       </span>
     );
@@ -140,7 +140,7 @@ function CombinedStatusBadge({
 
   if (isOverdue)
     return (
-      <span className="inline-flex items-center border-2 border-red-300 bg-red-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-red-700">
+      <span className="border-2 border-[#111118] bg-[#FF5C00] text-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
         Overdue
       </span>
     );
@@ -148,14 +148,14 @@ function CombinedStatusBadge({
   // Priority 5: Sent (Finalized)
   if (normalizedInv === "finalized")
     return (
-      <span className="inline-flex items-center border-2 border-blue-300 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">
+      <span className="border-2 border-[#111118] bg-[#BEFF00] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
         Sent
       </span>
     );
 
   // Priority 6: Draft
   return (
-    <span className="inline-flex items-center border-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]">
+    <span className="border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
       Draft
     </span>
   );
@@ -498,8 +498,8 @@ function InvoiceRow({
                     <span className={cn(
                       "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
-                        ? "bg-lime-50 text-lime-700 border border-lime-200" 
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                        ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
+                        : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
                     )}>
                       {isSettled ? "Settled" : "Pending"}
                     </span>
@@ -556,8 +556,8 @@ function InvoiceRow({
                     <span className={cn(
                       "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
-                        ? "bg-lime-50 text-lime-700 border border-lime-200" 
-                        : "bg-gray-100 text-gray-500 border border-gray-200"
+                        ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
+                        : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
                     )}>
                       {isSettled ? "Settled" : "Pending"}
                     </span>

@@ -725,16 +725,13 @@ export default function ProfilePage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "py-4 text-[13px] font-semibold transition-all relative whitespace-nowrap",
+                      "transition-all relative whitespace-nowrap pt-4",
                       activeTab === tab.id
-                        ? "text-[color:var(--brand-indigo)]"
-                        : "text-gray-500 hover:text-gray-700"
+                        ? "border-b-3 border-[#BEFF00] text-[#111118] font-bold text-[13px] uppercase tracking-[0.04em] pb-2"
+                        : "text-[color:var(--text-muted)] font-bold text-[13px] uppercase tracking-[0.04em] pb-2 hover:text-[#111118]"
                     )}
                   >
                     {tab.label}
-                    {activeTab === tab.id && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--brand-indigo)]" />
-                    )}
                   </button>
                 ))}
               </div>
@@ -1094,7 +1091,7 @@ export default function ProfilePage() {
                           Global MSA Document
                         </h2>
                       </div>
-                      <span className="text-[color:var(--brand-indigo)] text-[12px] font-medium">
+                      <span className="text-[#111118] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
                         {isMsaExpanded ? "Hide" : "View/Edit MSA Document →"}
                       </span>
                     </button>
@@ -1143,7 +1140,7 @@ export default function ProfilePage() {
                       title="Export Compliance"
                       description="Details for zero-tax international or SEZ billing."
                     />
-                    <span className="text-[color:var(--brand-indigo)] text-[12px] font-medium">
+                    <span className="text-[#111118] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
                       {isLutExpanded ? "Hide" : "Expand LUT Details →"}
                     </span>
                   </button>
@@ -1215,7 +1212,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 bg-[#bfff00] px-6 py-2.5 text-sm font-bold text-black shadow-sm hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

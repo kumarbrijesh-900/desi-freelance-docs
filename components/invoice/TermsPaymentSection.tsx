@@ -274,11 +274,11 @@ export default function TermsPaymentSection({
                   Payment & Contract Terms
                 </h3>
                 <div className="mt-1.5 flex items-center gap-2">
-                  <span className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold ring-1 ring-inset",
+                   <span className={cn(
+                    "inline-flex items-center gap-1.5 border-2 px-2.5 py-0.5 text-[10px] font-bold",
                     isReadOnly
-                      ? "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)] ring-[color:var(--border-subtle)]"
-                      : "bg-[#EEF2FF] text-[#4F46E5] ring-[#4F46E5]/20"
+                      ? "border-[#111118] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)]"
+                      : "border-[#4F46E5] bg-[#EEF2FF] text-[#4F46E5]"
                   )}>
                     {isReadOnly ? (
                       <>
@@ -436,10 +436,10 @@ export default function TermsPaymentSection({
                                 disabled={isReadOnly}
                                 onClick={() => handleDaysChange(days)}
                                 className={cn(
-                                  "rounded-full border px-2.5 py-0.5 text-[10px] font-bold transition-all",
+                                  "border-2 px-2.5 py-0.5 text-[10px] font-bold transition-all",
                                   meta.paymentTerms === days
                                     ? "bg-[#111] border-[#111] text-white shadow-sm"
-                                    : "bg-white border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
+                                    : "bg-white border-[#111118] text-[color:var(--text-secondary)] hover:border-[color:var(--text-soft)]",
                                   isReadOnly && "opacity-50 cursor-not-allowed"
                                 )}
                               >

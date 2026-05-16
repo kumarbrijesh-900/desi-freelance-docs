@@ -698,8 +698,14 @@ function InlineStepSection({
 
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <span
-              className={getAppStatusPillClass(
-                isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
+              className={cn(
+                statusLabel.toLowerCase().includes("ready")
+                  ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+                  : statusLabel.toLowerCase().includes("mandatory")
+                    ? "border-2 border-[#111118] bg-[#FF5C00] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+                    : getAppStatusPillClass(
+                        isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
+                      )
               )}
             >
               {statusLabel}
@@ -2522,10 +2528,7 @@ return (
             <MotionReveal
               preset="fade-up"
               delay={40}
-              className={cn(
-                getAppSubtlePanelClass("muted"),
-                "invoice-step-rail px-3 py-3",
-              )}
+              className="border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-3 py-3 shadow-[var(--brutal-shadow-sm)]"
             >
               <div
                 className="space-y-3"
@@ -2875,14 +2878,14 @@ return (
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="space-y-4">
                       {/* Inline Meta Card */}
-                      <div className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-4 py-4")}>
+                      <div className="border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                             Invoice Details
                           </p>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
-                            <AppSwitch checked={isEditingMeta} onChange={setIsEditingMeta} />
+                            <AppSwitch className="rounded-none" checked={isEditingMeta} onChange={setIsEditingMeta} />
                           </div>
                         </div>
                         <div className="space-y-4">
@@ -2937,7 +2940,7 @@ return (
                       </div>
 
                       {/* Expanded Totals Card */}
-                      <div className={cn(getAppSubtlePanelClass("muted"), "rounded-[16px] px-4 py-4")}>
+                      <div className="border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">Totals</p>
                         </div>
@@ -2983,7 +2986,7 @@ return (
             <div className="xl:hidden mt-4">
               <div
                 id="mobile-totals-footer"
-                className="rounded-lg border border-[color:var(--border-subtle)] bg-gray-50 px-4 py-3"
+                className="border-2 border-[#111118] bg-gray-50 px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -3067,10 +3070,7 @@ return (
           <div className="space-y-4">
             {/* ── Invoice Meta Card ── */}
             <div
-              className={cn(
-                getAppSubtlePanelClass("muted"),
-                "rounded-[16px] px-4 py-4",
-              )}
+              className="border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]"
             >
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
@@ -3079,6 +3079,7 @@ return (
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
                   <AppSwitch
+                    className="rounded-none"
                     checked={isEditingMeta}
                     onChange={setIsEditingMeta}
                   />
@@ -3156,10 +3157,7 @@ return (
 
             {/* ── Totals & Tax Section ── */}
             <div
-              className={cn(
-                getAppSubtlePanelClass("muted"),
-                "rounded-[16px] px-4 py-4",
-              )}
+              className="border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]"
             >
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)] flex items-center gap-1">

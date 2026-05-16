@@ -128,13 +128,13 @@ export function getAppStatusPillClass(
   tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
   return cn(
-    "shrink-0 border-2 border-[#111118] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]",
+    "shrink-0 border-2 border-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
     tone === "success"
-      ? "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]"
+      ? "bg-[#E0FFF7] text-[#006B52]"
       : tone === "muted"
         ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)]"
         : tone === "warning"
-          ? "bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]"
+          ? "bg-[#FF5C00] text-white"
           : "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-primary)]",
   );
 }
