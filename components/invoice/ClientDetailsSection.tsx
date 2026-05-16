@@ -801,7 +801,7 @@ export default function ClientDetailsSection({
             >
               {/* Compact Contract Terms Grid */}
               <div className="rounded-xl bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* Payment Terms */}
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
@@ -813,7 +813,7 @@ export default function ClientDetailsSection({
                         type="number"
                         value={value.msaPaymentTermsDays || ""}
                         onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
-                        className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] max-w-[80px]")}
+                        className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] w-full min-w-0")}
                       />
                       <span className="text-[12px] text-[color:var(--text-muted)]">days</span>
                     </div>
@@ -831,13 +831,13 @@ export default function ClientDetailsSection({
                         step="0.1"
                         value={value.msaLateFeeRate || ""}
                         onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
-                        className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] max-w-[60px]")}
+                        className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] w-full min-w-0")}
                       />
                       <AppSelectField
                         value={value.msaLateFeeUnit || "monthly"}
                         onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
                         hasValue={true}
-                        className="h-9 text-[12px] min-w-[90px]"
+                        className="h-9 text-[12px] w-full min-w-0"
                       >
                         <option value="monthly">monthly</option>
                         <option value="annually">annually</option>
@@ -856,7 +856,7 @@ export default function ClientDetailsSection({
                       value={value.msaIpTriggerType || "upon_full_payment"}
                       onChange={(e) => updateField("msaIpTriggerType", e.target.value as any)}
                       hasValue={true}
-                      className="h-9 text-[13px]"
+                      className="h-9 text-[13px] w-full min-w-0"
                     >
                       <option value="upon_full_payment">Upon Full Payment</option>
                       <option value="upon_delivery">Upon Delivery</option>
@@ -875,7 +875,7 @@ export default function ClientDetailsSection({
                       value={value.msaJurisdictionCity || ""}
                       onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
                       placeholder="e.g. Bengaluru"
-                      className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 text-[13px]")}
+                      className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 text-[13px] w-full min-w-0")}
                     />
                   </div>
 
@@ -889,7 +889,7 @@ export default function ClientDetailsSection({
                       value={value.msaLicenseType || ""}
                       onChange={(e) => updateField("msaLicenseType", e.target.value as any)}
                       hasValue={Boolean(value.msaLicenseType)}
-                      className="h-9 text-[13px]"
+                      className="h-9 text-[13px] w-full min-w-0"
                     >
                       <option value="">Select license…</option>
                       <option value="full-assignment">Full Assignment</option>

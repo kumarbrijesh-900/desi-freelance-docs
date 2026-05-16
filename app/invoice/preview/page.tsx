@@ -95,8 +95,16 @@ function PreviewContent() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const panStart = useRef({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
 
-  const effectiveZoom = zoom;
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const effectiveZoom = isMobile ? scaleToFit : zoom;
 
   useEffect(() => {
     const updateScale = () => {
@@ -656,7 +664,7 @@ function PreviewContent() {
             {/* Minimal Header */}
             <MotionReveal className="mb-6 print:hidden" preset="fade-up">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--state-success-text)]">
+                <span className="inline-flex items-center border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em]">
                   Ready to export
                 </span>
                 <button
@@ -726,7 +734,7 @@ function PreviewContent() {
               {/* Left: Invoice area (Hero) */}
               <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
                 {/* Zoom Toolbar - Truly Sticky */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white border border-[color:var(--border-subtle)] shadow-md px-2 py-1 print:hidden">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 hidden sm:flex items-center gap-1 bg-white border border-[color:var(--border-subtle)] shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
                       const newZoom = Math.max(zoom - 0.1, 0.2);
