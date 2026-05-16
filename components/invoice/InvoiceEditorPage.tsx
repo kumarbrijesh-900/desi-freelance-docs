@@ -2475,7 +2475,7 @@ return (
         <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
           {/* Header */}
           <MotionReveal className="mb-8" preset="fade-up">
-            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px] font-syne">
               {invoiceId ? "Edit Invoice" : "New Invoice"}
             </h1>
             <p className="mt-1 text-sm text-[color:var(--text-secondary)]">

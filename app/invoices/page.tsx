@@ -1292,7 +1292,7 @@ export default function InvoiceHistoryPage() {
           <MotionReveal className="mb-8" preset="fade-up">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px] font-syne">
                   Invoices
                 </h1>
                 {invoices.length > 0 && (
