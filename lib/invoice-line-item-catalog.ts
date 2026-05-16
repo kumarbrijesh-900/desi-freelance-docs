@@ -1,3 +1,5 @@
+import type { InvoiceLineItemType, InvoiceRateUnit } from "@/types/invoice";
+
 const canonicalInvoiceLineItemCatalog = [
   {
     type: "Logo Design",
@@ -394,6 +396,121 @@ const canonicalInvoiceLineItemCatalog = [
       "AI workflow setup + training session for client",
       "Miscellaneous creative work (please describe)",
     ],
+  },
+  {
+    type: "Architecture & Interior Design" as InvoiceLineItemType,
+    aliases: ["Architecture", "Interior Design"],
+    defaultSacCode: "998321",
+    defaultUnit: "lump-sum" as InvoiceRateUnit,
+    allowedUnits: [
+      "per-sqft",
+      "per-drawing",
+      "per-floor",
+      "lump-sum",
+      "per-hour",
+      "per-day",
+      "per-room",
+      "per-site",
+      "per-visit",
+    ] as InvoiceRateUnit[],
+    placeholder: "Select a sub-type to see suggestions",
+    suggestions: [],
+    hasSubTypes: true,
+    subTypes: [
+      {
+        key: "residential",
+        label: "Architectural Design (Residential)",
+        sacCode: "998322",
+        units: ["per-sqft", "per-drawing", "per-floor", "lump-sum", "per-hour", "per-day"],
+        descriptions: [
+          "Residential floor plans and layout design",
+          "Elevation and section drawings",
+          "3D visualization and walkthrough rendering",
+          "Structural coordination drawings",
+          "Municipal approval drawings and documentation",
+          "Construction supervision and site visits",
+          "As-built documentation",
+          "Vastu consultation and compliance review"
+        ]
+      },
+      {
+        key: "commercial",
+        label: "Architectural Design (Commercial)",
+        sacCode: "998323",
+        units: ["per-sqft", "per-drawing", "per-floor", "lump-sum", "per-hour", "per-day"],
+        descriptions: [
+          "Commercial building floor plans and layout",
+          "Office space planning and design",
+          "Retail store layout and facade design",
+          "Hospitality interior and exterior design",
+          "Building elevation and section drawings",
+          "MEP coordination drawings",
+          "Fire safety and compliance documentation",
+          "Construction supervision"
+        ]
+      },
+      {
+        key: "interior",
+        label: "Interior Design",
+        sacCode: "998312",
+        units: ["per-room", "per-sqft", "per-floor", "lump-sum", "per-hour", "per-day"],
+        descriptions: [
+          "Interior space planning and furniture layout",
+          "Material selection and specification schedule",
+          "Kitchen and bathroom design",
+          "Lighting design and electrical layout",
+          "3D visualization and walkthrough rendering",
+          "Furniture and fixture procurement coordination",
+          "Turnkey interior execution (design to handover)",
+          "Color scheme and finish palette selection",
+          "Custom furniture and joinery design",
+          "Window treatment and soft furnishing design"
+        ]
+      },
+      {
+        key: "landscape",
+        label: "Landscape Design",
+        sacCode: "998328",
+        units: ["per-sqft", "per-site", "lump-sum", "per-hour", "per-day"],
+        descriptions: [
+          "Landscape master plan and planting design",
+          "Garden design and hardscape layout",
+          "Outdoor lighting and irrigation design",
+          "Terrace and rooftop garden design",
+          "Pool and water feature design",
+          "Site grading and drainage plan"
+        ]
+      },
+      {
+        key: "site_planning",
+        label: "Site Planning",
+        sacCode: "998327",
+        units: ["per-sqft", "per-site", "lump-sum", "per-hour", "per-day"],
+        descriptions: [
+          "Project site master planning",
+          "Site analysis and feasibility study",
+          "Zoning compliance and setback planning",
+          "Access road and parking layout",
+          "Infrastructure and utility mapping",
+          "Environmental impact documentation"
+        ]
+      },
+      {
+        key: "consultation",
+        label: "Architectural Consultation",
+        sacCode: "998321",
+        units: ["per-hour", "per-day", "per-visit", "lump-sum"],
+        descriptions: [
+          "Architectural advisory and design review",
+          "Feasibility study and project assessment",
+          "Vastu compliance consultation",
+          "Building code and regulation advisory",
+          "Project cost estimation and budgeting",
+          "Second opinion on existing designs",
+          "Heritage and consultation advisory"
+        ]
+      }
+    ]
   },
 ] as const;
 

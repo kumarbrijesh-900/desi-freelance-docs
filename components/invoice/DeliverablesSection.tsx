@@ -13,8 +13,21 @@ import {
   invoiceAllowedUnitsByType,
   invoiceDescriptionPlaceholderByType,
   invoiceLineItemTypeOptions,
-  invoiceRateUnitLabels,
+  invoiceDefaultUnitByType,
+  invoiceRateUnitLabels as baseRateUnitLabels,
 } from "@/lib/invoice-deliverables";
+import { getInvoiceLineItemCatalogEntry } from "@/lib/invoice-line-item-catalog";
+
+const invoiceRateUnitLabels: Record<string, string> = {
+  ...baseRateUnitLabels,
+  "per-sqft": "Per sq.ft",
+  "per-room": "Per room",
+  "per-floor": "Per floor",
+  "per-drawing": "Per drawing",
+  "per-site": "Per site",
+  "per-visit": "Per visit",
+  "lump-sum": "Lump sum",
+};
 import {
   getCurrencySymbol,
   type InvoiceDisplayCurrency,
@@ -83,7 +96,8 @@ export default function DeliverablesSection({
       qty: isGuestMode ? "" : 1,
       rate: isGuestMode ? "" : 0,
       rateUnit: (isGuestMode ? "" : "per-deliverable") as InvoiceRateUnit,
-    };
+      subType: "",
+    } as any;
   }, [isGuestMode]);
 
   const createDefaultMilestone = useCallback((index: number): Milestone => {
@@ -335,11 +349,60 @@ function LineItemCard({
   itemIndex: number;
   isGuestMode?: boolean;
 }) {
-  const allowedUnits = invoiceAllowedUnitsByType[item.type] || [];
-  const suggestions = getInvoiceDescriptionSuggestions(item.type);
+  const catalogEntry = getInvoiceLineItemCatalogEntry(item.type);
+  const hasSubTypes = (catalogEntry as any)?.hasSubTypes;
+  const subTypeOptions = (catalogEntry as any)?.subTypes || [];
+  const selectedSubType = subTypeOptions.find((st: any) => st.key === (item as any).subType);
+
+  const allowedUnits = (selectedSubType 
+    ? selectedSubType.units 
+    : (invoiceAllowedUnitsByType[item.type] || [])) as string[];
+
+  const suggestions = (selectedSubType
+    ? selectedSubType.descriptions
+    : getInvoiceDescriptionSuggestions(item.type)) as string[];
+
   const showSuggestions = activeDescriptionId === item.id && suggestions.length > 0;
-  const sacCode = useMemo(() => getDefaultSacCodeForType(item.type), [item.type]);
+  
+  const sacCode = useMemo(() => {
+    if (selectedSubType) return selectedSubType.sacCode;
+    return getDefaultSacCodeForType(item.type);
+  }, [item.type, selectedSubType]);
+
   const total = Number(item.qty || 0) * Number(item.rate || 0);
+
+  const handleItemTypeChange = (val: string) => {
+    onFieldManualEdit(`deliverables.${itemIndex}.type`);
+    const newEntry = getInvoiceLineItemCatalogEntry(val);
+    const patch: any = { 
+      type: val as InvoiceLineItemType,
+      subType: "" // Reset sub-type when parent type changes
+    };
+
+    // If changing to a type with sub-types, clear unit and description
+    if ((newEntry as any)?.hasSubTypes) {
+      patch.rateUnit = "";
+      patch.description = "";
+      patch.sacCode = (newEntry as any).defaultSacCode;
+    } else {
+      patch.rateUnit = invoiceDefaultUnitByType[val as InvoiceLineItemType];
+      patch.sacCode = getDefaultSacCodeForType(val as InvoiceLineItemType);
+    }
+    
+    onUpdate(patch);
+  };
+
+  const handleSubTypeChange = (subTypeKey: string) => {
+    const st = subTypeOptions.find((s: any) => s.key === subTypeKey);
+    if (!st) return;
+
+    onUpdate({
+      subType: subTypeKey,
+      sacCode: st.sacCode,
+      rateUnit: (st.units.includes(item.rateUnit) ? item.rateUnit : st.units[0]) as any,
+      description: st.descriptions.includes(item.description) ? item.description : ""
+    } as any);
+  };
 
   return (
     <div className="group relative border-2 border-[#111118] bg-white p-4 transition-all hover:shadow-[var(--brutal-shadow-sm)]">
@@ -361,15 +424,28 @@ function LineItemCard({
             </label>
             <BrutalSelect
               value={item.type}
-              onChange={(val) => {
-                onFieldManualEdit(`deliverables.${itemIndex}.type`);
-                onUpdate({ type: val as InvoiceLineItemType });
-              }}
+              onChange={handleItemTypeChange}
               options={invoiceLineItemTypeOptions.map(opt => ({ label: opt, value: opt }))}
               placeholder="Select category..."
               className={getInputStateClass(`deliverables.${itemIndex}.type`, item.type)}
             />
           </div>
+
+          {/* Sub-type Dropdown (Conditional) */}
+          {hasSubTypes && (
+            <div className="min-w-[200px] w-full md:w-fit mt-1">
+              <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
+                Sub-Type
+              </label>
+              <BrutalSelect
+                value={(item as any).subType || ""}
+                onChange={handleSubTypeChange}
+                options={subTypeOptions.map((st: any) => ({ label: st.label, value: st.key }))}
+                placeholder="Select sub-type..."
+                className={getInputStateClass(`deliverables.${itemIndex}.subType`, (item as any).subType || "")}
+              />
+            </div>
+          )}
           {sacCode && (
             <div className="flex items-center gap-1.5 pl-1">
               <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
@@ -420,7 +496,7 @@ function LineItemCard({
           />
           {showSuggestions && (
             <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
-              {suggestions.map((s) => (
+              {suggestions.map((s: string) => (
                 <button
                   key={s}
                   type="button"
@@ -472,7 +548,7 @@ function LineItemCard({
           {/* 2. RATE */}
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
             <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
-              Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '') || ''}` : ''}
+              Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '').replace('Lump sum', 'LUMP SUM') || ''}` : ''}
               {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
               )}
@@ -502,14 +578,20 @@ function LineItemCard({
           {/* 3. QTY */}
           <div className="w-full flex-[1_1_80px] sm:w-[80px] sm:flex-none">
             <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
-              {item.rateUnit === 'per-hour' ? 'Hours'
-               : item.rateUnit === 'per-day' ? 'Days'
-               : item.rateUnit === 'per-screen' ? 'Screens'
-               : item.rateUnit === 'per-revision' ? 'Revisions'
-               : item.rateUnit === 'per-video' ? 'Videos'
-               : item.rateUnit === 'per-image' ? 'Images'
-               : item.rateUnit === 'per-post' ? 'Posts'
-               : item.rateUnit === 'per-concept' ? 'Concepts'
+              {(item.rateUnit as string) === 'per-hour' ? 'Hours'
+               : (item.rateUnit as string) === 'per-day' ? 'Days'
+               : (item.rateUnit as string) === 'per-screen' ? 'Screens'
+               : (item.rateUnit as string) === 'per-revision' ? 'Revisions'
+               : (item.rateUnit as string) === 'per-video' ? 'Videos'
+               : (item.rateUnit as string) === 'per-image' ? 'Images'
+               : (item.rateUnit as string) === 'per-post' ? 'Posts'
+               : (item.rateUnit as string) === 'per-concept' ? 'Concepts'
+               : (item.rateUnit as string) === 'per-sqft' ? 'Sq.ft'
+               : (item.rateUnit as string) === 'per-room' ? 'Rooms'
+               : (item.rateUnit as string) === 'per-floor' ? 'Floors'
+               : (item.rateUnit as string) === 'per-drawing' ? 'Drawings'
+               : (item.rateUnit as string) === 'per-site' ? 'Sites'
+               : (item.rateUnit as string) === 'per-visit' ? 'Visits'
                : 'Qty'}
               {autoFilledFields.has(`deliverables.${itemIndex}.quantity`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
