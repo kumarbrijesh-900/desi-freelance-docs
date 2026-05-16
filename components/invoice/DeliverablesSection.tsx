@@ -354,7 +354,7 @@ function LineItemCard({
                 onUpdate({ type: e.target.value as InvoiceLineItemType });
               }}
               className={cn(
-                "h-10 text-sm font-semibold",
+                "h-11 text-[14px] font-normal",
                 getInputStateClass(`deliverables.${itemIndex}.type`, item.type)
               )}
             >
@@ -396,7 +396,7 @@ function LineItemCard({
                 : (invoiceDescriptionPlaceholderByType[item.type] || "Description")
             }
             className={cn(
-              "w-full text-sm h-10",
+              "h-11 text-[14px]",
               getInputStateClass(`deliverables.${itemIndex}.description`, item.description)
             )}
             errorText={(showAllErrors || touchedFields[`${item.id}:description`]) ? errors?.description : undefined}
@@ -413,7 +413,7 @@ function LineItemCard({
             }}
           />
           {showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border-2 border-[#111118] shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s) => (
                 <button
                   key={s}
@@ -458,7 +458,7 @@ function LineItemCard({
                 onUpdate({ rateUnit: e.target.value as InvoiceRateUnit });
               }}
               className={cn(
-                "h-10 text-sm",
+                "h-11 text-[14px] font-normal",
                 getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
               )}
             >
@@ -484,7 +484,7 @@ function LineItemCard({
                 value={item.rate}
                 placeholder={isGuestMode ? "Enter" : "0"}
                 className={cn(
-                  "h-10 text-sm !pl-10 w-full",
+                  "h-11 text-[14px] !pl-10",
                   getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
                 )}
                 errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
@@ -518,7 +518,7 @@ function LineItemCard({
               value={item.qty}
               placeholder={isGuestMode ? "Enter" : "0"}
               className={cn(
-                "h-10 text-sm w-full",
+                "h-11 text-[14px]",
                 getInputStateClass(`deliverables.${itemIndex}.quantity`, item.qty)
               )}
               errorText={(showAllErrors || touchedFields[`${item.id}:qty`]) ? errors?.qty : undefined}
