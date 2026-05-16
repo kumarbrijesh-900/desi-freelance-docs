@@ -31,9 +31,9 @@ export default function SettlementModal({
   const netReceived = subtotal - tdsAmount;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
+        <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
               Confirm Settlement
@@ -45,7 +45,7 @@ export default function SettlementModal({
 
           <div className="space-y-4">
             {/* Amount Summary */}
-            <div className="rounded-lg bg-[color:var(--bg-surface-soft)] p-4 border border-[color:var(--border-subtle)]">
+            <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-4">
               <div className="flex justify-between text-sm">
                 <span className="text-[color:var(--text-muted)] font-medium">Milestone Subtotal</span>
                 <span className="font-bold text-[color:var(--text-primary)] tabular-nums">
@@ -65,7 +65,7 @@ export default function SettlementModal({
                   value={tdsPercent === 0 ? "" : tdsPercent}
                   onChange={(e) => setTdsPercent(Number(e.target.value))}
                   placeholder="0"
-                  className="w-full h-11 border border-[color:var(--border-default)] bg-white px-4 text-sm focus:border-[color:var(--color-lime-700)] outline-none transition-colors"
+                  className="w-full h-11 border-2 border-[#111118] bg-white px-4 text-sm outline-none transition-colors focus:bg-[color:var(--bg-surface-soft)]"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[color:var(--text-muted)]">
                   %
@@ -93,7 +93,7 @@ export default function SettlementModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className={`flex-1 ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+              className="flex-1 border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)]"
             >
               Cancel
             </button>
@@ -101,7 +101,7 @@ export default function SettlementModal({
               type="button"
               onClick={() => onConfirm(tdsAmount)}
               disabled={isSubmitting}
-              className={`flex-[2] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+              className="flex-[2] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
             >
               {isSubmitting ? "Updating…" : "Confirm Settlement"}
             </button>

@@ -177,13 +177,13 @@ export default function ShareLinkModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <MotionReveal preset="scale-in">
-        <div className="mx-4 w-full max-w-lg border border-[color:var(--border-default)] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+        <div className="mx-4 w-full max-w-lg border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--border-subtle)] px-6 py-4">
             <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
@@ -198,7 +198,7 @@ export default function ShareLinkModal({
           <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
             {/* ── Error ── */}
             {error && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] px-3 py-2 text-sm font-bold text-[#FF5C00] mb-4">
                 {error}
               </div>
             )}
@@ -208,7 +208,7 @@ export default function ShareLinkModal({
               <label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                 Sending to
               </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
+              <div className="mt-1.5 flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" />
                 <span
                   className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-medium" : "text-[color:var(--text-muted)] italic"}`}
@@ -229,7 +229,7 @@ export default function ShareLinkModal({
               const framing = getMilestoneFraming(invoiceData);
               if (!framing) return null;
               return (
-                <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4">
+                <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                       Milestone Billing
@@ -266,7 +266,7 @@ export default function ShareLinkModal({
             })()}
 
             {/* ── MSA Section ── */}
-            <div className="rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-4 space-y-3">
+            <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DocumentSparkIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
@@ -284,7 +284,7 @@ export default function ShareLinkModal({
 
               {/* Addendum Alert */}
               {invoiceData?.meta?.hasAddendum && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-3 flex items-start gap-2.5">
+                <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-3 flex items-start gap-2.5 shadow-[var(--brutal-shadow-sm)]">
                   <SparklesIcon className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-[12px] font-bold text-amber-900">Project-Specific Addendum Active</p>
@@ -296,7 +296,7 @@ export default function ShareLinkModal({
               )}
 
               {/* MSA Protection Summary */}
-              <div className="rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-canvas)] p-4">
+              <div className="border-2 border-[#111118] bg-[color:var(--bg-canvas)] p-4">
                 <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)] mb-3">
                   Effective Terms:
                 </h4>
@@ -328,7 +328,7 @@ export default function ShareLinkModal({
 
             {/* ── Sent Success State ── */}
             {sent && (
-              <div className="flex items-start gap-3 border border-green-200 bg-green-50 px-4 py-3">
+              <div className="flex items-start gap-3 border-2 border-[#111118] bg-[#E0FFF7] px-4 py-3">
                 <CheckCircleIcon className="h-5 w-5 shrink-0 text-green-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-green-800">
@@ -354,7 +354,7 @@ export default function ShareLinkModal({
               <button
                 type="button"
                 onClick={onClose}
-                className={getAppButtonClass({ variant: "ghost", size: "sm" })}
+                className="px-4 py-2 text-[13px] font-bold text-[color:var(--text-muted)] border-2 border-transparent hover:border-[#111118] transition-all"
               >
                 {sent ? "Close" : "Cancel"}
               </button>
@@ -363,10 +363,7 @@ export default function ShareLinkModal({
                   type="button"
                   onClick={handleSend}
                   disabled={sending || !clientEmail?.trim()}
-                  className={getAppButtonClass({
-                    variant: "primary",
-                    size: "md",
-                  })}
+                  className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="inline-flex items-center gap-2">
                     <SendIcon className="h-4 w-4" />

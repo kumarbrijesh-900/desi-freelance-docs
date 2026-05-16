@@ -130,14 +130,14 @@ export default function NotificationBell() {
           )}
         />
         {hasUnread && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white animate-in zoom-in">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 origin-top-right border border-[color:var(--border-subtle)] bg-white shadow-[var(--brutal-shadow-lg)] ring-1 ring-black/5 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 origin-top-right border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50 px-4 py-3">
             <h3 className="text-[13px] font-bold text-[color:var(--text-primary)]">Activity</h3>
             {hasUnread && (
@@ -164,7 +164,7 @@ export default function NotificationBell() {
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-[color:var(--border-subtle)]">
                 {notifications.map((n) => (
                   <div
                     key={n.id}

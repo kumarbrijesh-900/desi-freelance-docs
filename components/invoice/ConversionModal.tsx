@@ -49,13 +49,13 @@ export default function ConversionModal({
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-white/10"
+        className="absolute inset-0 bg-black/70"
         onClick={onClose}
       />
 
       <MotionReveal
         preset="fade-up"
-        className="relative w-full max-w-sm overflow-hidden bg-white shadow-[var(--brutal-shadow-lg)]"
+        className="relative w-full max-w-sm overflow-hidden border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)]"
       >
         <div className="p-8 text-center">
           <div className="mx-auto h-14 w-14 bg-[color:var(--color-lime-100)] flex items-center justify-center mb-4 text-2xl">
@@ -73,11 +73,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onLoginClick}
-            className={getAppButtonClass({
-              variant: "secondary",
-              size: "lg",
-              fullWidth: true,
-            })}
+            className="flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-[#BEFF00] py-3 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google
@@ -86,7 +82,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 w-full h-11 text-xs font-semibold text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)] transition-colors"
+            className="mt-4 w-full h-11 border-2 border-[#111118] bg-white text-[11px] font-bold text-[#111118] uppercase transition-all hover:bg-[color:var(--bg-surface-soft)]"
           >
             Not now, I'll do it later
           </button>

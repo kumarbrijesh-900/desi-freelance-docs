@@ -51,7 +51,7 @@ function LoginCard() {
   };
 
   return (
-    <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
+    <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
       <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
         {isRestoring ? "Your draft is safe" : "Get started"}
       </h2>
@@ -64,11 +64,7 @@ function LoginCard() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className={`mt-6 ${getAppButtonClass({
-          variant: "secondary",
-          size: "lg",
-          fullWidth: true,
-        })} hover:!border-[color:var(--border-strong)] hover:!shadow-[0_4px_16px_rgba(17,17,24,0.06)]`}
+        className="mt-6 flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-white py-3 font-bold uppercase transition-all hover:bg-[#F5F5F8] active:scale-[0.98]"
       >
         <GoogleIcon className="h-5 w-5" />
         Continue with Google
@@ -91,26 +87,23 @@ function LoginCard() {
 /* ─── Page ─── */
 export default function LoginPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden bg-[#F5F5F8]">
       {/* Subtle gradient accent */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute top-0 right-0 h-[500px] w-[600px]"
-          style={{
-            background:
-              "radial-gradient(ellipse at 80% 10%, rgba(190,255,0,0.06), transparent 60%)",
-          }}
-        />
-        <div
-          className="absolute bottom-0 left-0 h-[400px] w-[500px]"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 90%, rgba(0,212,160,0.04), transparent 60%)",
-          }}
-        />
-      </div>
+      {/* Gradients removed for Neo Brutalist look */}
+      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-8 px-6 py-16 text-center">
+        <MotionReveal preset="fade-up" delay={0}>
+          <div className="mb-8">
+            <Link href="/" className="group flex items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[18px] font-black text-[#111118]">
+                L
+              </span>
+              <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[#111118] font-syne antialiased">
+                Lance
+              </span>
+            </Link>
+          </div>
+        </MotionReveal>
 
-      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-12 px-6 py-16 text-center">
         <MotionReveal preset="fade-up" delay={0}>
           <div className="max-w-lg">
             <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
@@ -133,7 +126,7 @@ export default function LoginPage() {
           {/* Suspense required because useSearchParams needs it during SSR */}
           <Suspense
             fallback={
-              <div className={`w-full max-w-sm ${getAppPanelClass()}`}>
+              <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
                 <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
                   Get started
                 </h2>

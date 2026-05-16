@@ -79,7 +79,7 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
 
   return (
     <div
-      className="flex h-full w-full flex-col overflow-hidden rounded-[2px]"
+      className="flex h-full w-full flex-col overflow-hidden"
       style={{ backgroundColor: secondary }}
     >
       {/* Header bar */}
@@ -174,14 +174,12 @@ function ThumbnailCard({
       type="button"
       onClick={onSelect}
       className={`
-        group relative flex w-full flex-col overflow-hidden border
+        group relative flex w-full flex-col overflow-hidden border-2
         transition-all duration-200
         ${
           isSelected
-            ? "border-[color:var(--color-lime-700)] ring-2 ring-[color:var(--color-lime-700)]/20 shadow-sm"
-            : !isBlurred && !isLocked
-              ? "border-[color:var(--border-subtle)] hover:border-[color:var(--border-default)] hover:shadow-sm"
-              : "border-[color:var(--border-subtle)]"
+            ? "border-[#BEFF00] shadow-[var(--brutal-shadow-md)]"
+            : "border-[color:var(--border-subtle)] hover:border-[#111118]"
         }
         cursor-pointer
       `}
@@ -198,7 +196,7 @@ function ThumbnailCard({
         {/* Visitor overlay (blurred) */}
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow">
+            <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow">
               <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
             </div>
           </div>
@@ -207,7 +205,7 @@ function ThumbnailCard({
         {/* Free-tier overlay (visible but locked) */}
         {lockState === "locked" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow ring-1 ring-black/5">
+            <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow ring-1 ring-black/5">
               <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
             </div>
           </div>
@@ -215,8 +213,8 @@ function ThumbnailCard({
 
         {/* Selected check */}
         {isSelected && (
-          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--color-lime-700)] shadow-sm">
-            <CheckIcon className="h-2.5 w-2.5 text-white" />
+          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] shadow-sm">
+            <CheckIcon className="h-2.5 w-2.5 text-[#111118]" />
           </div>
         )}
       </div>
@@ -303,10 +301,10 @@ export default function TemplatePicker({
       {/* Upgrade hint */}
       {userTier === "visitor" && (
         <div
-          className={`rounded-md border border-amber-200/50 bg-amber-50/50 px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}
+          className={`border-2 border-[#FF5C00] bg-[#FFF0EC] px-2 py-1.5 text-center ${isHorizontal ? "mt-0" : "mt-1"}`}
         >
-          <p className="text-[9px] font-semibold text-amber-700">
-            ✦ Sign in to unlock all templates
+          <p className="text-[9px] font-bold text-[#FF5C00] uppercase tracking-wider">
+            ✦ Sign in to unlock all
           </p>
         </div>
       )}

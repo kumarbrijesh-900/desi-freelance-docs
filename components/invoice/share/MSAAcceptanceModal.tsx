@@ -83,7 +83,7 @@ export default function MSAAcceptanceModal({
     return (
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
         <MotionReveal preset="fade-up" className="w-full max-w-md">
-          <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-[var(--brutal-shadow-lg)]">
+          <div className="border-2 border-[#111118] bg-white p-8 text-center shadow-[var(--brutal-shadow-lg)]">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
@@ -105,11 +105,11 @@ export default function MSAAcceptanceModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+        <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* Header */}
           <div className="border-b border-[color:var(--border-subtle)] bg-gradient-to-r from-[color:var(--color-lime-50)] to-white px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-lime-100)] text-[color:var(--color-lime-700)]">
+              <span className="flex h-12 w-12 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118]">
                 <DocumentSparkIcon className="h-6 w-6" />
               </span>
               <div>
@@ -132,7 +132,7 @@ export default function MSAAcceptanceModal({
                   <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)] mb-3">
                     Master Service Agreement
                   </h2>
-                  <div className="rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-5">
+                  <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-5">
                     <h3 className="text-sm font-bold text-[color:var(--text-primary)] mb-2">
                       {msaTitle}
                     </h3>
@@ -144,7 +144,7 @@ export default function MSAAcceptanceModal({
 
                 {/* Addendum Section */}
                 {(paymentTerms || addendumNotes) && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                  <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
                       <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">
                         !
@@ -186,7 +186,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 border border-[color:var(--border-default)] bg-white p-4 text-sm focus:border-[color:var(--color-lime-500)] outline-none transition-colors resize-none shadow-inner"
+                    className="w-full h-40 border-2 border-[#111118] bg-white p-4 text-sm outline-none transition-colors focus:bg-[color:var(--bg-surface-soft)] resize-none"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--text-muted)] italic">
@@ -239,7 +239,7 @@ export default function MSAAcceptanceModal({
 
                       onAccept();
                     }}
-                    className={`flex-[2] min-w-[160px] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                   >
                     {isSubmitting ? "Processing…" : "Accept Terms"}
                   </button>
@@ -248,7 +248,7 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={onPropose}
-                      className={`flex-1 min-w-[160px] ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+                      className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)]"
                     >
                       Propose Changes
                     </button>
@@ -261,7 +261,7 @@ export default function MSAAcceptanceModal({
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}
                   onClick={handleSubmitProposal}
-                  className={`flex-[2] min-w-[160px] ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+                  className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isSubmittingProposal ? "Submitting…" : "Submit Proposal"}
                 </button>
@@ -272,7 +272,7 @@ export default function MSAAcceptanceModal({
                     setMode("view");
                     setProposalText("");
                   }}
-                  className={`flex-1 min-w-[160px] ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+                  className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)]"
                 >
                   Cancel
                 </button>

@@ -397,3 +397,46 @@
 - app/invoices/page.tsx (Font Sync)
 - app/clients/page.tsx (Font Sync)
 - SESSION_LOG.md (Current update)
+
+---
+
+## v2.0 NEO BRUTAL DESIGN SYSTEM (FULL) — May 16, 2026
+
+### Design System Overhaul
+
+Building on v1.10's initial brutalist foundation (Syne font sync, grid background, table borders), v2.0 completes the transformation across every surface of the app:
+
+- ✅ NB-1 — Token Foundation: Complete rewrite of globals.css. Zero border radius, 2px black borders, offset drop shadows, removed all backdrop blur and transparency.
+- ✅ NB-2 — UI Foundation: Updated ui-foundation.ts — buttons get border-2 with offset shadows, fields get thick borders and lime focus ring, status pills become square stamps, labels become uppercase bold.
+- ✅ NB-3 — Card Class: Updated layout-foundation.ts — appCardClass now uses brutal borders and offset shadow.
+- ✅ NB-4 — Header: Complete rewrite of AppHeader.tsx — dark #111118 background, lime #BEFF00 border-bottom accent stripe, white uppercase nav links, lime active state, brutal mobile menu.
+- ✅ NB-5 — Global Cleanup: Bulk replacement across all .tsx files — removed hardcoded rounded corners, backdrop blur, semi-transparent backgrounds, soft shadows.
+- ✅ NB-6 — Status Stamps: All badges (DRAFT, SENT, ACCEPTED, SETTLED, OVERDUE, READY, MANDATORY) converted from rounded pills to square stamps with thick black borders.
+- ✅ NB-7 — Sidebar Fixes: Editor sidebar panels and warning boxes updated to brutal styling.
+- ✅ NB-8 — Profile Tabs: Tab navigation updated to lime underline active state, brutal typography.
+- ✅ NB-9 — Gray Token Cleanup: All hardcoded Tailwind gray classes replaced with CSS variable tokens.
+- ✅ NB-10 — Modals: ShareLinkModal, SettlementModal, ConversionModal, MSAAcceptanceModal unified to brutal treatment.
+- ✅ NB-11 — Auth Pages: Login and signup pages updated to brutal card styling.
+- ✅ NB-12 — Components: NotificationBell, TemplatePicker, guest banner updated.
+- ✅ NB-13 — Mobile Responsive: Shadows reduce on tablet (768px) and phone (480px). Nested borders thin on small screens.
+
+### Design Identity
+
+- Name: Neo Brutal
+- Philosophy: Zero radius. Thick borders. Offset shadows. Bold, stamped, unapologetic.
+- Primary: #BEFF00 (Neon Lime) — CTAs, active states, highlights
+- Ink: #111118 — borders, text, header background
+- Coral: #FF5C00 — overdue, danger, destructive
+- Violet: #8B5CF6 — AI/system indicators, auto-filled states, draft
+- Cyan: #00DCB4 — success, settled states
+- Cream: #FFFBE6 — warm highlights, brief card, guest banner
+- Status System: Square stamp badges, not rounded pills
+- Typography: Labels = 11px bold uppercase tracking-wide. Headings = bold uppercase.
+- Motion: Buttons press via translate (not scale). Shadows compress on press, expand on hover.
+
+### Next
+
+- Real-world user testing with 5 Indian freelancers
+- AI brief extraction activation (Gemini Flash, free tier)
+- Revision Policy implementation (RG-1 through RG-3)
+- InvoiceEditorPage.tsx decomposition (3,256 lines)
