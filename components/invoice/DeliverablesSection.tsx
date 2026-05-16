@@ -433,8 +433,71 @@ function LineItemCard({
           )}
         </div>
 
-        {/* Row 3: Qty / Rate / Unit */}
+        {/* Row 3: Unit / Rate / Qty */}
         <div className="flex flex-wrap items-end gap-3 sm:gap-4">
+          {/* 1. UNIT */}
+          <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight m-0 p-0 block ml-0.5">
+                Unit
+                {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
+                  <span className="autofill-indicator ml-1">auto-filled</span>
+                )}
+              </label>
+              <span
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
+                title="How you measure delivery — per screen, per hour, per deliverable, per video, etc."
+              >
+                ?
+              </span>
+            </div>
+            <AppSelectField
+              value={item.rateUnit}
+              onChange={(e) => {
+                onFieldManualEdit(`deliverables.${itemIndex}.unit`);
+                onUpdate({ rateUnit: e.target.value as InvoiceRateUnit });
+              }}
+              className={cn(
+                "h-10 text-sm",
+                getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
+              )}
+            >
+              {!item.rateUnit && <option value="" disabled selected>Select unit...</option>}
+              {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
+            </AppSelectField>
+          </div>
+
+          {/* 2. RATE */}
+          <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+              Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '') || ''}` : ''}
+              {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
+                <span className="autofill-indicator ml-1">auto-filled</span>
+              )}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none z-10">
+                {getCurrencySymbol(currency)}
+              </span>
+              <AppTextField
+                type="number"
+                value={item.rate}
+                placeholder={isGuestMode ? "Enter" : "0"}
+                className={cn(
+                  "h-10 text-sm !pl-10 w-full",
+                  getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
+                )}
+                errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
+                onChange={(e) => {
+                  onFieldManualEdit(`deliverables.${itemIndex}.rate`);
+                  onUpdate({ rate: e.target.value });
+                }}
+                onBlur={() => markTouched(item.id, "rate")}
+              />
+            </div>
+          </div>
+
+          {/* 3. QTY */}
           <div className="w-full flex-[1_1_80px] sm:w-[80px] sm:flex-none">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
               {item.rateUnit === 'per-hour' ? 'Hours'
@@ -465,66 +528,6 @@ function LineItemCard({
               }}
               onBlur={() => markTouched(item.id, "qty")}
             />
-          </div>
-
-          <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
-              Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '') || ''}` : ''}
-              {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
-                <span className="autofill-indicator ml-1">auto-filled</span>
-              )}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none z-10">
-                {getCurrencySymbol(currency)}
-              </span>
-              <AppTextField
-                type="number"
-                value={item.rate}
-                placeholder={isGuestMode ? "Enter" : "0"}
-                className={cn(
-                  "h-10 text-sm !pl-10 w-full",
-                  getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
-                )}
-                errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
-                onChange={(e) => {
-                  onFieldManualEdit(`deliverables.${itemIndex}.rate`);
-                  onUpdate({ rate: e.target.value });
-                }}
-                onBlur={() => markTouched(item.id, "rate")}
-              />
-            </div>
-          </div>
-
-          <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight m-0 p-0 block ml-0.5">
-                Unit
-                {autoFilledFields.has(`deliverables.${itemIndex}.unit`) && (
-                  <span className="autofill-indicator ml-1">auto-filled</span>
-                )}
-              </label>
-              <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-gray-200 text-[10px] text-gray-400 cursor-help shrink-0"
-                title="How you measure delivery — per screen, per hour, per deliverable, per video, etc."
-              >
-                ?
-              </span>
-            </div>
-            <AppSelectField
-              value={item.rateUnit}
-              onChange={(e) => {
-                onFieldManualEdit(`deliverables.${itemIndex}.unit`);
-                onUpdate({ rateUnit: e.target.value as InvoiceRateUnit });
-              }}
-              className={cn(
-                "h-10 text-sm",
-                getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
-              )}
-            >
-              {!item.rateUnit && <option value="" disabled selected>Select unit...</option>}
-              {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
-            </AppSelectField>
           </div>
 
           <div className="w-full sm:w-auto sm:ml-auto pb-2 text-right">
