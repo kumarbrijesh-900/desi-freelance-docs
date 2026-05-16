@@ -102,7 +102,7 @@ function CombinedStatusBadge({
   // Priority 1: Settled (Paid)
   if (normalizedInv === "settled") {
     return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="inline-flex items-center border-2 border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         Paid
       </span>
     );
@@ -112,7 +112,7 @@ function CombinedStatusBadge({
   if (msaId && (msaStatus === "proposed" || msaStatus === "rejected" || msaStatus === "pending")) {
     const label = msaStatus === "rejected" ? "Revision Asked" : "MSA Pending";
     return (
-      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+      <span className="inline-flex items-center border-2 border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-700">
         {label}
       </span>
     );
@@ -121,7 +121,7 @@ function CombinedStatusBadge({
   // Priority 3: MSA Accepted
   if (msaId && msaStatus === "accepted") {
     return (
-      <span className="inline-flex items-center rounded-full border border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
+      <span className="inline-flex items-center border-2 border-[color:var(--state-success-border)] bg-[color:var(--state-success-bg)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--state-success-text)]">
         Accepted
       </span>
     );
@@ -139,7 +139,7 @@ function CombinedStatusBadge({
 
   if (isOverdue)
     return (
-      <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700">
+      <span className="inline-flex items-center border-2 border-red-300 bg-red-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-red-700">
         Overdue
       </span>
     );
@@ -147,14 +147,14 @@ function CombinedStatusBadge({
   // Priority 5: Sent (Finalized)
   if (normalizedInv === "finalized")
     return (
-      <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-700">
+      <span className="inline-flex items-center border-2 border-blue-300 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">
         Sent
       </span>
     );
 
   // Priority 6: Draft
   return (
-    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]">
+    <span className="inline-flex items-center border-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-muted)]">
       Draft
     </span>
   );
@@ -426,23 +426,23 @@ function InvoiceRow({
                 e.stopPropagation();
                 setShowDropdown(!showDropdown);
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+              className="flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-gray-100 transition-colors text-gray-500"
             >
               <MoreHorizontal size={18} />
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right border border-gray-100 bg-white shadow-[var(--brutal-shadow-lg)] ring-1 ring-black/5 focus:outline-none text-left">
+              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] focus:outline-none text-left">
                 <div className="py-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onView(invoice); }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[#BEFF00] hover:text-[#111118]"
                   >
                     <Eye size={14} className="text-gray-400" /> View
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onEdit(invoice); }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[#BEFF00] hover:text-[#111118]"
                   >
                     <Edit2 size={14} className="text-gray-400" /> Edit
                   </button>
@@ -484,7 +484,7 @@ function InvoiceRow({
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
                     {invoice.children?.find(c => c.milestone_index === (m.order_index ?? idx) + 1) && (
-                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
                         {invoice.children.find(c => c.milestone_index === (m.order_index ?? idx) + 1)?.invoice_number}
                       </span>
                     )}
@@ -495,7 +495,7 @@ function InvoiceRow({
                   </td>
                   <td className="px-4 py-3">
                     <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
                         ? "bg-lime-50 text-lime-700 border border-lime-200" 
                         : "bg-gray-100 text-gray-500 border border-gray-200"
@@ -508,7 +508,7 @@ function InvoiceRow({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, m.id); }}
-                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border border-lime-200 rounded-full bg-white hover:bg-lime-50 transition-colors"
+                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
                       >
                         Settle
                       </button>
@@ -542,7 +542,7 @@ function InvoiceRow({
                     <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                     ↳ Milestone {mCount}: {item.description}
                     {invoice.children?.find(c => c.milestone_index === mCount) && (
-                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
                         {invoice.children.find(c => c.milestone_index === mCount)?.invoice_number}
                       </span>
                     )}
@@ -553,7 +553,7 @@ function InvoiceRow({
                   </td>
                   <td className="px-4 py-3">
                     <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
                       isSettled 
                         ? "bg-lime-50 text-lime-700 border border-lime-200" 
                         : "bg-gray-100 text-gray-500 border border-gray-200"
@@ -566,7 +566,7 @@ function InvoiceRow({
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, item.id); }}
-                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border border-lime-200 rounded-full bg-white hover:bg-lime-50 transition-colors"
+                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
                       >
                         Settle
                       </button>
@@ -599,7 +599,7 @@ function InvoiceSettlementConfirmModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
+        <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
               Mark as Settled?
@@ -1257,7 +1257,7 @@ export default function InvoiceHistoryPage() {
         <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
           <div className="mx-auto max-w-lg px-4 pt-16 text-center">
             <MotionReveal preset="fade-up">
-              <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
+              <span className="inline-flex h-14 w-14 items-center justify-center border-2 border-[#111118] bg-[color:var(--bg-surface-soft)]">
                 <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
               </span>
               <h1 className="mt-5 text-2xl font-bold text-[color:var(--text-primary)]">
@@ -1315,7 +1315,7 @@ export default function InvoiceHistoryPage() {
           {/* Stat snapshot */}
           {!loading && invoices.length > 0 && (
             <MotionReveal preset="fade-up" className="mb-6">
-              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm px-5 py-4">
+              <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] px-5 py-4">
                 {/* Main row */}
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   {/* Hero metric — left */}
@@ -1332,7 +1332,7 @@ export default function InvoiceHistoryPage() {
                   <div className="flex items-center gap-4 sm:gap-5">
                     {/* Settled */}
                     <div className="flex items-center gap-1.5">
-                      <div className="w-[4px] h-[20px] rounded-full bg-green-500 shrink-0" />
+                      <div className="w-[4px] h-[20px] bg-green-500 shrink-0" />
                       <div>
                         <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Settled</p>
                         <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
@@ -1343,7 +1343,7 @@ export default function InvoiceHistoryPage() {
 
                     {/* Overdue */}
                     <div className="flex items-center gap-1.5">
-                      <div className="w-[4px] h-[20px] rounded-full bg-red-500 shrink-0" />
+                      <div className="w-[4px] h-[20px] bg-red-500 shrink-0" />
                       <div>
                         <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Overdue</p>
                         <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
@@ -1354,7 +1354,7 @@ export default function InvoiceHistoryPage() {
 
                     {/* Due this week */}
                     <div className="flex items-center gap-1.5">
-                      <div className="w-[4px] h-[20px] rounded-full bg-amber-400 shrink-0" />
+                      <div className="w-[4px] h-[20px] bg-amber-400 shrink-0" />
                       <div>
                         <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">Due this week</p>
                         <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
@@ -1365,7 +1365,7 @@ export default function InvoiceHistoryPage() {
 
                     {/* Settled this month */}
                     <div className="hidden sm:flex items-center gap-1.5">
-                      <div className="w-[4px] h-[20px] rounded-full bg-[#4F46E5] shrink-0" />
+                      <div className="w-[4px] h-[20px] bg-[#4F46E5] shrink-0" />
                       <div>
                         <p className="text-[10px] leading-tight text-[color:var(--text-muted)]">This month</p>
                         <p className="text-[14px] font-semibold leading-tight text-[color:var(--text-primary)]">
@@ -1378,9 +1378,9 @@ export default function InvoiceHistoryPage() {
 
                 {/* Progress bar */}
                 <div className="mt-3">
-                  <div className="w-full h-[4px] rounded-full bg-gray-100 overflow-hidden">
+                  <div className="w-full h-[4px] bg-gray-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#4F46E5] transition-all duration-500"
+                      className="h-full bg-[#4F46E5] transition-all duration-500"
                       style={{ width: `${stats.collectionPercent}%` }}
                     />
                   </div>
@@ -1470,9 +1470,9 @@ export default function InvoiceHistoryPage() {
             </MotionReveal>
           ) : (
             <MotionReveal preset="fade-up">
-              <div className="rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm overflow-visible">
+              <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] overflow-visible">
                 {/* Filter bar */}
-                <div className="rounded-t-xl border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-3">
+                <div className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-4 py-3">
                   <FilterBar
                     statusFilter={statusFilter}
                     setStatusFilter={setStatusFilter}
@@ -1487,7 +1487,7 @@ export default function InvoiceHistoryPage() {
                 </div>
 
               {filtered.length === 0 ? (
-                <div className="rounded-b-xl px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
+                <div className="px-6 py-10 text-center text-sm text-[color:var(--text-muted)]">
                   No invoices match your filters.{" "}
                   <button
                     type="button"
@@ -1581,7 +1581,7 @@ export default function InvoiceHistoryPage() {
           {activeNextMilestone && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
               <MotionReveal preset="fade-up" className="w-full max-w-md">
-                <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
+                <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="text-2xl">🎉</span>
                     <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
@@ -1624,10 +1624,10 @@ export default function InvoiceHistoryPage() {
             initial={{ opacity: 0, y: 50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 50, x: "-50%" }}
-            className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 border border-indigo-100 bg-white px-6 py-4 shadow-[0_20px_50px_rgba(79,70,229,0.15)]"
+            className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 border-2 border-[#111118] bg-white px-6 py-4 shadow-[var(--brutal-shadow-lg)]"
           >
             <div className="flex items-center gap-3 pr-6 border-r border-gray-100">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-brand text-[11px] font-bold text-white tabular-nums">
+              <div className="flex h-6 w-6 items-center justify-center bg-[#111118] text-[11px] font-bold text-[#BEFF00] tabular-nums">
                 {selectedIds.size}
               </div>
               <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Selected</span>
