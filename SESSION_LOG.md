@@ -352,3 +352,48 @@
 - app/api/invoice/[token]/route.ts
 - components/invoice/TotalsTaxesSection.tsx
 - components/invoice/BriefIntakeCard.tsx
+
+---
+
+## v1.10 NEO BRUTALIST STANDARDIZATION & REVISION GOVERNANCE — May 13-16, 2026
+
+### Phase XVI: Visual & Typography Parity (VT-1 through VT-5)
+
+- ✅ VT-1 — Global Syne Font Synchronization: Applied `Syne` font with `font-black` weighting globally via `globals.css` and `!important` utility classes. Eliminated "font-shift" during navigation between Master (Invoices/Clients) and Editor views.
+- ✅ VT-2 — Signature Grid Background: Migrated the Neo Brutalist grid background from the Invoice Editor to the `RootLayout`. Every page now shares the same visual foundation.
+- ✅ VT-3 — Header Consistency: Synchronized logo and navigation text styles in `AppHeader` to match the brand typography standards.
+- ✅ VT-4 — Table Neo Brutalization: Updated Client list and Invoice table borders to use the high-contrast Neo Brutalist signature style.
+- ✅ VT-5 — Production Deployment: Verified build stability and pushed typography synchronization to Vercel.
+
+### Phase XVII: Items Hierarchy & Business Logic (BL-1 through BL-3)
+
+- ✅ BL-1 — Logical Column Reorder: Reconfigured the line item card hierarchy to follow the natural price discovery flow: **Item Type -> Description -> Unit -> Rate -> Quantity**.
+- ✅ BL-2 — Unit Logic Optimization: Moved the **Unit Selection** to the beginning of the numeric row, ensuring the basis of measurement is established before pricing and volume.
+- ✅ BL-3 — Per-Revision Removal: Disabled "Per Revision" as a selectable unit in the main deliverables dropdown. Logic: Revisions are post-task events and belong in a dedicated governance flow.
+
+### Phase XVIII: Revision Policy & MSA Guardrails (RG-1 through RG-3)
+
+- 📝 RG-1 — BA/CA Policy Analysis: Designed the "Revision Guard" logic (2 free revisions, subsequent at 15% of item total). Validated as a sound "Change Order" framework for GST compliance and profitability.
+- 📝 RG-2 — 3-Tier MSA Roadmap: Defined the synchronization path for Revision Policies: **Global Profile Defaults -> Client MSA Overrides -> Project Addendums**.
+- 📝 RG-3 — Supabase Architecture Plan: Outlined the transition to JSONB-based `revision_policy` storage in `profiles`, `clients`, and `invoices` tables to maintain snapshot integrity and forward-compatibility.
+
+## Deployment & Production state
+
+- **Latest Build:** `v1.10-standardized` (Global Branding & Logic Flow)
+- **Status:** Pushed to `main`. Verified on Vercel.
+- **Verification:**
+  - Zero layout shift/font shift during navigation.
+  - Items table follows **Item -> Description -> Unit -> Rate -> Qty**.
+  - Revision Policy roadmap documented in `revisions_policy_plan.md`.
+
+## Files modified in v1.10
+
+- app/layout.tsx (Global Grid)
+- app/globals.css (Syne Font System)
+- components/AppHeader.tsx (Logo/Nav Sync)
+- components/invoice/InvoiceEditorPage.tsx (Header Sync)
+- components/invoice/DeliverablesSection.tsx (Hierarchy Fix)
+- lib/invoice-line-item-catalog.ts (Unit Filtering)
+- app/invoices/page.tsx (Font Sync)
+- app/clients/page.tsx (Font Sync)
+- SESSION_LOG.md (Current update)
