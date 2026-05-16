@@ -405,9 +405,9 @@ export default function ClientDetailPage() {
         }
       />
 
-      <section className={`${appPageContainerClass} py-5 sm:py-8`}>
+      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
         <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-8 lg:col-start-3">
+          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
             {/* Header */}
             <MotionReveal preset="fade-up">
               <Link

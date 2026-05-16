@@ -5,7 +5,9 @@ import AppHeader from "@/components/AppHeader";
 import {
   appPageShellClass,
   appPageContainerClass,
+  appGridClass,
 } from "@/lib/layout-foundation";
+import { MotionReveal } from "@/components/ui/motion-primitives";
 
 export const metadata: Metadata = {
   title: "Freelance Invoicing Support & GST FAQs | Lance",
@@ -18,38 +20,33 @@ export default function SupportPage() {
     <main className={appPageShellClass}>
       <AppHeader />
 
-      <div className={cn(appPageContainerClass, "pt-24 pb-12 text-center")}>
-        <div className="mx-auto max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--color-lime-600)] mb-3">
-            Help Center
-          </p>
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl mb-6">
-            Lance Support & Knowledge Base
-          </h1>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            Everything you need to know about professional billing, GST
-            compliance, and mastering the Lance workflow.
-          </p>
-        </div>
-      </div>
+      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
+        <div className={appGridClass}>
+          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+            <MotionReveal className="mb-8" preset="fade-up">
+              <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+                Support & FAQ
+              </h1>
+              <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+                Everything you need to know about professional billing and Lance.
+              </p>
+            </MotionReveal>
 
-      <FaqSection />
+            <FaqSection />
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="border-t border-[color:var(--border-subtle)] mt-20">
+      <footer className="border-t-2 border-[#111118] mt-12 bg-white">
         <div
           className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
         >
-          <p className="text-xs font-medium text-[color:var(--text-muted)]">
+          <p className="text-xs font-bold text-[color:var(--text-muted)] uppercase tracking-wider">
             © {new Date().getFullYear()} Lance. Built for Indian freelancers.
           </p>
         </div>
       </footer>
     </main>
   );
-}
-
-// Simple CN helper for RSC if not imported
-function cn(...classes: (string | undefined | boolean)[]) {
-  return classes.filter(Boolean).join(" ");
 }

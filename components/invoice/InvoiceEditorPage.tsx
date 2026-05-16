@@ -98,6 +98,8 @@ import {
   appPageShellClass,
   appSectionGapClass,
   appStickyTopClass,
+  appPageContainerClass,
+  appGridClass,
 } from "@/lib/layout-foundation";
 import {
   defaultInvoiceFormData,
@@ -731,6 +733,7 @@ export default function InvoiceEditorPage() {
 function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const invoiceId = searchParams.get("id");
 
   const [formData, setFormData] = useState<InvoiceFormData>(() =>
     mergeInvoiceFormData(defaultInvoiceFormData),
@@ -2466,8 +2469,24 @@ return (
 
 
     <section
-      className={`${appContainerFullClass()} ${appPageSectionClass} relative z-10 pb-32`}
+      className={`${appPageContainerClass} pt-8 sm:pt-12 relative z-10 pb-32`}
     >
+      <div className={appGridClass}>
+        <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+          {/* Header */}
+          <MotionReveal className="mb-8" preset="fade-up">
+            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+              {invoiceId ? "Edit Invoice" : "New Invoice"}
+            </h1>
+            <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+              {invoiceId 
+                ? `Editing reference ${formData.meta?.invoiceNumber || '...'}` 
+                : "Create a professional GST-compliant invoice in minutes."
+              }
+            </p>
+          </MotionReveal>
+        </div>
+      </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/50">
           <div className="mx-auto flex max-w-[1328px] items-center justify-between px-4 py-2 sm:px-6">
@@ -2499,7 +2518,7 @@ return (
         </div>
       )}
 
-      <div className={`${appEditorGridClass} mt-6`}>
+      <div className={appEditorGridClass}>
         {/* ── COL 1: Desktop Stepper Rail ── */}
         <aside
           className={cn(

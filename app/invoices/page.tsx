@@ -26,6 +26,7 @@ import {
   appPageContainerClass,
   appPageSectionClass,
   appPageShellClass,
+  appGridClass,
 } from "@/lib/layout-foundation";
 import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import {
@@ -1284,10 +1285,11 @@ export default function InvoiceHistoryPage() {
     <main className={appPageShellClass}>
       <AppHeader />
 
-      <section className={`${appPageContainerClass} ${appPageSectionClass}`}>
-        <div className="mx-auto max-w-[1200px] px-4">
+      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
+        <div className={appGridClass}>
+          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
           {/* Header */}
-          <MotionReveal className="mb-6" preset="fade-up">
+          <MotionReveal className="mb-8" preset="fade-up">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
@@ -1615,7 +1617,8 @@ export default function InvoiceHistoryPage() {
             </div>
           )}
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Bulk Action Bar */}
       <AnimatePresence>

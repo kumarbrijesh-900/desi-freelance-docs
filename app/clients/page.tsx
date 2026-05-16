@@ -760,45 +760,31 @@ export default function ClientsPage() {
     <main className={appPageShellClass}>
       <AppHeader />
 
-      <section className={`${appPageContainerClass} py-5 sm:py-8`}>
+      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
         <div className={appGridClass}>
           <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
             {/* Header */}
             <MotionReveal preset="fade-up">
-              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                     Clients
                   </h1>
                   {clients.length > 0 && (
-                    <p className="mt-1 text-[13px] text-[color:var(--text-muted)]">
+                    <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
                       {clients.length} client{clients.length !== 1 ? "s" : ""}{" "}
                       saved
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3">
-                  {clients.length > 0 && (
-                    <div className="relative w-full sm:w-56">
-                      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--text-muted)]" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search…"
-                        className={`${getAppFieldClass()} !pl-9`}
-                      />
-                    </div>
-                  )}
-                  <MotionButton
-                    onClick={handleAddNew}
-                    className={getAppButtonClass({ variant: "primary" })}
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Add Client
-                  </MotionButton>
-                </div>
+                <MotionButton
+                  onClick={handleAddNew}
+                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
+                >
+                  <PlusIcon className="h-4 w-4" />
+                  Add Client
+                </MotionButton>
               </div>
             </MotionReveal>
 
@@ -818,8 +804,8 @@ export default function ClientsPage() {
             <MotionReveal preset="fade-up" delay={10}>
               {clients.length === 0 ? (
                 /* Empty state */
-                <div className="flex flex-col items-center justify-center gap-5 py-16 text-center border border-[color:var(--border-default)] bg-white shadow-sm">
-                  <div className="flex h-14 w-14 items-center justify-center bg-[#F5F3FF]">
+                <div className="flex flex-col items-center justify-center gap-5 py-16 text-center border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+                  <div className="flex h-14 w-14 items-center justify-center bg-[#BEFF00] border-2 border-[#111118]">
                     <svg className="h-7 w-7 text-[#4F46E5]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                     </svg>
@@ -844,12 +830,26 @@ export default function ClientsPage() {
                   </button>
                 </div>
               ) : (
-                /* Client table */
-                <div className="overflow-visible rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)]">
+                <div className="overflow-visible border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+                  {/* Search Bar */}
+                  {clients.length > 0 && (
+                    <div className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-4 py-3">
+                      <div className="relative max-w-sm">
+                        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--text-muted)]" />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search clients..."
+                          className={`${getAppFieldClass()} !pl-9 border-2 border-[#111118] bg-white`}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)]">
+                        <tr className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-muted)]">
                           <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
                             Client Name
                           </th>
@@ -880,7 +880,7 @@ export default function ClientsPage() {
                             className={cn(
                               "group transition-colors hover:bg-[color:var(--bg-surface-muted)]",
                               idx < filteredClients.length - 1 &&
-                                "border-b border-[color:var(--border-subtle)]",
+                                "border-b-2 border-[#111118]",
                             )}
                           >
                             {/* Name */}
@@ -912,7 +912,7 @@ export default function ClientsPage() {
                             {/* GSTIN */}
                             <td className="hidden px-4 py-3 md:table-cell">
                               {client.gstin ? (
-                                <span className="rounded bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] text-[color:var(--text-secondary)]">
+                                <span className="border-2 border-[#111118] bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] font-bold text-[color:var(--text-primary)]">
                                   {client.gstin}
                                 </span>
                               ) : (
@@ -952,14 +952,14 @@ export default function ClientsPage() {
                                   <button
                                     type="button"
                                     onClick={handleDeleteConfirm}
-                                    className="inline-flex h-7 items-center justify-center bg-red-500 px-2.5 text-[11px] font-semibold text-white transition-colors hover:bg-red-600"
+                                    className="inline-flex h-7 items-center justify-center border-2 border-[#111118] bg-red-500 px-2.5 text-[11px] font-bold text-white transition-colors hover:bg-red-600"
                                   >
                                     Yes
                                   </button>
                                   <button
                                     type="button"
                                     onClick={handleDeleteCancel}
-                                    className="inline-flex h-7 items-center justify-center border border-[color:var(--border-subtle)] px-2.5 text-[11px] font-medium text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
+                                    className="inline-flex h-7 items-center justify-center border-2 border-[#111118] px-2.5 text-[11px] font-bold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
                                   >
                                     No
                                   </button>
@@ -969,7 +969,7 @@ export default function ClientsPage() {
                                   <button
                                     type="button"
                                     onClick={() => handleEdit(client)}
-                                    className="inline-flex h-7 w-7 items-center justify-center text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
+                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
                                     title="Edit"
                                   >
                                     <EditIcon />
@@ -979,7 +979,7 @@ export default function ClientsPage() {
                                     onClick={() =>
                                       handleDeleteRequest(client.id)
                                     }
-                                    className="inline-flex h-7 w-7 items-center justify-center text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                                     title="Delete"
                                   >
                                     <TrashIcon />
