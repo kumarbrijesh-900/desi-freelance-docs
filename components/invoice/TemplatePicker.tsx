@@ -73,17 +73,17 @@ export interface TemplatePickerProps {
 /* ─── Descriptions ──────────────────────────────────── */
 
 const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
-  classic: "Clean black and white",
-  editorial: "Magazine-style layout",
-  "neon-atelier": "Bold blue headers",
-  midnight: "Dark purple theme",
-  terracotta: "Warm earthy tones",
-  "swiss-grid": "Red accents, structured",
-  mono: "Minimal with green",
-  sakura: "Soft pink Japanese",
-  brutalist: "Raw and bold",
-  ledger: "Traditional accounting",
-  coastal: "Ocean blue calm",
+  classic: "Black headers, clean lines. Traditional business invoice.",
+  editorial: "Light gray tones, refined typography. Magazine feel.",
+  "neon-atelier": "Blue accent header, modern corporate layout.",
+  midnight: "Dark purple background, white text. Bold and dramatic.",
+  terracotta: "Warm brown and cream tones. Earthy, handcrafted feel.",
+  "swiss-grid": "Red accent stripe, structured grid. European precision.",
+  mono: "All black and white with green highlights. Ultra minimal.",
+  sakura: "Soft pink accents, delicate borders. Japanese inspired.",
+  brutalist: "Thick black borders, raw bold type. Anti-corporate.",
+  ledger: "Gray ruled lines, traditional bookkeeping style.",
+  coastal: "Ocean blue header, airy spacing. Calm and professional.",
 };
 
 /* ─── Mini Invoice Thumbnail ──────────────────────── */
@@ -246,8 +246,8 @@ function ThumbnailCard({
         >
           {template.name}
         </p>
-        <p className="text-[10px] text-[color:var(--text-muted)] mt-0.5">
-          {TEMPLATE_DESCRIPTIONS[template.id] || "Professional layout"}
+        <p className="text-[10px] leading-snug text-[color:var(--text-muted)] mt-1">
+          {TEMPLATE_DESCRIPTIONS[template.id] || "Professional invoice layout."}
         </p>
       </div>
     </button>
