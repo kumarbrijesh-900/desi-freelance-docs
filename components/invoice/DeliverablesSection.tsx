@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
   Milestone,
@@ -347,22 +347,16 @@ function LineItemCard({
             <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-tight mb-1.5 block ml-0.5">
               Item Type
             </label>
-            <AppSelectField
+            <BrutalSelect
               value={item.type}
-              onChange={(e) => {
+              onChange={(val) => {
                 onFieldManualEdit(`deliverables.${itemIndex}.type`);
-                onUpdate({ type: e.target.value as InvoiceLineItemType });
+                onUpdate({ type: val as InvoiceLineItemType });
               }}
-              className={cn(
-                "h-11 text-[14px] font-normal",
-                getInputStateClass(`deliverables.${itemIndex}.type`, item.type)
-              )}
-            >
-              {!item.type && <option value="" disabled selected>Select category...</option>}
-              {invoiceLineItemTypeOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </AppSelectField>
+              options={invoiceLineItemTypeOptions.map(opt => ({ label: opt, value: opt }))}
+              placeholder="Select category..."
+              className={getInputStateClass(`deliverables.${itemIndex}.type`, item.type)}
+            />
           </div>
           {sacCode && (
             <div className="flex items-center gap-1.5 pl-1">
@@ -451,20 +445,16 @@ function LineItemCard({
                 ?
               </span>
             </div>
-            <AppSelectField
+            <BrutalSelect
               value={item.rateUnit}
-              onChange={(e) => {
+              onChange={(val) => {
                 onFieldManualEdit(`deliverables.${itemIndex}.unit`);
-                onUpdate({ rateUnit: e.target.value as InvoiceRateUnit });
+                onUpdate({ rateUnit: val as InvoiceRateUnit });
               }}
-              className={cn(
-                "h-11 text-[14px] font-normal",
-                getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)
-              )}
-            >
-              {!item.rateUnit && <option value="" disabled selected>Select unit...</option>}
-              {allowedUnits.map((u) => <option key={u} value={u}>{invoiceRateUnitLabels[u]}</option>)}
-            </AppSelectField>
+              options={allowedUnits.map(u => ({ label: invoiceRateUnitLabels[u], value: u }))}
+              placeholder="Select unit..."
+              className={getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)}
+            />
           </div>
 
           {/* 2. RATE */}
@@ -559,6 +549,78 @@ function LineItemCard({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function BrutalSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Select...",
+  className,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  options: { label: string; value: string }[];
+  placeholder?: string;
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  return (
+    <div className={cn("relative w-full", className)} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full border-2 border-[#111118] bg-white text-left text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 flex items-center justify-between cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all"
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+        <svg className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 w-full z-50 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 text-[14px] transition-colors border-b border-[color:var(--border-subtle)] last:border-b-0",
+                  isSelected
+                    ? "font-bold text-[#111118] bg-[#F4FFE0]"
+                    : "text-[color:var(--text-primary)] hover:bg-[#BEFF00] hover:text-[#111118]"
+                )}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
