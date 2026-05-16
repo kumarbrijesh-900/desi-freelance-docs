@@ -440,3 +440,58 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - AI brief extraction activation (Gemini Flash, free tier)
 - Revision Policy implementation (RG-1 through RG-3)
 - InvoiceEditorPage.tsx decomposition (3,256 lines)
+
+---
+
+## v2.1 ARCHITECTURAL HIERARCHY & REVISION GOVERNANCE — May 16-17, 2026
+
+### Phase XIX: Professional Identity & Revision Governance (RG-4 through RG-7)
+
+- ✅ RG-4 — User Profession Detection: Added "PRIMARY SERVICE" dropdown to the Profile page (Agency tab) with 18 specialized categories.
+- ✅ RG-5 — Revision Policy Implementation:
+  - Updated revision clause wording across all UI components and sync utils: "The quoted fee includes up to {X} rounds of revisions per deliverable. Each additional round... will incur a surcharge of {Y}% of that specific line item's total."
+  - Fixed helper text to clarify that the fee applies per line item, not milestone.
+- ✅ RG-6 — UX Standardization: Updated license and inclusion toggles in `TermsPaymentSection.tsx` to use the Neo Brutalist button group style (High-contrast active state, square borders, 13px bold text).
+- ✅ RG-7 — UI/UX Polish: Enhanced the Items section with dynamic unit-based quantity labels (e.g., "Hours", "Screens", "Rooms", "Sq.ft") and sequential numbering for line items.
+
+### Phase XX: Architectural & Interior Design Hierarchical Item Types (AD-1 through AD-3)
+
+- ✅ AD-1 — Hierarchical Item Catalog: Extended `lib/invoice-line-item-catalog.ts` with a complex entry for **Architecture & Interior Design**.
+  - Introduced **Sub-types**: Residential, Commercial, Interior, Landscape, Site Planning, Consultation.
+  - Specialized SAC codes and units (Per sq.ft, Per room, Per floor, Per drawing, etc.) per sub-type.
+- ✅ AD-2 — Dynamic Line Item Logic: Modified `DeliverablesSection.tsx` to conditionally render a **SUB-TYPE** dropdown.
+  - Dynamic state management: Updates SAC code, units, and description suggestions in real-time based on sub-type selection.
+  - Dynamic Labeling: Updated "Rate" and "Qty" headers to reflect architecture-specific units (e.g., "RATE / SQ.FT", "Drawings").
+- ✅ AD-3 — Alphabetical Standardization: Sorted all primary service and item type options alphabetically across `app/profile/page.tsx` and `lib/invoice-line-item-catalog.ts` for improved predictability.
+
+### Phase XXI: Landing Page Redesign (LP-Neo)
+
+- ✅ LP-Neo — Neo Brutalist Overhaul: Completely redesigned `app/page.tsx` into a strict 4-section layout (Hero, Trust Strip, Features, Footer).
+  - Styling: Applied high-contrast borders, zero radius, and `shadow-[var(--brutal-shadow-lg)]`.
+  - Content: Streamlined value prop for the Indian freelance market. Removed redundant FAQ/Pricing sections for a punchy, 4-section high-conversion flow.
+
+## Deployment & Production state
+
+- **Latest Build:** `v2.1-arch-ready`
+- **Status:** Pushed to `main`. Verified on Vercel.
+- **Verification:**
+  - Architecture sub-types correctly resolve SAC codes and units.
+  - Revision policy text consistent across Profile, Clients, and Invoices.
+  - Landing page is high-contrast Neo Brutal.
+  - All dropdowns sorted A-Z.
+
+## Files modified in v2.1
+
+- app/profile/page.tsx
+- lib/invoice-line-item-catalog.ts
+- components/invoice/DeliverablesSection.tsx
+- components/invoice/TermsPaymentSection.tsx
+- components/invoice/ClientDetailsSection.tsx
+- lib/msa-sync-utils.ts
+- app/page.tsx
+
+## Next
+
+- Real-world user testing with architects & interior designers
+- AI brief extraction activation (Gemini Flash, free tier)
+- InvoiceEditorPage.tsx decomposition
