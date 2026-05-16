@@ -70,7 +70,21 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#F8F8FA" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col relative overflow-x-hidden">
+        {/* Global Aesthetic Grid */}
+        <div className="pointer-events-none fixed inset-0 overflow-hidden z-0 opacity-[0.03]">
+          <div 
+            style={{ 
+              backgroundImage: "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+              backgroundSize: "48px 48px" 
+            }} 
+            className="absolute inset-0"
+          />
+        </div>
+        <div className="relative z-10 flex min-h-screen flex-col">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

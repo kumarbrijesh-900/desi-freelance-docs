@@ -189,6 +189,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
+  --font-syne: var(--font-syne);
   --font-mono: var(--font-geist-mono);
   --color-indigo-brand: var(--brand-indigo);
   --color-indigo-light: var(--brand-indigo-light);
@@ -207,6 +208,10 @@ html {
 
 h1, h2, h3 {
   font-family: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
+}
+
+.font-syne {
+  font-family: var(--font-syne), sans-serif !important;
 }
 
 /* --- Panels --- */
