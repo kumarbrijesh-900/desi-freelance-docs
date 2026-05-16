@@ -6,6 +6,7 @@ import {
   CheckIcon,
   SparklesIcon,
   ExclamationTriangleIcon,
+  ChevronDownIcon,
 } from "@/components/ui/app-icons";
 import { AnimatePresence, motion } from "@/components/ui/motion-primitives";
 import type { InvoiceFormData, InvoiceStepperStep } from "@/types/invoice";

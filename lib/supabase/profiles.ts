@@ -49,6 +49,9 @@ export interface UserProfile {
     | "proportional_transfer"
     | "retained_by_creator";
   msa_jurisdiction_city: string;
+  primary_service: string;
+  free_revision_rounds: number;
+  extra_revision_fee_percent: number;
   created_at: string;
   updated_at: string;
 }
@@ -82,6 +85,9 @@ export function profileToAgencyDetails(p: UserProfile): AgencyDetails {
     msaLateFeeUnit: (p.msa_late_fee_unit || "monthly") as any,
     msaIpTriggerType: p.msa_ip_trigger_type,
     msaJurisdictionCity: p.msa_jurisdiction_city,
+    primaryService: p.primary_service,
+    freeRevisionRounds: p.free_revision_rounds,
+    extraRevisionFeePercent: p.extra_revision_fee_percent,
   };
 }
 
@@ -136,7 +142,10 @@ export function agencyToProfileRow(
     msa_late_fee_rate: agency.msaLateFeeRate ?? 1.5,
     msa_late_fee_unit: agency.msaLateFeeUnit || "monthly",
     msa_ip_trigger_type: agency.msaIpTriggerType || "upon_full_payment",
-    msa_jurisdiction_city: agency.msaJurisdictionCity || "Bangalore",
+    msa_jurisdiction_city: agency.msaJurisdictionCity || "Bengaluru",
+    primary_service: agency.primaryService || "",
+    free_revision_rounds: agency.freeRevisionRounds ?? 2,
+    extra_revision_fee_percent: agency.extraRevisionFeePercent ?? 15,
     updated_at: new Date().toISOString(),
   };
 }

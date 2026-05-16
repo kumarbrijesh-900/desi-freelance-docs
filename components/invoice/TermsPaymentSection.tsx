@@ -29,6 +29,7 @@ interface TermsPaymentSectionProps {
   clientLocation: "domestic" | "international";
   onChange: (value: PaymentDetails) => void;
   onMetaChange: (value: InvoiceMeta) => void;
+  onClientChange?: (value: import("@/types/invoice").ClientDetails) => void;
   embedded?: boolean;
   paymentTermsError?: string;
   errors?: {
@@ -100,6 +101,7 @@ export default function TermsPaymentSection({
   showAllErrors = false,
   selectedClientMsa,
   client,
+  onClientChange,
   agency,
   msaSource = null,
   autoFilledFields = new Set(),
@@ -362,6 +364,16 @@ export default function TermsPaymentSection({
                           {value.terms || value.notes || "No specific notes applied."}
                         </p>
                       </div>
+
+                      <div className="space-y-1 sm:border-l sm:border-[color:var(--border-subtle)] sm:pl-4">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Revision Policy</p>
+                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                          {client.freeRevisionRounds || 2} rounds included
+                        </p>
+                        <p className="text-[11px] text-[color:var(--text-muted)]">
+                          +{client.extraRevisionFeePercent || 15}% per round
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
                 ) : (
@@ -548,6 +560,59 @@ export default function TermsPaymentSection({
                           "min-h-[80px]",
                         )}
                        />
+                    </div>
+
+                    {/* Revision Policy */}
+                    <div className={cn("space-y-4", isReadOnly && "opacity-70")}>
+                      <label className={appFieldLabelClass}>
+                        <span className="flex items-center gap-1.5">
+                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
+                          Revision Policy
+                        </span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1 block">
+                            Free Rounds
+                          </label>
+                          <input
+                            type="number"
+                            readOnly={isReadOnly}
+                            tabIndex={isReadOnly ? -1 : 0}
+                            value={client.freeRevisionRounds ?? 2}
+                            onChange={(e) => {
+                              if (onClientChange) {
+                                onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
+                              }
+                            }}
+                            className={cn(
+                              inputClass(undefined, true),
+                              isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
+                            )}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1 block">
+                            Extra Fee %
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            readOnly={isReadOnly}
+                            tabIndex={isReadOnly ? -1 : 0}
+                            value={client.extraRevisionFeePercent ?? 15}
+                            onChange={(e) => {
+                              if (onClientChange) {
+                                onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
+                              }
+                            }}
+                            className={cn(
+                              inputClass(undefined, true),
+                              isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
+                            )}
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="pt-4 border-t border-[color:var(--border-subtle)]">

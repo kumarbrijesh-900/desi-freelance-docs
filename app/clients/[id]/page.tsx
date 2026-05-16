@@ -245,6 +245,8 @@ export default function ClientDetailPage() {
     "Standard Lance MSA v1.2",
   );
   const [msaNotesBoilerplate, setMsaNotesBoilerplate] = useState("");
+  const [freeRevisionRounds, setFreeRevisionRounds] = useState(2);
+  const [extraRevisionFeePercent, setExtraRevisionFeePercent] = useState(15);
 
   useEffect(() => {
     async function init() {
@@ -280,6 +282,8 @@ export default function ClientDetailPage() {
         setMsaJurisdictionCity(c.msa_jurisdiction_city);
         setMsaVersionLabel(c.msa_version_label);
         setMsaNotesBoilerplate(c.msa_notes_boilerplate || "");
+        setFreeRevisionRounds(c.free_revision_rounds ?? 2);
+        setExtraRevisionFeePercent(c.extra_revision_fee_percent ?? 15);
       }
       setMsas(msaRes.data);
       setIsLoading(false);
@@ -315,6 +319,8 @@ export default function ClientDetailPage() {
       msaJurisdictionCity,
       msaVersionLabel,
       msaNotesBoilerplate: msaNotesBoilerplate.trim() || undefined,
+      freeRevisionRounds: Number(freeRevisionRounds),
+      extraRevisionFeePercent: Number(extraRevisionFeePercent),
     };
 
     const { data, error } = await upsertClient(details, client.id);
@@ -632,6 +638,33 @@ export default function ClientDetailPage() {
                       />
                     </div>
 
+                    {/* Revision Policy */}
+                    <div>
+                      <label className={appFieldLabelClass}>Free Rounds</label>
+                      <input
+                        type="number"
+                        value={freeRevisionRounds}
+                        onChange={(e) =>
+                          setFreeRevisionRounds(Number(e.target.value))
+                        }
+                        className={fc({ hasValue: true })}
+                      />
+                    </div>
+                    <div>
+                      <label className={appFieldLabelClass}>
+                        Extra Fee Per Round (%)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={extraRevisionFeePercent}
+                        onChange={(e) =>
+                          setExtraRevisionFeePercent(Number(e.target.value))
+                        }
+                        className={fc({ hasValue: true })}
+                      />
+                    </div>
+
                     {/* Boilerplate / Notes */}
                     <div className="sm:col-span-2 lg:col-span-4 mt-2">
                       <div className="flex items-center justify-between mb-1.5">
@@ -662,7 +695,9 @@ export default function ClientDetailPage() {
                             const unitLabel =
                               unitLabels[msaLateFeeUnit] || unitLabels.monthly;
 
-                            const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}.`;
+                            const revisionClause = `The quoted fee includes up to ${freeRevisionRounds} rounds of revisions. Any additional rounds will incur a surcharge of ${extraRevisionFeePercent}% per round.`;
+
+                            const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}. ${revisionClause}`;
 
                             setMsaNotesBoilerplate(template);
                           }}

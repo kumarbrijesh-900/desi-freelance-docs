@@ -118,6 +118,8 @@ export default function ClientDetailsSection({
       msaIpTriggerType: details.msaIpTriggerType || agency?.msaIpTriggerType || SNIPER_DEFAULTS.msaIpTriggerType,
       msaLicenseType: details.msaLicenseType || agency?.msaLicenseType || SNIPER_DEFAULTS.msaLicenseType,
       msaJurisdictionCity: details.msaJurisdictionCity || agency?.city || "",
+      freeRevisionRounds: details.freeRevisionRounds || agency?.freeRevisionRounds || 2,
+      extraRevisionFeePercent: details.extraRevisionFeePercent || agency?.extraRevisionFeePercent || 15,
     };
   };
 
@@ -238,7 +240,8 @@ export default function ClientDetailsSection({
     const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
     const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
     const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
-    const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
+    const revisionClause = `The quoted fee includes up to ${value.freeRevisionRounds || 2} rounds of revisions. Any additional rounds will incur a surcharge of ${value.extraRevisionFeePercent || 15}% per round.`;
+    const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}. ${revisionClause}`;
     updateField("msaNotesBoilerplate", template);
   };
 

@@ -74,6 +74,14 @@ export function syncMsaToInvoice(
       }
     }
 
+    // Add Revision Policy if specified
+    if (client.freeRevisionRounds !== undefined && client.extraRevisionFeePercent !== undefined) {
+      const revisionClause = `The quoted fee includes up to ${client.freeRevisionRounds} rounds of revisions. Any additional rounds will incur a surcharge of ${client.extraRevisionFeePercent}% per round.`;
+      if (!finalNotes.includes("rounds of revisions")) {
+        finalNotes += `\n\n${revisionClause}`;
+      }
+    }
+
     // Append MSA Reference Label for legal tracking
     if (client.msaVersionLabel) {
       const referenceText = `\n\nGoverned by Agreement: ${client.msaVersionLabel}`;

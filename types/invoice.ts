@@ -108,6 +108,9 @@ export interface AgencyDetails {
   msaVersionLabel?: string;
   msaNotesBoilerplate?: string;
   msaLicenseType?: LicenseType | "";
+  primaryService?: string;
+  freeRevisionRounds?: number;
+  extraRevisionFeePercent?: number;
 }
 
 export interface ClientDetails {
@@ -141,6 +144,8 @@ export interface ClientDetails {
   msaVersionLabel?: string;
   msaNotesBoilerplate?: string;
   msaLicenseType?: LicenseType | "";
+  freeRevisionRounds?: number;
+  extraRevisionFeePercent?: number;
 }
 
 export interface InvoiceMeta {
@@ -260,6 +265,8 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     msaIpTriggerType: "upon_full_payment",
     msaLicenseType: "full-assignment",
     msaJurisdictionCity: "",
+    freeRevisionRounds: 2,
+    extraRevisionFeePercent: 15,
   },
   meta: {
     invoiceNumber: "",

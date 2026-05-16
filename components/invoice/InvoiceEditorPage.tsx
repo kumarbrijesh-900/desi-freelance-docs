@@ -2332,6 +2332,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           clientLocation={formData.client.clientLocation}
           onChange={(payment) => updateFormSection("payment", payment)}
           onMetaChange={handleMetaChange}
+          onClientChange={(client) => updateFormSection("client", client)}
           selectedClientMsa={selectedClientMsa}
           msaSource={msaSource as any}
           errors={{

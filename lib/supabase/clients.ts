@@ -45,6 +45,8 @@ export interface SavedClient {
   msa_jurisdiction_city: string;
   msa_version_label: string;
   msa_notes_boilerplate: string | null;
+  free_revision_rounds: number;
+  extra_revision_fee_percent: number;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +81,8 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     msaJurisdictionCity: c.msa_jurisdiction_city,
     msaVersionLabel: c.msa_version_label,
     msaNotesBoilerplate: c.msa_notes_boilerplate || undefined,
+    freeRevisionRounds: c.free_revision_rounds,
+    extraRevisionFeePercent: c.extra_revision_fee_percent,
   };
 }
 
@@ -111,6 +115,8 @@ export function clientDetailsToRow(
     msa_jurisdiction_city: details.msaJurisdictionCity || "Bangalore",
     msa_version_label: details.msaVersionLabel || "Standard Lance MSA v1.2",
     msa_notes_boilerplate: details.msaNotesBoilerplate || null,
+    free_revision_rounds: details.freeRevisionRounds ?? 2,
+    extra_revision_fee_percent: details.extraRevisionFeePercent ?? 15,
     updated_at: new Date().toISOString(),
   };
 }

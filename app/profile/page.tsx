@@ -133,6 +133,9 @@ export default function ProfilePage() {
   const [swiftBicCode, setSwiftBicCode] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [signatureUrl, setSignatureUrl] = useState("");
+  const [primaryService, setPrimaryService] = useState("");
+  const [freeRevisionRounds, setFreeRevisionRounds] = useState(2);
+  const [extraRevisionFeePercent, setExtraRevisionFeePercent] = useState(15);
 
   // MSA Defaults
   const [msaPaymentTermsDays, setMsaPaymentTermsDays] = useState(20);
@@ -211,7 +214,10 @@ export default function ProfilePage() {
         setMsaLateFeeRate(profile.msa_late_fee_rate ?? 1.5);
         setMsaLateFeeUnit((profile.msa_late_fee_unit as any) || "monthly");
         setMsaIpTriggerType(profile.msa_ip_trigger_type || "upon_full_payment");
-        setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bangalore");
+        setMsaJurisdictionCity(profile.msa_jurisdiction_city || "Bengaluru");
+        setPrimaryService(profile.primary_service || "");
+        setFreeRevisionRounds(profile.free_revision_rounds ?? 2);
+        setExtraRevisionFeePercent(profile.extra_revision_fee_percent ?? 15);
       }
 
       // Load global MSA
@@ -568,6 +574,9 @@ export default function ProfilePage() {
         msaLateFeeUnit,
         msaIpTriggerType: msaIpTriggerType as AgencyDetails["msaIpTriggerType"],
         msaJurisdictionCity,
+        primaryService,
+        freeRevisionRounds,
+        extraRevisionFeePercent,
       };
 
       const payment: Partial<PaymentDetails> = {
@@ -770,6 +779,49 @@ export default function ProfilePage() {
                           placeholder="e.g. Ashok Creative Studio"
                           className={fc({ hasValue: Boolean(agencyName) })}
                         />
+                      </FieldRow>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <FieldRow label="PRIMARY SERVICE">
+                        <select
+                          value={primaryService}
+                          onChange={updateVal(setPrimaryService)}
+                          className={fc({
+                            hasValue: Boolean(primaryService),
+                            isSelect: true,
+                          })}
+                        >
+                          <option value="">Select your primary service...</option>
+                          <option value="Logo Design">Logo Design</option>
+                          <option value="Branding & Identity">
+                            Branding & Identity
+                          </option>
+                          <option value="Graphic Design">Graphic Design</option>
+                          <option value="Illustration">Illustration</option>
+                          <option value="UI/UX Design">UI/UX Design</option>
+                          <option value="Animation">Animation</option>
+                          <option value="Motion Graphics">Motion Graphics</option>
+                          <option value="Photography">Photography</option>
+                          <option value="Videography">Videography</option>
+                          <option value="Video Editing">Video Editing</option>
+                          <option value="Social Media Content">
+                            Social Media Content
+                          </option>
+                          <option value="Packaging Design">Packaging Design</option>
+                          <option value="Print Design">Print Design</option>
+                          <option value="Infographics & Presentation Design">
+                            Infographics & Presentation Design
+                          </option>
+                          <option value="Architecture & Interior Design">
+                            Architecture & Interior Design
+                          </option>
+                          <option value="Software Development">
+                            Software Development
+                          </option>
+                          <option value="Consulting">Consulting</option>
+                          <option value="Other">Other</option>
+                        </select>
                       </FieldRow>
                     </div>
 
@@ -1076,6 +1128,58 @@ export default function ProfilePage() {
                           className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
                         />
                       </FieldRow>
+                    </div>
+                  </div>
+                </MotionReveal>
+
+                <MotionReveal preset="fade-up" delay={7}>
+                  <div className={getAppPanelClass()}>
+                    <SectionLabel
+                      title="Revision Policy"
+                      description="Default limits and fees for revision rounds."
+                    />
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FieldRow label="Free Revision Rounds">
+                        <input
+                          type="number"
+                          value={freeRevisionRounds}
+                          onChange={(e) => {
+                            setFreeRevisionRounds(Number(e.target.value));
+                            setIsDirty(true);
+                          }}
+                          className={fc({ hasValue: true })}
+                        />
+                      </FieldRow>
+
+                      <FieldRow label="Extra Revision Fee (%)">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={extraRevisionFeePercent}
+                            onChange={(e) => {
+                              setExtraRevisionFeePercent(Number(e.target.value));
+                              setIsDirty(true);
+                            }}
+                            className={fc({ hasValue: true })}
+                          />
+                          <span className="text-[13px] font-bold text-[color:var(--text-muted)]">
+                            %
+                          </span>
+                        </div>
+                      </FieldRow>
+                    </div>
+
+                    <div className="mt-6 border-l-4 border-[#BEFF00] bg-[color:var(--bg-surface-soft)] p-4">
+                      <p className="text-[12px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)] mb-1">
+                        Preview Clause
+                      </p>
+                      <p className="text-[13px] italic text-[color:var(--text-primary)]">
+                        &quot;The quoted fee includes up to {freeRevisionRounds}{" "}
+                        rounds of revisions. Any additional rounds will incur a
+                        surcharge of {extraRevisionFeePercent}% per round.&quot;
+                      </p>
                     </div>
                   </div>
                 </MotionReveal>
