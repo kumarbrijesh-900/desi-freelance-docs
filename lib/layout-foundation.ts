@@ -37,7 +37,7 @@ export const appPrimaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-8";
 export const appSecondaryPaneClass = "col-span-4 sm:col-span-8 lg:col-span-4";
 
 export const appCardClass =
-  "rounded-[var(--app-radius-card)] border border-[color:var(--app-color-border)] bg-[color:var(--app-color-surface)] p-6 shadow-[var(--app-elevation-soft)] backdrop-blur-sm";
+  "rounded-[var(--app-radius-card)] border-2 border-[#111118] bg-[color:var(--app-color-surface)] p-6 shadow-[var(--brutal-shadow-sm)]";
 
 export const appSectionGapClass = "space-y-6";
 
