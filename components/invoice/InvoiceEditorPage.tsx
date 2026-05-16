@@ -2318,6 +2318,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
           isGuestMode={isGuestMode}
+          freeRevisionRounds={formData.client.freeRevisionRounds}
+          extraRevisionFeePercent={formData.client.extraRevisionFeePercent}
         />
       );
     case "payment":

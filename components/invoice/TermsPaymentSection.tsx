@@ -563,17 +563,11 @@ export default function TermsPaymentSection({
                     </div>
 
                     {/* Revision Policy */}
-                    <div className={cn("space-y-4", isReadOnly && "opacity-70")}>
-                      <label className={appFieldLabelClass}>
-                        <span className="flex items-center gap-1.5">
-                          {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]" />}
-                          Revision Policy
-                        </span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1 block">
-                            Free Rounds
+                    <div className={cn("space-y-6", isReadOnly && "opacity-70")}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]">
+                            FREE ROUNDS
                           </label>
                           <input
                             type="number"
@@ -585,19 +579,13 @@ export default function TermsPaymentSection({
                                 onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                               }
                             }}
-                            className={cn(
-                              inputClass(undefined, true),
-                              isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
-                            )}
+                            className="w-full border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
                           />
                         </div>
-                        <div>
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1 block">
+                        <div className="flex flex-col">
+                          <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]">
                             EXTRA FEE PER ROUND (% OF LINE ITEM)
                           </label>
-                          <p className="text-[9px] text-[color:var(--text-soft)] mb-1 leading-tight">
-                            Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
-                          </p>
                           <input
                             type="number"
                             step="0.1"
@@ -609,13 +597,13 @@ export default function TermsPaymentSection({
                                 onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                               }
                             }}
-                            className={cn(
-                              inputClass(undefined, true),
-                              isReadOnly && "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed border-[color:var(--border-subtle)] shadow-none",
-                            )}
+                            className="w-full border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
                           />
                         </div>
                       </div>
+                      <p className="text-[11px] text-[color:var(--text-muted)] mt-3 leading-relaxed">
+                        Applied per line item within a milestone. Example: A ₹10,000 deliverable gets 2 free revision rounds. Round 3 onward costs ₹1,500 per round. Other line items in the same milestone are unaffected.
+                      </p>
                     </div>
 
                     <div className="pt-4 border-t border-[color:var(--border-subtle)]">
@@ -637,7 +625,7 @@ export default function TermsPaymentSection({
                           </div>
 
                           <div className={cn(
-                            "flex overflow-hidden border border-[color:var(--border-subtle)] w-fit bg-white",
+                            "flex flex-wrap gap-2",
                             isReadOnly && "opacity-60 pointer-events-none"
                           )}>
                             <button
@@ -647,10 +635,9 @@ export default function TermsPaymentSection({
                                 updateLicenseField("isLicenseIncluded", true);
                               }}
                               className={cn(
-                                "px-6 py-1.5 text-[13px] font-medium border-r border-[color:var(--border-subtle)] transition-colors",
                                 value.license.isLicenseIncluded
-                                  ? "bg-[#111] text-white"
-                                  : "bg-white text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)]"
+                                  ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               Yes
@@ -662,10 +649,9 @@ export default function TermsPaymentSection({
                                 onChange({ ...value, license: { isLicenseIncluded: false, licenseType: "", licenseDuration: "" } });
                               }}
                               className={cn(
-                                "px-6 py-1.5 text-[13px] font-medium transition-colors",
                                 !value.license.isLicenseIncluded
-                                  ? "bg-[#111] text-white"
-                                  : "bg-white text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-soft)]"
+                                  ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               No
@@ -684,15 +670,26 @@ export default function TermsPaymentSection({
                                       License Type *
                                     </span>
                                   </label>
-                                  <div className={isReadOnly ? "opacity-60 pointer-events-none" : ""}>
-                                    <ChoiceCards
-                                      name="license-type"
-                                      value={value.license.licenseType}
-                                      disabled={isReadOnly}
-                                      onChange={(nextValue) => updateLicenseField("licenseType", nextValue as any)}
-                                      variant="inline"
-                                      options={[{ label: "Full assignment", value: "full-assignment" }, { label: "Exclusive", value: "exclusive-license" }, { label: "Non-exclusive", value: "non-exclusive-license" }]}
-                                     />
+                                  <div className={cn("flex flex-wrap gap-2", isReadOnly && "opacity-60 pointer-events-none")}>
+                                    {[
+                                      { label: "Full assignment", value: "full-assignment" },
+                                      { label: "Exclusive", value: "exclusive-license" },
+                                      { label: "Non-exclusive", value: "non-exclusive-license" }
+                                    ].map((opt) => (
+                                      <button
+                                        key={opt.value}
+                                        type="button"
+                                        disabled={isReadOnly}
+                                        onClick={() => updateLicenseField("licenseType", opt.value as any)}
+                                        className={cn(
+                                          value.license.licenseType === opt.value
+                                            ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                            : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                        )}
+                                      >
+                                        {opt.label}
+                                      </button>
+                                    ))}
                                   </div>
                                 </div>
 

@@ -44,6 +44,8 @@ interface DeliverablesSectionProps {
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
   isGuestMode?: boolean;
+  freeRevisionRounds?: number;
+  extraRevisionFeePercent?: number;
 }
 
 
@@ -70,6 +72,8 @@ export default function DeliverablesSection({
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
   isGuestMode = false,
+  freeRevisionRounds = 2,
+  extraRevisionFeePercent = 15,
 }: DeliverablesSectionProps) {
   const createDefaultLineItem = useCallback((): InvoiceLineItem => {
     return {
@@ -164,6 +168,14 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
+        {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
+          <div className="flex items-center gap-2 border-2 border-[color:var(--border-subtle)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
+            <span className="text-[12px]">📎</span>
+            <p className="text-[11px] font-medium text-[color:var(--text-secondary)]">
+              Revision policy: <strong>{freeRevisionRounds}</strong> free rounds per deliverable. Extra rounds at <strong>{extraRevisionFeePercent}%</strong> of item total.
+            </p>
+          </div>
+        )}
         <AnimatePresence initial={false}>
           {effectiveMilestones.map((milestone, mIdx) => {
             const milestoneSubtotal = milestone.lineItems.reduce(
