@@ -25,7 +25,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <Link
       href={href}
       className={cn(
-        "text-[12px] font-bold uppercase tracking-[0.06em] transition-colors duration-100",
+        "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne",
         isActive
           ? "text-[#BEFF00]"
           : "text-[#9999A8] hover:text-white",
@@ -190,7 +190,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
               <span className="flex h-7 w-7 items-center justify-center border-2 border-[#BEFF00] bg-[#BEFF00] text-[12px] font-black text-[#111118]">
                 L
               </span>
-              <span className="text-[15px] font-black tracking-[0.04em] uppercase text-white">
+              <span className="text-[16px] font-extrabold tracking-[0.15em] uppercase text-white font-syne">
                 Lance
               </span>
             </Link>
