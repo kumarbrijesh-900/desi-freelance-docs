@@ -70,6 +70,22 @@ export interface TemplatePickerProps {
   layout?: "vertical" | "horizontal";
 }
 
+/* ─── Descriptions ──────────────────────────────────── */
+
+const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
+  classic: "Clean black and white",
+  editorial: "Magazine-style layout",
+  "neon-atelier": "Bold blue headers",
+  midnight: "Dark purple theme",
+  terracotta: "Warm earthy tones",
+  "swiss-grid": "Red accents, structured",
+  mono: "Minimal with green",
+  sakura: "Soft pink Japanese",
+  brutalist: "Raw and bold",
+  ledger: "Traditional accounting",
+  coastal: "Ocean blue calm",
+};
+
 /* ─── Mini Invoice Thumbnail ──────────────────────── */
 
 function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
@@ -222,13 +238,16 @@ function ThumbnailCard({
       {/* Label — compact */}
       <div className="px-1.5 py-1.5">
         <p
-          className={`text-[10px] font-semibold leading-tight ${
+          className={`text-[10px] font-bold leading-tight uppercase ${
             isSelected
-              ? "text-[color:var(--color-lime-700)]"
+              ? "text-[#111118]"
               : "text-[color:var(--text-primary)]"
           }`}
         >
           {template.name}
+        </p>
+        <p className="text-[10px] text-[color:var(--text-muted)] mt-0.5">
+          {TEMPLATE_DESCRIPTIONS[template.id] || "Professional layout"}
         </p>
       </div>
     </button>
