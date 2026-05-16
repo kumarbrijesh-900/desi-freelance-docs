@@ -368,10 +368,10 @@ export default function TermsPaymentSection({
                       <div className="space-y-1 sm:border-l sm:border-[color:var(--border-subtle)] sm:pl-4">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Revision Policy</p>
                         <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
-                          {client.freeRevisionRounds || 2} rounds included
+                          {client.freeRevisionRounds || 2} rounds included per deliverable
                         </p>
                         <p className="text-[11px] text-[color:var(--text-muted)]">
-                          +{client.extraRevisionFeePercent || 15}% per round
+                          +{client.extraRevisionFeePercent || 15}% of line item per extra round
                         </p>
                       </div>
                     </div>
@@ -593,8 +593,11 @@ export default function TermsPaymentSection({
                         </div>
                         <div>
                           <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-1 block">
-                            Extra Fee %
+                            EXTRA FEE PER ROUND (% OF LINE ITEM)
                           </label>
+                          <p className="text-[9px] text-[color:var(--text-soft)] mb-1 leading-tight">
+                            Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
+                          </p>
                           <input
                             type="number"
                             step="0.1"

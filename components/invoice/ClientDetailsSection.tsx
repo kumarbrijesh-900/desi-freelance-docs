@@ -240,7 +240,7 @@ export default function ClientDetailsSection({
     const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
     const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
     const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
-    const revisionClause = `The quoted fee includes up to ${value.freeRevisionRounds || 2} rounds of revisions. Any additional rounds will incur a surcharge of ${value.extraRevisionFeePercent || 15}% per round.`;
+    const revisionClause = `The quoted fee includes up to ${value.freeRevisionRounds || 2} rounds of revisions per deliverable. Each additional round beyond the included ${value.freeRevisionRounds || 2} will incur a surcharge of ${value.extraRevisionFeePercent || 15}% of that specific line item's total.`;
     const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}. ${revisionClause}`;
     updateField("msaNotesBoilerplate", template);
   };

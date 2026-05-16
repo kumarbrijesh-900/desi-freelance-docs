@@ -1152,7 +1152,10 @@ export default function ProfilePage() {
                         />
                       </FieldRow>
 
-                      <FieldRow label="Extra Revision Fee (%)">
+                      <FieldRow
+                        label="EXTRA FEE PER ROUND (% OF LINE ITEM)"
+                        helper="Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected."
+                      >
                         <div className="flex items-center gap-2">
                           <input
                             type="number"
@@ -1176,9 +1179,7 @@ export default function ProfilePage() {
                         Preview Clause
                       </p>
                       <p className="text-[13px] italic text-[color:var(--text-primary)]">
-                        &quot;The quoted fee includes up to {freeRevisionRounds}{" "}
-                        rounds of revisions. Any additional rounds will incur a
-                        surcharge of {extraRevisionFeePercent}% per round.&quot;
+                        &quot;The quoted fee includes up to {freeRevisionRounds} rounds of revisions per deliverable. Each additional round beyond the included {freeRevisionRounds} will incur a surcharge of {extraRevisionFeePercent}% of that specific line item&apos;s total.&quot;
                       </p>
                     </div>
                   </div>

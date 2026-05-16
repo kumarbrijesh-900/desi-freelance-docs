@@ -76,7 +76,7 @@ export function syncMsaToInvoice(
 
     // Add Revision Policy if specified
     if (client.freeRevisionRounds !== undefined && client.extraRevisionFeePercent !== undefined) {
-      const revisionClause = `The quoted fee includes up to ${client.freeRevisionRounds} rounds of revisions. Any additional rounds will incur a surcharge of ${client.extraRevisionFeePercent}% per round.`;
+      const revisionClause = `The quoted fee includes up to ${client.freeRevisionRounds} rounds of revisions per deliverable. Each additional round beyond the included ${client.freeRevisionRounds} will incur a surcharge of ${client.extraRevisionFeePercent}% of that specific line item's total.`;
       if (!finalNotes.includes("rounds of revisions")) {
         finalNotes += `\n\n${revisionClause}`;
       }

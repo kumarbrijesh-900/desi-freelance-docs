@@ -650,10 +650,13 @@ export default function ClientDetailPage() {
                         className={fc({ hasValue: true })}
                       />
                     </div>
-                    <div>
-                      <label className={appFieldLabelClass}>
-                        Extra Fee Per Round (%)
-                      </label>
+                     <div>
+                       <label className={appFieldLabelClass}>
+                         EXTRA FEE PER ROUND (% OF LINE ITEM)
+                       </label>
+                       <p className="text-[10px] text-[color:var(--text-muted)] mb-1">
+                         Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
+                       </p>
                       <input
                         type="number"
                         step="0.1"
@@ -695,7 +698,7 @@ export default function ClientDetailPage() {
                             const unitLabel =
                               unitLabels[msaLateFeeUnit] || unitLabels.monthly;
 
-                            const revisionClause = `The quoted fee includes up to ${freeRevisionRounds} rounds of revisions. Any additional rounds will incur a surcharge of ${extraRevisionFeePercent}% per round.`;
+                             const revisionClause = `The quoted fee includes up to ${freeRevisionRounds} rounds of revisions per deliverable. Each additional round beyond the included ${freeRevisionRounds} will incur a surcharge of ${extraRevisionFeePercent}% of that specific line item's total.`;
 
                             const template = `Payment is due within ${msaPaymentTermsDays ?? 20} days. A late fee of ${msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client ${ipLabel}. ${revisionClause}`;
 
