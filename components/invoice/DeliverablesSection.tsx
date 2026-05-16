@@ -330,12 +330,12 @@ function LineItemCard({
   const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
-    <div className="group relative border border-gray-200 bg-white p-4 transition-all hover:border-gray-400 hover:shadow-sm">
+    <div className="group relative border-2 border-[#111118] bg-white p-4 transition-all hover:shadow-[var(--brutal-shadow-sm)]">
       {/* Delete button */}
       <button
         type="button"
         onClick={onRemove}
-        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 shadow-sm transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-500 lg:opacity-0 lg:group-hover:opacity-100"
+        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center bg-white border-2 border-[#111118] text-gray-400 shadow-[var(--brutal-shadow-pressed)] transition-all hover:border-[#FF5C00] hover:bg-[#FFF0EC] hover:text-[#FF5C00] lg:opacity-0 lg:group-hover:opacity-100"
       >
         ×
       </button>
@@ -344,6 +344,9 @@ function LineItemCard({
         {/* Row 1: Type & SAC */}
         <div className="flex flex-col gap-1.5">
           <div className="min-w-[200px] w-full md:w-fit">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
+              Item Type
+            </label>
             <AppSelectField
               value={item.type}
               onChange={(e) => {
@@ -378,7 +381,7 @@ function LineItemCard({
 
         {/* Row 2: Description */}
         <div className="relative">
-          <label className="sr-only">
+          <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
             Description
             {autoFilledFields.has(`deliverables.${itemIndex}.description`) && (
               <span className="autofill-indicator">auto-filled</span>
@@ -410,7 +413,7 @@ function LineItemCard({
             }}
           />
           {showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-[var(--brutal-shadow-lg)] py-1 overflow-y-auto max-h-60 ring-1 ring-black/5">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border-2 border-[#111118] shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s) => (
                 <button
                   key={s}
@@ -421,7 +424,7 @@ function LineItemCard({
                     onUpdate({ description: s });
                     setActiveDescriptionId(null);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-xs hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-[#BEFF00] hover:text-[#111118] transition-colors"
                 >
                   {s}
                 </button>
@@ -434,7 +437,15 @@ function LineItemCard({
         <div className="flex flex-wrap items-end gap-3 sm:gap-4">
           <div className="w-full flex-[1_1_80px] sm:w-[80px] sm:flex-none">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
-              Qty
+              {item.rateUnit === 'per-hour' ? 'Hours'
+               : item.rateUnit === 'per-day' ? 'Days'
+               : item.rateUnit === 'per-screen' ? 'Screens'
+               : item.rateUnit === 'per-revision' ? 'Revisions'
+               : item.rateUnit === 'per-video' ? 'Videos'
+               : item.rateUnit === 'per-image' ? 'Images'
+               : item.rateUnit === 'per-post' ? 'Posts'
+               : item.rateUnit === 'per-concept' ? 'Concepts'
+               : 'Qty'}
               {autoFilledFields.has(`deliverables.${itemIndex}.quantity`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
               )}
@@ -458,7 +469,7 @@ function LineItemCard({
 
           <div className="w-full flex-[2_1_140px] sm:w-[160px] sm:flex-none">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block ml-0.5">
-              Rate
+              Rate{item.rateUnit ? ` / ${invoiceRateUnitLabels[item.rateUnit]?.replace('Per ', '') || ''}` : ''}
               {autoFilledFields.has(`deliverables.${itemIndex}.rate`) && (
                 <span className="autofill-indicator ml-1">auto-filled</span>
               )}
@@ -517,11 +528,33 @@ function LineItemCard({
           </div>
 
           <div className="w-full sm:w-auto sm:ml-auto pb-2 text-right">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-tight mb-1.5 block">
+              Total
+            </label>
             <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
               {formatCurrency(total, currency)}
             </p>
           </div>
         </div>
+
+        {/* Contextual helper strip */}
+        {total > 0 && item.rateUnit && (
+          <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-400">
+            <span className="inline-block w-1 h-1 bg-gray-300" />
+            <span>
+              {item.rateUnit === 'per-hour' && Number(item.qty) > 0
+                ? `${item.qty} hours × ${formatCurrency(Number(item.rate), currency)}/hr = ${formatCurrency(total, currency)}`
+                : item.rateUnit === 'per-day' && Number(item.qty) > 0
+                ? `${item.qty} days × ${formatCurrency(Number(item.rate), currency)}/day = ${formatCurrency(total, currency)}`
+                : item.rateUnit === 'per-screen' && Number(item.qty) > 0
+                ? `${item.qty} screens × ${formatCurrency(Number(item.rate), currency)}/screen = ${formatCurrency(total, currency)}`
+                : item.rateUnit === 'per-video' && Number(item.qty) > 0
+                ? `${item.qty} videos × ${formatCurrency(Number(item.rate), currency)}/video = ${formatCurrency(total, currency)}`
+                : `${item.qty} × ${formatCurrency(Number(item.rate), currency)} = ${formatCurrency(total, currency)}`
+              }
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
