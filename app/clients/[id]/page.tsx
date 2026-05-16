@@ -180,7 +180,7 @@ function MsaCard({
       </div>
 
       {msa.content && (
-        <div className="mt-3 max-h-32 overflow-hidden rounded-md border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-2">
+        <div className="mt-3 max-h-32 overflow-hidden border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-2">
           <p className="line-clamp-4 whitespace-pre-wrap text-[12px] leading-5 text-[color:var(--text-secondary)]">
             {msa.content}
           </p>

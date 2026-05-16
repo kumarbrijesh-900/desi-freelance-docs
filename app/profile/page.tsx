@@ -363,7 +363,7 @@ export default function ProfilePage() {
         <FieldRow label={label} helper={helper}>
           <div className="mt-1">
             {value ? (
-              <div className="flex items-center justify-between rounded-md bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+              <div className="flex items-center justify-between bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
                     <img
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-[color:var(--border-subtle)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--bg-surface-soft)] disabled:opacity-50"
+                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--border-subtle)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--bg-surface-soft)] disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
@@ -480,10 +480,10 @@ export default function ProfilePage() {
 
         {/* Cropper Modal */}
         {cropModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
             <MotionReveal
               preset="fade-up"
-              className="w-full max-w-2xl overflow-hidden rounded-2xl bg-[color:var(--bg-surface)] shadow-2xl"
+              className="w-full max-w-2xl overflow-hidden bg-[color:var(--bg-surface)] shadow-[var(--brutal-shadow-lg)]"
             >
               <div className="border-b border-[color:var(--border-subtle)] p-4 flex justify-between items-center bg-[color:var(--bg-surface-soft)]">
                 <h3 className="font-bold text-[color:var(--text-primary)]">
@@ -741,7 +741,7 @@ export default function ProfilePage() {
             </div>
 
             {(!agencyName || !addressLine1 || !agencyState || !accountNumber) && (
-              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+              <div className="mb-6 border border-amber-200 bg-amber-50 p-4 shadow-sm">
                 <div className="flex gap-3">
                   <span className="text-amber-600 text-lg">⚠️</span>
                   <div>
@@ -1215,7 +1215,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#bfff00] px-6 py-2.5 text-sm font-bold text-black shadow-sm hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 bg-[#bfff00] px-6 py-2.5 text-sm font-bold text-black shadow-sm hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

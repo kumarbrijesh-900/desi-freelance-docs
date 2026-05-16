@@ -67,13 +67,13 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40"
         onClick={onClose}
       />
 
       <MotionReveal
         preset="fade-up"
-        className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="relative w-full max-w-md overflow-hidden bg-white shadow-[var(--brutal-shadow-lg)]"
       >
         {isSuccess ? (
           <div className="p-10 text-center">
@@ -163,7 +163,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               </div>
 
               {error && (
-                <p className="text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+                <p className="text-xs text-red-600 bg-red-50 p-3 border border-red-100">
                   {error}
                 </p>
               )}
@@ -172,7 +172,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 h-11 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="flex-1 h-11 font-bold text-gray-600 hover:bg-gray-100 transition-colors"
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -181,7 +181,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   type="submit"
                   disabled={isSubmitting || !message.trim()}
                   className={cn(
-                    "flex-[2] h-11 rounded-xl font-bold transition-all duration-200 shadow-sm",
+                    "flex-[2] h-11 font-bold transition-all duration-200 shadow-sm",
                     "bg-[color:var(--color-lime-300)] text-[#111118] hover:shadow-lg disabled:opacity-50",
                   )}
                 >

@@ -360,14 +360,14 @@ export default function AgencyDetailsSection({
                           {panError ? (
                             <p className={appFieldErrorTextClass}>{panError}</p>
                           ) : panConflictWarning ? (
-                            <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                            <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                               {panConflictWarning}
                             </p>
                           ) : null}
                         </div>
                       </div>
 
-                      <div className="space-y-4 rounded-xl bg-[color:var(--bg-surface-muted)]/40 p-4 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                      <div className="space-y-4 bg-[color:var(--bg-surface-muted)]/40 p-4 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1.5">
@@ -476,7 +476,7 @@ export default function AgencyDetailsSection({
                       {panError ? (
                         <p className={appFieldErrorTextClass}>{panError}</p>
                       ) : panConflictWarning ? (
-                        <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                        <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                           {panConflictWarning}
                         </p>
                       ) : null}
@@ -534,9 +534,9 @@ export default function AgencyDetailsSection({
               <div className="space-y-2">
                 <label className={appFieldLabelClass}>Agency Logo</label>
                 {value.logoUrl ? (
-                  <div className="flex items-center justify-between rounded-xl bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                  <div className="flex items-center justify-between bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 shadow-sm ring-1 ring-gray-200">
+                      <div className="flex h-10 w-10 items-center justify-center bg-white p-1 shadow-sm ring-1 ring-gray-200">
                         <img
                           src={value.logoUrl}
                           alt="Logo"
@@ -581,7 +581,7 @@ export default function AgencyDetailsSection({
                     </button>
                   </div>
                 ) : (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-gray-300 bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
                     <input
                       type="file"
                       accept="image/*"
@@ -769,7 +769,7 @@ export default function AgencyDetailsSection({
                 <p className={appFieldErrorTextClass}>{agencyStateError}</p>
               ) : null}
               {stateSignals.warning ? (
-                <p className="mt-2 rounded-lg bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   {stateSignals.warning}
                 </p>
               ) : null}

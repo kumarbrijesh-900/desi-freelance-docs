@@ -81,9 +81,9 @@ export default function MSAAcceptanceModal({
 
   if (mode === "success") {
     return (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md px-4 py-6">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
         <MotionReveal preset="fade-up" className="w-full max-w-md">
-          <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-2xl">
+          <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-[var(--brutal-shadow-lg)]">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
@@ -103,9 +103,9 @@ export default function MSAAcceptanceModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md px-4 py-6 overflow-y-auto">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white shadow-2xl overflow-hidden">
+        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* Header */}
           <div className="border-b border-[color:var(--border-subtle)] bg-gradient-to-r from-[color:var(--color-lime-50)] to-white px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
@@ -186,7 +186,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 rounded-xl border border-[color:var(--border-default)] bg-white p-4 text-sm focus:border-[color:var(--color-lime-500)] outline-none transition-colors resize-none shadow-inner"
+                    className="w-full h-40 border border-[color:var(--border-default)] bg-white p-4 text-sm focus:border-[color:var(--color-lime-500)] outline-none transition-colors resize-none shadow-inner"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--text-muted)] italic">

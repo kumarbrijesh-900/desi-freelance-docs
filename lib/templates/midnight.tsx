@@ -89,7 +89,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             )}
           </div>
 
-          <div className="shrink-0 rounded-lg bg-[#F0F0F5]/10 px-4 py-3 text-right print:bg-[#e8e8f0]">
+          <div className="shrink-0 bg-[#F0F0F5]/10 px-4 py-3 text-right print:bg-[#e8e8f0]">
             <p className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">
               Invoice
             </p>
@@ -330,7 +330,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
               </span>
             </div>
           </div>
-          <div className="mt-3 rounded-lg bg-gradient-to-br from-[#6C63FF] to-[#5548D9] px-4 py-3 text-right text-white print:bg-[#e8e8f0] print:text-[#111]">
+          <div className="mt-3 bg-gradient-to-br from-[#6C63FF] to-[#5548D9] px-4 py-3 text-right text-white print:bg-[#e8e8f0] print:text-[#111]">
             <p className="text-[9px] uppercase tracking-[0.2em] text-white/60 print:text-[#888]">
               Total Due
             </p>

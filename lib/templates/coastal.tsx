@@ -37,7 +37,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
             )}
           </div>
           <div className="text-right">
-            <div className="inline-block bg-[#0369A1] text-white px-4 py-1.5 rounded-md mb-4">
+            <div className="inline-block bg-[#0369A1] text-white px-4 py-1.5 mb-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.15em]">Invoice</p>
             </div>
             <p className="text-[18px] font-bold">{data.invoiceNumber}</p>

@@ -233,8 +233,8 @@ export default function Home() {
               <InteractiveHeroGraphic />
 
               {/* Decorative elements around the graphic */}
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full border border-gray-100 bg-white/50 backdrop-blur-sm shadow-sm" />
-              <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border border-gray-100 bg-white/30 backdrop-blur-sm shadow-sm" />
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full border border-gray-100 bg-white/50 shadow-sm" />
+              <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full border border-gray-100 bg-white/30 shadow-sm" />
             </div>
           </MotionReveal>
         </div>
@@ -249,7 +249,7 @@ export default function Home() {
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
               className="group flex items-start gap-3 rounded-[var(--app-radius-card)] border border-[color:var(--border-subtle)] bg-white px-5 py-4 transition-shadow hover:shadow-[0_4px_16px_rgba(17,17,24,0.05)]"
             >
-              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-lime-50)]">
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center bg-[color:var(--color-lime-50)]">
                 <TrustIcon
                   type={item.icon}
                   className="h-4.5 w-4.5 text-[color:var(--color-lime-600)]"
@@ -297,7 +297,7 @@ export default function Home() {
                   </span>
 
                   <div
-                    className="relative flex h-11 w-11 items-center justify-center rounded-lg"
+                    className="relative flex h-11 w-11 items-center justify-center"
                     style={{
                       background: `color-mix(in srgb, ${feat.accent} 12%, white)`,
                     }}
@@ -418,7 +418,7 @@ export default function Home() {
           <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+                <span className="flex h-7 w-7 items-center justify-center bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
                   L
                 </span>
                 <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">

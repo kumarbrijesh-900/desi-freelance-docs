@@ -78,7 +78,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-[color:var(--bg-app)] flex flex-col items-center justify-center p-6 select-none">
       <div className="w-full max-w-md">
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[color:var(--color-lime-300)] mb-4 shadow-[0_0_20px_rgba(191,255,0,0.3)]">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[color:var(--color-lime-300)] mb-4 shadow-[0_0_20px_rgba(191,255,0,0.3)]">
             <span className="text-xl font-black text-black">L</span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-[color:var(--text-primary)]">

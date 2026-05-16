@@ -133,7 +133,7 @@ export default function PublicInvoiceSharePage({
     return (
       <main className="flex min-h-screen items-center justify-center bg-[color:var(--bg-canvas)]">
         <MotionReveal preset="fade-up">
-          <div className="flex items-center gap-3 rounded-xl border border-[color:var(--border-default)] bg-white p-6 shadow-lg">
+          <div className="flex items-center gap-3 border border-[color:var(--border-default)] bg-white p-6 shadow-lg">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
               <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-secondary)]" />
             </span>
@@ -150,7 +150,7 @@ export default function PublicInvoiceSharePage({
     return (
       <main className="flex min-h-screen items-center justify-center bg-[color:var(--bg-canvas)]">
         <MotionReveal preset="fade-up">
-          <div className="mx-4 max-w-md rounded-xl border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
+          <div className="mx-4 max-w-md border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
             <h1 className="text-xl font-bold text-[color:var(--text-primary)]">
               Invoice Not Found
             </h1>
@@ -192,7 +192,7 @@ export default function PublicInvoiceSharePage({
             rel="noopener noreferrer"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
+            <span className="flex h-7 w-7 items-center justify-center bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
               L
             </span>
             <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
@@ -214,7 +214,7 @@ export default function PublicInvoiceSharePage({
           "mx-auto mb-6 max-w-[210mm] print:hidden",
           isMsaPending && "opacity-20 pointer-events-none"
         )}>
-          <div className="flex items-center justify-between rounded-xl border border-[color:var(--border-default)] bg-white px-6 py-5 shadow-sm">
+          <div className="flex items-center justify-between border border-[color:var(--border-default)] bg-white px-6 py-5 shadow-sm">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
                 Amount Due
@@ -242,7 +242,7 @@ export default function PublicInvoiceSharePage({
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
         {isChildInvoice && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5">
+            <div className="flex items-center gap-2.5 border border-green-200 bg-green-50 px-4 py-2.5">
               <span className="text-green-600 text-sm">✓</span>
               <p className="text-sm text-green-800">
                 <span className="font-semibold">MSA previously accepted</span>
@@ -290,7 +290,7 @@ export default function PublicInvoiceSharePage({
 
         {showAcceptedToast && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center gap-2.5 rounded-xl border border-green-200 bg-green-50 px-5 py-3 shadow-lg">
+            <div className="flex items-center gap-2.5 border border-green-200 bg-green-50 px-5 py-3 shadow-lg">
               <span className="text-green-600 text-base">✓</span>
               <p className="text-sm font-semibold text-green-800">
                 Terms accepted — invoice is now active

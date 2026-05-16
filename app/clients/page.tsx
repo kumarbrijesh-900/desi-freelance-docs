@@ -182,7 +182,7 @@ function ClientForm({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-2xl"
+        className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-[var(--brutal-shadow-lg)]"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 p-6">
@@ -241,12 +241,12 @@ function ClientForm({
 
               <div className="sm:col-span-2">
                 <label className={appFieldLabelClass}>Entity Type</label>
-                <div className="flex p-1 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex p-1 bg-gray-50 border border-gray-200">
                   <button
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
-                      "flex-1 py-1.5 text-[12px] font-bold rounded-md transition-all",
+                      "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "agency"
                         ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
                         : "text-gray-500 hover:text-gray-700",
@@ -258,7 +258,7 @@ function ClientForm({
                     type="button"
                     onClick={() => setClientEntityType("freelancer")}
                     className={cn(
-                      "flex-1 py-1.5 text-[12px] font-bold rounded-md transition-all",
+                      "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "freelancer"
                         ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-gray-200"
                         : "text-gray-500 hover:text-gray-700",
@@ -818,8 +818,8 @@ export default function ClientsPage() {
             <MotionReveal preset="fade-up" delay={10}>
               {clients.length === 0 ? (
                 /* Empty state */
-                <div className="flex flex-col items-center justify-center gap-5 py-16 text-center rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F5F3FF]">
+                <div className="flex flex-col items-center justify-center gap-5 py-16 text-center border border-[color:var(--border-default)] bg-white shadow-sm">
+                  <div className="flex h-14 w-14 items-center justify-center bg-[#F5F3FF]">
                     <svg className="h-7 w-7 text-[#4F46E5]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                     </svg>
@@ -952,14 +952,14 @@ export default function ClientsPage() {
                                   <button
                                     type="button"
                                     onClick={handleDeleteConfirm}
-                                    className="inline-flex h-7 items-center justify-center rounded-md bg-red-500 px-2.5 text-[11px] font-semibold text-white transition-colors hover:bg-red-600"
+                                    className="inline-flex h-7 items-center justify-center bg-red-500 px-2.5 text-[11px] font-semibold text-white transition-colors hover:bg-red-600"
                                   >
                                     Yes
                                   </button>
                                   <button
                                     type="button"
                                     onClick={handleDeleteCancel}
-                                    className="inline-flex h-7 items-center justify-center rounded-md border border-[color:var(--border-subtle)] px-2.5 text-[11px] font-medium text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
+                                    className="inline-flex h-7 items-center justify-center border border-[color:var(--border-subtle)] px-2.5 text-[11px] font-medium text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
                                   >
                                     No
                                   </button>
@@ -969,7 +969,7 @@ export default function ClientsPage() {
                                   <button
                                     type="button"
                                     onClick={() => handleEdit(client)}
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
+                                    className="inline-flex h-7 w-7 items-center justify-center text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
                                     title="Edit"
                                   >
                                     <EditIcon />
@@ -979,7 +979,7 @@ export default function ClientsPage() {
                                     onClick={() =>
                                       handleDeleteRequest(client.id)
                                     }
-                                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                                    className="inline-flex h-7 w-7 items-center justify-center text-[color:var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
                                     title="Delete"
                                   >
                                     <TrashIcon />

@@ -174,7 +174,7 @@ function ThumbnailCard({
       type="button"
       onClick={onSelect}
       className={`
-        group relative flex w-full flex-col overflow-hidden rounded-md border
+        group relative flex w-full flex-col overflow-hidden border
         transition-all duration-200
         ${
           isSelected
@@ -198,7 +198,7 @@ function ThumbnailCard({
         {/* Visitor overlay (blurred) */}
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow">
               <LockIcon className="h-3 w-3 text-gray-500" />
             </div>
           </div>
@@ -207,7 +207,7 @@ function ThumbnailCard({
         {/* Free-tier overlay (visible but locked) */}
         {lockState === "locked" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-black/5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow ring-1 ring-black/5">
               <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
             </div>
           </div>

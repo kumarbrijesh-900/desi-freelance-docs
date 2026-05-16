@@ -135,7 +135,7 @@ export default function SubmitFeedback() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+          <p className="text-sm text-red-600 bg-red-50 p-3 border border-red-100">
             {error}
           </p>
         )}
@@ -144,7 +144,7 @@ export default function SubmitFeedback() {
           type="submit"
           disabled={isSubmitting || !message.trim()}
           className={cn(
-            "w-full h-12 rounded-xl font-bold tracking-tight transition-all duration-200 shadow-sm",
+            "w-full h-12 font-bold tracking-tight transition-all duration-200 shadow-sm",
             "bg-gray-900 text-white hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >

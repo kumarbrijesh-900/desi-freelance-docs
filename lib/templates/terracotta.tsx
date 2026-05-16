@@ -86,7 +86,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             )}
           </div>
 
-          <div className="shrink-0 rounded-lg border border-[#E8D5C4] bg-white px-4 py-3 text-right print:border-[#ddd]">
+          <div className="shrink-0 border border-[#E8D5C4] bg-white px-4 py-3 text-right print:border-[#ddd]">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
               Invoice
             </p>
@@ -162,7 +162,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
               return (
                 <div
                   key={item.id}
-                  className="flex items-end justify-between border-y border-[#E8D5C4] bg-[#FFF8F3] px-4 py-4 rounded-lg"
+                  className="flex items-end justify-between border-y border-[#E8D5C4] bg-[#FFF8F3] px-4 py-4"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C75B39]">
@@ -187,7 +187,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             return (
               <div
                 key={item.id}
-                className="flex items-start justify-between gap-4 rounded-lg border border-[#E8D5C4] border-l-[4px] border-l-[#C75B39] bg-white px-4 py-3 print:border-l-[#999]"
+                className="flex items-start justify-between gap-4 border border-[#E8D5C4] border-l-[4px] border-l-[#C75B39] bg-white px-4 py-3 print:border-l-[#999]"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-semibold text-[#3D2517]">
@@ -305,7 +305,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
                 </span>
               </div>
             </div>
-            <div className="mt-3 rounded-md bg-[#C75B39] px-3 py-2.5 text-right text-white print:bg-[#eee] print:text-[#111]">
+            <div className="mt-3 bg-[#C75B39] px-3 py-2.5 text-right text-white print:bg-[#eee] print:text-[#111]">
               <p className="text-[9px] uppercase tracking-[0.15em] text-white/60 print:text-[#888]">
                 Grand Total
               </p>

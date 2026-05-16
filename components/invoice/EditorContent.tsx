@@ -385,7 +385,7 @@ function ExitConfirmModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
         <h2 className="text-xl font-semibold tracking-tight text-[color:var(--text-primary)]">
           Leave invoice editor?
@@ -2524,7 +2524,7 @@ return (
               delay={40}
               className={cn(
                 getAppSubtlePanelClass("muted"),
-                "invoice-step-rail rounded-[16px] px-3 py-3",
+                "invoice-step-rail px-3 py-3",
               )}
             >
               <div
@@ -2613,7 +2613,7 @@ return (
         >
           {isGuestMode && (
             <div className="mb-6 print:hidden">
-              <div className="flex items-center justify-between rounded-lg border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
+              <div className="flex items-center justify-between border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-4 py-2.5">
                 <p className="text-[13px] text-[color:var(--text-secondary)]">
                   <span className="font-semibold text-[color:var(--text-primary)]">Guest mode</span> -- your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
                 </p>
@@ -2674,7 +2674,7 @@ return (
 
             {/* Mobile Meta Summary Strip (Unified Alignment) */}
             <div className={cn(
-              "mb-2 rounded-xl border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
+              "mb-2 border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
               isEditingMeta ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-gray-50"
             )}>
               <div className="flex flex-col gap-3">
@@ -2687,7 +2687,7 @@ return (
                         type="text"
                         value={formData.meta.invoiceNumber}
                         onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                        className="mt-1 w-full rounded-md border-none bg-white p-0 text-[14px] font-bold text-[color:var(--text-primary)] focus:ring-0"
+                        className="mt-1 w-full border-none bg-white p-0 text-[14px] font-bold text-[color:var(--text-primary)] focus:ring-0"
                         placeholder="INV-000"
                       />
                     ) : (
@@ -2842,7 +2842,7 @@ return (
                               })
                             }
                             className={cn(
-                              "inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
+                              "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-gray-100 text-gray-400 font-medium cursor-not-allowed"
                                 : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm active:scale-[0.97] transition-all",
@@ -2893,7 +2893,7 @@ return (
                                 type="text"
                                 value={formData.meta.invoiceNumber}
                                 onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                                className="w-full rounded-lg border-none bg-white px-3 py-2 text-[13px] font-bold text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
+                                className="w-full border-none bg-white px-3 py-2 text-[13px] font-bold text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
                                 placeholder="INV-2026-000"
                               />
                             ) : (
@@ -2910,7 +2910,7 @@ return (
                                   type="date"
                                   value={formData.meta.invoiceDate}
                                   onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
-                                  className="w-full rounded-lg border-none bg-white px-3 py-2 text-[12px] font-medium text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
+                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-medium text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
                                 />
                               ) : (
                                 <p className="text-[13px] font-medium text-[color:var(--text-primary)]">{formData.meta?.invoiceDate || '--'}</p>
@@ -2925,7 +2925,7 @@ return (
                                   type="date"
                                   value={formData.meta.dueDate}
                                   onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                                  className="w-full rounded-lg border-none bg-white px-3 py-2 text-[12px] font-medium text-red-500 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500 transition-all"
+                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-medium text-red-500 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500 transition-all"
                                 />
                               ) : (
                                 <p className="text-[13px] font-medium text-red-500">{formData.meta?.dueDate || '--'}</p>
@@ -2958,7 +2958,7 @@ return (
                   <div 
                     id="live-totals-footer" 
                     className={cn(
-                      "border border-[color:var(--border-subtle)] transition-all duration-300 rounded-lg bg-gray-50 px-4 py-2.5"
+                      "border border-[color:var(--border-subtle)] transition-all duration-300 bg-gray-50 px-4 py-2.5"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -3102,7 +3102,7 @@ return (
                       type="text"
                       value={formData.meta.invoiceNumber}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[12px] font-bold text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
+                      className="w-32 border-gray-200 bg-white px-2 py-1 text-[12px] font-bold text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
                     />
                   ) : (
                     <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
@@ -3123,7 +3123,7 @@ return (
                       type="date"
                       value={formData.meta.invoiceDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
-                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
+                      className="w-32 border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
                     />
                   ) : (
                     <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
@@ -3147,7 +3147,7 @@ return (
                       type="date"
                       value={formData.meta.dueDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                      className="w-32 rounded-md border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-red-500 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500"
+                      className="w-32 border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-red-500 ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-red-500"
                     />
                   ) : (
                     <span className="text-[12px] font-medium text-red-500">
@@ -3219,12 +3219,12 @@ return (
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            className="flex w-full max-w-sm flex-col overflow-hidden rounded-[20px] bg-[#111118] border border-[color:var(--border-subtle)] p-6 shadow-2xl"
+            className="flex w-full max-w-sm flex-col overflow-hidden bg-[#111118] border border-[color:var(--border-subtle)] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
             <h3 className="text-lg font-bold text-white mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}

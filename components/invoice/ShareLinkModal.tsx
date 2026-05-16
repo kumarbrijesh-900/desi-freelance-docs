@@ -177,13 +177,13 @@ export default function ShareLinkModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <MotionReveal preset="scale-in">
-        <div className="mx-4 w-full max-w-lg rounded-xl border border-[color:var(--border-default)] bg-white shadow-2xl overflow-hidden">
+        <div className="mx-4 w-full max-w-lg border border-[color:var(--border-default)] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--border-subtle)] px-6 py-4">
             <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
@@ -208,7 +208,7 @@ export default function ShareLinkModal({
               <label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                 Sending to
               </label>
-              <div className="mt-1.5 flex items-center gap-2 rounded-md border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
+              <div className="mt-1.5 flex items-center gap-2 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" />
                 <span
                   className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-medium" : "text-[color:var(--text-muted)] italic"}`}
@@ -328,7 +328,7 @@ export default function ShareLinkModal({
 
             {/* ── Sent Success State ── */}
             {sent && (
-              <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <div className="flex items-start gap-3 border border-green-200 bg-green-50 px-4 py-3">
                 <CheckCircleIcon className="h-5 w-5 shrink-0 text-green-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-green-800">

@@ -31,9 +31,9 @@ export default function SettlementModal({
   const netReceived = subtotal - tdsAmount;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
               Confirm Settlement
@@ -65,7 +65,7 @@ export default function SettlementModal({
                   value={tdsPercent === 0 ? "" : tdsPercent}
                   onChange={(e) => setTdsPercent(Number(e.target.value))}
                   placeholder="0"
-                  className="w-full h-11 rounded-lg border border-[color:var(--border-default)] bg-white px-4 text-sm focus:border-[color:var(--color-lime-700)] outline-none transition-colors"
+                  className="w-full h-11 border border-[color:var(--border-default)] bg-white px-4 text-sm focus:border-[color:var(--color-lime-700)] outline-none transition-colors"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[color:var(--text-muted)]">
                   %

@@ -261,7 +261,7 @@ function EditableRow({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl border p-4 transition-all duration-200",
+        "group relative flex flex-col gap-3 border p-4 transition-all duration-200",
         isApproved
           ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-900)]/10"
           : isLowConfidence
@@ -297,7 +297,7 @@ function EditableRow({
             <button
               onClick={handleToggle}
               className={cn(
-                "flex h-9 w-full items-center justify-between rounded-lg border px-3 transition-all text-sm",
+                "flex h-9 w-full items-center justify-between border px-3 transition-all text-sm",
                 editValue === "true"
                   ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-900)]/20 text-[color:var(--color-lime-400)]"
                   : "border-white/[0.1] bg-white/[0.03] text-gray-400",
@@ -326,7 +326,7 @@ function EditableRow({
                 setEditValue(e.target.value);
                 if (isApproved) onApprove(label, e.target.value);
               }}
-              className="h-9 w-full rounded-lg border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 appearance-none"
+              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 appearance-none"
             >
               <option value="">Select {label}...</option>
               {options.map((opt) => (
@@ -344,7 +344,7 @@ function EditableRow({
                 if (isApproved) onApprove(label, e.target.value);
               }}
               placeholder={`Enter ${label.toLowerCase()}...`}
-              className="h-9 w-full rounded-lg border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30"
+              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30"
             />
           )}
         </div>
@@ -354,7 +354,7 @@ function EditableRow({
             onClick={handleTick}
             disabled={!editValue.trim() || (isApproved && !isLowConfidence)}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all",
+              "flex h-9 w-9 shrink-0 items-center justify-center border transition-all",
               isApproved
                 ? "border-transparent bg-[color:var(--color-lime-500)] text-black"
                 : "border-white/[0.1] bg-white/[0.03] text-gray-500 hover:border-cyan-500 hover:text-cyan-400 disabled:opacity-20",
@@ -431,17 +431,17 @@ export default function BriefSummaryModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md"
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-[#0c0c12] shadow-2xl border border-white/[0.1]"
+          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
         >
           <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5 bg-gradient-to-r from-transparent to-white/[0.02]">
             <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-light text-indigo-brand shadow-inner">
+              <div className="flex h-11 w-11 items-center justify-center bg-indigo-light text-indigo-brand shadow-inner">
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
@@ -463,7 +463,7 @@ export default function BriefSummaryModal({
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 scroll-smooth">
             {isNewClient && isLoggedIn && (
-              <label className="flex items-start gap-4 cursor-pointer rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.03] p-5 hover:bg-cyan-500/[0.05] transition-all group">
+              <label className="flex items-start gap-4 cursor-pointer border border-cyan-500/20 bg-cyan-500/[0.03] p-5 hover:bg-cyan-500/[0.05] transition-all group">
                 <input
                   type="checkbox"
                   checked={shouldSaveClient}
@@ -560,7 +560,7 @@ export default function BriefSummaryModal({
                 onClick={() => onSubmit(localData, shouldSaveClient)}
                 disabled={!allReviewed}
                 className={cn(
-                  "px-8 py-3 rounded-2xl text-sm font-black transition-all shadow-lg active:scale-95",
+                  "px-8 py-3 text-sm font-black transition-all shadow-lg active:scale-95",
                   allReviewed
                     ? "bg-[color:var(--color-lime-500)] text-black hover:bg-[color:var(--color-lime-400)] shadow-lime-500/20"
                     : "bg-white/[0.05] text-white/20 cursor-not-allowed",

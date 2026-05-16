@@ -76,7 +76,7 @@ export default function InteractiveHeroGraphic() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="w-full aspect-square md:aspect-[4/3] relative overflow-hidden rounded-2xl bg-gray-50/50 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+      className="w-full aspect-square md:aspect-[4/3] relative overflow-hidden bg-gray-50/50 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
     >
       {/* LAYER 1: The Blobs (Colorful Background) */}
       <motion.div
@@ -109,7 +109,7 @@ export default function InteractiveHeroGraphic() {
         style={{ x: shapesX, y: shapesY }}
         className="absolute inset-0 pointer-events-none"
       >
-        <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rounded-lg rotate-12" />
+        <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rotate-12" />
         <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[#BEFF00]/10 rounded-full" />
         <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-sm -rotate-12" />
       </motion.div>
@@ -119,7 +119,7 @@ export default function InteractiveHeroGraphic() {
         style={{ x: cardX, y: cardY, rotateY: cardRotate }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none perspective-[1000px]"
       >
-        <div className="w-56 h-72 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-6 flex flex-col justify-between">
+        <div className="w-56 h-72 bg-white/40 border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-6 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="h-2 w-1/2 bg-gray-200 rounded-full" />
             <div className="space-y-2">
@@ -135,7 +135,7 @@ export default function InteractiveHeroGraphic() {
               <div className="h-3 w-20 bg-gray-900 rounded-full" />
             </div>
             {/* Required Lime Square */}
-            <div className="h-8 w-8 bg-[#BEFF00] rounded-lg shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
+            <div className="h-8 w-8 bg-[#BEFF00] shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
           </div>
         </div>
       </motion.div>
@@ -220,7 +220,7 @@ export default function InteractiveHeroGraphic() {
               color: phase === 3 ? "#FFFFFF" : "#111827",
               scale: phase === 3 ? 1.1 : 1
             }}
-            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl border-2"
+            className="relative flex h-14 w-14 items-center justify-center shadow-[var(--brutal-shadow-lg)] border-2"
           >
             <Building2 className="h-7 w-7" strokeWidth={1.5} />
             {/* Radiating Pulse */}
@@ -231,7 +231,7 @@ export default function InteractiveHeroGraphic() {
                   animate={{ scale: 2, opacity: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1 }}
-                  className="absolute inset-0 rounded-2xl border-2 border-[#10B981]"
+                  className="absolute inset-0 border-2 border-[#10B981]"
                 />
               )}
             </AnimatePresence>
@@ -250,7 +250,7 @@ export default function InteractiveHeroGraphic() {
               color: (phase === 1 || phase === 2) ? "#FFFFFF" : "#111827",
               scale: phase === 1 ? 1.1 : 1
             }}
-            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl border-2"
+            className="relative flex h-14 w-14 items-center justify-center shadow-[var(--brutal-shadow-lg)] border-2"
           >
             <Briefcase className="h-7 w-7" strokeWidth={1.5} />
             {/* Radiating Pulse */}
@@ -261,7 +261,7 @@ export default function InteractiveHeroGraphic() {
                   animate={{ scale: 2, opacity: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1 }}
-                  className="absolute inset-0 rounded-2xl border-2 border-[#10B981]"
+                  className="absolute inset-0 border-2 border-[#10B981]"
                 />
               )}
             </AnimatePresence>
@@ -280,7 +280,7 @@ export default function InteractiveHeroGraphic() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-2.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-100 px-4 py-2 shadow-sm"
+            className="flex items-center gap-2.5 rounded-full bg-white/80 border border-gray-100 px-4 py-2 shadow-sm"
           >
             {isGreenText ? (
               <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />

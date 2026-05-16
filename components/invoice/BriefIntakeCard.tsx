@@ -221,7 +221,7 @@ export default function BriefIntakeCard({
               aria-controls="brief-intake-panel"
               className={cn(
                 getAppButtonClass({ variant: "tertiary", size: "sm" }),
-                "bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white",
+                "bg-white/80 shadow-sm hover:bg-white",
               )}
             >
               <ChevronUpIcon className="h-3.5 w-3.5" />

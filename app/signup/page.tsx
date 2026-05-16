@@ -133,7 +133,7 @@ export default function SignupPage() {
                 <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
                   Creating account...
                 </h2>
-                <div className="mt-6 h-11 rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
+                <div className="mt-6 h-11 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
               </div>
             }
           >

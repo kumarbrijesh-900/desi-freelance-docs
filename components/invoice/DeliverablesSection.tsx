@@ -178,7 +178,7 @@ export default function DeliverablesSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="overflow-visible rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
+                className="overflow-visible border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
               >
                 {/* Milestone header */}
                 {effectiveMilestones.length > 1 && (
@@ -272,7 +272,7 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white py-6 text-[13px] font-bold text-gray-500 transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 bg-white py-6 text-[13px] font-bold text-gray-500 transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[#4F46E5] hover:text-[#4F46E5] hover:bg-[#4F46E5]/5"
@@ -330,7 +330,7 @@ function LineItemCard({
   const total = Number(item.qty || 0) * Number(item.rate || 0);
 
   return (
-    <div className="group relative rounded-xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-400 hover:shadow-sm">
+    <div className="group relative border border-gray-200 bg-white p-4 transition-all hover:border-gray-400 hover:shadow-sm">
       {/* Delete button */}
       <button
         type="button"
@@ -410,7 +410,7 @@ function LineItemCard({
             }}
           />
           {showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-2xl rounded-lg py-1 overflow-y-auto max-h-60 ring-1 ring-black/5">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md bg-white border border-gray-100 shadow-[var(--brutal-shadow-lg)] py-1 overflow-y-auto max-h-60 ring-1 ring-black/5">
               {suggestions.map((s) => (
                 <button
                   key={s}

@@ -682,7 +682,7 @@ function PreviewContent() {
             {/* Profile Completion Prompt */}
             {showProfilePrompt && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
+                <div className="flex flex-col items-center justify-between gap-4 border border-[color:var(--color-lime-300)] bg-[color:var(--color-lime-50)] p-4 sm:flex-row sm:p-5">
                   <div className="flex items-center gap-3 text-left">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--interactive-primary)] text-xl">
                       ✨
@@ -726,7 +726,7 @@ function PreviewContent() {
               {/* Left: Invoice area (Hero) */}
               <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
                 {/* Zoom Toolbar - Truly Sticky */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white/90 backdrop-blur-sm border border-[color:var(--border-subtle)] rounded-lg shadow-md px-2 py-1 print:hidden">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 bg-white border border-[color:var(--border-subtle)] shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
                       const newZoom = Math.max(zoom - 0.1, 0.2);
@@ -830,7 +830,7 @@ function PreviewContent() {
                         key={template.id}
                         onClick={() => setSelectedTemplate(template.id)}
                         className={cn(
-                          "w-full rounded-xl border p-2.5 text-left transition-all",
+                          "w-full border p-2.5 text-left transition-all",
                           selectedTemplate === template.id
                             ? "border-[#4F46E5] bg-[#4F46E5]/5 shadow-sm ring-1 ring-[#4F46E5]/20"
                             : "border-transparent hover:border-[color:var(--border-default)] hover:bg-gray-50"
@@ -839,15 +839,15 @@ function PreviewContent() {
                         {/* Color swatches */}
                         <div className="flex gap-1.5 mb-2">
                           <div
-                            className="h-5 flex-1 rounded-md"
+                            className="h-5 flex-1"
                             style={{ backgroundColor: template.palette.primary }}
                           />
                           <div
-                            className="h-5 flex-1 rounded-md border border-gray-100"
+                            className="h-5 flex-1 border border-gray-100"
                             style={{ backgroundColor: template.palette.secondary }}
                           />
                           <div
-                            className="h-5 w-5 rounded-md"
+                            className="h-5 w-5"
                             style={{ backgroundColor: template.palette.text }}
                           />
                         </div>

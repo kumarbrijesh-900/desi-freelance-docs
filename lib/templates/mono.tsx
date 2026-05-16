@@ -15,7 +15,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Dark Header Strip ─────────────────── */}
-      <header className="bg-[#111] text-white rounded-lg p-6 mb-8">
+      <header className="bg-[#111] text-white p-6 mb-8">
         <div className="flex justify-between items-start">
           <div>
             {data.agencyLogoUrl && (
@@ -136,7 +136,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           {data.hasBankDetails && (
             <div>
               <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-2">// bank_details</p>
-              <div className="text-[11px] text-gray-600 space-y-0.5 bg-[#f5f5f0] rounded-md p-3">
+              <div className="text-[11px] text-gray-600 space-y-0.5 bg-[#f5f5f0] p-3">
                 <p className="font-bold text-[#111]">{data.bankName}</p>
                 {!data.isInternational ? (
                   <><p>acc: {data.accountNumber}</p><p>ifsc: {data.ifscCode}</p></>

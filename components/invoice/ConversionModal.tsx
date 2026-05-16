@@ -49,16 +49,16 @@ export default function ConversionModal({
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-white/10 backdrop-blur-sm"
+        className="absolute inset-0 bg-white/10"
         onClick={onClose}
       />
 
       <MotionReveal
         preset="fade-up"
-        className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="relative w-full max-w-sm overflow-hidden bg-white shadow-[var(--brutal-shadow-lg)]"
       >
         <div className="p-8 text-center">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-[color:var(--color-lime-100)] flex items-center justify-center mb-4 text-2xl">
+          <div className="mx-auto h-14 w-14 bg-[color:var(--color-lime-100)] flex items-center justify-center mb-4 text-2xl">
             ✓
           </div>
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-green-600">

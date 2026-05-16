@@ -219,14 +219,14 @@ function FilterBar({
         placeholder="Search client, invoice #…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="h-8 flex-1 min-w-[180px] rounded-md border border-[color:var(--border-default)] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:border-[color:var(--color-lime-700)] transition-colors"
+        className="h-8 flex-1 min-w-[180px] border border-[color:var(--border-default)] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:border-[color:var(--color-lime-700)] transition-colors"
       />
 
       {/* Status filter */}
       <select
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
       >
         <option value="all">All Status</option>
         <option value="DRAFT">Draft</option>
@@ -240,7 +240,7 @@ function FilterBar({
       <select
         value={msaFilter}
         onChange={(e) => setMsaFilter(e.target.value as MsaFilter)}
-        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
       >
         <option value="all">All MSA</option>
         <option value="none">No MSA</option>
@@ -253,7 +253,7 @@ function FilterBar({
       <select
         value={sortKey}
         onChange={(e) => setSortKey(e.target.value as SortKey)}
-        className="h-8 rounded-md border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
+        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
       >
         <option value="date-desc">Newest First</option>
         <option value="date-asc">Oldest First</option>
@@ -432,7 +432,7 @@ function InvoiceRow({
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right rounded-xl border border-gray-100 bg-white shadow-xl ring-1 ring-black/5 focus:outline-none text-left">
+              <div className="absolute right-0 z-50 mt-1 w-48 origin-top-right border border-gray-100 bg-white shadow-[var(--brutal-shadow-lg)] ring-1 ring-black/5 focus:outline-none text-left">
                 <div className="py-1">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(false); onView(invoice); }}
@@ -597,9 +597,9 @@ function InvoiceSettlementConfirmModal({
 }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
-        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+        <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
               Mark as Settled?
@@ -1392,7 +1392,7 @@ export default function InvoiceHistoryPage() {
           {/* MSA rejection notification */}
           {stats.msaRejected > 0 && (
             <MotionReveal className="mb-4" preset="fade-up">
-              <div className="flex items-center gap-3 rounded-lg border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-4 py-3">
+              <div className="flex items-center gap-3 border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-4 py-3">
                 <span className="text-lg">⚠️</span>
                 <p className="text-sm font-medium text-[color:var(--state-warning-text)]">
                   {stats.msaRejected} invoice
@@ -1405,7 +1405,7 @@ export default function InvoiceHistoryPage() {
 
           {/* Main content */}
           {loadError ? (
-            <div className="flex flex-col items-center gap-4 rounded-xl border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-6 py-12 text-center">
+            <div className="flex flex-col items-center gap-4 border border-[color:var(--state-warning-border)] bg-[color:var(--state-warning-bg)] px-6 py-12 text-center">
               <p className="text-lg font-semibold text-[color:var(--text-primary)]">
                 Could not load your invoices
               </p>
@@ -1426,8 +1426,8 @@ export default function InvoiceHistoryPage() {
             </div>
           ) : invoices.length === 0 ? (
             <MotionReveal preset="fade-up">
-              <div className="flex flex-col items-center gap-6 px-6 py-16 text-center rounded-xl border border-[color:var(--border-default)] bg-white shadow-sm">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F5F3FF]">
+              <div className="flex flex-col items-center gap-6 px-6 py-16 text-center border border-[color:var(--border-default)] bg-white shadow-sm">
+                <div className="flex h-16 w-16 items-center justify-center bg-[#F5F3FF]">
                   <DocumentSparkIcon className="h-8 w-8 text-[#4F46E5]" />
                 </div>
                 <div className="space-y-2">
@@ -1502,7 +1502,7 @@ export default function InvoiceHistoryPage() {
                   </button>
                 </div>
               ) : (
-                <div className="overflow-visible rounded-b-xl">
+                <div className="overflow-visible">
                   <table className="w-full min-w-full sm:min-w-[900px]">
                     <thead>
                       <tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
@@ -1579,9 +1579,9 @@ export default function InvoiceHistoryPage() {
           />
 
           {activeNextMilestone && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
               <MotionReveal preset="fade-up" className="w-full max-w-md">
-                <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-2xl">
+                <div className="rounded-2xl border border-[color:var(--border-default)] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="text-2xl">🎉</span>
                     <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
@@ -1624,7 +1624,7 @@ export default function InvoiceHistoryPage() {
             initial={{ opacity: 0, y: 50, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 50, x: "-50%" }}
-            className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 rounded-2xl border border-indigo-100 bg-white/95 px-6 py-4 shadow-[0_20px_50px_rgba(79,70,229,0.15)] backdrop-blur-md"
+            className="fixed bottom-10 left-1/2 z-[9999] flex items-center gap-6 border border-indigo-100 bg-white px-6 py-4 shadow-[0_20px_50px_rgba(79,70,229,0.15)]"
           >
             <div className="flex items-center gap-3 pr-6 border-r border-gray-100">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-brand text-[11px] font-bold text-white tabular-nums">
@@ -1636,14 +1636,14 @@ export default function InvoiceHistoryPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBulkExport}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
               >
                 <Download size={16} /> Export All
               </button>
               <button
                 onClick={handleBulkDelete}
                 disabled={isBulkDeleting}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 <Trash size={16} /> {isBulkDeleting ? "Deleting..." : "Delete All"}
               </button>

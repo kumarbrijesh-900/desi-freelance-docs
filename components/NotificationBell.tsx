@@ -137,7 +137,7 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-xl border border-[color:var(--border-subtle)] bg-white shadow-2xl ring-1 ring-black/5 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 origin-top-right border border-[color:var(--border-subtle)] bg-white shadow-[var(--brutal-shadow-lg)] ring-1 ring-black/5 z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-4 py-3">
             <h3 className="text-[13px] font-bold text-gray-900">Activity</h3>
             {hasUnread && (
@@ -174,7 +174,7 @@ export default function NotificationBell() {
                     )}
                   >
                     <div className="mt-0.5 flex-shrink-0">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-100 shadow-sm">
+                      <div className="flex h-8 w-8 items-center justify-center bg-white border border-gray-100 shadow-sm">
                         {getIcon(n.type)}
                       </div>
                     </div>
@@ -225,7 +225,7 @@ export default function NotificationBell() {
             <Link
               href="/invoices"
               onClick={() => setIsOpen(false)}
-              className="block rounded-lg py-2 text-[11px] font-bold text-gray-500 hover:text-gray-900 transition-colors"
+              className="block py-2 text-[11px] font-bold text-gray-500 hover:text-gray-900 transition-colors"
             >
               View All History
             </Link>

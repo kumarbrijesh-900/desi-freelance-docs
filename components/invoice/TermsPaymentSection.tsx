@@ -331,7 +331,7 @@ export default function TermsPaymentSection({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="bg-[color:var(--bg-surface-soft)] rounded-xl border border-[color:var(--border-subtle)] p-4 shadow-sm"
+                    className="bg-[color:var(--bg-surface-soft)] border border-[color:var(--border-subtle)] p-4 shadow-sm"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
@@ -569,7 +569,7 @@ export default function TermsPaymentSection({
                           </div>
 
                           <div className={cn(
-                            "flex overflow-hidden rounded-lg border border-[color:var(--border-subtle)] w-fit bg-white",
+                            "flex overflow-hidden border border-[color:var(--border-subtle)] w-fit bg-white",
                             isReadOnly && "opacity-60 pointer-events-none"
                           )}>
                             <button
@@ -664,7 +664,7 @@ export default function TermsPaymentSection({
                                   )}
                                 </AnimatePresence>
 
-                                <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)] bg-[color:var(--bg-surface-muted)]/50 p-3 rounded-lg border border-[color:var(--border-subtle)]">{licenseExplanation}</p>
+                                <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)] bg-[color:var(--bg-surface-muted)]/50 p-3 border border-[color:var(--border-subtle)]">{licenseExplanation}</p>
                               </div>
                             </motion.div>
                           )}

@@ -140,7 +140,7 @@ export default function LoginPage() {
                 <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
                   Sign in to create your first invoice.
                 </p>
-                <div className="mt-6 h-11 rounded-lg border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
+                <div className="mt-6 h-11 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
               </div>
             }
           >

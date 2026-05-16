@@ -295,7 +295,7 @@ export default function ClientDetailsSection({
                 />
 
                 {showSuggestions && (isLoading || effectiveClients.length > 0) && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto rounded-xl border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     {isLoading ? (
                       <div className="px-3 py-4 text-center">
                         <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
@@ -310,7 +310,7 @@ export default function ClientDetailsSection({
                             key={client.id}
                             type="button"
                             onClick={() => handleSelectClient(client)}
-                            className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
+                            className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
                           >
                             <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
                             <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
@@ -570,7 +570,7 @@ export default function ClientDetailsSection({
                   </div>
                   {clientAddressError && <p className={appFieldErrorTextClass}>{clientAddressError}</p>}
                   {stateSignals.warning && (
-                    <p className="mt-3 rounded-xl bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                    <p className="mt-3 bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                       {stateSignals.warning}
                     </p>
                   )}
@@ -752,7 +752,7 @@ export default function ClientDetailsSection({
       <div className="mt-8 space-y-4">
         <div
           className={cn(
-            "flex justify-between items-center w-full p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors text-left group"
+            "flex justify-between items-center w-full p-4 border border-gray-200 bg-white hover:bg-gray-50 transition-colors text-left group"
           )}
         >
           <div className="flex flex-col flex-1 pr-4">
@@ -768,7 +768,7 @@ export default function ClientDetailsSection({
                 e.stopPropagation();
                 handleGenerateContract();
               }}
-              className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-1.5 text-[12px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0"
+              className="inline-flex items-center gap-2 bg-[color:var(--bg-surface-muted)] px-3 py-1.5 text-[12px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0"
             >
               ✨ Generate
             </button>
@@ -910,7 +910,7 @@ export default function ClientDetailsSection({
                     transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4 rounded-xl bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                    <div className="mt-4 bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                       <div className="mb-3">
                         <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                           Generated MSA
