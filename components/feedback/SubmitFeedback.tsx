@@ -9,6 +9,7 @@ import {
   getAppPanelClass,
   appSectionTitleClass,
 } from "@/lib/ui-foundation";
+import AppSelectField from "@/components/ui/AppSelectField";
 
 export default function SubmitFeedback() {
   const [type, setType] = useState<FeedbackType>("general");
@@ -105,16 +106,17 @@ export default function SubmitFeedback() {
           <label className="block text-xs font-bold uppercase tracking-widest text-[color:var(--text-muted)] mb-2">
             Feedback Type
           </label>
-          <select
+          <AppSelectField
             value={type}
             onChange={(e) => setType(e.target.value as FeedbackType)}
-            className={cn(getAppFieldClass({ hasValue: true }), "bg-white")}
+            className="bg-white"
             disabled={isSubmitting}
+            hasValue={true}
           >
             <option value="general">General Feedback</option>
             <option value="bug">Bug Report</option>
             <option value="feature">Feature Request</option>
-          </select>
+          </AppSelectField>
         </div>
 
         <div>

@@ -10,6 +10,7 @@ import {
   appSectionTitleClass,
 } from "@/lib/ui-foundation";
 import { MotionReveal, MotionButton } from "@/components/ui/motion-primitives";
+import AppSelectField from "@/components/ui/AppSelectField";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -130,19 +131,17 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-2">
                   Category
                 </label>
-                <select
+                <AppSelectField
                   value={type}
                   onChange={(e) => setType(e.target.value as FeedbackType)}
-                  className={cn(
-                    getAppFieldClass({ hasValue: true }),
-                    "bg-white",
-                  )}
+                  className="bg-white"
                   disabled={isSubmitting}
+                  hasValue={true}
                 >
                   <option value="general">General Feedback</option>
                   <option value="bug">Bug Report</option>
                   <option value="feature">Feature Request</option>
-                </select>
+                </AppSelectField>
               </div>
 
               <div>

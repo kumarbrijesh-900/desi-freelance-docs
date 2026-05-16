@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import AppSelectField from "@/components/ui/AppSelectField";
 import {
   MotionReveal,
   MotionButton,
@@ -112,15 +111,15 @@ function MsaCard({
           </div>
           <div>
             <label className={appFieldLabelClass}>Status</label>
-            <AppSelectField
+            <select
               value={status}
               onChange={(e) => setStatus(e.target.value as MsaStatus)}
-              hasValue={true}
+              className={fc({ hasValue: true, isSelect: true })}
             >
               <option value="draft">Draft</option>
               <option value="active">Active</option>
               <option value="expired">Expired</option>
-            </AppSelectField>
+            </select>
           </div>
         </div>
         <div>
@@ -461,23 +460,26 @@ export default function ClientDetailPage() {
                   </div>
                   <div>
                     <label className={appFieldLabelClass}>Location</label>
-                    <AppSelectField
+                    <select
                       value={clientLocation}
                       onChange={(e) => setClientLocation(e.target.value)}
-                      hasValue={true}
+                      className={fc({ hasValue: true, isSelect: true })}
                     >
                       <option value="domestic">Domestic (India)</option>
                       <option value="international">International</option>
-                    </AppSelectField>
+                    </select>
                   </div>
                   {clientLocation === "domestic" && (
                     <>
                       <div>
                         <label className={appFieldLabelClass}>State</label>
-                        <AppSelectField
+                        <select
                           value={clientState}
                           onChange={(e) => setClientState(e.target.value)}
-                          hasValue={Boolean(clientState)}
+                          className={fc({
+                            hasValue: Boolean(clientState),
+                            isSelect: true,
+                          })}
                         >
                           <option value="">Select state</option>
                           {INDIA_STATE_OPTIONS.map((s) => (
@@ -485,7 +487,7 @@ export default function ClientDetailPage() {
                               {s}
                             </option>
                           ))}
-                        </AppSelectField>
+                        </select>
                       </div>
                       <div>
                         <label className={appFieldLabelClass}>GSTIN</label>
@@ -549,17 +551,17 @@ export default function ClientDetailPage() {
                       </div>
                       <div>
                         <label className={appFieldLabelClass}>Unit</label>
-                        <AppSelectField
+                        <select
                           value={msaLateFeeUnit}
                           onChange={(e) =>
                             setMsaLateFeeUnit(e.target.value as any)
                           }
-                          hasValue={true}
+                          className={fc({ hasValue: true, isSelect: true })}
                         >
                           <option value="monthly">per month</option>
                           <option value="annually">per annum</option>
                           <option value="daily">per day</option>
-                        </AppSelectField>
+                        </select>
                       </div>
                     </div>
 
@@ -568,12 +570,12 @@ export default function ClientDetailPage() {
                       <label className={appFieldLabelClass}>
                         IP Transfer Trigger
                       </label>
-                      <AppSelectField
+                      <select
                         value={msaIpTriggerType}
                         onChange={(e) =>
                           setMsaIpTriggerType(e.target.value as any)
                         }
-                        hasValue={true}
+                        className={fc({ hasValue: true, isSelect: true })}
                       >
                         <option value="upon_full_payment">
                           Upon Full Payment
@@ -586,7 +588,7 @@ export default function ClientDetailPage() {
                         <option value="retained_by_creator">
                           Retained by Creator (License Only)
                         </option>
-                      </AppSelectField>
+                      </select>
                     </div>
 
                     {/* Jurisdiction */}

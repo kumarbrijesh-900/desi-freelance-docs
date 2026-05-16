@@ -11,7 +11,6 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import AppSelectField from "@/components/ui/AppSelectField";
 import {
   MotionReveal,
   MotionButton,
@@ -230,14 +229,14 @@ function ClientForm({
 
               <div>
                 <label className={appFieldLabelClass}>Location</label>
-                <AppSelectField
+                <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  hasValue={true}
+                  className={fc({ hasValue: true, isSelect: true })}
                 >
                   <option value="domestic">🇮🇳 Domestic (India)</option>
                   <option value="international">🌍 International</option>
-                </AppSelectField>
+                </select>
               </div>
 
               <div className="sm:col-span-2">
@@ -299,10 +298,10 @@ function ClientForm({
                 <>
                   <div>
                     <label className={appFieldLabelClass}>State</label>
-                    <AppSelectField
+                    <select
                       value={state}
                       onChange={(e) => setState(e.target.value)}
-                      hasValue={Boolean(state)}
+                      className={fc({ hasValue: Boolean(state), isSelect: true })}
                     >
                       <option value="">Select state</option>
                       {INDIA_STATE_OPTIONS.map((s) => (
@@ -310,7 +309,7 @@ function ClientForm({
                           {s}
                         </option>
                       ))}
-                    </AppSelectField>
+                    </select>
                   </div>
                   <div className="sm:col-span-2">
                     <label className={appFieldLabelClass}>
@@ -365,27 +364,26 @@ function ClientForm({
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Unit</label>
-                  <AppSelectField
+                  <select
                     value={msaLateFeeUnit}
                     onChange={(e) => setMsaLateFeeUnit(e.target.value as any)}
-                    hasValue={true}
-                    className="min-w-[130px]"
+                    className={cn(fc({ hasValue: true, isSelect: true }), "min-w-[130px]")}
                     style={{ minWidth: '130px' }}
                   >
                     <option value="monthly">monthly</option>
                     <option value="annually">annually</option>
                     <option value="daily">per day</option>
-                  </AppSelectField>
+                  </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>IP Trigger</label>
-                  <AppSelectField
+                  <select
                     value={msaIpTriggerType}
                     onChange={(e) => setMsaIpTriggerType(e.target.value as any)}
-                    hasValue={true}
+                    className={fc({ hasValue: true, isSelect: true })}
                   >
                     <option value="upon_full_payment">Upon Full Payment</option>
                     <option value="upon_signing">Upon Signing</option>
@@ -396,7 +394,7 @@ function ClientForm({
                     <option value="retained_by_creator">
                       License Only
                     </option>
-                  </AppSelectField>
+                  </select>
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Jurisdiction</label>

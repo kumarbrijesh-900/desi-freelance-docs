@@ -19,7 +19,7 @@ export default function FaqAccordionItem({
     <div className="border-b border-[color:var(--border-subtle)] last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-5 text-left transition-all duration-200 group"
+        className="flex w-full items-center justify-between py-5 pr-4 text-left transition-all duration-200 group"
       >
         <span className="text-base font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--interactive-primary)] transition-colors">
           {question}

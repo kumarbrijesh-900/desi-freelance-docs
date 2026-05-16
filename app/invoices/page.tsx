@@ -21,7 +21,8 @@ import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import { DocumentSparkIcon, ChevronLeftIcon } from "@/components/ui/app-icons";
+import { DocumentSparkIcon, ChevronLeftIcon, ChevronDownIcon } from "@/components/ui/app-icons";
+import AppSelectField from "@/components/ui/AppSelectField";
 import {
   appPageContainerClass,
   appPageSectionClass,
@@ -213,24 +214,22 @@ function FilterBar({
   total: number;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-3">
+    <div className="mb-4 flex flex-wrap items-center gap-3">
       {/* Search */}
-      <div className="flex-1 min-w-[180px] relative">
-        <input
-          type="text"
-          placeholder="Search client, invoice #…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-9 w-full border-2 border-[#111118] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:bg-[#F4FFE0] transition-colors"
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="Search client, invoice #…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="h-11 flex-1 min-w-[240px] border-2 border-[#111118] bg-white px-4 text-[14px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:ring-2 focus:ring-[color:var(--color-lime-300)] transition-all"
+      />
 
       {/* Status filter */}
-      <div className="relative">
-        <select
+      <div className="w-full sm:w-[160px]">
+        <AppSelectField
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+          hasValue={statusFilter !== "all"}
         >
           <option value="all">All Status</option>
           <option value="DRAFT">Draft</option>
@@ -238,48 +237,39 @@ function FilterBar({
           <option value="SENT">Sent</option>
           <option value="PARTIAL">Partial</option>
           <option value="SETTLED">Settled</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
-        </div>
+        </AppSelectField>
       </div>
 
       {/* MSA filter */}
-      <div className="relative">
-        <select
+      <div className="w-full sm:w-[160px]">
+        <AppSelectField
           value={msaFilter}
           onChange={(e) => setMsaFilter(e.target.value as MsaFilter)}
-          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+          hasValue={msaFilter !== "all"}
         >
           <option value="all">All MSA</option>
           <option value="none">No MSA</option>
           <option value="pending">MSA Pending</option>
           <option value="accepted">MSA Accepted</option>
           <option value="rejected">Revision Asked</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
-        </div>
+        </AppSelectField>
       </div>
 
       {/* Sort */}
-      <div className="relative">
-        <select
+      <div className="w-full sm:w-[160px]">
+        <AppSelectField
           value={sortKey}
           onChange={(e) => setSortKey(e.target.value as SortKey)}
-          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+          hasValue={true}
         >
           <option value="date-desc">Newest First</option>
           <option value="date-asc">Oldest First</option>
           <option value="amount-desc">Amount ↓</option>
           <option value="amount-asc">Amount ↑</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
-        </div>
+        </AppSelectField>
       </div>
 
-      <span className="text-[12px] font-bold text-[color:var(--text-muted)] bg-[color:var(--bg-surface-soft)] px-2 py-1 border border-[color:var(--border-subtle)]">
+      <span className="text-[12px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider ml-auto">
         {total} result{total !== 1 ? "s" : ""}
       </span>
     </div>
