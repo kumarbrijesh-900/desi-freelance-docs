@@ -7,7 +7,6 @@ const canonicalInvoiceLineItemCatalog = [
     allowedUnits: [
       "per-deliverable",
       "per-concept",
-      "per-revision",
       "per-item",
     ],
     placeholder: "Logo design with final brand files",
@@ -33,7 +32,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-deliverable",
       "per-day",
       "per-hour",
-      "per-revision",
       "per-item",
     ],
     placeholder: "Complete brand identity system",
@@ -60,7 +58,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-deliverable",
       "per-day",
       "per-hour",
-      "per-revision",
     ],
     placeholder: "Campaign graphics and marketing assets",
     suggestions: [
@@ -84,7 +81,6 @@ const canonicalInvoiceLineItemCatalog = [
     allowedUnits: [
       "per-item",
       "per-deliverable",
-      "per-revision",
       "per-concept",
     ],
     placeholder: "Custom illustration package",
@@ -111,7 +107,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-hour",
       "per-day",
       "per-deliverable",
-      "per-revision",
     ],
     placeholder: "Product UI/UX design work",
     suggestions: [
@@ -186,7 +181,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-hour",
       "per-day",
       "per-deliverable",
-      "per-revision",
     ],
     placeholder: "Animation project with motion deliverables",
     suggestions: [
@@ -212,7 +206,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-hour",
       "per-day",
       "per-deliverable",
-      "per-revision",
     ],
     placeholder: "Motion graphics package",
     suggestions: [
@@ -278,7 +271,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-hour",
       "per-day",
       "per-deliverable",
-      "per-revision",
     ],
     placeholder: "Edited video deliverables",
     suggestions: [
@@ -303,7 +295,6 @@ const canonicalInvoiceLineItemCatalog = [
       "per-post",
       "per-item",
       "per-deliverable",
-      "per-revision",
       "per-video",
     ],
     placeholder: "Social content package",
@@ -328,7 +319,6 @@ const canonicalInvoiceLineItemCatalog = [
     allowedUnits: [
       "per-item",
       "per-deliverable",
-      "per-revision",
       "per-concept",
     ],
     placeholder: "Packaging system and print-ready files",
@@ -350,7 +340,7 @@ const canonicalInvoiceLineItemCatalog = [
     aliases: [],
     defaultSacCode: "998391",
     defaultUnit: "per-item",
-    allowedUnits: ["per-item", "per-deliverable", "per-day", "per-revision"],
+    allowedUnits: ["per-item", "per-deliverable", "per-day", ],
     placeholder: "Print-ready design assets",
     suggestions: [
       "Brochure / Catalog print design (ready for press)",
