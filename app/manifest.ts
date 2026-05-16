@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Smart Invoice Generator for Indian Freelancers',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f8f8fa',
-    theme_color: '#f8f8fa',
+    background_color: '#111118',
+    theme_color: '#111118',
     icons: [
       {
         src: '/icon.svg',
