@@ -213,56 +213,73 @@ function FilterBar({
   total: number;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-3">
+    <div className="mb-6 flex flex-wrap items-center gap-3">
       {/* Search */}
-      <input
-        type="text"
-        placeholder="Search client, invoice #…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="h-8 flex-1 min-w-[180px] border border-[color:var(--border-default)] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:border-[color:var(--color-lime-700)] transition-colors"
-      />
+      <div className="flex-1 min-w-[180px] relative">
+        <input
+          type="text"
+          placeholder="Search client, invoice #…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-full border-2 border-[#111118] bg-white px-3 text-[13px] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] outline-none focus:bg-[#F4FFE0] transition-colors"
+        />
+      </div>
 
       {/* Status filter */}
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
-      >
-        <option value="all">All Status</option>
-        <option value="DRAFT">Draft</option>
-        <option value="SAVED">Saved</option>
-        <option value="SENT">Sent</option>
-        <option value="PARTIAL">Partial</option>
-        <option value="SETTLED">Settled</option>
-      </select>
+      <div className="relative">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+        >
+          <option value="all">All Status</option>
+          <option value="DRAFT">Draft</option>
+          <option value="SAVED">Saved</option>
+          <option value="SENT">Sent</option>
+          <option value="PARTIAL">Partial</option>
+          <option value="SETTLED">Settled</option>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
+        </div>
+      </div>
 
       {/* MSA filter */}
-      <select
-        value={msaFilter}
-        onChange={(e) => setMsaFilter(e.target.value as MsaFilter)}
-        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
-      >
-        <option value="all">All MSA</option>
-        <option value="none">No MSA</option>
-        <option value="pending">MSA Pending</option>
-        <option value="accepted">MSA Accepted</option>
-        <option value="rejected">Revision Asked</option>
-      </select>
+      <div className="relative">
+        <select
+          value={msaFilter}
+          onChange={(e) => setMsaFilter(e.target.value as MsaFilter)}
+          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+        >
+          <option value="all">All MSA</option>
+          <option value="none">No MSA</option>
+          <option value="pending">MSA Pending</option>
+          <option value="accepted">MSA Accepted</option>
+          <option value="rejected">Revision Asked</option>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
+        </div>
+      </div>
 
       {/* Sort */}
-      <select
-        value={sortKey}
-        onChange={(e) => setSortKey(e.target.value as SortKey)}
-        className="h-8 border border-[color:var(--border-default)] bg-white px-2 text-[13px] text-[color:var(--text-primary)] outline-none"
-      >
-        <option value="date-desc">Newest First</option>
-        <option value="date-asc">Oldest First</option>
-        <option value="amount-desc">Amount ↓</option>
-        <option value="amount-asc">Amount ↑</option>
-      </select>
+      <div className="relative">
+        <select
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value as SortKey)}
+          className="h-9 appearance-none border-2 border-[#111118] bg-white pl-3 pr-9 text-[13px] font-bold text-[color:var(--text-primary)] outline-none cursor-pointer hover:bg-[#F4FFE0] transition-colors"
+        >
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="amount-desc">Amount ↓</option>
+          <option value="amount-asc">Amount ↑</option>
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+          <ChevronDown size={14} className="text-[color:var(--text-muted)]" />
+        </div>
+      </div>
 
-      <span className="text-[12px] text-[color:var(--text-muted)]">
+      <span className="text-[12px] font-bold text-[color:var(--text-muted)] bg-[color:var(--bg-surface-soft)] px-2 py-1 border border-[color:var(--border-subtle)]">
         {total} result{total !== 1 ? "s" : ""}
       </span>
     </div>

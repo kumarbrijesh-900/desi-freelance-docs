@@ -11,6 +11,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
+import AppSelectField from "@/components/ui/AppSelectField";
 import {
   MotionReveal,
   MotionButton,
@@ -814,13 +815,10 @@ export default function ProfilePage() {
                     </FieldRow>
 
                     <FieldRow label="State">
-                      <select
+                      <AppSelectField
                         value={agencyState}
                         onChange={updateVal(setAgencyState)}
-                        className={fc({
-                          hasValue: Boolean(agencyState),
-                          isSelect: true,
-                        })}
+                        hasValue={Boolean(agencyState)}
                       >
                         <option value="">Select state</option>
                         {INDIA_STATE_OPTIONS.map((s) => (
@@ -828,21 +826,18 @@ export default function ProfilePage() {
                             {s}
                           </option>
                         ))}
-                      </select>
+                      </AppSelectField>
                     </FieldRow>
 
                     <FieldRow label="GST Status">
-                      <select
+                      <AppSelectField
                         value={gstStatus}
                         onChange={updateVal(setGstStatus)}
-                        className={fc({
-                          hasValue: Boolean(gstStatus),
-                          isSelect: true,
-                        })}
+                        hasValue={Boolean(gstStatus)}
                       >
                         <option value="not-registered">Not registered</option>
                         <option value="registered">GST registered</option>
-                      </select>
+                      </AppSelectField>
                     </FieldRow>
 
                     {gstStatus === "registered" && (
@@ -1026,18 +1021,18 @@ export default function ProfilePage() {
                             }}
                             className={fc({ hasValue: true })}
                           />
-                          <select
+                          <AppSelectField
                             value={msaLateFeeUnit}
                             onChange={(e) => {
                               setMsaLateFeeUnit(e.target.value as any);
                               setIsDirty(true);
                             }}
-                            className={fc({ hasValue: true, isSelect: true })}
+                            hasValue={true}
                           >
                             <option value="monthly">per month</option>
                             <option value="annually">per annum</option>
                             <option value="daily">per day</option>
-                          </select>
+                          </AppSelectField>
                         </div>
                       </FieldRow>
 
@@ -1045,13 +1040,13 @@ export default function ProfilePage() {
                         label="IP Transfer Trigger"
                         helper="Note: Invoice-specific briefs will override these defaults during AI extraction."
                       >
-                        <select
+                        <AppSelectField
                           value={msaIpTriggerType}
                           onChange={(e) => {
                             setMsaIpTriggerType(e.target.value as any);
                             setIsDirty(true);
                           }}
-                          className={fc({ hasValue: true, isSelect: true })}
+                          hasValue={true}
                         >
                           <option value="upon_full_payment">
                             Upon Full Payment
@@ -1064,7 +1059,7 @@ export default function ProfilePage() {
                           <option value="retained_by_creator">
                             Retained by Creator (License Only)
                           </option>
-                        </select>
+                        </AppSelectField>
                       </FieldRow>
 
                       <FieldRow label="Jurisdiction">
@@ -1167,19 +1162,16 @@ export default function ProfilePage() {
                         label="Validity Period"
                         helper="Select the financial year for which the LUT is valid."
                       >
-                        <select
+                        <AppSelectField
                           value={lutValidity}
                           onChange={updateVal(setLutValidity)}
-                          className={fc({
-                            hasValue: Boolean(lutValidity),
-                            isSelect: true,
-                          })}
+                          hasValue={Boolean(lutValidity)}
                         >
                           <option value="">Select validity</option>
                           <option value="fy_2025_26">FY 2025-26</option>
                           <option value="fy_2026_27">FY 2026-27</option>
                           <option value="fy_2027_28">FY 2027-28</option>
-                        </select>
+                        </AppSelectField>
                       </FieldRow>
 
                       <div className="sm:col-span-2">

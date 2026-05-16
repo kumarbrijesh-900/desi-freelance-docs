@@ -320,21 +320,28 @@ function EditableRow({
               </div>
             </button>
           ) : fieldType === "select" ? (
-            <select
-              value={editValue}
-              onChange={(e) => {
-                setEditValue(e.target.value);
-                if (isApproved) onApprove(label, e.target.value);
-              }}
-              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 appearance-none"
-            >
-              <option value="">Select {label}...</option>
-              {options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={editValue}
+                onChange={(e) => {
+                  setEditValue(e.target.value);
+                  if (isApproved) onApprove(label, e.target.value);
+                }}
+                className="h-9 w-full border border-white/[0.1] bg-black pl-3 pr-9 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 appearance-none cursor-pointer"
+              >
+                <option value="">Select {label}...</option>
+                {options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center">
+                <svg className="h-4 w-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           ) : (
             <input
               type={fieldType === "date" ? "date" : "text"}

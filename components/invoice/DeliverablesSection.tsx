@@ -588,13 +588,15 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border-2 border-[#111118] bg-white text-left text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 flex items-center justify-between cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all"
+        className="w-full border-2 border-[#111118] bg-white text-left text-[14px] font-normal text-[color:var(--text-primary)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-        <svg className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      </button>
+      <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+        <svg className={cn("h-4 w-4 shrink-0 text-[color:var(--text-muted)] transition-transform", isOpen && "rotate-180")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
-      </button>
+      </div>
 
       {isOpen && (
         <div className="absolute left-0 top-full mt-1 w-full z-50 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
