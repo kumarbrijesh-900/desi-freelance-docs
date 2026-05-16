@@ -1260,7 +1260,7 @@ export default function InvoiceHistoryPage() {
               <span className="inline-flex h-14 w-14 items-center justify-center border-2 border-[#111118] bg-[color:var(--bg-surface-soft)]">
                 <DocumentSparkIcon className="h-6 w-6 text-[color:var(--text-secondary)]" />
               </span>
-              <h1 className="mt-5 text-2xl font-bold text-[color:var(--text-primary)]">
+              <h1 className="mt-5 text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                 Sign in to view your invoices
               </h1>
               <p className="mt-2 text-sm text-[color:var(--text-secondary)]">
@@ -1290,7 +1290,7 @@ export default function InvoiceHistoryPage() {
           <MotionReveal className="mb-6" preset="fade-up">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[28px]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Invoices
                 </h1>
                 {invoices.length > 0 && (

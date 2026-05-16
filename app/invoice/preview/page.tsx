@@ -533,7 +533,7 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Invoice Preview
                 </h1>
                 <p className="mt-3 text-sm text-[color:var(--text-secondary)]">
@@ -567,7 +567,7 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-2xl font-bold text-[color:var(--text-primary)]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Invoice Preview
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">

@@ -81,7 +81,7 @@ export default function OnboardingPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 bg-[color:var(--color-lime-300)] mb-4 shadow-[0_0_20px_rgba(191,255,0,0.3)]">
             <span className="text-xl font-black text-black">L</span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-[color:var(--text-primary)]">
+          <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
             Welcome to Lance
           </h1>
           <p className="text-sm text-[color:var(--text-muted)] mt-2">
@@ -153,9 +153,9 @@ export default function OnboardingPage() {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="rounded-2xl border border-[color:var(--border-subtle)] bg-white p-6 shadow-sm">
+                <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-sm)]">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-2 h-2 rounded-full bg-[#bfff00]" />
+                    <div className="w-2 h-2 bg-[#bfff00]" />
                     <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--text-primary)]">
                       Standard Contract Terms
                     </h3>
@@ -203,8 +203,8 @@ export default function OnboardingPage() {
       </div>
 
       <div className="mt-12 flex gap-2">
-        <div className={cn("w-2 h-2 rounded-full transition-colors", step === 1 ? "bg-[#bfff00]" : "bg-gray-200")} />
-        <div className={cn("w-2 h-2 rounded-full transition-colors", step === 2 ? "bg-[#bfff00]" : "bg-gray-200")} />
+        <div className={cn("w-2 h-2 transition-colors", step === 1 ? "bg-[#bfff00]" : "bg-gray-200")} />
+        <div className={cn("w-2 h-2 transition-colors", step === 2 ? "bg-[#bfff00]" : "bg-gray-200")} />
       </div>
     </div>
   );

@@ -151,7 +151,7 @@ export default function PublicInvoiceSharePage({
       <main className="flex min-h-screen items-center justify-center bg-[color:var(--bg-canvas)]">
         <MotionReveal preset="fade-up">
           <div className="mx-4 max-w-md border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
-            <h1 className="text-xl font-bold text-[color:var(--text-primary)]">
+            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
               Invoice Not Found
             </h1>
             <p className="mt-2 text-sm text-[color:var(--text-secondary)]">

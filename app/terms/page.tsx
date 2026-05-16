@@ -26,7 +26,7 @@ export default function TermsPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
             Legal
           </p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-4xl">
+          <h1 className="mt-2 text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
             Terms of Service
           </h1>
           <p className="mt-3 text-sm text-[color:var(--text-muted)]">
