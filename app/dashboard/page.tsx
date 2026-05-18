@@ -179,27 +179,66 @@ export default function DashboardPage() {
           .eq("user_id", user.id);
         const clientsList = clientsData || [];
 
-        // 6. Get recent activity
+        // 6. Get recent activity (unified with notifications for milestones)
+        let combinedActivityList: ActivityItem[] = [];
         try {
           const { data: activityData } = await supabase
             .from("activity_log")
             .select("*")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false })
-            .limit(5);
+            .limit(10);
 
-          const mappedActivity = (activityData || []).map((item: any) => ({
-            id: item.id,
-            action: item.action || "",
-            entityLabel: item.entity_label || item.action || "Activity",
-            detail: item.detail || "",
-            createdAt: item.created_at || new Date().toISOString(),
-          }));
-          setActivity(mappedActivity);
+          if (activityData && activityData.length > 0) {
+            combinedActivityList.push(
+              ...activityData.map((item: any) => ({
+                id: item.id,
+                action: item.action || "",
+                entityLabel: item.entity_label || item.action || "Activity",
+                detail: item.detail || "",
+                createdAt: item.created_at || new Date().toISOString(),
+              }))
+            );
+          }
         } catch (err) {
           console.warn("activity_log fetch failed or table doesn't exist:", err);
-          setActivity([]);
         }
+
+        try {
+          const { data: notifData } = await supabase
+            .from("notifications")
+            .select(`
+              *,
+              invoices:invoice_id (
+                invoice_number
+              )
+            `)
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+          if (notifData && notifData.length > 0) {
+            combinedActivityList.push(
+              ...notifData.map((item: any) => ({
+                id: item.id,
+                action: item.type || "",
+                entityLabel: item.title || "Milestone Update",
+                detail: `${item.message}${
+                  item.invoices?.invoice_number ? ` (${item.invoices.invoice_number})` : ""
+                }`,
+                createdAt: item.created_at || new Date().toISOString(),
+              }))
+            );
+          }
+        } catch (err) {
+          console.warn("notifications fetch failed or table doesn't exist:", err);
+        }
+
+        // Sort unified activities chronologically in descending order, slice to top 6 items
+        combinedActivityList.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setActivity(combinedActivityList.slice(0, 6));
 
         // --- Attach Milestones to Invoices & Compute Total Amount ---
         const invoicesWithMilestones = invoices.map((inv: any) => {
@@ -1061,12 +1100,23 @@ export default function DashboardPage() {
                     <div
                       className={cn(
                         "w-[8px] h-[8px] border-[1.5px] border-[#111118] mt-1 shrink-0",
-                        item.action.toLowerCase().includes("created") && "bg-[#BEFF00]",
-                        item.action.toLowerCase().includes("settled") && "bg-[#00DCB4]",
+                        (item.action.toLowerCase().includes("created") || item.action.toLowerCase().includes("draft")) && "bg-[#BEFF00]",
+                        (item.action.toLowerCase().includes("settled") || item.action.toLowerCase().includes("collected")) && "bg-[#00DCB4]",
                         item.action.toLowerCase().includes("accepted") && "bg-[#00DCB4]",
                         item.action.toLowerCase().includes("viewed") && "bg-[#8B5CF6]",
                         item.action.toLowerCase().includes("sent") && "bg-[#BEFF00]",
-                        item.action.toLowerCase().includes("overdue") && "bg-[#FF5C00]"
+                        item.action.toLowerCase().includes("overdue") && "bg-[#FF5C00]",
+                        item.action.toLowerCase().includes("negotiating") && "bg-[#FF9F0A]",
+                        !item.action.toLowerCase().includes("created") &&
+                          !item.action.toLowerCase().includes("draft") &&
+                          !item.action.toLowerCase().includes("settled") &&
+                          !item.action.toLowerCase().includes("collected") &&
+                          !item.action.toLowerCase().includes("accepted") &&
+                          !item.action.toLowerCase().includes("viewed") &&
+                          !item.action.toLowerCase().includes("sent") &&
+                          !item.action.toLowerCase().includes("overdue") &&
+                          !item.action.toLowerCase().includes("negotiating") &&
+                          "bg-[#EBFDF9]"
                       )}
                     ></div>
                     <div>
