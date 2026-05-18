@@ -630,3 +630,39 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - lib/supabase/invoices.ts
 - SESSION_LOG.md
 
+---
+
+## v2.5 NEO-BRUTALIST EMPTY STATE & SHARE PAGE OVERHAUL — May 18, 2026
+
+### Phase XXVII: Minimalist Empty States & Professional Client Share Experience
+
+- ✅ ES-5 — High-Signal Minimalist Empty State:
+  - Replaced the multi-column feature-grid (AI, GST, PDF) empty state in `app/invoices/page.tsx` with a premium, high-impact layout featuring a custom Neo-Brutalist square icon (**`L`**) in brand green, clear conversion-driven copy, and an interactive **Create First Invoice →** button.
+- ✅ SH-8 — Shared Page Neo-Brutalist Styling:
+  - Styled the client-facing invoice sheet wrapper in `app/share/[token]/page.tsx` to be sharp and borderless: `border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)]`.
+  - Upgraded the page background to a crisp light gray `#F5F5F8` for premium depth.
+  - Converted the "Amount Due" flex banner to a clean, centered box styled with `border-2 border-[#111118] bg-[#FFFBE6] px-6 py-4` and bold `text-2xl font-black text-[#111118]` typography.
+  - Redesigned the "Download PDF" action into a sturdy, border-2 white button with custom `shadow-[var(--brutal-shadow-sm)]`.
+  - Rebranded and stylized the footer to "Shared via Lance" and applied top-border dividers matching the platform's visual architecture.
+- ✅ SH-9 — MSA Acceptance Modal Refinements:
+  - Redesigned modal popups and confirmation dialogs within `components/invoice/share/MSAAcceptanceModal.tsx` to use `border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)]`.
+  - Stripped out all soft curves (`rounded-full`, `rounded-lg`) from icons, status indicators, and list bullets, turning them into rigid Neo-Brutalist shapes.
+  - Enhanced modal headers with `#FFFBE6` background styling and thick black sub-borders.
+
+## Deployment & Production state (v2.5)
+
+- **Latest Build:** `v2.5-final`
+- **Status:** Pushed to `main`. Compiled and deployed successfully.
+- **Verification:**
+  - Empty state displays perfectly with high-impact minimalist square branding.
+  - Client share page and terms modal render with zero rounded components, clean shadows, and centered banners.
+  - Compilation completes flawlessly with Exit Code 0.
+
+## Files modified in v2.5
+
+- app/invoices/page.tsx
+- app/share/[token]/page.tsx
+- components/invoice/share/MSAAcceptanceModal.tsx
+- SESSION_LOG.md
+
+
