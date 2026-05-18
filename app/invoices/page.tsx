@@ -640,6 +640,57 @@ function InvoiceSettlementConfirmModal({
   );
 }
 
+function InvoiceDeleteConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  count,
+  isSubmitting,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  count: number;
+  isSubmitting: boolean;
+}) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
+      <MotionReveal preset="fade-up" className="w-full max-w-md">
+        <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-[#111118] uppercase tracking-tight">
+              {count > 1 ? `Delete ${count} Invoices?` : "Delete Invoice?"}
+            </h2>
+            <p className="mt-2 text-sm text-[color:var(--text-secondary)] leading-relaxed">
+              Are you sure you want to permanently delete {count > 1 ? "these invoices" : "this invoice"}? This action cannot be undone.
+            </p>
+          </div>
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className={`flex-1 ${getAppButtonClass({ variant: "ghost", size: "md" })}`}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={isSubmitting}
+              className={`flex-[2] ${getAppButtonClass({ variant: "primary", size: "md" })} text-white`}
+              style={{ backgroundColor: '#FF5C00', borderColor: '#111118' }}
+            >
+              {isSubmitting ? "Deleting…" : "Yes, Delete"}
+            </button>
+          </div>
+        </div>
+      </MotionReveal>
+    </div>
+  );
+}
+
 export default function InvoiceHistoryPage() {
   const router = useRouter();
   const [invoices, setInvoices] = useState<SavedInvoice[]>([]);
@@ -650,6 +701,8 @@ export default function InvoiceHistoryPage() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [requestingId, setRequestingId] = useState<string | null>(null);
   const [activeFullSettlementId, setActiveFullSettlementId] = useState<string | null>(null);
@@ -765,11 +818,15 @@ export default function InvoiceHistoryPage() {
     } catch {}
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this invoice? This cannot be undone.")) {
-      return;
-    }
+  const handleDelete = (id: string) => {
+    setDeleteTargetId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    const id = deleteTargetId;
     setDeletingId(id);
+    setDeleteTargetId(null);
     const { error } = await deleteInvoice(id);
     if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
@@ -1157,14 +1214,12 @@ export default function InvoiceHistoryPage() {
     saveAs(blob, `Invoices_Export_${new Date().toISOString().split("T")[0]}.xlsx`);
   };
 
-  const handleBulkDelete = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to permanently delete ${selectedIds.size} invoices? This cannot be undone.`
-      )
-    )
-      return;
+  const handleBulkDelete = () => {
+    setShowBulkDeleteConfirm(true);
+  };
 
+  const handleConfirmBulkDelete = async () => {
+    setShowBulkDeleteConfirm(false);
     setIsBulkDeleting(true);
     const ids = Array.from(selectedIds);
     const { error } = await supabase.from("invoices").delete().in("id", ids);
@@ -1585,6 +1640,22 @@ export default function InvoiceHistoryPage() {
             onClose={() => setActiveFullSettlementId(null)}
             onConfirm={handleConfirmFullSettlement}
             isSubmitting={!!settlingId && settlingId === activeFullSettlementId}
+          />
+
+          <InvoiceDeleteConfirmModal
+            isOpen={!!deleteTargetId}
+            onClose={() => setDeleteTargetId(null)}
+            onConfirm={handleConfirmDelete}
+            count={1}
+            isSubmitting={!!deletingId}
+          />
+
+          <InvoiceDeleteConfirmModal
+            isOpen={showBulkDeleteConfirm}
+            onClose={() => setShowBulkDeleteConfirm(false)}
+            onConfirm={handleConfirmBulkDelete}
+            count={selectedIds.size}
+            isSubmitting={isBulkDeleting}
           />
 
           {activeNextMilestone && (
