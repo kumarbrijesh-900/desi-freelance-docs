@@ -9,10 +9,11 @@ export const dynamic = "force-dynamic";
  * Vercel Cron endpoint. Runs daily to check invoice due dates.
  */
 export async function GET(request: Request) {
-  // 1. Verify this request actually came from Vercel Cron (security)
+  // 1. Verify this request actually came from Vercel Cron (security).
+  // Fails CLOSED: if CRON_SECRET is missing or the header does not match, deny immediately.
   const authHeader = request.headers.get("authorization");
   if (
-    process.env.CRON_SECRET &&
+    !process.env.CRON_SECRET ||
     authHeader !== `Bearer ${process.env.CRON_SECRET}`
   ) {
     return new NextResponse("Unauthorized", { status: 401 });

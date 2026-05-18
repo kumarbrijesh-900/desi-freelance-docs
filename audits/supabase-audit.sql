@@ -193,9 +193,24 @@ CREATE POLICY "Invoices: users can manage own invoices" ON invoices
 CREATE POLICY "Invoices: public can view shared invoices" ON invoices
     FOR SELECT USING (share_token IS NOT NULL);
 
+-- Public MSA acceptance: row-gated by share_token + enum-validated values.
+-- NOTE: PostgreSQL RLS WITH CHECK is row-level only and cannot restrict individual
+-- columns. Column-level write restriction is enforced via GRANT UPDATE below.
+DROP POLICY IF EXISTS "Invoices: public can update MSA acceptance" ON invoices;
 CREATE POLICY "Invoices: public can update MSA acceptance" ON invoices
-    FOR UPDATE USING (share_token IS NOT NULL)
-    WITH CHECK (share_token IS NOT NULL);
+    FOR UPDATE
+    USING (share_token IS NOT NULL)
+    WITH CHECK (
+        share_token IS NOT NULL
+        AND msa_status IN ('ACCEPTED', 'REVISION ASKED', 'PENDING')
+    );
+
+-- Column-level defence: strip all UPDATE rights from the anon role, then
+-- grant back ONLY the four MSA-related columns. This prevents an unauthenticated
+-- caller from overwriting financial columns (form_data, due_date, status, etc.)
+-- even if they hold a valid share_token.
+REVOKE UPDATE ON invoices FROM anon;
+GRANT UPDATE (msa_status, msa_response, msa_responded_at, client_msa_note) ON invoices TO anon;
 
 -- Read Receipts: Owner can read; Public can insert
 CREATE POLICY "Read Receipts: owners can view" ON read_receipts

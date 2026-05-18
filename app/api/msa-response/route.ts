@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
+
+const MsaResponseSchema = z.object({
+  shareToken: z.string().min(1, "shareToken is required"),
+  response: z.enum(["ACCEPTED", "REVISION ASKED", "PENDING"]),
+  note: z.string().max(2000).trim().optional().nullable(),
+});
 
 /**
  * POST /api/msa-response
@@ -17,11 +24,15 @@ export async function POST(req: NextRequest) {
   );
 
   try {
-    const { shareToken, response, note } = await req.json();
-
-    if (!shareToken || !["ACCEPTED", "REVISION ASKED", "PENDING"].includes(response)) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const body = await req.json();
+    const result = MsaResponseSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid request", details: result.error.flatten() },
+        { status: 400 },
+      );
     }
+    const { shareToken, response, note } = result.data;
 
     // 1. Update the invoice status
     const { data: inv, error: updateErr } = await supabaseAdmin

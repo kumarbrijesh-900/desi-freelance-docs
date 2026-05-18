@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
+
+const TrackViewSchema = z.object({
+  invoiceId: z.string().uuid("invoiceId must be a valid UUID"),
+  userAgent: z.string().max(512).trim().optional().nullable(),
+});
 
 /**
  * POST /api/track-view
@@ -15,11 +21,16 @@ export async function POST(req: NextRequest) {
   );
 
   try {
-    const { invoiceId, userAgent } = await req.json();
-
-    if (!invoiceId) {
-      return NextResponse.json({ error: "Invoice ID required" }, { status: 400 });
+    const body = await req.json();
+    const result = TrackViewSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid request", details: result.error.flatten() },
+        { status: 400 },
+      );
     }
+    const { invoiceId, userAgent } = result.data;
+
 
     // 1. Record the view in read_receipts
     await supabaseAdmin.from("read_receipts").insert({
