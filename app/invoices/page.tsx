@@ -1222,6 +1222,29 @@ export default function InvoiceHistoryPage() {
     setShowBulkDeleteConfirm(false);
     setIsBulkDeleting(true);
     const ids = Array.from(selectedIds);
+
+    // 1. Fetch all milestone IDs for selected invoices
+    const { data: milestones } = await supabase
+      .from("invoice_milestones")
+      .select("id")
+      .in("invoice_id", ids);
+
+    if (milestones && milestones.length > 0) {
+      const milestoneIds = milestones.map(m => m.id);
+      // 2. Delete line items for these milestones
+      await supabase
+        .from("invoice_line_items")
+        .delete()
+        .in("milestone_id", milestoneIds);
+    }
+
+    // 3. Delete milestones
+    await supabase
+      .from("invoice_milestones")
+      .delete()
+      .in("invoice_id", ids);
+
+    // 4. Delete invoices themselves
     const { error } = await supabase.from("invoices").delete().in("id", ids);
 
     if (!error) {

@@ -409,6 +409,27 @@ export async function deleteInvoice(
     return { error: "Not authenticated" };
   }
 
+  // 1. Fetch milestone IDs first to safely clear their nested line items
+  const { data: milestones } = await supabase
+    .from("invoice_milestones")
+    .select("id")
+    .eq("invoice_id", invoiceId);
+
+  if (milestones && milestones.length > 0) {
+    const milestoneIds = milestones.map(m => m.id);
+    await supabase
+      .from("invoice_line_items")
+      .delete()
+      .in("milestone_id", milestoneIds);
+  }
+
+  // 2. Clear milestones
+  await supabase
+    .from("invoice_milestones")
+    .delete()
+    .eq("invoice_id", invoiceId);
+
+  // 3. Delete parent invoice
   const { error } = await supabase
     .from("invoices")
     .delete()
