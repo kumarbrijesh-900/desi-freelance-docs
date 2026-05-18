@@ -2344,6 +2344,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
+          onPreview={handlePreviewInvoice}
         />
       );
     case "meta": {

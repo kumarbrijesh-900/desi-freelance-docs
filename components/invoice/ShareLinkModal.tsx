@@ -317,6 +317,14 @@ export default function ShareLinkModal({
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
                     <span className="font-semibold">Jurisdiction:</span> {invoiceData?.client?.msaJurisdictionCity || "Agency City"}
                   </li>
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">Revision rounds:</span> {invoiceData?.client?.freeRevisionRounds ?? 2} free per deliverable
+                  </li>
+                  <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
+                    <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
+                    <span className="font-semibold">Extra revision fee:</span> {invoiceData?.client?.extraRevisionFeePercent ?? 15}% of line item per round
+                  </li>
                 </ul>
                 <p className="mt-4 border-t border-[color:var(--border-subtle)] pt-3 text-[11px] text-[color:var(--text-muted)] leading-relaxed italic">
                   The client must digitally accept these terms before they can access the full invoice.

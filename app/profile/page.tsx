@@ -10,6 +10,7 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import {
   MotionReveal,
@@ -100,6 +101,7 @@ function FieldRow({
 type ProfileTab = 'agency' | 'banking' | 'contract' | 'compliance';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -716,6 +718,14 @@ export default function ProfilePage() {
             {/* Header */}
             <MotionReveal preset="fade-up">
               <div className="mb-8">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--text-muted)] hover:text-[#111118] transition-colors mb-4"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7l7-7" /></svg>
+                  Back
+                </button>
                 <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
                   Your Profile
                 </h1>
