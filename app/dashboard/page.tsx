@@ -940,7 +940,7 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
               <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">CLIENT LEDGER</p>
-              <div className="flex gap-4 flex-wrap items-center">
+              <div className="hidden sm:flex gap-4 flex-wrap items-center">
                 <span className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mr-1">MILESTONE KEY:</span>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#00DCB4] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Settled</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#BEFF00] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Live</span></div>
@@ -950,7 +950,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Search & Sort Controls Strip */}
-            <div className="px-4 py-2.5 border-b-2 border-[#111118] bg-[#F8F8F4] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="px-4 py-2.5 border-b-2 border-[#111118] bg-[#F8F8F4] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
               {/* Active filter display */}
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[12px] font-bold text-[#111118] uppercase tracking-[0.05em]">Filter:</span>
@@ -1013,14 +1013,14 @@ export default function DashboardPage() {
             </div>
 
             {/* Table */}
-            <table className="w-full min-w-[700px]" style={{ borderCollapse: "collapse" }}>
+            <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr className="border-b-2 border-[#111118] bg-[#F8F8F4]">
                   <th className="text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Client</th>
-                  <th className="text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Invoices</th>
-                  <th className="text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Stages</th>
+                  <th className="hidden sm:table-cell text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Invoices</th>
+                  <th className="hidden sm:table-cell text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Stages</th>
                   <th className="text-right px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Receivable</th>
-                  <th className="text-right px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Collected</th>
+                  <th className="hidden sm:table-cell text-right px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Collected</th>
                   <th className="text-center px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Health</th>
                 </tr>
               </thead>
@@ -1040,7 +1040,7 @@ export default function DashboardPage() {
                     </td>
 
                     {/* Invoice numbers stacked */}
-                    <td className="px-4 py-3 align-top">
+                    <td className="hidden sm:table-cell px-4 py-3 align-top">
                       {client.invoices.map((inv) => (
                         <p
                           key={inv.id}
@@ -1053,7 +1053,7 @@ export default function DashboardPage() {
                     </td>
 
                     {/* Milestone stage pills - one row per invoice */}
-                    <td className="px-4 py-3 align-top">
+                    <td className="hidden sm:table-cell px-4 py-3 align-top">
                       {client.invoices.map((inv) => (
                         <div key={inv.id} className="flex flex-wrap gap-1.5 items-center mb-2 last:mb-0">
                           {inv.milestones.length > 0 ? (
@@ -1191,7 +1191,7 @@ export default function DashboardPage() {
                     </td>
 
                     {/* Collected */}
-                    <td className={cn("px-4 py-3 text-right align-top text-[14px] font-bold", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>
+                    <td className={cn("hidden sm:table-cell px-4 py-3 text-right align-top text-[14px] font-bold", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>
                       ₹{formatIndian(client.totalCollected)}
                     </td>
 
