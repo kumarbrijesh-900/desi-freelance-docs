@@ -546,3 +546,54 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 
 - app/dashboard/page.tsx
 - SESSION_LOG.md
+
+---
+
+## v2.3 SECURITY HARDENING & INTERFACE DEACTIVATION — May 18, 2026
+
+### Phase XXIV: Production Infrastructure Security Audit & Hardening
+
+- ✅ SA-1 — Fail-Closed Cron Guard:
+  - Hardened the automated invoice check endpoint `app/api/cron/check-invoices/route.ts`.
+  - Added strict authorization checking: if `CRON_SECRET` is undefined, missing, or empty, the API now immediately returns a `401 Unauthorized` response instead of skipping the validation.
+- ✅ SA-2 — Strict Zod API Request Integrity:
+  - Integrated robust Zod parsing in `app/api/msa-response/route.ts` to strictly validate payload data (`shareToken` must be non-empty, `response` must match valid enums, and `note` is trimmed and limited to 2000 characters).
+  - Integrated Zod parsing in `app/api/track-view/route.ts` ensuring the parsed `invoiceId` matches a valid UUID format before performing any read-receipt database query, preventing injection vectors.
+- ✅ SA-3 — PostgreSQL Column-Level Security (CLS):
+  - Tightened database update policy for the `invoices` table. Removed standard update privileges from the unauthenticated database role (`anon`).
+  - Granted back update privileges strictly for four columns (`msa_status`, `msa_response`, `msa_responded_at`, `client_msa_note`), making it physically impossible for external actors to alter line items, totals, or statuses.
+  - Implemented self-healing SQL migrations ensuring that the `client_msa_note` column is automatically added to `public.invoices` if missing.
+- ✅ SA-4 — Granular Table RLS Migrations:
+  - Created and executed a new database migration (`supabase/migrations/20260518_rls_milestones_notifications.sql`).
+  - Added strict multi-tenant row-level access security for `invoice_milestones` (parent invoice owner verification) and `notifications` (owner check `auth.uid() = user_id`).
+- ✅ SA-5 — Environment Variables Standardization:
+  - Standardized the non-canonical `OPEN_AI_KEY` reference to the industry-standard `OPENAI_API_KEY` across project configuration files.
+
+### Phase XXV: User Interface Decluttering
+
+- ✅ UI-DC — Deactivated AI Brief Extraction:
+  - Commented out and disabled the `BriefIntakeCard` component within [InvoiceEditorPage.tsx](file:///Users/bkb/Desktop/desi-freelance-docs/components/invoice/InvoiceEditorPage.tsx) and [EditorContent.tsx](file:///Users/bkb/Desktop/desi-freelance-docs/components/invoice/EditorContent.tsx).
+  - The AI brief extraction layout is now fully hidden from the frontend editor interface in both collapsed and expanded states.
+
+## Deployment & Production state (v2.3)
+
+- **Latest Build:** `v2.3-hardened`
+- **Status:** Pushed to `main`. Compiled successfully.
+- **Verification:**
+  - Automated endpoint checks strictly fail closed (401 Unauthorized if secret is missing).
+  - Invalid UUIDs rejected by Track View endpoint with 400 Bad Request.
+  - Supabase database columns restricted via CLS GRANT UPDATE.
+  - AI card completely hidden from the editor view.
+  - Full Next.js production build succeeded with exit code 0.
+
+## Files modified in v2.3
+
+- app/api/cron/check-invoices/route.ts
+- app/api/msa-response/route.ts
+- app/api/track-view/route.ts
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/EditorContent.tsx
+- audits/supabase-audit.sql
+- supabase/migrations/20260518_rls_milestones_notifications.sql
+- .env
+- SESSION_LOG.md
