@@ -779,7 +779,8 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
               <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">CLIENT LEDGER</p>
-              <div className="flex gap-4 flex-wrap">
+              <div className="flex gap-4 flex-wrap items-center">
+                <span className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mr-1">MILESTONE KEY:</span>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#00DCB4] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Settled</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#BEFF00] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Live</span></div>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#FF5C00] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Overdue</span></div>
@@ -890,131 +891,134 @@ export default function DashboardPage() {
                       ))}
                     </td>
 
-                    {/* Milestone stage bars - one row per invoice */}
+                    {/* Milestone stage pills - one row per invoice */}
                     <td className="px-4 py-3 align-top">
                       {client.invoices.map((inv) => (
-                        <div key={inv.id} className="flex gap-[3px] items-center mb-1 last:mb-0">
+                        <div key={inv.id} className="flex flex-wrap gap-1.5 items-center mb-2 last:mb-0">
                           {inv.milestones.length > 0 ? (
-                            <>
-                              {inv.milestones.map((m, mi) => {
-                                const s = (m.status || "").toLowerCase();
-                                const bg = s === "settled" ? "#00DCB4"
-                                  : s === "overdue" ? "#FF5C00"
-                                  : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                  : s === "draft" ? "#8B5CF6"
-                                  : "#E0E0E0";
-                                
-                                const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
-                                let authIcon = "📜";
-                                let authLabel = "Global MSA";
-                                let authDesc = "Using default agency-wide terms.";
-                                if (inv.has_addendum) {
-                                  authIcon = "⚡";
-                                  authLabel = "Project Addendum";
-                                  authDesc = "Active project overrides.";
-                                } else if (inv.msa_id) {
-                                  authIcon = "🤝";
-                                  authLabel = "Client MSA";
-                                  authDesc = "Linked to Client Agreement.";
-                                }
+                            inv.milestones.map((m, mi) => {
+                              const s = (m.status || "").toLowerCase();
+                              const bg = s === "settled" ? "#00DCB4"
+                                : s === "overdue" ? "#FF5C00"
+                                : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
+                                : s === "draft" ? "#8B5CF6"
+                                : "#E0E0E0";
+                              
+                              const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                              let authIcon = "📜";
+                              let authLabel = "Global MSA";
+                              let authDesc = "Using default agency-wide terms.";
+                              if (inv.has_addendum) {
+                                authIcon = "⚡";
+                                authLabel = "Project Addendum";
+                                authDesc = "Active project overrides.";
+                              } else if (inv.msa_id) {
+                                authIcon = "🤝";
+                                authLabel = "Client MSA";
+                                authDesc = "Linked to Client Agreement.";
+                              }
 
-                                return (
-                                  <div
-                                    key={mi}
-                                    onClick={() => setSelectedInvoice(inv)}
-                                    className="relative group cursor-pointer"
-                                  >
-                                    <div
-                                      className="w-[28px] h-[8px] border border-[#111118] hover:scale-110 hover:scale-y-125 transition-transform"
-                                      style={{ background: bg }}
-                                    ></div>
+                              return (
+                                <div
+                                  key={mi}
+                                  onClick={() => setSelectedInvoice(inv)}
+                                  className="relative group cursor-pointer animate-reveal"
+                                >
+                                  {/* Milestone Capsule Tag */}
+                                  <div className="inline-flex items-center gap-1.5 border border-[#111118] bg-white px-2 py-0.5 text-[11px] font-bold shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all select-none">
+                                    <span className="w-2.5 h-1.5 border border-[#111118] inline-block shrink-0" style={{ backgroundColor: bg }}></span>
+                                    <span className="text-[#111118]">
+                                      M{mi + 1}: {m.title}
+                                    </span>
+                                    <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-0.5">
+                                      ₹{formatIndian(m.amount)}
+                                    </span>
+                                    {s === "settled" && <span className="text-[#00967D] ml-0.5 font-black">✓</span>}
+                                    {s === "overdue" && <span className="text-[#FF5C00] ml-0.5 font-bold">⚠</span>}
+                                  </div>
 
-                                    {/* Tooltip */}
-                                    <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
-                                      <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                      <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
-                                        <span>M{mi + 1}: {m.title}</span>
-                                        <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
-                                          {s}
-                                        </span>
-                                      </p>
-                                      <div className="mt-2 space-y-1">
-                                        <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(m.amount)}</span></p>
-                                        <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
-                                        <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
-                                          <p className="text-[11px] font-bold flex items-center gap-1">
-                                            <span>{authIcon}</span>
-                                            <span>{authLabel}</span>
-                                          </p>
-                                          <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
-                                        </div>
+                                  {/* Tooltip */}
+                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                    <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
+                                    <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
+                                      <span>M{mi + 1}: {m.title}</span>
+                                      <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black uppercase">
+                                        {s}
+                                      </span>
+                                    </p>
+                                    <div className="mt-2 space-y-1">
+                                      <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(m.amount)}</span></p>
+                                      <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
+                                      <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
+                                        <p className="text-[11px] font-bold flex items-center gap-1">
+                                          <span>{authIcon}</span>
+                                          <span>{authLabel}</span>
+                                        </p>
+                                        <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
                                       </div>
                                     </div>
                                   </div>
-                                );
-                              })}
-                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5 whitespace-nowrap select-none">
-                                {inv.milestones.map((m, mi) => {
-                                  const s = (m.status || "").toLowerCase();
-                                  const icon = s === "settled" ? "✓" : s === "overdue" ? "⚠" : "●";
-                                  return `M${mi + 1}${icon}`;
-                                }).join(" ")}
-                              </span>
-                            </>
+                                </div>
+                              );
+                            })
                           ) : (
-                            <>
-                              {(() => {
-                                const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
-                                let authIcon = "📜";
-                                let authLabel = "Global MSA";
-                                let authDesc = "Using default agency-wide terms.";
-                                if (inv.has_addendum) {
-                                  authIcon = "⚡";
-                                  authLabel = "Project Addendum";
-                                  authDesc = "Active project overrides.";
-                                } else if (inv.msa_id) {
-                                  authIcon = "🤝";
-                                  authLabel = "Client MSA";
-                                  authDesc = "Linked to Client Agreement.";
-                                }
-                                const isDraft = (inv.status || "").toLowerCase() === "draft";
+                            (() => {
+                              const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                              let authIcon = "📜";
+                              let authLabel = "Global MSA";
+                              let authDesc = "Using default agency-wide terms.";
+                              if (inv.has_addendum) {
+                                authIcon = "⚡";
+                                authLabel = "Project Addendum";
+                                authDesc = "Active project overrides.";
+                              } else if (inv.msa_id) {
+                                authIcon = "🤝";
+                                authLabel = "Client MSA";
+                                authDesc = "Linked to Client Agreement.";
+                              }
+                              const isDraft = (inv.status || "").toLowerCase() === "draft";
 
-                                return (
-                                  <div
-                                    onClick={() => setSelectedInvoice(inv)}
-                                    className="relative group cursor-pointer"
-                                  >
-                                    <div
-                                      className="w-[28px] h-[8px] border border-[#111118] hover:scale-110 hover:scale-y-125 transition-transform"
-                                      style={{ background: isDraft ? "#8B5CF6" : "#E0E0E0" }}
-                                    ></div>
+                              return (
+                                <div
+                                  onClick={() => setSelectedInvoice(inv)}
+                                  className="relative group cursor-pointer animate-reveal"
+                                >
+                                  {/* Simple Invoice Tag */}
+                                  <div className="inline-flex items-center gap-1.5 border border-[#111118] bg-white px-2 py-0.5 text-[11px] font-bold shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all select-none">
+                                    <span className="w-2.5 h-1.5 border border-[#111118] inline-block shrink-0" style={{ backgroundColor: isDraft ? "#8B5CF6" : "#E0E0E0" }}></span>
+                                    <span className="text-[#111118]">Simple Invoice</span>
+                                    <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-0.5">
+                                      ₹{formatIndian(inv.totalAmount)}
+                                    </span>
+                                    <span className="text-[9px] uppercase font-black text-[#5530DB] ml-1 bg-[#F0EAFF] border border-[#111118] px-1">
+                                      {inv.status}
+                                    </span>
+                                  </div>
 
-                                    {/* Tooltip */}
-                                    <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
-                                      <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                      <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
-                                        <span>{inv.invoiceNumber}</span>
-                                        <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
-                                          {inv.status}
-                                        </span>
-                                      </p>
-                                      <div className="mt-2 space-y-1">
-                                        <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(inv.totalAmount)}</span></p>
-                                        <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
-                                        <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
-                                          <p className="text-[11px] font-bold flex items-center gap-1">
-                                            <span>{authIcon}</span>
-                                            <span>{authLabel}</span>
-                                          </p>
-                                          <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
-                                        </div>
+                                  {/* Tooltip */}
+                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                    <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
+                                    <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
+                                      <span>{inv.invoiceNumber}</span>
+                                      <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
+                                        {inv.status}
+                                      </span>
+                                    </p>
+                                    <div className="mt-2 space-y-1">
+                                      <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(inv.totalAmount)}</span></p>
+                                      <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
+                                      <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
+                                        <p className="text-[11px] font-bold flex items-center gap-1">
+                                          <span>{authIcon}</span>
+                                          <span>{authLabel}</span>
+                                        </p>
+                                        <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
                                       </div>
                                     </div>
                                   </div>
-                                );
-                              })()}
-                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5 whitespace-nowrap select-none">{(inv.status || "").toLowerCase() === "draft" ? "Draft" : "Pending"}</span>
-                            </>
+                                </div>
+                              );
+                            })()
                           )}
                         </div>
                       ))}
@@ -1031,16 +1035,22 @@ export default function DashboardPage() {
                     </td>
 
                     {/* Health */}
-                    <td className="px-4 py-3 text-center align-top">
+                    <td className="px-4 py-3 text-center align-top select-none">
                       <span className={cn(
-                        "text-[11px] font-bold px-3 py-1 border-[1.5px] border-[#111118] inline-block",
+                        "text-[10px] font-bold px-2.5 py-1 border-[1.5px] border-[#111118] inline-block uppercase tracking-wider shadow-[1px_1px_0_#111118]",
                         client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                        client.health === "overdue" && "bg-[#FF5C00] text-white",
-                        client.health === "clear" && "bg-[#E0FFF7] text-[#006B52]",
+                        client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
+                        client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
                         client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
                       )}>
-                        {client.health === "good" ? "GOOD" : client.health === "overdue" ? "LATE" : client.health === "clear" ? "CLEAR" : "DRAFT"}
+                        {client.health === "good" ? "GOOD (On Track)" : client.health === "overdue" ? "LATE (Overdue)" : client.health === "clear" ? "CLEAR (Paid)" : "DRAFT ONLY"}
                       </span>
+                      <p className="text-[9px] text-[color:var(--text-muted)] font-black mt-1.5 uppercase tracking-wider leading-tight whitespace-nowrap">
+                        {client.health === "good" && "Payments on track"}
+                        {client.health === "overdue" && "Has unpaid past due"}
+                        {client.health === "clear" && "All invoices settled"}
+                        {client.health === "draft" && "Drafts not yet sent"}
+                      </p>
                     </td>
                   </tr>
                 ))}
