@@ -1244,6 +1244,26 @@ export default function InvoiceHistoryPage() {
       .delete()
       .in("invoice_id", ids);
 
+    // 3b. Delete notifications referencing these invoices
+    try {
+      await supabase.from("notifications").delete().in("invoice_id", ids);
+    } catch (e) { /* table may not exist */ }
+
+    // 3c. Delete activity log entries referencing these invoices
+    try {
+      await supabase.from("activity_log").delete().in("entity_id", ids);
+    } catch (e) { /* table may not exist */ }
+
+    // 3d. Delete share tokens or share records if table exists
+    try {
+      await supabase.from("invoice_share_tokens").delete().in("invoice_id", ids);
+    } catch (e) { /* table may not exist */ }
+
+    // 3e. Delete child invoices referencing these invoices
+    try {
+      await supabase.from("invoices").delete().in("parent_invoice_id", ids);
+    } catch (e) { /* no children */ }
+
     // 4. Delete invoices themselves
     const { error } = await supabase.from("invoices").delete().in("id", ids);
 
