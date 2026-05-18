@@ -498,13 +498,13 @@ export default function DashboardPage() {
               style={{ transform: "rotate(-0.5deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
-              <p className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
+              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 THEY OWE YOU
               </p>
               <p className="text-[26px] font-black text-[#111118] tracking-[-0.02em] mt-0.5 font-syne antialiased">
                 ₹{formatIndian(metrics.outstanding)}
               </p>
-              <p className="text-[10px] text-[color:var(--text-muted)]">
+              <p className="text-[12px] text-[color:var(--text-muted)]">
                 across {metrics.outstandingCount} invoices
               </p>
             </div>
@@ -515,13 +515,13 @@ export default function DashboardPage() {
               style={{ transform: "rotate(0.6deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#00DCB4] border-2 border-[#111118]"></div>
-              <p className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
+              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 MONEY IN
               </p>
               <p className="text-[22px] font-black text-[#111118] mt-0.5 font-syne antialiased">
                 ₹{formatIndian(metrics.settled)}
               </p>
-              <p className="text-[10px] text-[#00967D] font-semibold">
+              <p className="text-[12px] text-[#00967D] font-semibold">
                 {metrics.settledCount} settled
               </p>
             </div>
@@ -532,13 +532,13 @@ export default function DashboardPage() {
               style={{ transform: "rotate(-0.3deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
-              <p className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
+              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 OVERDUE
               </p>
               <p className="text-[22px] font-black text-[#FF5C00] mt-0.5 font-syne antialiased">
                 ₹{formatIndian(metrics.overdue)}
               </p>
-              <p className="text-[10px] text-[#FF5C00] font-semibold">
+              <p className="text-[12px] text-[#FF5C00] font-semibold">
                 {metrics.overdueCount} invoices
               </p>
             </div>
@@ -549,13 +549,13 @@ export default function DashboardPage() {
               style={{ transform: "rotate(0.4deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#BEFF00] border-2 border-[#111118]"></div>
-              <p className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
+              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 DUE THIS WEEK
               </p>
               <p className="text-[22px] font-black text-[#111118] mt-0.5 font-syne antialiased">
                 ₹{formatIndian(metrics.dueThisWeek)}
               </p>
-              <p className="text-[10px] text-[#FF5C00] font-semibold">
+              <p className="text-[12px] text-[#FF5C00] font-semibold">
                 {metrics.dueThisWeekCount} invoices
               </p>
             </div>
@@ -568,14 +568,14 @@ export default function DashboardPage() {
               style={{ transform: "rotate(0.2deg)" }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-[18px] h-[18px] bg-[#FF5C00] border-[1.5px] border-[#111118] flex items-center justify-center text-[10px] text-white font-black">
+                <div className="w-[18px] h-[18px] bg-[#FF5C00] border-[1.5px] border-[#111118] flex items-center justify-center text-[12px] text-white font-black">
                   !
                 </div>
-                <p className="text-[10px] font-bold text-[#CC4A00] tracking-[0.08em] uppercase">
+                <p className="text-[12px] font-bold text-[#CC4A00] tracking-[0.08em] uppercase">
                   ACTION NEEDED
                 </p>
               </div>
-              <p className="text-[12px] text-[#111118] font-medium">
+              <p className="text-[14px] text-[#111118] font-medium">
                 {firstOverdueInvoice.invoiceNumber} for {firstOverdueClient} is
                 overdue. Send a payment reminder?
               </p>
@@ -585,11 +585,11 @@ export default function DashboardPage() {
                     alert(`Reminder nudge triggered for ${firstOverdueInvoice.invoiceNumber}`);
                     console.log(`Nudge sent for invoice ${firstOverdueInvoice.id}`);
                   }}
-                  className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[10px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
+                  className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
                 >
                   Send Nudge
                 </button>
-                <button className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[10px] font-bold cursor-pointer uppercase font-syne">
+                <button className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold cursor-pointer uppercase font-syne">
                   Dismiss
                 </button>
               </div>
@@ -600,44 +600,44 @@ export default function DashboardPage() {
           <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
             <div className="px-4 py-2 border-b-2 border-[#111118] bg-[#111118] flex justify-between items-center">
-              <p className="text-[10px] font-bold text-[#BEFF00] tracking-[0.12em] uppercase">
+              <p className="text-[12px] font-bold text-[#BEFF00] tracking-[0.12em] uppercase">
                 CLIENT LEDGER
               </p>
               <div className="flex gap-3">
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-[3px] bg-[#00DCB4]"></div>
-                  <span className="text-[8px] text-[#888]">Settled</span>
+                  <div className="w-3 h-[5px] bg-[#00DCB4]"></div>
+                  <span className="text-[11px] text-[#888]">Settled</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-[3px] bg-[#BEFF00]"></div>
-                  <span className="text-[8px] text-[#888]">Live</span>
+                  <div className="w-3 h-[5px] bg-[#BEFF00]"></div>
+                  <span className="text-[11px] text-[#888]">Live</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-[3px] bg-[#FF5C00]"></div>
-                  <span className="text-[8px] text-[#888]">Overdue</span>
+                  <div className="w-3 h-[5px] bg-[#FF5C00]"></div>
+                  <span className="text-[11px] text-[#888]">Overdue</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-[3px] bg-[#8B5CF6]"></div>
-                  <span className="text-[8px] text-[#888]">Draft</span>
+                  <div className="w-3 h-[5px] bg-[#8B5CF6]"></div>
+                  <span className="text-[11px] text-[#888]">Draft</span>
                 </div>
               </div>
             </div>
 
             {/* Column headers - hidden on mobile */}
             <div className="hidden sm:grid grid-cols-[1.4fr_1.6fr_0.8fr_0.8fr_0.6fr] px-3 py-2 border-b border-[color:var(--border-subtle)] bg-[#F8F8F4]">
-              <span className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
+              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
                 CLIENT
               </span>
-              <span className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
+              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
                 MILESTONES
               </span>
-              <span className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
+              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
                 OWED
               </span>
-              <span className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
+              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
                 COLLECTED
               </span>
-              <span className="text-[9px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-center uppercase">
+              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-center uppercase">
                 HEALTH
               </span>
             </div>
@@ -653,11 +653,14 @@ export default function DashboardPage() {
               >
                 {/* Client name */}
                 <div>
-                  <p className="text-[12px] font-semibold text-[#111118]">
+                  <p className="text-[13px] sm:text-[14px] font-bold text-[#111118]">
                     {client.clientName}
                   </p>
-                  <p className="text-[10px] text-[color:var(--text-muted)] truncate max-w-full">
-                    {client.invoices.map((inv) => inv.invoiceNumber).join(" · ")}
+                  <p className="text-[11px] sm:text-[12px] text-[color:var(--text-muted)] truncate max-w-full">
+                    {client.invoices.length <= 3
+                      ? client.invoices.map(inv => inv.invoiceNumber).join(" · ")
+                      : client.invoices.slice(0, 3).map(inv => inv.invoiceNumber).join(" · ") + ` +${client.invoices.length - 3} more`
+                    }
                   </p>
                 </div>
 
@@ -668,27 +671,24 @@ export default function DashboardPage() {
                       {inv.milestones.length > 0 ? (
                         inv.milestones.map((m, mi) => {
                           const statusLower = m.status.toLowerCase();
-                          let bg = "#eee";
-                          if (statusLower === "settled") bg = "#00DCB4";
-                          else if (statusLower === "overdue") bg = "#FF5C00";
-                          else if (statusLower === "live" || statusLower === "sent") bg = "#BEFF00";
-                          else if (statusLower === "draft") bg = "#8B5CF6";
+                          let barClass = "w-[32px] h-[10px] border border-[#111118]";
+                          if (statusLower === "settled") barClass += " bg-[#00DCB4]";
+                          else if (statusLower === "overdue") barClass += " bg-[#FF5C00]";
+                          else if (statusLower === "live" || statusLower === "sent" || statusLower === "finalized") barClass += " bg-[#BEFF00]";
+                          else if (statusLower === "draft") barClass += " bg-[#8B5CF6]";
+                          else barClass = "w-[32px] h-[10px] bg-[#E0E0E0] border border-[#ccc]";
 
                           return (
                             <div
                               key={mi}
-                              className="w-[22px] h-[6px]"
-                              style={{
-                                background: bg,
-                                border: statusLower === "pending" ? "0.5px solid #ddd" : "none",
-                              }}
+                              className={barClass}
                             ></div>
                           );
                         })
                       ) : (
-                        <div className="w-[22px] h-[6px] bg-[#8B5CF6]"></div>
+                        <div className="w-[32px] h-[10px] border border-[#111118] bg-[#8B5CF6]"></div>
                       )}
-                      <span className="text-[8px] text-[color:var(--text-muted)] ml-1">
+                      <span className="text-[11px] sm:text-[12px] font-semibold text-[color:var(--text-muted)] ml-1">
                         {inv.milestones.length > 0
                           ? inv.milestones
                               .map(
@@ -711,7 +711,7 @@ export default function DashboardPage() {
                 {/* Owed */}
                 <p
                   className={cn(
-                    "text-[12px] font-semibold text-right",
+                    "text-[13px] sm:text-[14px] font-bold text-right",
                     client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]"
                   )}
                 >
@@ -721,7 +721,7 @@ export default function DashboardPage() {
                 {/* Collected */}
                 <p
                   className={cn(
-                    "text-[12px] font-semibold text-right",
+                    "text-[13px] sm:text-[14px] font-bold text-right",
                     client.totalCollected > 0
                       ? "text-[#00967D]"
                       : "text-[color:var(--text-muted)]"
@@ -734,7 +734,7 @@ export default function DashboardPage() {
                 <div className="text-center">
                   <span
                     className={cn(
-                      "text-[8px] font-bold px-[6px] py-[1px] border-[1.5px] border-[#111118] inline-block",
+                      "text-[11px] sm:text-[12px] font-bold px-3 py-1 border-[1.5px] border-[#111118] inline-block",
                       client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
                       client.health === "overdue" && "bg-[#FF5C00] text-white",
                       client.health === "clear" && "bg-[#E0FFF7] text-[#006B52]",
@@ -768,7 +768,7 @@ export default function DashboardPage() {
             {/* Activity feed */}
             <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
               <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
+                <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
                   RECENT ACTIVITY
                 </p>
               </div>
@@ -780,7 +780,7 @@ export default function DashboardPage() {
                   >
                     <div
                       className={cn(
-                        "w-[6px] h-[6px] border-[1.5px] border-[#111118] mt-1 shrink-0",
+                        "w-[8px] h-[8px] border-[1.5px] border-[#111118] mt-1 shrink-0",
                         item.action.toLowerCase().includes("created") && "bg-[#BEFF00]",
                         item.action.toLowerCase().includes("settled") && "bg-[#00DCB4]",
                         item.action.toLowerCase().includes("accepted") && "bg-[#00DCB4]",
@@ -790,17 +790,17 @@ export default function DashboardPage() {
                       )}
                     ></div>
                     <div>
-                      <p className="text-[11px] text-[#111118] font-medium">
+                      <p className="text-[13px] text-[#111118] font-medium">
                         {item.entityLabel}
                       </p>
-                      <p className="text-[9px] text-[color:var(--text-muted)]">
+                      <p className="text-[12px] text-[color:var(--text-muted)]">
                         {item.detail} — {timeAgo(item.createdAt)}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="px-3 py-6 text-center text-[11px] text-[color:var(--text-muted)]">
+                <div className="px-3 py-6 text-center text-[12px] text-[color:var(--text-muted)]">
                   No activity yet. Create and send your first invoice.
                 </div>
               )}
@@ -811,31 +811,31 @@ export default function DashboardPage() {
               {/* Quick links */}
               <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
                 <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                  <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
+                  <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
                     QUICK LINKS
                   </p>
                 </div>
                 <Link
                   href="/invoice/new"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[11px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
                 >
                   Create invoice <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/clients"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[11px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
                 >
                   Manage clients <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/invoices"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[11px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
                 >
                   All invoices <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/profile"
-                  className="flex justify-between items-center px-3 py-2 text-[11px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
                 >
                   Profile settings <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
@@ -844,7 +844,7 @@ export default function DashboardPage() {
               {/* Upcoming deadlines */}
               <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
                 <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                  <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
+                  <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
                     UPCOMING
                   </p>
                 </div>
@@ -855,16 +855,16 @@ export default function DashboardPage() {
                       className="px-3 py-2 border-b border-[color:var(--border-subtle)] flex justify-between items-center"
                     >
                       <div>
-                        <p className="text-[11px] font-semibold text-[#111118]">
+                        <p className="text-[13px] font-semibold text-[#111118]">
                           {d.invoiceNumber}
                         </p>
-                        <p className="text-[9px] text-[color:var(--text-muted)]">
+                        <p className="text-[12px] text-[color:var(--text-muted)]">
                           {d.clientName} · ₹{formatIndian(d.totalAmount)}
                         </p>
                       </div>
                       <span
                         className={cn(
-                          "text-[8px] font-bold px-[6px] py-[1px] border-[1.5px] border-[#111118]",
+                          "text-[11px] font-bold px-[6px] py-[1px] border-[1.5px] border-[#111118]",
                           d.daysUntilDue <= 3
                             ? "bg-[#FFF0EC] text-[#FF5C00]"
                             : "bg-[#F8F8F4] text-[color:var(--text-muted)]"
@@ -875,7 +875,7 @@ export default function DashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="px-3 py-4 text-center text-[11px] text-[color:var(--text-muted)]">
+                  <div className="px-3 py-4 text-center text-[12px] text-[color:var(--text-muted)]">
                     No upcoming deadlines.
                   </div>
                 )}
