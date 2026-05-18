@@ -119,7 +119,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95"
+        className="relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95"
       >
         <BellIcon
           className={cn(
@@ -153,7 +153,7 @@ export default function NotificationBell() {
           <div className="max-h-[360px] overflow-y-auto overflow-x-hidden scrollbar-hide">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <div className="mb-3 rounded-full bg-[color:var(--bg-surface-muted)] p-3">
+                <div className="mb-3  bg-[color:var(--bg-surface-muted)] p-3">
                   <BellIcon className="h-6 w-6 text-gray-300" />
                 </div>
                 <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
