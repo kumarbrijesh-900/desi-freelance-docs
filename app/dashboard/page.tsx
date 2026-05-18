@@ -72,6 +72,17 @@ interface UpcomingDeadline {
   rawInvoice: any;
 }
 
+function parsePaymentTermsDays(termsStr?: string | null): number {
+  if (!termsStr) return 15;
+  const lower = termsStr.toLowerCase();
+  if (lower.includes("30")) return 30;
+  if (lower.includes("45")) return 45;
+  if (lower.includes("60")) return 60;
+  if (lower.includes("7")) return 7;
+  if (lower.includes("10")) return 10;
+  return 15;
+}
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
@@ -111,6 +122,143 @@ export default function DashboardPage() {
     if (!num) return "0";
     return num.toLocaleString("en-IN");
   }
+
+  const handleSettleMilestone = async (miIndex: number) => {
+    if (!selectedInvoice) return;
+    try {
+      const activeM = selectedInvoice.milestones[miIndex];
+      if (!activeM) return;
+
+      const confirmText = miIndex < selectedInvoice.milestones.length - 1
+        ? `Settle Milestone ${miIndex + 1} (${activeM.title}) and start Milestone ${miIndex + 2}?`
+        : `Settle the final milestone (${activeM.title}) and fully complete this invoice?`;
+
+      if (!window.confirm(confirmText)) return;
+
+      // 1. Settle current milestone in database
+      const { error: settleErr } = await supabase
+        .from("invoice_milestones")
+        .update({ status: "SETTLED" })
+        .eq("invoice_id", selectedInvoice.id)
+        .eq("order_index", miIndex);
+
+      if (settleErr) {
+        alert(`Error settling milestone: ${settleErr.message}`);
+        return;
+      }
+
+      const nextIndex = miIndex + 1;
+      const hasNext = nextIndex < selectedInvoice.milestones.length;
+
+      if (hasNext) {
+        // 2. Start next milestone
+        const nextM = selectedInvoice.milestones[nextIndex];
+        
+        // Calculate new due date based on Today + Net Days
+        const netDays = parsePaymentTermsDays(selectedInvoice.applied_payment_terms || selectedInvoice.form_data?.payment?.paymentTerms);
+        const newDueDate = new Date();
+        newDueDate.setDate(newDueDate.getDate() + netDays);
+        const newDueDateIso = newDueDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+        // Update next milestone status to LIVE
+        const { error: nextErr } = await supabase
+          .from("invoice_milestones")
+          .update({ status: "LIVE" })
+          .eq("invoice_id", selectedInvoice.id)
+          .eq("order_index", nextIndex);
+
+        if (nextErr) {
+          alert(`Error starting next milestone: ${nextErr.message}`);
+          return;
+        }
+
+        // Update invoice overall due_date and form_data payload
+        const updatedFormData = {
+          ...selectedInvoice.form_data,
+          meta: {
+            ...(selectedInvoice.form_data?.meta || {}),
+            dueDate: newDueDateIso,
+          },
+          milestones: (selectedInvoice.form_data?.milestones || []).map((m: any, idx: number) => {
+            if (idx === miIndex) return { ...m, status: "SETTLED" };
+            if (idx === nextIndex) return { ...m, status: "LIVE" };
+            return m;
+          }),
+        };
+
+        const { error: invErr } = await supabase
+          .from("invoices")
+          .update({
+            due_date: newDueDateIso,
+            status: "PARTIAL",
+            form_data: updatedFormData as any,
+          })
+          .eq("id", selectedInvoice.id);
+
+        if (invErr) {
+          alert(`Error updating invoice due date: ${invErr.message}`);
+          return;
+        }
+
+        // Create notification
+        const { data: userSession } = await supabase.auth.getSession();
+        const userId = userSession?.session?.user?.id;
+        if (userId) {
+          await supabase.from("notifications").insert({
+            user_id: userId,
+            invoice_id: selectedInvoice.id,
+            type: "milestone_settled",
+            title: "Milestone Paid & Next Started",
+            message: `Milestone ${miIndex + 1} settled. Milestone ${nextIndex + 1} ("${nextM.title}") is now LIVE and due on ${newDueDateIso} (calculated as today + ${netDays} days terms).`,
+            is_read: false,
+          });
+        }
+
+        alert(`Milestone ${miIndex + 1} settled! Milestone ${nextIndex + 1} is now LIVE with a calculated due date of ${newDueDateIso} (Net ${netDays} days).`);
+      } else {
+        // Settle entire invoice
+        const updatedFormData = {
+          ...selectedInvoice.form_data,
+          milestones: (selectedInvoice.form_data?.milestones || []).map((m: any) => ({ ...m, status: "SETTLED" })),
+        };
+
+        const { error: invErr } = await supabase
+          .from("invoices")
+          .update({
+            status: "SETTLED",
+            settled_at: new Date().toISOString(),
+            form_data: updatedFormData as any,
+          })
+          .eq("id", selectedInvoice.id);
+
+        if (invErr) {
+          alert(`Error settling invoice: ${invErr.message}`);
+          return;
+        }
+
+        // Create notification
+        const { data: userSession } = await supabase.auth.getSession();
+        const userId = userSession?.session?.user?.id;
+        if (userId) {
+          await supabase.from("notifications").insert({
+            user_id: userId,
+            invoice_id: selectedInvoice.id,
+            type: "invoice_settled",
+            title: "Invoice Fully Settled",
+            message: `All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully paid.`,
+            is_read: false,
+          });
+        }
+
+        alert(`All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully settled!`);
+      }
+
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("An unexpected error occurred during milestone settlement.");
+    }
+  };
 
   function getGreeting() {
     const hour = new Date().getHours();
@@ -1417,41 +1565,52 @@ export default function DashboardPage() {
 
             {/* Action Panel Footer */}
             <div className="p-4 border-t-2 border-[#111118] bg-[#F5F5F0] space-y-2">
-              {/* Quick Copy Link Button */}
-              <button
-                onClick={() => {
-                  if (selectedInvoice.shareToken) {
-                    const link = `${window.location.origin}/share/${selectedInvoice.shareToken}`;
-                    navigator.clipboard.writeText(link);
-                    alert("Share link copied to clipboard!");
-                  } else {
-                    alert("This invoice draft has no share token generated yet.");
-                  }
-                }}
-                className="w-full bg-[#BEFF00] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
-              >
-                📋 Copy Payment Link
-              </button>
+              {(() => {
+                const activeMilestoneIndex = selectedInvoice.milestones
+                  ? selectedInvoice.milestones.findIndex(
+                      (m: any) => (m.status || "").toUpperCase() !== "SETTLED"
+                    )
+                  : -1;
 
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href={`/share/${selectedInvoice.shareToken}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-center bg-white text-[#111118] border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all uppercase font-syne"
-                >
-                  👁 View Live
-                </a>
+                const dueDateStr = selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
+                let daysUntilDue = 999;
+                if (dueDateStr) {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const due = new Date(dueDateStr);
+                  due.setHours(0, 0, 0, 0);
+                  daysUntilDue = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                }
+                const showNudge = daysUntilDue <= 3;
 
-                <button
-                  onClick={() => {
-                    alert(`Reminder nudge triggered for ${selectedInvoice.invoiceNumber}`);
-                  }}
-                  className="bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
-                >
-                  ⚡ Send Nudge
-                </button>
-              </div>
+                return (
+                  <>
+                    {/* Milestone settlement button */}
+                    {selectedInvoice.milestones && selectedInvoice.milestones.length > 0 && activeMilestoneIndex !== -1 && (
+                      <button
+                        onClick={() => handleSettleMilestone(activeMilestoneIndex)}
+                        className="w-full bg-[#00DCB4] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-black shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+                      >
+                        {activeMilestoneIndex < selectedInvoice.milestones.length - 1
+                          ? `Settle Milestone-${activeMilestoneIndex + 1} & Start M${activeMilestoneIndex + 2}`
+                          : "Settle Final Milestone"}
+                      </button>
+                    )}
+
+                    {/* Conditionally show Nudge */}
+                    {showNudge && (
+                      <button
+                        onClick={() => {
+                          alert(`Reminder nudge triggered for ${selectedInvoice.invoiceNumber}`);
+                        }}
+                        className="w-full bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+                      >
+                        ⚡ Send Nudge
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
