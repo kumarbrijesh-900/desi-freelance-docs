@@ -278,7 +278,7 @@
 - ✅ GA-4 — Conversion Reassurance: Updated `ConversionModal` messaging to explicitly confirm that local drafts are safe and will be restored after account creation.
 - ✅ AF-4 — HTML Structure Fix: Resolved a nested `div` closing error in the editor's profile prompt section that was causing layout instability.
 
-## Deployment & Production state
+## Deployment & Production state (v1.7)
 
 - **Latest Build:** `v1.7-final` (Auth Fix + Guest Access)
 - **Status:** Pushed to `main`.
@@ -300,13 +300,15 @@
 - app/sandbox/page.tsx (deprecated)
 
 ## [v1.8] — 2026-05-10
+
 ### **Landing Page Simplification & Preview Overhaul**
+
 - **Simplified Value Proposition**: Completely removed the Pricing section from the landing page.
 - **Preview Hero Experience**: Overhauled the Invoice Preview layout (`app/invoice/preview/page.tsx`):
-    - **Viewport Scaling**: Implemented automatic scaling to fit the invoice document to the user's viewport height, eliminating vertical scrolling for the preview.
-    - **Template Picker Redesign**: Replaced the wide thumbnails with a slim, color-coded right sidebar. Each template is now represented by its distinctive color palette swatches.
-    - **Print Scoping**: Fixed a critical CSS bug where global print overrides were causing the invoice to be cropped/cut-off on screen. Scoped all full-size resets to `@media print`.
-    - **Stability**: Restored missing state variables (`showProfilePrompt`) and fixed ReferenceErrors during the transition to the new scaled layout.
+  - **Viewport Scaling**: Implemented automatic scaling to fit the invoice document to the user's viewport height, eliminating vertical scrolling for the preview.
+  - **Template Picker Redesign**: Replaced the wide thumbnails with a slim, color-coded right sidebar. Each template is now represented by its distinctive color palette swatches.
+  - **Print Scoping**: Fixed a critical CSS bug where global print overrides were causing the invoice to be cropped/cut-off on screen. Scoped all full-size resets to `@media print`.
+  - **Stability**: Restored missing state variables (`showProfilePrompt`) and fixed ReferenceErrors during the transition to the new scaled layout.
 - **Vercel Deployment**: Successfully pushed and verified deployment of the new preview experience.
 
 ---
@@ -336,7 +338,7 @@
 - ✅ TS-1 — Supabase Build Fix: Moved `createClient` inside the `GET` handler in `app/api/invoice/[token]/route.ts` to resolve build-time crashes caused by missing environment variables during static analysis.
 - ✅ TS-2 — Type Safety: Resolved property access errors on `computedTotals` in `InvoiceEditorPage.tsx` by utilizing the `formatCurrency` helper instead of non-existent formatted fields.
 
-## Deployment & Production state
+## Deployment & Production state (v1.9)
 
 - **Latest Build:** `v1.9-stable` (4-Step Workflow)
 - **Status:** Pushed to `main`. Verified successful build and deployment.
@@ -377,7 +379,7 @@
 - 📝 RG-2 — 3-Tier MSA Roadmap: Defined the synchronization path for Revision Policies: **Global Profile Defaults -> Client MSA Overrides -> Project Addendums**.
 - 📝 RG-3 — Supabase Architecture Plan: Outlined the transition to JSONB-based `revision_policy` storage in `profiles`, `clients`, and `invoices` tables to maintain snapshot integrity and forward-compatibility.
 
-## Deployment & Production state
+## Deployment & Production state (v1.10)
 
 - **Latest Build:** `v1.10-standardized` (Global Branding & Logic Flow)
 - **Status:** Pushed to `main`. Verified on Vercel.
@@ -434,7 +436,7 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - Typography: Labels = 11px bold uppercase tracking-wide. Headings = bold uppercase.
 - Motion: Buttons press via translate (not scale). Shadows compress on press, expand on hover.
 
-### Next
+### Next Steps (v2.0)
 
 - Real-world user testing with 5 Indian freelancers
 - AI brief extraction activation (Gemini Flash, free tier)
@@ -470,7 +472,7 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
   - Styling: Applied high-contrast borders, zero radius, and `shadow-[var(--brutal-shadow-lg)]`.
   - Content: Streamlined value prop for the Indian freelance market. Removed redundant FAQ/Pricing sections for a punchy, 4-section high-conversion flow.
 
-## Deployment & Production state
+## Deployment & Production state (v2.1)
 
 - **Latest Build:** `v2.1-arch-ready`
 - **Status:** Pushed to `main`. Verified on Vercel.
@@ -490,7 +492,7 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - lib/msa-sync-utils.ts
 - app/page.tsx
 
-## Next
+## Next Steps (v2.1)
 
 - Real-world user testing with architects & interior designers
 - AI brief extraction activation (Gemini Flash, free tier)
@@ -531,7 +533,7 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
   - Standardized health status stamps to display explanatory standing subtitles (`GOOD (On Track)` with *"Payments on track"*, `LATE (Overdue)` with *"Has unpaid past due"*, etc.).
   - Prefixed the color ledger in the header with a bold `MILESTONE KEY:` to clarify that the colors represent milestones rather than overall health.
 
-## Deployment & Production state
+## Deployment & Production state (v2.2)
 
 - **Latest Build:** `v2.2-stable` (Interactive Dashboard & Milestone Settle)
 - **Status:** Pushed to `main`. Compiled successfully.
