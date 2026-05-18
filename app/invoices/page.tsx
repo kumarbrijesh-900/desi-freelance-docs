@@ -1406,15 +1406,6 @@ export default function InvoiceHistoryPage() {
                   </p>
                 )}
               </div>
-              <Link
-                href="/invoice/new"
-                className={getAppButtonClass({
-                  variant: "primary",
-                  size: "sm",
-                })}
-              >
-                + New Invoice
-              </Link>
             </div>
           </MotionReveal>
 
