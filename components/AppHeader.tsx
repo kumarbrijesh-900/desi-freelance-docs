@@ -214,10 +214,6 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
             <nav className="ml-4 hidden items-center gap-5 border-l-2 border-[#333] pl-5 sm:flex">
               {user && <NavLink href="/dashboard" label="Dashboard" />}
-              <NavLink
-                href={user ? "/invoice/new" : "/invoice/new?guest=1"}
-                label="New Invoice"
-              />
               {user && (
                 <>
                   <NavLink href="/invoices" label="Invoices" />
@@ -230,6 +226,12 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
           <div className="flex items-center gap-3">
             {rightSlot}
+            <Link
+              href={user ? "/invoice/new" : "/invoice/new?guest=1"}
+              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+            >
+              + New Invoice
+            </Link>
             {user ? (
               <div className="flex items-center gap-3">
                 <InstallPwaButton />
@@ -255,6 +257,13 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
           <div className="sm:hidden border-t-2 border-[#333] bg-[#111118]">
             <div className={`${appPageContainerClass} py-3`}>
               <nav className="flex flex-col gap-1">
+                <Link
+                  href={user ? "/invoice/new" : "/invoice/new?guest=1"}
+                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-[#BEFF00] text-[#111118] border-b-2 border-[#333] mb-1"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  + New Invoice
+                </Link>
                 {user && (
                   <Link
                     href="/dashboard"
@@ -269,18 +278,6 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     Dashboard
                   </Link>
                 )}
-                <Link
-                  href={user ? "/invoice/new" : "/invoice/new?guest=1"}
-                  className={cn(
-                    "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
-                    pathname === "/invoice/new" || pathname === "/sandbox"
-                      ? "bg-[#BEFF00] text-[#111118]"
-                      : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  + New Invoice
-                </Link>
                 {user && (
                   <>
                     <Link
