@@ -36,6 +36,15 @@ interface ClientHealth {
       amount: number;
       orderIndex: number;
     }>;
+    has_addendum?: boolean;
+    msa_id?: string | null;
+    lineItems?: Array<any>;
+    applied_payment_terms?: string | null;
+    applied_late_fee_rate?: number | null;
+    applied_license_type?: string | null;
+    clientMsaNote?: string | null;
+    shareToken?: string | null;
+    clientName?: string;
   }>;
   totalOwed: number;
   totalCollected: number;
@@ -76,6 +85,23 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [deadlines, setDeadlines] = useState<UpcomingDeadline[]>([]);
   const router = useRouter();
+
+  // Client-side UX Interactive States
+  const [filterType, setFilterType] = useState<"all" | "outstanding" | "settled" | "overdue" | "due_this_week">("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
+  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+
+  // Close drawer on ESC key press
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setSelectedInvoice(null);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   function formatIndian(num: number): string {
     if (!num) return "0";
@@ -324,6 +350,15 @@ export default function DashboardPage() {
             totalAmount: inv.totalAmount,
             dueDate: inv.due_date || inv.form_data?.meta?.dueDate || "",
             milestones: inv.milestones || [],
+            has_addendum: inv.has_addendum || inv.form_data?.meta?.hasAddendum || false,
+            msa_id: inv.msa_id,
+            lineItems: inv.form_data?.lineItems || [],
+            applied_payment_terms: inv.applied_payment_terms,
+            applied_late_fee_rate: inv.applied_late_fee_rate,
+            applied_license_type: inv.applied_license_type,
+            clientMsaNote: inv.client_msa_note,
+            shareToken: inv.share_token,
+            clientName: clientHealth.clientName,
           });
 
           if (isSettled) {
@@ -455,6 +490,82 @@ export default function DashboardPage() {
     c.invoices.some((inv) => inv.id === firstOverdueInvoice?.id)
   )?.clientName || "Client";
 
+  // 1. Filtered and Sorted clients list based on active filters
+  const filteredAndSortedClients = clientsHealth
+    .filter((client) => {
+      // Client search query matching name or city
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase().trim();
+        const matchesName = client.clientName?.toLowerCase().includes(query);
+        const matchesCity = client.clientCity?.toLowerCase().includes(query);
+        if (!matchesName && !matchesCity) return false;
+      }
+
+      // Card active filter types
+      if (filterType === "all") return true;
+
+      if (filterType === "outstanding") {
+        return client.invoices.some(
+          (inv) => inv.status.toLowerCase() === "sent" || inv.status.toLowerCase() === "finalized"
+        );
+      }
+
+      if (filterType === "settled") {
+        // MONEY IN (Settled): client has at least one settled invoice or total collected > 0
+        return client.invoices.some((inv) => inv.status.toLowerCase() === "settled") || client.totalCollected > 0;
+      }
+
+      if (filterType === "overdue") {
+        return client.health === "overdue" || client.invoices.some((inv) => {
+          const statusLower = inv.status.toLowerCase();
+          if ((statusLower === "sent" || statusLower === "finalized") && inv.dueDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(inv.dueDate);
+            due.setHours(0, 0, 0, 0);
+            return due < today;
+          }
+          return false;
+        });
+      }
+
+      if (filterType === "due_this_week") {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999);
+
+        return client.invoices.some((inv) => {
+          if (inv.status.toLowerCase() === "settled") return false;
+          if (!inv.dueDate) return false;
+          const due = new Date(inv.dueDate);
+          due.setHours(0, 0, 0, 0);
+          return due >= today && due <= nextWeek;
+        });
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "receivable") {
+        return b.totalOwed - a.totalOwed;
+      }
+      if (sortBy === "collected") {
+        return b.totalCollected - a.totalCollected;
+      }
+      if (sortBy === "name") {
+        return a.clientName.localeCompare(b.clientName);
+      }
+      if (sortBy === "health") {
+        const healthOrder: Record<string, number> = { overdue: 0, good: 1, clear: 2, draft: 3 };
+        const orderA = healthOrder[a.health.toLowerCase()] ?? 9;
+        const orderB = healthOrder[b.health.toLowerCase()] ?? 9;
+        return orderA - orderB;
+      }
+      return 0;
+    });
+
   return (
     <div className={appPageShellClass}>
       <AppHeader />
@@ -494,10 +605,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 py-6">
             {/* Card 1: Outstanding - hero card */}
             <div
-              className="relative border-2 border-[#111118] bg-[#FFFBE6] p-4 shadow-[var(--brutal-shadow-md)]"
+              onClick={() => setFilterType(filterType === "outstanding" ? "all" : "outstanding")}
+              className={cn(
+                "relative border-2 border-[#111118] bg-[#FFFBE6] p-4 shadow-[var(--brutal-shadow-md)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-lg)] transition-all cursor-pointer select-none",
+                filterType === "outstanding" && "ring-4 ring-[#111118] bg-[#FFF8CC]"
+              )}
               style={{ transform: "rotate(-0.5deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
+              {filterType === "outstanding" && (
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FF5C00] rounded-full border border-[#111118] animate-pulse"></div>
+              )}
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 THEY OWE YOU
               </p>
@@ -511,10 +629,17 @@ export default function DashboardPage() {
 
             {/* Card 2: Settled */}
             <div
-              className="relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)]"
+              onClick={() => setFilterType(filterType === "settled" ? "all" : "settled")}
+              className={cn(
+                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
+                filterType === "settled" && "ring-4 ring-[#111118] bg-[#EBFDF9]"
+              )}
               style={{ transform: "rotate(0.6deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#00DCB4] border-2 border-[#111118]"></div>
+              {filterType === "settled" && (
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#00DCB4] rounded-full border border-[#111118] animate-pulse"></div>
+              )}
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 MONEY IN
               </p>
@@ -528,10 +653,17 @@ export default function DashboardPage() {
 
             {/* Card 3: Overdue */}
             <div
-              className="relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)]"
+              onClick={() => setFilterType(filterType === "overdue" ? "all" : "overdue")}
+              className={cn(
+                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
+                filterType === "overdue" && "ring-4 ring-[#111118] bg-[#FFF5F2]"
+              )}
               style={{ transform: "rotate(-0.3deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
+              {filterType === "overdue" && (
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FF5C00] rounded-full border border-[#111118] animate-pulse"></div>
+              )}
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 OVERDUE
               </p>
@@ -545,10 +677,17 @@ export default function DashboardPage() {
 
             {/* Card 4: Due this week */}
             <div
-              className="relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)]"
+              onClick={() => setFilterType(filterType === "due_this_week" ? "all" : "due_this_week")}
+              className={cn(
+                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
+                filterType === "due_this_week" && "ring-4 ring-[#111118] bg-[#F7FFD6]"
+              )}
               style={{ transform: "rotate(0.4deg)" }}
             >
               <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#BEFF00] border-2 border-[#111118]"></div>
+              {filterType === "due_this_week" && (
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#BEFF00] rounded-full border border-[#111118] animate-pulse"></div>
+              )}
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 DUE THIS WEEK
               </p>
@@ -609,6 +748,69 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* Search & Sort Controls Strip */}
+            <div className="px-4 py-2.5 border-b-2 border-[#111118] bg-[#F8F8F4] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              {/* Active filter display */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[12px] font-bold text-[#111118] uppercase tracking-[0.05em]">Filter:</span>
+                <span className={cn(
+                  "text-[11px] font-bold px-2 py-0.5 border-2 border-[#111118] uppercase",
+                  filterType === "all" ? "bg-[#E0F3FF] text-[#111118]" :
+                  filterType === "outstanding" ? "bg-[#FFF8CC] text-[#111118]" :
+                  filterType === "settled" ? "bg-[#EBFDF9] text-[#00967D]" :
+                  filterType === "overdue" ? "bg-[#FFF5F2] text-[#FF5C00]" :
+                  "bg-[#F7FFD6] text-[#111118]"
+                )}>
+                  {filterType === "all" ? "All Clients" : filterType.replace(/_/g, " ")}
+                </span>
+                {filterType !== "all" && (
+                  <button
+                    onClick={() => setFilterType("all")}
+                    className="text-[11px] font-bold text-[#FF5C00] underline cursor-pointer hover:text-[#111118]"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
+
+              {/* Search and Sort controls */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                {/* Search */}
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search client or city..."
+                    className="px-2.5 py-1 text-[12px] font-semibold text-[#111118] placeholder-[#888] bg-white border-2 border-[#111118] shadow-[1px_1px_0_#111118] focus:outline-none focus:translate-x-[-1px] focus:translate-y-[-1px] focus:shadow-[2px_2px_0_#111118] transition-all w-full sm:w-44"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-2 text-[12px] font-bold text-[#888] hover:text-[#111118]"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Sort */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[12px] font-bold text-[#111118] uppercase shrink-0">Sort:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e: any) => setSortBy(e.target.value)}
+                    className="px-1.5 py-1 text-[12px] font-bold text-[#111118] bg-white border-2 border-[#111118] shadow-[1px_1px_0_#111118] focus:outline-none cursor-pointer"
+                  >
+                    <option value="receivable">Receivable (High-Low)</option>
+                    <option value="collected">Collected (High-Low)</option>
+                    <option value="name">Name (A-Z)</option>
+                    <option value="health">Health Status</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             {/* Table */}
             <table className="w-full min-w-[700px]" style={{ borderCollapse: "collapse" }}>
               <thead>
@@ -622,12 +824,12 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {clientsHealth.map((client) => (
+                {filteredAndSortedClients.map((client) => (
                   <tr
                     key={client.clientId}
                     className={cn(
-                      "border-b border-[color:var(--border-subtle)]",
-                      client.health === "overdue" && "bg-[#FFF5F2]"
+                      "border-b border-[color:var(--border-subtle)] hover:bg-[#F9F9F6] transition-colors",
+                      client.health === "overdue" && "bg-[#FFF5F2] hover:bg-[#FFF2EE]"
                     )}
                   >
                     {/* Client name + city */}
@@ -639,7 +841,13 @@ export default function DashboardPage() {
                     {/* Invoice numbers stacked */}
                     <td className="px-4 py-3 align-top">
                       {client.invoices.map((inv) => (
-                        <p key={inv.id} className="text-[12px] font-medium text-[#111118] m-0 leading-relaxed">{inv.invoiceNumber}</p>
+                        <p
+                          key={inv.id}
+                          onClick={() => setSelectedInvoice(inv)}
+                          className="text-[12px] font-bold text-[#111118] m-0 leading-relaxed cursor-pointer hover:underline hover:text-[#FF5C00] transition-colors select-none"
+                        >
+                          {inv.invoiceNumber}
+                        </p>
                       ))}
                     </td>
 
@@ -656,9 +864,57 @@ export default function DashboardPage() {
                                   : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
                                   : s === "draft" ? "#8B5CF6"
                                   : "#E0E0E0";
-                                return <div key={mi} className="w-[28px] h-[8px] border border-[#111118]" style={{ background: bg }}></div>;
+                                
+                                const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                                let authIcon = "📜";
+                                let authLabel = "Global MSA";
+                                let authDesc = "Using default agency-wide terms.";
+                                if (inv.has_addendum) {
+                                  authIcon = "⚡";
+                                  authLabel = "Project Addendum";
+                                  authDesc = "Active project overrides.";
+                                } else if (inv.msa_id) {
+                                  authIcon = "🤝";
+                                  authLabel = "Client MSA";
+                                  authDesc = "Linked to Client Agreement.";
+                                }
+
+                                return (
+                                  <div
+                                    key={mi}
+                                    onClick={() => setSelectedInvoice(inv)}
+                                    className="relative group cursor-pointer"
+                                  >
+                                    <div
+                                      className="w-[28px] h-[8px] border border-[#111118] hover:scale-110 hover:scale-y-125 transition-transform"
+                                      style={{ background: bg }}
+                                    ></div>
+
+                                    {/* Tooltip */}
+                                    <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                      <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
+                                      <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
+                                        <span>M{mi + 1}: {m.title}</span>
+                                        <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
+                                          {s}
+                                        </span>
+                                      </p>
+                                      <div className="mt-2 space-y-1">
+                                        <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(m.amount)}</span></p>
+                                        <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
+                                        <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
+                                          <p className="text-[11px] font-bold flex items-center gap-1">
+                                            <span>{authIcon}</span>
+                                            <span>{authLabel}</span>
+                                          </p>
+                                          <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
                               })}
-                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5 whitespace-nowrap">
+                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5 whitespace-nowrap select-none">
                                 {inv.milestones.map((m, mi) => {
                                   const s = (m.status || "").toLowerCase();
                                   const icon = s === "settled" ? "✓" : s === "overdue" ? "⚠" : "●";
@@ -668,8 +924,57 @@ export default function DashboardPage() {
                             </>
                           ) : (
                             <>
-                              <div className="w-[28px] h-[8px] border border-[#111118]" style={{ background: (inv.status || "").toLowerCase() === "draft" ? "#8B5CF6" : "#E0E0E0" }}></div>
-                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5">{(inv.status || "").toLowerCase() === "draft" ? "Draft" : "Pending"}</span>
+                              {(() => {
+                                const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                                let authIcon = "📜";
+                                let authLabel = "Global MSA";
+                                let authDesc = "Using default agency-wide terms.";
+                                if (inv.has_addendum) {
+                                  authIcon = "⚡";
+                                  authLabel = "Project Addendum";
+                                  authDesc = "Active project overrides.";
+                                } else if (inv.msa_id) {
+                                  authIcon = "🤝";
+                                  authLabel = "Client MSA";
+                                  authDesc = "Linked to Client Agreement.";
+                                }
+                                const isDraft = (inv.status || "").toLowerCase() === "draft";
+
+                                return (
+                                  <div
+                                    onClick={() => setSelectedInvoice(inv)}
+                                    className="relative group cursor-pointer"
+                                  >
+                                    <div
+                                      className="w-[28px] h-[8px] border border-[#111118] hover:scale-110 hover:scale-y-125 transition-transform"
+                                      style={{ background: isDraft ? "#8B5CF6" : "#E0E0E0" }}
+                                    ></div>
+
+                                    {/* Tooltip */}
+                                    <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                      <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
+                                      <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
+                                        <span>{inv.invoiceNumber}</span>
+                                        <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
+                                          {inv.status}
+                                        </span>
+                                      </p>
+                                      <div className="mt-2 space-y-1">
+                                        <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(inv.totalAmount)}</span></p>
+                                        <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
+                                        <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
+                                          <p className="text-[11px] font-bold flex items-center gap-1">
+                                            <span>{authIcon}</span>
+                                            <span>{authLabel}</span>
+                                          </p>
+                                          <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+                              <span className="text-[11px] text-[color:var(--text-muted)] ml-1.5 whitespace-nowrap select-none">{(inv.status || "").toLowerCase() === "draft" ? "Draft" : "Pending"}</span>
                             </>
                           )}
                         </div>
@@ -704,18 +1009,36 @@ export default function DashboardPage() {
             </table>
 
             {/* Empty state */}
-            {clientsHealth.length === 0 && (
-              <div className="px-4 py-8 text-center">
-                <p className="text-[13px] text-[color:var(--text-muted)]">No client data yet. Create your first invoice to get started.</p>
+            {filteredAndSortedClients.length === 0 && (
+              <div className="px-4 py-8 text-center bg-white border-t border-[color:var(--border-subtle)]">
+                <p className="text-[13px] text-[color:var(--text-muted)] font-bold uppercase tracking-wider">No matching clients found.</p>
+                <button
+                  onClick={() => { setSearchTerm(""); setFilterType("all"); }}
+                  className="mt-2 text-[12px] font-bold text-[#FF5C00] underline cursor-pointer hover:text-[#111118] select-none"
+                >
+                  Reset Filters & Search
+                </button>
               </div>
             )}
 
             {/* Footer with double border */}
-            <div className="border-t-[3px] border-double border-[#111118] px-4 py-2 bg-[#F8F8F4] flex justify-between items-center">
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)]">{clientsHealth.length} clients · {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0)} invoices</p>
-              <div className="flex gap-4">
-                <p className="text-[12px]"><span className="text-[color:var(--text-muted)] font-bold">Total receivable:</span> <span className="font-bold text-[#111118]">₹{formatIndian(clientsHealth.reduce((sum, c) => sum + c.totalOwed, 0))}</span></p>
-                <p className="text-[12px]"><span className="text-[color:var(--text-muted)] font-bold">Total collected:</span> <span className="font-bold text-[#00967D]">₹{formatIndian(clientsHealth.reduce((sum, c) => sum + c.totalCollected, 0))}</span></p>
+            <div className="border-t-[3px] border-double border-[#111118] px-4 py-2 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
+              <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
+                Showing {filteredAndSortedClients.length} of {clientsHealth.length} clients · {filteredAndSortedClients.reduce((sum, c) => sum + c.invoices.length, 0)} invoices
+              </p>
+              <div className="flex gap-4 flex-wrap">
+                <p className="text-[12px]">
+                  <span className="text-[color:var(--text-muted)] font-bold">Total receivable:</span>{" "}
+                  <span className="font-bold text-[#111118]">
+                    ₹{formatIndian(filteredAndSortedClients.reduce((sum, c) => sum + c.totalOwed, 0))}
+                  </span>
+                </p>
+                <p className="text-[12px]">
+                  <span className="text-[color:var(--text-muted)] font-bold">Total collected:</span>{" "}
+                  <span className="font-bold text-[#00967D]">
+                    ₹{formatIndian(filteredAndSortedClients.reduce((sum, c) => sum + c.totalCollected, 0))}
+                  </span>
+                </p>
               </div>
             </div>
           </div>
@@ -774,25 +1097,25 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/invoice/new"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
                 >
                   Create invoice <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/clients"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
                 >
                   Manage clients <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/invoices"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
                 >
                   All invoices <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
                 <Link
                   href="/profile"
-                  className="flex justify-between items-center px-3 py-2 text-[13px] font-semibold text-[#111118] hover:bg-[#F5F5F0] transition-colors"
+                  className="flex justify-between items-center px-3 py-2 text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
                 >
                   Profile settings <span className="text-[color:var(--text-muted)]">→</span>
                 </Link>
@@ -841,6 +1164,189 @@ export default function DashboardPage() {
           </div>
         </MotionReveal>
       </main>
+
+      {/* SECTION 6: INVOICE SIDE-DRAWER DETAIL INSPECTOR */}
+      {selectedInvoice && (
+        <div
+          className="fixed inset-0 bg-[#111118]/60 backdrop-blur-[2px] z-50 flex justify-end"
+          onClick={() => setSelectedInvoice(null)}
+        >
+          <div
+            className="w-full sm:w-[440px] bg-white h-full border-l-4 border-[#111118] flex flex-col justify-between shadow-[-8px_0_0_#111118] relative animate-in slide-in-from-right duration-250 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 border-b-2 border-[#111118] bg-[#F5F5F0] flex justify-between items-center">
+              <div>
+                <p className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase m-0">INVOICE DETAIL</p>
+                <h3 className="text-lg font-black text-[#111118] m-0 font-syne uppercase">{selectedInvoice.invoiceNumber}</h3>
+              </div>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="w-8 h-8 border-2 border-[#111118] bg-[#FF5C00] text-white flex items-center justify-center font-bold text-sm hover:translate-x-[1px] hover:translate-y-[1px] shadow-[1px_1px_0_#111118] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="p-4 flex-1 overflow-y-auto space-y-6">
+              {/* Client summary */}
+              <div>
+                <p className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mb-1">CLIENT</p>
+                <p className="text-[15px] font-bold text-[#111118]">{selectedInvoice.clientName}</p>
+              </div>
+
+              {/* Quick Metrics Strip */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[2px_2px_0_#111118]">
+                  <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase m-0">Total Value</p>
+                  <p className="text-[18px] font-black text-[#111118] m-0 font-syne">₹{formatIndian(selectedInvoice.totalAmount)}</p>
+                </div>
+                <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[2px_2px_0_#111118]">
+                  <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase m-0">Due Date</p>
+                  <p className="text-[13px] font-bold text-[#111118] mt-1 truncate">
+                    {selectedInvoice.dueDate ? new Date(selectedInvoice.dueDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Contract Authority & Terms */}
+              <div className="border-2 border-[#111118] bg-[#FAFAD2] p-3 shadow-[2px_2px_0_#111118]">
+                <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mb-1">Contract Authority</p>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[14px]">
+                    {selectedInvoice.has_addendum ? "⚡" : selectedInvoice.msa_id ? "🤝" : "📜"}
+                  </span>
+                  <span className="text-[12px] font-bold text-[#111118] uppercase">
+                    {selectedInvoice.has_addendum ? "Project Addendum" : selectedInvoice.msa_id ? "Client MSA" : "Global MSA"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#111118]/80 leading-relaxed m-0">
+                  {selectedInvoice.has_addendum
+                    ? "Active project-specific overrides are applied for this invoice's milestones, payment timeline, and late-fee guidelines."
+                    : selectedInvoice.msa_id
+                    ? `Governed by the client's custom Master Service Agreement. Reference ID: ${selectedInvoice.msa_id}.`
+                    : "Governed by the global default agency master terms and standard 30-day payment timelines."
+                  }
+                </p>
+
+                {/* Displaying active variables like payment terms and late fees */}
+                <div className="mt-2.5 pt-2 border-t border-dashed border-[#111118]/30 grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <span className="font-bold text-[color:var(--text-muted)]">Payment:</span>{" "}
+                    <span className="font-semibold">{selectedInvoice.applied_payment_terms || "Net 30 days"}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[color:var(--text-muted)]">Late Fee:</span>{" "}
+                    <span className="font-semibold">{selectedInvoice.applied_late_fee_rate ? `${selectedInvoice.applied_late_fee_rate}% per month` : "1.5% per month"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Milestones checklist */}
+              <div>
+                <p className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mb-3">Milestone Progress checklist</p>
+                {selectedInvoice.milestones.length > 0 ? (
+                  <div className="relative border-l-2 border-[#111118] ml-3 pl-4 space-y-4 py-1">
+                    {selectedInvoice.milestones.map((m: any, mi: number) => {
+                      const s = (m.status || "").toLowerCase();
+                      const isSettled = s === "settled";
+                      const isOverdue = s === "overdue";
+                      const isLive = ["live", "sent", "finalized"].includes(s);
+
+                      return (
+                        <div key={mi} className="relative flex items-start gap-3">
+                          {/* Interactive checkbox indicator */}
+                          <div className="absolute -left-[25px] top-0.5">
+                            {isSettled ? (
+                              <div className="w-[18px] h-[18px] rounded-sm bg-[#00DCB4] border-2 border-[#111118] flex items-center justify-center text-[10px] text-black font-black shadow-[1px_1px_0_#111118]">
+                                ✓
+                              </div>
+                            ) : isOverdue ? (
+                              <div className="w-[18px] h-[18px] rounded-sm bg-[#FF5C00] border-2 border-[#111118] flex items-center justify-center text-[9px] text-white font-bold shadow-[1px_1px_0_#111118] animate-pulse">
+                                !
+                              </div>
+                            ) : isLive ? (
+                              <div className="w-[18px] h-[18px] rounded-sm bg-[#BEFF00] border-2 border-[#111118] flex items-center justify-center text-[9px] text-black font-black shadow-[1px_1px_0_#111118]">
+                                ▶
+                              </div>
+                            ) : (
+                              <div className="w-[18px] h-[18px] rounded-sm bg-white border-2 border-dashed border-[#888] shadow-none"></div>
+                            )}
+                          </div>
+
+                          {/* Milestone content */}
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center">
+                              <p className="text-[12px] font-bold text-[#111118] m-0">
+                                M{mi + 1}: {m.title}
+                              </p>
+                              <span className={cn(
+                                "text-[9px] font-bold px-1.5 py-0.5 border border-[#111118] uppercase",
+                                isSettled ? "bg-[#EBFDF9] text-[#00967D]" :
+                                isOverdue ? "bg-[#FFF5F2] text-[#FF5C00]" :
+                                isLive ? "bg-[#F7FFD6] text-[#111118]" :
+                                "bg-white text-[color:var(--text-muted)] border-dashed border-[#888]"
+                              )}>
+                                {m.status || "Pending"}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[color:var(--text-muted)] m-0 mt-0.5 font-bold">₹{formatIndian(m.amount)}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3 border-2 border-dashed border-[#ccc] bg-[#FAFAD2]/30 text-center rounded">
+                    <p className="text-[12px] text-[color:var(--text-muted)] m-0">This invoice has no milestone breakups.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Panel Footer */}
+            <div className="p-4 border-t-2 border-[#111118] bg-[#F5F5F0] space-y-2">
+              {/* Quick Copy Link Button */}
+              <button
+                onClick={() => {
+                  if (selectedInvoice.shareToken) {
+                    const link = `${window.location.origin}/share/${selectedInvoice.shareToken}`;
+                    navigator.clipboard.writeText(link);
+                    alert("Share link copied to clipboard!");
+                  } else {
+                    alert("This invoice draft has no share token generated yet.");
+                  }
+                }}
+                className="w-full bg-[#BEFF00] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+              >
+                📋 Copy Payment Link
+              </button>
+
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href={`/share/${selectedInvoice.shareToken}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-center bg-white text-[#111118] border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all uppercase font-syne"
+                >
+                  👁 View Live
+                </a>
+
+                <button
+                  onClick={() => {
+                    alert(`Reminder nudge triggered for ${selectedInvoice.invoiceNumber}`);
+                  }}
+                  className="bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+                >
+                  ⚡ Send Nudge
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
