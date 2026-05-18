@@ -1256,7 +1256,6 @@ export default function InvoiceHistoryPage() {
 
     // 3d. Delete share tokens or share records if table exists
     try {
-      await supabase.from("invoice_share_tokens").delete().in("invoice_id", ids);
     } catch (e) { /* table may not exist */ }
 
     // 3e. Delete child invoices referencing these invoices
