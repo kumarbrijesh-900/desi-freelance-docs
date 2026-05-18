@@ -495,3 +495,52 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - Real-world user testing with architects & interior designers
 - AI brief extraction activation (Gemini Flash, free tier)
 - InvoiceEditorPage.tsx decomposition
+
+---
+
+## v2.2 INTERACTIVE DASHBOARD & SEQUENTIAL MILESTONE GOVERNANCE — May 18, 2026
+
+### Phase XXII: Premium Interactive Dashboard & Ledger Polish
+
+- ✅ DB-1 — Dynamic Metric Toggles & Filtering:
+  - Metric cards now scale, tilt, and drop offset shadows on hover.
+  - Clicking any of the 4 hero metric cards filters the CLIENT LEDGER table instantly (supports "Outstanding", "Settled/Money In", "Overdue", and "Due This Week" states).
+  - Added a reactive "Reset Filters & Search" control to easily restore the default view.
+- ✅ DB-2 — Interactive Search & Sort Bar:
+  - Integrated real-time client search (by name and city) with a clear trigger button.
+  - Added a neobrutalist sort selector allowing cards to be organized by Receivable, Collected, Client Name, and Health Status.
+- ✅ DB-3 — Milestone Stage Badges & Contract Tooltips:
+  - Upgraded generic stage indicators in the ledger table to full Neobrutalist milestone capsules displaying names, prices, and status indicators (`✓` for settled, `⚠` for overdue).
+  - Added CSS-powered tooltips displaying contract authorities (Global MSA, Client MSA, or Project Addendum) on hover.
+- ✅ DB-4 — Actionable Deadlines & Urgent Heatmaps:
+  - Clicking any row in the UPCOMING panel immediately slides open its side-drawer inspector.
+  - Displays first pending milestone name and double dates with signed days remaining in brackets (e.g. `INV-2026-8758 [M1: SECOND] (Due 21 May · +3d)`).
+  - Implemented a 3-tier visual urgency heatmap (Red, Amber, Green) depending on days remaining.
+  - Rendered inline "Mark Settled" quick action buttons directly on the deadline row if the invoice is due today or past due.
+
+### Phase XXIII: Sequential Milestone Settle-and-Start Engine
+
+- ✅ MS-1 — Sequential Milestone Transition Engine:
+  - Implemented a primary action button inside the inspector drawer footer: **`Settle Milestone-X & Start MX+1`** (or **`Settle Final Milestone`** if last).
+  - **Dynamic Due Date Calculation**: Marks the current milestone settled, computes next due date as **`Today's Date + Net Terms Days`**, updates the next milestone status to `'LIVE'`, updates the parent invoice `due_date`, and synchronizes the JSONB `form_data` payload.
+  - Page automatically reloads to immediately sync all ledger rows, metrics, and streams.
+- ✅ MS-2 — Selective Nudge Control:
+  - Removed redundant `Copy Payment Link` and `View Live` buttons from the side-drawer footer.
+  - Hidden the `⚡ Send Nudge` button when lead times are comfortable, making it appear only when an invoice is within its 3-day deadline or already past due.
+- ✅ MS-3 — Explanatory Client Health Badges:
+  - Standardized health status stamps to display explanatory standing subtitles (`GOOD (On Track)` with *"Payments on track"*, `LATE (Overdue)` with *"Has unpaid past due"*, etc.).
+  - Prefixed the color ledger in the header with a bold `MILESTONE KEY:` to clarify that the colors represent milestones rather than overall health.
+
+## Deployment & Production state
+
+- **Latest Build:** `v2.2-stable` (Interactive Dashboard & Milestone Settle)
+- **Status:** Pushed to `main`. Compiled successfully.
+- **Verification:**
+  - Standardized sequential prefixes (e.g., `M2: SECOND`) mapped to upcoming deadlines.
+  - Sequential milestone settlement fully verified with automatic Net Days dueDate updates and JSONB payload sync.
+  - Compiles flawlessly with exit code 0.
+
+## Files modified in v2.2
+
+- app/dashboard/page.tsx
+- SESSION_LOG.md
