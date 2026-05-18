@@ -8,6 +8,7 @@ import { supabase, getClientSessionUser } from "@/lib/supabase/client";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
+import { markInvoiceSettled } from "@/lib/supabase/invoices";
 
 interface DashboardMetrics {
   outstanding: number;
@@ -66,6 +67,9 @@ interface UpcomingDeadline {
   dueDate: string;
   daysUntilDue: number;
   totalAmount: number;
+  nextMilestoneTitle?: string | null;
+  nextMilestoneAmount?: number | null;
+  rawInvoice: any;
 }
 
 export default function DashboardPage() {
@@ -459,27 +463,28 @@ export default function DashboardPage() {
           .filter((inv: any) => {
             const statusLower = inv.status.toLowerCase();
             const dueDateStr = inv.due_date || inv.form_data?.meta?.dueDate;
-            if (statusLower !== "settled" && dueDateStr) {
-              const due = new Date(dueDateStr);
-              due.setHours(0, 0, 0, 0);
-              return due >= todayVal;
-            }
-            return false;
+            return statusLower !== "settled" && dueDateStr;
           })
           .map((inv: any) => {
             const dueDateStr = inv.due_date || inv.form_data?.meta?.dueDate;
             const due = new Date(dueDateStr);
             due.setHours(0, 0, 0, 0);
-            const diffTime = due.getTime() - todayVal.getTime();
-            const daysUntilDue = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+            const diffDays = Math.round((due.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
+
+            const firstPendingMilestone = inv.milestones?.find(
+              (m: any) => (m.status || "").toLowerCase() !== "settled"
+            );
 
             return {
               id: inv.id,
               invoiceNumber: inv.invoice_number,
               clientName: inv.form_data?.client?.clientName || "Client",
               dueDate: dueDateStr,
-              daysUntilDue,
-              totalAmount: inv.totalAmount,
+              daysUntilDue: diffDays,
+              totalAmount: inv.totalAmount || inv.form_data?.totals?.total || 0,
+              nextMilestoneTitle: firstPendingMilestone ? firstPendingMilestone.title : null,
+              nextMilestoneAmount: firstPendingMilestone ? firstPendingMilestone.amount : null,
+              rawInvoice: inv,
             };
           })
           .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
@@ -1189,31 +1194,75 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {deadlines.length > 0 ? (
-                  deadlines.slice(0, 5).map((d) => (
-                    <div
-                      key={d.id}
-                      className="px-3 py-2 border-b border-[color:var(--border-subtle)] flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="text-[13px] font-semibold text-[#111118]">
-                          {d.invoiceNumber}
-                        </p>
-                        <p className="text-[12px] text-[color:var(--text-muted)]">
-                          {d.clientName} · ₹{formatIndian(d.totalAmount)}
-                        </p>
-                      </div>
-                      <span
-                        className={cn(
-                          "text-[11px] font-bold px-[6px] py-[1px] border-[1.5px] border-[#111118]",
-                          d.daysUntilDue <= 3
-                            ? "bg-[#FFF0EC] text-[#FF5C00]"
-                            : "bg-[#F8F8F4] text-[color:var(--text-muted)]"
-                        )}
+                  deadlines.slice(0, 5).map((d) => {
+                    const formattedDueDate = new Date(d.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                    const hasPassed = d.daysUntilDue <= 0;
+
+                    return (
+                      <div
+                        key={d.id}
+                        onClick={() => setSelectedInvoice(d.rawInvoice)}
+                        className="px-3 py-2.5 border-b border-[color:var(--border-subtle)] flex justify-between items-center cursor-pointer hover:bg-[#F9F9F6] active:bg-[#F0F0EB] transition-colors select-none group"
                       >
-                        {d.daysUntilDue} DAYS
-                      </span>
-                    </div>
-                  ))
+                        <div className="min-w-0 flex-1 pr-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <p className="text-[13px] font-bold text-[#111118] group-hover:text-[#FF5C00] transition-colors truncate">
+                              {d.invoiceNumber}
+                            </p>
+                            {d.nextMilestoneTitle && (
+                              <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#F0EAFF] text-[#5530DB] font-extrabold uppercase truncate max-w-[120px]">
+                                {d.nextMilestoneTitle}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[12px] text-[color:var(--text-muted)] font-medium mt-0.5 truncate">
+                            {d.clientName} · <span className="font-bold text-[#111118]">₹{formatIndian(d.nextMilestoneAmount || d.totalAmount)}</span>
+                            <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-1.5 whitespace-nowrap">
+                              (Due {formattedDueDate} · {d.daysUntilDue > 0 ? `+${d.daysUntilDue}d` : `${d.daysUntilDue}d`})
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {hasPassed && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const confirmSettle = window.confirm(`Mark Invoice ${d.invoiceNumber} as fully paid/settled?`);
+                                  if (!confirmSettle) return;
+                                  
+                                  const { error } = await markInvoiceSettled(d.id);
+                                  if (error) {
+                                    alert(`Failed to settle invoice: ${error}`);
+                                  } else {
+                                    alert(`Invoice ${d.invoiceNumber} successfully marked as settled!`);
+                                    window.location.reload();
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
+                              className="bg-[#00DCB4] hover:bg-[#00c4a0] active:translate-y-[1px] text-[#111118] border-2 border-[#111118] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0_#111118] cursor-pointer"
+                            >
+                              Mark Settled
+                            </button>
+                          )}
+                          <span
+                            className={cn(
+                              "text-[10px] font-black px-2 py-0.5 border-[1.5px] border-[#111118] shadow-[1px_1px_0_#111118] uppercase tracking-wider",
+                              d.daysUntilDue <= 2
+                                ? "bg-[#FFF0EC] text-[#FF5C00]"
+                                : d.daysUntilDue <= 5
+                                ? "bg-[#FFFBE6] text-[#D97706]"
+                                : "bg-[#F7FFD6] text-[#84CC16]"
+                            )}
+                          >
+                            {d.daysUntilDue === 0 ? "TODAY" : d.daysUntilDue === 1 ? "TOMORROW" : d.daysUntilDue === -1 ? "YESTERDAY" : `${d.daysUntilDue} DAYS`}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="px-3 py-4 text-center text-[12px] text-[color:var(--text-muted)]">
                     No upcoming deadlines.
