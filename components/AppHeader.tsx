@@ -213,6 +213,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             </button>
 
             <nav className="ml-4 hidden items-center gap-5 border-l-2 border-[#333] pl-5 sm:flex">
+              {user && <NavLink href="/dashboard" label="Dashboard" />}
               <NavLink
                 href={user ? "/invoice/new" : "/invoice/new?guest=1"}
                 label="New Invoice"
@@ -254,6 +255,20 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
           <div className="sm:hidden border-t-2 border-[#333] bg-[#111118]">
             <div className={`${appPageContainerClass} py-3`}>
               <nav className="flex flex-col gap-1">
+                {user && (
+                  <Link
+                    href="/dashboard"
+                    className={cn(
+                      "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                      pathname === "/dashboard"
+                        ? "bg-[#BEFF00] text-[#111118]"
+                        : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 <Link
                   href={user ? "/invoice/new" : "/invoice/new?guest=1"}
                   className={cn(
