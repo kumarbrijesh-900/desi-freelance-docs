@@ -599,47 +599,28 @@ export default function DashboardPage() {
           {/* SECTION 4: CLIENT LEDGER */}
           <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
-            <div className="px-4 py-2 border-b-2 border-[#111118] bg-[#111118] flex justify-between items-center">
-              <p className="text-[12px] font-bold text-[#BEFF00] tracking-[0.12em] uppercase">
+            <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
+              <p className="text-[12px] font-bold text-[#111118] tracking-[0.12em]">
                 CLIENT LEDGER
               </p>
               <div className="flex gap-3">
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-[5px] bg-[#00DCB4]"></div>
-                  <span className="text-[11px] text-[#888]">Settled</span>
+                  <div className="w-4 h-2 border border-[#111118] bg-[#00DCB4]"></div>
+                  <span className="text-[12px] font-semibold text-[#111118]">Settled</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-[5px] bg-[#BEFF00]"></div>
-                  <span className="text-[11px] text-[#888]">Live</span>
+                  <div className="w-4 h-2 border border-[#111118] bg-[#BEFF00]"></div>
+                  <span className="text-[12px] font-semibold text-[#111118]">Live</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-[5px] bg-[#FF5C00]"></div>
-                  <span className="text-[11px] text-[#888]">Overdue</span>
+                  <div className="w-4 h-2 border border-[#111118] bg-[#FF5C00]"></div>
+                  <span className="text-[12px] font-semibold text-[#111118]">Overdue</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-[5px] bg-[#8B5CF6]"></div>
-                  <span className="text-[11px] text-[#888]">Draft</span>
+                  <div className="w-4 h-2 border border-[#111118] bg-[#8B5CF6]"></div>
+                  <span className="text-[12px] font-semibold text-[#111118]">Draft</span>
                 </div>
               </div>
-            </div>
-
-            {/* Column headers - hidden on mobile */}
-            <div className="hidden sm:grid grid-cols-[1.4fr_1.6fr_0.8fr_0.8fr_0.6fr] px-3 py-2 border-b border-[color:var(--border-subtle)] bg-[#F8F8F4]">
-              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
-                CLIENT
-              </span>
-              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">
-                MILESTONES
-              </span>
-              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
-                OWED
-              </span>
-              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-right uppercase">
-                COLLECTED
-              </span>
-              <span className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] text-center uppercase">
-                HEALTH
-              </span>
             </div>
 
             {/* Client rows */}
@@ -647,108 +628,77 @@ export default function DashboardPage() {
               <div
                 key={client.clientId}
                 className={cn(
-                  "grid grid-cols-1 sm:grid-cols-[1.4fr_1.6fr_0.8fr_0.8fr_0.6fr] px-3 py-3 border-b border-[color:var(--border-subtle)] items-center gap-2 sm:gap-0",
+                  "px-3 py-4 border-b border-[color:var(--border-subtle)]",
                   client.health === "overdue" && "bg-[#FFF8F5]"
                 )}
               >
-                {/* Client name */}
-                <div>
-                  <p className="text-[13px] sm:text-[14px] font-bold text-[#111118]">
-                    {client.clientName}
-                  </p>
-                  <p className="text-[11px] sm:text-[12px] text-[color:var(--text-muted)] truncate max-w-full">
-                    {client.invoices.length <= 3
-                      ? client.invoices.map(inv => inv.invoiceNumber).join(" · ")
-                      : client.invoices.slice(0, 3).map(inv => inv.invoiceNumber).join(" · ") + ` +${client.invoices.length - 3} more`
-                    }
-                  </p>
+                {/* Client name and health badge - always visible */}
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-[14px] font-bold text-[#111118]">{client.clientName}</p>
+                    <p className="text-[12px] text-[color:var(--text-muted)]">
+                      {client.invoices.length <= 3
+                        ? client.invoices.map(inv => inv.invoiceNumber).join(" · ")
+                        : client.invoices.slice(0, 3).map(inv => inv.invoiceNumber).join(" · ") + ` +${client.invoices.length - 3} more`
+                      }
+                    </p>
+                  </div>
+                  <span className={cn(
+                    "text-[11px] font-bold px-3 py-1 border-[1.5px] border-[#111118] shrink-0",
+                    client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
+                    client.health === "overdue" && "bg-[#FF5C00] text-white",
+                    client.health === "clear" && "bg-[#E0FFF7] text-[#006B52]",
+                    client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
+                  )}>
+                    {client.health === "good" ? "GOOD" : client.health === "overdue" ? "LATE" : client.health === "clear" ? "CLEAR" : "DRAFT"}
+                  </span>
                 </div>
 
-                {/* Milestone bars */}
-                <div className="flex flex-col gap-1">
-                  {client.invoices.map((inv) => (
-                    <div key={inv.id} className="flex gap-[2px] items-center">
-                      {inv.milestones.length > 0 ? (
-                        inv.milestones.map((m, mi) => {
-                          const statusLower = m.status.toLowerCase();
-                          let barClass = "w-[32px] h-[10px] border border-[#111118]";
-                          if (statusLower === "settled") barClass += " bg-[#00DCB4]";
-                          else if (statusLower === "overdue") barClass += " bg-[#FF5C00]";
-                          else if (statusLower === "live" || statusLower === "sent" || statusLower === "finalized") barClass += " bg-[#BEFF00]";
-                          else if (statusLower === "draft") barClass += " bg-[#8B5CF6]";
-                          else barClass = "w-[32px] h-[10px] bg-[#E0E0E0] border border-[#ccc]";
-
-                          return (
-                            <div
-                              key={mi}
-                              className={barClass}
-                            ></div>
-                          );
-                        })
-                      ) : (
-                        <div className="w-[32px] h-[10px] border border-[#111118] bg-[#8B5CF6]"></div>
-                      )}
-                      <span className="text-[11px] sm:text-[12px] font-semibold text-[color:var(--text-muted)] ml-1">
+                {/* Milestone rows with invoice numbers */}
+                <div className="mb-3">
+                  {client.invoices.map(inv => (
+                    <div key={inv.id} className="flex items-center gap-2 py-1">
+                      <span className="text-[12px] font-semibold text-[#111118] min-w-[100px] sm:min-w-[120px] shrink-0">{inv.invoiceNumber}</span>
+                      <div className="flex gap-[3px] items-center">
+                        {inv.milestones.length > 0 ? inv.milestones.map((m, mi) => (
+                          <div
+                            key={mi}
+                            className="w-[28px] sm:w-[32px] h-[10px] border border-[#111118]"
+                            style={{
+                              background: m.status.toLowerCase() === "settled" ? "#00DCB4"
+                                : m.status.toLowerCase() === "overdue" ? "#FF5C00"
+                                : ["live", "sent", "finalized"].includes(m.status.toLowerCase()) ? "#BEFF00"
+                                : m.status.toLowerCase() === "draft" ? "#8B5CF6"
+                                : "#E0E0E0"
+                            }}
+                          ></div>
+                        )) : (
+                          <div className="w-[28px] sm:w-[32px] h-[10px] bg-[#8B5CF6] border border-[#111118]"></div>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-[color:var(--text-muted)]">
                         {inv.milestones.length > 0
-                          ? inv.milestones
-                              .map(
-                                (m, mi) =>
-                                  `M${mi + 1}${
-                                    m.status.toLowerCase() === "settled"
-                                      ? "✓"
-                                      : m.status.toLowerCase() === "overdue"
-                                        ? "⚠"
-                                        : "●"
-                                  }`
-                              )
-                              .join(" ")
-                          : "Draft"}
+                          ? inv.milestones.map((m, mi) => {
+                              const s = m.status.toLowerCase();
+                              return `M${mi+1}${s === "settled" ? "✓" : s === "overdue" ? "⚠" : "●"}`;
+                            }).join(" ")
+                          : inv.status?.toLowerCase() === "draft" ? "Draft" : "Pending"
+                        }
                       </span>
                     </div>
                   ))}
                 </div>
 
-                {/* Owed */}
-                <p
-                  className={cn(
-                    "text-[13px] sm:text-[14px] font-bold text-right",
-                    client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]"
-                  )}
-                >
-                  ₹{formatIndian(client.totalOwed)}
-                </p>
-
-                {/* Collected */}
-                <p
-                  className={cn(
-                    "text-[13px] sm:text-[14px] font-bold text-right",
-                    client.totalCollected > 0
-                      ? "text-[#00967D]"
-                      : "text-[color:var(--text-muted)]"
-                  )}
-                >
-                  ₹{formatIndian(client.totalCollected)}
-                </p>
-
-                {/* Health badge */}
-                <div className="text-center">
-                  <span
-                    className={cn(
-                      "text-[11px] sm:text-[12px] font-bold px-3 py-1 border-[1.5px] border-[#111118] inline-block",
-                      client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                      client.health === "overdue" && "bg-[#FF5C00] text-white",
-                      client.health === "clear" && "bg-[#E0FFF7] text-[#006B52]",
-                      client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
-                    )}
-                  >
-                    {client.health === "good"
-                      ? "GOOD"
-                      : client.health === "overdue"
-                        ? "LATE"
-                        : client.health === "clear"
-                          ? "CLEAR"
-                          : "DRAFT"}
-                  </span>
+                {/* Amounts row - horizontal on mobile */}
+                <div className="flex gap-4 items-center text-[13px]">
+                  <div>
+                    <span className="text-[11px] text-[color:var(--text-muted)] font-bold uppercase tracking-wider">Owed: </span>
+                    <span className={cn("font-bold", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>₹{formatIndian(client.totalOwed)}</span>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-[color:var(--text-muted)] font-bold uppercase tracking-wider">In: </span>
+                    <span className={cn("font-bold", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>₹{formatIndian(client.totalCollected)}</span>
+                  </div>
                 </div>
               </div>
             ))}
