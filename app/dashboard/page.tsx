@@ -623,6 +623,14 @@ export default function DashboardPage() {
               (m: any) => (m.status || "").toLowerCase() !== "settled"
             );
 
+            let displayTitle = null;
+            if (firstPendingMilestone) {
+              const orderIndex = firstPendingMilestone.order_index ?? inv.milestones.indexOf(firstPendingMilestone);
+              const rawTitle = firstPendingMilestone.title || "";
+              const hasPrefix = /^(m|milestone)\s*\d+/i.test(rawTitle);
+              displayTitle = hasPrefix ? rawTitle : `M${orderIndex + 1}: ${rawTitle}`;
+            }
+
             return {
               id: inv.id,
               invoiceNumber: inv.invoice_number,
@@ -630,7 +638,7 @@ export default function DashboardPage() {
               dueDate: dueDateStr,
               daysUntilDue: diffDays,
               totalAmount: inv.totalAmount || inv.form_data?.totals?.total || 0,
-              nextMilestoneTitle: firstPendingMilestone ? firstPendingMilestone.title : null,
+              nextMilestoneTitle: displayTitle,
               nextMilestoneAmount: firstPendingMilestone ? firstPendingMilestone.amount : null,
               rawInvoice: inv,
             };
