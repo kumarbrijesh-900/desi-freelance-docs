@@ -2668,6 +2668,8 @@ return (
               </MotionReveal>
             )}
 
+            {/* AI Brief Extraction hidden for now */}
+            {/*
             <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
               <BriefIntakeCard
                 key={briefIntakeResetKey}
@@ -2678,6 +2680,7 @@ return (
                 userEmail={userEmail}
               />
             </div>
+            */}
 
             {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
             {/* Mobile Meta Summary Strip (Rectified for UX) */}
