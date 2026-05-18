@@ -83,8 +83,8 @@ export default function MSAAcceptanceModal({
     return (
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
         <MotionReveal preset="fade-up" className="w-full max-w-md">
-          <div className="border-2 border-[#111118] bg-white p-8 text-center shadow-[var(--brutal-shadow-lg)]">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
+          <div className="border-2 border-[#111118] bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-2 border-[#111118] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
             <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
@@ -105,9 +105,9 @@ export default function MSAAcceptanceModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+        <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
           {/* Header */}
-          <div className="border-b border-[color:var(--border-subtle)] bg-gradient-to-r from-[color:var(--color-lime-50)] to-white px-6 py-6 sm:px-8">
+          <div className="border-b-2 border-[#111118] bg-[#FFFBE6] px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
               <span className="flex h-12 w-12 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118]">
                 <DocumentSparkIcon className="h-6 w-6" />
@@ -146,7 +146,7 @@ export default function MSAAcceptanceModal({
                 {(paymentTerms || addendumNotes) && (
                   <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border-2 border-[#111118] bg-amber-200 text-[10px] font-bold text-amber-800">
                         !
                       </span>
                       <div>
@@ -159,13 +159,13 @@ export default function MSAAcceptanceModal({
                         <ul className="mt-3 space-y-2">
                           {paymentTerms && (
                             <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
-                              <span className="h-1 w-1 rounded-full bg-amber-400" />
+                              <span className="h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
                               Payment Terms: <span className="font-bold underline decoration-amber-300 underline-offset-2">{paymentTerms}</span>
                             </li>
                           )}
                           {addendumNotes && (
                             <li className="flex items-start gap-2 text-[12px] font-medium text-amber-900">
-                              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+                              <span className="mt-1.5 h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
                               <span>Additional Notes: <span className="font-bold">{addendumNotes}</span></span>
                             </li>
                           )}

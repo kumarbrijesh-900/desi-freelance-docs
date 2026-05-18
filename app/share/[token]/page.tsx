@@ -181,7 +181,7 @@ export default function PublicInvoiceSharePage({
         .invoice-sheet { break-inside: avoid; page-break-inside: avoid; }
       `}</style>
 
-      <main className="min-h-screen bg-[color:var(--bg-canvas)] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
+      <main className="min-h-screen bg-[#F5F5F8] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
         <div className={cn(
           "mx-auto mb-10 flex max-w-[210mm] items-center justify-between print:hidden",
           isMsaPending && "opacity-20 pointer-events-none"
@@ -202,9 +202,9 @@ export default function PublicInvoiceSharePage({
           <button
             type="button"
             onClick={() => window.print()}
-            className={getAppButtonClass({ variant: "secondary", size: "sm" })}
+            className="border-2 border-[#111118] bg-white px-5 py-2.5 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
           >
-            <PrinterIcon className="h-4 w-4" />
+            <PrinterIcon className="h-4 w-4 inline mr-2" />
             Download PDF
           </button>
         </div>
@@ -214,25 +214,23 @@ export default function PublicInvoiceSharePage({
           "mx-auto mb-6 max-w-[210mm] print:hidden",
           isMsaPending && "opacity-20 pointer-events-none"
         )}>
-          <div className="flex items-center justify-between border border-[color:var(--border-default)] bg-white px-6 py-5 shadow-sm">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
-                Amount Due
+          <div className="border-2 border-[#111118] bg-[#FFFBE6] px-6 py-4 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
+              Amount Due
+            </p>
+            <p className="text-2xl font-black text-[#111118]">
+              {currencySymbol}{formattedTotal}
+            </p>
+            {invoiceNumber && (
+              <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
+                Invoice {invoiceNumber}
               </p>
-              <p className="text-[28px] font-black tracking-tight text-[#111118]">
-                {currencySymbol}{formattedTotal}
-              </p>
-              {invoiceNumber && (
-                <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
-                  Invoice {invoiceNumber}
-                </p>
-              )}
-            </div>
-            <div className="text-right">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
-                Status
-              </p>
-              <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[12px] font-semibold text-amber-700">
+            )}
+            <div className="mt-3 inline-flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                Status:
+              </span>
+              <span className="inline-flex items-center border border-[#111118] bg-[#BEFF00] px-3 py-1 text-[11px] font-bold text-[#111118] uppercase">
                 Awaiting Payment
               </span>
             </div>
@@ -242,7 +240,7 @@ export default function PublicInvoiceSharePage({
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
         {isChildInvoice && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 border border-green-200 bg-green-50 px-4 py-2.5">
+            <div className="flex items-center gap-2.5 border-2 border-[#111118] bg-[#FFFBE6] px-4 py-2.5">
               <span className="text-green-600 text-sm">✓</span>
               <p className="text-sm text-green-800">
                 <span className="font-semibold">MSA previously accepted</span>
@@ -261,19 +259,19 @@ export default function PublicInvoiceSharePage({
           isMsaPending && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
-            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-sm border border-[color:var(--border-default)] bg-white px-5 py-5 shadow-[var(--app-floating-shadow)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
+            className="invoice-sheet mx-auto w-full max-w-[210mm] border-2 border-[#111118] bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
             preset="scale-in"
           >
             <TemplateRenderer formData={formData} templateId={templateId} />
           </MotionReveal>
         </div>
 
-        <p className={cn(
-          "mx-auto text-center text-xs text-[color:var(--text-muted)] print:hidden",
+        <div className={cn(
+          "mx-auto border-t-2 border-[#111118] py-4 text-center text-[12px] text-[color:var(--text-muted)] print:hidden max-w-[210mm] mt-8",
           isMsaPending && "opacity-0"
         )}>
-          Invoice #{invoiceNumber} • Shared via LanceInvoice
-        </p>
+          Invoice #{invoiceNumber} • Shared via Lance
+        </div>
 
         {isMsaPending && msaData && (
           <MSAAcceptanceModal

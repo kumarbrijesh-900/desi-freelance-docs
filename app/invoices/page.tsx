@@ -1532,46 +1532,20 @@ export default function InvoiceHistoryPage() {
             </div>
           ) : invoices.length === 0 ? (
             <MotionReveal preset="fade-up">
-              <div className="flex flex-col items-center gap-6 px-6 py-16 text-center border border-[color:var(--border-default)] bg-white shadow-sm">
-                <div className="flex h-16 w-16 items-center justify-center bg-[#F5F3FF]">
-                  <DocumentSparkIcon className="h-8 w-8 text-[#4F46E5]" />
+              <div className="py-16 px-8 text-center border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)]">
+                <div className="inline-flex h-16 w-16 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] shadow-[var(--brutal-shadow-md)] mb-6">
+                  <span className="text-2xl font-black text-[#111118]">L</span>
                 </div>
-                <div className="space-y-2">
-                  <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
-                    Create your first invoice
-                  </h2>
-                  <p className="mx-auto max-w-md text-sm leading-relaxed text-[color:var(--text-secondary)]">
-                    Generate GST-compliant invoices in under 2 minutes. Paste your project brief and let AI fill the details — or build one from scratch.
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-3">
-                  <Link
-                    href="/invoice/new"
-                    className={getAppButtonClass({
-                      variant: "primary",
-                      size: "lg",
-                    })}
-                  >
-                    + New Invoice
-                  </Link>
-                  <p className="text-xs text-[color:var(--text-muted)]">
-                    Takes about 2 minutes · No payment info required
-                  </p>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-6 border-t border-[color:var(--border-subtle)] pt-6 w-full max-w-lg">
-                  <div className="text-center">
-                    <p className="text-[20px] font-bold text-[#4F46E5]">AI</p>
-                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Auto-fill from brief</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[20px] font-bold text-[#4F46E5]">GST</p>
-                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Compliant by default</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[20px] font-bold text-[#4F46E5]">PDF</p>
-                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">Export & share instantly</p>
-                  </div>
-                </div>
+                <h2 className="text-xl font-bold uppercase text-[#111118] mb-2">No invoices yet</h2>
+                <p className="text-[13px] text-[color:var(--text-muted)] mb-6 max-w-md mx-auto">
+                  Create your first invoice and get paid faster. Lance handles the tax math, legal terms, and compliance — you just fill in the work.
+                </p>
+                <a
+                  href="/invoice/new"
+                  className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-3 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-md)] hover:shadow-[var(--brutal-shadow-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+                >
+                  Create First Invoice →
+                </a>
               </div>
             </MotionReveal>
           ) : (
