@@ -78,7 +78,14 @@ function LoginCard() {
       </p>
 
       <p className="mt-6 text-[11px] leading-4 text-[color:var(--text-soft)]">
-        By continuing, you agree to our Terms and Privacy Policy.
+        By continuing, you agree to our{" "}
+        <Link href="/terms" className="font-semibold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="font-semibold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+          Privacy Policy
+        </Link>.
       </p>
     </div>
   );

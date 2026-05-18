@@ -51,6 +51,12 @@ export default function PrivacyPage() {
                 <strong>Usage data:</strong> Pages visited, features used, and
                 general interaction patterns (no keystroke logging)
               </li>
+              <li>
+                <strong>Client data:</strong> Client names, email addresses, GSTIN numbers, and addresses you enter for invoicing purposes
+              </li>
+              <li>
+                <strong>Financial data:</strong> Invoice amounts, payment terms, milestone status, and settlement records
+              </li>
             </ul>
           </Section>
 
@@ -59,7 +65,7 @@ export default function PrivacyPage() {
             <ul className="ml-4 mt-2 list-disc space-y-1 text-sm leading-6">
               <li>Provide and maintain the Service</li>
               <li>
-                Process brief text through AI extraction (OpenAI) to generate
+                Process brief text through AI extraction (third-party AI provider) to generate
                 structured invoice data
               </li>
               <li>
@@ -72,19 +78,7 @@ export default function PrivacyPage() {
 
           <Section title="3. AI Processing">
             <p>
-              When you submit a project brief for extraction, the text is sent
-              to OpenAI&apos;s API for processing. OpenAI processes this data in
-              accordance with their{" "}
-              <a
-                href="https://openai.com/policies/api-data-usage-policies"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-[color:var(--color-lime-700)] underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
-              >
-                API data usage policies
-              </a>
-              . As of their current policy, API inputs and outputs are not used
-              for training their models.
+              Lance may use AI services to process project briefs into structured invoice data. When this feature is active, your brief text is sent to a third-party AI provider for processing. The AI provider processes data in accordance with their own data usage policies. No brief data is stored by the AI provider for training purposes. This feature is optional — you can always create invoices manually without AI processing.
             </p>
           </Section>
 
@@ -110,7 +104,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="ml-4 mt-2 list-disc space-y-1 text-sm leading-6">
               <li>
-                <strong>OpenAI:</strong> For AI-powered brief extraction
+                <strong>Third-Party AI Provider:</strong> For AI-powered brief extraction
                 (transient processing only)
               </li>
               <li>
@@ -185,6 +179,24 @@ export default function PrivacyPage() {
             <p>
               For privacy-related questions or data requests, please reach out
               via the contact information provided on the platform.
+            </p>
+          </Section>
+
+          <Section title="13. Your Rights Under Indian Law (DPDPA 2023)">
+            <p>
+              Under India&apos;s Digital Personal Data Protection Act, 2023, you have the right to: (a) access your personal data held by Lance, (b) request correction of inaccurate data, (c) request deletion of your data (right to erasure), and (d) withdraw consent for data processing. To exercise any of these rights, contact us at hello@lanceinvoice.xyz. We will respond within 30 days.
+            </p>
+          </Section>
+
+          <Section title="14. Data Retention & Deletion">
+            <p>
+              Your invoice data is retained as long as your account is active. If you delete your account, all associated data (invoices, client records, profile information) will be permanently deleted within 30 days. You can delete individual invoices at any time from your dashboard.
+            </p>
+          </Section>
+
+          <Section title="15. International Data Transfers">
+            <p>
+              Lance uses Supabase (hosted infrastructure) and Vercel (application hosting), which may process data in regions outside India. By using Lance, you consent to this transfer. All data is encrypted in transit (TLS) and at rest.
             </p>
           </Section>
         </div>
