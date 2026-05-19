@@ -760,7 +760,7 @@ export default function ClientDetailsSection({
         >
           <div className="flex flex-col flex-1 pr-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[color:var(--text-primary)] font-semibold text-[15px]">Payment &amp; Legal Terms</span>
+              <span className="text-[color:var(--text-primary)] font-semibold text-[15px]">Client Specific Payment &amp; Legal Terms</span>
               <AppTooltip content={
                 <div className="space-y-2">
                   <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
