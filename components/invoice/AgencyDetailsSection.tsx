@@ -236,7 +236,7 @@ export default function AgencyDetailsSection({
             <div className="space-y-6">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                  <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5 group">
                     <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                       GST Registration Status
                     </span>
@@ -249,7 +249,7 @@ export default function AgencyDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location.
 </span>
                   </div>
@@ -329,7 +329,7 @@ export default function AgencyDetailsSection({
                         </div>
 
                         <div className="w-full max-w-[280px]">
-                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                             <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                               PAN
                               {autoFilledFields.has("agency.pan") && (
@@ -345,7 +345,7 @@ export default function AgencyDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
 </span>
                           </div>
@@ -382,7 +382,7 @@ export default function AgencyDetailsSection({
                       <div className="space-y-4 bg-[color:var(--bg-surface-muted)]/40 p-4 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
-                            <div className="flex flex-wrap items-center gap-1.5">
+                            <div className="flex flex-wrap items-center gap-1.5 group">
                               <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                                 Valid LUT for current financial year?
                               </span>
@@ -395,7 +395,7 @@ export default function AgencyDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront.
 </span>
                             </div>
@@ -466,7 +466,7 @@ export default function AgencyDetailsSection({
                     className="overflow-hidden"
                   >
                     <div className="w-full max-w-[280px] pt-2">
-                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
                         <button
   type="button"
@@ -477,7 +477,7 @@ export default function AgencyDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
 </span>
                       </div>

@@ -272,7 +272,7 @@ export default function TotalsTaxesSection({
           {/* Advanced Tax Disclosure */}
           <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
             {!showAdvanced ? (
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5 group">
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(true)}
@@ -289,7 +289,7 @@ export default function TotalsTaxesSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Override the default tax rate, enable Reverse Charge Mechanism (RCM), or adjust for SEZ clients.
 </span>
               </div>
@@ -308,17 +308,22 @@ export default function TotalsTaxesSection({
                 {/* RCM Toggle */}
                 <div className="-mx-6 border-t border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/30 px-6">
                   <div className="flex h-[44px] items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 group">
                       <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
                         Reverse Charge (RCM)
                       </span>
-                      <div className="group relative">
-                        <InfoCircleIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)] cursor-help" />
-                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-64 -translate-x-1/2 bg-gray-900 px-3 py-2 text-[11px] leading-relaxed text-white opacity-0 shadow-[var(--brutal-shadow-lg)] transition-opacity duration-200 group-hover:opacity-100">
-                          RCM shifts the GST payment liability to your client. Tax is calculated for compliance but excluded from your payable total.
-                          <div className="absolute top-full left-1/2 -mt-1 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
-                        </div>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const el = e.currentTarget.nextElementSibling;
+                          if (el) el.classList.toggle("hidden");
+                        }}
+                        className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+                      >?</button>
+                      <span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                        Shifts the tax liability so the Client pays GST directly to the government instead of the Freelancer/Agency collecting it.
+                      </span>
                     </div>
                     <AppSwitch
                       checked={isRcmEnabled}

@@ -330,7 +330,7 @@ export default function ClientDetailsSection({
               </div>
 
               <div className="mb-4">
-                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
                   <button
   type="button"
@@ -341,7 +341,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency).
 </span>
                 </div>
@@ -405,7 +405,7 @@ export default function ClientDetailsSection({
 
                   <div className="flex flex-wrap gap-6 items-end">
                     <div className="w-full max-w-[360px]">
-                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                           {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
                           {autoFilledFields.has("client.clientGstin") && (
@@ -421,7 +421,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
 </span>
                       </div>
@@ -725,7 +725,7 @@ export default function ClientDetailsSection({
                         />
                       </div>
                       <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                           <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                             {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
                             {autoFilledFields.has("client.clientGstin") && (
@@ -741,7 +741,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
 </span>
                         </div>
@@ -777,7 +777,22 @@ export default function ClientDetailsSection({
           )}
         >
           <div className="flex flex-col flex-1 pr-4">
-            <span className="text-[color:var(--text-primary)] font-medium">Default Contract & Payment Terms</span>
+            <div className="flex flex-wrap items-center gap-1.5 group/tooltip">
+              <span className="text-[color:var(--text-primary)] font-medium">Default Contract & Payment Terms</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  const el = e.currentTarget.nextElementSibling;
+                  if (el) el.classList.toggle("hidden");
+                }}
+                className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+              >?</button>
+              <span className="hidden sm:group-[.group\/tooltip]:hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                Master Service Agreement. A foundational legal contract outlining the terms, IP transfer, and payment conditions of your engagement.
+              </span>
+            </div>
             <p className="text-sm text-[color:var(--text-muted)] mt-1 font-normal">
               Set payment terms and legal conditions...
             </p>
@@ -836,7 +851,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Days until payment is due after invoice date
 </span>
                     </div>
@@ -865,7 +880,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Penalty charged on overdue payments
 </span>
                     </div>
@@ -904,7 +919,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   When does IP ownership transfer to client?
 </span>
                     </div>
@@ -933,7 +948,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   City for dispute resolution
 </span>
                     </div>
@@ -959,7 +974,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   What rights does the client receive?
 </span>
                     </div>
