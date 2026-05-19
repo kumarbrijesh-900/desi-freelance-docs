@@ -677,6 +677,13 @@ function PreviewContent() {
             overflow: hidden !important;
             break-inside: avoid !important;
           }
+          .invoice-sheet-wrapper {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
           * {
             break-inside: auto;
           }

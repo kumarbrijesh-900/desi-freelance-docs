@@ -177,8 +177,8 @@ export default function PublicInvoiceSharePage({
           @page { size: A4; margin: 10mm; }
           html, body { background: white !important; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .invoice-sheet { break-inside: avoid; page-break-inside: avoid; transform: none !important; }
         }
-        .invoice-sheet { break-inside: avoid; page-break-inside: avoid; }
       `}</style>
 
       <main className="min-h-screen bg-[#F5F5F8] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
