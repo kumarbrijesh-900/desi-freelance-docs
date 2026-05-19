@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
@@ -107,6 +107,40 @@ export default function DashboardPage() {
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
 
+  // --- Modal System ---
+  interface ModalState {
+    open: boolean;
+    title: string;
+    message: string;
+    tone: "success" | "error" | "warning" | "info";
+    type: "alert" | "confirm";
+    confirmLabel?: string;
+    cancelLabel?: string;
+  }
+  const [modal, setModal] = useState<ModalState>({
+    open: false, title: "", message: "", tone: "info", type: "alert",
+  });
+  const modalResolveRef = useRef<((value: boolean) => void) | null>(null);
+
+  const showAlert = useCallback((title: string, message: string, tone: ModalState["tone"] = "info") => {
+    setModal({ open: true, title, message, tone, type: "alert" });
+  }, []);
+
+  const showConfirm = useCallback((title: string, message: string, tone: ModalState["tone"] = "warning", confirmLabel = "Confirm", cancelLabel = "Cancel"): Promise<boolean> => {
+    return new Promise((resolve) => {
+      modalResolveRef.current = resolve;
+      setModal({ open: true, title, message, tone, type: "confirm", confirmLabel, cancelLabel });
+    });
+  }, []);
+
+  const handleModalClose = useCallback((confirmed: boolean) => {
+    setModal(prev => ({ ...prev, open: false }));
+    if (modalResolveRef.current) {
+      modalResolveRef.current(confirmed);
+      modalResolveRef.current = null;
+    }
+  }, []);
+
   // Close drawer on ESC key press
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -133,7 +167,8 @@ export default function DashboardPage() {
         ? `Settle Milestone ${miIndex + 1} (${activeM.title}) and start Milestone ${miIndex + 2}?`
         : `Settle the final milestone (${activeM.title}) and fully complete this invoice?`;
 
-      if (!window.confirm(confirmText)) return;
+      const confirmed = await showConfirm("Settle Milestone", confirmText, "warning", "Settle", "Cancel");
+      if (!confirmed) return;
 
       // 1. Settle current milestone in database
       const { error: settleErr } = await supabase
@@ -143,7 +178,7 @@ export default function DashboardPage() {
         .eq("order_index", miIndex);
 
       if (settleErr) {
-        alert(`Error settling milestone: ${settleErr.message}`);
+        showAlert("Settlement Error", `Error settling milestone: ${settleErr.message}`, "error");
         return;
       }
 
@@ -168,7 +203,7 @@ export default function DashboardPage() {
           .eq("order_index", nextIndex);
 
         if (nextErr) {
-          alert(`Error starting next milestone: ${nextErr.message}`);
+          showAlert("Milestone Error", `Error starting next milestone: ${nextErr.message}`, "error");
           return;
         }
 
@@ -196,7 +231,7 @@ export default function DashboardPage() {
           .eq("id", selectedInvoice.id);
 
         if (invErr) {
-          alert(`Error updating invoice due date: ${invErr.message}`);
+          showAlert("Update Error", `Error updating invoice due date: ${invErr.message}`, "error");
           return;
         }
 
@@ -214,7 +249,7 @@ export default function DashboardPage() {
           });
         }
 
-        alert(`Milestone ${miIndex + 1} settled! Milestone ${nextIndex + 1} is now LIVE with a calculated due date of ${newDueDateIso} (Net ${netDays} days).`);
+        showAlert("Milestone Settled", `Milestone ${miIndex + 1} settled! Milestone ${nextIndex + 1} is now LIVE with due date ${newDueDateIso} (Net ${netDays} days).`, "success");
       } else {
         // Settle entire invoice
         const updatedFormData = {
@@ -232,7 +267,7 @@ export default function DashboardPage() {
           .eq("id", selectedInvoice.id);
 
         if (invErr) {
-          alert(`Error settling invoice: ${invErr.message}`);
+          showAlert("Settlement Error", `Error settling invoice: ${invErr.message}`, "error");
           return;
         }
 
@@ -250,13 +285,13 @@ export default function DashboardPage() {
           });
         }
 
-        alert(`All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully settled!`);
+        showAlert("Invoice Settled", `All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully paid.`, "success");
       }
 
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       console.error(err);
-      alert("An unexpected error occurred during milestone settlement.");
+      showAlert("Error", "An unexpected error occurred during milestone settlement.", "error");
     }
   };
 
@@ -944,7 +979,7 @@ export default function DashboardPage() {
               <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => {
-                    alert(`Reminder nudge triggered for ${firstOverdueInvoice.invoiceNumber}`);
+                    showAlert("Nudge Sent", `Payment reminder triggered for ${firstOverdueInvoice.invoiceNumber}.`, "success");
                     console.log(`Nudge sent for invoice ${firstOverdueInvoice.id}`);
                   }}
                   className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
@@ -1407,15 +1442,15 @@ export default function DashboardPage() {
                             <button
                               onClick={async () => {
                                 try {
-                                  const confirmSettle = window.confirm(`Mark Invoice ${d.invoiceNumber} as fully paid/settled?`);
-                                  if (!confirmSettle) return;
+                                  const confirmed = await showConfirm("Settle Invoice", `Mark Invoice ${d.invoiceNumber} as fully paid/settled?`, "warning", "Settle", "Cancel");
+                                  if (!confirmed) return;
                                   
                                   const { error } = await markInvoiceSettled(d.id);
                                   if (error) {
-                                    alert(`Failed to settle invoice: ${error}`);
+                                    showAlert("Settlement Error", `Failed to settle invoice: ${error}`, "error");
                                   } else {
-                                    alert(`Invoice ${d.invoiceNumber} successfully marked as settled!`);
-                                    window.location.reload();
+                                    showAlert("Invoice Settled", `Invoice ${d.invoiceNumber} successfully marked as settled!`, "success");
+                                    setTimeout(() => window.location.reload(), 1500);
                                   }
                                 } catch (err) {
                                   console.error(err);
@@ -1651,7 +1686,7 @@ export default function DashboardPage() {
                     {showNudge && (
                       <button
                         onClick={() => {
-                          alert(`Reminder nudge triggered for ${selectedInvoice.invoiceNumber}`);
+                          showAlert("Nudge Sent", `Payment reminder triggered for ${selectedInvoice.invoiceNumber}.`, "success");
                         }}
                         className="w-full bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
                       >
@@ -1661,6 +1696,84 @@ export default function DashboardPage() {
                   </>
                 );
               })()}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* --- Neo-Brutalist Modal --- */}
+      {modal.open && (
+        <div
+          className="fixed inset-0 bg-[#111118]/60 backdrop-blur-[2px] z-[60] flex items-center justify-center p-4"
+          onClick={() => handleModalClose(false)}
+        >
+          <div
+            className="w-full max-w-[420px] bg-white border-4 border-[#111118] shadow-[6px_6px_0_#111118] animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header stripe */}
+            <div className={cn(
+              "px-4 py-2.5 border-b-2 border-[#111118] flex items-center gap-2",
+              modal.tone === "success" ? "bg-[#E0FFF7]" :
+              modal.tone === "error" ? "bg-[#FFF0EC]" :
+              modal.tone === "warning" ? "bg-[#FFFBE6]" :
+              "bg-[#F5F5F0]"
+            )}>
+              <span className={cn(
+                "w-5 h-5 border-2 border-[#111118] flex items-center justify-center text-[11px] font-black shrink-0",
+                modal.tone === "success" ? "bg-[#00DCB4] text-black" :
+                modal.tone === "error" ? "bg-[#FF5C00] text-white" :
+                modal.tone === "warning" ? "bg-[#FBBF24] text-black" :
+                "bg-[#111118] text-white"
+              )}>
+                {modal.tone === "success" ? "✓" : modal.tone === "error" ? "!" : modal.tone === "warning" ? "?" : "i"}
+              </span>
+              <p className="text-[13px] font-black text-[#111118] uppercase tracking-[0.06em] m-0">
+                {modal.title}
+              </p>
+            </div>
+
+            {/* Body */}
+            <div className="px-4 py-4">
+              <p className="text-[13px] text-[#111118] leading-relaxed m-0">
+                {modal.message}
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 py-3 border-t-2 border-[#111118] bg-[#F8F8F4] flex justify-end gap-2">
+              {modal.type === "confirm" ? (
+                <>
+                  <button
+                    onClick={() => handleModalClose(false)}
+                    className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold cursor-pointer uppercase font-syne shadow-[1px_1px_0_#111118] hover:shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+                  >
+                    {modal.cancelLabel || "Cancel"}
+                  </button>
+                  <button
+                    onClick={() => handleModalClose(true)}
+                    className={cn(
+                      "border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold cursor-pointer uppercase font-syne shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+                      modal.tone === "error" ? "bg-[#FF5C00] text-white" :
+                      modal.tone === "warning" ? "bg-[#FBBF24] text-[#111118]" :
+                      "bg-[#00DCB4] text-[#111118]"
+                    )}
+                  >
+                    {modal.confirmLabel || "Confirm"}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleModalClose(false)}
+                  className={cn(
+                    "border-2 border-[#111118] px-5 py-1.5 text-[12px] font-bold cursor-pointer uppercase font-syne shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+                    modal.tone === "success" ? "bg-[#00DCB4] text-[#111118]" :
+                    modal.tone === "error" ? "bg-[#FF5C00] text-white" :
+                    "bg-[#111118] text-white"
+                  )}
+                >
+                  OK
+                </button>
+              )}
             </div>
           </div>
         </div>
