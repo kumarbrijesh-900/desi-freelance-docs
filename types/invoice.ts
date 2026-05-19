@@ -209,6 +209,8 @@ export interface InvoiceFormData {
   milestones: Milestone[];        // canonical field from v1.5 onward
   tax: TaxConfig;
   payment: PaymentDetails;
+  /** True when invoice was downloaded as PDF and is managed manually outside tracking. */
+  isOffline?: boolean
 }
 
 export interface InvoiceComputedValues extends InvoiceTaxBreakdown {
@@ -335,6 +337,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     ibanRoutingCode: "",
     qrCodeUrl: "",
   },
+  isOffline: false,
 };
 
 function normalizeAgencyDetails(agency: AgencyDetails): AgencyDetails {

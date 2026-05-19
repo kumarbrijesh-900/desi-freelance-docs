@@ -48,6 +48,7 @@ export interface SavedInvoice {
   has_addendum: boolean;
   payment_terms_days: number | null;
   msa_status: MsaResponse;
+  is_offline: boolean;
   grand_total?: number;
   milestones?: {
     id: string;
@@ -904,3 +905,29 @@ export async function reissueNegotiatedInvoice(
 
   return { error: error?.message ?? null };
 }
+
+/**
+ * Mark an invoice as offline. Used when the user chooses to download
+ * the PDF and manage the invoice manually. The invoice will be excluded
+ * from the master list and dashboard metrics until they re-enable tracking.
+ *
+ * Returns the updated row on success, or throws.
+ */
+export async function markInvoiceAsOffline(
+  invoiceId: string
+): Promise<{ id: string; is_offline: boolean }> {
+  const { data, error } = await supabase
+    .from('invoices')
+    .update({ is_offline: true })
+    .eq('id', invoiceId)
+    .select('id, is_offline')
+    .single()
+  if (error) {
+    throw new Error(`Failed to mark invoice offline: ${error.message}`)
+  }
+  if (!data) {
+    throw new Error('Invoice not found when marking offline')
+  }
+  return data;
+}
+
