@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import {
   useEffect,
@@ -3154,18 +3155,9 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     INV #
-                    <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                    <AppTooltip content={<>
   Unique invoice reference number. Toggle edit mode to modify.
-</span>
+</>} />
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3183,18 +3175,9 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     Date
-                    <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                    <AppTooltip content={<>
   Invoice issue date. This is when the invoice is formally raised.
-</span>
+</>} />
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3243,18 +3226,9 @@ return (
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)] flex items-center gap-1">
                   Totals
-                  <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                  <AppTooltip content={<>
   Live totals calculated from your line items and tax configuration.
-</span>
+</>} />
                 </p>
               </div>
               <TotalsTaxesSection

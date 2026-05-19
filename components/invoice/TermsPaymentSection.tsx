@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useEffect, useState } from "react";
 import type { PaymentDetails, InvoiceMeta, LicenseType } from "@/types/invoice";
@@ -618,18 +619,9 @@ export default function TermsPaymentSection({
                                 License Included?
                               </span>
                             </label>
-                            <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                            <AppTooltip content={<>
   Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer.
-</span>
+</>} />
                           </div>
 
                           <div className={cn(

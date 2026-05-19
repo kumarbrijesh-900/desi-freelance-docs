@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useState, useEffect } from "react";
 import type { ClientDetails } from "@/types/invoice";
@@ -332,18 +333,9 @@ export default function ClientDetailsSection({
               <div className="mb-4">
                 <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
-                  <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                  <AppTooltip content={<>
   Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency).
-</span>
+</>} />
                 </div>
                 <ChoiceCards
                   name="client-location"
@@ -412,18 +404,9 @@ export default function ClientDetailsSection({
                             <span className="autofill-indicator">auto-filled</span>
                           )}
                         </label>
-                        <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                        <AppTooltip content={<>
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
-</span>
+</>} />
                       </div>
                       <input
                         suppressHydrationWarning
@@ -732,18 +715,9 @@ export default function ClientDetailsSection({
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
-                          <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                          <AppTooltip content={<>
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
-</span>
+</>} />
                         </div>
                         <input
                           suppressHydrationWarning
@@ -779,19 +753,16 @@ export default function ClientDetailsSection({
           <div className="flex flex-col flex-1 pr-4">
             <div className="flex flex-wrap items-center gap-1.5 group/tooltip">
               <span className="text-[color:var(--text-primary)] font-medium">Default Contract & Payment Terms</span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  const el = e.currentTarget.nextElementSibling;
-                  if (el) el.classList.toggle("hidden");
-                }}
-                className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
-              >?</button>
-              <span className="hidden sm:group-[.group\/tooltip]:hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
-                Master Service Agreement. A foundational legal contract outlining the terms, IP transfer, and payment conditions of your engagement.
-              </span>
+              <AppTooltip content={
+                <div className="space-y-2">
+                  <p>Master Service Agreement. A foundational legal contract outlining the terms, IP transfer, and payment conditions of your engagement.</p>
+                  <p className="font-semibold text-[10px] text-[#FF5C00]">Note: This can be overridden for specific projects via a Project Addendum.</p>
+                  <div className="flex flex-col gap-1.5 mt-2 border-t border-[#111118]/20 pt-2">
+                    <a href="/profile" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Configure Global MSA</a>
+                    <a href="/clients" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Configure Client MSA</a>
+                  </div>
+                </div>
+              } />
             </div>
             <p className="text-sm text-[color:var(--text-muted)] mt-1 font-normal">
               Set payment terms and legal conditions...
@@ -842,18 +813,9 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Payment terms</label>
-                      <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
   Days until payment is due after invoice date
-</span>
+</>} />
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -871,18 +833,9 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Late fee</label>
-                      <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
   Penalty charged on overdue payments
-</span>
+</>} />
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -910,18 +863,9 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">IP Transfer</label>
-                      <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
   When does IP ownership transfer to client?
-</span>
+</>} />
                     </div>
                     <AppSelectField
                       value={value.msaIpTriggerType || "upon_full_payment"}
@@ -939,18 +883,9 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Jurisdiction</label>
-                      <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
   City for dispute resolution
-</span>
+</>} />
                     </div>
                     <input
                       type="text"
@@ -965,18 +900,9 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">License Type</label>
-                      <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
   What rights does the client receive?
-</span>
+</>} />
                     </div>
                     <AppSelectField
                       value={value.msaLicenseType || ""}

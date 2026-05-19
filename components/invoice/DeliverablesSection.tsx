@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
@@ -451,18 +452,9 @@ function LineItemCard({
               <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
                 SAC: {sacCode}
               </p>
-              <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+              <AppTooltip content={<>
   Services Accounting Code (SAC) for services, or Harmonized System of Nomenclature (HSN) for goods. Mandatory for Indian GST compliance.
-</span>
+</>} />
             </div>
           )}
         </div>
@@ -532,18 +524,9 @@ function LineItemCard({
                   <span className="autofill-indicator ml-1">auto-filled</span>
                 )}
               </label>
-              <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+              <AppTooltip content={<>
   How you measure delivery — per screen, per hour, per deliverable, per video, etc.
-</span>
+</>} />
             </div>
             <BrutalSelect
               value={item.rateUnit}

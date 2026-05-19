@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useState, useEffect } from "react";
 import type { InvoiceComputedValues, TaxConfig } from "@/types/invoice";
@@ -280,18 +281,9 @@ export default function TotalsTaxesSection({
                 >
                   Advanced tax options →
                 </button>
-                <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                <AppTooltip content={<>
   Override the default tax rate, enable Reverse Charge Mechanism (RCM), or adjust for SEZ clients.
-</span>
+</>} />
               </div>
             ) : (
               <div className="space-y-4">
@@ -312,18 +304,9 @@ export default function TotalsTaxesSection({
                       <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
                         Reverse Charge (RCM)
                       </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const el = e.currentTarget.nextElementSibling;
-                          if (el) el.classList.toggle("hidden");
-                        }}
-                        className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      >?</button>
-                      <span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                      <AppTooltip content={<>
                         Shifts the tax liability so the Client pays GST directly to the government instead of the Freelancer/Agency collecting it.
-                      </span>
+                      </>} />
                     </div>
                     <AppSwitch
                       checked={isRcmEnabled}

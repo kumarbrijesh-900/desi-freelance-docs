@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useState, useEffect } from "react";
 import type { InvoiceMeta } from "@/types/invoice";
@@ -184,18 +185,9 @@ export default function InvoiceMetaSection({
                 <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                   PO Number <span className="text-[10px] font-normal lowercase tracking-normal text-[color:var(--text-muted)]">(Optional)</span>
                 </label>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = e.currentTarget.nextElementSibling;
-                    if (el) el.classList.toggle("hidden");
-                  }}
-                  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                >?</button>
-                <span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                <AppTooltip content={<>
                   Purchase Order number. Required by larger enterprise clients to process payments. If your client requires a PO to authorize the budget, input it here to ensure your invoice is not rejected by their Accounts Payable department.
-                </span>
+                </>} />
               </div>
               <input
                 suppressHydrationWarning

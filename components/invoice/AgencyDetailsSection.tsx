@@ -1,4 +1,5 @@
 "use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
@@ -240,18 +241,9 @@ export default function AgencyDetailsSection({
                     <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                       GST Registration Status
                     </span>
-                    <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                    <AppTooltip content={<>
   Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location.
-</span>
+</>} />
                   </div>
                   <AppSwitch
                     checked={value.gstRegistrationStatus === "registered"}
@@ -336,18 +328,9 @@ export default function AgencyDetailsSection({
                                 <span className="autofill-indicator">auto-filled</span>
                               )}
                             </label>
-                            <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                            <AppTooltip content={<>
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
-</span>
+</>} />
                           </div>
                           <input
                             suppressHydrationWarning
@@ -386,18 +369,9 @@ export default function AgencyDetailsSection({
                               <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                                 Valid LUT for current financial year?
                               </span>
-                              <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                              <AppTooltip content={<>
   Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront.
-</span>
+</>} />
                             </div>
                             <AppSwitch
                               checked={value.lutAvailability === "yes"}
@@ -468,18 +442,9 @@ export default function AgencyDetailsSection({
                     <div className="w-full max-w-[280px] pt-2">
                       <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
-                        <button
-  type="button"
-  onClick={(e) => {
-    e.preventDefault();
-    const el = e.currentTarget.nextElementSibling;
-    if (el) el.classList.toggle("hidden");
-  }}
-  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
->?</button>
-<span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                        <AppTooltip content={<>
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
-</span>
+</>} />
                       </div>
                       <input
                         suppressHydrationWarning
