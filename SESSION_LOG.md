@@ -798,15 +798,23 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 
 ## Deployment & Production state (v2.7)
 
-- **Latest Build:** `v2.7-dashboard-ux` (commits `cb135a9`, `8107c93`)
+- **Latest Build:** `v2.7-dashboard-ux` (commits `cb135a9`, `8107c93`, `4f598ca`)
 - **Status:** Pushed to `main`. Compiled and deployed successfully.
 - **Verification:**
   - Zero remaining `window.confirm()` or `alert()` calls in dashboard.
   - Ghost clients hidden; zero-value cards dimmed; UPCOMING filtered to ≤21 days.
   - Pluralization correct for singular/plural invoice and client counts.
+  - Generate Clause button matches Neo-Brutalist design system.
   - Full Next.js production build passed with Exit Code 0.
 
 ## Files modified in v2.7
 
 - app/dashboard/page.tsx
+- components/invoice/ClientDetailsSection.tsx
 - SESSION_LOG.md
+
+### Phase XXXIII: Design System Compliance Fixes
+
+- ✅ NB-Fix-1 — Generate Clause Button Neo-Brutalization:
+  - The "✨ Generate Clause" button in `ClientDetailsSection.tsx` was using pre-v2.0 styling: `rounded-md`, translucent `bg-[#4F46E5]/5`, thin `border-[#4F46E5]/20`, and `font-semibold`.
+  - Converted to full Neo-Brutalist: `bg-[#FFFBE6]` cream, `border-2 border-[#111118]`, `shadow-[2px_2px_0_#111118]`, `font-black uppercase tracking-wider`, press/hover transforms.
