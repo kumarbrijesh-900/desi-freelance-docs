@@ -820,7 +820,7 @@ export default function ClientDetailsSection({
                   <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] mb-3 flex items-center gap-1.5">
                     <span>💰</span> Payment
                   </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-wrap gap-6">
                     {/* Payment Terms */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
