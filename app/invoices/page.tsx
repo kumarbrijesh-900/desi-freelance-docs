@@ -39,7 +39,9 @@ import {
   getReadReceiptsBatch,
   type SavedInvoice,
   type MsaResponse,
+  markInvoiceAsTracked,
 } from "@/lib/supabase/invoices";
+import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
 import {
   getClientSessionUser,
   supabase,
@@ -291,6 +293,7 @@ function InvoiceRow({
   requestingId,
   isSelected,
   onToggleSelect,
+  onToggleTracking,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
@@ -304,6 +307,7 @@ function InvoiceRow({
   requestingId: string | null;
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
+  onToggleTracking: (id: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -461,6 +465,24 @@ function InvoiceRow({
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-lime-600 hover:bg-lime-50"
                     >
                       <CheckCircle size={14} /> {settlingId === invoice.id ? "Updating…" : "Mark Settled"}
+                    </button>
+                  )}
+                  {invoice.is_offline && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setShowDropdown(false);
+                        try {
+                          await markInvoiceAsTracked(invoice.id);
+                          onToggleTracking(invoice.id);
+                        } catch (err) {
+                          console.error("[OfflineToggle] switch to tracking failed:", err);
+                        }
+                      }}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-[color:var(--text-secondary)] hover:bg-[#BEFF00] hover:text-[#111118]"
+                    >
+                      Switch to digital tracking
                     </button>
                   )}
                   <button
@@ -725,6 +747,7 @@ export default function InvoiceHistoryPage() {
   } | null>(null);
 
   // Filters
+  const [activeChannelTab, setActiveChannelTab] = useState<"tracked" | "offline">("tracked");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [msaFilter, setMsaFilter] = useState<MsaFilter>("all");
@@ -831,6 +854,13 @@ export default function InvoiceHistoryPage() {
     if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
   };
+
+  const handleToggleTracking = (id: string) => {
+    setInvoices((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, is_offline: false } : i))
+    );
+  };
+
   const handleMarkSettled = async (id: string, milestoneId?: string) => {
     // If it's a milestone, we open the modal
     if (milestoneId) {
@@ -1030,7 +1060,10 @@ export default function InvoiceHistoryPage() {
 
   // Filtered + sorted
   const filtered = useMemo(() => {
-    let list = [...invoices];
+    const channelFiltered = ((invoices ?? [])
+      .map(inv => ({ ...inv, isOffline: inv.is_offline }))
+      .filter(activeChannelTab === "offline" ? offlineOnly : trackedOnly) as unknown as SavedInvoice[]);
+    let list = [...channelFiltered];
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -1074,7 +1107,7 @@ export default function InvoiceHistoryPage() {
     });
 
     return list;
-  }, [invoices, search, statusFilter, msaFilter, sortKey]);
+  }, [invoices, search, statusFilter, msaFilter, sortKey, activeChannelTab]);
 
   const isAllSelected = filtered.length > 0 && selectedIds.size === filtered.length;
   const isSomeSelected = selectedIds.size > 0 && selectedIds.size < filtered.length;
@@ -1277,6 +1310,9 @@ export default function InvoiceHistoryPage() {
 
   // Stats
   const stats = useMemo(() => {
+    const trackedForStats = ((invoices ?? [])
+      .map(inv => ({ ...inv, isOffline: inv.is_offline }))
+      .filter(trackedOnly) as unknown as SavedInvoice[]);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
@@ -1301,7 +1337,7 @@ export default function InvoiceHistoryPage() {
     let totalSettled = 0;
     let totalProject = 0;
 
-    invoices.forEach(inv => {
+    trackedForStats.forEach(inv => {
       const amount = getAmount(inv);
       const isIssued = isPending(inv.status);
       
@@ -1337,7 +1373,7 @@ export default function InvoiceHistoryPage() {
       }
     });
 
-    const activeInvoiceCount = invoices.filter(inv => !inv.parent_invoice_id).length;
+    const activeInvoiceCount = trackedForStats.filter(inv => !inv.parent_invoice_id).length;
     const collectionPercent = totalProject > 0 ? Math.round((totalSettled / totalProject) * 100) : 0;
 
     return {
@@ -1350,7 +1386,7 @@ export default function InvoiceHistoryPage() {
       totalProject,
       collectionPercent,
       activeInvoiceCount,
-      msaRejected: invoices.filter((i) => i.msa_response === "REVISION ASKED").length,
+      msaRejected: trackedForStats.filter((i) => i.msa_response === "REVISION ASKED").length,
     };
   }, [invoices]);
 
@@ -1541,6 +1577,38 @@ export default function InvoiceHistoryPage() {
             </MotionReveal>
           ) : (
             <MotionReveal preset="fade-up">
+              <div
+                className="mb-4 inline-flex items-center"
+                style={{
+                  border: "2px solid #111118",
+                  boxShadow: "4px 4px 0 #111118",
+                  backgroundColor: "#FFFFFF",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveChannelTab("tracked")}
+                  className="px-5 py-3 text-[12px] font-black uppercase tracking-wider transition-colors"
+                  style={{
+                    backgroundColor: activeChannelTab === "tracked" ? "#BEFF00" : "#FFFFFF",
+                    color: "#111118",
+                    borderRight: "2px solid #111118",
+                  }}
+                >
+                  Tracked ({(invoices ?? []).map(inv => ({ ...inv, isOffline: inv.is_offline })).filter(trackedOnly).length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveChannelTab("offline")}
+                  className="px-5 py-3 text-[12px] font-black uppercase tracking-wider transition-colors"
+                  style={{
+                    backgroundColor: activeChannelTab === "offline" ? "#BEFF00" : "#FFFFFF",
+                    color: "#111118",
+                  }}
+                >
+                  Offline ({(invoices ?? []).map(inv => ({ ...inv, isOffline: inv.is_offline })).filter(offlineOnly).length})
+                </button>
+              </div>
               <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] overflow-visible">
                 {/* Filter bar */}
                 <div className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-4 py-3">
@@ -1622,6 +1690,7 @@ export default function InvoiceHistoryPage() {
                           requestingId={requestingId}
                           isSelected={selectedIds.has(inv.id)}
                           onToggleSelect={toggleSelect}
+                          onToggleTracking={handleToggleTracking}
                         />
                       ))}
                     </tbody>

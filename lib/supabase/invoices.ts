@@ -931,3 +931,25 @@ export async function markInvoiceAsOffline(
   return data;
 }
 
+/**
+ * Reverse markInvoiceAsOffline — switch a manually-managed invoice back
+ * into the tracked digital flow. Returns the updated row or throws.
+ */
+export async function markInvoiceAsTracked(
+  invoiceId: string
+): Promise<{ id: string; is_offline: boolean }> {
+  const { data, error } = await supabase
+    .from("invoices")
+    .update({ is_offline: false })
+    .eq("id", invoiceId)
+    .select("id, is_offline")
+    .single();
+  if (error) {
+    throw new Error(`Failed to mark invoice tracked: ${error.message}`);
+  }
+  if (!data) {
+    throw new Error("Invoice not found when marking tracked");
+  }
+  return data;
+}
+
