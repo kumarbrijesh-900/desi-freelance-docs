@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -509,42 +509,68 @@ function InvoiceRow({
               const symbol = currency === "USD" ? "$" : "₹";
               
               return (
-                <tr key={m.id} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
-                  <td className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
-                    <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
-                    ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
-                    {invoice.children?.find(c => c.milestone_index === (m.order_index ?? idx) + 1) && (
-                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
-                        {invoice.children.find(c => c.milestone_index === (m.order_index ?? idx) + 1)?.invoice_number}
+                <React.Fragment key={m.id}>
+                  <tr className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
+                    <td colSpan={2} className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
+                      <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                      ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
+                      {invoice.children?.find(c => c.milestone_index === (m.order_index ?? idx) + 1) && (
+                        <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
+                          {invoice.children.find(c => c.milestone_index === (m.order_index ?? idx) + 1)?.invoice_number}
+                        </span>
+                      )}
+                      {(() => {
+                        const dueStr = m.dueDate || invoice.form_data?.meta?.dueDate;
+                        if (!dueStr) return null;
+                        const days = Math.ceil((new Date(dueStr).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                        if (days < 0) return <span className="text-red-500 font-bold ml-2">({Math.abs(days)} days overdue)</span>;
+                        if (days === 0) return <span className="text-orange-500 font-bold ml-2">(Due today)</span>;
+                        return <span className="text-green-600 font-bold ml-2">(Due in {days} days)</span>;
+                      })()}
+                    </td>
+                    <td className="px-4 py-3"></td>
+                    <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
+                      {symbol}{(m.amount || 0).toLocaleString("en-IN")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                        isSettled 
+                          ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
+                          : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
+                      )}>
+                        {isSettled ? "Settled" : "Pending"}
                       </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3"></td>
-                  <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
-                    {symbol}{(m.amount || 0).toLocaleString("en-IN")}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-                      isSettled 
-                        ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
-                        : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
-                    )}>
-                      {isSettled ? "Settled" : "Pending"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {!isSettled && (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, m.id); }}
-                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
-                      >
-                        Settle
-                      </button>
-                    )}
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {!isSettled && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, m.id); }}
+                          className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
+                        >
+                          Settle
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                  {(m.line_items || []).map((li: any, liIdx: number) => (
+                    <tr key={`${m.id}-li-${liIdx}`} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)]/50">
+                      <td colSpan={2} className="pl-16 py-2 text-[11px] text-[color:var(--text-muted)] relative">
+                        <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                        <div className="absolute left-6 top-1/2 w-4 h-[2px] bg-gray-200" />
+                        • {li.description}
+                      </td>
+                      <td className="px-4 py-2 text-[11px] text-[color:var(--text-muted)]">
+                        {li.qty} {li.unit || 'unit'} @ {symbol}{(li.rate || 0).toLocaleString("en-IN")}
+                      </td>
+                      <td className="px-4 py-2 text-[11px] font-medium text-right tabular-nums text-[color:var(--text-muted)]">
+                        {symbol}{((li.qty || 0) * (li.rate || 0)).toLocaleString("en-IN")}
+                      </td>
+                      <td colSpan={2}></td>
+                    </tr>
+                  ))}
+                </React.Fragment>
               );
             })
           ) : (
@@ -553,6 +579,7 @@ function InvoiceRow({
               
               let subtotal = 0;
               let mCount = 0;
+              const legacyItems: any[] = [];
               lineItems.forEach((li, i) => {
                 if (i <= idx && li.is_milestone_header) mCount++;
               });
@@ -560,6 +587,7 @@ function InvoiceRow({
               for (let i = idx + 1; i < lineItems.length; i++) {
                 if (lineItems[i].is_milestone_header) break;
                 subtotal += Number(lineItems[i].qty ?? 0) * Number(lineItems[i].rate ?? 0);
+                legacyItems.push(lineItems[i]);
               }
               
               const isSettled = item.milestone_status === "SETTLED";
@@ -567,42 +595,68 @@ function InvoiceRow({
               const symbol = currency === "USD" ? "$" : "₹";
 
               return (
-                <tr key={item.id} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
-                  <td className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
-                    <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
-                    ↳ Milestone {mCount}: {item.description}
-                    {invoice.children?.find(c => c.milestone_index === mCount) && (
-                      <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
-                        {invoice.children.find(c => c.milestone_index === mCount)?.invoice_number}
+                <React.Fragment key={item.id}>
+                  <tr className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
+                    <td colSpan={2} className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
+                      <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                      ↳ Milestone {mCount}: {item.description}
+                      {invoice.children?.find(c => c.milestone_index === mCount) && (
+                        <span className="ml-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 border-2 border-blue-200">
+                          {invoice.children.find(c => c.milestone_index === mCount)?.invoice_number}
+                        </span>
+                      )}
+                      {(() => {
+                        const dueStr = invoice.form_data?.meta?.dueDate;
+                        if (!dueStr) return null;
+                        const days = Math.ceil((new Date(dueStr).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                        if (days < 0) return <span className="text-red-500 font-bold ml-2">({Math.abs(days)} days overdue)</span>;
+                        if (days === 0) return <span className="text-orange-500 font-bold ml-2">(Due today)</span>;
+                        return <span className="text-green-600 font-bold ml-2">(Due in {days} days)</span>;
+                      })()}
+                    </td>
+                    <td className="px-4 py-3"></td>
+                    <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
+                      {symbol}{subtotal.toLocaleString("en-IN")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                        isSettled 
+                          ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
+                          : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
+                      )}>
+                        {isSettled ? "Settled" : "Pending"}
                       </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3"></td>
-                  <td className="px-4 py-3 text-[13px] font-bold text-[color:var(--text-secondary)] text-right tabular-nums">
-                    {symbol}{subtotal.toLocaleString("en-IN")}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-                      isSettled 
-                        ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
-                        : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
-                    )}>
-                      {isSettled ? "Settled" : "Pending"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {!isSettled && (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, item.id); }}
-                        className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
-                      >
-                        Settle
-                      </button>
-                    )}
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {!isSettled && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onMarkSettled(invoice.id, item.id); }}
+                          className="h-[28px] px-3 text-[11px] font-bold text-lime-600 border-2 border-lime-300 bg-white hover:bg-lime-50 transition-colors"
+                        >
+                          Settle
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                  {legacyItems.map((li: any, liIdx: number) => (
+                    <tr key={`${item.id}-li-${liIdx}`} className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)]/50">
+                      <td colSpan={2} className="pl-16 py-2 text-[11px] text-[color:var(--text-muted)] relative">
+                        <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
+                        <div className="absolute left-6 top-1/2 w-4 h-[2px] bg-gray-200" />
+                        • {li.description}
+                      </td>
+                      <td className="px-4 py-2 text-[11px] text-[color:var(--text-muted)]">
+                        {li.qty} {li.unit || 'unit'} @ {symbol}{(li.rate || 0).toLocaleString("en-IN")}
+                      </td>
+                      <td className="px-4 py-2 text-[11px] font-medium text-right tabular-nums text-[color:var(--text-muted)]">
+                        {symbol}{((li.qty || 0) * (li.rate || 0)).toLocaleString("en-IN")}
+                      </td>
+                      <td colSpan={2}></td>
+                    </tr>
+                  ))}
+                </React.Fragment>
               );
             })
           )}
