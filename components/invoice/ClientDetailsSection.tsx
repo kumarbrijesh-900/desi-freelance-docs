@@ -332,12 +332,18 @@ export default function ClientDetailsSection({
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 mb-2">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
-                  <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                    title="Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency)."
-                  >
-                    ?
-                  </span>
+                  <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency).
+</span>
                 </div>
                 <ChoiceCards
                   name="client-location"
@@ -406,12 +412,18 @@ export default function ClientDetailsSection({
                             <span className="autofill-indicator">auto-filled</span>
                           )}
                         </label>
-                        <span
-                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                          title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
-                        >
-                          ?
-                        </span>
+                        <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Client's 15-digit GST Identification Number. Optional for unregistered clients.
+</span>
                       </div>
                       <input
                         suppressHydrationWarning
@@ -720,12 +732,18 @@ export default function ClientDetailsSection({
                               <span className="autofill-indicator">auto-filled</span>
                             )}
                           </label>
-                          <span
-                            className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                            title="Client's 15-digit GST Identification Number. Optional for unregistered clients."
-                          >
-                            ?
-                          </span>
+                          <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Client's 15-digit GST Identification Number. Optional for unregistered clients.
+</span>
                         </div>
                         <input
                           suppressHydrationWarning
@@ -809,7 +827,18 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Payment terms</label>
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help" title="Days until payment is due after invoice date">?</span>
+                      <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Days until payment is due after invoice date
+</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -826,7 +855,18 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Late fee</label>
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help" title="Penalty charged on overdue payments">?</span>
+                      <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Penalty charged on overdue payments
+</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -853,7 +893,18 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">IP Transfer</label>
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help" title="When does IP ownership transfer to client?">?</span>
+                      <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  When does IP ownership transfer to client?
+</span>
                     </div>
                     <AppSelectField
                       value={value.msaIpTriggerType || "upon_full_payment"}
@@ -871,7 +922,18 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Jurisdiction</label>
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help" title="City for dispute resolution">?</span>
+                      <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  City for dispute resolution
+</span>
                     </div>
                     <input
                       type="text"
@@ -886,7 +948,18 @@ export default function ClientDetailsSection({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <label className="text-[13px] font-medium text-[color:var(--text-primary)]">License Type</label>
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help" title="What rights does the client receive?">?</span>
+                      <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  What rights does the client receive?
+</span>
                     </div>
                     <AppSelectField
                       value={value.msaLicenseType || ""}

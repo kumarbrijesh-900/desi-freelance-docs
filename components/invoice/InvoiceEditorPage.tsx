@@ -846,6 +846,24 @@ function EditorContent() {
   useEffect(() => {
     if (!formData) return;
     localStorage.setItem(ANONYMOUS_DRAFT_KEY, JSON.stringify(formData));
+    try {
+      localStorage.setItem("lance_draft_invoice", JSON.stringify(formData));
+      localStorage.setItem("lance_draft_timestamp", new Date().toISOString());
+    } catch (e) {
+      // localStorage might be full or unavailable
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Only warn if there is unsaved data
+      if (formData && (formData.agency?.agencyName || formData.client?.clientName || formData.lineItems?.length > 0)) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [formData]);
 
   useEffect(() => {
@@ -860,6 +878,31 @@ function EditorContent() {
     let nextMsaNote: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
+
+    // Restore draft from localStorage if available
+    try {
+      const savedDraft = localStorage.getItem("lance_draft_invoice");
+      const savedTimestamp = localStorage.getItem("lance_draft_timestamp");
+      const urlId = searchParams.get("id");
+      if (savedDraft && savedTimestamp && !urlId) {
+        const draftAge = Date.now() - new Date(savedTimestamp).getTime();
+        const ONE_HOUR = 60 * 60 * 1000;
+        // Only restore if draft is less than 1 hour old
+        if (draftAge < ONE_HOUR) {
+          const parsed = JSON.parse(savedDraft);
+          setFormData(parsed);
+          setIsBootstrapped(true);
+          hasInitializedRef.current = true;
+          return;
+        } else {
+          // Draft too old, clear it
+          localStorage.removeItem("lance_draft_invoice");
+          localStorage.removeItem("lance_draft_timestamp");
+        }
+      }
+    } catch (e) {
+      // Parsing failed, ignore
+    }
 
     async function loadCloudInvoice(invoiceId: string) {
       setIsLoadingInvoice(true);
@@ -1854,6 +1897,11 @@ const handleSaveDraft = async () => {
     }
 
     if (!result.error) {
+      try {
+        localStorage.removeItem("lance_draft_invoice");
+        localStorage.removeItem("lance_draft_timestamp");
+      } catch (e) {}
+
       triggerToast(
         clientMsaNote
           ? "Reissued & saved to cloud ☁"
@@ -1871,6 +1919,15 @@ const handleSaveDraft = async () => {
 
 useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Don't intercept if user is typing in an input, textarea, or select
+    const target = e.target as HTMLElement;
+    if (target) {
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        return; // Let the input handle the keystroke
+      }
+    }
+
     // Ctrl+S or Cmd+S = Save Draft
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -1927,6 +1984,8 @@ const handleClearDemoData = () => {
   try {
     window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
     window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    window.localStorage.removeItem("lance_draft_invoice");
+    window.localStorage.removeItem("lance_draft_timestamp");
   } catch (error) {
     console.error("Failed to clear local invoice state:", error);
   }
@@ -3096,10 +3155,18 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     INV #
-                    <span
-                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      title="Unique invoice reference number. Toggle edit mode to modify."
-                    >?</span>
+                    <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Unique invoice reference number. Toggle edit mode to modify.
+</span>
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3117,10 +3184,18 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     Date
-                    <span
-                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      title="Invoice issue date. This is when the invoice is formally raised."
-                    >?</span>
+                    <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Invoice issue date. This is when the invoice is formally raised.
+</span>
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3169,10 +3244,18 @@ return (
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)] flex items-center gap-1">
                   Totals
-                  <span
-                    className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                    title="Live totals calculated from your line items and tax configuration."
-                  >?</span>
+                  <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Live totals calculated from your line items and tax configuration.
+</span>
                 </p>
               </div>
               <TotalsTaxesSection

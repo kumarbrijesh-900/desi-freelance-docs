@@ -3096,10 +3096,18 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     INV #
-                    <span
-                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      title="Unique invoice reference number. Toggle edit mode to modify."
-                    >?</span>
+                    <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Unique invoice reference number. Toggle edit mode to modify.
+</span>
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3117,10 +3125,18 @@ return (
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
                     Date
-                    <span
-                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      title="Invoice issue date. This is when the invoice is formally raised."
-                    >?</span>
+                    <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Invoice issue date. This is when the invoice is formally raised.
+</span>
                   </span>
                   {isEditingMeta ? (
                     <input
@@ -3172,10 +3188,18 @@ return (
               <div className="border-b border-[color:var(--border-subtle)] pb-2 mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)] flex items-center gap-1">
                   Totals
-                  <span
-                    className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                    title="Live totals calculated from your line items and tax configuration."
-                  >?</span>
+                  <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Live totals calculated from your line items and tax configuration.
+</span>
                 </p>
               </div>
               <TotalsTaxesSection

@@ -240,12 +240,18 @@ export default function AgencyDetailsSection({
                     <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                       GST Registration Status
                     </span>
-                    <span
-                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                      title="Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location."
-                    >
-                      ?
-                    </span>
+                    <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location.
+</span>
                   </div>
                   <AppSwitch
                     checked={value.gstRegistrationStatus === "registered"}
@@ -330,12 +336,18 @@ export default function AgencyDetailsSection({
                                 <span className="autofill-indicator">auto-filled</span>
                               )}
                             </label>
-                            <span
-                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                              title="10-character Permanent Account Number. Auto-derived from GSTIN if provided."
-                            >
-                              ?
-                            </span>
+                            <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  10-character Permanent Account Number. Auto-derived from GSTIN if provided.
+</span>
                           </div>
                           <input
                             suppressHydrationWarning
@@ -374,12 +386,18 @@ export default function AgencyDetailsSection({
                               <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
                                 Valid LUT for current financial year?
                               </span>
-                              <span
-                                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                                title="Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront."
-                              >
-                                ?
-                              </span>
+                              <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront.
+</span>
                             </div>
                             <AppSwitch
                               checked={value.lutAvailability === "yes"}
@@ -450,12 +468,18 @@ export default function AgencyDetailsSection({
                     <div className="w-full max-w-[280px] pt-2">
                       <div className="flex items-center gap-1.5 mb-2">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
-                        <span
-                          className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                          title="10-character Permanent Account Number. Auto-derived from GSTIN if provided."
-                        >
-                          ?
-                        </span>
+                        <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  10-character Permanent Account Number. Auto-derived from GSTIN if provided.
+</span>
                       </div>
                       <input
                         suppressHydrationWarning

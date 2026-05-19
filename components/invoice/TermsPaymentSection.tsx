@@ -618,12 +618,18 @@ export default function TermsPaymentSection({
                                 License Included?
                               </span>
                             </label>
-                            <span
-                              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                              title="Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer."
-                            >
-                              ?
-                            </span>
+                            <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer.
+</span>
                           </div>
 
                           <div className={cn(

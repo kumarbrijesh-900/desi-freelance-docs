@@ -451,12 +451,18 @@ function LineItemCard({
               <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
                 SAC: {sacCode}
               </p>
-              <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                title="Service Accounting Code — identifies the type of service for GST classification. Auto-filled based on your selected category."
-              >
-                ?
-              </span>
+              <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  Service Accounting Code — identifies the type of service for GST classification. Auto-filled based on your selected category.
+</span>
             </div>
           )}
         </div>
@@ -526,12 +532,18 @@ function LineItemCard({
                   <span className="autofill-indicator ml-1">auto-filled</span>
                 )}
               </label>
-              <span
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[10px] text-[color:var(--text-muted)] cursor-help shrink-0"
-                title="How you measure delivery — per screen, per hour, per deliverable, per video, etc."
-              >
-                ?
-              </span>
+              <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    const el = e.currentTarget.nextElementSibling;
+    if (el) el.classList.toggle("hidden");
+  }}
+  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+>?</button>
+<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+  How you measure delivery — per screen, per hour, per deliverable, per video, etc.
+</span>
             </div>
             <BrutalSelect
               value={item.rateUnit}
