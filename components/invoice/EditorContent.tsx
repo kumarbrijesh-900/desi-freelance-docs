@@ -3158,6 +3158,27 @@ return (
                     </span>
                   )}
                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
+                    PO #
+                    <AppTooltip content={<>
+                      Purchase Order Number. Required by some enterprise clients for accounts payable matching.
+                    </>} />
+                  </span>
+                  {isEditingMeta ? (
+                    <input
+                      type="text"
+                      value={formData.meta.poNumber || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, poNumber: e.target.value } }))}
+                      placeholder="Optional"
+                      className="w-32 border-[color:var(--border-subtle)] bg-white px-2 py-1 text-[11px] font-medium text-[color:var(--text-primary)] ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)]"
+                    />
+                  ) : (
+                    <span className="text-[12px] font-medium text-[color:var(--text-primary)]">
+                      {formData.meta?.poNumber || '--'}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
