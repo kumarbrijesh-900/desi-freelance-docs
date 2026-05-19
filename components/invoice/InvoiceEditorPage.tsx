@@ -844,7 +844,7 @@ function EditorContent() {
   };
 
   useEffect(() => {
-    if (!formData) return;
+    if (!isBootstrapped || !formData) return;
     localStorage.setItem(ANONYMOUS_DRAFT_KEY, JSON.stringify(formData));
     try {
       localStorage.setItem("lance_draft_invoice", JSON.stringify(formData));
@@ -852,7 +852,7 @@ function EditorContent() {
     } catch (e) {
       // localStorage might be full or unavailable
     }
-  }, [formData]);
+  }, [formData, isBootstrapped]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -890,10 +890,8 @@ function EditorContent() {
         // Only restore if draft is less than 1 hour old
         if (draftAge < ONE_HOUR) {
           const parsed = JSON.parse(savedDraft);
-          setFormData(parsed);
-          setIsBootstrapped(true);
-          hasInitializedRef.current = true;
-          return;
+          nextFormData = mergeInvoiceFormData(parsed);
+          shouldShowRestoreToast = true;
         } else {
           // Draft too old, clear it
           localStorage.removeItem("lance_draft_invoice");
@@ -946,7 +944,30 @@ function EditorContent() {
       const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
       const isFresh = window.location.search.includes("fresh=1");
 
-      if (anonymousRaw && !isFresh) {
+      if (!isFresh) {
+        try {
+          const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+          if (rawDraft) {
+            const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
+            if (
+              parsedDraft?.currentStep &&
+              orderedSteps.includes(parsedDraft.currentStep)
+            ) {
+              nextStep = parsedDraft.currentStep;
+              nextDocumentId = parsedDraft.documentId ?? null;
+              nextMsaNote = parsedDraft.clientMsaNote ?? null;
+            }
+            if (!nextFormData && parsedDraft?.formData) {
+              nextFormData = mergeInvoiceFormData(parsedDraft.formData);
+              shouldShowRestoreToast = true;
+            }
+          }
+        } catch (error) {
+          console.error("Failed to restore draft:", error);
+        }
+      }
+      
+      if (!nextFormData && anonymousRaw && !isFresh) {
         try {
           const parsed = JSON.parse(anonymousRaw);
           if (parsed && typeof parsed === "object") {
@@ -955,28 +976,6 @@ function EditorContent() {
           }
         } catch (e) {
           console.error("Failed to parse anonymous draft", e);
-        }
-      }
-
-      if (!nextFormData && !isFresh) {
-        try {
-          const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
-          if (rawDraft) {
-            const parsedDraft = JSON.parse(rawDraft) as StoredDraft | null;
-            if (
-              parsedDraft?.formData &&
-              parsedDraft.currentStep &&
-              orderedSteps.includes(parsedDraft.currentStep)
-            ) {
-              nextFormData = mergeInvoiceFormData(parsedDraft.formData);
-              nextStep = parsedDraft.currentStep;
-              nextDocumentId = parsedDraft.documentId ?? null;
-              nextMsaNote = parsedDraft.clientMsaNote ?? null;
-              shouldShowRestoreToast = true;
-            }
-          }
-        } catch (error) {
-          console.error("Failed to restore draft:", error);
         }
       }
 
