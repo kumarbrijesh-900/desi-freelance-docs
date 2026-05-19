@@ -37,6 +37,7 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
         <div className="text-right">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#E11D48] mb-3">Invoice</p>
           <p className="text-[20px] font-bold tracking-tight">{data.invoiceNumber}</p>
+          {data.poNumber && <><p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#E11D48] mb-1 mt-3">PO Number</p><p className="text-[16px] font-bold tracking-tight">{data.poNumber}</p></>}
           <div className="mt-4 space-y-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.2em] text-[#B09098]">Date</p>

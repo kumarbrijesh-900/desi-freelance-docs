@@ -85,6 +85,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
             <p className="font-['Georgia',_serif] text-[48px] font-normal leading-none tracking-tight text-[#27272F] md:text-[56px]">
               {data.invoiceNumber}
             </p>
+            {data.poNumber && <><p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#999]">PO Number</p><p className="font-[\'Georgia\',_serif] text-[24px] text-[#27272F]">{data.poNumber}</p></>}
             <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[#999]">
               {data.invoiceDate}
             </p>

@@ -115,6 +115,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           <p className="text-[22px] font-extrabold tracking-tight text-[#1D3557]">
             {data.invoiceNumber}
           </p>
+          {data.poNumber && <><p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#1D3557]/60 mt-3">PO Number</p><p className="text-[16px] font-bold tracking-tight text-[#1D3557]">{data.poNumber}</p></>}
           <div className="mt-2 space-y-1">
             {[
               ["DATE", data.invoiceDate],

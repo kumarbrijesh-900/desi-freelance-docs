@@ -41,6 +41,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
               <p className="text-[11px] font-bold uppercase tracking-[0.15em]">Invoice</p>
             </div>
             <p className="text-[18px] font-bold">{data.invoiceNumber}</p>
+            {data.poNumber && <><p className="text-[11px] font-bold uppercase tracking-[0.15em] mt-3">PO Number</p><p className="text-[16px] font-bold">{data.poNumber}</p></>}
             <div className="mt-3 space-y-1.5">
               <div className="flex justify-end gap-8 text-[11px]">
                 <div>

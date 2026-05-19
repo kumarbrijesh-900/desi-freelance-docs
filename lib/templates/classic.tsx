@@ -83,6 +83,12 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               </p>
               <p className="text-[16px] font-bold">{data.invoiceNumber}</p>
             </div>
+            {data.poNumber && (
+              <div className="mt-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">PO Number</p>
+                <p className="text-[14px] font-bold">{data.poNumber}</p>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-8 text-right">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">

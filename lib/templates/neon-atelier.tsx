@@ -99,6 +99,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             <div className="font-outfit text-[18px] font-bold tracking-wider">
               {data.invoiceNumber}
             </div>
+            {data.poNumber && <><span className="text-[10px] font-black uppercase tracking-widest text-[#FF1493] block mb-2 border-b-2 border-[#111118] pb-1 mt-6">PO Number</span><div className="font-outfit text-[16px] font-bold tracking-wider">{data.poNumber}</div></>}
             <div className="mt-8">
               <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 block mb-2">
                 Issue Date

@@ -32,6 +32,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           <div className="text-right">
             <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest">Invoice</p>
             <p className="text-[20px] font-bold text-green-400 mt-1">{data.invoiceNumber}</p>
+            {data.poNumber && <><p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mt-3">PO Number</p><p className="text-[16px] font-bold text-green-400 mt-1">{data.poNumber}</p></>}
             <div className="mt-3 text-[11px] text-[color:var(--text-muted)] space-y-0.5">
               <p>issued: {data.invoiceDate}</p>
               <p>due: <span className="text-red-400">{data.dueDate}</span></p>

@@ -133,49 +133,86 @@ export default function InvoiceMetaSection({
             <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
           </div>
 
-          <div className="max-w-[320px]">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
-                Invoice Number *
-                {autoFilledFields.has("meta.invoiceNumber") && (
-                  <span className="autofill-indicator">auto-filled</span>
-                )}
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!value.invoiceNumber) return;
-                  navigator.clipboard.writeText(value.invoiceNumber.trim());
-                  setCopiedField('invoiceNumber');
-                  setTimeout(() => setCopiedField(null), 1500);
+          <div className={appFieldPairGridClass}>
+            <div className="md:max-w-[240px]">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                  Invoice Number *
+                  {autoFilledFields.has("meta.invoiceNumber") && (
+                    <span className="autofill-indicator">auto-filled</span>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!value.invoiceNumber) return;
+                    navigator.clipboard.writeText(value.invoiceNumber.trim());
+                    setCopiedField('invoiceNumber');
+                    setTimeout(() => setCopiedField(null), 1500);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
+                  title="Click to copy"
+                >
+                  <span className="text-[11px] font-medium">Copy</span>
+                  <span className="text-[12px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
+                    {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
+                  </span>
+                </button>
+              </div>
+              <input
+                suppressHydrationWarning
+                type="text"
+                value={value.invoiceNumber}
+                onChange={(e) => {
+                  onFieldManualEdit("meta.invoiceNumber");
+                  updateField("invoiceNumber", e.target.value);
                 }}
-                className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
-                title="Click to copy"
-              >
-                <span className="text-[11px] font-medium">Copy</span>
-                <span className="text-[12px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
-                  {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
-                </span>
-              </button>
+                onBlur={() => markTouched("invoiceNumber")}
+                placeholder="INV-2026-001"
+                className={cn(
+                  inputClass(invoiceNumberError, Boolean(value.invoiceNumber)),
+                  getInputStateClass("meta.invoiceNumber", value.invoiceNumber),
+                )}
+              />
+              {invoiceNumberError ? (
+                <p className={appFieldErrorTextClass}>{invoiceNumberError}</p>
+              ) : null}
             </div>
-            <input
-              suppressHydrationWarning
-              type="text"
-              value={value.invoiceNumber}
-              onChange={(e) => {
-                onFieldManualEdit("meta.invoiceNumber");
-                updateField("invoiceNumber", e.target.value);
-              }}
-              onBlur={() => markTouched("invoiceNumber")}
-              placeholder="INV-2026-001"
-              className={cn(
-                inputClass(invoiceNumberError, Boolean(value.invoiceNumber)),
-                getInputStateClass("meta.invoiceNumber", value.invoiceNumber),
-              )}
-            />
-            {invoiceNumberError ? (
-              <p className={appFieldErrorTextClass}>{invoiceNumberError}</p>
-            ) : null}
+            
+            <div className="md:max-w-[240px]">
+              <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                  PO Number <span className="text-[10px] font-normal lowercase tracking-normal text-[color:var(--text-muted)]">(Optional)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = e.currentTarget.nextElementSibling;
+                    if (el) el.classList.toggle("hidden");
+                  }}
+                  className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
+                >?</button>
+                <span className="hidden sm:group-hover:!block tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
+                  Purchase Order number. Required by larger enterprise clients to process payments. If your client requires a PO to authorize the budget, input it here to ensure your invoice is not rejected by their Accounts Payable department.
+                </span>
+              </div>
+              <input
+                suppressHydrationWarning
+                type="text"
+                value={value.poNumber || ""}
+                onChange={(e) => {
+                  onFieldManualEdit("meta.poNumber");
+                  updateField("poNumber", e.target.value);
+                }}
+                onBlur={() => markTouched("poNumber")}
+                placeholder="e.g. PO-98765"
+                className={cn(
+                  inputClass(undefined, Boolean(value.poNumber)),
+                  getInputStateClass("meta.poNumber", value.poNumber || "")
+                )}
+              />
+            </div>
           </div>
         </div>
 

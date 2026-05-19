@@ -93,6 +93,7 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
             <p className="mt-1 text-[24px] font-bold tracking-tight text-[#3D2517]">
               {data.invoiceNumber}
             </p>
+            {data.poNumber && <><p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#8B4513]/60 print:text-[#888]">PO Number</p><p className="text-[18px] font-bold text-[#3D2517]">{data.poNumber}</p></>}
             <div className="mt-2 space-y-1 text-[11px] text-[#8B6F5E]">
               <p>{data.invoiceDate}</p>
               <p>Due {data.dueDate}</p>

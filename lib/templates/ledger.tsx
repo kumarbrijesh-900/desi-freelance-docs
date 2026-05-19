@@ -34,6 +34,7 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
       <div className="text-center mb-10">
         <p className="text-[14px] font-bold uppercase tracking-[0.3em] text-[#8B7355]">Tax Invoice</p>
         <p className="text-[18px] font-bold mt-2">{data.invoiceNumber}</p>
+        {data.poNumber && <><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#8B7355] mt-4">PO Number</p><p className="text-[16px] font-bold mt-1">{data.poNumber}</p></>}
       </div>
 
       <div className="grid grid-cols-3 gap-0 mb-10 border border-[#D4C5A9] text-[11px]">

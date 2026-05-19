@@ -49,6 +49,7 @@ export interface TemplateData {
 
   /* ── Invoice Meta ──────────────────────── */
   invoiceNumber: string;
+  poNumber?: string;
   invoiceDate: string;
   dueDate: string;
   paymentTerms: string;

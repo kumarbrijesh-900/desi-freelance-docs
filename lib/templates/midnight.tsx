@@ -96,6 +96,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             <p className="mt-1 text-[26px] font-bold text-[#F0F0F5] print:text-[#111]">
               {data.invoiceNumber}
             </p>
+            {data.poNumber && <><p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#F0F0F5]/50 print:text-[#888]">PO Number</p><p className="text-[18px] font-bold text-[#F0F0F5] print:text-[#111]">{data.poNumber}</p></>}
             <div className="mt-2 space-y-1 text-[11px] text-[#F0F0F5]/50 print:text-[#888]">
               <p>{data.invoiceDate}</p>
               <p>Due {data.dueDate}</p>

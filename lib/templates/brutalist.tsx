@@ -33,6 +33,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           <div className="border-r-2 border-black py-3 pr-4">
             <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40">Number</p>
             <p className="text-[13px] font-bold mt-1">{data.invoiceNumber}</p>
+            {data.poNumber && <><p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40 mt-2">PO</p><p className="text-[13px] font-bold mt-1">{data.poNumber}</p></>}
           </div>
           <div className="border-r-2 border-black py-3 px-4">
             <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-black/40">Date</p>
