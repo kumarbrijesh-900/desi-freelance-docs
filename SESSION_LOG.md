@@ -665,4 +665,91 @@ Building on v1.10's initial brutalist foundation (Syne font sync, grid backgroun
 - components/invoice/share/MSAAcceptanceModal.tsx
 - SESSION_LOG.md
 
+---
 
+## v2.6 APP-WIDE TOOLTIP UX & AFFORDANCE AUDIT — May 19, 2026
+
+### Phase XXVIII: Floating Tooltip System
+
+- ✅ TT-1 — New `<AppTooltip />` Component:
+  - Created `components/ui/AppTooltip.tsx` — a floating, z-50, portal-style tooltip that hovers over content without shifting layout.
+  - Neo-Brutalist styling: white bg, thick `#111118` border, sharp drop shadow.
+  - **Responsive triggers**: `group-hover` on desktop, click-to-toggle on mobile/touch.
+- ✅ TT-2 — App-Wide Injection:
+  - Replaced 25+ inline tooltip implementations across 7 components:
+    - EditorContent.tsx (Right Side Panel — INV #, DATE, DUE, TOTALS)
+    - InvoiceMetaSection.tsx, TotalsTaxesSection.tsx, DeliverablesSection.tsx
+    - TermsPaymentSection.tsx, ClientDetailsSection.tsx, AgencyDetailsSection.tsx
+- ✅ TT-3 — Enhanced MSA Tooltip:
+  - Rich HTML tooltip in ClientDetailsSection.tsx with:
+    - MSA definition text
+    - Orange alert: "MSAs can be overridden by Project Addendums"
+    - Deep-links: `→ Configure Global MSA` (/profile), `→ Configure Client MSA` (/clients)
+
+### Phase XXIX: UX Affordance Audit (Input Sizing & Mobile Optimization)
+
+Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across the full application.
+
+#### Part 1 — Invoice Editor (3 files)
+
+- ✅ AF-1 — ClientDetailsSection.tsx:
+  - Payment Terms: `w-full` → `w-20` + "days" suffix
+  - Late Fee Rate: `w-28` → `w-16`
+  - Jurisdiction: unconstrained → `max-w-[200px]`
+  - GSTIN: added `autoComplete="off"`
+- ✅ AF-2 — AgencyDetailsSection.tsx:
+  - PIN Code: `max-w-full` → `max-w-[120px]` + `inputMode="numeric"`
+  - PAN: `max-w-[280px]` → `max-w-[180px]` + `autoComplete="off"`
+  - LUT ARN: `max-w-[280px]` → `max-w-[360px]` + `autoComplete="off"`
+- ✅ AF-3 — TermsPaymentSection.tsx:
+  - Free Revision Rounds: `w-full` → `w-16` + "rounds" suffix + `inputMode="numeric"`
+  - Extra Revision Fee: `w-full` → `w-20` + "% of line item" suffix + `inputMode="decimal"`
+  - Days Until Payment: `min-w-[120px]` → `w-20` + `inputMode="numeric"`
+
+#### Part 2 — Profile & Client Pages (2 files)
+
+- ✅ AF-4 — profile/page.tsx (Contract & MSA Tab):
+  - Payment Terms: `w-full` → `w-20` + "days" suffix + `inputMode="numeric"`
+  - Late Fee Rate: `w-full` → `w-16` + "%" suffix + `inputMode="decimal"`
+  - Free Rounds: `w-full` → `w-16` + "rounds" suffix + `inputMode="numeric"`
+  - Extra Fee: `w-full` → `w-20` + "% of line item" suffix + `inputMode="decimal"`
+  - PIN Code: `w-full` → `max-w-[120px]` + `inputMode="numeric"`
+  - PAN: `w-full` → `max-w-[180px]` + `autoComplete="off"`
+  - GSTIN: added `autoComplete="off"`
+  - Jurisdiction: `w-full` → `max-w-[200px]`
+- ✅ AF-5 — clients/page.tsx (Client Form Drawer):
+  - Terms: `w-full` → `w-20` + "days" suffix + `inputMode="numeric"`
+  - Late Fee: `w-full` → `w-16` + "%" suffix + `inputMode="decimal"`
+  - Free Rounds: `w-full` → `w-16` + "rounds" suffix + `inputMode="numeric"`
+  - Extra Fee: `w-full` → `w-20` + "% of line item" suffix + `inputMode="decimal"`
+  - Client GSTIN: added `autoComplete="off"`
+  - Jurisdiction: `w-full` → `max-w-[200px]`
+
+#### Pages Verified Clean (No Fixes Needed)
+
+- ✅ Invoice Listing (`/invoices`) — All display-only (search, filters, checkboxes, stat cards)
+- ✅ Invoice Preview (`/invoice/preview`) — Read-only renderer, zero form inputs
+
+## Deployment & Production state (v2.6)
+
+- **Latest Build:** `v2.6-affordance-audit`
+- **Status:** Pushed to `main`. Compiled and deployed successfully.
+- **Verification:**
+  - All numeric inputs sized to match expected data length (2-digit → w-20, 1-digit → w-16).
+  - All numeric inputs have proper `inputMode` for mobile keyboards.
+  - All tax ID fields have `autoComplete="off"` to prevent browser auto-fill errors.
+  - Full Next.js production build passed with Exit Code 0.
+
+## Files modified in v2.6
+
+- components/ui/AppTooltip.tsx (NEW)
+- components/invoice/EditorContent.tsx
+- components/invoice/InvoiceMetaSection.tsx
+- components/invoice/TotalsTaxesSection.tsx
+- components/invoice/DeliverablesSection.tsx
+- components/invoice/TermsPaymentSection.tsx
+- components/invoice/ClientDetailsSection.tsx
+- components/invoice/AgencyDetailsSection.tsx
+- app/profile/page.tsx
+- app/clients/page.tsx
+- SESSION_LOG.md
