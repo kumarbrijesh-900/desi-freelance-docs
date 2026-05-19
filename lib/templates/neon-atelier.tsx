@@ -92,8 +92,8 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             </div>
           </div>
 
-          <div className="text-right text-white pt-4">
-            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 block mb-2">
+          <div className="text-right text-white print:text-[#111118] pt-4">
+            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
               Invoice Reference
             </span>
             <div className="font-outfit text-[18px] font-bold tracking-wider">
@@ -101,7 +101,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             </div>
             {data.poNumber && <><span className="text-[10px] font-black uppercase tracking-widest text-[#FF1493] block mb-2 border-b-2 border-[#111118] pb-1 mt-6">PO Number</span><div className="font-outfit text-[16px] font-bold tracking-wider">{data.poNumber}</div></>}
             <div className="mt-8">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 block mb-2">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
                 Issue Date
               </span>
               <div className="font-outfit text-[16px] font-bold">
@@ -109,7 +109,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
             <div className="mt-4">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 block mb-2">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
                 Due Date
               </span>
               <div className="font-outfit text-[16px] font-bold">
@@ -124,7 +124,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
           <h1 className="font-outfit text-[72px] font-black leading-[0.8] tracking-tighter mb-2">
             INVOICE.
           </h1>
-          <div className="bg-[#111118] text-white px-3 py-1 font-outfit text-[12px] font-bold tracking-[0.15em] inline-block">
+          <div className="bg-[#111118] text-white print:bg-transparent print:text-[#111118] print:border print:border-[#111118] px-3 py-1 font-outfit text-[12px] font-bold tracking-[0.15em] inline-block">
             STATUS: {data.isDraft ? "DRAFT" : "AUTHORIZED"}
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         <section className="flex-grow">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#111118] text-white">
+              <tr className="bg-[#111118] text-white print:bg-transparent print:text-[#111118] print:border-b-2 print:border-[#111118]">
                 <th className="font-outfit text-[10px] uppercase tracking-[0.2em] font-bold text-left p-4">
                   Service Description
                 </th>
@@ -284,8 +284,8 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 </div>
               )}
             </div>
-            <div className="bg-[#2D5BFF] text-white p-8 min-w-[250px] text-right">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/40 block mb-2">
+            <div className="bg-[#2D5BFF] text-white print:bg-transparent print:text-[#111118] print:border-t-4 print:border-[#2D5BFF] p-8 print:py-4 print:px-0 min-w-[250px] text-right">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/40 print:text-[#A8A08E] block mb-2">
                 Grand Total Due
               </span>
               <div className="font-outfit text-[42px] font-black leading-none">
