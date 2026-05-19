@@ -43,6 +43,8 @@ import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 import ConversionModal from "@/components/invoice/ConversionModal";
+import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
+import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -78,6 +80,7 @@ function PreviewContent() {
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
+  const [isDownloadDecisionOpen, setIsDownloadDecisionOpen] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [sharedAt, setSharedAt] = useState<string | null>(null);
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
@@ -459,7 +462,7 @@ function PreviewContent() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = async (options?: { markAsSent?: boolean }) => {
     const userId = await getCurrentUserId();
     if (!userId) {
       persistDraft();
@@ -471,8 +474,10 @@ function PreviewContent() {
     exportTitleRef.current = pdfTitle;
     document.title = pdfTitle;
 
-    // Finalize to Supabase for authenticated users
-    if (data) {
+    // Finalize to Supabase for authenticated users.
+    // Skip when called from the offline path (markAsSent === false),
+    // because going offline should not flip the invoice to SENT.
+    if (data && options?.markAsSent !== false) {
       const { data: saved } = await saveInvoice({
         formData: data,
         status: "SENT" as InvoiceStatus,
@@ -494,6 +499,35 @@ function PreviewContent() {
         document.title = defaultTitleRef.current || previewTitle;
       }
     }, 500);
+  };
+
+  const handleCancelDownloadDecision = () => {
+    setIsDownloadDecisionOpen(false);
+  };
+
+  const handleConfirmShareThenDownload = () => {
+    setIsDownloadDecisionOpen(false);
+    // Fire the existing PDF export first (opens browser print dialog),
+    // then open the share modal so the user can finish the digital share.
+    handleDownloadPdf();
+    setShowShareModal(true);
+  };
+
+  const handleConfirmDownloadOffline = async () => {
+    setIsDownloadDecisionOpen(false);
+    const invoiceId = cloudInvoiceId;
+    if (!invoiceId) {
+      console.error("[DownloadOffline] No invoice id available; aborting offline mark.");
+      handleDownloadPdf({ markAsSent: false });
+      return;
+    }
+    try {
+      await markInvoiceAsOffline(invoiceId);
+    } catch (error) {
+      console.error("[DownloadOffline] Failed to mark invoice offline:", error);
+      // Continue with the download anyway so the user is not blocked.
+    }
+    handleDownloadPdf({ markAsSent: false });
   };
 
   const handleLoginClick = async () => {
@@ -927,7 +961,7 @@ function PreviewContent() {
 
               <MotionButton
                 type="button"
-                onClick={handleDownloadPdf}
+                onClick={() => setIsDownloadDecisionOpen(true)}
                 className={getAppButtonClass({
                   variant: "secondary",
                   size: "md",
@@ -973,6 +1007,15 @@ function PreviewContent() {
           onShared={(token) => setShareToken(token)}
         />
       )}
+
+      <DownloadDecisionModal
+        isOpen={isDownloadDecisionOpen}
+        invoiceNumber={invoiceNumber ?? ""}
+        milestoneCount={data?.milestones?.length ?? 0}
+        onChooseShareAndDownload={handleConfirmShareThenDownload}
+        onChooseDownloadOffline={handleConfirmDownloadOffline}
+        onCancel={handleCancelDownloadDecision}
+      />
 
       <ConversionModal
         isOpen={showConversionModal}
