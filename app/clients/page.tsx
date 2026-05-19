@@ -360,7 +360,7 @@ function ClientForm({
                       inputMode="numeric"
                       value={msaPaymentTermsDays}
                       onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
-                      className={cn(fc({ hasValue: true }), "w-20")}
+                      className={cn(fc({ hasValue: true }), "!w-20")}
                     />
                     <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
                   </div>
@@ -374,7 +374,7 @@ function ClientForm({
                       step="0.1"
                       value={msaLateFeeRate}
                       onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                      className={cn(fc({ hasValue: true }), "w-16")}
+                      className={cn(fc({ hasValue: true }), "!w-16")}
                     />
                     <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
                   </div>
@@ -459,7 +459,7 @@ function ClientForm({
                       onChange={(e) =>
                         setFreeRevisionRounds(Number(e.target.value))
                       }
-                      className={cn(fc({ hasValue: true }), "w-16")}
+                      className={cn(fc({ hasValue: true }), "!w-16")}
                     />
                     <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
                   </div>
@@ -480,7 +480,7 @@ function ClientForm({
                       onChange={(e) =>
                         setExtraRevisionFeePercent(Number(e.target.value))
                       }
-                      className={cn(fc({ hasValue: true }), "w-20")}
+                      className={cn(fc({ hasValue: true }), "!w-20")}
                     />
                     <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">% of line item</span>
                   </div>

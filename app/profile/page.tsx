@@ -1077,7 +1077,7 @@ export default function ProfilePage() {
                               setMsaPaymentTermsDays(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={cn(fc({ hasValue: true }), "w-20")}
+                            className={cn(fc({ hasValue: true }), "!w-20")}
                           />
                           <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
                         </div>
@@ -1094,7 +1094,7 @@ export default function ProfilePage() {
                               setMsaLateFeeRate(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={cn(fc({ hasValue: true }), "w-16")}
+                            className={cn(fc({ hasValue: true }), "!w-16")}
                           />
                           <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
                           <select
@@ -1169,7 +1169,7 @@ export default function ProfilePage() {
                               setFreeRevisionRounds(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={cn(fc({ hasValue: true }), "w-16")}
+                            className={cn(fc({ hasValue: true }), "!w-16")}
                           />
                           <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
                         </div>
@@ -1189,7 +1189,7 @@ export default function ProfilePage() {
                               setExtraRevisionFeePercent(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={cn(fc({ hasValue: true }), "w-20")}
+                            className={cn(fc({ hasValue: true }), "!w-20")}
                           />
                           <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">
                             % of line item
