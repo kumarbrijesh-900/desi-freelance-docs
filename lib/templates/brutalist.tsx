@@ -76,7 +76,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
       <section className="mb-10">
         <table className="w-full border-collapse border-2 border-black">
           <thead>
-            <tr className="bg-black text-white">
+            <tr className="bg-black text-white print:bg-transparent print:text-black print:border-b-4 print:border-black">
               <th className="py-3 px-4 text-[9px] font-bold uppercase tracking-[0.15em] text-left">Item</th>
               <th className="py-3 px-2 text-[9px] font-bold uppercase tracking-[0.15em] text-center w-[50px]">Qty</th>
               <th className="py-3 px-2 text-[9px] font-bold uppercase tracking-[0.15em] text-right w-[100px]">Rate</th>
@@ -168,7 +168,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {data.reverseCharge && (
-        <div className="mt-8 bg-black text-white px-5 py-3 text-center">
+        <div className="mt-8 bg-black text-white print:bg-transparent print:text-black print:border-t-4 print:border-black px-5 py-3 text-center">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em]">★ Tax is payable on reverse charge basis ★</p>
         </div>
       )}

@@ -15,7 +15,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Dark Header Strip ─────────────────── */}
-      <header className="bg-[#111] text-white p-6 mb-8">
+      <header className="bg-[#111] text-white print:bg-transparent print:text-[#111] print:border-b-4 print:border-[#111] p-6 print:p-0 print:pb-6 mb-8">
         <div className="flex justify-between items-start">
           <div>
             {data.agencyLogoUrl && (
