@@ -868,10 +868,11 @@ export default function ProfilePage() {
                     <FieldRow label="PIN Code">
                       <input
                         type="text"
+                        inputMode="numeric"
                         value={pinCode}
                         onChange={updateVal(setPinCode)}
                         placeholder="e.g. 560001"
-                        className={fc({ hasValue: Boolean(pinCode) })}
+                        className={cn(fc({ hasValue: Boolean(pinCode) }), "max-w-[120px]")}
                       />
                     </FieldRow>
 
@@ -911,6 +912,7 @@ export default function ProfilePage() {
                       <FieldRow label="GSTIN" helper="15-character GST number">
                         <input
                           type="text"
+                          autoComplete="off"
                           value={gstin}
                           onChange={(e) => {
                             setGstin(e.target.value.toUpperCase());
@@ -926,6 +928,7 @@ export default function ProfilePage() {
                     <FieldRow label="PAN" helper="10-character PAN number">
                       <input
                         type="text"
+                        autoComplete="off"
                         value={pan}
                         onChange={(e) => {
                           setPan(e.target.value.toUpperCase());
@@ -933,7 +936,7 @@ export default function ProfilePage() {
                         }}
                         placeholder="e.g. AAACR5055K"
                         maxLength={10}
-                        className={fc({ hasValue: Boolean(pan) })}
+                        className={cn(fc({ hasValue: Boolean(pan) }), "max-w-[180px]")}
                       />
                     </FieldRow>
 
@@ -1064,37 +1067,43 @@ export default function ProfilePage() {
                     />
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <FieldRow label="Default Payment Terms (Days)">
-                        <input
-                          type="number"
-                          value={msaPaymentTermsDays}
-                          onChange={(e) => {
-                            setMsaPaymentTermsDays(Number(e.target.value));
-                            setIsDirty(true);
-                          }}
-                          className={fc({ hasValue: true })}
-                        />
-                      </FieldRow>
-
-                      <FieldRow label="Late Fee Rate (%)">
-                        <div className="grid grid-cols-2 gap-2">
+                      <FieldRow label="Default Payment Terms">
+                        <div className="flex items-center gap-2">
                           <input
                             type="number"
+                            inputMode="numeric"
+                            value={msaPaymentTermsDays}
+                            onChange={(e) => {
+                              setMsaPaymentTermsDays(Number(e.target.value));
+                              setIsDirty(true);
+                            }}
+                            className={cn(fc({ hasValue: true }), "w-20")}
+                          />
+                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
+                        </div>
+                      </FieldRow>
+
+                      <FieldRow label="Late Fee Rate">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            inputMode="decimal"
                             step="0.1"
                             value={msaLateFeeRate}
                             onChange={(e) => {
                               setMsaLateFeeRate(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={fc({ hasValue: true })}
+                            className={cn(fc({ hasValue: true }), "w-16")}
                           />
+                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
                           <select
                             value={msaLateFeeUnit}
                             onChange={(e) => {
                               setMsaLateFeeUnit(e.target.value as any);
                               setIsDirty(true);
                             }}
-                            className={fc({ hasValue: true, isSelect: true })}
+                            className={cn(fc({ hasValue: true, isSelect: true }), "w-auto min-w-[120px]")}
                           >
                             <option value="monthly">per month</option>
                             <option value="annually">per annum</option>
@@ -1135,7 +1144,7 @@ export default function ProfilePage() {
                           value={msaJurisdictionCity}
                           onChange={updateVal(setMsaJurisdictionCity)}
                           placeholder="e.g. Bangalore"
-                          className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                          className={cn(fc({ hasValue: Boolean(msaJurisdictionCity) }), "max-w-[200px]")}
                         />
                       </FieldRow>
                     </div>
@@ -1151,34 +1160,39 @@ export default function ProfilePage() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FieldRow label="Free Revision Rounds">
-                        <input
-                          type="number"
-                          value={freeRevisionRounds}
-                          onChange={(e) => {
-                            setFreeRevisionRounds(Number(e.target.value));
-                            setIsDirty(true);
-                          }}
-                          className={fc({ hasValue: true })}
-                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            value={freeRevisionRounds}
+                            onChange={(e) => {
+                              setFreeRevisionRounds(Number(e.target.value));
+                              setIsDirty(true);
+                            }}
+                            className={cn(fc({ hasValue: true }), "w-16")}
+                          />
+                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
+                        </div>
                       </FieldRow>
 
                       <FieldRow
-                        label="EXTRA FEE PER ROUND (% OF LINE ITEM)"
-                        helper="Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected."
+                        label="Extra Fee Per Round"
+                        helper="Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round."
                       >
                         <div className="flex items-center gap-2">
                           <input
                             type="number"
+                            inputMode="decimal"
                             step="0.1"
                             value={extraRevisionFeePercent}
                             onChange={(e) => {
                               setExtraRevisionFeePercent(Number(e.target.value));
                               setIsDirty(true);
                             }}
-                            className={fc({ hasValue: true })}
+                            className={cn(fc({ hasValue: true }), "w-20")}
                           />
-                          <span className="text-[13px] font-bold text-[color:var(--text-muted)]">
-                            %
+                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">
+                            % of line item
                           </span>
                         </div>
                       </FieldRow>

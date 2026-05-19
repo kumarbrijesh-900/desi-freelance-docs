@@ -325,6 +325,7 @@ function ClientForm({
                     </label>
                     <input
                       type="text"
+                      autoComplete="off"
                       value={gstin}
                       onChange={(e) => setGstin(e.target.value.toUpperCase())}
                       placeholder="e.g. 27AAACR5055K1ZK"
@@ -352,23 +353,31 @@ function ClientForm({
             <div className="space-y-6">
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1">
-                  <label className={appFieldLabelClass}>Terms (Days)</label>
-                  <input
-                    type="number"
-                    value={msaPaymentTermsDays}
-                    onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
-                    className={fc({ hasValue: true })}
-                  />
+                  <label className={appFieldLabelClass}>Terms</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={msaPaymentTermsDays}
+                      onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
+                      className={cn(fc({ hasValue: true }), "w-20")}
+                    />
+                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
+                  </div>
                 </div>
                 <div className="col-span-1">
-                  <label className={appFieldLabelClass}>Late Fee (%)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={msaLateFeeRate}
-                    onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
-                    className={fc({ hasValue: true })}
-                  />
+                  <label className={appFieldLabelClass}>Late Fee</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={msaLateFeeRate}
+                      onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
+                      className={cn(fc({ hasValue: true }), "w-16")}
+                    />
+                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
+                  </div>
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Unit</label>
@@ -411,7 +420,7 @@ function ClientForm({
                     value={msaJurisdictionCity}
                     onChange={(e) => setMsaJurisdictionCity(e.target.value)}
                     placeholder="e.g. Bangalore"
-                    className={fc({ hasValue: Boolean(msaJurisdictionCity) })}
+                    className={cn(fc({ hasValue: Boolean(msaJurisdictionCity) }), "max-w-[200px]")}
                   />
                 </div>
               </div>
@@ -442,31 +451,39 @@ function ClientForm({
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Free Rounds</label>
-                  <input
-                    type="number"
-                    value={freeRevisionRounds}
-                    onChange={(e) =>
-                      setFreeRevisionRounds(Number(e.target.value))
-                    }
-                    className={fc({ hasValue: true })}
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={freeRevisionRounds}
+                      onChange={(e) =>
+                        setFreeRevisionRounds(Number(e.target.value))
+                      }
+                      className={cn(fc({ hasValue: true }), "w-16")}
+                    />
+                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
+                  </div>
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>
-                    EXTRA FEE PER ROUND (% OF LINE ITEM)
+                    Extra Fee Per Round
                   </label>
                   <p className="text-[10px] text-[color:var(--text-muted)] mb-1">
-                    Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
+                    Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round.
                   </p>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={extraRevisionFeePercent}
-                    onChange={(e) =>
-                      setExtraRevisionFeePercent(Number(e.target.value))
-                    }
-                    className={fc({ hasValue: true })}
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      value={extraRevisionFeePercent}
+                      onChange={(e) =>
+                        setExtraRevisionFeePercent(Number(e.target.value))
+                      }
+                      className={cn(fc({ hasValue: true }), "w-20")}
+                    />
+                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">% of line item</span>
+                  </div>
                 </div>
               </div>
 
