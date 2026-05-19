@@ -81,7 +81,7 @@ export default function SubmitFeedback() {
         </p>
         <button
           onClick={() => setIsSuccess(false)}
-          className="text-sm font-medium text-[color:var(--interactive-primary)] hover:underline"
+          className="text-sm font-medium text-[#4F46E5] hover:underline"
         >
           Submit another feedback
         </button>

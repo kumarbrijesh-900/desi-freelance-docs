@@ -143,7 +143,7 @@ export default function NotificationBell() {
             {hasUnread && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-[11px] font-semibold text-[color:var(--interactive-primary)] hover:underline"
+                className="text-[11px] font-semibold text-[#4F46E5] hover:underline"
               >
                 Mark all as read
               </button>
@@ -200,7 +200,7 @@ export default function NotificationBell() {
                               setIsOpen(false);
                               handleMarkRead(n.id);
                             }}
-                            className="text-[11px] font-semibold text-[color:var(--interactive-primary)] hover:underline"
+                            className="text-[11px] font-semibold text-[#4F46E5] hover:underline"
                           >
                             View Invoice
                           </Link>

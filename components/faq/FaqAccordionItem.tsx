@@ -21,7 +21,7 @@ export default function FaqAccordionItem({
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between py-5 pr-4 text-left transition-all duration-200 group"
       >
-        <span className="text-base font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--interactive-primary)] transition-colors">
+        <span className="text-base font-semibold text-[color:var(--text-primary)] group-hover:text-[#4F46E5] transition-colors">
           {question}
         </span>
         <ChevronDownIcon
