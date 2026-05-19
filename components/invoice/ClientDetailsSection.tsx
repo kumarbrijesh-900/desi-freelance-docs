@@ -791,7 +791,7 @@ export default function ClientDetailsSection({
                 e.stopPropagation();
                 handleGenerateContract();
               }}
-              className="inline-flex items-center gap-1.5 bg-[#4F46E5]/5 border border-[#4F46E5]/20 px-3 py-1.5 text-[11px] font-semibold text-[#4F46E5] hover:bg-[#4F46E5]/10 transition-colors shrink-0 rounded-md"
+              className="inline-flex items-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shrink-0 cursor-pointer"
               title="Auto-generate legal clause text from your settings below"
             >
               ✨ Generate Clause
