@@ -411,6 +411,7 @@ export default function ClientDetailsSection({
                       <input
                         suppressHydrationWarning
                         type="text"
+                        autoComplete="off"
                         value={value.clientGstin}
                         onChange={(e) => {
                           onFieldManualEdit("client.clientGstin");
@@ -831,10 +832,11 @@ export default function ClientDetailsSection({
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
+                          inputMode="numeric"
                           value={value.msaPaymentTermsDays || ""}
                           onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
                           placeholder="e.g. 20"
-                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] w-full min-w-0")}
+                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] w-20 min-w-0")}
                         />
                         <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
                       </div>
@@ -851,11 +853,12 @@ export default function ClientDetailsSection({
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
+                          inputMode="decimal"
                           step="0.1"
                           value={value.msaLateFeeRate || ""}
                           onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
-                          placeholder="e.g. 1.5"
-                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] w-28 min-w-0")}
+                          placeholder="1.5"
+                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] w-16 min-w-0")}
                         />
                         <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
                         <AppSelectField
@@ -914,7 +917,7 @@ export default function ClientDetailsSection({
                         value={value.msaJurisdictionCity || ""}
                         onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
                         placeholder="e.g. Bangalore"
-                        className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 text-[13px] w-full min-w-0")}
+                        className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 text-[13px] w-full min-w-0 max-w-[200px]")}
                       />
                     </div>
 

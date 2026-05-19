@@ -287,6 +287,7 @@ export default function AgencyDetailsSection({
                             suppressHydrationWarning
                             type="text"
                             aria-label="Agency GSTIN"
+                            autoComplete="off"
                             value={value.gstin}
                             onChange={(e) => {
                               onFieldManualEdit("agency.gstin");
@@ -320,7 +321,7 @@ export default function AgencyDetailsSection({
                           ) : null}
                         </div>
 
-                        <div className="w-full max-w-[280px]">
+                        <div className="w-full max-w-[180px]">
                           <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                             <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                               PAN
@@ -347,6 +348,7 @@ export default function AgencyDetailsSection({
                             placeholder="PAN"
                             autoCapitalize="characters"
                             spellCheck={false}
+                            autoComplete="off"
                             className={cn(
                               inputClass(panError, Boolean(value.pan)),
                               getInputStateClass("agency.pan", value.pan),
@@ -396,7 +398,7 @@ export default function AgencyDetailsSection({
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="max-w-[280px] pt-1">
+                              <div className="max-w-[360px] pt-1">
                                 <label className={appFieldLabelClass}>
                                   LUT Number / ARN
                                   {autoFilledFields.has("agency.lutNumber") && (
@@ -439,7 +441,7 @@ export default function AgencyDetailsSection({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="w-full max-w-[280px] pt-2">
+                    <div className="w-full max-w-[180px] pt-2">
                       <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
                         <AppTooltip content={<>
@@ -460,6 +462,7 @@ export default function AgencyDetailsSection({
                         placeholder="PAN"
                         autoCapitalize="characters"
                         spellCheck={false}
+                        autoComplete="off"
                         className={inputClass(panError, Boolean(value.pan))}
                       />
                       {panError ? (
@@ -741,7 +744,7 @@ export default function AgencyDetailsSection({
                           className={cn(
                             inputClass(pinCodeError, Boolean(value.pinCode)),
                             getInputStateClass("agency.pinCode", value.pinCode),
-                            "w-full max-w-full"
+                            "w-full max-w-[120px]"
                           )}
                         />
                         {pinCodeError && (

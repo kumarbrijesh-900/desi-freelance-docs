@@ -464,9 +464,10 @@ export default function TermsPaymentSection({
                           </div>
                         </div>
 
-                        <div className="relative min-w-[120px]">
+                        <div className="relative w-20">
                           <input
                             type="number"
+                            inputMode="numeric"
                             readOnly={isReadOnly}
                             tabIndex={isReadOnly ? -1 : 0}
                             value={meta.paymentTerms}
@@ -572,36 +573,44 @@ export default function TermsPaymentSection({
                           <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]">
                             FREE ROUNDS
                           </label>
-                          <input
-                            type="number"
-                            readOnly={isReadOnly}
-                            tabIndex={isReadOnly ? -1 : 0}
-                            value={client.freeRevisionRounds ?? 2}
-                            onChange={(e) => {
-                              if (onClientChange) {
-                                onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
-                              }
-                            }}
-                            className="w-full border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
-                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              readOnly={isReadOnly}
+                              tabIndex={isReadOnly ? -1 : 0}
+                              value={client.freeRevisionRounds ?? 2}
+                              onChange={(e) => {
+                                if (onClientChange) {
+                                  onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
+                                }
+                              }}
+                              className="w-16 border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
+                            />
+                            <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
+                          </div>
                         </div>
                         <div className="flex flex-col">
                           <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]">
-                            EXTRA FEE PER ROUND (% OF LINE ITEM)
+                            EXTRA FEE PER ROUND
                           </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            readOnly={isReadOnly}
-                            tabIndex={isReadOnly ? -1 : 0}
-                            value={client.extraRevisionFeePercent ?? 15}
-                            onChange={(e) => {
-                              if (onClientChange) {
-                                onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
-                              }
-                            }}
-                            className="w-full border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
-                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              inputMode="decimal"
+                              step="0.1"
+                              readOnly={isReadOnly}
+                              tabIndex={isReadOnly ? -1 : 0}
+                              value={client.extraRevisionFeePercent ?? 15}
+                              onChange={(e) => {
+                                if (onClientChange) {
+                                  onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
+                                }
+                              }}
+                              className="w-20 border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--text-primary)] h-11 px-3 outline-none"
+                            />
+                            <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">% of line item</span>
+                          </div>
                         </div>
                       </div>
                       <p className="text-[11px] text-[color:var(--text-muted)] mt-3 leading-relaxed">
