@@ -1066,7 +1066,7 @@ export default function ProfilePage() {
                       description="Your Master Services Agreement (MSA) blueprint for new clients."
                     />
 
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex flex-wrap gap-6">
                       <FieldRow label="Default Payment Terms">
                         <div className="flex items-center gap-2">
                           <input
@@ -1158,7 +1158,7 @@ export default function ProfilePage() {
                       description="Default limits and fees for revision rounds."
                     />
 
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex flex-wrap gap-6">
                       <FieldRow label="Free Revision Rounds">
                         <div className="flex items-center gap-2">
                           <input

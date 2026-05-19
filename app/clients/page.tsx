@@ -351,7 +351,7 @@ function ClientForm({
 
             <FormSectionLabel title="MSA DEFAULTS" />
             <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-wrap gap-4">
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Terms</label>
                   <div className="flex items-center gap-2">
@@ -448,7 +448,7 @@ function ClientForm({
               </div>
 
               <FormSectionLabel title="REVISION POLICY" />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-wrap gap-4">
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>Free Rounds</label>
                   <div className="flex items-center gap-2">

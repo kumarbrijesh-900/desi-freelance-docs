@@ -568,7 +568,7 @@ export default function TermsPaymentSection({
 
                     {/* Revision Policy */}
                     <div className={cn("space-y-6", isReadOnly && "opacity-70")}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-wrap gap-6">
                         <div className="flex flex-col">
                           <label className="mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]">
                             FREE ROUNDS
