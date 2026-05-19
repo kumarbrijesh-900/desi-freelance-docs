@@ -9,6 +9,7 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { markInvoiceSettled } from "@/lib/supabase/invoices";
+import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
 
 interface DashboardMetrics {
   outstanding: number;
@@ -99,6 +100,7 @@ export default function DashboardPage() {
   const [clientsHealth, setClientsHealth] = useState<ClientHealth[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [deadlines, setDeadlines] = useState<UpcomingDeadline[]>([]);
+  const [offlineInvoicesCount, setOfflineInvoicesCount] = useState(0);
   const router = useRouter();
 
   // Client-side UX Interactive States
@@ -348,8 +350,17 @@ export default function DashboardPage() {
         if (invoicesError) throw invoicesError;
         const invoices = invoicesData || [];
 
+        const trackedInvoices = ((invoices ?? [])
+          .map(inv => ({ ...inv, isOffline: inv.is_offline }))
+          .filter(trackedOnly) as unknown as typeof invoices);
+        
+        const offlineCount = (invoices ?? [])
+          .map(inv => ({ ...inv, isOffline: inv.is_offline }))
+          .filter(offlineOnly).length;
+        setOfflineInvoicesCount(offlineCount);
+
         // 4. Get all invoice_milestones for the user's invoices
-        const invoiceIds = invoices.map((inv) => inv.id);
+        const invoiceIds = trackedInvoices.map((inv) => inv.id);
         let milestones: any[] = [];
         if (invoiceIds.length > 0) {
           const { data: milestonesData } = await supabase
@@ -428,7 +439,7 @@ export default function DashboardPage() {
         setActivity(combinedActivityList.slice(0, 6));
 
         // --- Attach Milestones to Invoices & Compute Total Amount ---
-        const invoicesWithMilestones = invoices.map((inv: any) => {
+        const invoicesWithMilestones = trackedInvoices.map((inv: any) => {
           const invMilestones = milestones
             .filter((m: any) => m.invoice_id === inv.id)
             .sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0))
@@ -957,6 +968,18 @@ export default function DashboardPage() {
             </div>
             ); })()}
           </div>
+
+          {offlineInvoicesCount > 0 && (
+            <div
+              className="mt-3 mb-6 text-[11px] font-black uppercase tracking-wider"
+              style={{ color: "#111118", opacity: 0.6 }}
+            >
+              {offlineInvoicesCount} {offlineInvoicesCount === 1 ? "invoice" : "invoices"} managed offline
+              <a href="/invoices" className="ml-2 underline underline-offset-4">
+                View list
+              </a>
+            </div>
+          )}
 
           {/* SECTION 3: ACTION NEEDED (conditional) */}
           {metrics.overdueCount > 0 && firstOverdueInvoice && (
