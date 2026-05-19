@@ -753,3 +753,60 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 - app/profile/page.tsx
 - app/clients/page.tsx
 - SESSION_LOG.md
+
+---
+
+## v2.7 DASHBOARD UX IMPROVEMENTS — May 19, 2026
+
+### Phase XXX: Signal-to-Noise Optimization (P0)
+
+- ✅ DB-P0-1 — Ghost Client Suppression:
+  - Clients with zero invoices (e.g. "Acme Studios" with ₹0/₹0) are now hidden from the Client Ledger by default.
+  - They reappear if the user's search query matches their name or city.
+- ✅ DB-P0-2 — Zero-Value Metric Card Dimming:
+  - When a metric card shows ₹0, it renders with `opacity-60`, muted font weight (`font-semibold`), muted text color, and no hover transform.
+  - When the user clicks a zero card to filter, it restores full opacity via `!opacity-100` override.
+- ✅ DB-P0-3 — UPCOMING Threshold & Urgency Recalibration:
+  - Deadlines > 21 days out are now hidden from the UPCOMING panel (previously showed all).
+  - Urgency badge tiers recalibrated: ≤0d = Red, 1-3d = Amber, 4-7d = Green, 8-21d = Gray.
+  - Smart empty state: "No urgent deadlines (all 21+ days out)" when deadlines exist but are far out.
+
+### Phase XXXI: Visual Polish & Readability (P1)
+
+- ✅ DB-P1-1 — Activity Feed Truncation:
+  - Activity detail text capped with `truncate max-w-[320px]` on mobile, full width on desktop.
+- ✅ DB-P1-2 — Pluralization Fix:
+  - Footer now reads "1 invoice" (singular) instead of "1 invoices". Applied to both invoice and client counts.
+- ✅ DB-P1-3 — Metric Card Pin Semantics:
+  - DUE THIS WEEK pin color changed from lime (`#BEFF00`) to amber (`#FBBF24`) to signal "watch this" rather than "safe/good".
+- ✅ DB-P1-4 — Client Row Spacing:
+  - Added `mt-0.5` between client name and city in the ledger for better visual breathing room.
+- ✅ DB-P1-5 — Greeting Font Refinement:
+  - Removed `font-syne` from the greeting line ("Good afternoon, bkb kumar") for improved legibility. Syne remains on metric values, section headers, and buttons.
+
+### Phase XXXII: Professional Polish (P2)
+
+- ✅ DB-P2-1 — Neo-Brutalist Modal System:
+  - Created an inline `DashboardModal` component replacing all 14 `window.confirm()` and `alert()` calls.
+  - **Architecture**: Promise-based `showConfirm(title, msg, tone)` returns `boolean`; `showAlert(title, msg, tone)` for acknowledgement.
+  - **4 tone variants**: success (teal `#00DCB4` ✓), error (orange `#FF5C00` !), warning (amber `#FBBF24` ?), info (gray i).
+  - **Styling**: `border-4 border-[#111118]`, `shadow-[6px_6px_0_#111118]`, color-coded header stripe, `z-[60]` to layer above side-drawer.
+  - **UX**: Success settlements auto-reload after 1.5s delay (user reads confirmation first).
+  - **Coverage**: `handleSettleMilestone` (5 alerts, 1 confirm), ACTION NEEDED nudge (1 alert), UPCOMING "Mark Settled" (1 confirm, 2 alerts), side-drawer nudge (1 alert).
+- ✅ DB-P2-2 — Side-Drawer Quick Links:
+  - Added "Edit Invoice →" (links to `/invoice/edit/${id}`) and "View Live →" (links to `/share/${token}`, opens in new tab) below the CLIENT section in the invoice inspector drawer.
+
+## Deployment & Production state (v2.7)
+
+- **Latest Build:** `v2.7-dashboard-ux` (commits `cb135a9`, `8107c93`)
+- **Status:** Pushed to `main`. Compiled and deployed successfully.
+- **Verification:**
+  - Zero remaining `window.confirm()` or `alert()` calls in dashboard.
+  - Ghost clients hidden; zero-value cards dimmed; UPCOMING filtered to ≤21 days.
+  - Pluralization correct for singular/plural invoice and client counts.
+  - Full Next.js production build passed with Exit Code 0.
+
+## Files modified in v2.7
+
+- app/dashboard/page.tsx
+- SESSION_LOG.md
