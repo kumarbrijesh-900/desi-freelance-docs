@@ -433,7 +433,7 @@ export default function TermsPaymentSection({
                       <div className={cn("grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-end", isReadOnly && "opacity-70")}>
                         <div className="flex flex-col gap-2">
                           <label className={appFieldLabelClass}>
-                            <span className="flex items-center gap-1.5">
+                            <span className="flex flex-wrap items-center gap-1.5">
                               {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                               Days until payment
                             </span>
@@ -508,7 +508,7 @@ export default function TermsPaymentSection({
 
                     <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                       <label className={appFieldLabelClass}>
-                        <span className="flex items-center gap-1.5">
+                        <span className="flex flex-wrap items-center gap-1.5">
                           {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                           Due Date
                         </span>
@@ -536,7 +536,7 @@ export default function TermsPaymentSection({
 
                     <div className={cn("flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                       <label className={appFieldLabelClass}>
-                        <span className="flex items-center gap-1.5">
+                        <span className="flex flex-wrap items-center gap-1.5">
                           {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                           Terms / Notes
                         </span>
@@ -611,9 +611,9 @@ export default function TermsPaymentSection({
                     <div className="pt-4 border-t border-[color:var(--border-subtle)]">
                       <div className="space-y-6">
                         <div className="flex flex-col gap-4">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             <label className={appFieldLabelClass}>
-                              <span className="flex items-center gap-1.5">
+                              <span className="flex flex-wrap items-center gap-1.5">
                                 {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                 License Included?
                               </span>
@@ -627,7 +627,7 @@ export default function TermsPaymentSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Whether the client receives intellectual property rights to the delivered work. Full Assignment = complete ownership transfer.
 </span>
                           </div>
@@ -673,7 +673,7 @@ export default function TermsPaymentSection({
                               <div className="space-y-6 pt-2">
                                 <div className={cn("space-y-1.5", isReadOnly && "opacity-70")}>
                                   <label className={appFieldLabelClass}>
-                                    <span className="flex items-center gap-1.5">
+                                    <span className="flex flex-wrap items-center gap-1.5">
                                       {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                       License Type *
                                     </span>
@@ -706,7 +706,7 @@ export default function TermsPaymentSection({
                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                                       <div className={cn("max-w-[280px] flex flex-col gap-1.5", isReadOnly && "opacity-70")}>
                                         <label className={appFieldLabelClass}>
-                                          <span className="flex items-center gap-1.5">
+                                          <span className="flex flex-wrap items-center gap-1.5">
                                             {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
                                             License Duration *
                                           </span>

@@ -460,7 +460,7 @@ function LineItemCard({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Service Accounting Code — identifies the type of service for GST classification. Auto-filled based on your selected category.
 </span>
             </div>
@@ -541,7 +541,7 @@ function LineItemCard({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   How you measure delivery — per screen, per hour, per deliverable, per video, etc.
 </span>
             </div>

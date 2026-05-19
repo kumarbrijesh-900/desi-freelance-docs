@@ -175,7 +175,33 @@ export default function ShareLinkModal({
 
 
 
-  return (
+  return sent ? (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70">
+    <div className="w-full max-w-md border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)] text-center">
+      <div className="inline-flex h-14 w-14 items-center justify-center border-2 border-[#111118] bg-[#00DCB4] mb-4">
+        <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+      </div>
+      <h2 className="text-xl font-bold uppercase text-[#111118] mb-2">Invoice Sent!</h2>
+      <p className="text-[13px] text-[color:var(--text-muted)] mb-6">
+        A secure link has been delivered to <strong>{clientEmail}</strong>. You will be notified when they view or accept it.
+      </p>
+      <div className="flex gap-3 justify-center">
+        <a
+          href="/dashboard"
+          className="border-2 border-[#111118] bg-[#BEFF00] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
+        >
+          Go to Dashboard
+        </a>
+        <a
+          href="/invoices"
+          className="border-2 border-[#111118] bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118]"
+        >
+          View Invoices
+        </a>
+      </div>
+    </div>
+  </div>
+) : (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70"
       onClick={(e) => {
@@ -333,23 +359,6 @@ export default function ShareLinkModal({
 
 
             </div>
-
-            {/* ── Sent Success State ── */}
-            {sent && (
-              <div className="flex items-start gap-3 border-2 border-[#111118] bg-[#E0FFF7] px-4 py-3">
-                <CheckCircleIcon className="h-5 w-5 shrink-0 text-green-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-green-800">
-                    Invoice sent to {clientEmail}
-                  </p>
-                  <p className="mt-0.5 text-xs text-green-700">
-                    {currentMsaId
-                      ? "The client will need to accept your MSA before viewing the invoice."
-                      : "The client can view the invoice directly via the secure link in their email."}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* ── Footer ── */}
@@ -364,21 +373,19 @@ export default function ShareLinkModal({
                 onClick={onClose}
                 className="px-4 py-2 text-[13px] font-bold text-[color:var(--text-muted)] border-2 border-transparent hover:border-[#111118] transition-all"
               >
-                {sent ? "Close" : "Cancel"}
+                Cancel
               </button>
-              {!sent && (
-                <button
-                  type="button"
-                  onClick={handleSend}
-                  disabled={sending || !clientEmail?.trim()}
-                  className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <SendIcon className="h-4 w-4" />
-                    {sending ? "Sending…" : sharedAt ? "Resend Invoice" : "Send Invoice"}
-                  </span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={sending || !clientEmail?.trim()}
+                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <SendIcon className="h-4 w-4" />
+                  {sending ? "Sending…" : sharedAt ? "Resend Invoice" : "Send Invoice"}
+                </span>
+              </button>
             </div>
           </div>
         </div>

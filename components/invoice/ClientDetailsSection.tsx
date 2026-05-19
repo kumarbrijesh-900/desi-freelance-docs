@@ -330,7 +330,7 @@ export default function ClientDetailsSection({
               </div>
 
               <div className="mb-4">
-                <div className="flex items-center gap-1.5 mb-2">
+                <div className="flex flex-wrap items-center gap-1.5 mb-2">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
                   <button
   type="button"
@@ -341,7 +341,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency).
 </span>
                 </div>
@@ -405,7 +405,7 @@ export default function ClientDetailsSection({
 
                   <div className="flex flex-wrap gap-6 items-end">
                     <div className="w-full max-w-[360px]">
-                      <div className="flex items-center gap-1.5 mb-2">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                           {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
                           {autoFilledFields.has("client.clientGstin") && (
@@ -421,7 +421,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
 </span>
                       </div>
@@ -725,7 +725,7 @@ export default function ClientDetailsSection({
                         />
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 mb-2">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
                           <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
                             {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
                             {autoFilledFields.has("client.clientGstin") && (
@@ -741,7 +741,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Client's 15-digit GST Identification Number. Optional for unregistered clients.
 </span>
                         </div>
@@ -836,7 +836,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Days until payment is due after invoice date
 </span>
                     </div>
@@ -845,6 +845,7 @@ export default function ClientDetailsSection({
                         type="number"
                         value={value.msaPaymentTermsDays || ""}
                         onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
+                        placeholder="e.g. 20"
                         className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] w-full min-w-0")}
                       />
                       <span className="text-[12px] text-[color:var(--text-muted)]">days</span>
@@ -864,7 +865,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Penalty charged on overdue payments
 </span>
                     </div>
@@ -874,6 +875,7 @@ export default function ClientDetailsSection({
                         step="0.1"
                         value={value.msaLateFeeRate || ""}
                         onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
+                        placeholder="e.g. 1.5"
                         className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] w-full min-w-0")}
                       />
                       <AppSelectField
@@ -902,7 +904,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   When does IP ownership transfer to client?
 </span>
                     </div>
@@ -931,7 +933,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   City for dispute resolution
 </span>
                     </div>
@@ -939,7 +941,7 @@ export default function ClientDetailsSection({
                       type="text"
                       value={value.msaJurisdictionCity || ""}
                       onChange={(e) => updateField("msaJurisdictionCity", e.target.value)}
-                      placeholder="e.g. Bengaluru"
+                      placeholder="e.g. Bangalore"
                       className={cn(inputClass(undefined, Boolean(value.msaJurisdictionCity)), "h-9 text-[13px] w-full min-w-0")}
                     />
                   </div>
@@ -957,7 +959,7 @@ export default function ClientDetailsSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   What rights does the client receive?
 </span>
                     </div>
@@ -997,6 +999,7 @@ export default function ClientDetailsSection({
                         suppressHydrationWarning
                         value={value.msaNotesBoilerplate || ""}
                         onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)}
+                        placeholder="Enter project-specific terms that override your default MSA..."
                         className={cn(inputClass(undefined, Boolean(value.msaNotesBoilerplate), true), "resize-y")}
                         style={{ minHeight: 120, maxHeight: 300 }}
                       />

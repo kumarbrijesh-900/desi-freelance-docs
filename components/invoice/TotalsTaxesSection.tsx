@@ -272,7 +272,7 @@ export default function TotalsTaxesSection({
           {/* Advanced Tax Disclosure */}
           <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
             {!showAdvanced ? (
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(true)}
@@ -289,7 +289,7 @@ export default function TotalsTaxesSection({
   }}
   className="inline-flex h-4 w-4 items-center justify-center border border-[color:var(--border-subtle)] text-[9px] text-[color:var(--text-muted)] cursor-help shrink-0"
 >?</button>
-<span className="hidden text-[11px] text-[color:var(--text-muted)] mt-1 block leading-relaxed">
+<span className="hidden tooltip-text block text-[11px] text-[color:var(--text-muted)] mt-1 leading-relaxed font-normal normal-case tracking-normal w-full basis-full">
   Override the default tax rate, enable Reverse Charge Mechanism (RCM), or adjust for SEZ clients.
 </span>
               </div>
