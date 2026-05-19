@@ -1133,10 +1133,20 @@ export default function DashboardPage() {
                       ))}
                     </td>
 
-                    {/* Milestone stage pills - one row per invoice */}
-                    <td className="hidden sm:table-cell px-4 py-3 align-top">
+                    {/* Milestone stage detailed view - one container per invoice */}
+                    <td className="hidden sm:table-cell px-4 py-3 align-top min-w-[280px] max-w-[360px]">
                       {client.invoices.map((inv) => (
-                        <div key={inv.id} className="flex gap-1 items-center mb-2 last:mb-0 h-[22px]">
+                        <div key={inv.id} className="mb-4 last:mb-0 border-2 border-[#111118] bg-white p-2.5 shadow-[2px_2px_0_#111118] text-[#111118]">
+                          {/* Invoice Meta Row */}
+                          <div className="flex justify-between items-center border-b border-[#111118] pb-1.5 mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-[color:var(--text-muted)]">
+                              {inv.invoiceNumber}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] bg-[#BEFF00] font-black uppercase shadow-[1px_1px_0_#111118]">
+                              {inv.status}
+                            </span>
+                          </div>
+
                           {inv.milestones.length > 0 ? (
                             inv.milestones.map((m, mi) => {
                               const s = (m.status || "").toLowerCase();
@@ -1148,24 +1158,11 @@ export default function DashboardPage() {
                                 : isDraft ? "#8B5CF6"
                                 : "#E0E0E0";
                               
-                              const title = m.title || "Untitled Milestone";
+                              const title = m.title;
                               const items = inv.lineItems || [];
                               const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
                               const mainServiceType = milestoneItems[0]?.type || inv.lineItems?.[0]?.description || "General Services";
                               
-                              let authIcon = "📜";
-                              let authLabel = "Global MSA";
-                              let authDesc = "Using default agency-wide terms.";
-                              if (inv.has_addendum) {
-                                authIcon = "⚡";
-                                authLabel = "Project Addendum";
-                                authDesc = "Active project overrides.";
-                              } else if (inv.msa_id) {
-                                authIcon = "🤝";
-                                authLabel = "Client MSA";
-                                authDesc = "Linked to Client Agreement.";
-                              }
-
                               // Due days calculation
                               let dueDateText = "";
                               let isLate = false;
@@ -1193,75 +1190,42 @@ export default function DashboardPage() {
                               }
 
                               return (
-                                <div
-                                  key={mi}
-                                  onClick={() => setSelectedInvoice(inv)}
-                                  className="relative group cursor-pointer animate-reveal flex items-center gap-1"
-                                >
-                                  {/* Square Timeline Segment */}
-                                  <div className="w-8 h-4 border-2 border-[#111118] flex items-center justify-center shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all" style={{ backgroundColor: bg }}>
-                                    {s === "settled" && <span className="text-[#111118] text-[10px] font-black leading-none mt-0.5">✓</span>}
-                                    {s === "overdue" && <span className="text-[#111118] text-[10px] font-black leading-none mt-0.5">!</span>}
-                                  </div>
-                                  
-                                  {/* Connector Line (except last) */}
-                                  {mi < inv.milestones.length - 1 && (
-                                    <div className="w-2 h-[2px] bg-[#111118]"></div>
-                                  )}
-
-                                  {/* Mega Tooltip */}
-                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-72 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[4px_4px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
-                                    <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                    
-                                    {/* Header */}
-                                    <div className="flex justify-between items-start border-b-2 border-[#111118] pb-2 mb-2">
-                                      <div className="flex flex-col">
-                                        <span className="font-black text-[12px] uppercase tracking-wider">{title}</span>
-                                        <span className="text-[10px] font-bold text-[color:var(--text-muted)]">({mi + 1} of {inv.milestones.length})</span>
-                                      </div>
-                                      <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] font-black uppercase shadow-[1px_1px_0_#111118]" style={{ backgroundColor: bg }}>
-                                        {s}
+                                <div key={mi} className="mb-2.5 last:mb-0 border border-[#111118]/25 p-2 bg-[#FFFBE6]/20">
+                                  {/* Milestone header */}
+                                  <div className="flex justify-between items-start mb-1.5 pb-1 border-b border-[#111118]/10">
+                                    <div className="flex items-center gap-1.5 max-w-[60%]">
+                                      <span className="w-2 h-2 border border-[#111118] shrink-0" style={{ backgroundColor: bg }}></span>
+                                      <span className="font-bold text-[11px] uppercase truncate">
+                                        {title ? `M${mi + 1}: ${title}` : <span className="italic text-[color:var(--text-muted)] tracking-normal normal-case font-medium">(No Title Provided)</span>}
                                       </span>
                                     </div>
+                                    <span className={`text-[9px] font-black uppercase ${isLate ? "text-[#FF5C00]" : "text-[color:var(--text-muted)]"}`}>
+                                      {dueDateText}
+                                    </span>
+                                  </div>
 
-                                    {/* Line Items Breakdown */}
-                                    <div className="mb-2 space-y-1">
-                                      {milestoneItems.length > 0 ? (
-                                        milestoneItems.map((li: any, idx: number) => (
-                                          <div key={idx} className="flex justify-between items-start text-[10px] leading-tight">
-                                            <div className="flex flex-col w-[70%]">
-                                              <span className="font-bold truncate">{li.description || "No description"}</span>
-                                              <span className="text-[9px] text-[color:var(--text-muted)]">{li.type || mainServiceType}</span>
-                                              <span className="text-[9px] text-[color:var(--text-muted)]">{li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)}</span>
-                                            </div>
-                                            <span className="font-bold whitespace-nowrap">₹{formatIndian((li.qty || 0) * (li.rate || 0))}</span>
+                                  {/* Line items list */}
+                                  <div className="space-y-1.5 my-2">
+                                    {milestoneItems.length > 0 ? (
+                                      milestoneItems.map((li: any, idx: number) => (
+                                        <div key={idx} className="text-[10px] text-[color:var(--text-muted)] leading-tight flex justify-between items-start gap-2">
+                                          <div className="flex flex-col max-w-[70%]">
+                                            <span className="font-bold text-[#111118] truncate">{li.description || "No description"}</span>
+                                            <span className="text-[9px]">{li.type || mainServiceType}</span>
+                                            <span className="text-[9px] italic font-semibold">{li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)}</span>
                                           </div>
-                                        ))
-                                      ) : (
-                                        <div className="text-[10px] text-[color:var(--text-muted)] italic">No items attached.</div>
-                                      )}
-                                    </div>
+                                          <span className="font-bold text-[#111118] whitespace-nowrap">₹{formatIndian((li.qty || 0) * (li.rate || 0))}</span>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-[9px] text-[color:var(--text-muted)] italic">No items attached.</div>
+                                    )}
+                                  </div>
 
-                                    {/* Totals & Timeline */}
-                                    <div className="border-t border-[#111118] pt-2 mt-2 space-y-1">
-                                      <p className="flex justify-between text-[11px]">
-                                        <span className="font-bold uppercase tracking-wider">Milestone Total</span>
-                                        <span className="font-black text-[12px]">₹{formatIndian(m.amount)}</span>
-                                      </p>
-                                      <p className="flex justify-between text-[11px]">
-                                        <span className="font-bold text-[color:var(--text-muted)] uppercase">Timeline</span>
-                                        <span className={`font-bold ${isLate ? 'text-[#FF5C00]' : ''}`}>{dueDateText}</span>
-                                      </p>
-                                    </div>
-
-                                    {/* Contract Authority */}
-                                    <div className="mt-2 pt-2 border-t border-dashed border-[#111118]/40">
-                                      <p className="text-[11px] font-bold flex items-center gap-1">
-                                        <span>{authIcon}</span>
-                                        <span>{authLabel}</span>
-                                      </p>
-                                      <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
-                                    </div>
+                                  {/* Milestone Total */}
+                                  <div className="flex justify-between items-center pt-1.5 border-t border-dashed border-[#111118]/20">
+                                    <span className="text-[9px] font-bold uppercase text-[color:var(--text-muted)]">Milestone Total</span>
+                                    <span className="font-black text-[11px]">₹{formatIndian(m.amount)}</span>
                                   </div>
                                 </div>
                               );
@@ -1269,50 +1233,11 @@ export default function DashboardPage() {
                           ) : (
                             (() => {
                               const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
-                              const isDraft = (inv.status || "").toLowerCase() === "draft";
-                              const bg = isDraft ? "#8B5CF6" : "#E0E0E0";
-                              
-                              let authIcon = "📜";
-                              let authLabel = "Global MSA";
-                              let authDesc = "Using default agency-wide terms.";
-                              if (inv.has_addendum) {
-                                authIcon = "⚡";
-                                authLabel = "Project Addendum";
-                                authDesc = "Active project overrides.";
-                              } else if (inv.msa_id) {
-                                authIcon = "🤝";
-                                authLabel = "Client MSA";
-                                authDesc = "Linked to Client Agreement.";
-                              }
-
                               return (
-                                <div
-                                  onClick={() => setSelectedInvoice(inv)}
-                                  className="relative group cursor-pointer animate-reveal"
-                                >
-                                  {/* Single Square Timeline Segment */}
-                                  <div className="w-8 h-4 border-2 border-[#111118] shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all" style={{ backgroundColor: bg }}></div>
-
-                                  {/* Mega Tooltip */}
-                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[4px_4px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
-                                    <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                    <p className="font-bold text-[12px] border-b-2 border-[#111118] pb-1 mb-2 uppercase tracking-wider flex justify-between items-center">
-                                      <span>Standard Invoice</span>
-                                      <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] font-black uppercase shadow-[1px_1px_0_#111118]" style={{ backgroundColor: bg }}>
-                                        {isDraft ? "DRAFT" : "LIVE"}
-                                      </span>
-                                    </p>
-                                    <div className="space-y-1">
-                                      <p className="text-[11px] flex justify-between"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold text-[12px]">₹{formatIndian(inv.totalAmount)}</span></p>
-                                      <p className="text-[11px] flex justify-between truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
-                                      <div className="mt-2 pt-2 border-t border-dashed border-[#111118]/40">
-                                        <p className="text-[11px] font-bold flex items-center gap-1">
-                                          <span>{authIcon}</span>
-                                          <span>{authLabel}</span>
-                                        </p>
-                                        <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
-                                      </div>
-                                    </div>
+                                <div className="text-[10px] p-1 space-y-1">
+                                  <div className="flex justify-between font-bold">
+                                    <span>{mainServiceType}</span>
+                                    <span>₹{formatIndian(inv.totalAmount)}</span>
                                   </div>
                                 </div>
                               );
