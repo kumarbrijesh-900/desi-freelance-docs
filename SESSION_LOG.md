@@ -818,3 +818,48 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 - ✅ NB-Fix-1 — Generate Clause Button Neo-Brutalization:
   - The "✨ Generate Clause" button in `ClientDetailsSection.tsx` was using pre-v2.0 styling: `rounded-md`, translucent `bg-[#4F46E5]/5`, thin `border-[#4F46E5]/20`, and `font-semibold`.
   - Converted to full Neo-Brutalist: `bg-[#FFFBE6]` cream, `border-2 border-[#111118]`, `shadow-[2px_2px_0_#111118]`, `font-black uppercase tracking-wider`, press/hover transforms.
+
+---
+
+## v2.8 INVOICE TEMPLATE & MASTER TABLE ENHANCEMENTS — May 19, 2026
+
+### Phase XXXIV: Invoice PDF Printability & Rendering Polish
+- ✅ PT-1 — Background Stripping Protection:
+  - Addressed a critical issue where browsers strip background colors during PDF export/printing, rendering white text on dark backgrounds invisible.
+  - Injected Tailwind `print:` utility classes (e.g., `print:bg-transparent`, `print:text-black`, `print:border-black`) across 11 templates (`neon-atelier`, `mono`, `brutalist`, `coastal`, etc.).
+  - Ensured Reverse Charge banners and template headers remain fully legible when exported as PDFs.
+
+### Phase XXXV: Master Table Milestone Visibility
+- ✅ MT-1 — Granular Line Item Data:
+  - Enhanced the `/invoices` master table milestone accordion to expose specific line-item data.
+  - Implemented nested sub-rows under each milestone to display Description, Qty, Rate, and Calculated Cost.
+- ✅ MT-2 — Real-Time Due Date Calculation:
+  - Added dynamic inline due-date countdowns next to the milestone titles (e.g., `<span style="color:red">(3 days overdue)</span>` or `<span style="color:green">(Due in 5 days)</span>`).
+- ✅ MT-3 — Table Layout Integrity:
+  - Corrected a `colSpan={2}` alignment issue to ensure the expanded milestone details align perfectly with the parent table headers.
+
+## Deployment & Production state (v2.8)
+- **Status:** Pushed to `main`.
+- **Verification:** All PDF templates print successfully. Master table milestone rows expand to show detailed line items and accurate due-date indicators.
+
+---
+
+## v2.9 AUTHENTICATION & GUEST ROUTING FLOW — May 19, 2026
+
+### Phase XXXVI: Seamless Login/Signup Routing
+- ✅ AR-1 — Default Dashboard Redirection:
+  - Updated `app/login/page.tsx` and `app/signup/page.tsx` so the default fallback for new or un-targeted logins is `/dashboard` instead of the `/` marketing page.
+- ✅ AR-2 — Root Authentication Check:
+  - Enhanced `app/page.tsx` to automatically redirect users to `/dashboard` if they navigate to the root marketing page while already logged in.
+- ✅ AR-3 — Link Propagation:
+  - Fixed the toggle links between Login and Signup forms to strict preserve the `?next=` URL query parameter.
+
+### Phase XXXVII: Guest Export & Onboarding Recovery
+- ✅ AR-4 — Deferred Onboarding Context Preservation:
+  - Resolved an issue where guest users attempting to export a draft lost their context upon being forced through the Onboarding flow.
+  - Updated `app/auth/callback/route.ts` to seamlessly forward the `?next=/invoice/preview?restore=1` parameter to the Onboarding route.
+  - Updated `app/onboarding/page.tsx` to extract the `next` route from `window.location.search` and intelligently route the user back to their restored preview draft upon Onboarding completion.
+
+## Deployment & Production state (v2.9)
+- **Status:** Merged to `main` locally, preparing to push.
+- **Verification:** Guest drafts safely survive the forced-onboarding process and successfully restore on the preview screen. Existing users are cleanly routed to the dashboard.

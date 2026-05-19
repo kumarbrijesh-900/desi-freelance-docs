@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
@@ -110,6 +111,7 @@ function TrustIcon({ type, className }: { type: string; className?: string }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { scrollY } = useScroll();
@@ -123,6 +125,9 @@ export default function Home() {
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.replace("/dashboard");
+      }
       setIsLoggedIn(!!data.session);
     };
 
@@ -131,13 +136,16 @@ export default function Home() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.replace("/dashboard");
+      }
       setIsLoggedIn(!!session);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   return (
     <main className={appPageShellClass}>

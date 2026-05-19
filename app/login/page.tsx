@@ -33,7 +33,7 @@ function GoogleIcon({ className }: { className?: string }) {
 /* ─── Inner component reads search params ─── */
 function LoginCard() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  const next = searchParams.get("next") || "/dashboard";
   const isRestoring = next.includes("restore");
 
   const handleGoogleLogin = async () => {
@@ -72,7 +72,7 @@ function LoginCard() {
 
       <p className="mt-6 text-center text-[13px] text-[color:var(--text-secondary)]">
         Don't have an account?{" "}
-        <Link href="/signup" className="font-semibold text-[color:var(--brand-indigo)] hover:underline">
+        <Link href={`/signup${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-semibold text-[color:var(--brand-indigo)] hover:underline">
           Sign up
         </Link>
       </p>

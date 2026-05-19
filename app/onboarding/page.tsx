@@ -36,6 +36,14 @@ export default function OnboardingPage() {
     setStep(step + 1);
   };
 
+  const getNextRoute = () => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("next") || "/invoice/new";
+    }
+    return "/invoice/new";
+  };
+
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
@@ -63,7 +71,7 @@ export default function OnboardingPage() {
       const { error } = await upsertProfile(agencyDetails);
       if (error) throw new Error(error);
       
-      router.push("/invoice/new");
+      router.push(getNextRoute());
     } catch (err) {
       console.error("Onboarding failed:", err);
       setIsSubmitting(false);
@@ -71,7 +79,7 @@ export default function OnboardingPage() {
   };
 
   const skipOnboarding = () => {
-    router.push("/invoice/new");
+    router.push(getNextRoute());
   };
 
   return (

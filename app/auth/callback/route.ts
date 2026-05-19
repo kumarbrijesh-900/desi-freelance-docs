@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
 
         if (!profile) {
           // If no profile, redirect to onboarding
-          return NextResponse.redirect(new URL("/onboarding", requestUrl.origin));
+          const obUrl = new URL("/onboarding", requestUrl.origin);
+          const originalNext = requestUrl.searchParams.get("next");
+          if (originalNext) obUrl.searchParams.set("next", originalNext);
+          return NextResponse.redirect(obUrl);
         }
       }
 
