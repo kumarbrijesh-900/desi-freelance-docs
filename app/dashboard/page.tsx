@@ -693,6 +693,9 @@ export default function DashboardPage() {
   // 1. Filtered and Sorted clients list based on active filters
   const filteredAndSortedClients = clientsHealth
     .filter((client) => {
+      // Hide clients with zero invoices unless explicitly searching for them
+      if (client.invoices.length === 0 && !searchTerm) return false;
+
       // Client search query matching name or city
       if (searchTerm) {
         const query = searchTerm.toLowerCase().trim();
@@ -781,7 +784,7 @@ export default function DashboardPage() {
           {/* SECTION 1: GREETING STRIP */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-6 border-b-2 border-[#111118]">
             <div>
-              <h1 className="text-2xl font-black text-[#111118] m-0 font-syne antialiased">
+              <h1 className="text-2xl font-black text-[#111118] m-0 antialiased">
                 {getGreeting()}, {userName || "there"}
               </h1>
               <p className="text-[13px] text-[color:var(--text-muted)] mt-1">
@@ -804,11 +807,15 @@ export default function DashboardPage() {
           {/* SECTION 2: PINNED METRIC CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 py-6">
             {/* Card 1: Outstanding - hero card */}
+            {(() => { const isZero = metrics.outstanding === 0; return (
             <div
               onClick={() => setFilterType(filterType === "outstanding" ? "all" : "outstanding")}
               className={cn(
-                "relative border-2 border-[#111118] bg-[#FFFBE6] p-4 shadow-[var(--brutal-shadow-md)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-lg)] transition-all cursor-pointer select-none",
-                filterType === "outstanding" && "ring-4 ring-[#111118] bg-[#FFF8CC]"
+                "relative border-2 border-[#111118] p-4 transition-all select-none",
+                isZero && filterType !== "outstanding"
+                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
+                  : "bg-[#FFFBE6] shadow-[var(--brutal-shadow-md)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-lg)] cursor-pointer",
+                filterType === "outstanding" && "ring-4 ring-[#111118] bg-[#FFF8CC] !opacity-100"
               )}
               style={{ transform: "rotate(-0.5deg)" }}
             >
@@ -819,20 +826,25 @@ export default function DashboardPage() {
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 THEY OWE YOU
               </p>
-              <p className="text-[26px] font-black text-[#111118] tracking-[-0.02em] mt-0.5 font-syne antialiased">
+              <p className={cn("text-[26px] tracking-[-0.02em] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
                 ₹{formatIndian(metrics.outstanding)}
               </p>
               <p className="text-[12px] text-[color:var(--text-muted)]">
-                across {metrics.outstandingCount} invoices
+                across {metrics.outstandingCount} {metrics.outstandingCount === 1 ? 'invoice' : 'invoices'}
               </p>
             </div>
+            ); })()}
 
             {/* Card 2: Settled */}
+            {(() => { const isZero = metrics.settled === 0; return (
             <div
               onClick={() => setFilterType(filterType === "settled" ? "all" : "settled")}
               className={cn(
-                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
-                filterType === "settled" && "ring-4 ring-[#111118] bg-[#EBFDF9]"
+                "relative border-2 border-[#111118] p-4 transition-all select-none",
+                isZero && filterType !== "settled"
+                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
+                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
+                filterType === "settled" && "ring-4 ring-[#111118] bg-[#EBFDF9] !opacity-100"
               )}
               style={{ transform: "rotate(0.6deg)" }}
             >
@@ -843,20 +855,25 @@ export default function DashboardPage() {
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 MONEY IN
               </p>
-              <p className="text-[22px] font-black text-[#111118] mt-0.5 font-syne antialiased">
+              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
                 ₹{formatIndian(metrics.settled)}
               </p>
-              <p className="text-[12px] text-[#00967D] font-semibold">
+              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#00967D]")}>
                 {metrics.settledCount} settled
               </p>
             </div>
+            ); })()}
 
             {/* Card 3: Overdue */}
+            {(() => { const isZero = metrics.overdue === 0; return (
             <div
               onClick={() => setFilterType(filterType === "overdue" ? "all" : "overdue")}
               className={cn(
-                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
-                filterType === "overdue" && "ring-4 ring-[#111118] bg-[#FFF5F2]"
+                "relative border-2 border-[#111118] p-4 transition-all select-none",
+                isZero && filterType !== "overdue"
+                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
+                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
+                filterType === "overdue" && "ring-4 ring-[#111118] bg-[#FFF5F2] !opacity-100"
               )}
               style={{ transform: "rotate(-0.3deg)" }}
             >
@@ -867,37 +884,43 @@ export default function DashboardPage() {
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 OVERDUE
               </p>
-              <p className="text-[22px] font-black text-[#FF5C00] mt-0.5 font-syne antialiased">
+              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#FF5C00]")}>
                 ₹{formatIndian(metrics.overdue)}
               </p>
-              <p className="text-[12px] text-[#FF5C00] font-semibold">
-                {metrics.overdueCount} invoices
+              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#FF5C00]")}>
+                {metrics.overdueCount} {metrics.overdueCount === 1 ? 'invoice' : 'invoices'}
               </p>
             </div>
+            ); })()}
 
             {/* Card 4: Due this week */}
+            {(() => { const isZero = metrics.dueThisWeek === 0; return (
             <div
               onClick={() => setFilterType(filterType === "due_this_week" ? "all" : "due_this_week")}
               className={cn(
-                "relative border-2 border-[#111118] bg-white p-4 shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] transition-all cursor-pointer select-none",
-                filterType === "due_this_week" && "ring-4 ring-[#111118] bg-[#F7FFD6]"
+                "relative border-2 border-[#111118] p-4 transition-all select-none",
+                isZero && filterType !== "due_this_week"
+                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
+                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
+                filterType === "due_this_week" && "ring-4 ring-[#111118] bg-[#F7FFD6] !opacity-100"
               )}
               style={{ transform: "rotate(0.4deg)" }}
             >
-              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#BEFF00] border-2 border-[#111118]"></div>
+              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FBBF24] border-2 border-[#111118]"></div>
               {filterType === "due_this_week" && (
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#BEFF00] rounded-full border border-[#111118] animate-pulse"></div>
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FBBF24] rounded-full border border-[#111118] animate-pulse"></div>
               )}
               <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
                 DUE THIS WEEK
               </p>
-              <p className="text-[22px] font-black text-[#111118] mt-0.5 font-syne antialiased">
+              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
                 ₹{formatIndian(metrics.dueThisWeek)}
               </p>
-              <p className="text-[12px] text-[#FF5C00] font-semibold">
-                {metrics.dueThisWeekCount} invoices
+              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#FF5C00]")}>
+                {metrics.dueThisWeekCount} {metrics.dueThisWeekCount === 1 ? 'invoice' : 'invoices'}
               </p>
             </div>
+            ); })()}
           </div>
 
           {/* SECTION 3: ACTION NEEDED (conditional) */}
@@ -1036,7 +1059,7 @@ export default function DashboardPage() {
                     {/* Client name + city */}
                     <td className="px-4 py-3 align-top">
                       <p className="text-[13px] font-bold text-[#111118] m-0">{client.clientName}</p>
-                      <p className="text-[12px] text-[color:var(--text-muted)] m-0">{client.clientCity || ""}</p>
+                      <p className="text-[12px] text-[color:var(--text-muted)] m-0 mt-0.5">{client.clientCity || ""}</p>
                     </td>
 
                     {/* Invoice numbers stacked */}
@@ -1234,7 +1257,7 @@ export default function DashboardPage() {
             {/* Footer with double border */}
             <div className="border-t-[3px] border-double border-[#111118] px-4 py-2 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
               <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
-                Showing {filteredAndSortedClients.length} of {clientsHealth.length} clients · {filteredAndSortedClients.reduce((sum, c) => sum + c.invoices.length, 0)} invoices
+                Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
               </p>
               <div className="flex gap-4 flex-wrap">
                 <p className="text-[12px]">
@@ -1294,7 +1317,7 @@ export default function DashboardPage() {
                       <p className="text-[13px] text-[#111118] font-medium">
                         {item.entityLabel}
                       </p>
-                      <p className="text-[12px] text-[color:var(--text-muted)]">
+                      <p className="text-[12px] text-[color:var(--text-muted)] truncate max-w-[320px] sm:max-w-none">
                         {item.detail} — {timeAgo(item.createdAt)}
                       </p>
                     </div>
@@ -1350,7 +1373,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {deadlines.length > 0 ? (
-                  deadlines.slice(0, 5).map((d) => {
+                  deadlines.filter(d => d.daysUntilDue <= 21).slice(0, 5).map((d) => {
                     const formattedDueDate = new Date(d.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
                     const hasPassed = d.daysUntilDue <= 0;
 
@@ -1406,11 +1429,13 @@ export default function DashboardPage() {
                           <span
                             className={cn(
                               "text-[10px] font-black px-2 py-0.5 border-[1.5px] border-[#111118] shadow-[1px_1px_0_#111118] uppercase tracking-wider",
-                              d.daysUntilDue <= 2
+                              d.daysUntilDue <= 0
                                 ? "bg-[#FFF0EC] text-[#FF5C00]"
-                                : d.daysUntilDue <= 5
+                                : d.daysUntilDue <= 3
                                 ? "bg-[#FFFBE6] text-[#D97706]"
-                                : "bg-[#F7FFD6] text-[#84CC16]"
+                                : d.daysUntilDue <= 7
+                                ? "bg-[#F7FFD6] text-[#84CC16]"
+                                : "bg-[#F0F0F0] text-[color:var(--text-muted)]"
                             )}
                           >
                             {d.daysUntilDue === 0 ? "TODAY" : d.daysUntilDue === 1 ? "TOMORROW" : d.daysUntilDue === -1 ? "YESTERDAY" : `${d.daysUntilDue} DAYS`}
@@ -1421,7 +1446,7 @@ export default function DashboardPage() {
                   })
                 ) : (
                   <div className="px-3 py-4 text-center text-[12px] text-[color:var(--text-muted)]">
-                    No upcoming deadlines.
+                    {deadlines.length > 0 ? "No urgent deadlines (all 21+ days out)." : "No upcoming deadlines."}
                   </div>
                 )}
               </div>
@@ -1460,6 +1485,23 @@ export default function DashboardPage() {
               <div>
                 <p className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mb-1">CLIENT</p>
                 <p className="text-[15px] font-bold text-[#111118]">{selectedInvoice.clientName}</p>
+                <div className="flex gap-3 mt-2">
+                  <Link
+                    href={`/invoice/edit/${selectedInvoice.id}`}
+                    className="text-[11px] font-bold text-[color:var(--brand-indigo)] hover:underline uppercase tracking-wider"
+                  >
+                    Edit Invoice →
+                  </Link>
+                  {selectedInvoice.shareToken && (
+                    <Link
+                      href={`/share/${selectedInvoice.shareToken}`}
+                      target="_blank"
+                      className="text-[11px] font-bold text-[color:var(--text-muted)] hover:text-[#111118] hover:underline uppercase tracking-wider"
+                    >
+                      View Live →
+                    </Link>
+                  )}
+                </div>
               </div>
 
               {/* Quick Metrics Strip */}
