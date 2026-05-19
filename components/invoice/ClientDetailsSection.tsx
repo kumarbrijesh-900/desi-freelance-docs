@@ -428,8 +428,11 @@ export default function ClientDetailsSection({
                     <div className="pb-1.5">
                       <div className="flex items-center gap-3">
                         <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
-                        <div className="space-y-0.5">
+                        <div className="flex items-center gap-1.5">
                           <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">SEZ Unit</span>
+                          <AppTooltip content={<>
+                            Special Economic Zone. Supplies to SEZ units are treated as exports (Zero-rated supply under GST). IGST is applicable unless you provide a Letter of Undertaking (LUT).
+                          </>} />
                         </div>
                       </div>
                     </div>
