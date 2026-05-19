@@ -1136,17 +1136,23 @@ export default function DashboardPage() {
                     {/* Milestone stage pills - one row per invoice */}
                     <td className="hidden sm:table-cell px-4 py-3 align-top">
                       {client.invoices.map((inv) => (
-                        <div key={inv.id} className="flex flex-wrap gap-1.5 items-center mb-2 last:mb-0">
+                        <div key={inv.id} className="flex gap-1 items-center mb-2 last:mb-0 h-[22px]">
                           {inv.milestones.length > 0 ? (
                             inv.milestones.map((m, mi) => {
                               const s = (m.status || "").toLowerCase();
+                              const isDraft = s === "draft";
+                              const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
                               const bg = s === "settled" ? "#00DCB4"
                                 : s === "overdue" ? "#FF5C00"
                                 : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                : s === "draft" ? "#8B5CF6"
+                                : isDraft ? "#8B5CF6"
                                 : "#E0E0E0";
                               
-                              const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                              const title = m.title || "Untitled Milestone";
+                              const items = inv.lineItems || [];
+                              const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
+                              const mainServiceType = milestoneItems[0]?.type || inv.lineItems?.[0]?.description || "General Services";
+                              
                               let authIcon = "📜";
                               let authLabel = "Global MSA";
                               let authDesc = "Using default agency-wide terms.";
@@ -1160,44 +1166,101 @@ export default function DashboardPage() {
                                 authDesc = "Linked to Client Agreement.";
                               }
 
+                              // Due days calculation
+                              let dueDateText = "";
+                              let isLate = false;
+                              if (s === "settled") {
+                                dueDateText = "Settled";
+                              } else if (isPending) {
+                                const todayVal = new Date();
+                                const dueDateStr = inv.dueDate;
+                                if (dueDateStr) {
+                                  const dueDateObj = new Date(dueDateStr);
+                                  const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
+                                  if (diffDays < 0) {
+                                    isLate = true;
+                                    dueDateText = `${Math.abs(diffDays)} days past due`;
+                                  } else if (diffDays === 0) {
+                                    dueDateText = "Due today";
+                                  } else {
+                                    dueDateText = `${diffDays} days till due`;
+                                  }
+                                } else {
+                                  dueDateText = "Pending";
+                                }
+                              } else {
+                                dueDateText = "Upcoming";
+                              }
+
                               return (
                                 <div
                                   key={mi}
                                   onClick={() => setSelectedInvoice(inv)}
-                                  className="relative group cursor-pointer animate-reveal"
+                                  className="relative group cursor-pointer animate-reveal flex items-center gap-1"
                                 >
-                                  {/* Milestone Capsule Tag */}
-                                  <div className="inline-flex items-center gap-1.5 border border-[#111118] bg-white px-2 py-0.5 text-[11px] font-bold shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all select-none">
-                                    <span className="w-2.5 h-1.5 border border-[#111118] inline-block shrink-0" style={{ backgroundColor: bg }}></span>
-                                    <span className="text-[#111118]">
-                                      M{mi + 1}: {m.title}
-                                    </span>
-                                    <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-0.5">
-                                      ₹{formatIndian(m.amount)}
-                                    </span>
-                                    {s === "settled" && <span className="text-[#00967D] ml-0.5 font-black">✓</span>}
-                                    {s === "overdue" && <span className="text-[#FF5C00] ml-0.5 font-bold">⚠</span>}
+                                  {/* Square Timeline Segment */}
+                                  <div className="w-8 h-4 border-2 border-[#111118] flex items-center justify-center shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all" style={{ backgroundColor: bg }}>
+                                    {s === "settled" && <span className="text-[#111118] text-[10px] font-black leading-none mt-0.5">✓</span>}
+                                    {s === "overdue" && <span className="text-[#111118] text-[10px] font-black leading-none mt-0.5">!</span>}
                                   </div>
+                                  
+                                  {/* Connector Line (except last) */}
+                                  {mi < inv.milestones.length - 1 && (
+                                    <div className="w-2 h-[2px] bg-[#111118]"></div>
+                                  )}
 
-                                  {/* Tooltip */}
-                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                  {/* Mega Tooltip */}
+                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-72 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[4px_4px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
                                     <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                    <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
-                                      <span>M{mi + 1}: {m.title}</span>
-                                      <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black uppercase">
+                                    
+                                    {/* Header */}
+                                    <div className="flex justify-between items-start border-b-2 border-[#111118] pb-2 mb-2">
+                                      <div className="flex flex-col">
+                                        <span className="font-black text-[12px] uppercase tracking-wider">{title}</span>
+                                        <span className="text-[10px] font-bold text-[color:var(--text-muted)]">({mi + 1} of {inv.milestones.length})</span>
+                                      </div>
+                                      <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] font-black uppercase shadow-[1px_1px_0_#111118]" style={{ backgroundColor: bg }}>
                                         {s}
                                       </span>
-                                    </p>
-                                    <div className="mt-2 space-y-1">
-                                      <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(m.amount)}</span></p>
-                                      <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
-                                      <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
-                                        <p className="text-[11px] font-bold flex items-center gap-1">
-                                          <span>{authIcon}</span>
-                                          <span>{authLabel}</span>
-                                        </p>
-                                        <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
-                                      </div>
+                                    </div>
+
+                                    {/* Line Items Breakdown */}
+                                    <div className="mb-2 space-y-1">
+                                      {milestoneItems.length > 0 ? (
+                                        milestoneItems.map((li: any, idx: number) => (
+                                          <div key={idx} className="flex justify-between items-start text-[10px] leading-tight">
+                                            <div className="flex flex-col w-[70%]">
+                                              <span className="font-bold truncate">{li.description || "No description"}</span>
+                                              <span className="text-[9px] text-[color:var(--text-muted)]">{li.type || mainServiceType}</span>
+                                              <span className="text-[9px] text-[color:var(--text-muted)]">{li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)}</span>
+                                            </div>
+                                            <span className="font-bold whitespace-nowrap">₹{formatIndian((li.qty || 0) * (li.rate || 0))}</span>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="text-[10px] text-[color:var(--text-muted)] italic">No items attached.</div>
+                                      )}
+                                    </div>
+
+                                    {/* Totals & Timeline */}
+                                    <div className="border-t border-[#111118] pt-2 mt-2 space-y-1">
+                                      <p className="flex justify-between text-[11px]">
+                                        <span className="font-bold uppercase tracking-wider">Milestone Total</span>
+                                        <span className="font-black text-[12px]">₹{formatIndian(m.amount)}</span>
+                                      </p>
+                                      <p className="flex justify-between text-[11px]">
+                                        <span className="font-bold text-[color:var(--text-muted)] uppercase">Timeline</span>
+                                        <span className={`font-bold ${isLate ? 'text-[#FF5C00]' : ''}`}>{dueDateText}</span>
+                                      </p>
+                                    </div>
+
+                                    {/* Contract Authority */}
+                                    <div className="mt-2 pt-2 border-t border-dashed border-[#111118]/40">
+                                      <p className="text-[11px] font-bold flex items-center gap-1">
+                                        <span>{authIcon}</span>
+                                        <span>{authLabel}</span>
+                                      </p>
+                                      <p className="text-[10px] text-[color:var(--text-muted)] leading-tight mt-0.5">{authDesc}</p>
                                     </div>
                                   </div>
                                 </div>
@@ -1206,6 +1269,9 @@ export default function DashboardPage() {
                           ) : (
                             (() => {
                               const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
+                              const isDraft = (inv.status || "").toLowerCase() === "draft";
+                              const bg = isDraft ? "#8B5CF6" : "#E0E0E0";
+                              
                               let authIcon = "📜";
                               let authLabel = "Global MSA";
                               let authDesc = "Using default agency-wide terms.";
@@ -1218,38 +1284,28 @@ export default function DashboardPage() {
                                 authLabel = "Client MSA";
                                 authDesc = "Linked to Client Agreement.";
                               }
-                              const isDraft = (inv.status || "").toLowerCase() === "draft";
 
                               return (
                                 <div
                                   onClick={() => setSelectedInvoice(inv)}
                                   className="relative group cursor-pointer animate-reveal"
                                 >
-                                  {/* Simple Invoice Tag */}
-                                  <div className="inline-flex items-center gap-1.5 border border-[#111118] bg-white px-2 py-0.5 text-[11px] font-bold shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all select-none">
-                                    <span className="w-2.5 h-1.5 border border-[#111118] inline-block shrink-0" style={{ backgroundColor: isDraft ? "#8B5CF6" : "#E0E0E0" }}></span>
-                                    <span className="text-[#111118]">Simple Invoice</span>
-                                    <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-0.5">
-                                      ₹{formatIndian(inv.totalAmount)}
-                                    </span>
-                                    <span className="text-[9px] uppercase font-black text-[#5530DB] ml-1 bg-[#F0EAFF] border border-[#111118] px-1">
-                                      {inv.status}
-                                    </span>
-                                  </div>
+                                  {/* Single Square Timeline Segment */}
+                                  <div className="w-8 h-4 border-2 border-[#111118] shadow-[1px_1px_0_#111118] hover:translate-y-[-0.5px] hover:shadow-[2px_2px_0_#111118] transition-all" style={{ backgroundColor: bg }}></div>
 
-                                  {/* Tooltip */}
-                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[3px_3px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
+                                  {/* Mega Tooltip */}
+                                  <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-64 bg-[#FFFBE6] border-2 border-[#111118] p-3 text-[12px] shadow-[4px_4px_0_#111118] text-left text-[#111118] pointer-events-none select-none">
                                     <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#FFFBE6] border-b-2 border-r-2 border-[#111118] rotate-45"></div>
-                                    <p className="font-bold text-[12px] border-b border-[#111118] pb-1 uppercase tracking-wider flex justify-between items-center">
-                                      <span>{inv.invoiceNumber}</span>
-                                      <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#BEFF00] font-black">
-                                        {inv.status}
+                                    <p className="font-bold text-[12px] border-b-2 border-[#111118] pb-1 mb-2 uppercase tracking-wider flex justify-between items-center">
+                                      <span>Standard Invoice</span>
+                                      <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] font-black uppercase shadow-[1px_1px_0_#111118]" style={{ backgroundColor: bg }}>
+                                        {isDraft ? "DRAFT" : "LIVE"}
                                       </span>
                                     </p>
-                                    <div className="mt-2 space-y-1">
-                                      <p className="text-[11px]"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold">₹{formatIndian(inv.totalAmount)}</span></p>
-                                      <p className="text-[11px] truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
-                                      <div className="mt-1.5 pt-1.5 border-t border-dashed border-[#111118]/40">
+                                    <div className="space-y-1">
+                                      <p className="text-[11px] flex justify-between"><span className="font-bold text-[color:var(--text-muted)] uppercase">Amount:</span> <span className="font-bold text-[12px]">₹{formatIndian(inv.totalAmount)}</span></p>
+                                      <p className="text-[11px] flex justify-between truncate"><span className="font-bold text-[color:var(--text-muted)] uppercase">Item Type:</span> <span className="font-semibold">{mainServiceType}</span></p>
+                                      <div className="mt-2 pt-2 border-t border-dashed border-[#111118]/40">
                                         <p className="text-[11px] font-bold flex items-center gap-1">
                                           <span>{authIcon}</span>
                                           <span>{authLabel}</span>

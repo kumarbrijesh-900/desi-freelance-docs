@@ -863,3 +863,25 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 ## Deployment & Production state (v2.9)
 - **Status:** Merged to `main` locally, preparing to push.
 - **Verification:** Guest drafts safely survive the forced-onboarding process and successfully restore on the preview screen. Existing users are cleanly routed to the dashboard.
+
+---
+
+## v2.10 DASHBOARD MILESTONE TIMELINE UX — May 19, 2026
+
+### Phase XXXVIII: Neo-Brutalist Segmented Timeline & Mega Tooltip
+- ✅ DB-UX-1 — Horizontal Segmented Timeline:
+  - Replaced the bulky, vertically stacked text capsules in the Client Ledger's "Stages" column with a highly compact, horizontal segmented progress bar (e.g., `[✓]──[!]──[ ]`).
+  - Segments are color-coded according to the global status key (Lime = Live, Teal = Settled, Orange = Overdue, Purple = Draft).
+  - This severely reduces vertical row height bloat for multi-stage invoices, improving scannability.
+- ✅ DB-UX-2 — Context-Hub "Mega Tooltip":
+  - Overhauled the hover tooltip for each segment block into a massive, data-rich context card.
+  - **Progress Context**: Displays current milestone vs total (e.g., `2 of 3`).
+  - **Line Item Breakdown**: Exposes nested line-item details natively in the dashboard (Description, Item Type, Quantity, Unit, Rate, and Line Total).
+  - **Timeline Computations**: Calculates and displays dynamic relative due dates (`"8 days till due"` or `"2 days past due"`) strictly for the `LIVE`/`OVERDUE` milestones based on native JavaScript `Date` math.
+  - **Fallback States**: Handles empty states gracefully (e.g., "Untitled Milestone", "No items attached").
+- ✅ DB-UX-3 — TypeScript & Data Integrity:
+  - Ensured all mapped invoice attributes (`inv.lineItems`, `inv.dueDate`) correctly align with the `dashboardClients` mapping layer to prevent compilation errors and guarantee safe rendering.
+
+## Deployment & Production state (v2.10)
+- **Status:** Pushed to `main`.
+- **Verification:** Segmented timeline renders cleanly; mega tooltip correctly maps specific line-item data and calculates relative due dates accurately without breaking the Neo-Brutalist container bounds. Compilation succeeds with Exit Code 0.
