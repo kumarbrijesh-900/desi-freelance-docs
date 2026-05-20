@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
 import { z } from "zod";
 
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
+  const supabaseAuth = await createServerClient();
 
   try {
     const body = await req.json();
@@ -34,6 +36,39 @@ export async function POST(req: NextRequest) {
     }
     const { shareToken, response, note } = result.data;
 
+    // 0. Fetch the invoice to check ownership
+    const { data: existingInvoice, error: fetchErr } = await supabaseAdmin
+      .from("invoices")
+      .select("id, user_id, invoice_number, shared_to_email, form_data")
+      .eq("share_token", shareToken)
+      .single();
+
+    if (fetchErr || !existingInvoice) {
+      console.error("MSA_RESPONSE_FETCH_ERROR:", fetchErr);
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+
+    // SECURITY GUARD: invoice owners cannot accept or reject their own MSA.
+    // This protects the audit trail integrity. The agency can preview the
+    // share page but the acceptance action is reserved for the client.
+    const {
+      data: { user: __mssa_currentUser },
+    } = await supabaseAuth.auth.getUser();
+    if (
+      __mssa_currentUser &&
+      existingInvoice &&
+      __mssa_currentUser.id === existingInvoice.user_id
+    ) {
+      return NextResponse.json(
+        {
+          error: "owner_cannot_accept_own_msa",
+          message:
+            "The invoice owner cannot accept or reject their own MSA. Send the share link to your client.",
+        },
+        { status: 403 }
+      );
+    }
+
     // 1. Update the invoice status
     const { data: inv, error: updateErr } = await supabaseAdmin
       .from("invoices")
@@ -43,7 +78,7 @@ export async function POST(req: NextRequest) {
         msa_responded_at: new Date().toISOString(),
         client_msa_note: note || null,
       })
-      .eq("share_token", shareToken)
+      .eq("id", existingInvoice.id)
       .select("id, user_id, invoice_number, shared_to_email, form_data")
       .single();
 
