@@ -821,6 +821,106 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 
 ---
 
+# v2.8 SECURITY HARDENING — MSA Self-Acceptance Prevention — May 21, 2026
+
+> Chronologically slots between v2.10 and v2.11 (commits made same day as v2.11 work).
+> Renumber if needed when merging into SESSION_LOG.md.
+
+## Vulnerability closed
+
+Dashboard side panel previously exposed a "VIEW LIVE →" link to `/share/[token]` for every invoice. An authenticated agency owner could click it, land on their own invoice's client-facing share page, click Accept Terms, and self-accept their own MSA — corrupting the audit trail that the platform's entire legal value proposition depends on. Discovered through routine UX review.
+
+## Three defense layers (all live in prod)
+
+1. **UI removal (agency has no path).**
+   All authenticated-app paths to `/share/[token]` removed. The Resend email sent to the client is now the only entry point to the share route. (`app/dashboard/page.tsx`)
+
+2. **Server-side redirect (owner reaching the URL is bounced).**
+   New `app/share/[token]/layout.tsx` runs server-side on every visit. Checks `supabase.auth.getSession()`; if authenticated AND `session.user.id === invoice.user_id`, redirects to `/invoice/[id]/client-preview` before the share page renders. Anon clients and authenticated non-owners pass through unchanged.
+
+3. **DB trigger backstop (catches any future code path).**
+   `block_owner_msa_self_accept_trigger` BEFORE UPDATE on `public.invoices` raises `owner_cannot_accept_own_msa` exception if `auth.uid() = NEW.user_id` AND any of the 5 MSA columns (`msa_status`, `msa_response`, `msa_responded_at`, `msa_accepted_at`, `client_msa_note`) is being changed. Bypassed for `service_role` and for anon (NULL `auth.uid()`).
+
+## New Preview-as-Client route
+
+- `/invoice/[id]/client-preview` — authenticated server component, owner-only.
+- Renders identical MSA + addendum + invoice content to `/share/[token]` via the shared `SharedMsaPreviewContent` component (mode = `"agency-preview"`).
+- Accept Terms button replaced by a PREVIEW MODE banner.
+- Uses `loadMsaForSharedInvoice` helper for zero-drift parity with the client view.
+- Linked from dashboard side panel as "Preview as Client →" (replaces the removed "View Live →").
+- **Side benefit:** this same route serves as the agency's live view of MSA negotiation state — exactly what v2.11's Command Center MSA Revision card surfaces.
+
+## Files touched
+
+| File | Change |
+|---|---|
+| `app/dashboard/page.tsx` | Removed "View Live →"; added "Preview as Client →" |
+| `app/share/[token]/page.tsx` | Refactored rendering into shared component (anon client flow unchanged) |
+| `app/share/[token]/layout.tsx` | NEW — server-side owner redirect |
+| `app/invoice/[id]/client-preview/page.tsx` | NEW — preview route |
+| `components/invoice/share/SharedMsaPreviewContent.tsx` | NEW — pure presentational, mode-aware |
+| `app/api/msa-response/route.ts` | Owner-equality guard added (currently unreachable; activates if share page is ever refactored to call this API instead of direct PostgREST writes) |
+| `supabase/migrations/20260520_lock_msa_columns_from_authenticated.sql` | Trigger function + trigger. *Filename inherited from failed REVOKE attempt; content is the trigger.* |
+
+## Commits landed
+
+- `f1d4844` chore: gitignore `.agents/`
+- `7a4e3d0` v2.8 sec: BEFORE UPDATE trigger blocks owner self-accepting own MSA
+- `72d4bff` v2.8 sec: add owner-equality guard in `/api/msa-response` (defense in depth)
+- `4a16811` v2.8 sec: remove View Live link from dashboard side panel
+- Preview-as-Client commit (covering layout.tsx + shared component + new route + dashboard link) — verify it landed via `git log --oneline | head -10`
+
+## Known UX gap (deferred, not blocking)
+
+In agency-preview mode when `msaStatus === "pending"`, the invoice is rendered blurred but the `MSAAcceptanceModal` is NOT rendered (intentional — agency cannot see the Accept button). Side effect: **agency cannot read the MSA terms in preview**, defeating part of the preview's purpose.
+
+Fix: render the modal in agency-preview mode too, with the Accept button replaced by the PREVIEW banner inside the modal. Estimated ~30-line change to `SharedMsaPreviewContent.tsx`.
+
+## Open security item — anon RLS not yet diagnosed
+
+Last anon client UPDATE on `/share/[token]` returned 406 / `PGRST116` "The result contains 0 rows" — meaning RLS may be silently blocking legitimate client MSA acceptance. This may have been broken since v1, with every "accepted" MSA in the DB being owner self-accepts (the exact bug v2.8 closes).
+
+Diagnostic queries:
+
+```sql
+-- 1. What UPDATE policies exist on invoices, for which roles?
+SELECT polname, polcmd,
+       (SELECT array_agg(rolname) FROM pg_roles WHERE oid = ANY(polroles)) AS roles,
+       pg_get_expr(polqual, polrelid) AS using_clause,
+       pg_get_expr(polwithcheck, polrelid) AS with_check_clause
+FROM pg_policy
+WHERE polrelid = 'public.invoices'::regclass
+ORDER BY polcmd, polname;
+
+-- 2. Reality check on historical acceptance source
+SELECT msa_status,
+       COUNT(*) AS total,
+       COUNT(*) FILTER (WHERE msa_accepted_at IS NOT NULL) AS accepted_timestamps,
+       COUNT(*) FILTER (WHERE msa_responded_at IS NOT NULL) AS responded_timestamps
+FROM public.invoices
+GROUP BY msa_status;
+```
+
+If anon has no UPDATE policy on the MSA columns: add a scoped policy allowing UPDATE on the 5 MSA columns only when `share_token IS NOT NULL`. The trigger already prevents owner abuse, so the policy can be permissive on share_token presence.
+
+## Load-bearing — do not modify without re-audit
+
+- Trigger bypass conditions (`current_user = 'service_role'` and `auth.uid() IS NULL`) — modifying either reopens the vector or breaks the legit client flow.
+- `app/share/[token]/layout.tsx` owner check — removing it restores the original vulnerability.
+- `SharedMsaPreviewContent.tsx` `mode === "client"` vs `mode === "agency-preview"` branches must remain mutually exclusive.
+
+## Interaction with v2.11
+
+- v2.11's Command Center MSA Revision card reads from `client_msa_note` and `msa_status` — same columns the trigger protects. The trigger permits anon (client) writes and service_role writes, so v2.11's read-surfacing has no conflict.
+- v2.11's new `cancelled` invoice status check constraint is orthogonal to the MSA acceptance flow. No interaction.
+
+## OFFLINE feature status (separate workstream — incomplete as of v2.8 ship)
+
+Not part of v2.8 security work, but worth tracking:
+
+- Phase 1 (schema + types + helpers): no longer visible in current repo — either committed earlier and forgotten, or rolled back. Verify via `ls components/invoice/DownloadDecisionModal.tsx lib/invoice-channel-helpers.ts`.
+- Phase 3.1 (status corruption fix in `handleDownloadPdf`): never executed. If the OFFLINE feature is shipped in current form, the offline download path will corrupt invoice status to `SENT`. Check before assuming offline works.
+
 ## v2.8 INVOICE TEMPLATE & MASTER TABLE ENHANCEMENTS — May 19, 2026
 
 ### Phase XXXIV: Invoice PDF Printability & Rendering Polish
