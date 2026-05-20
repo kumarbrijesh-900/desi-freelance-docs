@@ -704,19 +704,6 @@ export default function DashboardPage() {
     initDashboard();
   }, [router]);
 
-  if (loading) {
-    return (
-      <div className={appPageShellClass}>
-        <AppHeader />
-        <main className={cn(appPageContainerClass, "py-12 flex justify-center items-center")}>
-          <div className="text-[13px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
-            Loading dashboard...
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   // Handle automatic selection of invoice from URL parameter
   useEffect(() => {
     if (!loading && clientsHealth.length > 0) {
@@ -732,6 +719,19 @@ export default function DashboardPage() {
       }
     }
   }, [loading, clientsHealth]);
+
+  if (loading) {
+    return (
+      <div className={appPageShellClass}>
+        <AppHeader />
+        <main className={cn(appPageContainerClass, "py-12 flex justify-center items-center")}>
+          <div className="text-[13px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+            Loading dashboard...
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // Find the first overdue invoice
   const firstOverdueInvoice = clientsHealth
