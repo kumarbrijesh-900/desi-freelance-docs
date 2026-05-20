@@ -739,19 +739,6 @@ export default function DashboardPage() {
     }
   }, [loading, clientsHealth]);
 
-  if (loading) {
-    return (
-      <div className={appPageShellClass}>
-        <AppHeader />
-        <main className={cn(appPageContainerClass, "py-12 flex justify-center items-center")}>
-          <div className="text-[13px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
-            Loading dashboard...
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   // ─── INVOICE COMMAND CENTER: Derive actionable invoices ───
   interface ActionCard {
     type: "msa_revision" | "past_due" | "due_soon" | "msa_pending" | "draft";
@@ -902,6 +889,19 @@ export default function DashboardPage() {
     if (daysPast > 7) return "Send Firm Reminder";
     return "⚡ Send Payment Nudge";
   };
+
+  if (loading) {
+    return (
+      <div className={appPageShellClass}>
+        <AppHeader />
+        <main className={cn(appPageContainerClass, "py-12 flex justify-center items-center")}>
+          <div className="text-[13px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+            Loading dashboard...
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // 1. Filtered and Sorted clients list based on active filters
   const filteredAndSortedClients = clientsHealth
