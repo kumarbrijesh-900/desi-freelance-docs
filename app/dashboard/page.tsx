@@ -1133,111 +1133,105 @@ export default function DashboardPage() {
                       ))}
                     </td>
 
-                    {/* Milestone stage detailed view - one container per invoice */}
-                    <td className="hidden sm:table-cell px-4 py-3 align-top min-w-[280px] max-w-[360px]">
+                    {/* Milestone stage details - one row per invoice */}
+                    <td className="hidden sm:table-cell px-4 py-3 align-top max-w-[340px]">
                       {client.invoices.map((inv) => (
-                        <div key={inv.id} className="mb-4 last:mb-0 border-2 border-[#111118] bg-white p-2.5 shadow-[2px_2px_0_#111118] text-[#111118]">
-                          {/* Invoice Meta Row */}
-                          <div className="flex justify-between items-center border-b border-[#111118] pb-1.5 mb-2">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-[color:var(--text-muted)]">
-                              {inv.invoiceNumber}
-                            </span>
-                            <span className="text-[9px] px-1.5 py-0.5 border-2 border-[#111118] bg-[#BEFF00] font-black uppercase shadow-[1px_1px_0_#111118]">
-                              {inv.status}
-                            </span>
+                        <div key={inv.id} className="mb-3 last:mb-0 border border-[#111118] bg-white p-2 shadow-[1px_1px_0_#111118]">
+                          {/* Invoice Label */}
+                          <div className="text-[10px] uppercase font-extrabold text-[color:var(--text-muted)] border-b border-[#111118]/20 pb-1 mb-1.5 flex justify-between">
+                            <span>{inv.invoiceNumber}</span>
+                            <span className="font-extrabold text-[#111118]">₹{formatIndian(inv.totalAmount)}</span>
                           </div>
 
                           {inv.milestones.length > 0 ? (
-                            inv.milestones.map((m, mi) => {
-                              const s = (m.status || "").toLowerCase();
-                              const isDraft = s === "draft";
-                              const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
-                              const bg = s === "settled" ? "#00DCB4"
-                                : s === "overdue" ? "#FF5C00"
-                                : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                : isDraft ? "#8B5CF6"
-                                : "#E0E0E0";
-                              
-                              const title = m.title;
-                              const items = inv.lineItems || [];
-                              const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
-                              const mainServiceType = milestoneItems[0]?.type || inv.lineItems?.[0]?.description || "General Services";
-                              
-                              // Due days calculation
-                              let dueDateText = "";
-                              let isLate = false;
-                              if (s === "settled") {
-                                dueDateText = "Settled";
-                              } else if (isPending) {
-                                const todayVal = new Date();
-                                const dueDateStr = inv.dueDate;
-                                if (dueDateStr) {
-                                  const dueDateObj = new Date(dueDateStr);
-                                  const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
-                                  if (diffDays < 0) {
-                                    isLate = true;
-                                    dueDateText = `${Math.abs(diffDays)} days past due`;
-                                  } else if (diffDays === 0) {
-                                    dueDateText = "Due today";
+                            <div className="space-y-2">
+                              {inv.milestones.map((m, mi) => {
+                                const s = (m.status || "").toLowerCase();
+                                const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
+                                const bg = s === "settled" ? "#00DCB4"
+                                  : s === "overdue" ? "#FF5C00"
+                                  : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
+                                  : s === "draft" ? "#8B5CF6"
+                                  : "#E0E0E0";
+                                
+                                const title = m.title || "(No Milestone Title)";
+                                const items = inv.lineItems || [];
+                                const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
+                                const mainServiceType = milestoneItems[0]?.type || inv.lineItems?.[0]?.description || "General Services";
+
+                                // Due days calculation
+                                let dueDateText = "";
+                                let isPastDue = false;
+                                if (s === "settled") {
+                                  dueDateText = "Settled";
+                                } else if (isPending) {
+                                  const todayVal = new Date();
+                                  const dueDateStr = inv.dueDate;
+                                  if (dueDateStr) {
+                                    const dueDateObj = new Date(dueDateStr);
+                                    const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
+                                    if (diffDays < 0) {
+                                      isPastDue = true;
+                                      dueDateText = `${Math.abs(diffDays)} days past due`;
+                                    } else if (diffDays === 0) {
+                                      dueDateText = "Due today";
+                                    } else {
+                                      dueDateText = `${diffDays} days till due date`;
+                                    }
                                   } else {
-                                    dueDateText = `${diffDays} days till due`;
+                                    dueDateText = "Pending";
                                   }
                                 } else {
-                                  dueDateText = "Pending";
+                                  dueDateText = "Upcoming";
                                 }
-                              } else {
-                                dueDateText = "Upcoming";
-                              }
 
-                              return (
-                                <div key={mi} className="mb-2.5 last:mb-0 border border-[#111118]/25 p-2 bg-[#FFFBE6]/20">
-                                  {/* Milestone header */}
-                                  <div className="flex justify-between items-start mb-1.5 pb-1 border-b border-[#111118]/10">
-                                    <div className="flex items-center gap-1.5 max-w-[60%]">
-                                      <span className="w-2 h-2 border border-[#111118] shrink-0" style={{ backgroundColor: bg }}></span>
-                                      <span className="font-bold text-[11px] uppercase truncate">
-                                        {title ? `M${mi + 1}: ${title}` : <span className="italic text-[color:var(--text-muted)] tracking-normal normal-case font-medium">(No Title Provided)</span>}
+                                return (
+                                  <div key={mi} className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[11px] leading-relaxed">
+                                    {/* Milestone Header */}
+                                    <div className="flex justify-between items-start border-b border-[#111118]/20 pb-1 mb-1">
+                                      <span className="font-extrabold text-[#111118] truncate max-w-[70%]">{title}</span>
+                                      <span className="text-[9px] font-black uppercase px-1 border border-[#111118]" style={{ backgroundColor: bg }}>
+                                        {s}
                                       </span>
                                     </div>
-                                    <span className={`text-[9px] font-black uppercase ${isLate ? "text-[#FF5C00]" : "text-[color:var(--text-muted)]"}`}>
-                                      {dueDateText}
-                                    </span>
-                                  </div>
 
-                                  {/* Line items list */}
-                                  <div className="space-y-1.5 my-2">
-                                    {milestoneItems.length > 0 ? (
-                                      milestoneItems.map((li: any, idx: number) => (
-                                        <div key={idx} className="text-[10px] text-[color:var(--text-muted)] leading-tight flex justify-between items-start gap-2">
-                                          <div className="flex flex-col max-w-[70%]">
-                                            <span className="font-bold text-[#111118] truncate">{li.description || "No description"}</span>
-                                            <span className="text-[9px]">{li.type || mainServiceType}</span>
-                                            <span className="text-[9px] italic font-semibold">{li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)}</span>
+                                    {/* Detailed Line Items */}
+                                    <div className="space-y-1 mt-1 text-[10px]">
+                                      {milestoneItems.length > 0 ? (
+                                        milestoneItems.map((li: any, liIdx: number) => (
+                                          <div key={liIdx} className="text-[#111118]/90">
+                                            <span className="font-bold">• {li.description || "No description"}</span>
+                                            <div className="text-[9px] text-[color:var(--text-muted)] pl-2">
+                                              {li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)} ({li.type || mainServiceType})
+                                            </div>
                                           </div>
-                                          <span className="font-bold text-[#111118] whitespace-nowrap">₹{formatIndian((li.qty || 0) * (li.rate || 0))}</span>
-                                        </div>
-                                      ))
-                                    ) : (
-                                      <div className="text-[9px] text-[color:var(--text-muted)] italic">No items attached.</div>
-                                    )}
-                                  </div>
+                                        ))
+                                      ) : (
+                                        <div className="text-[9px] text-[color:var(--text-muted)] italic pl-2">No description or line items provided</div>
+                                      )}
+                                    </div>
 
-                                  {/* Milestone Total */}
-                                  <div className="flex justify-between items-center pt-1.5 border-t border-dashed border-[#111118]/20">
-                                    <span className="text-[9px] font-bold uppercase text-[color:var(--text-muted)]">Milestone Total</span>
-                                    <span className="font-black text-[11px]">₹{formatIndian(m.amount)}</span>
+                                    {/* Footer */}
+                                    <div className="border-t border-[#111118]/20 pt-1 mt-1 flex justify-between items-center text-[10px] font-semibold">
+                                      <span className={isPastDue ? "text-[#FF5C00] font-black" : "text-[color:var(--text-muted)]"}>
+                                        {dueDateText}
+                                      </span>
+                                      <span className="font-bold text-[#111118]">
+                                        Total: ₹{formatIndian(m.amount)}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            })
+                                );
+                              })}
+                            </div>
                           ) : (
                             (() => {
                               const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
                               return (
-                                <div className="text-[10px] p-1 space-y-1">
-                                  <div className="flex justify-between font-bold">
-                                    <span>{mainServiceType}</span>
-                                    <span>₹{formatIndian(inv.totalAmount)}</span>
+                                <div className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[10px] leading-relaxed">
+                                  <div className="font-extrabold border-b border-[#111118]/20 pb-1 mb-1 uppercase">Standard Invoice</div>
+                                  <div className="text-[color:var(--text-muted)]">
+                                    Type: {mainServiceType} | Amount: ₹{formatIndian(inv.totalAmount)}
                                   </div>
                                 </div>
                               );

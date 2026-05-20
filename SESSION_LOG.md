@@ -866,21 +866,22 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 
 ---
 
-## v2.10 DASHBOARD MILESTONE TIMELINE UX — May 19, 2026
+## v2.10 DASHBOARD MILESTONE RICH STAGES — May 20, 2026
 
-### Phase XXXVIII: Neo-Brutalist Segmented Timeline & Mega Tooltip
-- ✅ DB-UX-1 — Horizontal Segmented Timeline:
-  - Replaced the bulky, vertically stacked text capsules in the Client Ledger's "Stages" column with a highly compact, horizontal segmented progress bar (e.g., `[✓]──[!]──[ ]`).
-  - Segments are color-coded according to the global status key (Lime = Live, Teal = Settled, Orange = Overdue, Purple = Draft).
-  - This severely reduces vertical row height bloat for multi-stage invoices, improving scannability.
-- ✅ DB-UX-2 — Context-Hub "Mega Tooltip":
-  - Overhauled the hover tooltip for each segment block into a massive, data-rich context card.
-  - **Progress Context**: Displays current milestone vs total (e.g., `2 of 3`).
-  - **Line Item Breakdown**: Exposes nested line-item details natively in the dashboard (Description, Item Type, Quantity, Unit, Rate, and Line Total).
-  - **Timeline Computations**: Calculates and displays dynamic relative due dates (`"8 days till due"` or `"2 days past due"`) strictly for the `LIVE`/`OVERDUE` milestones based on native JavaScript `Date` math.
-  - **Fallback States**: Handles empty states gracefully (e.g., "Untitled Milestone", "No items attached").
+### Phase XXXVIII: Neo-Brutalist Detailed Stages Card
+- ✅ DB-UX-1 — Direct detailed cards:
+  - Replaced the minimal segmented boxes in the Client Ledger's "Stages" column with beautiful, rich Neo-Brutalist milestone cards that render directly inside the table.
+  - This solves the confusion of purely graphical boxes, presenting the user with immediate context at a glance.
+- ✅ DB-UX-2 — Dense Milestone Breakdown:
+  - Each milestone card displays:
+    - Milestone Title (with a clean fallback if empty: `(No Milestone Title)`)
+    - Dynamic color-coded status badge (Teal for Settled, Orange for Overdue, Lime for Live, Purple for Draft)
+    - Full list of nested Line Items, including Description, Quantity, Unit, Rate, and Item Type
+    - Computes and displays dynamic relative due dates (e.g. `8 days till due date` or `2 days past due` in warning orange)
+    - Total milestone amount dynamically formatted in Indian Rupees format (e.g. `Total: ₹10,288`)
 - ✅ DB-UX-3 — TypeScript & Data Integrity:
-  - Ensured all mapped invoice attributes (`inv.lineItems`, `inv.dueDate`) correctly align with the `dashboardClients` mapping layer to prevent compilation errors and guarantee safe rendering.
+  - Configured layout container limits to gracefully bound the detailed cards without breaking the layout of other table columns.
+  - Verified TS build integrity to ensure all object property mapping aligns correctly.
 
 ## Deployment & Production state (v2.10)
 - **Status:** Pushed to `main`.
