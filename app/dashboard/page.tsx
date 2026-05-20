@@ -1525,6 +1525,12 @@ export default function DashboardPage() {
                   >
                     Edit Invoice →
                   </Link>
+                  <Link
+                    href={`/invoice/${selectedInvoice.id}/client-preview`}
+                    className="text-[11px] font-bold text-[color:var(--brand-indigo)] hover:underline uppercase tracking-wider"
+                  >
+                    Preview as Client →
+                  </Link>
                 </div>
               </div>
 
