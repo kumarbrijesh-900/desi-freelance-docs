@@ -717,6 +717,22 @@ export default function DashboardPage() {
     );
   }
 
+  // Handle automatic selection of invoice from URL parameter
+  useEffect(() => {
+    if (!loading && clientsHealth.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const invoiceIdParam = params.get("invoiceId");
+      if (invoiceIdParam) {
+        const invToSelect = clientsHealth.flatMap(c => c.invoices).find(inv => inv.id === invoiceIdParam);
+        if (invToSelect) {
+          setSelectedInvoice(invToSelect);
+          // Remove the query param so it doesn't persist on reloads
+          window.history.replaceState(null, '', '/dashboard');
+        }
+      }
+    }
+  }, [loading, clientsHealth]);
+
   // Find the first overdue invoice
   const firstOverdueInvoice = clientsHealth
     .flatMap((c) => c.invoices)

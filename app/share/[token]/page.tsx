@@ -17,6 +17,7 @@ export default function PublicInvoiceSharePage({
   const [formData, setFormData] = useState<InvoiceFormData | null>(null);
   const [templateId, setTemplateId] = useState("classic");
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [invoiceId, setInvoiceId] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
@@ -47,6 +48,7 @@ export default function PublicInvoiceSharePage({
         setFormData(fd);
         setTemplateId(data.template_id || "classic");
         setInvoiceNumber(data.invoice_number || "");
+        setInvoiceId(data.id || "");
         
         // Check if this is a child milestone invoice
         if (data.parent_invoice_id) {
@@ -165,6 +167,7 @@ export default function PublicInvoiceSharePage({
     <>
       <SharedMsaPreviewContent
         invoice={{
+          id: invoiceId,
           formData,
           templateId,
           invoiceNumber,

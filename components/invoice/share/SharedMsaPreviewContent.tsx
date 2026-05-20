@@ -8,9 +8,11 @@ import { cn } from "@/lib/ui-foundation";
 import MSAAcceptanceModal from "@/components/invoice/share/MSAAcceptanceModal";
 import { prepareTemplateData } from "@/lib/templates/template-data";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface SharedMsaPreviewContentProps {
   invoice: {
+    id: string;
     formData: InvoiceFormData;
     templateId: string;
     invoiceNumber: string;
@@ -34,6 +36,7 @@ export default function SharedMsaPreviewContent({
   isSubmittingMsa = false,
 }: SharedMsaPreviewContentProps) {
   const {
+    id,
     formData,
     templateId,
     invoiceNumber,
@@ -41,6 +44,8 @@ export default function SharedMsaPreviewContent({
     parentMsaAcceptedOn,
     isMsaPending,
   } = invoice;
+
+  const router = useRouter();
 
   const templateData = formData ? prepareTemplateData(formData) : null;
   const currencySymbol = templateData?.displayCurrency === "USD" ? "$" : "₹";
@@ -78,14 +83,25 @@ export default function SharedMsaPreviewContent({
               Lance
             </span>
           </a>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="border-2 border-[#111118] bg-white px-5 py-2.5 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
-          >
-            <PrinterIcon className="h-4 w-4 inline mr-2" />
-            Download PDF
-          </button>
+          <div className="flex items-center gap-3">
+            {mode === "agency-preview" && (
+              <button
+                type="button"
+                onClick={() => router.push(`/dashboard?invoiceId=${id}`)}
+                className="border-2 border-[#111118] bg-[#FFD700] px-5 py-2.5 text-[13px] font-bold uppercase text-[#111118] shadow-[4px_4px_0_#111118] hover:bg-[#FFED4A] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+              >
+                Close Preview
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="border-2 border-[#111118] bg-white px-5 py-2.5 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
+            >
+              <PrinterIcon className="h-4 w-4 inline mr-2" />
+              Download PDF
+            </button>
+          </div>
         </div>
 
         {/* ── Payment Summary Banner ── */}

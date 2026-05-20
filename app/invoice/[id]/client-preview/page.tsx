@@ -68,6 +68,7 @@ export default async function ClientPreviewPage({
   return (
     <SharedMsaPreviewContent
       invoice={{
+        id: invoice.id,
         formData,
         templateId: invoice.template_id || "classic",
         invoiceNumber: invoice.invoice_number || "",
