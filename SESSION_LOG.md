@@ -929,3 +929,55 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
   - `/invoice/new` mobile Invoice Details edit mode PO #.
   - `/invoice/new` mobile Totals RCM toggle feedback.
 
+---
+
+## v2.11 SPARK LEDGER ACCORDION, COMMAND CENTER & SMART ACTIONS — May 21, 2026
+
+### Phase XXXIX: Accordion Ledger with Spark Bars
+- ✅ SL-1 — Neo-Brutalist Accordion Redesign:
+  - Completely replaced the rigid, verbose Client Ledger table with a clean, fully collapsible Neo-Brutalist accordion layout.
+  - Refined the layout into a high-fidelity accordion table to align columns (Client, Invoices, Progress, Receivable, Health) perfectly.
+  - Collapsed state presents Client Name, active invoice counts, total receivable vs. collected totals, and Client Standing health indicators at a glance.
+  - Mobile UX: Kept accordion expanded by default on small viewports so all client milestones and actions remain instantly visible.
+- ✅ SL-2 — Interactive Segmented Spark Bars:
+  - Integrated custom graphical "Spark Bars" in the collapsed client rows.
+  - Shows visual segments colored by milestone status (Teal for Settled, Orange for Overdue, Lime for Live, Purple for Draft/Pending) proportional to their financial weight, allowing instant pipeline visualization.
+  - Expanded detail drawer reveals detailed milestone stage cards, line items, relative due-date countups/countdowns, and contextual actions.
+
+### Phase XL: Invoice Command Center & Action Engine
+- ✅ CC-1 — Intelligent Command Center Panel:
+  - Introduced the **Invoice Command Center** to replace static notifications with proactive, card-based tasks for the freelancer.
+  - Dynamically computes and alerts the user about actionable invoices across 5 critical vectors:
+    - **MSA Revision**: Triggered when a client proposes terms or notes in the MSA modal, offering direct links to the relevant client MSA settings, project addendums, or global settings.
+    - **Past Due**: Highlights overdue invoices with direct "Settle" actions.
+    - **Due Soon**: Nudges invoices nearing due dates with a quick-nudge mailer.
+    - **MSA Pending**: Details sent invoices awaiting contract signature.
+    - **Draft**: Lists active drafts that need finalizing.
+- ✅ CC-2 — Multi-Tone Email Nudge System:
+  - Implemented standard follow-up nudges with 4 selectable communication tones: **Initial**, **Polite**, **Firm**, and **Final**.
+  - Empowers freelancers to customize pre-filled nudge emails depending on the urgency and relationship depth.
+- ✅ CC-3 — Close Project & Cancelled Status:
+  - Added full database, API, and schema support for a `'cancelled'` status check constraint.
+  - Created the `cancelInvoice()` utility to handle Close Project actions cleanly.
+  - Updated metric calculations to exclude cancelled invoices, preserving dashboard financial accuracy.
+
+### Phase XLI: Technical & React Stability
+- ✅ TS-3 — Rules of Hooks Rectifications:
+  - Fixed a critical React Hooks violation where `useEffect` (for invoice sequential fetching) and the Command Center's `useMemo` blocks were positioned below early return loading checks.
+  - Restored complete dashboard UI stability, passing next builds flawlessly.
+
+## Deployment & Production state (v2.11)
+- **Status:** Pushed to `main`.
+- **Verification:** Command Center dynamic cards, spark bars, and Accordion Ledger render correctly. Production Next.js build succeeds with zero errors.
+
+## Files modified in v2.11
+- app/dashboard/page.tsx
+- app/api/share-invoice/route.ts
+- app/invoice/[id]/client-preview/page.tsx
+- app/share/[token]/page.tsx
+- components/invoice/share/MSAAcceptanceModal.tsx
+- components/invoice/share/SharedMsaPreviewContent.tsx
+- lib/supabase/invoices.ts
+- supabase/migrations/20260521_add_cancelled_status.sql
+- SESSION_LOG.md
+
