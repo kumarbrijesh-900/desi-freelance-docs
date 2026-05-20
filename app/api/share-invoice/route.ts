@@ -33,6 +33,7 @@ function getClientIp(request: Request): string {
 const ShareInvoiceSchema = z.object({
   invoiceId: z.string().uuid(),
   clientEmail: z.string().email(),
+  tone: z.enum(["initial", "polite", "firm", "final"]).default("initial"),
 });
 
 export async function POST(req: NextRequest) {
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { invoiceId, clientEmail } = result.data;
+    const { invoiceId, clientEmail, tone } = result.data;
 
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
@@ -189,10 +190,40 @@ export async function POST(req: NextRequest) {
     const hasMsa = !!resolvedMsaId;
     const hasAddendum = false;
 
+    // Tone-specific email content
+    const toneContent = {
+      initial: {
+        subject: `Invoice from ${agencyName} — ready for your review`,
+        headline: `Invoice from ${agencyName}`,
+        body: `A new invoice is ready for your review. Please review the Master Service Agreement terms before viewing the final invoice.`,
+        cta: `View Invoice & Terms →`,
+      },
+      polite: {
+        subject: `Friendly reminder: Invoice from ${agencyName}`,
+        headline: `Gentle Reminder`,
+        body: `Just a friendly reminder that your invoice from ${agencyName} is approaching its due date. We'd appreciate it if you could review it at your earliest convenience.`,
+        cta: `Review Invoice →`,
+      },
+      firm: {
+        subject: `Action required: Overdue invoice from ${agencyName}`,
+        headline: `Payment Overdue`,
+        body: `This is a follow-up regarding an overdue invoice from ${agencyName}. Payment was expected by the due date mentioned in the invoice. Please arrange payment at your earliest convenience to avoid any late fees as per our agreed terms.`,
+        cta: `View Overdue Invoice →`,
+      },
+      final: {
+        subject: `Final notice: Overdue payment — ${agencyName}`,
+        headline: `Final Payment Notice`,
+        body: `This is a final reminder regarding an outstanding invoice from ${agencyName}. Despite previous reminders, payment remains pending. Please arrange immediate payment to avoid further action as outlined in our Master Service Agreement.`,
+        cta: `View Invoice & Settle →`,
+      },
+    };
+
+    const content = toneContent[tone];
+
     const { error: emailError } = await resend.emails.send({
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
-      subject: `Invoice from ${agencyName} — ready for your review`,
+      subject: content.subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -211,15 +242,15 @@ export async function POST(req: NextRequest) {
                 <tr>
                   <td style="padding:40px 32px;">
                     <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">
-                      Invoice from ${agencyName}
+                      ${content.headline}
                     </h1>
                     <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
-                      A new invoice is ready for your review. Please review the Master Service Agreement terms before viewing the final invoice.
+                      ${content.body}
                     </p>
                     
                     <a href="${shareUrl}"
                       style="display:inline-block;background:#111118;color:#d4ff00;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      View Invoice & Terms →
+                      ${content.cta}
                     </a>
                     
                     <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">

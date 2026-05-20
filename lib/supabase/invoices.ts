@@ -12,7 +12,7 @@ import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
-export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED";
+export type InvoiceStatus = "DRAFT" | "SAVED" | "SENT" | "PARTIAL" | "SETTLED" | "CANCELLED";
 
 export type MsaStatus = "pending" | "accepted" | "rejected" | "proposed";
 
@@ -953,3 +953,16 @@ export async function markInvoiceAsTracked(
   return data;
 }
 
+/**
+ * Cancel / close an invoice project.
+ * Sets the status to 'cancelled' so it exits the active pipeline.
+ */
+export async function cancelInvoice(invoiceId: string): Promise<void> {
+  const { error } = await supabase
+    .from("invoices")
+    .update({ status: "cancelled" })
+    .eq("id", invoiceId);
+  if (error) {
+    throw new Error(`Failed to cancel invoice: ${error.message}`);
+  }
+}

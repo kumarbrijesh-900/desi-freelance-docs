@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
@@ -8,7 +8,7 @@ import { supabase, getClientSessionUser } from "@/lib/supabase/client";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import { markInvoiceSettled } from "@/lib/supabase/invoices";
+import { markInvoiceSettled, cancelInvoice } from "@/lib/supabase/invoices";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
 
 interface DashboardMetrics {
@@ -47,6 +47,9 @@ interface ClientHealth {
     clientMsaNote?: string | null;
     shareToken?: string | null;
     clientName?: string;
+    msaStatus?: string | null;
+    sharedToEmail?: string | null;
+    sharedAt?: string | null;
   }>;
   totalOwed: number;
   totalCollected: number;
@@ -110,6 +113,7 @@ export default function DashboardPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [dismissedCards, setDismissedCards] = useState<Set<string>>(new Set());
 
   // --- Modal System ---
   interface ModalState {
@@ -495,6 +499,7 @@ export default function DashboardPage() {
 
         invoicesWithMilestones.forEach((inv: any) => {
           const statusLower = inv.status.toLowerCase();
+          if (statusLower === "cancelled") return; // Skip cancelled invoices from metrics
           const totalAmount = inv.totalAmount;
           const dueDateStr = inv.due_date || inv.form_data?.meta?.dueDate;
           let isOverdue = false;
@@ -607,6 +612,9 @@ export default function DashboardPage() {
             clientMsaNote: inv.client_msa_note,
             shareToken: inv.share_token,
             clientName: clientHealth.clientName,
+            msaStatus: inv.msa_status,
+            sharedToEmail: inv.shared_to_email,
+            sharedAt: inv.shared_at,
           });
 
           if (isSettled) {
@@ -744,24 +752,156 @@ export default function DashboardPage() {
     );
   }
 
-  // Find the first overdue invoice
-  const firstOverdueInvoice = clientsHealth
-    .flatMap((c) => c.invoices)
-    .find((inv) => {
-      const statusLower = inv.status.toLowerCase();
-      if ((statusLower === "sent" || statusLower === "finalized") && inv.dueDate) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const due = new Date(inv.dueDate);
-        due.setHours(0, 0, 0, 0);
-        return due < today;
-      }
-      return false;
+  // ─── INVOICE COMMAND CENTER: Derive actionable invoices ───
+  interface ActionCard {
+    type: "msa_revision" | "past_due" | "due_soon" | "msa_pending" | "draft";
+    priority: number;
+    invoice: ClientHealth["invoices"][0];
+    client: ClientHealth;
+    daysPast?: number;
+    daysUntil?: number;
+  }
+
+  const actionableInvoices = useMemo(() => {
+    const cards: ActionCard[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    clientsHealth.forEach((client) => {
+      client.invoices.forEach((inv) => {
+        const status = inv.status.toLowerCase();
+        if (status === "settled" || status === "cancelled") return;
+        if (dismissedCards.has(inv.id)) return;
+
+        // Priority 1: MSA Revision Requested
+        if (inv.msaStatus === "proposed" && inv.clientMsaNote) {
+          cards.push({ type: "msa_revision", priority: 1, invoice: inv, client });
+          return;
+        }
+
+        // Priority 2: Past Due
+        if (status === "finalized" && inv.dueDate) {
+          const due = new Date(inv.dueDate);
+          due.setHours(0, 0, 0, 0);
+          const daysPast = Math.ceil((today.getTime() - due.getTime()) / 86400000);
+          if (daysPast > 0) {
+            cards.push({ type: "past_due", priority: 2, invoice: inv, client, daysPast });
+            return;
+          }
+        }
+
+        // Priority 3: Due Soon (within 3 days)
+        if (status === "finalized" && inv.dueDate) {
+          const due = new Date(inv.dueDate);
+          due.setHours(0, 0, 0, 0);
+          const daysUntil = Math.ceil((due.getTime() - today.getTime()) / 86400000);
+          if (daysUntil >= 0 && daysUntil <= 3) {
+            cards.push({ type: "due_soon", priority: 3, invoice: inv, client, daysUntil });
+            return;
+          }
+        }
+
+        // Priority 4: MSA Pending
+        if (inv.msaStatus === "pending" && inv.sharedToEmail) {
+          cards.push({ type: "msa_pending", priority: 4, invoice: inv, client });
+          return;
+        }
+
+        // Priority 5: Draft
+        if (status === "draft") {
+          cards.push({ type: "draft", priority: 5, invoice: inv, client });
+        }
+      });
     });
 
-  const firstOverdueClient = clientsHealth.find((c) =>
-    c.invoices.some((inv) => inv.id === firstOverdueInvoice?.id)
-  )?.clientName || "Client";
+    return cards.sort((a, b) => a.priority - b.priority).slice(0, 5);
+  }, [clientsHealth, dismissedCards]);
+
+  // ─── Command Center Action Handlers ───
+  const handleNudge = async (inv: ClientHealth["invoices"][0], tone: "initial" | "polite" | "firm" | "final" = "polite") => {
+    if (!inv.sharedToEmail || !inv.shareToken) {
+      showAlert("Cannot Send", "This invoice hasn't been shared yet. Share it first from the invoice wizard.", "warning");
+      return;
+    }
+    try {
+      const res = await fetch("/api/share-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: inv.id, clientEmail: inv.sharedToEmail, tone }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showAlert("Nudge Failed", err.error || "Failed to send reminder.", "error");
+        return;
+      }
+      showAlert("Reminder Sent", `${tone === "final" ? "Final notice" : tone === "firm" ? "Firm reminder" : "Polite reminder"} sent to ${inv.sharedToEmail}.`, "success");
+    } catch (err) {
+      showAlert("Error", "Failed to send reminder. Please try again.", "error");
+    }
+  };
+
+  const handleCancelProject = async (inv: ClientHealth["invoices"][0]) => {
+    const confirmed = await showConfirm(
+      "Close Project",
+      `Are you sure you want to cancel ${inv.invoiceNumber}? This will mark it as cancelled and remove it from your active pipeline.`,
+      "warning",
+      "Yes, Close Project",
+      "Keep Open",
+    );
+    if (!confirmed) return;
+    try {
+      await cancelInvoice(inv.id);
+      // Update local state in-place
+      setClientsHealth((prev) =>
+        prev.map((c) => ({
+          ...c,
+          invoices: c.invoices.map((i) =>
+            i.id === inv.id ? { ...i, status: "cancelled" } : i
+          ),
+          totalOwed: c.invoices.reduce((sum, i) => {
+            if (i.id === inv.id) return sum; // cancelled, skip
+            const s = i.status.toLowerCase();
+            return s !== "settled" && s !== "cancelled" ? sum + i.totalAmount : sum;
+          }, 0),
+        }))
+      );
+      if (selectedInvoice?.id === inv.id) setSelectedInvoice(null);
+      showAlert("Project Closed", `${inv.invoiceNumber} has been cancelled.`, "success");
+    } catch (err) {
+      showAlert("Error", "Failed to cancel project. Please try again.", "error");
+    }
+  };
+
+  const handleDismissCard = (invId: string) => {
+    setDismissedCards((prev) => new Set(prev).add(invId));
+  };
+
+  // Smart MSA edit link
+  const getMsaEditLink = (inv: ClientHealth["invoices"][0], client: ClientHealth) => {
+    if (inv.has_addendum) return `/invoice/edit/${inv.id}`;
+    if (!client.clientId.startsWith("pseudo-")) return `/clients/${client.clientId}`;
+    return "/profile";
+  };
+
+  const getMsaEditLabel = (inv: ClientHealth["invoices"][0], client: ClientHealth) => {
+    if (inv.has_addendum) return "Update Addendum →";
+    if (!client.clientId.startsWith("pseudo-")) return "Edit Client MSA →";
+    return "Edit Global MSA →";
+  };
+
+  const getNudgeTone = (daysPast?: number): "polite" | "firm" | "final" => {
+    if (!daysPast) return "polite";
+    if (daysPast > 30) return "final";
+    if (daysPast > 7) return "firm";
+    return "polite";
+  };
+
+  const getNudgeLabel = (daysPast?: number): string => {
+    if (!daysPast) return "Send Polite Reminder";
+    if (daysPast > 30) return "⚡ Send Final Notice";
+    if (daysPast > 7) return "Send Firm Reminder";
+    return "⚡ Send Payment Nudge";
+  };
 
   // 1. Filtered and Sorted clients list based on active filters
   const filteredAndSortedClients = clientsHealth
@@ -1008,38 +1148,273 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* SECTION 3: ACTION NEEDED (conditional) */}
-          {metrics.overdueCount > 0 && firstOverdueInvoice && (
+          {/* SECTION 3: INVOICE COMMAND CENTER */}
+          {actionableInvoices.length > 0 ? (
+            <div className="mb-6 space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-[18px] h-[18px] bg-[#111118] border-[1.5px] border-[#111118] flex items-center justify-center text-[12px] text-[#BEFF00] font-black">
+                  ⚡
+                </div>
+                <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em] uppercase">
+                  COMMAND CENTER
+                </p>
+                <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider">
+                  {actionableInvoices.length} {actionableInvoices.length === 1 ? "action" : "actions"} needed
+                </span>
+              </div>
+
+              {actionableInvoices.map((card) => {
+                const { type, invoice: inv, client, daysPast, daysUntil } = card;
+
+                // Card style config per type
+                const cardConfig = {
+                  msa_revision: {
+                    borderColor: "#FF5C00",
+                    bgColor: "#FFF0EC",
+                    badgeBg: "#FF5C00",
+                    badgeText: "white",
+                    badgeLabel: "⚡ MSA REVISION REQUESTED",
+                    shadowColor: "#FF5C00",
+                  },
+                  past_due: {
+                    borderColor: "#EF4444",
+                    bgColor: "#FEF2F2",
+                    badgeBg: "#EF4444",
+                    badgeText: "white",
+                    badgeLabel: `🔴 OVERDUE — ${daysPast} DAY${daysPast !== 1 ? "S" : ""} PAST DUE`,
+                    shadowColor: "#EF4444",
+                  },
+                  due_soon: {
+                    borderColor: "#F59E0B",
+                    bgColor: "#FFFBEB",
+                    badgeBg: "#F59E0B",
+                    badgeText: "#111118",
+                    badgeLabel: `⚠️ DUE IN ${daysUntil} DAY${daysUntil !== 1 ? "S" : ""}`,
+                    shadowColor: "#F59E0B",
+                  },
+                  msa_pending: {
+                    borderColor: "#EAB308",
+                    bgColor: "#FEFCE8",
+                    badgeBg: "#EAB308",
+                    badgeText: "#111118",
+                    badgeLabel: "⏳ AWAITING CLIENT RESPONSE",
+                    shadowColor: "#EAB308",
+                  },
+                  draft: {
+                    borderColor: "#8B5CF6",
+                    bgColor: "#FAF5FF",
+                    badgeBg: "#8B5CF6",
+                    badgeText: "white",
+                    badgeLabel: "📝 DRAFT — NOT SENT",
+                    shadowColor: "#8B5CF6",
+                  },
+                };
+
+                const cfg = cardConfig[type];
+                const sentAgo = inv.sharedAt ? timeAgo(inv.sharedAt) : null;
+                const isPastDueLong = type === "past_due" && (daysPast ?? 0) > 7;
+
+                return (
+                  <div
+                    key={inv.id}
+                    className="border-2 p-0 overflow-hidden transition-all duration-300"
+                    style={{
+                      borderColor: cfg.borderColor,
+                      backgroundColor: cfg.bgColor,
+                      boxShadow: `3px 3px 0 ${cfg.shadowColor}`,
+                      animation: isPastDueLong ? "pulse 2s ease-in-out infinite" : undefined,
+                    }}
+                  >
+                    {/* Badge strip */}
+                    <div
+                      className="px-4 py-2 flex items-center justify-between"
+                      style={{ backgroundColor: cfg.badgeBg }}
+                    >
+                      <span
+                        className="text-[11px] font-black tracking-[0.1em] uppercase"
+                        style={{ color: cfg.badgeText }}
+                      >
+                        {cfg.badgeLabel}
+                      </span>
+                      <button
+                        onClick={() => handleDismissCard(inv.id)}
+                        className="text-[11px] font-bold uppercase tracking-wider opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+                        style={{ color: cfg.badgeText }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Card body */}
+                    <div className="px-4 py-3">
+                      {/* Invoice identifier */}
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-[14px] font-black text-[#111118] font-syne">
+                          {inv.invoiceNumber}
+                        </span>
+                        <span className="text-[12px] font-semibold text-[color:var(--text-muted)]">
+                          · {client.clientName}
+                        </span>
+                        <span className="text-[14px] font-bold text-[#111118] ml-auto font-syne">
+                          ₹{formatIndian(inv.totalAmount)}
+                        </span>
+                      </div>
+
+                      {/* Context line (type-specific) */}
+                      {type === "msa_revision" && inv.clientMsaNote && (
+                        <div className="border-l-4 border-[#FF5C00] bg-[#FFFBE6] pl-3 py-2 mb-3 text-[13px] text-[#111118] italic">
+                          &ldquo;{inv.clientMsaNote}&rdquo;
+                        </div>
+                      )}
+                      {type === "past_due" && (
+                        <p className="text-[13px] text-[#111118] mb-3">
+                          Due on {inv.dueDate}. <span className="font-bold text-[#EF4444]">{daysPast} days overdue.</span>
+                        </p>
+                      )}
+                      {type === "due_soon" && (
+                        <p className="text-[13px] text-[#111118] mb-3">
+                          Due on {inv.dueDate}. Send a polite reminder?
+                        </p>
+                      )}
+                      {type === "msa_pending" && (
+                        <p className="text-[13px] text-[#111118] mb-3">
+                          Sent to {inv.sharedToEmail}{sentAgo ? ` (${sentAgo})` : ""}. Client hasn&apos;t responded yet.
+                        </p>
+                      )}
+                      {type === "draft" && (
+                        <p className="text-[13px] text-[color:var(--text-muted)] mb-3">
+                          Invoice created but not yet sent. Ready to finalize?
+                        </p>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="flex flex-wrap gap-2">
+                        {/* MSA Revision actions */}
+                        {type === "msa_revision" && (
+                          <>
+                            <Link
+                              href={getMsaEditLink(inv, client)}
+                              className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              {getMsaEditLabel(inv, client)}
+                            </Link>
+                            {inv.has_addendum && !client.clientId.startsWith("pseudo-") && (
+                              <Link
+                                href={`/clients/${client.clientId}`}
+                                className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                              >
+                                Edit Client MSA →
+                              </Link>
+                            )}
+                            <button
+                              onClick={() => handleCancelProject(inv)}
+                              className="text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
+                            >
+                              Close Project
+                            </button>
+                          </>
+                        )}
+
+                        {/* Past Due actions */}
+                        {type === "past_due" && (
+                          <>
+                            <button
+                              onClick={() => handleNudge(inv, getNudgeTone(daysPast))}
+                              className="bg-[#EF4444] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              {getNudgeLabel(daysPast)}
+                            </button>
+                            <button
+                              onClick={() => setSelectedInvoice(inv)}
+                              className="bg-[#00DCB4] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              Mark Settled ✓
+                            </button>
+                            <button
+                              onClick={() => handleCancelProject(inv)}
+                              className="text-[11px] font-bold text-[#EF4444] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
+                            >
+                              Close Project
+                            </button>
+                          </>
+                        )}
+
+                        {/* Due Soon actions */}
+                        {type === "due_soon" && (
+                          <>
+                            <button
+                              onClick={() => handleNudge(inv, "polite")}
+                              className="bg-[#F59E0B] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              Send Polite Reminder 📨
+                            </button>
+                            <button
+                              onClick={() => setSelectedInvoice(inv)}
+                              className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
+                            >
+                              Mark Settled ✓
+                            </button>
+                          </>
+                        )}
+
+                        {/* MSA Pending actions */}
+                        {type === "msa_pending" && (
+                          <>
+                            <button
+                              onClick={() => handleNudge(inv, "initial")}
+                              className="bg-[#EAB308] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              Resend Invoice Email ↻
+                            </button>
+                            <Link
+                              href={`/invoice/${inv.id}/client-preview`}
+                              className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
+                            >
+                              Preview as Client →
+                            </Link>
+                            <button
+                              onClick={() => handleCancelProject(inv)}
+                              className="text-[11px] font-bold text-[#EAB308] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
+                            >
+                              Close Project
+                            </button>
+                          </>
+                        )}
+
+                        {/* Draft actions */}
+                        {type === "draft" && (
+                          <>
+                            <Link
+                              href={`/invoice/edit/${inv.id}`}
+                              className="bg-[#8B5CF6] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                            >
+                              Finalize & Send →
+                            </Link>
+                            <button
+                              onClick={() => handleCancelProject(inv)}
+                              className="text-[11px] font-bold text-[#8B5CF6] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
+                            >
+                              Delete Draft
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
             <div
-              className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-4 shadow-[3px_3px_0_#FF5C00] mb-6"
+              className="border-2 border-[#00DCB4] bg-[#EBFDF9] p-4 shadow-[3px_3px_0_#00DCB4] mb-6 text-center"
               style={{ transform: "rotate(0.2deg)" }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-[18px] h-[18px] bg-[#FF5C00] border-[1.5px] border-[#111118] flex items-center justify-center text-[12px] text-white font-black">
-                  !
-                </div>
-                <p className="text-[12px] font-bold text-[#CC4A00] tracking-[0.08em] uppercase">
-                  ACTION NEEDED
-                </p>
-              </div>
-              <p className="text-[14px] text-[#111118] font-medium">
-                {firstOverdueInvoice.invoiceNumber} for {firstOverdueClient} is
-                overdue. Send a payment reminder?
+              <p className="text-[14px] font-bold text-[#111118] font-syne">
+                🎉 All clear! No invoices need your attention right now.
               </p>
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => {
-                    showAlert("Nudge Sent", `Payment reminder triggered for ${firstOverdueInvoice.invoiceNumber}.`, "success");
-                    console.log(`Nudge sent for invoice ${firstOverdueInvoice.id}`);
-                  }}
-                  className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
-                >
-                  Send Nudge
-                </button>
-                <button className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[12px] font-bold cursor-pointer uppercase font-syne">
-                  Dismiss
-                </button>
-              </div>
+              <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
+                Your pipeline is healthy. Time for a coffee.
+              </p>
             </div>
           )}
 
