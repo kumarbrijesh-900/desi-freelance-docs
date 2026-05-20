@@ -3002,6 +3002,29 @@ return (
                               )}
                             </div>
                           </div>
+
+                          {/* PO Number */}
+                          <div className="space-y-1.5 min-w-0">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] flex items-center gap-1">
+                              PO #
+                              <AppTooltip content={<>
+                                Purchase Order Number. Required by some enterprise clients for accounts payable matching.
+                              </>} />
+                            </label>
+                            {isEditingMeta ? (
+                              <input
+                                type="text"
+                                value={formData.meta.poNumber || ''}
+                                onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, poNumber: e.target.value } }))}
+                                placeholder="Optional"
+                                className="w-full min-w-0 border-none bg-white px-3 py-2 text-[12px] font-medium text-[color:var(--text-primary)] shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-[color:var(--brand-indigo)] transition-all"
+                              />
+                            ) : (
+                              <p className="text-[13px] font-medium text-[color:var(--text-primary)] break-words">
+                                {formData.meta?.poNumber || '—'}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
 

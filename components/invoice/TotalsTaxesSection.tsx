@@ -230,6 +230,11 @@ export default function TotalsTaxesSection({
               </dt>
               <dd className="text-right font-medium text-[color:var(--text-primary)]">
                 {formatCurrency(taxAmount, currency)}
+                {isRcmEnabled ? (
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#4A7A00]">
+                    RCM active — GST handled by client
+                  </p>
+                ) : null}
               </dd>
             </div>
 
@@ -298,9 +303,14 @@ export default function TotalsTaxesSection({
                   </button>
                 </div>
                 {/* RCM Toggle */}
-                <div className="-mx-6 border-t border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/30 px-6">
-                  <div className="flex h-[44px] items-center justify-between">
-                    <div className="flex flex-wrap items-center gap-1.5 group">
+                <div
+                  className={cn(
+                    "border-t border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/30 min-w-0",
+                    embedded ? "-mx-4 px-4" : "-mx-6 px-6",
+                  )}
+                >
+                  <div className="flex min-h-[44px] flex-wrap items-center justify-between gap-2 py-2 sm:py-0 sm:h-[44px]">
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5 group">
                       <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
                         Reverse Charge (RCM)
                       </span>
@@ -313,6 +323,11 @@ export default function TotalsTaxesSection({
                       onChange={(checked) => updateField("isRcmEnabled", checked)}
                     />
                   </div>
+                  {isRcmEnabled ? (
+                    <div className="mb-3 border-2 border-[#111118] bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-semibold leading-relaxed text-[#111118] shadow-[1px_1px_0_#111118] break-normal">
+                      Reverse Charge is active. The client is responsible for paying GST directly to the government instead of the freelancer/agency collecting it.
+                    </div>
+                  ) : null}
                 </div>
               </div>
             )}
