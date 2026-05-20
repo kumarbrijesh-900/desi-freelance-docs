@@ -99,6 +99,17 @@ export default function ClientDetailsSection({
   const isInternational = value.clientLocation === "international";
   const [isMsaOpen, setIsMsaOpen] = useState(false);
   const [hasInteractedWithMSA, setHasInteractedWithMSA] = useState(false);
+
+  // Mobile: open MSA section by default so inputs → generate → preview read as one flow
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    if (mq.matches) setIsMsaOpen(true);
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsMsaOpen(true);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
@@ -245,6 +256,20 @@ export default function ClientDetailsSection({
     const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}. ${revisionClause}`;
     updateField("msaNotesBoilerplate", template);
   };
+
+  const hasGeneratedMsa = Boolean(value.msaNotesBoilerplate?.trim());
+  const clauseActionLabel = hasGeneratedMsa ? "Regenerate Clause" : "Generate Clause";
+  const msaSummaryText =
+    [
+      value.msaPaymentTermsDays ? `Net ${value.msaPaymentTermsDays}` : null,
+      value.msaLateFeeRate ? `${value.msaLateFeeRate}% ${value.msaLateFeeUnit || "monthly"} late fee` : null,
+      value.msaIpTriggerType === "upon_full_payment" ? "IP on payment" : value.msaIpTriggerType === "upon_delivery" ? "IP on delivery" : value.msaIpTriggerType === "upon_signing" ? "IP on signing" : value.msaIpTriggerType === "retained_by_creator" ? "IP retained" : value.msaIpTriggerType === "proportional_transfer" ? "Proportional IP" : null,
+      value.msaJurisdictionCity ? `${value.msaJurisdictionCity}` : null,
+      value.msaLicenseType ? value.msaLicenseType.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) : null,
+    ].filter(Boolean).join(" · ") || "No terms configured — expand to set up";
+
+  const generateClauseButtonClass =
+    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
 
   return (
     <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
@@ -785,13 +810,7 @@ export default function ClientDetailsSection({
             </div>
             {/* Always-visible summary row */}
             <p className="min-w-0 text-[12px] text-[color:var(--text-muted)] font-normal leading-relaxed break-normal">
-              {[
-                value.msaPaymentTermsDays ? `Net ${value.msaPaymentTermsDays}` : null,
-                value.msaLateFeeRate ? `${value.msaLateFeeRate}% ${value.msaLateFeeUnit || "monthly"} late fee` : null,
-                value.msaIpTriggerType === "upon_full_payment" ? "IP on payment" : value.msaIpTriggerType === "upon_delivery" ? "IP on delivery" : value.msaIpTriggerType === "upon_signing" ? "IP on signing" : value.msaIpTriggerType === "retained_by_creator" ? "IP retained" : value.msaIpTriggerType === "proportional_transfer" ? "Proportional IP" : null,
-                value.msaJurisdictionCity ? `${value.msaJurisdictionCity}` : null,
-                value.msaLicenseType ? value.msaLicenseType.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) : null,
-              ].filter(Boolean).join(" · ") || "No terms configured — expand to set up"}
+              {msaSummaryText}
             </p>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:gap-3">
@@ -801,10 +820,10 @@ export default function ClientDetailsSection({
                 e.stopPropagation();
                 handleGenerateContract();
               }}
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer"
+              className={cn(generateClauseButtonClass, "hidden sm:inline-flex")}
               title="Auto-generate legal clause text from your settings below"
             >
-              ✨ Generate Clause
+              ✨ {clauseActionLabel}
             </button>
             <ChevronDownIcon
               className={cn(
@@ -824,7 +843,11 @@ export default function ClientDetailsSection({
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <div className="border border-t-0 border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-5 space-y-6">
+              <div className="border border-t-0 border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-4 sm:p-5 pb-24 sm:pb-5 space-y-6 min-w-0">
+                <p className="text-[12px] text-[color:var(--text-muted)] leading-relaxed break-normal sm:hidden">
+                  Set payment terms, late fee, IP transfer, jurisdiction, and license type. We&apos;ll use these to generate the MSA clause.
+                </p>
+
                 {/* ── Group 1: Payment ── */}
                 <div>
                   <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] mb-3 flex items-center gap-1.5">
@@ -953,62 +976,65 @@ export default function ClientDetailsSection({
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* ─── Section B: Generated MSA (only shown when text exists) ─── */}
-              <AnimatePresence>
-                {value.msaNotesBoilerplate && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden"
+                {/* Primary action — mobile: after inputs; desktop: also in header */}
+                <div className="border-t-2 border-dashed border-[#111118]/25 pt-4 sm:hidden">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGenerateContract();
+                    }}
+                    className={generateClauseButtonClass}
+                    title="Auto-generate legal clause text from the settings above"
                   >
-                    <div className="mt-4 bg-[color:var(--bg-surface-muted)] p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
-                      <div className="mb-3">
-                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
-                          Generated MSA
-                        </h3>
-                        <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
-                      </div>
+                    ✨ {clauseActionLabel}
+                  </button>
+                </div>
+
+                {/* Generated MSA — connected preview after generation action */}
+                <div className="space-y-3 border-t-2 border-[#111118] pt-4 min-w-0">
+                  <div>
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-secondary)]">
+                      Generated MSA
+                    </h3>
+                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)] leading-relaxed break-normal">
+                      {hasGeneratedMsa
+                        ? "Review and edit the clause below. Use Regenerate after changing terms above, or Clear to start over."
+                        : "Your generated clause will appear here after you generate it from the payment and legal settings above."}
+                    </p>
+                  </div>
+
+                  {hasGeneratedMsa ? (
+                    <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[2px_2px_0_#111118] min-w-0">
                       <textarea
                         suppressHydrationWarning
                         value={value.msaNotesBoilerplate || ""}
                         onChange={(e) => updateField("msaNotesBoilerplate", e.target.value)}
                         placeholder="Enter project-specific terms that override your default MSA..."
-                        className={cn(inputClass(undefined, Boolean(value.msaNotesBoilerplate), true), "resize-y")}
+                        className={cn(inputClass(undefined, Boolean(value.msaNotesBoilerplate), true), "resize-y w-full min-w-0")}
                         style={{ minHeight: 120, maxHeight: 300 }}
                       />
-                      <div className="mt-2 flex items-center gap-4">
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => {
-                            const ipLabels: Record<string, string> = { upon_full_payment: "upon receipt of full payment", upon_delivery: "upon delivery of materials", work_for_hire: "as a work-for-hire" };
-                            const ipLabel = ipLabels[value.msaIpTriggerType || "upon_full_payment"];
-                            const unitLabels: Record<string, string> = { monthly: "per month", annually: "per annum", daily: "per day" };
-                            const unitLabel = unitLabels[value.msaLateFeeUnit || "monthly"];
-                            const licenseLabels: Record<string, string> = { "full-assignment": "full assignment", "exclusive-license": "exclusive license", "non-exclusive-license": "non-exclusive license" };
-                            const licenseLabel = value.msaLicenseType ? licenseLabels[value.msaLicenseType] : "assignment";
-                            const template = `Payment is due within ${value.msaPaymentTermsDays ?? 20} days. A late fee of ${value.msaLateFeeRate ?? 1.5}% ${unitLabel} applies to overdue balances. Intellectual Property rights transfer to the client as a ${licenseLabel} ${ipLabel}. Jurisdiction is ${value.msaJurisdictionCity || "Bengaluru"}.`;
-                            updateField("msaNotesBoilerplate", template);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateField("msaNotesBoilerplate", "");
                           }}
-                          className="text-[11px] font-semibold text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
-                        >
-                          Regenerate
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => updateField("msaNotesBoilerplate", "")}
-                          className="text-[11px] font-semibold text-[#FF5C00] hover:text-[#FF5C00] transition-colors"
+                          className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[1px_1px_0_#111118] hover:bg-[#FFF5F2] transition-colors"
                         >
                           Clear
                         </button>
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  ) : (
+                    <div className="border-2 border-dashed border-[#111118]/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--text-muted)] leading-relaxed break-normal">
+                      No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[#111118]">{clauseActionLabel}</span>.
+                    </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
