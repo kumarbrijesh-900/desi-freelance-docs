@@ -886,3 +886,46 @@ Applied Fitts's Law, Nielsen's H4 (Consistency), and mobile ergonomics across th
 ## Deployment & Production state (v2.10)
 - **Status:** Pushed to `main`.
 - **Verification:** Segmented timeline renders cleanly; mega tooltip correctly maps specific line-item data and calculates relative due dates accurately without breaking the Neo-Brutalist container bounds. Compilation succeeds with Exit Code 0.
+
+---
+
+## 2026-05-21 — Mobile UX and Dashboard UI Fixes
+
+### 1. Dashboard Client Ledger cleanup
+- Removed obsolete table-style Client Ledger shell from `app/dashboard/page.tsx`.
+- Removed old table header row: Client / Invoices / Progress / Receivable / Health.
+- Replaced table/tbody/tr/td structure with a semantic div-based accordion list.
+- Preserved existing filters, search, sort, totals, accordion behavior, client data, invoice data, and milestone display.
+- Build passed.
+- Commit: `41ce4c0` — `fix: replace client ledger table shell with accordion list`
+
+### 2. Client Specific Payment & Legal Terms mobile UX
+- Updated `components/invoice/ClientDetailsSection.tsx`.
+- Fixed mobile overflow of the Generate Clause button.
+- Improved mobile UX flow so payment/legal inputs are visible before clause generation.
+- On mobile, the section opens expanded by default after client mount.
+- Moved Generate / Regenerate Clause action after Payment and Legal & IP inputs on mobile.
+- ected Generated MSA preview more clearly to the generation action.
+- Preserved existing form data shape, schema, Supabase logic, save/preview flow, and clause generation handler.
+- Build passed.
+
+### 3. Mobile Invoice Details PO # and RCM feedback
+- Updated `components/invoice/InvoiceEditorPage.tsx`.
+- Updated `components/invoice/TotalsTaxesSection.tsx`.
+- Added PO # field to the mobile Invoice Details edit mode using existing `formData.meta.poNumber`.
+- Added visible RCM feedback when Reverse Charge is enabled:
+  - Helper box below the RCM toggle.
+  - Status line: “RCM active — GST handled by client.”
+- Reused existing `isRcmEnabled` state and `updateField("isRcmEnabled", ...)`.
+- No schema, Supabase, tax-rule, or form-shape changes.
+- Build passed.
+
+### Notes
+- `.cursor/settings.json` remains untracked and was intentionally not committed.
+- Vercel deployment is triggered by pushes to `main`.
+- Manual mobile checks still required on deployed URL:
+  - `/dashboard` Client Ledger accordion.
+  - `/invoic Client Details CSPLT section.
+  - `/invoice/new` mobile Invoice Details edit mode PO #.
+  - `/invoice/new` mobile Totals RCM toggle feedback.
+
