@@ -1,3 +1,5 @@
+"use client";
+
 import { InvoiceFormData } from "@/types/invoice";
 import TemplateRenderer from "@/lib/templates/renderer";
 import { MotionReveal } from "@/components/ui/motion-primitives";
