@@ -752,29 +752,39 @@ export default function ClientDetailsSection({
         {/* ─── Section Header ─── */}
         <div
           className={cn(
-            "flex justify-between items-start w-full p-4 border border-[color:var(--border-subtle)] bg-white hover:bg-[color:var(--bg-surface-soft)] transition-colors text-left group cursor-pointer"
+            "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--border-subtle)] bg-white hover:bg-[color:var(--bg-surface-soft)] transition-colors text-left group cursor-pointer"
           )}
           onClick={() => {
             setIsMsaOpen(!isMsaOpen);
             setHasInteractedWithMSA(true);
           }}
         >
-          <div className="flex flex-col flex-1 pr-4">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[color:var(--text-primary)] font-semibold text-[15px]">Client Specific Payment &amp; Legal Terms</span>
-              <AppTooltip content={
-                <div className="space-y-2">
-                  <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
-                  <p className="font-semibold text-[10px] text-[#FF5C00]">These defaults can be overridden per-project via a Project Addendum attached to the invoice.</p>
-                  <div className="flex flex-col gap-1.5 mt-2 border-t border-[#111118]/20 pt-2">
-                    <a href="/profile" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Global Defaults (Profile)</a>
-                    <a href="/clients" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Client-Specific Terms</a>
+          <div className="flex min-w-0 w-full flex-1 flex-col gap-1.5 sm:pr-4">
+            <div className="flex items-start justify-between gap-2 min-w-0">
+              <div className="flex min-w-0 flex-1 items-start gap-1.5">
+                <span className="text-[color:var(--text-primary)] font-semibold text-[15px] leading-snug text-pretty break-normal">
+                  Client Specific Payment &amp; Legal Terms
+                </span>
+                <AppTooltip content={
+                  <div className="space-y-2">
+                    <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
+                    <p className="font-semibold text-[10px] text-[#FF5C00]">These defaults can be overridden per-project via a Project Addendum attached to the invoice.</p>
+                    <div className="flex flex-col gap-1.5 mt-2 border-t border-[#111118]/20 pt-2">
+                      <a href="/profile" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Global Defaults (Profile)</a>
+                      <a href="/clients" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Client-Specific Terms</a>
+                    </div>
                   </div>
-                </div>
-              } />
+                } />
+              </div>
+              <ChevronDownIcon
+                className={cn(
+                  "h-5 w-5 shrink-0 sm:hidden transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]",
+                  isMsaOpen && "rotate-180"
+                )}
+              />
             </div>
             {/* Always-visible summary row */}
-            <p className="text-[12px] text-[color:var(--text-muted)] mt-1.5 font-normal leading-relaxed">
+            <p className="min-w-0 text-[12px] text-[color:var(--text-muted)] font-normal leading-relaxed break-normal">
               {[
                 value.msaPaymentTermsDays ? `Net ${value.msaPaymentTermsDays}` : null,
                 value.msaLateFeeRate ? `${value.msaLateFeeRate}% ${value.msaLateFeeUnit || "monthly"} late fee` : null,
@@ -784,23 +794,23 @@ export default function ClientDetailsSection({
               ].filter(Boolean).join(" · ") || "No terms configured — expand to set up"}
             </p>
           </div>
-          <div className="flex items-center gap-3 mt-1">
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:gap-3">
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 handleGenerateContract();
               }}
-              className="inline-flex items-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all shrink-0 cursor-pointer"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer"
               title="Auto-generate legal clause text from your settings below"
             >
               ✨ Generate Clause
             </button>
-            <ChevronDownIcon 
+            <ChevronDownIcon
               className={cn(
-                "h-5 w-5 transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]", 
+                "hidden h-5 w-5 shrink-0 sm:block transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]",
                 isMsaOpen && "rotate-180"
-              )} 
+              )}
             />
           </div>
         </div>
