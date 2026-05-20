@@ -18,6 +18,7 @@ interface MSAAcceptanceModalProps {
   onAccept: () => void;
   onPropose?: () => void;
   previewMode?: boolean;
+  onClosePreview?: () => void;
 }
 
 type ModalMode = "view" | "propose" | "success";
@@ -33,6 +34,7 @@ export default function MSAAcceptanceModal({
   onAccept,
   onPropose,
   previewMode = false,
+  onClosePreview,
 }: MSAAcceptanceModalProps) {
   const params = useParams();
   const token = params?.token as string;
@@ -109,7 +111,17 @@ export default function MSAAcceptanceModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
+        <div className="relative border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
+          {previewMode && onClosePreview && (
+            <button
+              type="button"
+              onClick={onClosePreview}
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-white hover:brightness-110 shadow-[4px_4px_0_#111118] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+              aria-label="Close Preview"
+            >
+              <span className="text-2xl font-bold leading-none mb-1">×</span>
+            </button>
+          )}
           {/* Header */}
           <div className="border-b-2 border-[#111118] bg-[#FFFBE6] px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
@@ -203,13 +215,24 @@ export default function MSAAcceptanceModal({
           {/* Actions */}
           <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-6 sm:px-8">
             {previewMode ? (
-              <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[8px_8px_0_#111118]">
-                <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
-                  PREVIEW MODE
-                </h3>
-                <p className="text-sm font-medium text-[#111118]">
-                  This is what your client sees when they open the link from their email. You cannot accept on their behalf.
-                </p>
+              <div className="flex flex-col gap-5">
+                <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[8px_8px_0_#111118]">
+                  <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
+                    PREVIEW MODE
+                  </h3>
+                  <p className="text-sm font-medium text-[#111118]">
+                    This is what your client sees when they open the link from their email. You cannot accept on their behalf.
+                  </p>
+                </div>
+                {onClosePreview && (
+                  <button
+                    type="button"
+                    onClick={onClosePreview}
+                    className="self-center border-2 border-[#111118] bg-white px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[4px_4px_0_#111118] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  >
+                    Close Preview
+                  </button>
+                )}
               </div>
             ) : mode === "view" ? (
               <>

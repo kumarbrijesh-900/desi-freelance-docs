@@ -7,6 +7,7 @@ import { PrinterIcon } from "@/components/ui/app-icons";
 import { cn } from "@/lib/ui-foundation";
 import MSAAcceptanceModal from "@/components/invoice/share/MSAAcceptanceModal";
 import { prepareTemplateData } from "@/lib/templates/template-data";
+import { useState } from "react";
 
 interface SharedMsaPreviewContentProps {
   invoice: {
@@ -45,6 +46,9 @@ export default function SharedMsaPreviewContent({
   const currencySymbol = templateData?.displayCurrency === "USD" ? "$" : "₹";
   const formattedTotal = templateData?.grandTotalFormatted?.replace(/[₹$]/, "") || "0";
 
+  const [previewDismissed, setPreviewDismissed] = useState(false);
+  const showMsaOverlay = isMsaPending && !previewDismissed;
+
   return (
     <>
       <style>{`
@@ -59,7 +63,7 @@ export default function SharedMsaPreviewContent({
       <main className="min-h-screen bg-[#F5F5F8] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
         <div className={cn(
           "mx-auto mb-10 flex max-w-[210mm] items-center justify-between print:hidden",
-          isMsaPending && "opacity-20 pointer-events-none"
+          showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
           <a
             href="https://lanceinvoice.xyz"
@@ -87,7 +91,7 @@ export default function SharedMsaPreviewContent({
         {/* ── Payment Summary Banner ── */}
         <div className={cn(
           "mx-auto mb-6 max-w-[210mm] print:hidden",
-          isMsaPending && "opacity-20 pointer-events-none"
+          showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
           <div className="border-2 border-[#111118] bg-[#FFFBE6] px-6 py-4 text-center">
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
@@ -131,7 +135,7 @@ export default function SharedMsaPreviewContent({
         {/* Read-only Invoice Sheet */}
         <div className={cn(
           "relative transition-all duration-500",
-          isMsaPending && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
+          showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
             className="invoice-sheet mx-auto w-full max-w-[210mm] border-2 border-[#111118] bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
@@ -143,12 +147,12 @@ export default function SharedMsaPreviewContent({
 
         <div className={cn(
           "mx-auto border-t-2 border-[#111118] py-4 text-center text-[12px] text-[color:var(--text-muted)] print:hidden max-w-[210mm] mt-8",
-          isMsaPending && "opacity-0"
+          showMsaOverlay && "opacity-0"
         )}>
           Invoice #{invoiceNumber} • Shared via Lance
         </div>
 
-        {isMsaPending && msaTerms && (
+        {showMsaOverlay && msaTerms && (
           <MSAAcceptanceModal
             invoiceNumber={invoiceNumber}
             agencyName={formData.agency?.agencyName || "The Freelancer"}
@@ -159,6 +163,7 @@ export default function SharedMsaPreviewContent({
             isSubmitting={isSubmittingMsa}
             onAccept={onAcceptClick || (() => {})}
             previewMode={mode === "agency-preview"}
+            onClosePreview={() => setPreviewDismissed(true)}
           />
         )}
       </main>
