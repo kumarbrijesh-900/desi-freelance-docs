@@ -34,7 +34,8 @@ export default async function ClientPreviewPage({
   let msaData = null;
   let isChildInvoice = false;
   let parentMsaAcceptedOn = null;
-  let msaStatus = invoice.msa_response || "accepted";
+  let msaStatus = invoice.msa_status || "accepted";
+  let msaResponse = invoice.msa_response || null;
   
   if (invoice.parent_invoice_id) {
     isChildInvoice = true;
@@ -63,7 +64,6 @@ export default async function ClientPreviewPage({
   }
   
   const formData = mergeInvoiceFormData(invoice.form_data);
-  const isMsaPending = msaStatus === "pending";
   
   return (
     <SharedMsaPreviewContent
@@ -74,7 +74,8 @@ export default async function ClientPreviewPage({
         invoiceNumber: invoice.invoice_number || "",
         isChildInvoice,
         parentMsaAcceptedOn,
-        isMsaPending,
+        msaStatus,
+        msaResponse,
       }}
       msaTerms={msaData}
       addendum={{

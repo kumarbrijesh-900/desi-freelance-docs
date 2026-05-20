@@ -22,11 +22,12 @@ export default function PublicInvoiceSharePage({
   const [notFound, setNotFound] = useState(false);
   
   // MSA Gate state
-  const [msaStatus, setMsaStatus] = useState<string>("ACCEPTED");
+  const [msaStatus, setMsaStatus] = useState<string>("pending");
   const [msaData, setMsaData] = useState<{ title: string; content: string } | null>(null);
   const [isSubmittingMsa, setIsSubmittingMsa] = useState(false);
   const [isChildInvoice, setIsChildInvoice] = useState(false);
   const [parentMsaAcceptedOn, setParentMsaAcceptedOn] = useState<string | null>(null);
+  const [msaResponse, setMsaResponse] = useState<string | null>(null);
   const [showAcceptedToast, setShowAcceptedToast] = useState(false);
 
   useEffect(() => {
@@ -73,8 +74,10 @@ export default function PublicInvoiceSharePage({
           }
         } else {
           // Standard invoice: normal MSA gate flow
-          const currentMsaStatus = data.msa_response || "accepted";
+          const currentMsaStatus = data.msa_status || "pending";
+          const currentMsaResponse = data.msa_response || null;
           setMsaStatus(currentMsaStatus);
+          setMsaResponse(currentMsaResponse);
 
           // Load MSA content if pending
           if (currentMsaStatus === "pending" && data.msa_id) {
@@ -100,6 +103,7 @@ export default function PublicInvoiceSharePage({
         .from("invoices")
         .update({ 
           msa_response: 'accepted',
+          msa_status: 'accepted',
           msa_responded_at: new Date().toISOString(),
         })
         .eq("share_token", token);
@@ -112,6 +116,7 @@ export default function PublicInvoiceSharePage({
 
       // Success: Reveal the invoice
       setMsaStatus("accepted");
+      setMsaResponse("accepted");
       setShowAcceptedToast(true);
     } catch (err) {
       console.error("ACCEPT_ERROR:", err);
@@ -173,7 +178,8 @@ export default function PublicInvoiceSharePage({
           invoiceNumber,
           isChildInvoice,
           parentMsaAcceptedOn,
-          isMsaPending,
+          msaStatus,
+          msaResponse,
         }}
         msaTerms={msaData}
         addendum={{

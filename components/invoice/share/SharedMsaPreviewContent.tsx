@@ -18,7 +18,8 @@ interface SharedMsaPreviewContentProps {
     invoiceNumber: string;
     isChildInvoice: boolean;
     parentMsaAcceptedOn: string | null;
-    isMsaPending: boolean;
+    msaStatus: string;
+    msaResponse: string | null;
   };
   msaTerms: { title: string; content: string } | null;
   addendum: { paymentTerms?: string; notes?: string } | null;
@@ -42,7 +43,8 @@ export default function SharedMsaPreviewContent({
     invoiceNumber,
     isChildInvoice,
     parentMsaAcceptedOn,
-    isMsaPending,
+    msaStatus,
+    msaResponse,
   } = invoice;
 
   const router = useRouter();
@@ -52,7 +54,7 @@ export default function SharedMsaPreviewContent({
   const formattedTotal = templateData?.grandTotalFormatted?.replace(/[₹$]/, "") || "0";
 
   const [previewDismissed, setPreviewDismissed] = useState(false);
-  const showMsaOverlay = isMsaPending && !previewDismissed;
+  const showMsaOverlay = msaStatus !== "accepted" && msaStatus !== "ACCEPTED" && !previewDismissed;
 
   return (
     <>
@@ -177,6 +179,8 @@ export default function SharedMsaPreviewContent({
             paymentTerms={addendum?.paymentTerms}
             addendumNotes={addendum?.notes}
             isSubmitting={isSubmittingMsa}
+            msaStatus={msaStatus}
+            msaResponseText={msaResponse}
             onAccept={onAcceptClick || (() => {})}
             previewMode={mode === "agency-preview"}
             onClosePreview={() => setPreviewDismissed(true)}

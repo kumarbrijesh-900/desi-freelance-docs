@@ -15,6 +15,8 @@ interface MSAAcceptanceModalProps {
   paymentTerms?: string;
   addendumNotes?: string;
   isSubmitting: boolean;
+  msaStatus?: string;
+  msaResponseText?: string | null;
   onAccept: () => void;
   onPropose?: () => void;
   previewMode?: boolean;
@@ -31,6 +33,8 @@ export default function MSAAcceptanceModal({
   paymentTerms,
   addendumNotes,
   isSubmitting,
+  msaStatus,
+  msaResponseText,
   onAccept,
   onPropose,
   previewMode = false,
@@ -39,7 +43,9 @@ export default function MSAAcceptanceModal({
   const params = useParams();
   const token = params?.token as string;
   
-  const [mode, setMode] = useState<ModalMode>("view");
+  const [mode, setMode] = useState<ModalMode>(
+    msaStatus === "proposed" || msaStatus === "REVISION ASKED" ? "success" : "view"
+  );
   const [proposalText, setProposalText] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
 
@@ -99,9 +105,38 @@ export default function MSAAcceptanceModal({
             <p className="mt-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
               Your counter-proposal for <strong>Invoice #{invoiceNumber}</strong> has been sent to {agencyName}. They will review your feedback and get back to you soon.
             </p>
+            {msaResponseText && (
+              <div className="mt-4 p-4 border-l-4 border-[#111118] bg-[color:var(--bg-surface-soft)] text-left">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-2">
+                  Client Note
+                </p>
+                <p className="text-[13px] font-medium text-[#111118] italic whitespace-pre-wrap">
+                  "{msaResponseText}"
+                </p>
+              </div>
+            )}
             <p className="mt-4 text-xs font-medium text-[color:var(--text-muted)] italic">
               This invoice will remain locked until terms are finalized.
             </p>
+            {previewMode && onClosePreview && (
+              <div className="mt-6 border-t-2 border-[#111118] pt-6">
+                <div className="border-2 border-[#111118] bg-[#FFD700] px-4 py-3 shadow-[4px_4px_0_#111118] mb-4 text-left">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-[#111118] mb-1">
+                    PREVIEW MODE
+                  </h3>
+                  <p className="text-xs font-medium text-[#111118]">
+                    This is the "Proposal Submitted" screen your client sees.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClosePreview}
+                  className="w-full border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[4px_4px_0_#111118] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                >
+                  Close Preview
+                </button>
+              </div>
+            )}
           </div>
         </MotionReveal>
       </div>
