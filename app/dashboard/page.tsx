@@ -1525,15 +1525,6 @@ export default function DashboardPage() {
                   >
                     Edit Invoice →
                   </Link>
-                  {selectedInvoice.shareToken && (
-                    <Link
-                      href={`/share/${selectedInvoice.shareToken}`}
-                      target="_blank"
-                      className="text-[11px] font-bold text-[color:var(--text-muted)] hover:text-[#111118] hover:underline uppercase tracking-wider"
-                    >
-                      View Live →
-                    </Link>
-                  )}
                 </div>
               </div>
 
