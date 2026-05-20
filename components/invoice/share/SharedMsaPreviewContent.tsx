@@ -146,7 +146,7 @@ export default function SharedMsaPreviewContent({
           Invoice #{invoiceNumber} • Shared via Lance
         </div>
 
-        {isMsaPending && mode === "client" && msaTerms && (
+        {isMsaPending && msaTerms && (
           <MSAAcceptanceModal
             invoiceNumber={invoiceNumber}
             agencyName={formData.agency?.agencyName || "The Freelancer"}
@@ -156,20 +156,8 @@ export default function SharedMsaPreviewContent({
             addendumNotes={addendum?.notes}
             isSubmitting={isSubmittingMsa}
             onAccept={onAcceptClick || (() => {})}
+            previewMode={mode === "agency-preview"}
           />
-        )}
-
-        {isMsaPending && mode === "agency-preview" && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-[600px]">
-            <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[8px_8px_0_#111118]">
-              <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
-                PREVIEW MODE
-              </h3>
-              <p className="text-sm font-medium text-[#111118]">
-                This is what your client sees when they open the link from their email. You cannot accept on their behalf.
-              </p>
-            </div>
-          </div>
         )}
       </main>
     </>

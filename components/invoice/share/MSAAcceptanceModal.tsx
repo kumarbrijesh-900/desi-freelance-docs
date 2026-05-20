@@ -15,6 +15,7 @@ interface MSAAcceptanceModalProps {
   isSubmitting: boolean;
   onAccept: () => void;
   onPropose?: () => void;
+  previewMode?: boolean;
 }
 
 type ModalMode = "view" | "propose" | "success";
@@ -29,6 +30,7 @@ export default function MSAAcceptanceModal({
   isSubmitting,
   onAccept,
   onPropose,
+  previewMode = false,
 }: MSAAcceptanceModalProps) {
   const params = useParams();
   const token = params?.token as string;
@@ -198,7 +200,16 @@ export default function MSAAcceptanceModal({
 
           {/* Actions */}
           <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-6 sm:px-8">
-            {mode === "view" ? (
+            {previewMode ? (
+              <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[8px_8px_0_#111118]">
+                <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
+                  PREVIEW MODE
+                </h3>
+                <p className="text-sm font-medium text-[#111118]">
+                  This is what your client sees when they open the link from their email. You cannot accept on their behalf.
+                </p>
+              </div>
+            ) : mode === "view" ? (
               <>
                 <p className="mb-5 text-xs leading-relaxed text-[color:var(--text-muted)]">
                   By clicking &quot;Accept Terms&quot;, you are electronically signing the Master Service Agreement and the Project Addendum for this engagement.
