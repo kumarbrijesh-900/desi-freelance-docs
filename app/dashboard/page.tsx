@@ -108,6 +108,8 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // --- Modal System ---
   interface ModalState {
@@ -152,6 +154,15 @@ export default function DashboardPage() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Detect mobile for default-expanded accordions
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
   function formatIndian(num: number): string {
@@ -1109,184 +1120,274 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Table */}
+            {/* Accordion Table */}
             <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr className="border-b-2 border-[#111118] bg-[#F8F8F4]">
-                  <th className="text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Client</th>
-                  <th className="hidden sm:table-cell text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Invoices</th>
-                  <th className="hidden sm:table-cell text-left px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Stages</th>
-                  <th className="text-right px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Receivable</th>
-                  <th className="hidden sm:table-cell text-right px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Collected</th>
-                  <th className="text-center px-4 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Health</th>
+                  <th className="w-[28px] px-2 py-2"></th>
+                  <th className="text-left px-3 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Client</th>
+                  <th className="hidden sm:table-cell text-center px-3 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Invoices</th>
+                  <th className="hidden sm:table-cell text-left px-3 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Progress</th>
+                  <th className="text-right px-3 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Receivable</th>
+                  <th className="text-center px-3 py-2 text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Health</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedClients.map((client) => (
-                  <tr
-                    key={client.clientId}
-                    className={cn(
-                      "border-b border-[color:var(--border-subtle)] hover:bg-[#F9F9F6] transition-colors",
-                      client.health === "overdue" && "bg-[#FFF5F2] hover:bg-[#FFF2EE]"
-                    )}
-                  >
-                    {/* Client name + city */}
-                    <td className="px-4 py-3 align-top">
-                      <p className="text-[13px] font-bold text-[#111118] m-0">{client.clientName}</p>
-                      <p className="text-[12px] text-[color:var(--text-muted)] m-0 mt-0.5">{client.clientCity || ""}</p>
-                    </td>
+                {filteredAndSortedClients.map((client) => {
+                  const isExpanded = expandedClientId === client.clientId || isMobile;
+                  const allMilestones = client.invoices.flatMap(inv => inv.milestones);
+                  const sparkTotal = allMilestones.reduce((sum, m) => sum + (m.amount || 0), 0) || 1;
 
-                    {/* Invoice numbers stacked */}
-                    <td className="hidden sm:table-cell px-4 py-3 align-top">
-                      {client.invoices.map((inv) => (
-                        <p
-                          key={inv.id}
-                          onClick={() => setSelectedInvoice(inv)}
-                          className="text-[12px] font-bold text-[#111118] m-0 leading-relaxed cursor-pointer hover:underline hover:text-[#FF5C00] transition-colors select-none"
-                        >
-                          {inv.invoiceNumber}
-                        </p>
-                      ))}
-                    </td>
+                  // Count milestones by status for the summary text
+                  const statusCounts = allMilestones.reduce((acc, m) => {
+                    const s = (m.status || "pending").toLowerCase();
+                    if (s === "settled") acc.settled++;
+                    else if (s === "overdue") acc.overdue++;
+                    else if (["live", "sent", "finalized"].includes(s)) acc.live++;
+                    else acc.pending++;
+                    return acc;
+                  }, { settled: 0, live: 0, overdue: 0, pending: 0 });
 
-                    {/* Milestone stage details - one row per invoice */}
-                    <td className="hidden sm:table-cell px-4 py-3 align-top max-w-[340px]">
-                      {client.invoices.map((inv) => (
-                        <div key={inv.id} className="mb-3 last:mb-0 border border-[#111118] bg-white p-2 shadow-[1px_1px_0_#111118]">
-                          {/* Invoice Label */}
-                          <div className="text-[10px] uppercase font-extrabold text-[color:var(--text-muted)] border-b border-[#111118]/20 pb-1 mb-1.5 flex justify-between">
-                            <span>{inv.invoiceNumber}</span>
-                            <span className="font-extrabold text-[#111118]">₹{formatIndian(inv.totalAmount)}</span>
+                  return (
+                    <tbody key={client.clientId}>
+                      {/* ── Collapsed Row ── */}
+                      <tr
+                        onClick={() => !isMobile && setExpandedClientId(isExpanded ? null : client.clientId)}
+                        className={cn(
+                          "border-b border-[color:var(--border-subtle)] transition-colors select-none",
+                          !isMobile && "cursor-pointer hover:bg-[#F9F9F6]",
+                          client.health === "overdue" && "bg-[#FFF5F2] hover:bg-[#FFF2EE]",
+                          isExpanded && !isMobile && "bg-[#F5F5F0]"
+                        )}
+                      >
+                        {/* Chevron */}
+                        <td className="px-2 py-3 align-middle text-center hidden sm:table-cell">
+                          <div className={cn(
+                            "w-[18px] h-[18px] border-2 border-[#111118] flex items-center justify-center text-[10px] font-black transition-transform duration-200 mx-auto",
+                            isExpanded ? "bg-[#BEFF00] rotate-90" : "bg-white"
+                          )}>
+                            ▶
                           </div>
+                        </td>
 
-                          {inv.milestones.length > 0 ? (
-                            <div className="space-y-2">
-                              {inv.milestones.map((m, mi) => {
-                                const s = (m.status || "").toLowerCase();
-                                const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
-                                const bg = s === "settled" ? "#00DCB4"
-                                  : s === "overdue" ? "#FF5C00"
-                                  : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                  : s === "draft" ? "#8B5CF6"
-                                  : "#E0E0E0";
-                                
-                                const title = m.title || "(No Milestone Title)";
-                                const items = inv.lineItems || [];
-                                const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
-                                const mainServiceType = milestoneItems[0]?.type || inv.lineItems?.[0]?.description || "General Services";
+                        {/* Client name + city */}
+                        <td className="px-3 py-3 align-middle">
+                          <p className="text-[13px] font-bold text-[#111118] m-0">{client.clientName}</p>
+                          <p className="text-[11px] text-[color:var(--text-muted)] m-0 mt-0.5">{client.clientCity || ""}</p>
+                        </td>
 
-                                // Due days calculation
-                                let dueDateText = "";
-                                let isPastDue = false;
-                                if (s === "settled") {
-                                  dueDateText = "Settled";
-                                } else if (isPending) {
-                                  const todayVal = new Date();
-                                  const dueDateStr = inv.dueDate;
-                                  if (dueDateStr) {
-                                    const dueDateObj = new Date(dueDateStr);
-                                    const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
-                                    if (diffDays < 0) {
-                                      isPastDue = true;
-                                      dueDateText = `${Math.abs(diffDays)} days past due`;
-                                    } else if (diffDays === 0) {
-                                      dueDateText = "Due today";
-                                    } else {
-                                      dueDateText = `${diffDays} days till due date`;
-                                    }
-                                  } else {
-                                    dueDateText = "Pending";
-                                  }
-                                } else {
-                                  dueDateText = "Upcoming";
-                                }
+                        {/* Invoice count badge */}
+                        <td className="hidden sm:table-cell px-3 py-3 align-middle text-center">
+                          <span className="inline-flex items-center justify-center border-2 border-[#111118] bg-[#FFFBE6] px-2 py-0.5 text-[11px] font-black text-[#111118] shadow-[1px_1px_0_#111118] min-w-[50px]">
+                            {client.invoices.length} {client.invoices.length === 1 ? "inv" : "invs"}
+                          </span>
+                        </td>
 
-                                return (
-                                  <div key={mi} className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[11px] leading-relaxed">
-                                    {/* Milestone Header */}
-                                    <div className="flex justify-between items-start border-b border-[#111118]/20 pb-1 mb-1">
-                                      <span className="font-extrabold text-[#111118] truncate max-w-[70%]">{title}</span>
-                                      <span className="text-[9px] font-black uppercase px-1 border border-[#111118]" style={{ backgroundColor: bg }}>
-                                        {s}
-                                      </span>
+                        {/* Spark Bar */}
+                        <td className="hidden sm:table-cell px-3 py-3 align-middle">
+                          <div className="flex flex-col gap-1">
+                            {allMilestones.length > 0 ? (
+                              <div className="w-[100px] h-[10px] border-2 border-[#111118] flex overflow-hidden shadow-[1px_1px_0_#111118]">
+                                {allMilestones.map((m, i) => {
+                                  const s = (m.status || "").toLowerCase();
+                                  const bg = s === "settled" ? "#00DCB4"
+                                    : s === "overdue" ? "#FF5C00"
+                                    : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
+                                    : s === "draft" ? "#8B5CF6"
+                                    : "#E0E0E0";
+                                  const widthPct = Math.max((m.amount / sparkTotal) * 100, 3);
+                                  return (
+                                    <div
+                                      key={i}
+                                      style={{ width: `${widthPct}%`, backgroundColor: bg }}
+                                      className="h-full border-r border-[#111118]/20 last:border-r-0"
+                                    />
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="w-[100px] h-[10px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[1px_1px_0_#111118]" />
+                            )}
+                            <p className="text-[9px] text-[color:var(--text-muted)] font-bold m-0 whitespace-nowrap">
+                              {statusCounts.settled > 0 && <span className="text-[#00967D]">{statusCounts.settled} settled</span>}
+                              {statusCounts.settled > 0 && (statusCounts.live > 0 || statusCounts.overdue > 0 || statusCounts.pending > 0) && " · "}
+                              {statusCounts.live > 0 && <span className="text-[#4A7A00]">{statusCounts.live} live</span>}
+                              {statusCounts.live > 0 && (statusCounts.overdue > 0 || statusCounts.pending > 0) && " · "}
+                              {statusCounts.overdue > 0 && <span className="text-[#FF5C00]">{statusCounts.overdue} overdue</span>}
+                              {statusCounts.overdue > 0 && statusCounts.pending > 0 && " · "}
+                              {statusCounts.pending > 0 && <span>{statusCounts.pending} pending</span>}
+                              {allMilestones.length === 0 && <span>No milestones</span>}
+                            </p>
+                          </div>
+                        </td>
+
+                        {/* Receivable */}
+                        <td className={cn("px-3 py-3 text-right align-middle text-[14px] font-bold", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
+                          ₹{formatIndian(client.totalOwed)}
+                        </td>
+
+                        {/* Health */}
+                        <td className="px-3 py-3 text-center align-middle select-none">
+                          <span className={cn(
+                            "text-[10px] font-bold px-2 py-0.5 border-[1.5px] border-[#111118] inline-block uppercase tracking-wider shadow-[1px_1px_0_#111118]",
+                            client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
+                            client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
+                            client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
+                            client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
+                          )}>
+                            {client.health === "good" ? "GOOD" : client.health === "overdue" ? "LATE" : client.health === "clear" ? "CLEAR" : "DRAFT"}
+                          </span>
+                        </td>
+                      </tr>
+
+                      {/* ── Expanded Section ── */}
+                      {isExpanded && (
+                        <tr className="border-b-2 border-[#111118]">
+                          <td colSpan={6} className="p-0">
+                            <div className={cn(
+                              "border-l-4 bg-[#FAFAF6] px-4 py-4 sm:px-6",
+                              client.health === "good" && "border-l-[#00DCB4]",
+                              client.health === "overdue" && "border-l-[#FF5C00]",
+                              client.health === "clear" && "border-l-[#00967D]",
+                              client.health === "draft" && "border-l-[#8B5CF6]"
+                            )}>
+                              {/* Invoice cards */}
+                              <div className="space-y-3">
+                                {client.invoices.map((inv) => (
+                                  <div key={inv.id} className="border-2 border-[#111118] bg-white shadow-[2px_2px_0_#111118]">
+                                    {/* Invoice header */}
+                                    <div className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
+                                        className="text-[12px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0"
+                                      >
+                                        {inv.invoiceNumber} →
+                                      </button>
+                                      <span className="text-[13px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
                                     </div>
 
-                                    {/* Detailed Line Items */}
-                                    <div className="space-y-1 mt-1 text-[10px]">
-                                      {milestoneItems.length > 0 ? (
-                                        milestoneItems.map((li: any, liIdx: number) => (
-                                          <div key={liIdx} className="text-[#111118]/90">
-                                            <span className="font-bold">• {li.description || "No description"}</span>
-                                            <div className="text-[9px] text-[color:var(--text-muted)] pl-2">
-                                              {li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)} ({li.type || mainServiceType})
-                                            </div>
-                                          </div>
-                                        ))
+                                    {/* Milestones */}
+                                    <div className="p-3">
+                                      {inv.milestones.length > 0 ? (
+                                        <div className="space-y-2">
+                                          {inv.milestones.map((m, mi) => {
+                                            const s = (m.status || "").toLowerCase();
+                                            const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
+                                            const bg = s === "settled" ? "#00DCB4"
+                                              : s === "overdue" ? "#FF5C00"
+                                              : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
+                                              : s === "draft" ? "#8B5CF6"
+                                              : "#E0E0E0";
+
+                                            const title = m.title || "(No Milestone Title)";
+                                            const items = inv.lineItems || [];
+                                            const milestoneItems = items.filter((i: any) => i.milestone_index === m.orderIndex);
+
+                                            // Due days calculation
+                                            let dueDateText = "";
+                                            let isPastDue = false;
+                                            if (s === "settled") {
+                                              dueDateText = "Settled";
+                                            } else if (isPending) {
+                                              const todayVal = new Date();
+                                              const dueDateStr = inv.dueDate;
+                                              if (dueDateStr) {
+                                                const dueDateObj = new Date(dueDateStr);
+                                                const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
+                                                if (diffDays < 0) {
+                                                  isPastDue = true;
+                                                  dueDateText = `${Math.abs(diffDays)} days past due`;
+                                                } else if (diffDays === 0) {
+                                                  dueDateText = "Due today";
+                                                } else {
+                                                  dueDateText = `${diffDays} days till due`;
+                                                }
+                                              } else {
+                                                dueDateText = "Pending";
+                                              }
+                                            } else {
+                                              dueDateText = "Upcoming";
+                                            }
+
+                                            return (
+                                              <div key={mi} className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[11px] leading-relaxed">
+                                                <div className="flex justify-between items-start border-b border-[#111118]/20 pb-1 mb-1">
+                                                  <span className="font-extrabold text-[#111118] truncate max-w-[70%]">{title}</span>
+                                                  <span className="text-[9px] font-black uppercase px-1 border border-[#111118]" style={{ backgroundColor: bg }}>
+                                                    {s}
+                                                  </span>
+                                                </div>
+
+                                                <div className="space-y-1 mt-1 text-[10px]">
+                                                  {milestoneItems.length > 0 ? (
+                                                    milestoneItems.map((li: any, liIdx: number) => (
+                                                      <div key={liIdx} className="text-[#111118]/90">
+                                                        <span className="font-bold">• {li.description || "No description"}</span>
+                                                        <div className="text-[9px] text-[color:var(--text-muted)] pl-2">
+                                                          {li.qty} {li.unit || 'unit'} @ ₹{formatIndian(li.rate || 0)} ({li.type || "General"})
+                                                        </div>
+                                                      </div>
+                                                    ))
+                                                  ) : (
+                                                    <div className="text-[9px] text-[color:var(--text-muted)] italic pl-2">No description or line items provided</div>
+                                                  )}
+                                                </div>
+
+                                                <div className="border-t border-[#111118]/20 pt-1 mt-1 flex justify-between items-center text-[10px] font-semibold">
+                                                  <span className={isPastDue ? "text-[#FF5C00] font-black" : "text-[color:var(--text-muted)]"}>
+                                                    {dueDateText}
+                                                  </span>
+                                                  <span className="font-bold text-[#111118]">
+                                                    Total: ₹{formatIndian(m.amount)}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
                                       ) : (
-                                        <div className="text-[9px] text-[color:var(--text-muted)] italic pl-2">No description or line items provided</div>
+                                        <div className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[10px] leading-relaxed">
+                                          <div className="font-extrabold border-b border-[#111118]/20 pb-1 mb-1 uppercase">Standard Invoice</div>
+                                          <div className="text-[color:var(--text-muted)]">
+                                            Amount: ₹{formatIndian(inv.totalAmount)}
+                                          </div>
+                                        </div>
                                       )}
                                     </div>
+                                  </div>
+                                ))}
+                              </div>
 
-                                    {/* Footer */}
-                                    <div className="border-t border-[#111118]/20 pt-1 mt-1 flex justify-between items-center text-[10px] font-semibold">
-                                      <span className={isPastDue ? "text-[#FF5C00] font-black" : "text-[color:var(--text-muted)]"}>
-                                        {dueDateText}
-                                      </span>
-                                      <span className="font-bold text-[#111118]">
-                                        Total: ₹{formatIndian(m.amount)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            (() => {
-                              const mainServiceType = inv.lineItems?.[0]?.description || "General Services";
-                              return (
-                                <div className="border border-[#111118]/40 p-2 bg-[#FFFBE6] text-[10px] leading-relaxed">
-                                  <div className="font-extrabold border-b border-[#111118]/20 pb-1 mb-1 uppercase">Standard Invoice</div>
-                                  <div className="text-[color:var(--text-muted)]">
-                                    Type: {mainServiceType} | Amount: ₹{formatIndian(inv.totalAmount)}
-                                  </div>
+                              {/* Summary footer */}
+                              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t-2 border-dashed border-[#111118]/30 pt-3">
+                                <div className="flex gap-4 text-[12px]">
+                                  <span>
+                                    <span className="font-bold text-[color:var(--text-muted)] uppercase text-[10px] tracking-wider">Receivable: </span>
+                                    <span className={cn("font-black", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>₹{formatIndian(client.totalOwed)}</span>
+                                  </span>
+                                  <span>
+                                    <span className="font-bold text-[color:var(--text-muted)] uppercase text-[10px] tracking-wider">Collected: </span>
+                                    <span className={cn("font-black", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>₹{formatIndian(client.totalCollected)}</span>
+                                  </span>
                                 </div>
-                              );
-                            })()
-                          )}
-                        </div>
-                      ))}
-                    </td>
-
-                    {/* Receivable */}
-                    <td className={cn("px-4 py-3 text-right align-top text-[14px] font-bold", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
-                      ₹{formatIndian(client.totalOwed)}
-                    </td>
-
-                    {/* Collected */}
-                    <td className={cn("hidden sm:table-cell px-4 py-3 text-right align-top text-[14px] font-bold", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>
-                      ₹{formatIndian(client.totalCollected)}
-                    </td>
-
-                    {/* Health */}
-                    <td className="px-4 py-3 text-center align-top select-none">
-                      <span className={cn(
-                        "text-[10px] font-bold px-2.5 py-1 border-[1.5px] border-[#111118] inline-block uppercase tracking-wider shadow-[1px_1px_0_#111118]",
-                        client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                        client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
-                        client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
-                        client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
-                      )}>
-                        {client.health === "good" ? "GOOD (On Track)" : client.health === "overdue" ? "LATE (Overdue)" : client.health === "clear" ? "CLEAR (Paid)" : "DRAFT ONLY"}
-                      </span>
-                      <p className="text-[9px] text-[color:var(--text-muted)] font-black mt-1.5 uppercase tracking-wider leading-tight whitespace-nowrap">
-                        {client.health === "good" && "Payments on track"}
-                        {client.health === "overdue" && "Has unpaid past due"}
-                        {client.health === "clear" && "All invoices settled"}
-                        {client.health === "draft" && "Drafts not yet sent"}
-                      </p>
-                    </td>
-                  </tr>
-                ))}
+                                <div className="flex gap-2">
+                                  {client.invoices.length > 0 && (
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); setSelectedInvoice(client.invoices[0]); }}
+                                      className="text-[10px] font-bold text-[color:var(--brand-indigo)] hover:underline uppercase tracking-wider cursor-pointer bg-transparent border-none p-0"
+                                    >
+                                      View Details →
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  );
+                })}
               </tbody>
             </table>
 
