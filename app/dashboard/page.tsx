@@ -1929,9 +1929,9 @@ export default function DashboardPage() {
           </div>
 
           {/* SECTION 5: ACTIVITY + QUICK LINKS + DEADLINES */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-3 pb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8 w-full">
             {/* Activity feed */}
-            <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+            <div className="lg:col-span-7 xl:col-span-8 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] h-fit">
               <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
                 <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
                   RECENT ACTIVITY
@@ -1983,7 +1983,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Right column */}
-            <div className="flex flex-col gap-3">
+            <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
               {/* Quick links */}
               <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
                 <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
