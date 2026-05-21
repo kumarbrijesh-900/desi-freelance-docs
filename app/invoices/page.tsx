@@ -42,6 +42,7 @@ import {
   markInvoiceAsTracked,
 } from "@/lib/supabase/invoices";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
+import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import {
   getClientSessionUser,
   supabase,
@@ -53,6 +54,19 @@ import SettlementModal from "@/components/invoice/SettlementModal";
 /* ─── Helpers ────────────────────────────────────── */
 
 const PREVIEW_KEY = "invoice-preview-data";
+
+type SettlementOutcome =
+  | {
+      kind: "next";
+      parentInvoiceId: string;
+      nextMilestoneIndex: number;
+      nextMilestoneName: string;
+      totalMilestones: number;
+    }
+  | {
+      kind: "cycle";
+      invoiceId: string;
+    };
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("en-IN", {
@@ -294,6 +308,7 @@ function InvoiceRow({
   isSelected,
   onToggleSelect,
   onToggleTracking,
+  recentlySettledMilestoneId,
 }: {
   invoice: SavedInvoice;
   viewCount: number;
@@ -308,6 +323,7 @@ function InvoiceRow({
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
   onToggleTracking: (id: string) => void;
+  recentlySettledMilestoneId: string | null;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -514,12 +530,18 @@ function InvoiceRow({
           {(invoice.milestones ?? []).length > 0 ? (
             invoice.milestones!.map((m: any, idx: number) => {
               const isSettled = m.status === "SETTLED";
+              const isRecentlySettled = recentlySettledMilestoneId === m.id;
               const currency = invoice.form_data?.client?.clientCurrency || "INR";
               const symbol = currency === "USD" ? "$" : "₹";
               
               return (
                 <React.Fragment key={m.id}>
-                  <tr className="bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub">
+                  <tr
+                    className={cn(
+                      "bg-[color:var(--bg-surface-soft)] border-b border-[color:var(--border-subtle)] group/sub transition-colors duration-500",
+                      isRecentlySettled && "bg-[#E0FFF7]",
+                    )}
+                  >
                     <td colSpan={2} className="pl-12 py-3 text-[12px] font-medium text-[color:var(--text-secondary)] relative">
                       <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-gray-200" />
                       ↳ Milestone {(m.order_index ?? idx) + 1}: {m.title || "Untitled"}
@@ -548,7 +570,11 @@ function InvoiceRow({
                           ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
                           : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
                       )}>
-                        {isSettled ? "Settled" : "Payment Pending"}
+                        {isSettled ? (
+                          <span className="inline-flex items-center gap-1">
+                            Settled {isRecentlySettled ? "✓" : ""}
+                          </span>
+                        ) : "Payment Pending"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -809,6 +835,8 @@ export default function InvoiceHistoryPage() {
     symbol: string;
   } | null>(null);
   const [settlementError, setSettlementError] = useState<string | null>(null);
+  const [settlementOutcome, setSettlementOutcome] = useState<SettlementOutcome | null>(null);
+  const [recentlySettledMilestoneId, setRecentlySettledMilestoneId] = useState<string | null>(null);
 
   const [showCycleComplete, setShowCycleComplete] = useState<boolean>(false);
 
@@ -906,7 +934,10 @@ export default function InvoiceHistoryPage() {
     setDeletingId(id);
     setDeleteTargetId(null);
     const { error } = await deleteInvoice(id);
-    if (!error) setInvoices((prev) => prev.filter((i) => i.id !== id));
+    if (!error) {
+      setInvoices((prev) => prev.filter((i) => i.id !== id));
+      announceInvoiceDataChanged({ invoiceId: id, action: "invoice_deleted" });
+    }
     setDeletingId(null);
   };
 
@@ -951,6 +982,7 @@ export default function InvoiceHistoryPage() {
       const formMilestoneIndex = relMilestoneIndex >= 0 ? relMilestoneIndex : 0;
 
       setSettlementError(null);
+      setSettlementOutcome(null);
       setActiveSettlement({
         invoiceId: id,
         milestoneId,
@@ -968,22 +1000,20 @@ export default function InvoiceHistoryPage() {
 
   const handleConfirmFullSettlement = async () => {
     if (!activeFullSettlementId) return;
-    setSettlingId(activeFullSettlementId);
-    
-    const { error } = await supabase
-      .from('invoices')
-      .update({ 
-        status: 'settled', 
-        settled_at: new Date().toISOString() 
-      })
-      .eq('id', activeFullSettlementId);
+    const invoiceId = activeFullSettlementId;
+    setSettlingId(invoiceId);
 
+    const { error } = await markInvoiceSettled(invoiceId);
     if (!error) {
       setInvoices((prev) =>
         prev.map((inv) =>
-          inv.id === activeFullSettlementId ? { ...inv, status: "settled" as any } : inv,
+          inv.id === invoiceId
+            ? { ...inv, status: "SETTLED" as any, settled_at: new Date().toISOString() }
+            : inv,
         ),
       );
+      announceInvoiceDataChanged({ invoiceId, action: "invoice_settled" });
+      setShowCycleComplete(true);
     }
     setSettlingId(null);
     setActiveFullSettlementId(null);
@@ -994,9 +1024,14 @@ export default function InvoiceHistoryPage() {
     const { invoiceId, milestoneId, milestoneIndex: currentMilestoneIndex } = activeSettlement;
     setSettlingId(milestoneId);
     setSettlementError(null);
+    setSettlementOutcome(null);
 
     // Step 1: Settle the milestone row
-    const { error: msError } = await markMilestoneSettled(
+    const {
+      error: msError,
+      invoiceStatus,
+      settledAt,
+    } = await markMilestoneSettled(
       invoiceId,
       currentMilestoneIndex,
       tdsAmount,
@@ -1019,30 +1054,6 @@ export default function InvoiceHistoryPage() {
       (currentMilestonePosition >= 0 ? currentMilestonePosition : currentMilestoneIndex) + 1;
     const hasMoreMilestones = nextMilestoneIndex < milestones.length;
 
-    if (hasMoreMilestones) {
-      // Show next milestone modal instead of fully settling
-      const nextMilestone = milestones[nextMilestoneIndex];
-      setActiveSettlement(null);
-      setSettlementError(null);
-      setSettlingId(null);
-      setActiveNextMilestone({
-        parentInvoiceId: invoiceId,
-        nextMilestoneIndex,
-        nextMilestoneName: nextMilestone?.title || `Milestone ${nextMilestoneIndex + 1}`,
-        totalMilestones: milestones.length,
-        sendingNext: false,
-      });
-      return;
-    }
-
-    // No more milestones — settle the full invoice
-    const { error: invoiceError } = await markInvoiceSettled(invoiceId);
-    if (invoiceError) {
-      console.error('Failed to settle invoice:', invoiceError);
-      setSettlingId(null);
-      return;
-    }
-
     // Update local UI state
     setInvoices((prev) =>
       prev.map((i) => {
@@ -1054,16 +1065,63 @@ export default function InvoiceHistoryPage() {
         );
         return {
           ...i,
-          status: 'settled' as any,
-          settled_at: new Date().toISOString(),
+          status: (invoiceStatus ?? (hasMoreMilestones ? "PARTIAL" : "SETTLED")) as any,
+          settled_at: settledAt ?? i.settled_at,
           milestones: updatedRelMilestones,
         };
       })
     );
 
-    setActiveSettlement(null);
+    announceInvoiceDataChanged({
+      invoiceId,
+      action: hasMoreMilestones ? "milestone_settled" : "invoice_cycle_complete",
+    });
+    setRecentlySettledMilestoneId(milestoneId);
+    window.setTimeout(() => {
+      setRecentlySettledMilestoneId((current) =>
+        current === milestoneId ? null : current,
+      );
+    }, 1600);
+    void listInvoices().then(({ data, error }) => {
+      if (!error) setInvoices(data ?? []);
+    });
+
+    if (hasMoreMilestones) {
+      const nextMilestone = milestones[nextMilestoneIndex];
+      setSettlementOutcome({
+        kind: "next",
+        parentInvoiceId: invoiceId,
+        nextMilestoneIndex,
+        nextMilestoneName: nextMilestone?.title || `Milestone ${nextMilestoneIndex + 1}`,
+        totalMilestones: milestones.length,
+      });
+    } else {
+      setSettlementOutcome({ kind: "cycle", invoiceId });
+    }
+
     setSettlementError(null);
     setSettlingId(null);
+  };
+
+  const handleSettlementContinue = () => {
+    const outcome = settlementOutcome;
+    setActiveSettlement(null);
+    setSettlementError(null);
+    setSettlementOutcome(null);
+
+    if (!outcome) return;
+
+    if (outcome.kind === "next") {
+      setActiveNextMilestone({
+        parentInvoiceId: outcome.parentInvoiceId,
+        nextMilestoneIndex: outcome.nextMilestoneIndex,
+        nextMilestoneName: outcome.nextMilestoneName,
+        totalMilestones: outcome.totalMilestones,
+        sendingNext: false,
+      });
+      return;
+    }
+
     setShowCycleComplete(true);
   };
 
@@ -1090,6 +1148,10 @@ export default function InvoiceHistoryPage() {
       // Refresh invoice list to show new child invoice
       const { data: refreshed } = await listInvoices();
       setInvoices(refreshed);
+      announceInvoiceDataChanged({
+        invoiceId: activeNextMilestone.parentInvoiceId,
+        action: "next_milestone_sent",
+      });
       setActiveNextMilestone(null);
     } catch (err) {
       alert("Network error. Please try again.");
@@ -1105,10 +1167,14 @@ export default function InvoiceHistoryPage() {
       setInvoices((prev) =>
         prev.map((i) =>
           i.id === activeNextMilestone.parentInvoiceId
-            ? { ...i, status: 'settled' as any, settled_at: new Date().toISOString() }
+            ? { ...i, status: 'SETTLED' as any, settled_at: new Date().toISOString() }
             : i
         )
       );
+      announceInvoiceDataChanged({
+        invoiceId: activeNextMilestone.parentInvoiceId,
+        action: "project_closed",
+      });
     }
     setActiveNextMilestone(null);
   };
@@ -1768,6 +1834,7 @@ export default function InvoiceHistoryPage() {
                           isSelected={selectedIds.has(inv.id)}
                           onToggleSelect={toggleSelect}
                           onToggleTracking={handleToggleTracking}
+                          recentlySettledMilestoneId={recentlySettledMilestoneId}
                         />
                       ))}
                     </tbody>
@@ -1782,14 +1849,36 @@ export default function InvoiceHistoryPage() {
             isOpen={!!activeSettlement}
             onClose={() => {
               setSettlementError(null);
+              setSettlementOutcome(null);
               setActiveSettlement(null);
             }}
             onConfirm={handleConfirmMilestoneSettlement}
+            onContinue={handleSettlementContinue}
             milestoneName={activeSettlement?.name || ""}
             subtotal={activeSettlement?.subtotal || 0}
             currencySymbol={activeSettlement?.symbol || "₹"}
             isSubmitting={!!settlingId}
             errorMessage={settlementError}
+            state={
+              settlementOutcome
+                ? "success"
+                : settlementError
+                  ? "error"
+                  : settlingId
+                    ? "submitting"
+                    : "idle"
+            }
+            successTitle="Milestone Settled"
+            successMessage={
+              settlementOutcome?.kind === "cycle"
+                ? "Payment recorded. This was the final milestone, so the invoice cycle is ready to close."
+                : `Payment recorded for ${activeSettlement?.name || "this milestone"}.`
+            }
+            continueLabel={
+              settlementOutcome?.kind === "cycle"
+                ? "Close Invoice Cycle"
+                : "Continue"
+            }
           />
 
           <InvoiceSettlementConfirmModal

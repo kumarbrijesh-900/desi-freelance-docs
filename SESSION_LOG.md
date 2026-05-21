@@ -1403,6 +1403,37 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
+## v2.8.7 SETTLEMENT SUCCESS UX & DASHBOARD REFRESH SYNC — May 22, 2026
+
+### Phase XLVI: Settlement State Machine and Cross-Surface Data Freshness
+- ✅ **Settlement Modal Success State**:
+  - Reworked the milestone settlement modal so `Confirm Settlement` transitions through explicit states: idle, submitting, success, and error.
+  - On success, the modal now transforms into a "Milestone Settled" confirmation with a `Continue` CTA instead of remaining stuck on the original form.
+  - Final milestones now continue into the invoice cycle completion modal, while non-final milestones continue into the next-milestone prompt.
+- ✅ **Invoice List Optimistic Feedback**:
+  - Added immediate local status patching after milestone settlement, including a short success highlight/checkmark on the settled milestone row.
+  - Removed the redundant second full-invoice settlement call from the final milestone path; `markMilestoneSettled` now sets the parent invoice status and `settled_at` when all milestones are settled.
+- ✅ **Dashboard Refresh Synchronization**:
+  - Added `lib/invoice-events.ts` as a lightweight browser event + localStorage signal for invoice data changes.
+  - The Invoices list emits data-change events after settlement, next milestone sends, project close, and delete actions.
+  - The Dashboard listens for same-tab events, cross-tab storage updates, focus, and visibility changes, then refetches invoice/milestone data so dashboard metrics and ledgers reflect actions performed in the Invoices list.
+- ✅ **Dashboard Receivable Logic**:
+  - Updated dashboard outstanding/overdue/ledger filters to treat `PARTIAL` and `SAVED` invoices as receivables, so milestone invoices remain visible after partial settlement until fully paid.
+
+### Verification
+- ✅ `npm run build` passed with only existing Upstash Redis environment warnings.
+- ✅ Local browser smoke check passed for `/invoices` and `/dashboard` on `http://localhost:3000`.
+
+### Files modified in v2.8.7
+- `app/dashboard/page.tsx`
+- `app/invoices/page.tsx`
+- `components/invoice/SettlementModal.tsx`
+- `lib/invoice-events.ts`
+- `lib/supabase/invoices.ts`
+- `SESSION_LOG.md`
+
+---
+
 ## Start next chat with this prompt
 
 > *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*

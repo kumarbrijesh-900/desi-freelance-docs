@@ -9,6 +9,11 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { markInvoiceSettled, cancelInvoice } from "@/lib/supabase/invoices";
+import {
+  announceInvoiceDataChanged,
+  INVOICE_DATA_CHANGED_EVENT,
+  INVOICE_DATA_CHANGED_STORAGE_KEY,
+} from "@/lib/invoice-events";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
 
 interface DashboardMetrics {
@@ -33,10 +38,12 @@ interface ClientHealth {
     totalAmount: number;
     dueDate: string;
     milestones: Array<{
+      id?: string;
       title: string;
       status: string;
       amount: number;
       orderIndex: number;
+      order_index?: number;
     }>;
     has_addendum?: boolean;
     msa_id?: string | null;
@@ -102,6 +109,10 @@ function parsePaymentTermsDays(termsStr?: string | null): number {
   return 15;
 }
 
+function isReceivableStatus(status: string) {
+  return ["finalized", "sent", "partial", "saved"].includes(status.toLowerCase());
+}
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
@@ -130,6 +141,7 @@ export default function DashboardPage() {
   const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [dismissedCards, setDismissedCards] = useState<Set<string>>(new Set());
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   // --- Modal System ---
   interface ModalState {
@@ -183,6 +195,32 @@ export default function DashboardPage() {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    const refreshDashboard = () => setRefreshNonce((value) => value + 1);
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === INVOICE_DATA_CHANGED_STORAGE_KEY) {
+        refreshDashboard();
+      }
+    };
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        refreshDashboard();
+      }
+    };
+
+    window.addEventListener(INVOICE_DATA_CHANGED_EVENT, refreshDashboard);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", refreshDashboard);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener(INVOICE_DATA_CHANGED_EVENT, refreshDashboard);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", refreshDashboard);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   function formatIndian(num: number): string {
@@ -321,7 +359,12 @@ export default function DashboardPage() {
         showAlert("Invoice Settled", `All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully paid.`, "success");
       }
 
-      setTimeout(() => window.location.reload(), 1500);
+      announceInvoiceDataChanged({
+        invoiceId: selectedInvoice.id,
+        action: "dashboard_milestone_settled",
+      });
+      setRefreshNonce((value) => value + 1);
+      setSelectedInvoice(null);
     } catch (err) {
       console.error(err);
       showAlert("Error", "An unexpected error occurred during milestone settlement.", "error");
@@ -478,7 +521,9 @@ export default function DashboardPage() {
               title: m.title || "Untitled",
               status: (m.status || "pending").toLowerCase(),
               amount: Number(m.amount || 0),
+              id: m.id,
               orderIndex: m.order_index ?? 0,
+              order_index: m.order_index ?? 0,
             }));
 
           let totalAmount = 0;
@@ -528,8 +573,8 @@ export default function DashboardPage() {
             }
           }
 
-          // Outstanding (finalized or sent, not settled)
-          if (statusLower === "finalized" || statusLower === "sent") {
+          // Outstanding receivables include partially paid milestone invoices.
+          if (isReceivableStatus(statusLower)) {
             outstanding += totalAmount;
             outstandingCount++;
           }
@@ -540,8 +585,8 @@ export default function DashboardPage() {
             settledCount++;
           }
 
-          // Overdue (sent status and isOverdue)
-          if (statusLower === "sent" && isOverdue) {
+          // Overdue receivables
+          if (isReceivableStatus(statusLower) && isOverdue) {
             overdue += totalAmount;
             overdueCount++;
           }
@@ -669,7 +714,7 @@ export default function DashboardPage() {
               allDraft = false;
             }
 
-            if (statusLower === "sent" || statusLower === "finalized") {
+            if (isReceivableStatus(statusLower)) {
               if (inv.dueDate) {
                 const due = new Date(inv.dueDate);
                 due.setHours(0, 0, 0, 0);
@@ -743,7 +788,7 @@ export default function DashboardPage() {
     }
 
     initDashboard();
-  }, [router]);
+  }, [router, refreshNonce]);
 
   // Handle automatic selection of invoice from URL parameter
   useEffect(() => {
@@ -789,7 +834,7 @@ export default function DashboardPage() {
         }
 
         // Priority 2: Past Due
-        if (status === "finalized" && inv.dueDate) {
+        if (isReceivableStatus(status) && inv.dueDate) {
           const due = new Date(inv.dueDate);
           due.setHours(0, 0, 0, 0);
           const daysPast = Math.ceil((today.getTime() - due.getTime()) / 86400000);
@@ -800,7 +845,7 @@ export default function DashboardPage() {
         }
 
         // Priority 3: Due Soon (within 3 days)
-        if (status === "finalized" && inv.dueDate) {
+        if (isReceivableStatus(status) && inv.dueDate) {
           const due = new Date(inv.dueDate);
           due.setHours(0, 0, 0, 0);
           const daysUntil = Math.ceil((due.getTime() - today.getTime()) / 86400000);
@@ -875,6 +920,8 @@ export default function DashboardPage() {
         }))
       );
       if (selectedInvoice?.id === inv.id) setSelectedInvoice(null);
+      announceInvoiceDataChanged({ invoiceId: inv.id, action: "project_cancelled" });
+      setRefreshNonce((value) => value + 1);
       showAlert("Project Closed", `${inv.invoiceNumber} has been cancelled.`, "success");
     } catch (err) {
       showAlert("Error", "Failed to cancel project. Please try again.", "error");
@@ -944,7 +991,7 @@ export default function DashboardPage() {
 
       if (filterType === "outstanding") {
         return client.invoices.some(
-          (inv) => inv.status.toLowerCase() === "sent" || inv.status.toLowerCase() === "finalized"
+          (inv) => isReceivableStatus(inv.status)
         );
       }
 
@@ -956,7 +1003,7 @@ export default function DashboardPage() {
       if (filterType === "overdue") {
         return client.health === "overdue" || client.invoices.some((inv) => {
           const statusLower = inv.status.toLowerCase();
-          if ((statusLower === "sent" || statusLower === "finalized") && inv.dueDate) {
+          if (isReceivableStatus(statusLower) && inv.dueDate) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const due = new Date(inv.dueDate);
@@ -1024,10 +1071,10 @@ export default function DashboardPage() {
       const statusLower = (inv.status || "").toLowerCase();
       
       if (filterType === "all") return true;
-      if (filterType === "outstanding") return statusLower === "sent" || statusLower === "finalized";
+      if (filterType === "outstanding") return isReceivableStatus(statusLower);
       if (filterType === "settled") return statusLower === "settled";
       if (filterType === "overdue") {
-        if (statusLower !== "sent" && statusLower !== "finalized") return false;
+        if (!isReceivableStatus(statusLower)) return false;
         if (!inv.dueDate) return false;
         const today = new Date(); today.setHours(0,0,0,0);
         const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
@@ -1644,7 +1691,7 @@ export default function DashboardPage() {
                           <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
                             {allMilestones.map((m, i) => {
                               const s = (m.status || "").toLowerCase();
-                              const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                              const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
                               
                               let effectiveAmount = m.amount;
                               if (effectiveAmount === 0) {
@@ -1722,8 +1769,14 @@ export default function DashboardPage() {
                               {inv.milestones.length > 0 ? (
                                 inv.milestones.map((m, mi) => {
                                   const s = (m.status || "").toLowerCase();
-                                  const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
-                                  const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                  const isPending =
+                                    s === "pending" ||
+                                    s === "live" ||
+                                    s === "overdue" ||
+                                    s === "sent" ||
+                                    s === "partial" ||
+                                    s === "saved";
+                                  const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
                                   const title = m.title || "(No Milestone Title)";
                                   
                                   const formMilestone = inv.formDataMilestones?.[m.orderIndex];
@@ -1841,7 +1894,7 @@ export default function DashboardPage() {
                               <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
                                 {allMilestones.map((m: any, i: number) => {
                                   const s = (m.status || "").toLowerCase();
-                                  const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                  const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
                                   
                                   let effectiveAmount = m.amount;
                                   if (effectiveAmount === 0 && inv.formDataMilestones?.[m.orderIndex]) {
@@ -1889,8 +1942,14 @@ export default function DashboardPage() {
                             {allMilestones.length > 0 ? (
                               allMilestones.map((m: any, mi: number) => {
                                 const s = (m.status || "").toLowerCase();
-                                const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
-                                const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                const isPending =
+                                  s === "pending" ||
+                                  s === "live" ||
+                                  s === "overdue" ||
+                                  s === "sent" ||
+                                  s === "partial" ||
+                                  s === "saved";
+                                const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
                                 const title = m.title || "(No Milestone Title)";
                                 
                                 const formMilestone = inv.formDataMilestones?.[m.orderIndex];
@@ -2126,7 +2185,11 @@ export default function DashboardPage() {
                                     showAlert("Settlement Error", `Failed to settle invoice: ${error}`, "error");
                                   } else {
                                     showAlert("Invoice Settled", `Invoice ${d.invoiceNumber} successfully marked as settled!`, "success");
-                                    setTimeout(() => window.location.reload(), 1500);
+                                    announceInvoiceDataChanged({
+                                      invoiceId: d.id,
+                                      action: "dashboard_invoice_settled",
+                                    });
+                                    setRefreshNonce((value) => value + 1);
                                   }
                                 } catch (err) {
                                   console.error(err);
@@ -2272,7 +2335,7 @@ export default function DashboardPage() {
                       const s = (m.status || "").toLowerCase();
                       const isSettled = s === "settled";
                       const isOverdue = s === "overdue";
-                      const isLive = ["live", "sent", "finalized"].includes(s);
+                      const isLive = ["live", "sent", "finalized", "partial", "saved"].includes(s);
 
                       return (
                         <div key={mi} className="relative flex items-start gap-3">

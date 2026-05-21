@@ -734,7 +734,11 @@ export async function markMilestoneSettled(
   orderIndex: number,
   tdsAmount: number = 0,
   milestoneId?: string,
-): Promise<{ error: string | null }> {
+): Promise<{
+  error: string | null;
+  invoiceStatus?: InvoiceStatus;
+  settledAt?: string | null;
+}> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
@@ -796,7 +800,7 @@ export async function markMilestoneSettled(
   // 3. Fetch invoice for status update
   const { data: inv, error: fetchErr } = await supabase
     .from("invoices")
-    .select("invoice_number")
+    .select("invoice_number, form_data")
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .single();
@@ -814,13 +818,29 @@ export async function markMilestoneSettled(
     : false;
 
   const newStatus = allSettled ? "SETTLED" : "PARTIAL";
+  const settledAt = allSettled ? new Date().toISOString() : null;
+  const invoiceUpdatePayload: {
+    status: InvoiceStatus;
+    settled_at?: string;
+  } = {
+    status: newStatus as InvoiceStatus,
+  };
+
+  if (settledAt) {
+    invoiceUpdatePayload.settled_at = settledAt;
+  }
 
   // 5. Update invoice status
-  await supabase
+  const { error: invoiceUpdateErr } = await supabase
     .from("invoices")
-    .update({ status: newStatus as InvoiceStatus })
+    .update(invoiceUpdatePayload)
     .eq("id", invoiceId)
     .eq("user_id", userId);
+
+  if (invoiceUpdateErr) {
+    console.error("invoices status update failed:", invoiceUpdateErr.message);
+    return { error: invoiceUpdateErr.message };
+  }
 
   // 6. Notification
   await supabase.from("notifications").insert({
@@ -832,7 +852,19 @@ export async function markMilestoneSettled(
     is_read: false,
   });
 
-  return { error: null };
+  if (allSettled) {
+    const clientName = inv.form_data?.client?.clientName || "Client";
+    await supabase.from("notifications").insert({
+      user_id: userId,
+      invoice_id: invoiceId,
+      type: "invoice_settled",
+      title: "Invoice Settled",
+      message: `All milestones for Invoice ${inv.invoice_number} have been settled for ${clientName}.`,
+      is_read: false,
+    });
+  }
+
+  return { error: null, invoiceStatus: newStatus as InvoiceStatus, settledAt };
 }
 
 /** Trigger a "Request Next Milestone" notification for the client */
