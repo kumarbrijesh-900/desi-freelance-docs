@@ -809,6 +809,8 @@ export default function InvoiceHistoryPage() {
     symbol: string;
   } | null>(null);
 
+  const [showCycleComplete, setShowCycleComplete] = useState<boolean>(false);
+
   // Filters
   const [activeChannelTab, setActiveChannelTab] = useState<"tracked" | "offline">("tracked");
   const [search, setSearch] = useState("");
@@ -889,18 +891,7 @@ export default function InvoiceHistoryPage() {
 
   const handleEdit = (inv: SavedInvoice) => {
     try {
-      // Save to editor draft storage
-      window.localStorage.setItem(
-        "invoice-editor-draft",
-        JSON.stringify({
-          formData: inv.form_data,
-          currentStep: "totals",
-          savedAt: new Date().toISOString(),
-          documentId: inv.id, // Re-use ID to track which invoice to update
-          clientMsaNote: inv.client_msa_note, // NEW: metadata for editor
-        }),
-      );
-      router.push("/invoice/new?fresh=0"); // Use fresh=0 to avoid auto-filling profile over this
+      router.push(`/invoice/new?id=${inv.id}&fresh=0`); // Use fresh=0 to avoid auto-filling profile over this
     } catch {}
   };
 
@@ -1000,11 +991,15 @@ export default function InvoiceHistoryPage() {
 
     // Step 1: Settle the milestone row
     const { error: msError } = await markMilestoneSettled(invoiceId, currentMilestoneIndex, tdsAmount);
-    if (msError) console.error("markMilestoneSettled failed:", msError);
+    if (msError) {
+      console.error("markMilestoneSettled failed:", msError);
+      setSettlingId(null);
+      return;
+    }
 
     // Step 2: Check if there are more milestones
     const inv = invoices.find((i) => i.id === invoiceId);
-    const milestones = inv?.form_data?.milestones ?? [];
+    const milestones = [...(inv?.milestones ?? [])].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
     const nextMilestoneIndex = currentMilestoneIndex + 1;
     const hasMoreMilestones = nextMilestoneIndex < milestones.length;
 
@@ -1051,6 +1046,7 @@ export default function InvoiceHistoryPage() {
 
     setActiveSettlement(null);
     setSettlingId(null);
+    setShowCycleComplete(true);
   };
 
   const handleTriggerNextMilestone = async () => {
@@ -1827,6 +1823,33 @@ export default function InvoiceHistoryPage() {
                       {activeNextMilestone.sendingNext
                         ? "Sending…"
                         : `Send ${activeNextMilestone.nextMilestoneName} Invoice`}
+                    </button>
+                  </div>
+                </div>
+              </MotionReveal>
+            </div>
+          )}
+
+          {showCycleComplete && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4">
+              <MotionReveal preset="fade-up" className="w-full max-w-md">
+                <div className="border-2 border-[#111118] bg-white p-6 shadow-[4px_4px_0px_0px_#111118] text-center">
+                  <div className="mb-4 flex flex-col items-center gap-2">
+                    <span className="text-4xl animate-bounce">🎉</span>
+                    <h2 className="text-2xl font-bold text-[color:var(--text-primary)] font-syne">
+                      Invoice Cycle Complete!
+                    </h2>
+                  </div>
+                  <p className="mt-2 text-sm text-[color:var(--text-secondary)] leading-relaxed mb-6 font-medium">
+                    All milestones for this invoice have been successfully settled and paid. The project milestone cycle is officially complete!
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowCycleComplete(false)}
+                      className={`w-full ${getAppButtonClass({ variant: "primary", size: "md" })}`}
+                    >
+                      Awesome!
                     </button>
                   </div>
                 </div>

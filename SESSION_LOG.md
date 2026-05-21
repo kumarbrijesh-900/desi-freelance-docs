@@ -1351,9 +1351,37 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
+## v2.8.5 PREMIUM INVOICE SETTLEMENT & READ-ONLY EDITOR LOCKS — May 22, 2026
+
+### Phase XLIV: Milestone Settlement Flow and Locked Archive Editor
+- ✅ **Relational Milestone Settlement Fix**:
+  - Updated `app/invoices/page.tsx` so milestone settlement reads the relational `invoice_milestones` payload from `inv.milestones`, sorted by `order_index`, instead of the obsolete `form_data.milestones` JSON path.
+  - Added an early abort when `markMilestoneSettled` fails, preventing false next-milestone prompts or completion state when the database update did not succeed.
+- ✅ **Invoice Cycle Completion UX**:
+  - Added a Neo-Brutalist "Invoice Cycle Complete!" modal after the final milestone/full invoice settlement completes.
+  - Kept the existing next-milestone prompt for multi-milestone invoices when more milestones remain.
+- ✅ **Editor Routing Hydration Fix**:
+  - Changed invoice edit navigation to `/invoice/new?id=<invoice-id>&fresh=0` so the editor hydrates the canonical Supabase record directly.
+  - Removed the stale `invoice-editor-draft` pre-write from the invoices page edit handler to avoid creating editable local drafts just by opening an invoice.
+- ✅ **Read-only Invoice Editor Mode**:
+  - Hydrated `status`, `msa_status`, and `shared_to_email` from Supabase in `InvoiceEditorPage.tsx`.
+  - Added a reactive `isReadOnlyMode` lock when an invoice is settled/paid, MSA accepted, or shared with pending MSA.
+  - Rendered a high-contrast locked archive banner explaining the exact lock reason.
+  - Wrapped step content in a disabled `<fieldset>`, blocked edit/save handlers, hid Save Draft and meta edit toggles, and prevented local draft/cloud writebacks while preserving preview and copy-friendly read access.
+
+### Verification
+- ✅ `npm run build` passed with only existing Upstash Redis environment warnings.
+- ✅ Local browser smoke check passed for `/invoice/new` and `/invoices` on `http://localhost:3000`.
+
+### Files modified in v2.8.5
+- `app/invoices/page.tsx`
+- `components/invoice/InvoiceEditorPage.tsx`
+- `SESSION_LOG.md`
+
+---
+
 ## Start next chat with this prompt
 
 > *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*
 
 This forces the new Claude to demonstrate context comprehension before acting. The four layers it should be able to name: UI removal, server-side layout redirect, DB trigger, RLS policy (+ column GRANT supporting the trigger). If it can articulate that *and* explain why the column GRANT alone wasn't enough (no RLS policy → 406 PGRST116), you have a properly-warmed Claude. If not, retry.
-

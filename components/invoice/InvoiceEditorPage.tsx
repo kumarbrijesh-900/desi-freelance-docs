@@ -771,6 +771,9 @@ function EditorContent() {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
+  const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null);
+  const [msaStatus, setMsaStatus] = useState<string | null>(null);
+  const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -847,8 +850,42 @@ function EditorContent() {
     });
   };
 
+  const isReadOnlyMode = useMemo(() => {
+    if (!parserDocumentId) return false;
+
+    const msaStatusLower = msaStatus?.toLowerCase() || "";
+    const isMsaAccepted = msaStatusLower === "accepted";
+    const isMsaPendingAndShared = !!sharedToEmail && msaStatusLower === "pending";
+
+    const invoiceStatusLower = invoiceStatus?.toLowerCase() || "";
+    const isSettled =
+      invoiceStatusLower === "settled" || invoiceStatusLower === "paid";
+
+    return isMsaAccepted || isMsaPendingAndShared || isSettled;
+  }, [parserDocumentId, msaStatus, sharedToEmail, invoiceStatus]);
+
+  const readOnlyReason = useMemo(() => {
+    const msaStatusLower = msaStatus?.toLowerCase();
+    const invoiceStatusLower = invoiceStatus?.toLowerCase();
+
+    if (invoiceStatusLower === "settled" || invoiceStatusLower === "paid") {
+      return "This invoice is settled and fully archived. Editing has been disabled.";
+    }
+
+    if (msaStatusLower === "accepted") {
+      return "The client has accepted the Master Service Agreement (MSA) or project addendum for this invoice. Changes are disabled to preserve legal compliance.";
+    }
+
+    if (!!sharedToEmail && msaStatusLower === "pending") {
+      return "This invoice has been shared with the client and MSA acceptance is pending. Changing terms is disabled.";
+    }
+
+    return "This invoice is currently in read-only mode.";
+  }, [invoiceStatus, msaStatus, sharedToEmail]);
+
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
+    if (isReadOnlyMode) return;
     localStorage.setItem(ANONYMOUS_DRAFT_KEY, JSON.stringify(formData));
     try {
       localStorage.setItem("lance_draft_invoice", JSON.stringify(formData));
@@ -856,10 +893,12 @@ function EditorContent() {
     } catch (e) {
       // localStorage might be full or unavailable
     }
-  }, [formData, isBootstrapped]);
+  }, [formData, isBootstrapped, isReadOnlyMode]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isReadOnlyMode) return;
+
       // Only warn if there is unsaved data
       if (formData && (formData.agency?.agencyName || formData.client?.clientName || formData.lineItems?.length > 0)) {
         e.preventDefault();
@@ -868,7 +907,7 @@ function EditorContent() {
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [formData]);
+  }, [formData, isReadOnlyMode]);
 
   useEffect(() => {
     if (hasInitializedRef.current) {
@@ -921,6 +960,9 @@ function EditorContent() {
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
       setFormData(hydratedData);
       setParserDocumentId(data.id);
+      setInvoiceStatus(data.status ?? null);
+      setMsaStatus(data.msa_status ?? null);
+      setSharedToEmail(data.shared_to_email ?? null);
       
       if (data.client_msa_note) {
         setClientMsaNote(data.client_msa_note);
@@ -934,6 +976,9 @@ function EditorContent() {
     function initializeFresh() {
       const freshData = getFreshInvoiceData();
       setFormData(freshData);
+      setInvoiceStatus(null);
+      setMsaStatus(null);
+      setSharedToEmail(null);
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
     }
@@ -1020,6 +1065,9 @@ function EditorContent() {
       setFormData(fallbackFormData);
       setCurrentStep("agency");
       setClientMsaNote(null);
+      setInvoiceStatus(null);
+      setMsaStatus(null);
+      setSharedToEmail(null);
       shouldShowFallbackToast = true;
     } finally {
       hasInitializedRef.current = true;
@@ -1045,6 +1093,7 @@ function EditorContent() {
 
   useEffect(() => {
     if (!isBootstrapped) return;
+    if (isReadOnlyMode) return;
     if (searchParams.get("restore") !== "1") return;
 
     async function autoCloudSave() {
@@ -1068,10 +1117,16 @@ function EditorContent() {
     }
 
     void autoCloudSave();
-  }, [isBootstrapped]);
+  }, [isBootstrapped, isReadOnlyMode]);
+
+  useEffect(() => {
+    if (!isReadOnlyMode) return;
+    setIsEditingMeta(false);
+  }, [isReadOnlyMode]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
+    if (isReadOnlyMode) return;
     const isFresh = searchParams.get("fresh") === "1";
     if (formData.agency.agencyName.trim() && !isFresh) return;
 
@@ -1117,7 +1172,7 @@ function EditorContent() {
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped]);
+  }, [isBootstrapped, isReadOnlyMode]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -1129,6 +1184,7 @@ function EditorContent() {
 
   useEffect(() => {
     if (!isBootstrapped) return;
+    if (isReadOnlyMode) return;
 
     let cancelled = false;
     async function fetchClients() {
@@ -1155,7 +1211,7 @@ function EditorContent() {
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped]);
+  }, [isBootstrapped, isReadOnlyMode]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
@@ -1212,6 +1268,7 @@ function EditorContent() {
 
   useEffect(() => {
     if (!hasInitializedRef.current) return;
+    if (isReadOnlyMode) return;
 
     const suggestedDueDate = getSuggestedDueDate(
       formData.meta.paymentTerms,
@@ -1267,6 +1324,7 @@ function EditorContent() {
     formData.meta.paymentTerms,
     formData.meta.invoiceDate,
     formData.meta.dueDate,
+    isReadOnlyMode,
   ]);
 
   useEffect(() => {
@@ -1655,7 +1713,7 @@ function EditorContent() {
     }
   };
 
-const shouldConfirmExit = isFormTouched(formData);
+const shouldConfirmExit = !isReadOnlyMode && isFormTouched(formData);
 
 useEffect(() => {
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -1769,7 +1827,7 @@ const handlePreviewInvoice = async () => {
 
   try {
     let invoiceNumberForPreview = formData.meta.invoiceNumber;
-    if (invoiceNumberForPreview?.endsWith("-000")) {
+    if (!isReadOnlyMode && invoiceNumberForPreview?.endsWith("-000")) {
       const userId = await getCurrentUserId();
       if (userId) {
         const { generateNextInvoiceNumber } = await import("@/lib/supabase/invoices");
@@ -1795,22 +1853,24 @@ const handlePreviewInvoice = async () => {
       JSON.stringify(previewFormData),
     );
 
-    if (shouldSaveNewClientMaster && !isGuestMode) {
+    if (shouldSaveNewClientMaster && !isGuestMode && !isReadOnlyMode) {
       import("@/lib/supabase/clients").then(({ upsertClient }) => {
         upsertClient(formData.client).catch(console.error);
       });
     }
 
-    window.localStorage.setItem(
-      DRAFT_STORAGE_KEY,
-      JSON.stringify({
-        formData,
-        currentStep: "totals",
-        savedAt: new Date().toISOString(),
-        documentId: parserDocumentId,
-        clientMsaNote,
-      } satisfies StoredDraft),
-    );
+    if (!isReadOnlyMode) {
+      window.localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({
+          formData,
+          currentStep: "totals",
+          savedAt: new Date().toISOString(),
+          documentId: parserDocumentId,
+          clientMsaNote,
+        } satisfies StoredDraft),
+      );
+    }
     triggerToast("Preview ready");
     playInteractionCue("previewReady");
     const previewUrl = parserDocumentId 
@@ -1824,6 +1884,8 @@ const handlePreviewInvoice = async () => {
 };
 
 const persistDraft = () => {
+  if (isReadOnlyMode) return;
+
   window.localStorage.setItem(
     DRAFT_STORAGE_KEY,
     JSON.stringify({
@@ -1836,6 +1898,11 @@ const persistDraft = () => {
 };
 
 const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   try {
     persistDraft();
     setShowExitModal(false);
@@ -1854,6 +1921,11 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
 };
 
 const handleSaveDraft = async () => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   persistDraft();
 
   const userId = await getCurrentUserId();
@@ -1953,6 +2025,11 @@ useEffect(() => {
   // Drafts are now explicitly saved via "Save Draft" or "Exit" workflow.
 
 const handleLoadDemoData = () => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   const demoInvoiceNumber = formData.meta.invoiceNumber?.startsWith("INV-")
     ? formData.meta.invoiceNumber
     : getDraftPlaceholderNumber();
@@ -1975,6 +2052,11 @@ const handleLoadDemoData = () => {
 };
 
 const handleClearDemoData = () => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   const freshInvoiceData = getFreshInvoiceData();
   const suggestedDueDate = getSuggestedDueDate(
     freshInvoiceData.meta.paymentTerms,
@@ -2004,6 +2086,11 @@ const handleClearDemoData = () => {
 };
 
 const handleBriefAutofill = async (input: BriefIntakeInput) => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return false;
+  }
+
   setFormData(mergeInvoiceFormData(defaultInvoiceFormData));
   setIsProcessingAutofill(true);
   setExtractProgress(0);
@@ -2170,6 +2257,11 @@ const handleModalSubmit = (
   finalData: InvoiceFormData,
   saveClient: boolean,
 ) => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   setShouldSaveNewClientMaster(saveClient);
 
   // FIX 3: If extraction filled GSTIN, auto-toggle GST registered
@@ -2236,6 +2328,11 @@ const handleParseAgain = () => {
 };
 
 const handleContinueManually = (finalData: InvoiceFormData) => {
+  if (isReadOnlyMode) {
+    triggerToast("This invoice is in read-only mode.");
+    return;
+  }
+
   setFormData(finalData);
   setBriefSummaryData(null);
   setBriefIntakeResetKey(Date.now());
@@ -2262,6 +2359,8 @@ const handleDiscardChanges = () => {
 };
 
 const handleMetaChange = (meta: InvoiceFormData["meta"]) => {
+  if (isReadOnlyMode) return;
+
   const previousDueDate = formData.meta.dueDate;
   const nextSuggestedDueDate = getSuggestedDueDate(
     meta.paymentTerms,
@@ -2290,6 +2389,8 @@ const updateFormSection = <K extends keyof InvoiceFormData>(
   section: K,
   data: InvoiceFormData[K],
 ) => {
+  if (isReadOnlyMode) return;
+
   setFormData((prev) => {
     let next = mergeInvoiceFormData({
       ...prev,
@@ -2306,6 +2407,8 @@ const updateFormSection = <K extends keyof InvoiceFormData>(
 };
 
 const handleClientSelect = (client: SavedClient) => {
+  if (isReadOnlyMode) return;
+
   const syncedData = syncMsaToInvoice(formData, client);
   setFormData(syncedData);
   setSelectedClientMsa(client);
@@ -2369,12 +2472,13 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           embedded
           milestones={formData.milestones}
           currency={displayCurrency}
-          onChange={(milestones) =>
+          onChange={(milestones) => {
+            if (isReadOnlyMode) return;
             setFormData((prev) => ({
               ...prev,
               milestones,
-            }))
-          }
+            }));
+          }}
           errors={fieldErrors.lineItems}
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
@@ -2464,7 +2568,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           }
           bankName={formData.payment.bankName}
           onExportTaxDecisionChange={
-            showInternationalExportDecision
+            showInternationalExportDecision && !isReadOnlyMode
               ? (noLutTaxHandling) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -2475,17 +2579,38 @@ const renderStepContent = (step: InvoiceStepperStep) => {
                 }))
               : undefined
           }
-          onChange={(tax) =>
+          onChange={(tax) => {
+            if (isReadOnlyMode) return;
             setFormData((prev) => ({
               ...prev,
               tax,
-            }))
-          }
+            }));
+          }}
         />
       );
     default:
       return null;
   }
+};
+
+const allowReadOnlyKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  const key = event.key.toLowerCase();
+
+  if ((event.metaKey || event.ctrlKey) && (key === "a" || key === "c")) {
+    return true;
+  }
+
+  return [
+    "alt",
+    "arrowdown",
+    "arrowleft",
+    "arrowright",
+    "arrowup",
+    "control",
+    "meta",
+    "shift",
+    "tab",
+  ].includes(key);
 };
 
 
@@ -2730,6 +2855,36 @@ return (
               </MotionReveal>
             )}
 
+            {isReadOnlyMode && (
+              <MotionReveal preset="fade-up" className="mb-4">
+                <div className="flex items-start gap-3 border-2 border-[#111118] bg-[#FFEBA4] p-4 shadow-[4px_4px_0px_0px_#111118]">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111118] text-[#BEFF00]">
+                    <svg
+                      className="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-black">
+                      Locked Archive / Read-only Invoice
+                    </h4>
+                    <p className="mt-1 text-sm font-medium leading-relaxed text-black/90">
+                      {readOnlyReason}
+                    </p>
+                  </div>
+                </div>
+              </MotionReveal>
+            )}
+
             {/* AI Brief Extraction hidden for now */}
             {/*
             <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
@@ -2748,14 +2903,14 @@ return (
             {/* Mobile Meta Summary Strip (Rectified for UX) */}
             <div className={cn(
               "mx-4 mb-2 border border-[color:var(--border-subtle)] px-4 py-3 transition-all duration-300 xl:hidden",
-              isEditingMeta ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-[color:var(--bg-surface-soft)]"
+              isEditingMeta && !isReadOnlyMode ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-[color:var(--bg-surface-soft)]"
             )}>
               <div className="flex flex-col gap-3">
                 {/* Row 1: Invoice Number & Edit Toggle */}
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Invoice Reference</span>
-                    {isEditingMeta ? (
+                    {isEditingMeta && !isReadOnlyMode ? (
                       <input
                         type="text"
                         value={formData.meta.invoiceNumber}
@@ -2769,18 +2924,20 @@ return (
                       </span>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingMeta(!isEditingMeta)}
-                    className={cn(
-                      "flex h-7 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold transition-all",
-                      isEditingMeta 
-                        ? "bg-[color:var(--brand-indigo)] text-white" 
-                        : "bg-white text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] shadow-sm"
-                    )}
-                  >
-                    {isEditingMeta ? 'Done' : 'Edit'}
-                  </button>
+                  {!isReadOnlyMode && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingMeta(!isEditingMeta)}
+                      className={cn(
+                        "flex h-7 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold transition-all",
+                        isEditingMeta 
+                          ? "bg-[color:var(--brand-indigo)] text-white" 
+                          : "bg-white text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] shadow-sm"
+                      )}
+                    >
+                      {isEditingMeta ? 'Done' : 'Edit'}
+                    </button>
+                  )}
                 </div>
 
                 <div className="h-[1px] w-full bg-[color:var(--bg-surface-muted)]" />
@@ -2789,7 +2946,7 @@ return (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Issued</span>
-                    {isEditingMeta ? (
+                    {isEditingMeta && !isReadOnlyMode ? (
                       <input
                         type="date"
                         value={formData.meta.invoiceDate}
@@ -2804,7 +2961,7 @@ return (
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Due</span>
-                    {isEditingMeta ? (
+                    {isEditingMeta && !isReadOnlyMode ? (
                       <input
                         type="date"
                         value={formData.meta.dueDate}
@@ -2929,11 +3086,26 @@ return (
                     }
                   >
                     <div
-                      onKeyDownCapture={(event) =>
-                        handleSectionKeyDownCapture(currentStep, event)
-                      }
+                      onKeyDownCapture={(event) => {
+                        if (isReadOnlyMode) {
+                          if (!allowReadOnlyKey(event)) {
+                            event.preventDefault();
+                          }
+                          return;
+                        }
+
+                        handleSectionKeyDownCapture(currentStep, event);
+                      }}
+                      onClickCapture={(event) => {
+                        if (isReadOnlyMode) {
+                          event.preventDefault();
+                        }
+                      }}
+                      className={cn(isReadOnlyMode && "select-text opacity-95")}
                     >
-                      {renderStepContent(currentStep)}
+                      <fieldset disabled={isReadOnlyMode}>
+                        {renderStepContent(currentStep)}
+                      </fieldset>
                     </div>
                   </InlineStepSection>
                 </motion.div>
@@ -2952,16 +3124,18 @@ return (
                           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                             Invoice Details
                           </p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
-                            <AppSwitch className="rounded-none" checked={isEditingMeta} onChange={setIsEditingMeta} />
-                          </div>
+                          {!isReadOnlyMode && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
+                              <AppSwitch className="rounded-none" checked={isEditingMeta} onChange={setIsEditingMeta} />
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-4">
                           {/* Invoice Number */}
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">INV #</label>
-                            {isEditingMeta ? (
+                            {isEditingMeta && !isReadOnlyMode ? (
                               <input
                                 type="text"
                                 value={formData.meta.invoiceNumber}
@@ -2978,7 +3152,7 @@ return (
                             {/* Invoice Date */}
                             <div className="space-y-1.5">
                               <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Issued</label>
-                              {isEditingMeta ? (
+                              {isEditingMeta && !isReadOnlyMode ? (
                                 <input
                                   type="date"
                                   value={formData.meta.invoiceDate}
@@ -2993,7 +3167,7 @@ return (
                             {/* Due Date */}
                             <div className="space-y-1.5">
                               <label className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Due</label>
-                              {isEditingMeta ? (
+                              {isEditingMeta && !isReadOnlyMode ? (
                                 <input
                                   type="date"
                                   value={formData.meta.dueDate}
@@ -3014,7 +3188,7 @@ return (
                                 Purchase Order Number. Required by some enterprise clients for accounts payable matching.
                               </>} />
                             </label>
-                            {isEditingMeta ? (
+                            {isEditingMeta && !isReadOnlyMode ? (
                               <input
                                 type="text"
                                 value={formData.meta.poNumber || ''}
@@ -3044,7 +3218,10 @@ return (
                           hasItems={hasItems}
                           defaultExpanded={true}
                           isLocked={true}
-                          onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
+                          onChange={(tax) => {
+                            if (isReadOnlyMode) return;
+                            setFormData((prev) => ({ ...prev, tax }));
+                          }}
                         />
                       </div>
                     </div>
@@ -3120,17 +3297,19 @@ return (
     
                 <div className="flex items-center gap-2">
                   {/* Auto-save status removed */}
-                  <button
-                    type="button"
-                    onClick={handleSaveDraft}
-                    className={cn(
-                      getAppButtonClass({ variant: "ghost", size: "sm" }),
-                      "h-9 px-4 border border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
-                    )}
-                  >
-                    <SaveIcon className="mr-2 h-4 w-4" />
-                    Save Draft
-                  </button>
+                  {!isReadOnlyMode && (
+                    <button
+                      type="button"
+                      onClick={handleSaveDraft}
+                      className={cn(
+                        getAppButtonClass({ variant: "ghost", size: "sm" }),
+                        "h-9 px-4 border border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                      )}
+                    >
+                      <SaveIcon className="mr-2 h-4 w-4" />
+                      Save Draft
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={handlePreviewInvoice}
@@ -3168,14 +3347,16 @@ return (
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                   Invoice Details
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
-                  <AppSwitch
-                    className="rounded-none"
-                    checked={isEditingMeta}
-                    onChange={setIsEditingMeta}
-                  />
-                </div>
+                {!isReadOnlyMode && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-medium text-[color:var(--text-muted)]">Edit</span>
+                    <AppSwitch
+                      className="rounded-none"
+                      checked={isEditingMeta}
+                      onChange={setIsEditingMeta}
+                    />
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -3185,7 +3366,7 @@ return (
   Unique invoice reference number. Toggle edit mode to modify.
 </>} />
                   </span>
-                  {isEditingMeta ? (
+                  {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="text"
                       value={formData.meta.invoiceNumber}
@@ -3205,7 +3386,7 @@ return (
   Invoice issue date. This is when the invoice is formally raised.
 </>} />
                   </span>
-                  {isEditingMeta ? (
+                  {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="date"
                       value={formData.meta.invoiceDate}
@@ -3229,7 +3410,7 @@ return (
                       }
                     >?</span>
                   </span>
-                  {isEditingMeta ? (
+                  {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="date"
                       value={formData.meta.dueDate}
@@ -3249,7 +3430,7 @@ return (
                       Purchase Order Number. Required by some enterprise clients for accounts payable matching.
                     </>} />
                   </span>
-                  {isEditingMeta ? (
+                  {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="text"
                       value={formData.meta.poNumber || ''}
@@ -3285,8 +3466,11 @@ return (
                 currency={displayCurrency}
                 hasItems={hasItems}
                 isLocked={true}
-                onChange={(tax) => setFormData((prev) => ({ ...prev, tax }))}
-                onExportTaxDecisionChange={showInternationalExportDecision ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
+                onChange={(tax) => {
+                  if (isReadOnlyMode) return;
+                  setFormData((prev) => ({ ...prev, tax }));
+                }}
+                onExportTaxDecisionChange={showInternationalExportDecision && !isReadOnlyMode ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
               />
             </div>
           </div>
