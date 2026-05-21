@@ -1205,11 +1205,24 @@ If an authenticated agency owner tries the same:
 
 ## v2.12 DASHBOARD LEDGER TOGGLE & REACT HOOKS STABILIZATION — May 21, 2026
 
-### Phase XXX: Client vs Invoice Ledger View
+### Phase XXX: Dashboard Layout & Input Refinements
 
-- ✅ **Ledger Toggle Implementation**: 
+- ✅ **Dashboard Alignment & Styling**:
+  - Re-architected the bottom dashboard sections ("Quick Links", "Upcoming Deadlines", "Activity") into a precise 12-column grid (`lg:col-span-7 xl:col-span-8` and `lg:col-span-5 xl:col-span-4`), perfectly aligning them with the right edge of the Client Ledger container above.
+  - Eliminated unwanted white space and applied complete Neo Brutalist styling (thick borders, crisp backgrounds, stark shadows) across all lower panels.
+  - Resolved text-bleeding and overflow issues in the Recent Activity feed using `min-w-0` and `flex-1` wrappers.
+- ✅ **Input Affordance Adjustments**:
+  - Increased the minimum width of the Payment Terms (days) and Late Fee (%) numeric input fields to prevent browser native number-spinners from overlapping and obscuring the typed digits.
+
+### Phase XXXI: Unified Client Statement & Ledger Views
+
+- ✅ **Client Ledger Accordion Redesign**: 
+  - Completely replaced the basic Client Ledger table with a **Unified Client Statement Card** and redesigned accordion.
+  - The expanded accordion now groups invoices logically, rendering rich milestone timelines, MSA gating alerts (e.g. "Proposed Changes", "MSA Pending"), and precise line-item breakdowns.
+  - Upgraded the UX to allow multiple client accordions to be opened simultaneously, preventing jarring layout shifts and scroll jumps when browsing multiple accounts.
+- ✅ **Ledger Toggle (Client vs Invoice View)**: 
   - Added a "By Client" | "By Invoice" toggle inside the "CLIENT LEDGER" header.
-  - Implemented `ledgerView` state to conditionally render either the traditional grouped-by-client view or a flat, sortable invoice list.
+  - Implemented `ledgerView` state to conditionally render either the traditional grouped-by-client statement view or a flat, sortable invoice list.
 - ✅ **Invoice Map Logic**: 
   - Computed `filteredAndSortedInvoices` by unrolling the list of all invoices matching the active filters (Settled, Outstanding, Overdue, Due This Week).
   - Designed the Invoice ledger view to feature "Client Preview" deep-links, precise Due Dates, Milestone mini-bar visualizations, and specific Invoice status stamps (Overdue vs Pending).
@@ -1217,7 +1230,7 @@ If an authenticated agency owner tries the same:
   - Maintained shared underlying data (`clientsHealth`). Clicking any top-level summary metric card accurately filters BOTH the Client ledger and the Invoice ledger symmetrically.
   - The footer dynamically updates its label depending on the view ("Showing X clients" vs "Showing Y invoices").
 
-### Phase XXXI: Next.js Runtime Stabilization
+### Phase XXXII: Next.js Runtime Stabilization
 
 - ✅ **React Hooks `#310` Fix**: 
   - Diagnosed a critical production render crash ("Rendered more hooks than during the previous render").
