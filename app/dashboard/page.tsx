@@ -1516,179 +1516,37 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Column Headers — Desktop only */}
-            <div className="hidden lg:grid grid-cols-[1fr_auto_120px_100px_80px] items-center border-b-2 border-[#111118] bg-[#F8F8F4] px-4 py-2 gap-4">
-              <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Client</span>
-              <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase text-center w-[70px]">Invoices</span>
-              <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase">Progress</span>
-              <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase text-right">Receivable</span>
-              <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-[0.1em] uppercase text-center">Health</span>
-            </div>
-
-            {/* Accordion Rows */}
-            <div>
+            {/* Client Statement Cards */}
+            <div className="space-y-6 bg-[#F5F5F0] p-4 sm:p-6 border-b-2 border-[#111118]">
               {filteredAndSortedClients.map((client) => {
-                const isExpanded = expandedClientIds.includes(client.clientId);
                 const allMilestones = client.invoices.flatMap(inv => inv.milestones);
-                const sparkTotal = allMilestones.reduce((sum, m) => sum + (m.amount || 0), 0) || 1;
-
-                // Count milestones by status for the summary text
-                const statusCounts = allMilestones.reduce((acc, m) => {
-                  const s = (m.status || "pending").toLowerCase();
-                  if (s === "settled") acc.settled++;
-                  else if (s === "overdue") acc.overdue++;
-                  else if (["live", "sent", "finalized"].includes(s)) acc.live++;
-                  else acc.pending++;
-                  return acc;
-                }, { settled: 0, live: 0, overdue: 0, pending: 0 });
+                const sparkTotal = allMilestones.reduce((sum, m) => {
+                  let amount = m.amount || 0;
+                  if (amount === 0) {
+                    const parentInv = client.invoices.find(i => i.milestones.some(pm => pm.orderIndex === m.orderIndex));
+                    if (parentInv?.formDataMilestones?.[m.orderIndex]) {
+                      amount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                    }
+                  }
+                  return sum + amount;
+                }, 0) || 1;
 
                 return (
-                  <div key={client.clientId} className="border-b border-[color:var(--border-subtle)] last:border-b-0">
-                    {/* ── Collapsed Row ── */}
-                    <button
-                      type="button"
-                      onClick={() => setExpandedClientIds(prev => prev.includes(client.clientId) ? prev.filter(id => id !== client.clientId) : [...prev, client.clientId])}
-                      className={cn(
-                        "w-full text-left transition-colors select-none cursor-pointer bg-transparent border-none p-0 m-0",
-                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111118] focus-visible:ring-offset-1",
-                        client.health === "overdue" && "bg-[#FFF5F2] hover:bg-[#FFF2EE]",
-                        client.health !== "overdue" && "hover:bg-[#F9F9F6]",
-                        isExpanded && "bg-[#F5F5F0]"
-                      )}
-                    >
-                      {/* Desktop layout */}
-                      <div className="hidden lg:grid grid-cols-[1fr_auto_120px_100px_80px] items-center px-4 py-3 gap-4">
-                        {/* Client name + city + chevron */}
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-[20px] h-[20px] border-2 border-[#111118] flex items-center justify-center text-[10px] font-black transition-transform duration-200 shrink-0",
-                            isExpanded ? "bg-[#BEFF00] rotate-90" : "bg-white"
-                          )}>
-                            ▶
-                          </div>
-                          <div>
-                            <p className="text-[13px] font-bold text-[#111118] m-0">{client.clientName}</p>
-                            <p className="text-[11px] text-[color:var(--text-muted)] m-0 mt-0.5">{client.clientCity || ""}</p>
-                          </div>
+                  <div key={client.clientId} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
+                    
+                    {/* Header: Summary */}
+                    <div className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-5">
+                        <div>
+                          <h3 className="text-[20px] sm:text-[24px] font-black text-[#111118] uppercase tracking-wider m-0 leading-tight">{client.clientName}</h3>
+                          {client.clientCity && <p className="text-[12px] font-bold text-[#888] m-0 mt-1 uppercase tracking-widest">{client.clientCity}</p>}
                         </div>
-
-                        {/* Invoice count badge */}
-                        <span className="inline-flex items-center justify-center border-2 border-[#111118] bg-[#FFFBE6] px-2 py-0.5 text-[11px] font-black text-[#111118] shadow-[2px_2px_0_#111118] min-w-[50px] w-[70px]">
-                          {client.invoices.length} {client.invoices.length === 1 ? "inv" : "invs"}
-                        </span>
-
-                        {/* Spark Bar */}
-                        <div className="flex flex-col gap-1">
-                          {allMilestones.length > 0 ? (
-                            <div className="w-[100px] h-[10px] border-2 border-[#111118] flex overflow-hidden shadow-[1px_1px_0_#111118]">
-                              {allMilestones.map((m, i) => {
-                                const s = (m.status || "").toLowerCase();
-                                const bg = s === "settled" ? "#00DCB4"
-                                  : s === "overdue" ? "#FF5C00"
-                                  : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                  : "#E0E0E0";
-                                // Fall back to form_data line items computation if relational amount is 0
-                                let effectiveAmount = m.amount;
-                                if (effectiveAmount === 0) {
-                                  const parentInv = client.invoices.find(inv => inv.milestones.some(pm => pm.orderIndex === m.orderIndex));
-                                  if (parentInv?.formDataMilestones?.[m.orderIndex]) {
-                                    const fdm = parentInv.formDataMilestones[m.orderIndex];
-                                    effectiveAmount = (fdm.lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
-                                  }
-                                }
-                                const widthPct = Math.max((effectiveAmount / sparkTotal) * 100, 3);
-                                return (
-                                  <div
-                                    key={i}
-                                    style={{ width: `${widthPct}%`, backgroundColor: bg }}
-                                    className="h-full border-r border-[#111118]/20 last:border-r-0"
-                                  />
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <div className="w-[100px] h-[10px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[1px_1px_0_#111118]" />
-                          )}
-                          <p className="text-[9px] text-[color:var(--text-muted)] font-bold m-0 whitespace-nowrap">
-                            {statusCounts.settled > 0 && <span className="text-[#00967D]">{statusCounts.settled} settled</span>}
-                            {statusCounts.settled > 0 && (statusCounts.live > 0 || statusCounts.overdue > 0 || statusCounts.pending > 0) && " · "}
-                            {statusCounts.live > 0 && <span className="text-[#4A7A00]">{statusCounts.live} live</span>}
-                            {statusCounts.live > 0 && (statusCounts.overdue > 0 || statusCounts.pending > 0) && " · "}
-                            {statusCounts.overdue > 0 && <span className="text-[#FF5C00]">{statusCounts.overdue} overdue</span>}
-                            {statusCounts.overdue > 0 && statusCounts.pending > 0 && " · "}
-                            {statusCounts.pending > 0 && <span>{statusCounts.pending} pending</span>}
-                            {allMilestones.length === 0 && <span>No milestones</span>}
-                          </p>
-                        </div>
-
-                        {/* Receivable */}
-                        <span className={cn("text-[14px] font-bold text-right", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
-                          ₹{formatIndian(client.totalOwed)}
-                        </span>
-
-                        {/* Health */}
-                        <div className="flex justify-center">
-                          <span className={cn(
-                            "text-[10px] font-black px-2 py-1 border-2 border-[#111118] inline-block uppercase tracking-wider shadow-[2px_2px_0_#111118]",
-                            client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                            client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
-                            client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
-                            client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
-                          )}>
-                            {client.health === "good" ? "GOOD" : client.health === "overdue" ? "LATE" : client.health === "clear" ? "CLEAR" : "DRAFT"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Tablet layout (sm to lg) */}
-                      <div className="hidden sm:flex lg:hidden items-center px-4 py-3 gap-3">
-                        <div className={cn(
-                          "w-[20px] h-[20px] border-2 border-[#111118] flex items-center justify-center text-[10px] font-black transition-transform duration-200 shrink-0",
-                          isExpanded ? "bg-[#BEFF00] rotate-90" : "bg-white"
-                        )}>
-                          ▶
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-[13px] font-bold text-[#111118] m-0 truncate">{client.clientName}</p>
-                            <span className="text-[10px] font-bold text-[color:var(--text-muted)] shrink-0">{client.invoices.length} inv{client.invoices.length !== 1 ? "s" : ""}</span>
-                          </div>
-                          <p className="text-[11px] text-[color:var(--text-muted)] m-0 mt-0.5">{client.clientCity || ""}</p>
-                        </div>
-                        <span className={cn("text-[14px] font-bold shrink-0", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
-                          ₹{formatIndian(client.totalOwed)}
-                        </span>
-                        <span className={cn(
-                          "text-[10px] font-bold px-2 py-0.5 border-[1.5px] border-[#111118] uppercase tracking-wider shadow-[1px_1px_0_#111118] shrink-0",
-                          client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                          client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
-                          client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
-                          client.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
-                        )}>
-                          {client.health === "good" ? "GOOD" : client.health === "overdue" ? "LATE" : client.health === "clear" ? "CLEAR" : "DRAFT"}
-                        </span>
-                      </div>
-
-                      {/* Mobile layout (<sm) */}
-                      <div className="flex sm:hidden items-center px-3 py-3 gap-2.5 min-h-[52px]">
-                        <div className={cn(
-                          "w-[18px] h-[18px] border-2 border-[#111118] flex items-center justify-center text-[9px] font-black transition-transform duration-200 shrink-0",
-                          isExpanded ? "bg-[#BEFF00] rotate-90" : "bg-white"
-                        )}>
-                          ▶
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-bold text-[#111118] m-0 truncate">{client.clientName}</p>
-                          <p className="text-[10px] text-[color:var(--text-muted)] m-0 mt-0.5">
-                            {client.clientCity ? `${client.clientCity} · ` : ""}{client.invoices.length} inv{client.invoices.length !== 1 ? "s" : ""}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className={cn("text-[13px] font-bold m-0", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
+                        <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
+                          <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
                             ₹{formatIndian(client.totalOwed)}
                           </p>
                           <span className={cn(
-                            "text-[9px] font-bold px-1.5 py-0.5 border border-[#111118] uppercase tracking-wider inline-block mt-0.5",
+                            "text-[10px] font-black px-2 py-1 border-2 border-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118]",
                             client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
                             client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
                             client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
@@ -1698,201 +1556,156 @@ export default function DashboardPage() {
                           </span>
                         </div>
                       </div>
-                    </button>
 
-                    {/* ── Expanded Section ── */}
-                    {isExpanded && (
-                      <div className="border-t-2 border-[#111118]">
-                        <div className={cn(
-                          "border-l-4 bg-[#FAFAF6] px-3 py-4 sm:px-5",
-                          client.health === "good" && "border-l-[#00DCB4]",
-                          client.health === "overdue" && "border-l-[#FF5C00]",
-                          client.health === "clear" && "border-l-[#00967D]",
-                          client.health === "draft" && "border-l-[#8B5CF6]"
-                        )}>
-                          {/* Invoice cards */}
-                          <div className="space-y-3">
-                            {client.invoices.map((inv) => {
-                              const msaLower = (inv.msaStatus || "").toLowerCase();
-                              const msaLabel = msaLower === "accepted" ? "MSA Accepted" :
-                                               msaLower === "proposed" ? "Proposed Changes" :
-                                               msaLower === "pending" ? "MSA Pending" : null;
-                              const msaColor = msaLower === "accepted" ? "bg-[#EBFDF9] text-[#00967D] border-[#00967D]" :
-                                               msaLower === "proposed" ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" :
-                                               "bg-[#F0F0F0] text-[#666] border-[#999]";
-
+                      {/* Milestone Progress Bar */}
+                      {allMilestones.length > 0 ? (
+                        <div className="w-full flex flex-col gap-1.5">
+                          <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
+                            {allMilestones.map((m, i) => {
+                              const s = (m.status || "").toLowerCase();
+                              const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                              
+                              let effectiveAmount = m.amount;
+                              if (effectiveAmount === 0) {
+                                const parentInv = client.invoices.find(inv => inv.milestones.some(pm => pm.orderIndex === m.orderIndex));
+                                if (parentInv?.formDataMilestones?.[m.orderIndex]) {
+                                  effectiveAmount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                }
+                              }
+                              const widthPct = Math.max((effectiveAmount / sparkTotal) * 100, 2);
                               return (
-                                <div key={inv.id} className="border-2 border-[#111118] bg-white shadow-[2px_2px_0_#111118]">
-                                  {/* Invoice header */}
-                                  <div className="flex flex-wrap justify-between items-center px-3 py-2.5 border-b-2 border-[#111118] bg-[#F8F8F4] gap-2 min-h-[44px]">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <button
-                                        onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
-                                        className="text-[12px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 min-h-[44px] flex items-center"
-                                      >
-                                        {inv.invoiceNumber} →
-                                      </button>
-                                      {msaLabel && (
-                                        <span className={cn(
-                                          "text-[9px] font-bold px-1.5 py-0.5 border uppercase tracking-wider",
-                                          msaColor
-                                        )}>
-                                          {msaLabel}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <span className="text-[13px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
-                                  </div>
-
-                                  {/* Client proposed note */}
-                                  {msaLower === "proposed" && inv.clientMsaNote && (
-                                    <div className="px-3 py-2.5 bg-[#FFF8E1] border-b-2 border-[#B45309]/30">
-                                      <p className="text-[10px] font-bold text-[#B45309] uppercase tracking-wider m-0 mb-1">Client&apos;s Proposed Note</p>
-                                      <p className="text-[12px] text-[#111118] m-0 leading-relaxed italic">&quot;{inv.clientMsaNote}&quot;</p>
-                                      <Link
-                                        href={`/invoice/new?id=${inv.id}&restore=1&step=payment`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="inline-flex items-center mt-2 px-3 py-1.5 text-[11px] font-bold text-[#111118] bg-[#BEFF00] border-2 border-[#111118] shadow-[1px_1px_0_#111118] hover:shadow-[2px_2px_0_#111118] hover:-translate-x-[1px] hover:-translate-y-[1px] transition-all uppercase tracking-wider min-h-[36px]"
-                                      >
-                                        Update Addendum →
-                                      </Link>
-                                    </div>
-                                  )}
-
-                                  {/* Milestones */}
-                                  <div className="p-3">
-                                    {inv.milestones.length > 0 ? (
-                                      <div className="space-y-2">
-                                        {inv.milestones.map((m, mi) => {
-                                          const s = (m.status || "").toLowerCase();
-                                          const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
-
-                                          // Status-based visual differentiation
-                                          const borderColor = s === "settled" ? "border-l-[#00DCB4]"
-                                            : s === "overdue" ? "border-l-[#FF5C00]"
-                                            : ["live", "sent", "finalized"].includes(s) ? "border-l-[#BEFF00]"
-                                            : "border-l-[#E0E0E0]";
-                                          const bgColor = s === "settled" ? "bg-[#F0FDF9]"
-                                            : s === "overdue" ? "bg-[#FFF5F2]"
-                                            : ["live", "sent", "finalized"].includes(s) ? "bg-[#FDFFF0]"
-                                            : "bg-[#FFFBE6]";
-                                          const statusBg = s === "settled" ? "#00DCB4"
-                                            : s === "overdue" ? "#FF5C00"
-                                            : ["live", "sent", "finalized"].includes(s) ? "#BEFF00"
-                                            : "#E0E0E0";
-
-                                          const title = m.title || "(No Milestone Title)";
-
-                                          // Fixed: Read line items from form_data.milestones (canonical source)
-                                          const formMilestone = inv.formDataMilestones?.[m.orderIndex];
-                                          const milestoneLineItems = formMilestone?.lineItems || [];
-
-                                          // Due days calculation
-                                          let dueDateText = "";
-                                          let isPastDue = false;
-                                          if (s === "settled") {
-                                            dueDateText = "Settled ✓";
-                                          } else if (isPending) {
-                                            const todayVal = new Date();
-                                            const dueDateStr = inv.dueDate;
-                                            if (dueDateStr) {
-                                              const dueDateObj = new Date(dueDateStr);
-                                              const diffDays = Math.ceil((dueDateObj.getTime() - todayVal.getTime()) / (1000 * 60 * 60 * 24));
-                                              if (diffDays < 0) {
-                                                isPastDue = true;
-                                                dueDateText = `${Math.abs(diffDays)} days past due`;
-                                              } else if (diffDays === 0) {
-                                                dueDateText = "Due today";
-                                              } else {
-                                                dueDateText = `${diffDays} days till due`;
-                                              }
-                                            } else {
-                                              dueDateText = "Pending";
-                                            }
-                                          } else {
-                                            dueDateText = "Upcoming";
-                                          }
-
-                                          // Compute effective amount (fallback to form_data if relational = 0)
-                                          let effectiveAmount = m.amount;
-                                          if (effectiveAmount === 0 && milestoneLineItems.length > 0) {
-                                            effectiveAmount = milestoneLineItems.reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
-                                          }
-
-                                          return (
-                                            <div key={mi} className={cn("border border-[#111118]/40 border-l-[3px] p-2.5 text-[11px] leading-relaxed", borderColor, bgColor)}>
-                                              <div className="flex justify-between items-start gap-2">
-                                                <span className="font-extrabold text-[#111118] truncate flex-1">{title}</span>
-                                                <span
-                                                  className="text-[9px] font-black uppercase px-1.5 py-0.5 border border-[#111118] shrink-0"
-                                                  style={{ backgroundColor: statusBg }}
-                                                >
-                                                  {s === "settled" ? "SETTLED" : s === "overdue" ? "OVERDUE" : ["live", "sent", "finalized"].includes(s) ? "LIVE" : "PENDING"}
-                                                </span>
-                                              </div>
-
-                                              {milestoneLineItems.length > 0 ? (
-                                                <div className="space-y-1 mt-1.5 text-[10px]">
-                                                  {milestoneLineItems.map((li: any, liIdx: number) => (
-                                                    <div key={liIdx} className="text-[#111118]/90">
-                                                      <span className="font-bold">• {li.description || li.type || "Deliverable"}</span>
-                                                      <span className="text-[9px] text-[color:var(--text-muted)] ml-1">
-                                                        — {li.qty} {li.rateUnit?.replace("per-", "") || "unit"} @ ₹{formatIndian(Number(li.rate || 0))}
-                                                      </span>
-                                                    </div>
-                                                  ))}
-                                                </div>
-                                              ) : (
-                                                <div className="text-[9px] text-[color:var(--text-muted)] italic mt-1">No line items</div>
-                                              )}
-
-                                              <div className="border-t border-[#111118]/20 pt-1.5 mt-1.5 flex justify-between items-center text-[10px] font-semibold">
-                                                <span className={isPastDue ? "text-[#FF5C00] font-black" : "text-[color:var(--text-muted)]"}>
-                                                  {s === "overdue" && "⚠ "}{dueDateText}
-                                                </span>
-                                                <span className="font-bold text-[#111118]">
-                                                  Total: ₹{formatIndian(effectiveAmount)}
-                                                </span>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    ) : (
-                                      <div className="border border-[#111118]/40 border-l-[3px] border-l-[#E0E0E0] p-2.5 bg-[#FFFBE6] text-[10px] leading-relaxed">
-                                        <div className="font-extrabold border-b border-[#111118]/20 pb-1 mb-1 uppercase">Standard Invoice</div>
-                                        <div className="text-[color:var(--text-muted)]">
-                                          Amount: ₹{formatIndian(inv.totalAmount)}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
+                                <div key={i} style={{ width: `${widthPct}%`, backgroundColor: bg }} className="h-full border-r-2 border-[#111118] last:border-r-0" />
                               );
                             })}
                           </div>
-
-                          {/* Summary footer */}
-                          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t-2 border-dashed border-[#111118]/30 pt-3">
-                            <div className="flex gap-4 text-[12px]">
-                              <span>
-                                <span className="font-bold text-[color:var(--text-muted)] uppercase text-[10px] tracking-wider">Receivable: </span>
-                                <span className={cn("font-black", client.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>₹{formatIndian(client.totalOwed)}</span>
-                              </span>
-                              <span>
-                                <span className="font-bold text-[color:var(--text-muted)] uppercase text-[10px] tracking-wider">Collected: </span>
-                                <span className={cn("font-black", client.totalCollected > 0 ? "text-[#00967D]" : "text-[color:var(--text-muted)]")}>₹{formatIndian(client.totalCollected)}</span>
-                              </span>
-                            </div>
+                          <div className="flex justify-between text-[10px] font-bold text-[#888] uppercase tracking-widest mt-1">
+                            <span>0%</span>
+                            <span>Timeline</span>
+                            <span>100%</span>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-full h-[14px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[2px_2px_0_#111118]" />
+                      )}
+                    </div>
+
+                    {/* Body: Invoice Feed */}
+                    <div className="bg-[#FAFAF6] p-4 sm:p-5 flex flex-col gap-6">
+                      {client.invoices.map((inv) => {
+                        const msaLower = (inv.msaStatus || "").toLowerCase();
+                        const isProposed = msaLower === "proposed";
+                        
+                        return (
+                          <div key={inv.id} className="flex flex-col gap-3">
+                            {/* Invoice Context Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-dashed border-[#111118]/20 pb-2">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
+                                  className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
+                                >
+                                  {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+                                </button>
+                                {msaLower !== "accepted" && (
+                                  <span className={cn(
+                                    "text-[9px] font-bold px-1.5 py-0.5 border-2 uppercase tracking-wider",
+                                    isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
+                                  )}>
+                                    {isProposed ? "Proposed Changes" : "MSA Pending"}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[14px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
+                            </div>
+
+                            {/* Client Note & Action Button (Gestalt Proximity & Fitts Law) */}
+                            {isProposed && inv.clientMsaNote && (
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full bg-[#FFFBE6] border-2 border-[#B45309] p-3 shadow-[2px_2px_0_#B45309]">
+                                <div className="flex-1">
+                                  <p className="text-[10px] font-black text-[#B45309] uppercase tracking-wider m-0 mb-1 flex items-center gap-1.5">
+                                    <span className="text-[12px]">⚠️</span> Client Note
+                                  </p>
+                                  <p className="text-[12px] text-[#B45309] m-0 italic font-medium leading-relaxed">&quot;{inv.clientMsaNote}&quot;</p>
+                                </div>
+                                <Link
+                                  href={`/invoice/new?id=${inv.id}&restore=1&step=payment`}
+                                  className="shrink-0 flex items-center justify-center px-4 py-2 text-[12px] font-black text-[#111118] bg-[#BEFF00] border-2 border-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[4px_4px_0_#111118] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all uppercase tracking-wider min-h-[44px]"
+                                >
+                                  UPDATE ADDENDUM →
+                                </Link>
+                              </div>
+                            )}
+
+                            {/* Flattened Milestones with subtle line items */}
+                            <div className="flex flex-col gap-4 mt-1">
+                              {inv.milestones.length > 0 ? (
+                                inv.milestones.map((m, mi) => {
+                                  const s = (m.status || "").toLowerCase();
+                                  const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
+                                  const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                  const title = m.title || "(No Milestone Title)";
+                                  
+                                  const formMilestone = inv.formDataMilestones?.[m.orderIndex];
+                                  const milestoneLineItems = formMilestone?.lineItems || [];
+                                  
+                                  let dueDateText = "Upcoming";
+                                  let isPastDue = false;
+                                  if (s === "settled") dueDateText = "Settled ✓";
+                                  else if (isPending) {
+                                    if (inv.dueDate) {
+                                      const diffDays = Math.ceil((new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                      if (diffDays < 0) { isPastDue = true; dueDateText = `${Math.abs(diffDays)} days past due`; }
+                                      else if (diffDays === 0) dueDateText = "Due today";
+                                      else dueDateText = `${diffDays} days till due`;
+                                    } else dueDateText = "Pending";
+                                  }
+
+                                  let effectiveAmount = m.amount;
+                                  if (effectiveAmount === 0 && milestoneLineItems.length > 0) {
+                                    effectiveAmount = milestoneLineItems.reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                  }
+
+                                  return (
+                                    <div key={mi} className="flex flex-col gap-1.5">
+                                      <div className="flex justify-between items-start gap-3">
+                                        <div className="flex items-start gap-2.5">
+                                          <div className="w-[14px] h-[14px] border-2 border-[#111118] shrink-0 mt-[2px] flex items-center justify-center shadow-[1px_1px_0_#111118]" style={{ backgroundColor: statusBg }} />
+                                          <div>
+                                            <span className="text-[13px] font-black text-[#111118] uppercase tracking-tight">{title}</span>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                              <span className={cn("text-[10px] font-bold uppercase", isPastDue ? "text-[#FF5C00]" : "text-[#888]")}>{dueDateText}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <span className="text-[12px] font-bold text-[#111118]">₹{formatIndian(effectiveAmount)}</span>
+                                      </div>
+                                      
+                                      {/* Line Items (Indented, subtly styled) */}
+                                      {milestoneLineItems.length > 0 && (
+                                        <div className="pl-[26px] flex flex-col gap-1 text-[11px] font-medium text-[#555]">
+                                          {milestoneLineItems.map((li: any, liIdx: number) => (
+                                            <div key={liIdx} className="flex items-start gap-1">
+                                              <span className="text-[#888] mt-[-1px]">↳</span>
+                                              <span>{li.description || li.type || "Deliverable"} <span className="opacity-70">({li.qty} {li.rateUnit?.replace("per-", "") || "unit"} @ ₹{formatIndian(Number(li.rate || 0))})</span></span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div className="text-[11px] font-bold text-[#888] uppercase italic pl-[26px]">Standard Invoice (No detailed milestones)</div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
             </div>
-
             {/* Empty state */}
             {filteredAndSortedClients.length === 0 && (
               <div className="px-4 py-8 text-center bg-white border-t border-[color:var(--border-subtle)]">
