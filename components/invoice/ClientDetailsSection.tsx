@@ -869,7 +869,7 @@ export default function ClientDetailsSection({
                           value={value.msaPaymentTermsDays || ""}
                           onChange={(e) => updateField("msaPaymentTermsDays", parseInt(e.target.value) || 0)}
                           placeholder="e.g. 20"
-                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] !w-20 min-w-0")}
+                          className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] !w-24 min-w-0")}
                         />
                         <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
                       </div>
@@ -891,7 +891,7 @@ export default function ClientDetailsSection({
                           value={value.msaLateFeeRate || ""}
                           onChange={(e) => updateField("msaLateFeeRate", parseFloat(e.target.value) || 0)}
                           placeholder="1.5"
-                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] !w-16 min-w-0")}
+                          className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] !w-24 min-w-0")}
                         />
                         <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
                         <AppSelectField
