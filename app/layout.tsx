@@ -70,7 +70,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#F8F8FA" />
       </head>
-      <body className="min-h-full flex flex-col relative overflow-x-hidden">
+      <body className="min-h-full flex flex-col relative">
         {/* Global Aesthetic Grid */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden z-0 opacity-[0.03]">
           <div 
