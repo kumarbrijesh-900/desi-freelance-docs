@@ -1203,6 +1203,34 @@ If an authenticated agency owner tries the same:
 
 ---
 
+## v2.12 DASHBOARD LEDGER TOGGLE & REACT HOOKS STABILIZATION — May 21, 2026
+
+### Phase XXX: Client vs Invoice Ledger View
+
+- ✅ **Ledger Toggle Implementation**: 
+  - Added a "By Client" | "By Invoice" toggle inside the "CLIENT LEDGER" header.
+  - Implemented `ledgerView` state to conditionally render either the traditional grouped-by-client view or a flat, sortable invoice list.
+- ✅ **Invoice Map Logic**: 
+  - Computed `filteredAndSortedInvoices` by unrolling the list of all invoices matching the active filters (Settled, Outstanding, Overdue, Due This Week).
+  - Designed the Invoice ledger view to feature "Client Preview" deep-links, precise Due Dates, Milestone mini-bar visualizations, and specific Invoice status stamps (Overdue vs Pending).
+- ✅ **Data Integrity**: 
+  - Maintained shared underlying data (`clientsHealth`). Clicking any top-level summary metric card accurately filters BOTH the Client ledger and the Invoice ledger symmetrically.
+  - The footer dynamically updates its label depending on the view ("Showing X clients" vs "Showing Y invoices").
+
+### Phase XXXI: Next.js Runtime Stabilization
+
+- ✅ **React Hooks `#310` Fix**: 
+  - Diagnosed a critical production render crash ("Rendered more hooks than during the previous render").
+  - Root cause identified: A `useMemo` hook was placed below the `if (loading) return <Loading />` early return block, violating React's hook order rules upon hydration.
+  - Fix applied: Refactored the invoice unrolling logic to a synchronous IIFE pattern exactly matching the robust `filteredAndSortedClients` implementation.
+  - Dashboard stability fully restored on production.
+
+### Files Touched
+- `app/dashboard/page.tsx`
+- `SESSION_LOG.md`
+
+---
+
 ## Open items — investigate in next session
 
 ### HIGH priority
