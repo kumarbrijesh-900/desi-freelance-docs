@@ -29,6 +29,7 @@ export default function PublicInvoiceSharePage({
   const [parentMsaAcceptedOn, setParentMsaAcceptedOn] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<string | null>(null);
   const [showAcceptedToast, setShowAcceptedToast] = useState(false);
+  const [showProposedToast, setShowProposedToast] = useState(false);
 
   useEffect(() => {
     async function loadInvoice() {
@@ -126,11 +127,57 @@ export default function PublicInvoiceSharePage({
     }
   };
 
+  const handleProposeMsaChanges = async (note: string) => {
+    try {
+      const { data: inv, error } = await supabase
+        .from("invoices")
+        .update({
+          client_msa_note: note.trim(),
+          msa_status: 'proposed',
+          msa_responded_at: new Date().toISOString(),
+        })
+        .eq("share_token", token)
+        .select("id, user_id")
+        .single();
+
+      if (error) {
+        console.error("Supabase Update Error:", error);
+        throw new Error("Failed to submit proposal. Please try again.");
+      }
+
+      // Trigger Freelancer Notification
+      if (inv) {
+        await supabase.from("notifications").insert({
+          user_id: inv.user_id,
+          invoice_id: inv.id,
+          type: 'msa_negotiating',
+          title: 'New MSA Proposal',
+          message: `Client proposed new terms: "${note.trim()}"`,
+          is_read: false
+        });
+      }
+
+      setMsaStatus("proposed");
+      setMsaResponse(note.trim());
+      setShowProposedToast(true);
+    } catch (err: any) {
+      console.error("PROPOSE_ERROR:", err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     if (!showAcceptedToast) return;
     const timer = setTimeout(() => setShowAcceptedToast(false), 4000);
     return () => clearTimeout(timer);
   }, [showAcceptedToast]);
+
+  useEffect(() => {
+    if (showProposedToast) {
+      const timer = setTimeout(() => setShowProposedToast(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showProposedToast]);
 
   if (loading) {
     return (
@@ -189,6 +236,7 @@ export default function PublicInvoiceSharePage({
         mode="client"
         onAcceptClick={handleAcceptMsa}
         isSubmittingMsa={isSubmittingMsa}
+        onProposeChanges={handleProposeMsaChanges}
       />
 
       {showAcceptedToast && (
@@ -197,6 +245,17 @@ export default function PublicInvoiceSharePage({
             <span className="text-green-600 text-base">✓</span>
             <p className="text-sm font-semibold text-green-800">
               Terms accepted — invoice is now active
+            </p>
+          </div>
+        </div>
+      )}
+
+      {showProposedToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2.5 border-2 border-[#111118] bg-[#FFD700] px-5 py-3 shadow-[4px_4px_0_#111118]">
+            <span className="text-[#111118] font-bold text-base">✓</span>
+            <p className="text-sm font-bold text-[#111118]">
+              Proposal sent — waiting for the freelancer to review your changes.
             </p>
           </div>
         </div>

@@ -18,7 +18,7 @@ interface MSAAcceptanceModalProps {
   msaStatus?: string;
   msaResponseText?: string | null;
   onAccept: () => void;
-  onPropose?: () => void;
+  onPropose?: (note: string) => Promise<void>;
   previewMode?: boolean;
   onClosePreview?: () => void;
 }
@@ -50,42 +50,48 @@ export default function MSAAcceptanceModal({
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
 
   const handleSubmitProposal = async () => {
-    if (!proposalText.trim() || !token) return;
+    const trimmedNote = proposalText.trim();
+    if (!trimmedNote || !token) return;
     
     setIsSubmittingProposal(true);
     try {
-      // Execute update and select ID/User ID for notification insertion
-      const { data: inv, error } = await supabase
-        .from("invoices")
-        .update({
-          msa_status: 'proposed',
-          msa_response: proposalText,
-          msa_responded_at: new Date().toISOString()
-        })
-        .eq("share_token", token)
-        .select("id, user_id")
-        .single();
-
-      if (error) {
-        console.error("PROPOSAL_SUBMIT_ERROR:", error);
-        alert("Failed to submit proposal. Please try again.");
-      } else {
-        // Trigger Freelancer Notification
-        if (inv) {
-          await supabase.from("notifications").insert({
-            user_id: inv.user_id,
-            invoice_id: inv.id,
-            type: 'msa_negotiating',
-            title: 'New MSA Proposal',
-            message: `Client proposed new terms: "${proposalText}"`,
-            is_read: false
-          });
-        }
+      if (onPropose) {
+        await onPropose(trimmedNote);
         setMode("success");
+      } else {
+        // Execute update and select ID/User ID for notification insertion
+        const { data: inv, error } = await supabase
+          .from("invoices")
+          .update({
+            client_msa_note: trimmedNote,
+            msa_status: 'proposed',
+            msa_responded_at: new Date().toISOString()
+          })
+          .eq("share_token", token)
+          .select("id, user_id")
+          .single();
+
+        if (error) {
+          console.error("PROPOSAL_SUBMIT_ERROR:", error);
+          alert("Failed to submit proposal. Please try again.");
+        } else {
+          // Trigger Freelancer Notification
+          if (inv) {
+            await supabase.from("notifications").insert({
+              user_id: inv.user_id,
+              invoice_id: inv.id,
+              type: 'msa_negotiating',
+              title: 'New MSA Proposal',
+              message: `Client proposed new terms: "${trimmedNote}"`,
+              is_read: false
+            });
+          }
+          setMode("success");
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("PROPOSAL_ERROR:", err);
-      alert("An unexpected error occurred.");
+      alert(err.message || "Failed to submit proposal. Please try again.");
     } finally {
       setIsSubmittingProposal(false);
     }
@@ -274,7 +280,7 @@ export default function MSAAcceptanceModal({
                 <p className="mb-5 text-xs leading-relaxed text-[color:var(--text-muted)]">
                   By clicking &quot;Accept Terms&quot;, you are electronically signing the Master Service Agreement and the Project Addendum for this engagement.
                 </p>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     type="button"
                     disabled={isSubmitting}
@@ -318,7 +324,7 @@ export default function MSAAcceptanceModal({
                     <button
                       type="button"
                       disabled={isSubmitting}
-                      onClick={onPropose}
+                      onClick={() => setMode("propose")}
                       className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)]"
                     >
                       Propose Changes
@@ -327,7 +333,7 @@ export default function MSAAcceptanceModal({
                 </div>
               </>
             ) : (
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}

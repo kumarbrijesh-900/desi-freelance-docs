@@ -26,6 +26,7 @@ interface SharedMsaPreviewContentProps {
   mode: "client" | "agency-preview";
   onAcceptClick?: () => void;
   isSubmittingMsa?: boolean;
+  onProposeChanges?: (note: string) => Promise<void>;
 }
 
 export default function SharedMsaPreviewContent({
@@ -35,6 +36,7 @@ export default function SharedMsaPreviewContent({
   mode,
   onAcceptClick,
   isSubmittingMsa = false,
+  onProposeChanges,
 }: SharedMsaPreviewContentProps) {
   const {
     id,
@@ -182,6 +184,7 @@ export default function SharedMsaPreviewContent({
             msaStatus={msaStatus}
             msaResponseText={msaResponse}
             onAccept={onAcceptClick || (() => {})}
+            onPropose={mode === "client" ? onProposeChanges : undefined}
             previewMode={mode === "agency-preview"}
             onClosePreview={() => setPreviewDismissed(true)}
           />
