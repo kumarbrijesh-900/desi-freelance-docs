@@ -1005,7 +1005,7 @@ export default function DashboardPage() {
     });
 
   // 2. Filtered and Sorted invoices list (for Invoice Ledger view)
-  const filteredAndSortedInvoices = useMemo(() => {
+  const filteredAndSortedInvoices = (() => {
     let invoices: any[] = [];
     filteredAndSortedClients.forEach(client => {
       client.invoices.forEach(inv => {
@@ -1056,7 +1056,7 @@ export default function DashboardPage() {
       if (sortBy === "collected") return b.totalAmount - a.totalAmount; 
       return 0;
     });
-  }, [filteredAndSortedClients, filterType, searchTerm, sortBy]);
+  })();
 
   try {
     return (
