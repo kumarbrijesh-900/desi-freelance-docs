@@ -886,7 +886,7 @@ export default function DashboardPage() {
 
   // Smart MSA edit link
   const getMsaEditLink = (inv: ClientHealth["invoices"][0], client: ClientHealth) => {
-    if (inv.has_addendum) return `/invoice/edit/${inv.id}`;
+    if (inv.has_addendum) return `/invoice/new?id=${inv.id}&restore=1&step=payment`;
     if (!client.clientId.startsWith("pseudo-")) return `/clients/${client.clientId}`;
     return "/profile";
   };
@@ -1406,7 +1406,7 @@ export default function DashboardPage() {
                         {type === "draft" && (
                           <>
                             <Link
-                              href={`/invoice/edit/${inv.id}`}
+                              href={`/invoice/new?id=${inv.id}&restore=1`}
                               className="bg-[#8B5CF6] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
                             >
                               Finalize & Send →
@@ -2139,7 +2139,7 @@ export default function DashboardPage() {
                 <p className="text-[15px] font-bold text-[#111118]">{selectedInvoice.clientName}</p>
                 <div className="flex gap-3 mt-2">
                   <Link
-                    href={`/invoice/edit/${selectedInvoice.id}`}
+                    href={`/invoice/new?id=${selectedInvoice.id}&restore=1`}
                     className="text-[11px] font-bold text-[color:var(--brand-indigo)] hover:underline uppercase tracking-wider"
                   >
                     Edit Invoice →
