@@ -1058,8 +1058,9 @@ export default function DashboardPage() {
     });
   }, [filteredAndSortedClients, filterType, searchTerm, sortBy]);
 
-  return (
-    <div className={appPageShellClass}>
+  try {
+    return (
+      <div className={appPageShellClass}>
       <AppHeader />
       <main
         style={{
@@ -2456,4 +2457,13 @@ export default function DashboardPage() {
       )}
     </div>
   );
+  } catch (err: any) {
+    console.error("RENDER ERROR:", err);
+    return (
+      <div className="p-8 bg-red-100 text-red-900 overflow-auto">
+        <h1 className="text-2xl font-bold mb-4">Dashboard Render Error</h1>
+        <pre className="whitespace-pre-wrap">{err.stack}</pre>
+      </div>
+    );
+  }
 }
