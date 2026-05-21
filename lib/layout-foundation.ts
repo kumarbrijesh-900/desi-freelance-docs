@@ -68,7 +68,7 @@ export const appSectionHeaderStackClass = "space-y-2";
 /* ── Invoice Editor 3-Column Grid ── */
 
 /** Sticky helper – pins element to top with 16px offset */
-export const appStickyTopClass = "sticky top-24";
+export const appStickyTopClass = "sticky top-24 self-start";
 
 /**
  * Three-column grid for the invoice editor:
