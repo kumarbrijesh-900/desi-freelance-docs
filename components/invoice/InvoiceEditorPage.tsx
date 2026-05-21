@@ -745,7 +745,10 @@ function EditorContent() {
   const [formData, setFormData] = useState<InvoiceFormData>(() =>
     mergeInvoiceFormData(defaultInvoiceFormData),
   );
-  const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>("agency");
+  const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>(() => {
+    const queryStep = searchParams.get("step") as InvoiceStepperStep | null;
+    return (queryStep && ["agency", "client", "deliverables", "payment"].includes(queryStep)) ? queryStep : "agency";
+  });
   const [direction, setDirection] = useState(0);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
