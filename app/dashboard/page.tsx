@@ -1965,11 +1965,11 @@ export default function DashboardPage() {
                           "bg-[#EBFDF9]"
                       )}
                     ></div>
-                    <div>
-                      <p className="text-[13px] text-[#111118] font-bold">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] text-[#111118] font-bold truncate">
                         {item.entityLabel}
                       </p>
-                      <p className="text-[12px] text-[#111118]/70 truncate max-w-[320px] sm:max-w-none">
+                      <p className="text-[12px] text-[#111118]/70 truncate">
                         {item.detail} — {timeAgo(item.createdAt)}
                       </p>
                     </div>
