@@ -43,6 +43,7 @@ interface ClientHealth {
     lineItems?: Array<any>;
     applied_payment_terms?: string | null;
     applied_late_fee_rate?: number | null;
+    applied_late_fee_unit?: string | null;
     applied_license_type?: string | null;
     clientMsaNote?: string | null;
     shareToken?: string | null;
@@ -608,6 +609,7 @@ export default function DashboardPage() {
             lineItems: inv.form_data?.lineItems || [],
             applied_payment_terms: inv.applied_payment_terms,
             applied_late_fee_rate: inv.applied_late_fee_rate,
+            applied_late_fee_unit: inv.applied_late_fee_unit,
             applied_license_type: inv.applied_license_type,
             clientMsaNote: inv.client_msa_note,
             shareToken: inv.share_token,
@@ -2068,7 +2070,11 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <span className="font-bold text-[color:var(--text-muted)]">Late Fee:</span>{" "}
-                    <span className="font-semibold">{selectedInvoice.applied_late_fee_rate ? `${selectedInvoice.applied_late_fee_rate}% per month` : "1.5% per month"}</span>
+                    <span className="font-semibold">
+                      {selectedInvoice.applied_late_fee_rate != null
+                        ? `${selectedInvoice.applied_late_fee_rate}% per ${selectedInvoice.applied_late_fee_unit || "month"}`
+                        : "1.5% per month"}
+                    </span>
                   </div>
                 </div>
               </div>

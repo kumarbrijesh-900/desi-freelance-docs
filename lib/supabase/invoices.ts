@@ -9,6 +9,7 @@
 /** Last updated: 2026-04-24 19:01 (IST) */
 import { supabase } from "@/lib/supabase/client";
 import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
+import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
@@ -39,6 +40,8 @@ export interface SavedInvoice {
   client_msa_note: string | null;
   /** Bug 2: stored as TEXT (e.g. 'Net 30', 'Due on Receipt') */
   applied_payment_terms: string | null;
+  applied_late_fee_rate: number | null;
+  applied_late_fee_unit: string | null;
   due_date: string | null;
   reminded_due_date: boolean;
   reminded_overdue: boolean;
@@ -896,8 +899,7 @@ export async function reissueNegotiatedInvoice(
       form_data: newFormData as unknown as Record<string, unknown>,
       msa_status: "pending" as MsaStatus,
       msa_accepted_at: null,
-      applied_payment_terms: newFormData.meta?.paymentTerms || null,
-      applied_late_fee_rate: newFormData.client?.msaLateFeeRate || null,
+      ...computeAppliedMsaSnapshot(newFormData),
       applied_license_type: newFormData.payment?.license?.licenseType || null,
     })
     .eq("id", invoiceId)
