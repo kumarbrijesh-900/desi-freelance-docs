@@ -126,7 +126,7 @@ function CombinedStatusBadge({
   if (msaId && msaStatus === "accepted") {
     return (
       <span className="border-2 border-[#111118] bg-[#BEFF00] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        Accepted
+        MSA Accepted
       </span>
     );
   }
@@ -384,6 +384,15 @@ function InvoiceRow({
                 )}
               </span>
               <MilestoneProgressBadge milestones={invoice.milestones ?? []} />
+              {invoice.msa_status === "proposed" && invoice.client_msa_note && (
+                <div 
+                  className="mt-1.5 max-w-[280px] border-2 border-[#111118] bg-[#FFFBE6] px-2 py-1 text-[11px] font-bold text-[#111118] shadow-[2px_2px_0_#111118] truncate"
+                  title={invoice.client_msa_note}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Proposal: &quot;{invoice.client_msa_note}&quot;
+                </div>
+              )}
               <div className="sm:hidden mt-2 flex items-center gap-2">
                 <CombinedStatusBadge 
                   status={invoice.status} 
@@ -539,7 +548,7 @@ function InvoiceRow({
                           ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
                           : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
                       )}>
-                        {isSettled ? "Settled" : "Pending"}
+                        {isSettled ? "Settled" : "Payment Pending"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -625,7 +634,7 @@ function InvoiceRow({
                           ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52]" 
                           : "border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6]"
                       )}>
-                        {isSettled ? "Settled" : "Pending"}
+                        {isSettled ? "Settled" : "Payment Pending"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
