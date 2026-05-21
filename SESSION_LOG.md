@@ -1312,8 +1312,48 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
+## v2.8.3 MSA AUDIT TRAIL IMMUTABILITY & SNAPSHOTS — May 22, 2026
+
+### Phase XLII: MSA Audit Trail Snapshot & Immutability
+- ✅ **Applied Snapshot Fields**:
+  - Added `applied_payment_terms` (text), `applied_late_fee_rate` (numeric), `applied_late_fee_unit` (text), and `applied_license_type` (text) to the `public.invoices` table.
+  - Snapshot fields record the exact, effective late-fee/payment/license terms at the moment of finalize/share, ensuring the agreement's terms are immutable and protected against subsequent changes in global defaults or client MSA values.
+- ✅ **Database Migrations for Snapshots**:
+  - `20260522_add_applied_late_fee_columns.sql` [NEW]: Adds late fee rate and unit columns with descriptive documentation comments.
+  - `20260524_add_applied_license_type_column.sql` [NEW]: Adds license type column to lock in IP terms for audit immutability at finalize/share time.
+  - `20260523_backfill_applied_msa_snapshot.sql` [NEW]: Backfills existing records in the database by parsing historical values from the `form_data` JSONB payload.
+- ✅ **TypeScript & Database Wiring**:
+  - Implemented `lib/msa-applied-snapshot.ts` [NEW] to compute the snapshot details based on a prioritized hierarchy (Client Addendum overrides -> Agency defaults -> Platform hardcoded fallbacks).
+  - Wired `computeAppliedMsaSnapshot` into `saveInvoice` and `updateInvoice` in `lib/supabase/invoices.ts` so the snapshot values are cleanly written during both update and new creation paths.
+  - Restored and displayed effective terms dynamically from snapshot-based fields in `app/dashboard/page.tsx`.
+
+## v2.8.4 CLIENT DATABASE SCHEMA RECONCILIATION — May 22, 2026
+
+### Phase XLIII: Client Database Schema Reconciliation & Upgrades
+- ✅ **15-Column Table Reconcile Migration**:
+  - Created and executed `20260524_reconcile_clients_schema.sql` [NEW] to bring the legacy, minimal `clients` table in complete structural alignment with the application's runtime data models and `clientDetailsToRow` mappings (which writes ~28 columns).
+  - **Renamed Legacy Columns**: Safely renamed legacy `email` to `client_email` and `address` to `client_address` using DO block checks to avoid data loss.
+  - **Added Missing Columns**: Added `address_line_1`, `address_line_2`, `city`, `pin_code`, `client_postal_code`, `country`, `client_currency`, `client_type`, `client_entity_type`, `sez_status`, `msa_late_fee_unit`, `free_revision_rounds`, `extra_revision_fee_percent`, `invoice_count`, and `last_invoiced_at` columns.
+  - Applied comments for database documentation and RLS audit safety.
+- ✅ **Type & Column Name Parity**:
+  - Reverted a temporary property rename `client_location` in `lib/supabase/clients.ts` back to `client_type` to perfectly match the database column name while preserving the location status (domestic vs international).
+  - Ensured `clientDetailsToRow` maps properties to database columns accurately without syntax mismatches.
+
+### Files modified in v2.8.3 & v2.8.4
+- `lib/msa-applied-snapshot.ts`
+- `supabase/migrations/20260522_add_applied_late_fee_columns.sql`
+- `supabase/migrations/20260523_backfill_applied_msa_snapshot.sql`
+- `supabase/migrations/20260524_add_applied_license_type_column.sql`
+- `supabase/migrations/20260524_reconcile_clients_schema.sql`
+- `lib/supabase/invoices.ts`
+- `lib/supabase/clients.ts`
+- `app/dashboard/page.tsx`
+
+---
+
 ## Start next chat with this prompt
 
 > *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*
 
 This forces the new Claude to demonstrate context comprehension before acting. The four layers it should be able to name: UI removal, server-side layout redirect, DB trigger, RLS policy (+ column GRANT supporting the trigger). If it can articulate that *and* explain why the column GRANT alone wasn't enough (no RLS policy → 406 PGRST116), you have a properly-warmed Claude. If not, retry.
+
