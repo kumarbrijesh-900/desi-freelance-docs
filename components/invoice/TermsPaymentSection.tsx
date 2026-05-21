@@ -464,7 +464,7 @@ export default function TermsPaymentSection({
                           </div>
                         </div>
 
-                        <div className="relative w-20">
+                        <div className="relative w-28">
                           <input
                             type="number"
                             inputMode="numeric"
