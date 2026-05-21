@@ -733,21 +733,49 @@ export async function markMilestoneSettled(
   invoiceId: string,
   orderIndex: number,
   tdsAmount: number = 0,
+  milestoneId?: string,
 ): Promise<{ error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
-  // 1. Find the current milestone by order_index (stable across saves)
-  const { data: milestone, error: findErr } = await supabase
-    .from("invoice_milestones")
-    .select("id")
-    .eq("invoice_id", invoiceId)
-    .eq("order_index", orderIndex)
-    .single();
+  let milestone: { id: string; order_index: number | null } | null = null;
 
-  if (findErr || !milestone) {
-    console.warn("Could not find milestone at index", orderIndex, findErr?.message);
-    return { error: findErr?.message ?? "Milestone not found" };
+  // Prefer the row UUID from the UI. order_index is only a fallback because
+  // historical rows can drift when old invoices are regenerated.
+  if (milestoneId) {
+    const { data, error } = await supabase
+      .from("invoice_milestones")
+      .select("id, order_index")
+      .eq("id", milestoneId)
+      .eq("invoice_id", invoiceId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("Could not find milestone by id", milestoneId, error.message);
+    } else {
+      milestone = data;
+    }
+  }
+
+  if (!milestone) {
+    const { data, error } = await supabase
+      .from("invoice_milestones")
+      .select("id, order_index")
+      .eq("invoice_id", invoiceId)
+      .eq("order_index", orderIndex)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("Could not find milestone at index", orderIndex, error.message);
+      return { error: error.message };
+    }
+
+    milestone = data;
+  }
+
+  if (!milestone) {
+    console.warn("Could not find milestone", { invoiceId, orderIndex, milestoneId });
+    return { error: "Milestone not found" };
   }
 
   // 2. Update by the current UUID
@@ -757,7 +785,8 @@ export async function markMilestoneSettled(
       status: "SETTLED",
       tds_amount: tdsAmount,
     })
-    .eq("id", milestone.id);
+    .eq("id", milestone.id)
+    .eq("invoice_id", invoiceId);
 
   if (milestoneUpdateErr) {
     console.error("invoice_milestones update failed:", milestoneUpdateErr.message);
@@ -799,7 +828,7 @@ export async function markMilestoneSettled(
     invoice_id: invoiceId,
     type: "milestone_settled",
     title: "Milestone Paid",
-    message: `Milestone ${orderIndex + 1} for Invoice ${inv.invoice_number} settled. TDS deducted: ₹${tdsAmount.toLocaleString("en-IN")}.`,
+    message: `Milestone ${(milestone.order_index ?? orderIndex) + 1} for Invoice ${inv.invoice_number} settled. TDS deducted: ₹${tdsAmount.toLocaleString("en-IN")}.`,
     is_read: false,
   });
 

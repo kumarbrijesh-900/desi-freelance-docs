@@ -1380,6 +1380,29 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
+## v2.8.6 MILESTONE SETTLEMENT CONFIRM HOTFIX — May 22, 2026
+
+### Phase XLV: Settlement Modal Reliability
+- ✅ **Confirm Settlement No-op Fix**:
+  - Fixed the milestone settlement confirmation path so it updates the clicked relational milestone row by UUID first, with `order_index` retained only as a fallback.
+  - This resolves cases where `Confirm Settlement` appeared to do nothing because the helper looked up the row by a stale or mismatched `order_index`.
+- ✅ **Visible Failure State**:
+  - Added a high-contrast inline error message inside the settlement modal if Supabase still rejects the settlement update.
+  - The user now gets actionable feedback instead of a silent modal no-op.
+- ✅ **Next Milestone Positioning**:
+  - The next-milestone decision now derives from the sorted relational milestone list and the clicked row id, preventing bad transition logic when order indexes drift.
+
+### Verification
+- ✅ `npm run build` passed with only existing Upstash Redis environment warnings.
+
+### Files modified in v2.8.6
+- `app/invoices/page.tsx`
+- `components/invoice/SettlementModal.tsx`
+- `lib/supabase/invoices.ts`
+- `SESSION_LOG.md`
+
+---
+
 ## Start next chat with this prompt
 
 > *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*

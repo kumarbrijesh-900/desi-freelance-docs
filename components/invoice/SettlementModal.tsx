@@ -12,6 +12,7 @@ interface SettlementModalProps {
   subtotal: number;
   currencySymbol: string;
   isSubmitting: boolean;
+  errorMessage?: string | null;
 }
 
 export default function SettlementModal({
@@ -22,6 +23,7 @@ export default function SettlementModal({
   subtotal,
   currencySymbol,
   isSubmitting,
+  errorMessage,
 }: SettlementModalProps) {
   const [tdsPercent, setTdsPercent] = useState<number>(0);
 
@@ -86,6 +88,12 @@ export default function SettlementModal({
                 </span>
               </div>
             </div>
+
+            {errorMessage && (
+              <div className="border-2 border-[#111118] bg-[#FFEBA4] px-4 py-3 text-xs font-semibold leading-5 text-[#111118]">
+                {errorMessage}
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex gap-3">

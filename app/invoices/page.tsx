@@ -808,6 +808,7 @@ export default function InvoiceHistoryPage() {
     subtotal: number;
     symbol: string;
   } | null>(null);
+  const [settlementError, setSettlementError] = useState<string | null>(null);
 
   const [showCycleComplete, setShowCycleComplete] = useState<boolean>(false);
 
@@ -943,9 +944,13 @@ export default function InvoiceHistoryPage() {
       const symbol = currency === "USD" ? "$" : "₹";
 
       // Find the index of this milestone
-      const relMilestoneIndex = inv.milestones?.findIndex((m: any) => m.id === milestoneId) ?? 0;
+      const sortedMilestones = [...(inv.milestones ?? [])].sort(
+        (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
+      );
+      const relMilestoneIndex = sortedMilestones.findIndex((m: any) => m.id === milestoneId);
       const formMilestoneIndex = relMilestoneIndex >= 0 ? relMilestoneIndex : 0;
 
+      setSettlementError(null);
       setActiveSettlement({
         invoiceId: id,
         milestoneId,
@@ -988,11 +993,20 @@ export default function InvoiceHistoryPage() {
     if (!activeSettlement) return;
     const { invoiceId, milestoneId, milestoneIndex: currentMilestoneIndex } = activeSettlement;
     setSettlingId(milestoneId);
+    setSettlementError(null);
 
     // Step 1: Settle the milestone row
-    const { error: msError } = await markMilestoneSettled(invoiceId, currentMilestoneIndex, tdsAmount);
+    const { error: msError } = await markMilestoneSettled(
+      invoiceId,
+      currentMilestoneIndex,
+      tdsAmount,
+      milestoneId,
+    );
     if (msError) {
       console.error("markMilestoneSettled failed:", msError);
+      setSettlementError(
+        `Could not mark this milestone settled: ${msError}. Please refresh and try again.`,
+      );
       setSettlingId(null);
       return;
     }
@@ -1000,13 +1014,16 @@ export default function InvoiceHistoryPage() {
     // Step 2: Check if there are more milestones
     const inv = invoices.find((i) => i.id === invoiceId);
     const milestones = [...(inv?.milestones ?? [])].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-    const nextMilestoneIndex = currentMilestoneIndex + 1;
+    const currentMilestonePosition = milestones.findIndex((m) => m.id === milestoneId);
+    const nextMilestoneIndex =
+      (currentMilestonePosition >= 0 ? currentMilestonePosition : currentMilestoneIndex) + 1;
     const hasMoreMilestones = nextMilestoneIndex < milestones.length;
 
     if (hasMoreMilestones) {
       // Show next milestone modal instead of fully settling
       const nextMilestone = milestones[nextMilestoneIndex];
       setActiveSettlement(null);
+      setSettlementError(null);
       setSettlingId(null);
       setActiveNextMilestone({
         parentInvoiceId: invoiceId,
@@ -1045,6 +1062,7 @@ export default function InvoiceHistoryPage() {
     );
 
     setActiveSettlement(null);
+    setSettlementError(null);
     setSettlingId(null);
     setShowCycleComplete(true);
   };
@@ -1762,12 +1780,16 @@ export default function InvoiceHistoryPage() {
           {/* Settlement Modal */}
           <SettlementModal
             isOpen={!!activeSettlement}
-            onClose={() => setActiveSettlement(null)}
+            onClose={() => {
+              setSettlementError(null);
+              setActiveSettlement(null);
+            }}
             onConfirm={handleConfirmMilestoneSettlement}
             milestoneName={activeSettlement?.name || ""}
             subtotal={activeSettlement?.subtotal || 0}
             currencySymbol={activeSettlement?.symbol || "₹"}
             isSubmitting={!!settlingId}
+            errorMessage={settlementError}
           />
 
           <InvoiceSettlementConfirmModal
