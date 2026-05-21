@@ -126,7 +126,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
-  const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
+  const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [dismissedCards, setDismissedCards] = useState<Set<string>>(new Set());
 
@@ -1528,7 +1528,7 @@ export default function DashboardPage() {
             {/* Accordion Rows */}
             <div>
               {filteredAndSortedClients.map((client) => {
-                const isExpanded = expandedClientId === client.clientId;
+                const isExpanded = expandedClientIds.includes(client.clientId);
                 const allMilestones = client.invoices.flatMap(inv => inv.milestones);
                 const sparkTotal = allMilestones.reduce((sum, m) => sum + (m.amount || 0), 0) || 1;
 
@@ -1547,7 +1547,7 @@ export default function DashboardPage() {
                     {/* ── Collapsed Row ── */}
                     <button
                       type="button"
-                      onClick={() => setExpandedClientId(isExpanded ? null : client.clientId)}
+                      onClick={() => setExpandedClientIds(prev => prev.includes(client.clientId) ? prev.filter(id => id !== client.clientId) : [...prev, client.clientId])}
                       className={cn(
                         "w-full text-left transition-colors select-none cursor-pointer bg-transparent border-none p-0 m-0",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111118] focus-visible:ring-offset-1",
