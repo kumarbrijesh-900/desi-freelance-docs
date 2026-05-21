@@ -123,6 +123,7 @@ export default function DashboardPage() {
 
   // Client-side UX Interactive States
   const [filterType, setFilterType] = useState<"all" | "outstanding" | "settled" | "overdue" | "due_this_week">("all");
+  const [ledgerView, setLedgerView] = useState<"client" | "invoice">("client");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
@@ -1003,6 +1004,60 @@ export default function DashboardPage() {
       return 0;
     });
 
+  // 2. Filtered and Sorted invoices list (for Invoice Ledger view)
+  const filteredAndSortedInvoices = useMemo(() => {
+    let invoices: any[] = [];
+    filteredAndSortedClients.forEach(client => {
+      client.invoices.forEach(inv => {
+        invoices.push({ ...inv, clientName: client.clientName, clientCity: client.clientCity, clientId: client.clientId });
+      });
+    });
+
+    return invoices.filter(inv => {
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase().trim();
+        const matchesClient = inv.clientName?.toLowerCase().includes(query) || inv.clientCity?.toLowerCase().includes(query);
+        const matchesInv = inv.invoiceNumber?.toLowerCase().includes(query);
+        if (!matchesClient && !matchesInv) return false;
+      }
+
+      const statusLower = (inv.status || "").toLowerCase();
+      
+      if (filterType === "all") return true;
+      if (filterType === "outstanding") return statusLower === "sent" || statusLower === "finalized";
+      if (filterType === "settled") return statusLower === "settled";
+      if (filterType === "overdue") {
+        if (statusLower !== "sent" && statusLower !== "finalized") return false;
+        if (!inv.dueDate) return false;
+        const today = new Date(); today.setHours(0,0,0,0);
+        const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
+        return due < today;
+      }
+      if (filterType === "due_this_week") {
+        if (statusLower === "settled" || !inv.dueDate) return false;
+        const today = new Date(); today.setHours(0,0,0,0);
+        const nextWeek = new Date(); nextWeek.setDate(today.getDate() + 7); nextWeek.setHours(23,59,59,999);
+        const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
+        return due >= today && due <= nextWeek;
+      }
+      return true;
+    }).sort((a, b) => {
+      if (sortBy === "receivable") return b.totalAmount - a.totalAmount;
+      if (sortBy === "name") return a.clientName.localeCompare(b.clientName);
+      if (sortBy === "health") {
+        const getHealthScore = (i: any) => {
+           const s = i.status.toLowerCase();
+           if (s === "settled") return 3;
+           if (i.dueDate && new Date(i.dueDate) < new Date()) return 0; // overdue
+           return 1; // live/pending
+        };
+        return getHealthScore(a) - getHealthScore(b);
+      }
+      if (sortBy === "collected") return b.totalAmount - a.totalAmount; 
+      return 0;
+    });
+  }, [filteredAndSortedClients, filterType, searchTerm, sortBy]);
+
   return (
     <div className={appPageShellClass}>
       <AppHeader />
@@ -1443,7 +1498,29 @@ export default function DashboardPage() {
           <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
             <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
-              <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">CLIENT LEDGER</p>
+              <div className="flex items-center gap-4">
+                <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">
+                  {ledgerView === 'client' ? 'CLIENT LEDGER' : 'INVOICE LEDGER'}
+                </p>
+                <div className="flex border-2 border-[#111118] overflow-hidden shadow-[2px_2px_0_#111118]">
+                  <button
+                    onClick={() => setLedgerView("client")}
+                    className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                      ledgerView === "client" ? "bg-[#111118] text-white" : "bg-white text-[#111118] hover:bg-[#F5F5F0]"
+                    }`}
+                  >
+                    By Client
+                  </button>
+                  <button
+                    onClick={() => setLedgerView("invoice")}
+                    className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors border-l-2 border-[#111118] ${
+                      ledgerView === "invoice" ? "bg-[#111118] text-white" : "bg-white text-[#111118] hover:bg-[#F5F5F0]"
+                    }`}
+                  >
+                    By Invoice
+                  </button>
+                </div>
+              </div>
               <div className="hidden sm:flex gap-4 flex-wrap items-center">
                 <span className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mr-1">MILESTONE KEY:</span>
                 <div className="flex items-center gap-1.5"><div className="w-4 h-2 bg-[#00DCB4] border border-[#111118]"></div><span className="text-[12px] font-semibold text-[#111118]">Settled</span></div>
@@ -1516,8 +1593,11 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Client Statement Cards */}
+            {/* Render View Based on Toggle */}
             <div className="space-y-6 bg-[#F5F5F0] p-4 sm:p-6 border-b-2 border-[#111118]">
+              {ledgerView === "client" ? (
+                <>
+                  {/* CLIENT VIEW LOGIC */}
               {filteredAndSortedClients.map((client) => {
                 const allMilestones = client.invoices.flatMap(inv => inv.milestones);
                 const sparkTotal = allMilestones.reduce((sum, m) => {
@@ -1705,6 +1785,171 @@ export default function DashboardPage() {
                   </div>
                 );
               })}
+                </>
+              ) : (
+                <>
+                  {/* INVOICE VIEW LOGIC */}
+                  {filteredAndSortedInvoices.map((inv) => {
+                    const msaLower = (inv.msaStatus || "").toLowerCase();
+                    const isProposed = msaLower === "proposed";
+                    const allMilestones = inv.milestones || [];
+                    const sparkTotal = inv.totalAmount || 1;
+                    
+                    return (
+                      <div key={inv.id} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
+                        
+                        {/* Header: Invoice Summary */}
+                        <div className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-5">
+                            <div>
+                              <div className="flex items-center gap-3 flex-wrap mb-1">
+                                <Link
+                                  href={`/invoice/${inv.id}/client-preview`}
+                                  className="text-[20px] sm:text-[24px] font-black text-[#111118] uppercase tracking-wider m-0 leading-tight hover:text-[#FF5C00] transition-colors"
+                                >
+                                  {inv.invoiceNumber} <span className="text-[16px]">↗</span>
+                                </Link>
+                                {msaLower !== "accepted" && (
+                                  <span className={`text-[10px] font-bold px-2 py-1 border-2 uppercase tracking-wider ${
+                                    isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
+                                  }`}>
+                                    {isProposed ? "Proposed Changes" : "MSA Pending"}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[12px] font-bold text-[#888] m-0 mt-1 uppercase tracking-widest">{inv.clientName} {inv.clientCity ? `· ${inv.clientCity}` : ''}</p>
+                            </div>
+                            <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
+                              <p className={`text-[20px] sm:text-[24px] font-black font-syne m-0 ${inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? 'text-[#FF5C00]' : 'text-[#111118]'}`}>
+                                ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(inv.totalAmount)}
+                              </p>
+                              <span className={`text-[10px] font-black px-2 py-1 border-2 border-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] ${
+                                inv.status.toLowerCase() === 'settled' ? 'bg-[#E0FFF7] text-[#006B52]' :
+                                inv.status.toLowerCase() === 'draft' ? 'bg-[#F0EAFF] text-[#5530DB]' :
+                                inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? 'bg-[#FFF0EC] text-[#FF5C00]' :
+                                'bg-[#EBFDF9] text-[#00967D]'
+                              }`}>
+                                {inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? "OVERDUE" : inv.status.toUpperCase()}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Milestone Progress Bar */}
+                          {allMilestones.length > 0 ? (
+                            <div className="w-full flex flex-col gap-1.5">
+                              <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
+                                {allMilestones.map((m: any, i: number) => {
+                                  const s = (m.status || "").toLowerCase();
+                                  const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                  
+                                  let effectiveAmount = m.amount;
+                                  if (effectiveAmount === 0 && inv.formDataMilestones?.[m.orderIndex]) {
+                                    effectiveAmount = (inv.formDataMilestones[m.orderIndex].lineItems || []).reduce((sum: number, li: any) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                  }
+                                  const widthPct = Math.max((effectiveAmount / sparkTotal) * 100, 2);
+                                  return (
+                                    <div key={i} style={{ width: `${widthPct}%`, backgroundColor: bg }} className="h-full border-r-2 border-[#111118] last:border-r-0" />
+                                  );
+                                })}
+                              </div>
+                              <div className="flex justify-between text-[10px] font-bold text-[#888] uppercase tracking-widest mt-1">
+                                <span>0%</span>
+                                <span>Timeline</span>
+                                <span>100%</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-full h-[14px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[2px_2px_0_#111118]" />
+                          )}
+                        </div>
+
+                        {/* Body: Milestone Details & Actions */}
+                        <div className="bg-[#FAFAF6] p-4 sm:p-5 flex flex-col gap-6">
+                          {/* Client Note & Action Button (Gestalt Proximity & Fitts Law) */}
+                          {isProposed && inv.clientMsaNote && (
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full bg-[#FFFBE6] border-2 border-[#B45309] p-3 shadow-[2px_2px_0_#B45309]">
+                              <div className="flex-1">
+                                <p className="text-[10px] font-black text-[#B45309] uppercase tracking-wider m-0 mb-1 flex items-center gap-1.5">
+                                  <span className="text-[12px]">⚠️</span> Client Note
+                                </p>
+                                <p className="text-[12px] text-[#B45309] m-0 italic font-medium leading-relaxed">&quot;{inv.clientMsaNote}&quot;</p>
+                              </div>
+                              <Link
+                                href={`/invoice/new?id=${inv.id}&restore=1&step=payment`}
+                                className="shrink-0 flex items-center justify-center px-4 py-2 text-[12px] font-black text-[#111118] bg-[#BEFF00] border-2 border-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[4px_4px_0_#111118] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all uppercase tracking-wider min-h-[44px]"
+                              >
+                                UPDATE ADDENDUM →
+                              </Link>
+                            </div>
+                          )}
+
+                          {/* Flattened Milestones with subtle line items */}
+                          <div className="flex flex-col gap-4">
+                            {allMilestones.length > 0 ? (
+                              allMilestones.map((m: any, mi: number) => {
+                                const s = (m.status || "").toLowerCase();
+                                const isPending = s === "pending" || s === "live" || s === "overdue" || s === "sent";
+                                const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                const title = m.title || "(No Milestone Title)";
+                                
+                                const formMilestone = inv.formDataMilestones?.[m.orderIndex];
+                                const milestoneLineItems = formMilestone?.lineItems || [];
+                                
+                                let dueDateText = "Upcoming";
+                                let isPastDue = false;
+                                if (s === "settled") dueDateText = "Settled ✓";
+                                else if (isPending) {
+                                  if (inv.dueDate) {
+                                    const diffDays = Math.ceil((new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                    if (diffDays < 0) { isPastDue = true; dueDateText = `${Math.abs(diffDays)} days past due`; }
+                                    else if (diffDays === 0) dueDateText = "Due today";
+                                    else dueDateText = `${diffDays} days till due`;
+                                  } else dueDateText = "Pending";
+                                }
+
+                                let effectiveAmount = m.amount;
+                                if (effectiveAmount === 0 && milestoneLineItems.length > 0) {
+                                  effectiveAmount = milestoneLineItems.reduce((sum: number, li: any) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                }
+
+                                return (
+                                  <div key={mi} className="flex flex-col gap-1.5">
+                                    <div className="flex justify-between items-start gap-3">
+                                      <div className="flex items-start gap-2.5">
+                                        <div className="w-[14px] h-[14px] border-2 border-[#111118] shrink-0 mt-[2px] flex items-center justify-center shadow-[1px_1px_0_#111118]" style={{ backgroundColor: statusBg }} />
+                                        <div>
+                                          <span className="text-[13px] font-black text-[#111118] uppercase tracking-tight">{title}</span>
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                            <span className={`text-[10px] font-bold uppercase ${isPastDue ? "text-[#FF5C00]" : "text-[#888]"}`}>{dueDateText}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <span className="text-[12px] font-bold text-[#111118]">₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(effectiveAmount)}</span>
+                                    </div>
+                                    
+                                    {milestoneLineItems.length > 0 && (
+                                      <div className="pl-[26px] flex flex-col gap-1 text-[11px] font-medium text-[#555]">
+                                        {milestoneLineItems.map((li: any, liIdx: number) => (
+                                          <div key={liIdx} className="flex items-start gap-1">
+                                            <span className="text-[#888] mt-[-1px]">↳</span>
+                                            <span>{li.description || li.type || "Deliverable"} <span className="opacity-70">({li.qty} {li.rateUnit?.replace("per-", "") || "unit"} @ ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Number(li.rate || 0))})</span></span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-[11px] font-bold text-[#888] uppercase italic pl-[26px]">Standard Invoice (No detailed milestones)</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
             </div>
             {/* Empty state */}
             {filteredAndSortedClients.length === 0 && (
