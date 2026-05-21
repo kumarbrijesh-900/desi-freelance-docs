@@ -1080,4 +1080,199 @@ Not part of v2.8 security work, but worth tracking:
 - lib/supabase/invoices.ts
 - supabase/migrations/20260521_add_cancelled_status.sql
 - SESSION_LOG.md
+# v2.8.x SECURITY + COMMUNICATION HARDENING — May 21, 2026
 
+> Three coupled releases shipped same day. Chronologically slots between v2.10 and v2.11.
+> Renumber if needed when merging into SESSION_LOG.md.
+
+---
+
+## v2.8 — MSA Self-Acceptance Prevention
+
+### Vulnerability closed
+Dashboard side panel previously exposed "VIEW LIVE →" link to `/share/[token]` for every invoice. Authenticated agency owners could click it, land on their own invoice's client-facing share page, click Accept Terms, and self-accept their own MSA — corrupting the audit trail that the platform's entire legal value proposition depends on.
+
+### Three defense layers (all live in prod)
+1. **UI removal** — All authenticated-app paths to `/share/[token]` removed. The Resend email is now the only entry point. (`app/dashboard/page.tsx`)
+2. **Server-side redirect** — New `app/share/[token]/layout.tsx` runs server-side; if `session.user.id === invoice.user_id`, redirects to `/invoice/[id]/client-preview` before the share page renders. Anon clients pass through unchanged.
+3. **DB trigger backstop** — `block_owner_msa_self_accept_trigger` BEFORE UPDATE on `public.invoices` raises `owner_cannot_accept_own_msa` if `auth.uid() = NEW.user_id` AND any of the 5 MSA columns (`msa_status`, `msa_response`, `msa_responded_at`, `msa_accepted_at`, `client_msa_note`) is being changed. Bypassed for `service_role` and anon (NULL auth.uid()).
+
+### New Preview-as-Client route
+- `/invoice/[id]/client-preview` — authenticated server component, owner-only
+- Renders identical MSA + addendum + invoice content to `/share/[token]` via shared `SharedMsaPreviewContent` (mode = `"agency-preview"`)
+- Accept Terms button replaced by PREVIEW MODE banner
+- Uses `loadMsaForSharedInvoice` helper for zero-drift parity
+- Linked from dashboard side panel as "Preview as Client →"
+- Side benefit: serves as agency's live view of MSA negotiation state — powers v2.11's Command Center MSA Revision card
+
+### Files touched
+| File | Change |
+|---|---|
+| `app/dashboard/page.tsx` | Removed "View Live →"; added "Preview as Client →" |
+| `app/share/[token]/page.tsx` | Refactored rendering into shared component (anon client flow unchanged) |
+| `app/share/[token]/layout.tsx` | NEW — server-side owner redirect |
+| `app/invoice/[id]/client-preview/page.tsx` | NEW — preview route |
+| `components/invoice/share/SharedMsaPreviewContent.tsx` | NEW — pure presentational, mode-aware |
+| `app/api/msa-response/route.ts` | Owner-equality guard added (currently unreachable; activates if share page is ever refactored to call this API) |
+| `supabase/migrations/20260520_lock_msa_columns_from_authenticated.sql` | Trigger function + trigger |
+
+### Commits
+- `f1d4844` chore: gitignore `.agents/`
+- `7a4e3d0` v2.8 sec: BEFORE UPDATE trigger blocks owner self-accepting own MSA
+- `72d4bff` v2.8 sec: add owner-equality guard in `/api/msa-response` (defense in depth)
+- `4a16811` v2.8 sec: remove View Live link from dashboard side panel
+- Preview-as-Client commits (covering layout.tsx + shared component + new route + dashboard link)
+
+---
+
+## v2.8.1 — Restore Legitimate Client MSA Acceptance via RLS
+
+### Discovery
+Post-v2.8 audit revealed anon clients on `/share/[token]` still returned 406 `PGRST116` "result contains 0 rows" when clicking Accept Terms. RLS investigation: every UPDATE policy on `public.invoices` required `auth.uid() = user_id`. For anon (NULL auth.uid()), all policies rejected → 0 rows updated → 406.
+
+**Implication**: the legitimate client acceptance flow has been broken since v1. The single `accepted` MSA in production at discovery time was the owner self-accept bug being exercised (closed by v2.8 trigger). Real clients had never produced a valid acceptance.
+
+### Fix
+RLS policy added (live on prod via SQL Editor, persisted to repo as migration):
+
+```sql
+CREATE POLICY "Anyone with share_token can accept MSA on shared invoice"
+  ON public.invoices
+  FOR UPDATE
+  USING (share_token IS NOT NULL AND share_token <> '')
+  WITH CHECK (share_token IS NOT NULL AND share_token <> '');
+```
+
+### Complete security model
+| Layer | Controls |
+|---|---|
+| RLS policy (this fix) | WHICH ROWS each role can update |
+| Column GRANT (v2.3) | WHICH COLUMNS each role can update (anon → 5 MSA cols only) |
+| Trigger (v2.8) | Business rule: owner can't self-accept |
+
+### Data cleanup performed
+- Lone owner-self-accept record reset to pending. Audit trail starts clean from this point forward.
+
+### Files
+- `supabase/migrations/20260521_allow_msa_acceptance_via_share_token.sql` — NEW
+
+### Commits
+- `1bde935` — SESSION_LOG update (commit message misleadingly says "v2.8.1 sec...", actual content is docs)
+- `c23b074` — v2.8.1 sec: persist RLS policy migration to repo
+
+---
+
+## v2.8.2 — Propose Changes Wire-Up
+
+### Problem
+"Propose Changes" button existed in `MSAAcceptanceModal` but was gated on an `onPropose` prop that `SharedMsaPreviewContent` never passed → button invisible on all devices (not just mobile, as initially reported). Worse, the modal's internal `handleSubmitProposal` wrote proposal text to `msa_response` column (a status field) instead of `client_msa_note` → had the button ever worked, every submission would have corrupted `msa_response` AND the v2.11 Command Center MSA Revision card would never see the note (it reads from `client_msa_note`).
+
+### Fixes
+- Threaded `onPropose` / `onProposeChanges` prop from share page → shared component → modal
+- `handleSubmitProposal` now writes to correct columns: `client_msa_note`, `msa_status='proposed'`, `msa_responded_at`
+- Mobile layout: action button container changed from `flex-row-wrap` to `flex-col sm:flex-row` so buttons stack on mobile (375px) instead of overflowing
+- Error propagation: `handleProposeMsaChanges` throws on failure, modal catches; no more false success on DB error
+- Toast feedback: `showProposedToast` state + auto-dismiss useEffect + JSX added (mirrors `showAcceptedToast` pattern)
+- Dashboard polish: status badges clarified, inline client proposal notes surfaced
+
+### Files touched
+- `components/invoice/share/MSAAcceptanceModal.tsx`
+- `components/invoice/share/SharedMsaPreviewContent.tsx`
+- `app/share/[token]/page.tsx`
+- `app/dashboard/page.tsx`
+
+### Commits
+- `d2b44ee` — fix(contract): resolve coupled bugs in client MSA counter-proposal flow
+- `9e094c9` — fix(invoices): clarify status badges and display inline client proposals
+
+---
+
+## Combined data flow — verify your mental model
+
+A real client clicks **Propose Changes** on `/share/[token]` and submits a note:
+1. Browser anon Supabase client sends PostgREST UPDATE: `client_msa_note=<note>, msa_status='proposed', msa_responded_at=NOW()` WHERE `share_token = '<token>'`
+2. RLS policy "Anyone with share_token..." permits the UPDATE ✓
+3. Column GRANT permits anon writes to `client_msa_note`, `msa_status`, `msa_responded_at` (3 of the 5 allowed) ✓
+4. Trigger fires BEFORE UPDATE; for anon `current_uid IS NULL` → RETURN NEW (bypass) ✓
+5. UPDATE succeeds, modal shows success toast, Command Center MSA Revision card surfaces the note on next agency dashboard visit
+
+If an authenticated agency owner tries the same:
+1. **UI**: no clickable path to `/share/[token]` (v2.8)
+2. **Layout**: `layout.tsx` detects owner, redirects to `/invoice/[id]/client-preview` where `onProposeChanges` is undefined and Propose Changes button is invisible (v2.8)
+3. **Trigger**: even if owner somehow forced the UPDATE, trigger raises `owner_cannot_accept_own_msa` (v2.8)
+
+---
+
+## Open items — investigate in next session
+
+### HIGH priority
+
+**1. Twin Invoice Duplicate Hypothesis**
+
+Observed: `INV-2026-9446` and `INV-2026-1238` both for client `ckccc`, identical amount ₹4,31,692, same created date, different MSA states (accepted vs pending), different due dates (10 Jun vs 18 Jul). Hypothesized that the "Propose Changes" or addendum modification flow clones the invoice row instead of updating in place. If true, every proposal doubles receivables on the dashboard. Could also be manual test duplication — needs SQL confirmation.
+
+First investigation query:
+```sql
+SELECT id, invoice_number, msa_status, total_amount, due_date, 
+       created_at, updated_at, parent_invoice_id
+FROM public.invoices 
+WHERE share_token IS NOT NULL 
+ORDER BY created_at DESC;
+```
+
+If `created_at` on the two `ckccc` rows is within seconds → auto-generated (real bug). If hours apart → likely manual. Then trace the code path: which handler creates new invoice rows, and does any flow trigger on addendum/proposal changes?
+
+### MEDIUM priority
+
+**2. Payment terms / late fee display divergence**
+
+Send Modal shows "Payment terms: 20" and "Late fee: 1.4% per daily" but invoice detail drawer shows "Payment: Net 30 days" and "Late Fee: 1.5% per month" for the same invoice. Two sources of truth for one piece of data. Drawer is likely hardcoded or reading defaults instead of the active addendum. Search `app/dashboard/page.tsx` side panel render + whatever produces the "MSA GATING / EFFECTIVE TERMS" send modal.
+
+**3. Line item totals reconcile to milestone total**
+
+Line items show `per-sqft @ ₹84 → ₹0` and `per-sqft @ ₹11,000 → ₹0` (quantity blank) but milestone total = ₹4,31,692. Math doesn't reconcile. Either line items aren't summing into milestone (independent total field), quantities are stored but hidden, or this is an audit-risk display bug.
+
+**4. Print preview parity (client vs agency)**
+
+Client share page (`/share/[token]`) and agency invoice preview (`app/invoice/preview/page.tsx`) likely have separate print stylesheets producing different "Download PDF" output. Should produce identical one-page PDFs. The print rules in `SharedMsaPreviewContent.tsx` need to match the agency preview path — probably means extracting a shared print stylesheet.
+
+### LOW priority
+
+**5. MSA terms not visible in agency client-preview mode** (carried from v2.8)
+
+When `msaStatus === "pending"` in agency-preview mode, invoice is blurred and the MSA modal is excluded (intentional — agency can't see Accept button). Side effect: agency can't read the MSA terms in preview. Fix: render modal in agency-preview mode too with Accept button replaced by PREVIEW banner inside the modal. ~30-line change to `SharedMsaPreviewContent.tsx`.
+
+**6. Grammar nit**
+
+"1.4% per daily" → "1.4% daily" or "1.4% per day". Trivial text fix in whichever component renders the send modal effective terms.
+
+---
+
+## Load-bearing — do not modify without re-audit
+
+- Trigger function bypass conditions (`current_user = 'service_role'` and `auth.uid() IS NULL`) — modifying either reopens the self-accept vector or breaks legit client flow
+- `app/share/[token]/layout.tsx` owner check — removing restores the original vulnerability
+- `SharedMsaPreviewContent.tsx` `mode === "client"` vs `mode === "agency-preview"` branches must remain mutually exclusive — agency-preview must NEVER receive `onProposeChanges` or `onAcceptClick` handlers
+- RLS policy "Anyone with share_token can accept MSA on shared invoice" — scoping tighter could break legit client flow; weakening (e.g. dropping `share_token` check) opens table to any anon UPDATE
+- `MSAAcceptanceModal.handleSubmitProposal` writes to `client_msa_note` (not `msa_response`) — switching it back would silently break the v2.11 Command Center MSA Revision card
+
+## Untested before next chat
+
+End-to-end manual verification of v2.8.2 on lanceinvoice.xyz was not performed in this session. Suggested test flow:
+
+1. Fresh Incognito → paste share URL → page loads with MSA modal
+2. Mobile (resize to 375px or DevTools mobile): both Accept Terms AND Propose Changes visible, stacked vertically
+3. Click Propose Changes → textarea appears → type "Can we revise Section 3?" → Submit Proposal
+4. Should see success state + proposed toast: "Proposal sent — waiting for the freelancer..."
+5. SQL: `SELECT msa_status, client_msa_note, msa_responded_at FROM public.invoices WHERE share_token = '<token>';` — expect `msa_status='proposed'`, `client_msa_note='Can we revise...'`, timestamp populated
+6. Log in as agency → dashboard → Command Center MSA Revision card should show the note
+
+If any step fails, the fix went in but the surfacing has a gap — investigate before treating v2.8.2 as complete.
+
+---
+
+## Start next chat with this prompt
+
+> *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*
+
+This forces the new Claude to demonstrate context comprehension before acting. The four layers it should be able to name: UI removal, server-side layout redirect, DB trigger, RLS policy (+ column GRANT supporting the trigger). If it can articulate that *and* explain why the column GRANT alone wasn't enough (no RLS policy → 406 PGRST116), you have a properly-warmed Claude. If not, retry.
