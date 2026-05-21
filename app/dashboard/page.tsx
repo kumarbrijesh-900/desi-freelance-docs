@@ -1459,7 +1459,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[12px] font-bold text-[#111118] uppercase tracking-[0.05em]">Filter:</span>
                 <span className={cn(
-                  "text-[11px] font-bold px-2 py-0.5 border-2 border-[#111118] uppercase",
+                  "text-[11px] font-bold px-2.5 py-1 border-2 border-[#111118] uppercase shadow-[2px_2px_0_#111118]",
                   filterType === "all" ? "bg-[#E0F3FF] text-[#111118]" :
                   filterType === "outstanding" ? "bg-[#FFF8CC] text-[#111118]" :
                   filterType === "settled" ? "bg-[#EBFDF9] text-[#00967D]" :
@@ -1487,7 +1487,7 @@ export default function DashboardPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search client or city..."
-                    className="px-2.5 py-1 text-[12px] font-semibold text-[#111118] placeholder-[#888] bg-white border-2 border-[#111118] shadow-[1px_1px_0_#111118] focus:outline-none focus:translate-x-[-1px] focus:translate-y-[-1px] focus:shadow-[2px_2px_0_#111118] transition-all w-full sm:w-44"
+                    className="px-2.5 py-1 text-[12px] font-bold text-[#111118] placeholder-[#888] bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[1px_1px_0_#111118] transition-all w-full sm:w-44"
                   />
                   {searchTerm && (
                     <button
@@ -1505,7 +1505,7 @@ export default function DashboardPage() {
                   <select
                     value={sortBy}
                     onChange={(e: any) => setSortBy(e.target.value)}
-                    className="px-1.5 py-1 text-[12px] font-bold text-[#111118] bg-white border-2 border-[#111118] shadow-[1px_1px_0_#111118] focus:outline-none cursor-pointer"
+                    className="px-2 py-1 text-[12px] font-bold text-[#111118] bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none cursor-pointer"
                   >
                     <option value="receivable">Receivable (High-Low)</option>
                     <option value="collected">Collected (High-Low)</option>
@@ -1573,7 +1573,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Invoice count badge */}
-                        <span className="inline-flex items-center justify-center border-2 border-[#111118] bg-[#FFFBE6] px-2 py-0.5 text-[11px] font-black text-[#111118] shadow-[1px_1px_0_#111118] min-w-[50px] w-[70px]">
+                        <span className="inline-flex items-center justify-center border-2 border-[#111118] bg-[#FFFBE6] px-2 py-0.5 text-[11px] font-black text-[#111118] shadow-[2px_2px_0_#111118] min-w-[50px] w-[70px]">
                           {client.invoices.length} {client.invoices.length === 1 ? "inv" : "invs"}
                         </span>
 
@@ -1629,7 +1629,7 @@ export default function DashboardPage() {
                         {/* Health */}
                         <div className="flex justify-center">
                           <span className={cn(
-                            "text-[10px] font-bold px-2 py-0.5 border-[1.5px] border-[#111118] inline-block uppercase tracking-wider shadow-[1px_1px_0_#111118]",
+                            "text-[10px] font-black px-2 py-1 border-2 border-[#111118] inline-block uppercase tracking-wider shadow-[2px_2px_0_#111118]",
                             client.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
                             client.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
                             client.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
@@ -1907,7 +1907,7 @@ export default function DashboardPage() {
             )}
 
             {/* Footer with double border */}
-            <div className="border-t-[3px] border-double border-[#111118] px-4 py-2 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
+            <div className="border-t-2 border-[#111118] px-4 py-3 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
               <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
                 Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
               </p>
@@ -1941,11 +1941,11 @@ export default function DashboardPage() {
                 activity.map((item) => (
                   <div
                     key={item.id}
-                    className="px-3 py-2 border-b border-[color:var(--border-subtle)] flex gap-2 items-start"
+                    className="px-3 py-2 border-b-2 border-[#111118] last:border-b-0 flex gap-2 items-start hover:bg-[#F9F9F6] transition-colors"
                   >
                     <div
                       className={cn(
-                        "w-[8px] h-[8px] border-[1.5px] border-[#111118] mt-1 shrink-0",
+                        "w-2.5 h-2.5 border-2 border-[#111118] mt-1 shrink-0",
                         (item.action.toLowerCase().includes("created") || item.action.toLowerCase().includes("draft")) && "bg-[#BEFF00]",
                         (item.action.toLowerCase().includes("settled") || item.action.toLowerCase().includes("collected")) && "bg-[#00DCB4]",
                         item.action.toLowerCase().includes("accepted") && "bg-[#00DCB4]",
@@ -1966,10 +1966,10 @@ export default function DashboardPage() {
                       )}
                     ></div>
                     <div>
-                      <p className="text-[13px] text-[#111118] font-medium">
+                      <p className="text-[13px] text-[#111118] font-bold">
                         {item.entityLabel}
                       </p>
-                      <p className="text-[12px] text-[color:var(--text-muted)] truncate max-w-[320px] sm:max-w-none">
+                      <p className="text-[12px] text-[#111118]/70 truncate max-w-[320px] sm:max-w-none">
                         {item.detail} — {timeAgo(item.createdAt)}
                       </p>
                     </div>
@@ -1993,27 +1993,27 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/invoice/new"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
+                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
                 >
-                  Create invoice <span className="text-[color:var(--text-muted)]">→</span>
+                  Create invoice <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
                 </Link>
                 <Link
                   href="/clients"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
+                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
                 >
-                  Manage clients <span className="text-[color:var(--text-muted)]">→</span>
+                  Manage clients <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
                 </Link>
                 <Link
                   href="/invoices"
-                  className="flex justify-between items-center px-3 py-2 border-b border-[color:var(--border-subtle)] text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
+                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
                 >
-                  All invoices <span className="text-[color:var(--text-muted)]">→</span>
+                  All invoices <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
                 </Link>
                 <Link
                   href="/profile"
-                  className="flex justify-between items-center px-3 py-2 text-[13px] font-bold text-[#111118] hover:bg-[#FFFBE6] hover:text-[#FF5C00] hover:translate-x-1 transition-all duration-150 select-none"
+                  className="flex justify-between items-center px-3 py-2 text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
                 >
-                  Profile settings <span className="text-[color:var(--text-muted)]">→</span>
+                  Profile settings <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
                 </Link>
               </div>
 
@@ -2033,7 +2033,7 @@ export default function DashboardPage() {
                       <div
                         key={d.id}
                         onClick={() => setSelectedInvoice(d.rawInvoice)}
-                        className="px-3 py-2.5 border-b border-[color:var(--border-subtle)] flex justify-between items-center cursor-pointer hover:bg-[#F9F9F6] active:bg-[#F0F0EB] transition-colors select-none group"
+                        className="px-3 py-2.5 border-b-2 border-[#111118] last:border-b-0 flex justify-between items-center cursor-pointer hover:bg-[#F9F9F6] active:bg-[#F0F0EB] transition-colors select-none group"
                       >
                         <div className="min-w-0 flex-1 pr-2">
                           <div className="flex flex-wrap items-center gap-1.5">
@@ -2080,7 +2080,7 @@ export default function DashboardPage() {
                           )}
                           <span
                             className={cn(
-                              "text-[10px] font-black px-2 py-0.5 border-[1.5px] border-[#111118] shadow-[1px_1px_0_#111118] uppercase tracking-wider",
+                              "text-[10px] font-black px-2 py-1 border-2 border-[#111118] shadow-[2px_2px_0_#111118] uppercase tracking-wider",
                               d.daysUntilDue <= 0
                                 ? "bg-[#FFF0EC] text-[#FF5C00]"
                                 : d.daysUntilDue <= 3
