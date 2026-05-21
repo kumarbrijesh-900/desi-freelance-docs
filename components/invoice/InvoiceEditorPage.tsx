@@ -2490,7 +2490,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
 
 
 return (
-  <main className="relative min-h-screen w-full overflow-x-hidden bg-transparent font-sans antialiased" suppressHydrationWarning>
+  <main className="relative min-h-screen w-full bg-transparent font-sans antialiased" suppressHydrationWarning>
     <AnimatePresence>
       {isProcessingAutofill && (
         <motion.div
