@@ -861,8 +861,8 @@ export default function EditorContent() {
       setFormData(hydratedData);
       setParserDocumentId(data.id);
       
-      if (data.msa_response) {
-        setClientMsaNote(data.msa_response);
+      if (data.client_msa_note) {
+        setClientMsaNote(data.client_msa_note);
       }
 
       setIsBootstrapped(true);
