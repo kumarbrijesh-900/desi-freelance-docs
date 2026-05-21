@@ -175,6 +175,8 @@ export async function saveInvoice(
   const row: any = {
     invoice_number: invoiceNumber,
     form_data: input.formData as unknown as Record<string, unknown>,
+    ...computeAppliedMsaSnapshot(input.formData),
+    applied_license_type: input.formData.payment?.license?.licenseType || null,
     status,
     template_id: input.templateId ?? "classic",
     due_date: input.formData.meta?.dueDate || null,
