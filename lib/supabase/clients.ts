@@ -27,7 +27,6 @@ export interface SavedClient {
   client_currency: string;
   gstin: string;
   client_type: string;
-  client_location: string;
   client_entity_type: string; // new field for agency vs freelancer
   sez_status: string;
   invoice_count: number;
@@ -68,7 +67,7 @@ export function savedClientToClientDetails(c: SavedClient): ClientDetails {
     clientCountry: c.country as ClientDetails["clientCountry"],
     clientCurrency: c.client_currency as ClientDetails["clientCurrency"],
     clientGstin: c.gstin,
-    clientLocation: (c.client_location ||
+    clientLocation: (c.client_type ||
       "domestic") as ClientDetails["clientLocation"],
     clientType: (c.client_entity_type ||
       "agency") as ClientDetails["clientType"],
@@ -103,8 +102,8 @@ export function clientDetailsToRow(
     country: details.clientCountry || "",
     client_currency: details.clientCurrency || "",
     gstin: details.clientGstin || "",
-    // Bug 3 fix: DB column is client_location, not client_type
-    client_location: details.clientLocation || "domestic",
+    // DB column is named client_type but actually stores location (domestic/international). Rename via migration in a future pass.
+    client_type: details.clientLocation || "domestic",
     client_entity_type: details.clientType || "agency",
     sez_status: details.isClientSezUnit || "no",
     msa_effective_date: details.msaEffectiveDate || null,
