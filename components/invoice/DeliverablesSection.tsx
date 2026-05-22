@@ -104,16 +104,18 @@ export default function DeliverablesSection({
   useEffect(() => {
     if (!clientId) {
       setProjectsList([]);
+      setLoadingProjects(false);
       return;
     }
     const activeClientId: string = clientId;
     let active = true;
     async function loadProjects() {
       setLoadingProjects(true);
+      setProjectsList([]);
       const { listProjectsByClient } = await import("@/lib/supabase/invoices");
       const { data } = await listProjectsByClient(activeClientId);
-      if (active && data) {
-        setProjectsList(data);
+      if (active) {
+        setProjectsList(data ?? []);
       }
       if (active) {
         setLoadingProjects(false);
@@ -124,6 +126,14 @@ export default function DeliverablesSection({
       active = false;
     };
   }, [clientId]);
+
+  useEffect(() => {
+    if (!clientId || loadingProjects || !projectId) return;
+    const projectBelongsToClient = projectsList.some((project) => project.id === projectId);
+    if (!projectBelongsToClient) {
+      onChangeProjectId?.(null);
+    }
+  }, [clientId, loadingProjects, onChangeProjectId, projectId, projectsList]);
 
   const handleCreateNewProject = async () => {
     if (!newProjectName.trim() || !clientId) return;

@@ -162,6 +162,7 @@ type StoredDraft = {
   savedAt: string;
   documentId?: string | null;
   clientMsaNote?: string | null;
+  projectId?: string | null;
 };
 
 function getTodayDateString() {
@@ -910,6 +911,7 @@ function EditorContent() {
     let nextStep: InvoiceStepperStep = "agency";
     let nextDocumentId: string | null = null;
     let nextMsaNote: string | null = null;
+    let nextProjectId: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
 
@@ -1003,6 +1005,7 @@ function EditorContent() {
               nextDocumentId = parsedDraft.documentId ?? null;
               nextMsaNote = parsedDraft.clientMsaNote ?? null;
             }
+            nextProjectId = parsedDraft?.projectId ?? null;
             if (!nextFormData && parsedDraft?.formData) {
               nextFormData = mergeInvoiceFormData(parsedDraft.formData);
               shouldShowRestoreToast = true;
@@ -1043,6 +1046,7 @@ function EditorContent() {
       setCurrentStep(nextStep);
       setParserDocumentId(nextDocumentId);
       setClientMsaNote(nextMsaNote);
+      setProjectId(nextProjectId);
 
       void getCurrentUserEmail().then((email) => setUserEmail(email));
     } catch (error) {
@@ -1062,6 +1066,7 @@ function EditorContent() {
       setFormData(fallbackFormData);
       setCurrentStep("agency");
       setClientMsaNote(null);
+      setProjectId(null);
       setInvoiceStatus(null);
       setMsaStatus(null);
       setSharedToEmail(null);
@@ -1101,7 +1106,7 @@ function EditorContent() {
         formData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
-        projectId: projectId ?? undefined,
+        projectId,
       });
 
       if (!error) {
@@ -1848,7 +1853,11 @@ const handlePreviewInvoice = async () => {
 
     window.localStorage.setItem(
       PREVIEW_STORAGE_KEY,
-      JSON.stringify(previewFormData),
+      JSON.stringify({
+        formData: previewFormData,
+        projectId,
+        cloudInvoiceId: parserDocumentId,
+      }),
     );
 
     if (shouldSaveNewClientMaster && !isGuestMode && !isReadOnlyMode) {
@@ -1866,6 +1875,7 @@ const handlePreviewInvoice = async () => {
           savedAt: new Date().toISOString(),
           documentId: parserDocumentId,
           clientMsaNote,
+          projectId,
         } satisfies StoredDraft),
       );
     }
@@ -1961,7 +1971,7 @@ const handleSaveDraft = async () => {
         formData: formDataForSave,
         status: "draft" as InvoiceStatus,
         existingId: parserDocumentId ?? undefined,
-        projectId: projectId ?? undefined,
+        projectId,
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);

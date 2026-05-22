@@ -78,6 +78,7 @@ function PreviewContent() {
   >("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null | undefined>(undefined);
 
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
@@ -105,6 +106,7 @@ function PreviewContent() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const panStart = useRef({ x: 0, y: 0 });
+  const hasStoredProjectIdRef = useRef(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -198,18 +200,33 @@ function PreviewContent() {
 
       if (raw) {
         const parsed = JSON.parse(raw);
-        // DRAFT_STORAGE_KEY has a wrapper object { formData, ... }
-        // STORAGE_KEY has the raw formData
-        const formData = isRestore ? parsed.formData : parsed;
+        // Storage may contain the legacy raw formData shape or the newer
+        // wrapper with projectId/template metadata.
+        const parsedObject =
+          parsed && typeof parsed === "object"
+            ? (parsed as {
+                formData?: InvoiceFormData;
+                projectId?: string | null;
+                templateId?: string;
+                cloudInvoiceId?: string | null;
+              })
+            : null;
+        const formData = parsedObject?.formData ?? parsed;
 
         if (formData) {
           setData(mergeInvoiceFormData(formData));
           // Restore template and cloud ID if present
-          if (parsed.templateId) {
-            setSelectedTemplate(parsed.templateId);
+          if (parsedObject?.templateId) {
+            setSelectedTemplate(parsedObject.templateId);
           }
-          if (parsed.cloudInvoiceId && !idParam) {
-            setCloudInvoiceId(parsed.cloudInvoiceId);
+          if (parsedObject?.cloudInvoiceId && !idParam) {
+            setCloudInvoiceId(parsedObject.cloudInvoiceId);
+          }
+          const storedProjectIdMatchesInvoice =
+            !idParam || parsedObject?.cloudInvoiceId === idParam;
+          if (parsedObject && "projectId" in parsedObject && storedProjectIdMatchesInvoice) {
+            hasStoredProjectIdRef.current = true;
+            setProjectId(parsedObject.projectId ?? null);
           }
         }
       }
@@ -241,6 +258,9 @@ function PreviewContent() {
         setCurrentMsaId(dbInvoice.msa_id);
         setProjectMsaAcceptedAt(dbInvoice.project?.msa_accepted_at ?? null);
         setProjectStatus(dbInvoice.project?.status ?? null);
+        if (!hasStoredProjectIdRef.current) {
+          setProjectId(dbInvoice.project_id ?? null);
+        }
         
         // Also hydrate raw invoice form data if it exists
         if (dbInvoice.form_data) {
@@ -339,6 +359,7 @@ function PreviewContent() {
         status: "draft" as InvoiceStatus,
         existingId: undefined,
         templateId: selectedTemplate, // Pass the selected template!
+        projectId,
       });
 
       if (error) {
@@ -372,7 +393,7 @@ function PreviewContent() {
     }
 
     void autoCloudSave();
-  }, [data, isReady, searchParams, selectedTemplate]);
+  }, [data, isReady, projectId, searchParams, selectedTemplate]);
 
   const persistDraft = () => {
     if (!data) return false;
@@ -386,11 +407,20 @@ function PreviewContent() {
           savedAt: new Date().toISOString(),
           templateId: selectedTemplate,
           cloudInvoiceId: cloudInvoiceId, // Persist the cloud ID!
+          projectId,
         }),
       );
 
       // Also sync to the preview key to keep them aligned
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          formData: data,
+          projectId,
+          templateId: selectedTemplate,
+          cloudInvoiceId,
+        }),
+      );
 
       return true;
     } catch (error) {
@@ -436,6 +466,7 @@ function PreviewContent() {
           status: "draft" as InvoiceStatus,
           templateId: selectedTemplate,
           existingId: cloudInvoiceId ?? undefined,
+          projectId,
         });
 
         if (!error && saved) {
@@ -494,6 +525,7 @@ function PreviewContent() {
         status: "draft" as InvoiceStatus,
         templateId: selectedTemplate,
         existingId: cloudInvoiceId ?? undefined,
+        projectId,
       });
 
       if (error || !saved) {
@@ -544,6 +576,7 @@ function PreviewContent() {
         status: "SENT" as InvoiceStatus,
         templateId: selectedTemplate,
         existingId: cloudInvoiceId ?? undefined,
+        projectId,
       });
       if (saved) {
         setCloudInvoiceId(saved.id);
