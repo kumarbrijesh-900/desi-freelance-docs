@@ -16,6 +16,14 @@ import {
   INVOICE_DATA_CHANGED_STORAGE_KEY,
 } from "@/lib/invoice-events";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
+import {
+  CalendarClock,
+  CheckCircle2,
+  Landmark,
+  ReceiptText,
+  Send,
+  ShieldCheck,
+} from "lucide-react";
 
 interface DashboardMetrics {
   outstanding: number;
@@ -70,6 +78,8 @@ interface ClientHealth {
     clientMsaNote?: string | null;
     shareToken?: string | null;
     clientName?: string;
+    form_data?: any;
+    due_date?: string | null;
     msaStatus?: string | null;
     sharedToEmail?: string | null;
     sharedAt?: string | null;
@@ -124,6 +134,8 @@ interface ProjectHealth {
     clientMsaNote?: string | null;
     shareToken?: string | null;
     clientName?: string;
+    form_data?: any;
+    due_date?: string | null;
     msaStatus?: string | null;
     sharedToEmail?: string | null;
     sharedAt?: string | null;
@@ -166,8 +178,9 @@ interface UpcomingDeadline {
   rawInvoice: any;
 }
 
-function parsePaymentTermsDays(termsStr?: string | null): number {
+function parsePaymentTermsDays(termsStr?: string | number | null): number {
   if (!termsStr) return 15;
+  if (typeof termsStr === "number") return Number.isFinite(termsStr) ? termsStr : 15;
   const lower = termsStr.toLowerCase();
   if (lower.includes("30")) return 30;
   if (lower.includes("45")) return 45;
@@ -474,17 +487,36 @@ export default function DashboardPage() {
     return num.toLocaleString("en-IN");
   }
 
+  function formatDashboardDate(dateStr?: string | null): string {
+    if (!dateStr) return "Not set";
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
   const handleSettleMilestone = async (miIndex: number) => {
     if (!selectedInvoice) return;
     try {
       const activeM = selectedInvoice.milestones[miIndex];
       if (!activeM) return;
 
-      const confirmText = miIndex < selectedInvoice.milestones.length - 1
-        ? `Settle Milestone ${miIndex + 1} (${activeM.title}) and start Milestone ${miIndex + 2}?`
-        : `Settle the final milestone (${activeM.title}) and fully complete this invoice?`;
+      const nextIndex = miIndex + 1;
+      const hasNext = nextIndex < selectedInvoice.milestones.length;
+      const nextM = hasNext ? selectedInvoice.milestones[nextIndex] : null;
+      const netDays = parsePaymentTermsDays(
+        selectedInvoice.applied_payment_terms || selectedInvoice.form_data?.meta?.paymentTerms
+      );
+      const dueDateStr = selectedInvoice.dueDate || selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
+      const settlementAmount = Number(activeM.amount || 0);
+      const confirmText = hasNext
+        ? `Confirm payment received for M${miIndex + 1} (${activeM.title}) worth ₹${formatIndian(settlementAmount)}. Current due date: ${formatDashboardDate(dueDateStr)}. After confirmation, M${nextIndex + 1} (${nextM?.title || "next milestone"}) becomes LIVE and gets a new Net ${netDays} due date.`
+        : `Confirm final payment received for ${activeM.title} worth ₹${formatIndian(settlementAmount)}. Current due date: ${formatDashboardDate(dueDateStr)}. After confirmation, this invoice closes as fully settled.`;
 
-      const confirmed = await showConfirm("Settle Milestone", confirmText, "warning", "Settle", "Cancel");
+      const confirmed = await showConfirm("Confirm Payment Received", confirmText, "warning", "Mark Paid", "Cancel");
       if (!confirmed) return;
 
       // 1. Settle current milestone in database
@@ -499,15 +531,11 @@ export default function DashboardPage() {
         return;
       }
 
-      const nextIndex = miIndex + 1;
-      const hasNext = nextIndex < selectedInvoice.milestones.length;
-
       if (hasNext) {
         // 2. Start next milestone
-        const nextM = selectedInvoice.milestones[nextIndex];
+        if (!nextM) return;
         
         // Calculate new due date based on Today + Net Days
-        const netDays = parsePaymentTermsDays(selectedInvoice.applied_payment_terms || selectedInvoice.form_data?.payment?.paymentTerms);
         const newDueDate = new Date();
         newDueDate.setDate(newDueDate.getDate() + netDays);
         const newDueDateIso = newDueDate.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -804,6 +832,9 @@ export default function DashboardPage() {
             ...inv,
             milestones: invMilestones,
             totalAmount,
+            invoiceNumber: inv.invoice_number,
+            clientName: inv.form_data?.client?.clientName || "Client",
+            dueDate: inv.due_date || inv.form_data?.meta?.dueDate || "",
           };
         });
 
@@ -979,6 +1010,8 @@ export default function DashboardPage() {
             clientMsaNote: inv.client_msa_note,
             shareToken: inv.share_token,
             clientName: clientHealth.clientName,
+            form_data: inv.form_data,
+            due_date: inv.due_date,
             msaStatus: inv.msa_status,
             sharedToEmail: inv.shared_to_email,
             sharedAt: inv.shared_at,
@@ -1125,6 +1158,8 @@ export default function DashboardPage() {
               clientMsaNote: inv.client_msa_note,
               shareToken: inv.share_token,
               clientName: projectHealth.clientName,
+              form_data: inv.form_data,
+              due_date: inv.due_date,
               msaStatus: inv.msa_status,
               sharedToEmail: inv.shared_to_email,
               sharedAt: inv.shared_at,
@@ -1413,9 +1448,9 @@ export default function DashboardPage() {
 
   const getNudgeLabel = (daysPast?: number): string => {
     if (!daysPast) return "Send Polite Reminder";
-    if (daysPast > 30) return "⚡ Send Final Notice";
+    if (daysPast > 30) return "Send Final Notice";
     if (daysPast > 7) return "Send Firm Reminder";
-    return "⚡ Send Payment Nudge";
+    return "Send Payment Nudge";
   };
 
   if (loading) {
@@ -1996,15 +2031,17 @@ export default function DashboardPage() {
                           <>
                             <button
                               onClick={() => handleNudge(inv, getNudgeTone(daysPast))}
-                              className="bg-[#EF4444] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                              className="inline-flex items-center gap-1.5 bg-[#EF4444] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
                             >
+                              <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
                               {getNudgeLabel(daysPast)}
                             </button>
                             <button
                               onClick={() => setSelectedInvoice(inv)}
-                              className="bg-[#00DCB4] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                              className="inline-flex items-center gap-1.5 bg-[#00DCB4] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
                             >
-                              Mark Settled ✓
+                              <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              Mark Paid
                             </button>
                             <button
                               onClick={() => handleCancelProject(inv)}
@@ -2020,15 +2057,17 @@ export default function DashboardPage() {
                           <>
                             <button
                               onClick={() => handleNudge(inv, "polite")}
-                              className="bg-[#F59E0B] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
+                              className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
                             >
-                              Send Polite Reminder 📨
+                              <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              Send Polite Reminder
                             </button>
                             <button
                               onClick={() => setSelectedInvoice(inv)}
-                              className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
+                              className="inline-flex items-center gap-1.5 bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
                             >
-                              Mark Settled ✓
+                              <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+                              Mark Paid
                             </button>
                           </>
                         )}
@@ -3182,7 +3221,14 @@ export default function DashboardPage() {
                             <button
                               onClick={async () => {
                                 try {
-                                  const confirmed = await showConfirm("Settle Invoice", `Mark Invoice ${d.invoiceNumber} as fully paid/settled?`, "warning", "Settle", "Cancel");
+                                  const paymentAmount = d.nextMilestoneAmount || d.totalAmount;
+                                  const confirmed = await showConfirm(
+                                    "Confirm Payment Received",
+                                    `Record ₹${formatIndian(paymentAmount)} as received for ${d.invoiceNumber}? Current due date: ${formattedDueDate}. Confirm only after the payment is visible in your bank account.`,
+                                    "warning",
+                                    "Mark Paid",
+                                    "Cancel"
+                                  );
                                   if (!confirmed) return;
                                   
                                   const { error } = await markInvoiceSettled(d.id);
@@ -3200,9 +3246,10 @@ export default function DashboardPage() {
                                   console.error(err);
                                 }
                               }}
-                              className="bg-[#00DCB4] hover:bg-[#00c4a0] active:translate-y-[1px] text-[#111118] border-2 border-[#111118] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0_#111118] cursor-pointer"
+                              className="inline-flex items-center gap-1 bg-[#00DCB4] hover:bg-[#00c4a0] active:translate-y-[1px] text-[#111118] border-2 border-[#111118] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0_#111118] cursor-pointer"
                             >
-                              Mark Settled
+                              <CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />
+                              Mark Paid
                             </button>
                           )}
                           <span
@@ -3294,12 +3341,101 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* Settlement checkpoint */}
+              {(() => {
+                const milestones = selectedInvoice.milestones || [];
+                const activeMilestoneIndex = milestones.findIndex(
+                  (m: any) => (m.status || "").toUpperCase() !== "SETTLED"
+                );
+                const activeMilestone = activeMilestoneIndex >= 0 ? milestones[activeMilestoneIndex] : null;
+                const nextMilestone = activeMilestoneIndex >= 0 ? milestones[activeMilestoneIndex + 1] : null;
+                const dueDateStr = selectedInvoice.dueDate || selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
+                const daysUntilDue = getDaysUntil(dueDateStr);
+                const netDays = parsePaymentTermsDays(
+                  selectedInvoice.applied_payment_terms || selectedInvoice.form_data?.meta?.paymentTerms
+                );
+                const settlementAmount = activeMilestone
+                  ? Number(activeMilestone.amount || 0)
+                  : Number(selectedInvoice.totalAmount || 0);
+                const dueTone =
+                  daysUntilDue === null
+                    ? "neutral"
+                    : daysUntilDue < 0
+                      ? "danger"
+                      : daysUntilDue <= 3
+                        ? "warning"
+                        : "active";
+                const dueCopy =
+                  daysUntilDue === null
+                    ? "Due date not set"
+                    : daysUntilDue < 0
+                      ? `${Math.abs(daysUntilDue)} ${Math.abs(daysUntilDue) === 1 ? "day" : "days"} overdue`
+                      : daysUntilDue === 0
+                        ? "Due today"
+                        : `Due in ${daysUntilDue} ${daysUntilDue === 1 ? "day" : "days"}`;
+                const nextAction = activeMilestone
+                  ? nextMilestone
+                    ? `Mark M${activeMilestoneIndex + 1} paid, then M${activeMilestoneIndex + 2} starts with Net ${netDays}.`
+                    : "Mark final milestone paid to close the invoice."
+                  : "Invoice already has no open milestone.";
+
+                return (
+                  <div className="overflow-hidden border-2 border-[#111118] bg-white shadow-[2px_2px_0_#111118]">
+                    <div className="flex items-center gap-2 border-b-2 border-[#111118] bg-[#EBFDF9] px-3 py-2">
+                      <CheckCircle2 className="h-4 w-4 text-[#007A63]" strokeWidth={2.5} />
+                      <p className="m-0 text-[11px] font-black uppercase tracking-[0.14em] text-[#007A63]">
+                        Settlement checkpoint
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 divide-x-2 divide-[#111118]">
+                      <div className="p-3">
+                        <div className="mb-2 flex h-7 w-7 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118]">
+                          <ReceiptText className="h-4 w-4" strokeWidth={2.4} />
+                        </div>
+                        <p className="m-0 text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Clear</p>
+                        <p className="m-0 mt-1 text-[13px] font-black text-[#111118]">₹{formatIndian(settlementAmount)}</p>
+                      </div>
+                      <div className="p-3">
+                        <div className={cn(
+                          "mb-2 flex h-7 w-7 items-center justify-center border-2 border-[#111118]",
+                          dueTone === "danger" ? "bg-[#FFF0EC] text-[#C2410C]" :
+                          dueTone === "warning" ? "bg-[#FFFBE6] text-[#B45309]" :
+                          "bg-[#E0F3FF] text-[#164E63]"
+                        )}>
+                          <CalendarClock className="h-4 w-4" strokeWidth={2.4} />
+                        </div>
+                        <p className="m-0 text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Timing</p>
+                        <p className="m-0 mt-1 text-[12px] font-black leading-4 text-[#111118]">{dueCopy}</p>
+                      </div>
+                      <div className="p-3">
+                        <div className="mb-2 flex h-7 w-7 items-center justify-center border-2 border-[#111118] bg-[#F0EAFF] text-[#5530DB]">
+                          <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
+                        </div>
+                        <p className="m-0 text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">After</p>
+                        <p className="m-0 mt-1 text-[12px] font-black leading-4 text-[#111118]">{nextAction}</p>
+                      </div>
+                    </div>
+                    <div className="border-t-2 border-[#111118] bg-[#F8F8F4] px-3 py-2">
+                      <p className="m-0 text-[11px] font-bold leading-5 text-[color:var(--text-secondary)]">
+                        Confirm only after the payment is visible in your bank account.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Contract Authority & Terms */}
               <div className="border-2 border-[#111118] bg-[#FAFAD2] p-3 shadow-[2px_2px_0_#111118]">
                 <p className="text-[10px] font-bold text-[color:var(--text-muted)] tracking-wider uppercase mb-1">Contract Authority</p>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[14px]">
-                    {selectedInvoice.has_addendum ? "⚡" : selectedInvoice.msa_id ? "🤝" : "📜"}
+                  <span className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white text-[#111118]">
+                    {selectedInvoice.has_addendum ? (
+                      <ReceiptText className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    ) : selectedInvoice.msa_id ? (
+                      <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    ) : (
+                      <Landmark className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    )}
                   </span>
                   <span className="text-[12px] font-bold text-[#111118] uppercase">
                     {selectedInvoice.has_addendum ? "Project Addendum" : selectedInvoice.msa_id ? "Client MSA" : "Global MSA"}
@@ -3396,13 +3532,19 @@ export default function DashboardPage() {
             {/* Action Panel Footer */}
             <div className="p-4 border-t-2 border-[#111118] bg-[#F5F5F0] space-y-2">
               {(() => {
-                const activeMilestoneIndex = selectedInvoice.milestones
-                  ? selectedInvoice.milestones.findIndex(
+                const milestones = selectedInvoice.milestones || [];
+                const activeMilestoneIndex = milestones
+                  ? milestones.findIndex(
                       (m: any) => (m.status || "").toUpperCase() !== "SETTLED"
                     )
                   : -1;
+                const activeMilestone = activeMilestoneIndex >= 0 ? milestones[activeMilestoneIndex] : null;
+                const nextMilestone = activeMilestoneIndex >= 0 ? milestones[activeMilestoneIndex + 1] : null;
+                const settlementAmount = activeMilestone
+                  ? Number(activeMilestone.amount || 0)
+                  : Number(selectedInvoice.totalAmount || 0);
 
-                const dueDateStr = selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
+                const dueDateStr = selectedInvoice.dueDate || selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
                 let daysUntilDue = 999;
                 if (dueDateStr) {
                   const today = new Date();
@@ -3416,14 +3558,15 @@ export default function DashboardPage() {
                 return (
                   <>
                     {/* Milestone settlement button */}
-                    {selectedInvoice.milestones && selectedInvoice.milestones.length > 0 && activeMilestoneIndex !== -1 && (
+                    {milestones.length > 0 && activeMilestoneIndex !== -1 && (
                       <button
                         onClick={() => handleSettleMilestone(activeMilestoneIndex)}
-                        className="w-full bg-[#00DCB4] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-black shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+                        className="inline-flex w-full items-center justify-center gap-2 bg-[#00DCB4] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-black shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
                       >
-                        {activeMilestoneIndex < selectedInvoice.milestones.length - 1
-                          ? `Settle Milestone-${activeMilestoneIndex + 1} & Start M${activeMilestoneIndex + 2}`
-                          : "Settle Final Milestone"}
+                        <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
+                        {nextMilestone
+                          ? `Mark M${activeMilestoneIndex + 1} paid · ₹${formatIndian(settlementAmount)}`
+                          : `Mark final paid · ₹${formatIndian(settlementAmount)}`}
                       </button>
                     )}
 
@@ -3433,9 +3576,10 @@ export default function DashboardPage() {
                         onClick={() => {
                           showAlert("Nudge Sent", `Payment reminder triggered for ${selectedInvoice.invoiceNumber}.`, "success");
                         }}
-                        className="w-full bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
+                        className="inline-flex w-full items-center justify-center gap-2 bg-[#FF5C00] text-white border-2 border-[#111118] py-2 text-[12px] font-bold shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
                       >
-                        ⚡ Send Nudge
+                        <Send className="h-4 w-4" strokeWidth={2.5} />
+                        Send Nudge
                       </button>
                     )}
                   </>

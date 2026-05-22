@@ -1,5 +1,45 @@
 # Session Log — May 22, 2026
 
+## Latest checkpoint: v2.1 Phase 5 Payment and Settlement Confidence — May 22, 2026
+
+### Sequence
+
+1. **Phase 4 was verified and shipped first:** Client Trust Layer was documented, versioned, committed, and pushed to `main` as `668b596`.
+2. **Phase 5 started next:** Payment and Settlement Confidence focused on the post-acceptance path from client payment instructions to owner-side settlement recording.
+3. **Design System Hardening remains deferred:** no global token, icon-system, or broad visual-system refactor was performed.
+
+### Phase 5 implementation
+
+- Added a client-facing payment checkpoint to accepted shared invoices with amount due, due date, payment reference, terms, bank details, confirmation expectation, and payment notes.
+- Kept payment details locked until MSA acceptance while making the accepted state more actionable for real clients.
+- Added a dashboard invoice-drawer settlement checkpoint showing the amount to clear, due timing, and what happens after settlement.
+- Strengthened milestone settlement confirmations so owners confirm payment received, see the amount/date context, and understand whether the next milestone starts or the invoice closes.
+- Updated urgent receivable actions from "Mark Settled" language to "Mark Paid" language and added Lucide action icons.
+- Normalized selected invoice payloads so dashboard drawer actions retain `form_data`, due date, invoice number, and client name across client/project/deadline entry points.
+
+### Verification
+
+- `npm run build` passed on May 22, 2026.
+- Targeted ESLint passed for `components/invoice/share/SharedMsaPreviewContent.tsx`.
+- Playwright screenshot verification completed for accepted `/share/[token]` at desktop `1440x1400`.
+- Playwright screenshot verification completed for accepted `/share/[token]` at mobile `390x1600`.
+- Dashboard route smoke test reached the unauthenticated login screen in the local browser context; authenticated drawer visual QA still needs an active logged-in session.
+- Local dev server was stopped after verification.
+
+### Files changed in this checkpoint
+
+- `app/dashboard/page.tsx`
+- `components/invoice/share/SharedMsaPreviewContent.tsx`
+- `SESSION_LOG.md`
+- `docs/versions/2026-05-22-phase-5-payment-settlement-confidence.md`
+
+### Next phase
+
+- Phase 6: authenticated owner QA and operational polish.
+- Direction: run the dashboard drawer/settlement workflow in an authenticated session, then tighten reminder sending, settlement audit history, and receipt/proof handling.
+
+---
+
 ## Latest checkpoint: v2.0 Phase 4 Client Trust Layer — May 22, 2026
 
 ### Sequence

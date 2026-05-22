@@ -10,11 +10,15 @@ import { prepareTemplateData } from "@/lib/templates/template-data";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Banknote,
   CheckCircle2,
   Clock3,
   CreditCard,
   Download,
   FileCheck2,
+  Landmark,
+  QrCode,
+  ReceiptText,
   ShieldCheck,
 } from "lucide-react";
 
@@ -100,6 +104,15 @@ export default function SharedMsaPreviewContent({
       : "Payment details unlock after terms are accepted.";
   const dueDateLabel = templateData?.dueDate && templateData.dueDate !== "—" ? templateData.dueDate : "Not specified";
   const paymentTermsLabel = addendum?.paymentTerms || templateData?.paymentTerms || "Standard terms";
+  const paymentRows = [
+    { label: "Account name", value: templateData?.accountName },
+    { label: "Bank", value: templateData?.bankName },
+    { label: "Account number", value: templateData?.accountNumber },
+    { label: "IFSC", value: templateData?.ifscCode },
+    { label: "SWIFT / BIC", value: templateData?.swiftBicCode },
+    { label: "IBAN / Routing", value: templateData?.ibanRoutingCode },
+  ].filter((row) => Boolean(row.value));
+  const hasPaymentCheckpoint = isTermsAccepted || isChildInvoice;
 
   return (
     <>
@@ -272,6 +285,118 @@ export default function SharedMsaPreviewContent({
                   ? "This milestone invoice is covered by an accepted agreement."
                   : "Terms are accepted. The invoice is active and ready for payment."}
               </p>
+            </div>
+          </div>
+        )}
+
+        {hasPaymentCheckpoint && (
+          <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
+            <div className="overflow-hidden border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+              <div className="flex flex-col gap-3 border-b-2 border-[#111118] bg-[#F8F8F4] px-5 py-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118]" aria-hidden="true">
+                    <Banknote className="h-5 w-5" strokeWidth={2.4} />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                      Payment checkpoint
+                    </p>
+                    <p className="mt-1 text-[15px] font-black text-[#111118]">
+                      Pay {currencySymbol}{formattedTotal} by {dueDateLabel}
+                    </p>
+                  </div>
+                </div>
+                <div className="border-2 border-[#111118] bg-[#FFFBE6] px-3 py-2 text-left md:text-right">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                    Payment reference
+                  </p>
+                  <p className="mt-0.5 text-[13px] font-black text-[#111118]">
+                    {invoiceNumber || templateData?.invoiceNumber || "Invoice number"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr_1fr]">
+                <div className="border-b-2 border-[#111118] p-4 lg:border-b-0 lg:border-r-2">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#E0F3FF] text-[#164E63]" aria-hidden="true">
+                      <CreditCard className="h-5 w-5" strokeWidth={2.3} />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        Terms
+                      </p>
+                      <p className="mt-1 text-[13px] font-black text-[#111118]">{paymentTermsLabel}</p>
+                      <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                        Payment is expected by {dueDateLabel}. Mention the invoice number while paying.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-b-2 border-[#111118] p-4 lg:border-b-0 lg:border-r-2">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#EBFDF9] text-[#007A63]" aria-hidden="true">
+                      <Landmark className="h-5 w-5" strokeWidth={2.3} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        Bank details
+                      </p>
+                      {paymentRows.length > 0 ? (
+                        <dl className="mt-2 grid gap-2">
+                          {paymentRows.slice(0, 4).map((row) => (
+                            <div key={row.label} className="border-l-2 border-[#111118] pl-2 text-[12px] leading-5">
+                              <dt className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">{row.label}</dt>
+                              <dd className="min-w-0 break-all font-bold text-[#111118]">{row.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      ) : (
+                        <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                          Use the payment details printed inside the invoice.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#F5F5F0] text-[#111118]" aria-hidden="true">
+                      {templateData?.hasQrCode ? (
+                        <QrCode className="h-5 w-5" strokeWidth={2.3} />
+                      ) : (
+                        <ReceiptText className="h-5 w-5" strokeWidth={2.3} />
+                      )}
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        Confirmation
+                      </p>
+                      <p className="mt-1 text-[13px] font-black text-[#111118]">
+                        {templateData?.hasQrCode ? "QR available" : "Send payment proof"}
+                      </p>
+                      <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                        {templateData?.hasQrCode
+                          ? "Scan the QR in the invoice below and keep a payment receipt."
+                          : "After payment, share the bank reference or receipt with the freelancer."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {templateData?.hasNotes && (
+                <div className="border-t-2 border-[#111118] bg-[#FFF0EC] px-5 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9A3412]">
+                    Payment note
+                  </p>
+                  <p className="mt-1 text-[12px] font-bold leading-5 text-[#9A3412]">
+                    {templateData.notes}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
