@@ -79,6 +79,60 @@ interface ClientHealth {
   health: "good" | "overdue" | "clear" | "draft";
 }
 
+interface ProjectHealth {
+  projectId: string;
+  projectName: string;
+  projectDescription: string;
+  clientId: string | null;
+  clientName: string;
+  clientCity: string;
+  invoices: Array<{
+    id: string;
+    invoiceNumber: string;
+    status: string;
+    totalAmount: number;
+    dueDate: string;
+    milestones: Array<{
+      id?: string;
+      title: string;
+      status: string;
+      amount: number;
+      orderIndex: number;
+      order_index?: number;
+    }>;
+    has_addendum?: boolean;
+    msa_id?: string | null;
+    lineItems?: Array<any>;
+    /** Canonical milestone line items from form_data.milestones — used for descriptions */
+    formDataMilestones?: Array<{
+      id: string;
+      title: string;
+      status: string;
+      lineItems: Array<{
+        id: string;
+        type: string;
+        description: string;
+        qty: number | string;
+        rate: number | string;
+        rateUnit: string;
+      }>;
+    }>;
+    applied_payment_terms?: string | null;
+    applied_late_fee_rate?: number | null;
+    applied_late_fee_unit?: string | null;
+    applied_license_type?: string | null;
+    clientMsaNote?: string | null;
+    shareToken?: string | null;
+    clientName?: string;
+    msaStatus?: string | null;
+    sharedToEmail?: string | null;
+    sharedAt?: string | null;
+  }>;
+  totalOwed: number;
+  totalCollected: number;
+  health: "good" | "overdue" | "clear" | "draft";
+}
+
 interface ActivityItem {
   id: string;
   action: string;
@@ -128,6 +182,7 @@ export default function DashboardPage() {
     dueThisWeekCount: 0,
   });
   const [clientsHealth, setClientsHealth] = useState<ClientHealth[]>([]);
+  const [projectsHealth, setProjectsHealth] = useState<ProjectHealth[]>([]);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [deadlines, setDeadlines] = useState<UpcomingDeadline[]>([]);
   const [offlineInvoicesCount, setOfflineInvoicesCount] = useState(0);
@@ -135,11 +190,29 @@ export default function DashboardPage() {
 
   // Client-side UX Interactive States
   const [filterType, setFilterType] = useState<"all" | "outstanding" | "settled" | "overdue" | "due_this_week">("all");
-  const [ledgerView, setLedgerView] = useState<"client" | "invoice">("client");
+  const [ledgerView, setLedgerView] = useState<"project" | "client" | "invoice">("project");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
+  const [collapsedProjectIds, setCollapsedProjectIds] = useState<string[]>([]);
+
+  const toggleProjectCollapse = useCallback((projectId: string) => {
+    setCollapsedProjectIds((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId]
+    );
+  }, []);
+
+  const toggleClientExpand = useCallback((clientId: string) => {
+    setExpandedClientIds((prev) =>
+      prev.includes(clientId)
+        ? prev.filter((id) => id !== clientId)
+        : [...prev, clientId]
+    );
+  }, []);
+
   const [isMobile, setIsMobile] = useState(false);
   const [dismissedCards, setDismissedCards] = useState<Set<string>>(new Set());
   const [refreshNonce, setRefreshNonce] = useState(0);
@@ -446,13 +519,19 @@ export default function DashboardPage() {
             .in("invoice_id", invoiceIds);
           milestones = milestonesData || [];
         }
-
         // 5. Get all clients for this user
         const { data: clientsData } = await supabase
           .from("clients")
           .select("*")
           .eq("user_id", user.id);
         const clientsList = clientsData || [];
+
+        // 5b. Get all projects for this user
+        const { data: projectsData } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("user_id", user.id);
+        const projectsList = projectsData || [];
 
         // 6. Get recent activity (unified with notifications for milestones)
         let combinedActivityList: ActivityItem[] = [];
@@ -517,7 +596,7 @@ export default function DashboardPage() {
 
         // --- Attach Milestones to Invoices & Compute Total Amount ---
         const invoicesWithMilestones = trackedInvoices.map((inv: any) => {
-          const invMilestones = milestones
+          let invMilestones = milestones
             .filter((m: any) => m.invoice_id === inv.id)
             .sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0))
             .map((m: any) => ({
@@ -528,6 +607,18 @@ export default function DashboardPage() {
               orderIndex: m.order_index ?? 0,
               order_index: m.order_index ?? 0,
             }));
+
+          // Fallback to form_data.milestones if DB milestones is empty
+          if (invMilestones.length === 0 && inv.form_data?.milestones?.length > 0) {
+            invMilestones = inv.form_data.milestones.map((m: any, idx: number) => ({
+              title: m.title || `Milestone ${idx + 1}`,
+              status: (m.status || "pending").toLowerCase(),
+              amount: Number(m.amount || 0),
+              id: m.id || `temp-${idx}`,
+              orderIndex: idx,
+              order_index: idx,
+            }));
+          }
 
           let totalAmount = 0;
           if (invMilestones.length > 0) {
@@ -786,6 +877,153 @@ export default function DashboardPage() {
         });
 
         setClientsHealth(Array.from(clientsMap.values()));
+
+        // --- Compute Project Health ---
+        const projectsMap = new Map<string, ProjectHealth>();
+
+        // Initialize with all fetched projects
+        projectsList.forEach((pj: any) => {
+          const matchedClient = clientsList.find((cl: any) => cl.id === pj.client_id);
+          projectsMap.set(pj.id, {
+            projectId: pj.id,
+            projectName: pj.name,
+            projectDescription: pj.description || "",
+            clientId: pj.client_id,
+            clientName: matchedClient?.client_name || "Unknown Client",
+            clientCity: matchedClient?.city || matchedClient?.client_address || "",
+            invoices: [],
+            totalOwed: 0,
+            totalCollected: 0,
+            health: "clear",
+          });
+        });
+
+        // Group invoices under projects — skip draft invoices
+        invoicesWithMilestones.forEach((inv: any) => {
+          const invClientName = inv.form_data?.client?.clientName?.trim();
+          if (!invClientName) return;
+
+          const statusLower = inv.status.toLowerCase();
+          if (statusLower === "draft") return;
+
+          let matchedClient = clientsList.find(
+            (cl: any) => cl.client_name.trim().toLowerCase() === invClientName.toLowerCase()
+          );
+
+          let matchedProjectId = inv.project_id;
+          
+          if (!matchedProjectId) {
+            // Find a project that has name = "${invClientName} General Engagements"
+            matchedProjectId = `pseudo-project-${invClientName.toLowerCase().replace(/\s+/g, "-")}`;
+            if (!projectsMap.has(matchedProjectId)) {
+              projectsMap.set(matchedProjectId, {
+                projectId: matchedProjectId,
+                projectName: `${inv.form_data?.client?.clientName || invClientName} General Engagements`,
+                projectDescription: "Automatically grouped non-project engagements",
+                clientId: matchedClient?.id || null,
+                clientName: inv.form_data?.client?.clientName || invClientName,
+                clientCity: inv.form_data?.client?.clientCity || "",
+                invoices: [],
+                totalOwed: 0,
+                totalCollected: 0,
+                health: "clear",
+              });
+            }
+          }
+
+          const projectHealth = projectsMap.get(matchedProjectId);
+          if (projectHealth) {
+            const isSettled = statusLower === "settled";
+
+            projectHealth.invoices.push({
+              id: inv.id,
+              invoiceNumber: inv.invoice_number,
+              status: inv.status,
+              totalAmount: inv.totalAmount,
+              dueDate: inv.due_date || inv.form_data?.meta?.dueDate || "",
+              milestones: inv.milestones || [],
+              formDataMilestones: inv.form_data?.milestones || [],
+              has_addendum: inv.has_addendum || inv.form_data?.meta?.hasAddendum || false,
+              msa_id: inv.msa_id,
+              lineItems: inv.form_data?.lineItems || [],
+              applied_payment_terms: inv.applied_payment_terms,
+              applied_late_fee_rate: inv.applied_late_fee_rate,
+              applied_late_fee_unit: inv.applied_late_fee_unit,
+              applied_license_type: inv.applied_license_type,
+              clientMsaNote: inv.client_msa_note,
+              shareToken: inv.share_token,
+              clientName: projectHealth.clientName,
+              msaStatus: inv.msa_status,
+              sharedToEmail: inv.shared_to_email,
+              sharedAt: inv.shared_at,
+            });
+
+            if (inv.milestones && inv.milestones.length > 0) {
+              inv.milestones.forEach((m: any) => {
+                const mStatus = (m.status || "").toLowerCase();
+                const mAmount = Number(m.amount || 0);
+                if (mStatus === "settled") {
+                  projectHealth.totalCollected += mAmount;
+                } else if (statusLower !== "cancelled") {
+                  projectHealth.totalOwed += mAmount;
+                }
+              });
+            } else {
+              if (isSettled) {
+                projectHealth.totalCollected += inv.totalAmount;
+              } else if (statusLower !== "cancelled") {
+                projectHealth.totalOwed += inv.totalAmount;
+              }
+            }
+          }
+        });
+
+        // Calculate project health property
+        projectsMap.forEach((proj) => {
+          if (proj.invoices.length === 0) {
+            proj.health = "clear";
+            return;
+          }
+
+          let hasOverdue = false;
+          let allSettled = true;
+          let allDraft = true;
+
+          proj.invoices.forEach((inv) => {
+            const statusLower = inv.status.toLowerCase();
+            const isSettled = statusLower === "settled";
+            const isDraft = statusLower === "draft";
+
+            if (!isSettled) {
+              allSettled = false;
+            }
+            if (!isDraft) {
+              allDraft = false;
+            }
+
+            if (isReceivableStatus(statusLower)) {
+              if (inv.dueDate) {
+                const due = new Date(inv.dueDate);
+                due.setHours(0, 0, 0, 0);
+                if (due < todayVal) {
+                  hasOverdue = true;
+                }
+              }
+            }
+          });
+
+          if (hasOverdue) {
+            proj.health = "overdue";
+          } else if (allSettled) {
+            proj.health = "clear";
+          } else if (allDraft) {
+            proj.health = "draft";
+          } else {
+            proj.health = "good";
+          }
+        });
+
+        setProjectsHealth(Array.from(projectsMap.values()));
 
         // --- Compute Upcoming Deadlines ---
         const upcomingDeadlinesList: UpcomingDeadline[] = invoicesWithMilestones
@@ -1100,7 +1338,83 @@ export default function DashboardPage() {
       return 0;
     });
 
-  // 2. Filtered and Sorted invoices list (for Invoice Ledger view)
+  const filteredAndSortedProjects = projectsHealth
+    .filter((project) => {
+      // Hide projects with zero invoices unless explicitly searching for them
+      if (project.invoices.length === 0 && !searchTerm) return false;
+
+      // Project search query matching name, description, client name or client city
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase().trim();
+        const matchesName = project.projectName?.toLowerCase().includes(query);
+        const matchesDesc = project.projectDescription?.toLowerCase().includes(query);
+        const matchesClient = project.clientName?.toLowerCase().includes(query);
+        const matchesCity = project.clientCity?.toLowerCase().includes(query);
+        if (!matchesName && !matchesDesc && !matchesClient && !matchesCity) return false;
+      }
+
+      // Card active filter types
+      if (filterType === "all") return true;
+
+      if (filterType === "outstanding") {
+        return project.invoices.some((inv) => isReceivableStatus(inv.status));
+      }
+
+      if (filterType === "settled") {
+        return project.invoices.some((inv) => inv.status.toLowerCase() === "settled") || project.totalCollected > 0;
+      }
+
+      if (filterType === "overdue") {
+        return project.health === "overdue" || project.invoices.some((inv) => {
+          const statusLower = inv.status.toLowerCase();
+          if (isReceivableStatus(statusLower) && inv.dueDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(inv.dueDate);
+            due.setHours(0, 0, 0, 0);
+            return due < today;
+          }
+          return false;
+        });
+      }
+
+      if (filterType === "due_this_week") {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999);
+
+        return project.invoices.some((inv) => {
+          if (inv.status.toLowerCase() === "settled") return false;
+          if (!inv.dueDate) return false;
+          const due = new Date(inv.dueDate);
+          due.setHours(0, 0, 0, 0);
+          return due >= today && due <= nextWeek;
+        });
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "receivable") {
+        return b.totalOwed - a.totalOwed;
+      }
+      if (sortBy === "collected") {
+        return b.totalCollected - a.totalCollected;
+      }
+      if (sortBy === "name") {
+        return a.projectName.localeCompare(b.projectName);
+      }
+      if (sortBy === "health") {
+        const healthOrder: Record<string, number> = { overdue: 0, good: 1, clear: 2, draft: 3 };
+        const orderA = healthOrder[a.health.toLowerCase()] ?? 9;
+        const orderB = healthOrder[b.health.toLowerCase()] ?? 9;
+        return orderA - orderB;
+      }
+      return 0;
+    });
+
   const filteredAndSortedInvoices = (() => {
     let invoices: any[] = [];
     filteredAndSortedClients.forEach(client => {
@@ -1591,18 +1905,26 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* SECTION 4: CLIENT LEDGER */}
+          {/* SECTION 4: LEDGER */}
           <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
             <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
               <div className="flex items-center gap-4">
                 <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">
-                  {ledgerView === 'client' ? 'CLIENT LEDGER' : 'INVOICE LEDGER'}
+                  {ledgerView === 'project' ? 'PROJECT LEDGER' : ledgerView === 'client' ? 'CLIENT LEDGER' : 'INVOICE LEDGER'}
                 </p>
                 <div className="flex border-2 border-[#111118] overflow-hidden shadow-[2px_2px_0_#111118]">
                   <button
-                    onClick={() => setLedgerView("client")}
+                    onClick={() => setLedgerView("project")}
                     className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                      ledgerView === "project" ? "bg-[#111118] text-white" : "bg-white text-[#111118] hover:bg-[#F5F5F0]"
+                    }`}
+                  >
+                    By Project
+                  </button>
+                  <button
+                    onClick={() => setLedgerView("client")}
+                    className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors border-l-2 border-[#111118] ${
                       ledgerView === "client" ? "bg-[#111118] text-white" : "bg-white text-[#111118] hover:bg-[#F5F5F0]"
                     }`}
                   >
@@ -1640,7 +1962,7 @@ export default function DashboardPage() {
                   filterType === "overdue" ? "bg-[#FFF5F2] text-[#FF5C00]" :
                   "bg-[#F7FFD6] text-[#111118]"
                 )}>
-                  {filterType === "all" ? "All Clients" : filterType.replace(/_/g, " ")}
+                  {filterType === "all" ? (ledgerView === "project" ? "All Projects" : ledgerView === "client" ? "All Clients" : "All Invoices") : filterType.replace(/_/g, " ")}
                 </span>
                 {filterType !== "all" && (
                   <button
@@ -1660,7 +1982,7 @@ export default function DashboardPage() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search client or city..."
+                    placeholder={ledgerView === "project" ? "Search project, client, desc..." : "Search client or city..."}
                     className="px-2.5 py-1 text-[12px] font-bold text-[#111118] placeholder-[#888] bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[1px_1px_0_#111118] transition-all w-full sm:w-44"
                   />
                   {searchTerm && (
@@ -1692,7 +2014,235 @@ export default function DashboardPage() {
 
             {/* Render View Based on Toggle */}
             <div className="space-y-6 bg-[#F5F5F0] p-4 sm:p-6 border-b-2 border-[#111118]">
-              {ledgerView === "client" ? (
+              {ledgerView === "project" ? (
+                <>
+                  {/* PROJECT VIEW LOGIC */}
+                  {filteredAndSortedProjects.map((project) => {
+                    const allMilestones = project.invoices.flatMap(inv => inv.milestones);
+                    const sparkTotal = allMilestones.reduce((sum, m) => {
+                      let amount = m.amount || 0;
+                      if (amount === 0) {
+                        const parentInv = project.invoices.find(i => i.milestones.some(pm => pm.orderIndex === m.orderIndex));
+                        if (parentInv?.formDataMilestones?.[m.orderIndex]) {
+                          amount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                        }
+                      }
+                      return sum + amount;
+                    }, 0) || 1;
+
+                    const isCollapsed = collapsedProjectIds.includes(project.projectId);
+                    
+                    return (
+                      <div key={project.projectId} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
+                        
+                        {/* Header: Project Summary */}
+                        <div 
+                          onClick={() => toggleProjectCollapse(project.projectId)}
+                          className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white cursor-pointer select-none group"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-5">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[20px] sm:text-[22px]">📁</span>
+                                <h3 className="text-[18px] sm:text-[22px] font-black text-[#111118] uppercase tracking-wider m-0 leading-tight group-hover:text-[#FF5C00] transition-colors">
+                                  {project.projectName}
+                                </h3>
+                                <span className="text-[14px] text-[color:var(--text-muted)] font-black transition-transform group-hover:translate-y-[1px]">
+                                  {isCollapsed ? "▼" : "▲"}
+                                </span>
+                              </div>
+                              {project.projectDescription && (
+                                <p className="text-[12px] font-medium text-[color:var(--text-muted)] italic m-0 mt-1.5 max-w-2xl leading-relaxed">
+                                  {project.projectDescription}
+                                </p>
+                              )}
+                              <p className="text-[11px] font-bold text-[#888] m-0 mt-2 uppercase tracking-widest">
+                                Client: <span className="text-[#111118]">{project.clientName}</span> {project.clientCity ? `(${project.clientCity})` : ""}
+                              </p>
+                            </div>
+                            <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
+                              <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", project.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
+                                ₹{formatIndian(project.totalOwed)}
+                              </p>
+                              <span className={cn(
+                                "text-[10px] font-black px-2 py-1 border-2 border-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118]",
+                                project.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
+                                project.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
+                                project.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
+                                project.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
+                              )}>
+                                {project.health === "good" ? "GOOD" : project.health === "overdue" ? "LATE" : project.health === "clear" ? "CLEAR" : "DRAFT"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Milestone Progress Bar */}
+                          {allMilestones.length > 0 ? (
+                            <div className="w-full flex flex-col gap-1.5">
+                              <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
+                                {allMilestones.map((m, i) => {
+                                  const s = (m.status || "").toLowerCase();
+                                  const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                  
+                                  let effectiveAmount = m.amount;
+                                  if (effectiveAmount === 0) {
+                                    const parentInv = project.invoices.find(inv => inv.milestones.some(pm => pm.orderIndex === m.orderIndex));
+                                    if (parentInv?.formDataMilestones?.[m.orderIndex]) {
+                                      effectiveAmount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                    }
+                                  }
+                                  const widthPct = Math.max((effectiveAmount / sparkTotal) * 100, 2);
+                                  return (
+                                    <div key={i} style={{ width: `${widthPct}%`, backgroundColor: bg }} className="h-full border-r-2 border-[#111118] last:border-r-0" />
+                                  );
+                                })}
+                              </div>
+                              <div className="flex justify-between text-[10px] font-bold text-[#888] uppercase tracking-widest mt-1">
+                                <span>0%</span>
+                                <span className="text-[#111118] font-black lowercase">
+                                  timeline · {(() => {
+                                    const total = project.totalCollected + project.totalOwed;
+                                    return total > 0 ? Math.round((project.totalCollected / total) * 100) : 0;
+                                  })()}% completed
+                                </span>
+                                <span>100%</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-full h-[14px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[2px_2px_0_#111118]" />
+                          )}
+                        </div>
+
+                        {/* Body: Invoices list under the project */}
+                        {!isCollapsed && (
+                          <div className="bg-[#FAFAF6] p-4 sm:p-5 flex flex-col gap-6 border-t-2 border-[#111118]">
+                            {project.invoices.length > 0 ? (
+                              project.invoices.map((inv) => {
+                                const msaLower = (inv.msaStatus || "").toLowerCase();
+                                const isProposed = msaLower === "proposed";
+                                
+                                return (
+                                  <div key={inv.id} className="flex flex-col gap-3">
+                                    {/* Invoice Context Header */}
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-dashed border-[#111118]/20 pb-2">
+                                      <div className="flex items-center gap-3 flex-wrap">
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
+                                          className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
+                                        >
+                                          {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+                                        </button>
+                                        {msaLower !== "accepted" && (
+                                          <span className={cn(
+                                            "text-[9px] font-bold px-1.5 py-0.5 border-2 uppercase tracking-wider",
+                                            isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
+                                          )}>
+                                            {isProposed ? "Proposed Changes" : "MSA Pending"}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <span className="text-[14px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
+                                    </div>
+
+                                    {/* Client Note & Action Button */}
+                                    {isProposed && inv.clientMsaNote && (
+                                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full bg-[#FFFBE6] border-2 border-[#B45309] p-3 shadow-[2px_2px_0_#B45309]">
+                                        <div className="flex-1">
+                                          <p className="text-[10px] font-black text-[#B45309] uppercase tracking-wider m-0 mb-1 flex items-center gap-1.5">
+                                            <span className="text-[12px]">⚠️</span> Client Note
+                                          </p>
+                                          <p className="text-[12px] text-[#B45309] m-0 italic font-medium leading-relaxed">&quot;{inv.clientMsaNote}&quot;</p>
+                                        </div>
+                                        <Link
+                                          href={`/invoice/new?id=${inv.id}&restore=1&step=payment`}
+                                          className="shrink-0 flex items-center justify-center px-4 py-2 text-[12px] font-black text-[#111118] bg-[#BEFF00] border-2 border-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[4px_4px_0_#111118] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all uppercase tracking-wider min-h-[44px]"
+                                        >
+                                          UPDATE ADDENDUM →
+                                        </Link>
+                                      </div>
+                                    )}
+
+                                    {/* Flattened Milestones inside this project invoice */}
+                                    <div className="flex flex-col gap-4 mt-1">
+                                      {inv.milestones.length > 0 ? (
+                                        inv.milestones.map((m, mi) => {
+                                          const s = (m.status || "").toLowerCase();
+                                          const isPending =
+                                            s === "pending" ||
+                                            s === "live" ||
+                                            s === "overdue" ||
+                                            s === "sent" ||
+                                            s === "partial" ||
+                                            s === "saved";
+                                          const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
+                                          const title = m.title || "(No Milestone Title)";
+                                          
+                                          const formMilestone = inv.formDataMilestones?.[m.orderIndex];
+                                          const milestoneLineItems = formMilestone?.lineItems || [];
+                                          
+                                          let dueDateText = "Upcoming";
+                                          let isPastDue = false;
+                                          if (s === "settled") dueDateText = "Settled ✓";
+                                          else if (isPending) {
+                                            if (inv.dueDate) {
+                                              const diffDays = Math.ceil((new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                              if (diffDays < 0) { isPastDue = true; dueDateText = `${Math.abs(diffDays)} days past due`; }
+                                              else if (diffDays === 0) dueDateText = "Due today";
+                                              else dueDateText = `${diffDays} days till due`;
+                                            } else dueDateText = "Pending";
+                                          }
+
+                                          let effectiveAmount = m.amount;
+                                          if (effectiveAmount === 0 && milestoneLineItems.length > 0) {
+                                            effectiveAmount = milestoneLineItems.reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
+                                          }
+
+                                          return (
+                                            <div key={mi} className="flex flex-col gap-1.5">
+                                              <div className="flex justify-between items-start gap-3">
+                                                <div className="flex items-start gap-2.5">
+                                                  <div className="w-[14px] h-[14px] border-2 border-[#111118] shrink-0 mt-[2px] flex items-center justify-center shadow-[1px_1px_0_#111118]" style={{ backgroundColor: statusBg }} />
+                                                  <div>
+                                                    <span className="text-[13px] font-black text-[#111118] uppercase tracking-tight">{title}</span>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                      <span className={cn("text-[10px] font-bold uppercase", isPastDue ? "text-[#FF5C00]" : "text-[#888]")}>{dueDateText}</span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <span className="text-[12px] font-bold text-[#111118]">₹{formatIndian(effectiveAmount)}</span>
+                                              </div>
+                                              
+                                              {/* Line Items */}
+                                              {milestoneLineItems.length > 0 && (
+                                                <div className="pl-[26px] flex flex-col gap-1 text-[11px] font-medium text-[#555]">
+                                                  {milestoneLineItems.map((li: any, liIdx: number) => (
+                                                    <div key={liIdx} className="flex items-start gap-1">
+                                                      <span className="text-[#888] mt-[-1px]">↳</span>
+                                                      <span>{li.description || li.type || "Deliverable"} <span className="opacity-70">({li.qty} {li.rateUnit?.replace("per-", "") || "unit"} @ ₹{formatIndian(Number(li.rate || 0))})</span></span>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })
+                                      ) : (
+                                        <div className="text-[11px] font-bold text-[#888] uppercase italic pl-[26px]">Standard Invoice (No detailed milestones)</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-[12px] text-center font-bold text-[color:var(--text-muted)] py-4">No active invoices grouped under this project.</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              ) : ledgerView === "client" ? (
                 <>
                   {/* CLIENT VIEW LOGIC */}
               {filteredAndSortedClients.map((client) => {
@@ -2061,9 +2611,17 @@ export default function DashboardPage() {
               )}
             </div>
             {/* Empty state */}
-            {filteredAndSortedClients.length === 0 && (
+            {((ledgerView === "client" && filteredAndSortedClients.length === 0) ||
+              (ledgerView === "project" && filteredAndSortedProjects.length === 0) ||
+              (ledgerView === "invoice" && filteredAndSortedInvoices.length === 0)) && (
               <div className="px-4 py-8 text-center bg-white border-t border-[color:var(--border-subtle)]">
-                <p className="text-[13px] text-[color:var(--text-muted)] font-bold uppercase tracking-wider">No matching clients found.</p>
+                <p className="text-[13px] text-[color:var(--text-muted)] font-bold uppercase tracking-wider">
+                  {ledgerView === "project"
+                    ? "No matching projects found."
+                    : ledgerView === "client"
+                    ? "No matching clients found."
+                    : "No matching invoices found."}
+                </p>
                 <button
                   onClick={() => { setSearchTerm(""); setFilterType("all"); }}
                   className="mt-2 text-[12px] font-bold text-[#FF5C00] underline cursor-pointer hover:text-[#111118] select-none"
@@ -2076,19 +2634,62 @@ export default function DashboardPage() {
             {/* Footer with double border */}
             <div className="border-t-2 border-[#111118] px-4 py-3 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
               <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
-                Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
+                {ledgerView === "project" ? (
+                  <>
+                    Showing {filteredAndSortedProjects.length} of {projectsHealth.length} {projectsHealth.length === 1 ? 'project' : 'projects'} · {(() => { const c = filteredAndSortedProjects.reduce((sum, p) => sum + p.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
+                  </>
+                ) : ledgerView === "client" ? (
+                  <>
+                    Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
+                  </>
+                ) : (
+                  <>
+                    Showing {filteredAndSortedInvoices.length} of {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0)} {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0) === 1 ? 'invoice' : 'invoices'}
+                  </>
+                )}
               </p>
               <div className="flex gap-4 flex-wrap">
                 <p className="text-[12px]">
                   <span className="text-[color:var(--text-muted)] font-bold">Total receivable:</span>{" "}
                   <span className="font-bold text-[#111118]">
-                    ₹{formatIndian(filteredAndSortedClients.reduce((sum, c) => sum + c.totalOwed, 0))}
+                    ₹{formatIndian(
+                      ledgerView === "project"
+                        ? filteredAndSortedProjects.reduce((sum, p) => sum + p.totalOwed, 0)
+                        : ledgerView === "client"
+                        ? filteredAndSortedClients.reduce((sum, c) => sum + c.totalOwed, 0)
+                        : filteredAndSortedInvoices.reduce((sum, inv) => {
+                            const statusLower = (inv.status || "").toLowerCase();
+                            if (statusLower === "settled" || statusLower === "cancelled") return sum;
+                            if (inv.milestones && inv.milestones.length > 0) {
+                              return sum + inv.milestones.reduce((mSum: number, m: any) => {
+                                const mStatus = (m.status || "").toLowerCase();
+                                return mStatus !== "settled" ? mSum + Number(m.amount || 0) : mSum;
+                              }, 0);
+                            }
+                            return sum + inv.totalAmount;
+                          }, 0)
+                    )}
                   </span>
                 </p>
                 <p className="text-[12px]">
                   <span className="text-[color:var(--text-muted)] font-bold">Total collected:</span>{" "}
                   <span className="font-bold text-[#00967D]">
-                    ₹{formatIndian(filteredAndSortedClients.reduce((sum, c) => sum + c.totalCollected, 0))}
+                    ₹{formatIndian(
+                      ledgerView === "project"
+                        ? filteredAndSortedProjects.reduce((sum, p) => sum + p.totalCollected, 0)
+                        : ledgerView === "client"
+                        ? filteredAndSortedClients.reduce((sum, c) => sum + c.totalCollected, 0)
+                        : filteredAndSortedInvoices.reduce((sum, inv) => {
+                            const statusLower = (inv.status || "").toLowerCase();
+                            if (inv.milestones && inv.milestones.length > 0) {
+                              return sum + inv.milestones.reduce((mSum: number, m: any) => {
+                                const mStatus = (m.status || "").toLowerCase();
+                                return mStatus === "settled" ? mSum + Number(m.amount || 0) : mSum;
+                              }, 0);
+                            }
+                            return statusLower === "settled" ? sum + inv.totalAmount : sum;
+                          }, 0)
+                    )}
                   </span>
                 </p>
               </div>
