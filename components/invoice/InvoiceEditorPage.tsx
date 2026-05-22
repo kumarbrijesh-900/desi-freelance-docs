@@ -777,6 +777,7 @@ function EditorContent() {
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
   const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -955,6 +956,7 @@ function EditorContent() {
       setSharedToEmail(data.shared_to_email ?? null);
       setProjectMsaAcceptedAt(data.project?.msa_accepted_at ?? null);
       setProjectStatus(data.project?.status ?? null);
+      setProjectId(data.project_id ?? null);
       
       if (data.client_msa_note) {
         setClientMsaNote(data.client_msa_note);
@@ -973,6 +975,7 @@ function EditorContent() {
       setSharedToEmail(null);
       setProjectMsaAcceptedAt(null);
       setProjectStatus(null);
+      setProjectId(null);
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
     }
@@ -1098,6 +1101,7 @@ function EditorContent() {
         formData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
+        projectId: projectId ?? undefined,
       });
 
       if (!error) {
@@ -1957,6 +1961,7 @@ const handleSaveDraft = async () => {
         formData: formDataForSave,
         status: "draft" as InvoiceStatus,
         existingId: parserDocumentId ?? undefined,
+        projectId: projectId ?? undefined,
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);
@@ -2480,6 +2485,9 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isGuestMode={isGuestMode}
           freeRevisionRounds={formData.client.freeRevisionRounds}
           extraRevisionFeePercent={formData.client.extraRevisionFeePercent}
+          projectId={projectId}
+          onChangeProjectId={setProjectId}
+          clientId={selectedClientMsa?.id}
         />
       );
     case "payment":

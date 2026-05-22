@@ -60,6 +60,9 @@ interface DeliverablesSectionProps {
   isGuestMode?: boolean;
   freeRevisionRounds?: number;
   extraRevisionFeePercent?: number;
+  projectId?: string | null;
+  onChangeProjectId?: (id: string | null) => void;
+  clientId?: string | null;
 }
 
 
@@ -88,7 +91,57 @@ export default function DeliverablesSection({
   isGuestMode = false,
   freeRevisionRounds = 2,
   extraRevisionFeePercent = 15,
+  projectId = null,
+  onChangeProjectId,
+  clientId = null,
 }: DeliverablesSectionProps) {
+  const [projectsList, setProjectsList] = useState<any[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [isSubmittingNew, setIsSubmittingNew] = useState(false);
+
+  useEffect(() => {
+    if (!clientId) {
+      setProjectsList([]);
+      return;
+    }
+    const activeClientId: string = clientId;
+    let active = true;
+    async function loadProjects() {
+      setLoadingProjects(true);
+      const { listProjectsByClient } = await import("@/lib/supabase/invoices");
+      const { data } = await listProjectsByClient(activeClientId);
+      if (active && data) {
+        setProjectsList(data);
+      }
+      if (active) {
+        setLoadingProjects(false);
+      }
+    }
+    void loadProjects();
+    return () => {
+      active = false;
+    };
+  }, [clientId]);
+
+  const handleCreateNewProject = async () => {
+    if (!newProjectName.trim() || !clientId) return;
+    setIsSubmittingNew(true);
+    const { createProject } = await import("@/lib/supabase/invoices");
+    const { data, error } = await createProject(newProjectName.trim(), clientId);
+    setIsSubmittingNew(false);
+    if (!error && data) {
+      setProjectsList((prev) => [data, ...prev]);
+      if (onChangeProjectId) {
+        onChangeProjectId(data.id);
+      }
+      setIsCreatingNew(false);
+      setNewProjectName("");
+    } else {
+      console.error("Failed to create project:", error);
+    }
+  };
   const createDefaultLineItem = useCallback((): InvoiceLineItem => {
     return {
       id: crypto.randomUUID(),
@@ -183,6 +236,87 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
+        {/* Project Selector Panel */}
+        {clientId ? (
+          <div className="p-5 border-2 border-[#111118] bg-[#F9F9FB] shadow-[var(--brutal-shadow-sm)] space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider block ml-0.5">
+                  Link to Project
+                </label>
+                <AppTooltip content={<>
+                  Organize your invoices and milestones under a parent Project for compliance and tracking.
+                </>} />
+              </div>
+              {isCreatingNew && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreatingNew(false);
+                    setNewProjectName("");
+                  }}
+                  className="text-xs font-bold text-red-500 hover:underline"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            {!isCreatingNew ? (
+              <div className="w-full">
+                <BrutalSelect
+                  value={projectId || ""}
+                  onChange={(val) => {
+                    if (val === "__create_new__") {
+                      setIsCreatingNew(true);
+                    } else {
+                      if (onChangeProjectId) onChangeProjectId(val || null);
+                    }
+                  }}
+                  options={[
+                    { label: "None (Unassigned)", value: "" },
+                    ...projectsList.map((p) => ({ label: p.name, value: p.id })),
+                    { label: "+ Create New Project", value: "__create_new__" }
+                  ]}
+                  placeholder={loadingProjects ? "Loading projects..." : "Select a project..."}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex-1">
+                  <AppTextField
+                    type="text"
+                    value={newProjectName}
+                    placeholder="e.g. Ckccc Retail Store Redesign"
+                    className="h-11 text-[14px]"
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handleCreateNewProject();
+                      }
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={isSubmittingNew || !newProjectName.trim()}
+                  onClick={handleCreateNewProject}
+                  className="h-11 px-5 border-2 border-[#111118] bg-[#BEFF00] font-black text-xs uppercase tracking-wider hover:bg-[#A3ED00] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isSubmittingNew ? "Saving..." : "Create"}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="p-4 border-2 border-dashed border-gray-300 bg-gray-50 text-center">
+            <p className="text-xs text-gray-500 font-medium">
+              💡 Please select a Client in Step 2 to link this invoice to a project.
+            </p>
+          </div>
+        )}
+
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
           <div className="flex items-center gap-2 border-2 border-[color:var(--border-subtle)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
             <span className="text-[12px]">📎</span>

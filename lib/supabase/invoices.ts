@@ -86,6 +86,7 @@ export interface SaveInvoiceInput {
   templateId?: string;
   /** Pass an existing ID to update instead of insert */
   existingId?: string;
+  projectId?: string | null;
 }
 
 /* ─── Helpers ─────────────────────────────────────────────── */
@@ -189,6 +190,10 @@ export async function saveInvoice(
     payment_terms_days: input.formData.meta?.paymentTerms || null,
     user_id: userId,
   };
+
+  if (input.projectId !== undefined) {
+    row.project_id = input.projectId;
+  }
 
   console.log("saveInvoice - sending row:", row);
 
@@ -1048,4 +1053,57 @@ export async function cancelInvoice(invoiceId: string): Promise<void> {
   if (error) {
     throw new Error(`Failed to cancel invoice: ${error.message}`);
   }
+}
+
+/**
+ * Expose service methods to fetch user projects by client ID: listProjectsByClient(clientId: string)
+ */
+export async function listProjectsByClient(
+  clientId: string
+): Promise<{ data: any[] | null; error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return { data: null, error: "Not authenticated" };
+  }
+  const { data, error } = await supabase
+    .from("projects")
+    .select("id, name, description, status, msa_accepted_at")
+    .eq("user_id", userId)
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+  return { data, error: null };
+}
+
+/**
+ * Create a new project for a client.
+ */
+export async function createProject(
+  name: string,
+  clientId: string,
+  description?: string
+): Promise<{ data: any | null; error: string | null }> {
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    return { data: null, error: "Not authenticated" };
+  }
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      user_id: userId,
+      client_id: clientId,
+      name,
+      description: description || "",
+      status: "active"
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+  return { data, error: null };
 }
