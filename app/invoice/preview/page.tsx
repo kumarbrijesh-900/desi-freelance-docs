@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
@@ -37,7 +37,7 @@ import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { getAppButtonClass, cn } from "@/lib/ui-foundation";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { supabase } from "@/lib/supabase/client";
-import { saveInvoice, getCurrentUserId } from "@/lib/supabase/invoices";
+import { saveInvoice, getCurrentUserId, loadInvoice } from "@/lib/supabase/invoices";
 import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
 import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
@@ -45,6 +45,7 @@ import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 import ConversionModal from "@/components/invoice/ConversionModal";
 import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
 import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
+import { getInvoiceLockState } from "@/lib/invoice-lock-state";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -77,6 +78,10 @@ function PreviewContent() {
   >("idle");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [cloudInvoiceId, setCloudInvoiceId] = useState<string | null>(null);
+
+  const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
+  const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
+  const [invoiceStatusState, setInvoiceStatusState] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
@@ -180,6 +185,12 @@ function PreviewContent() {
   useEffect(() => {
     try {
       const isRestore = searchParams.get("restore") === "1";
+      const idParam = searchParams.get("id");
+      
+      if (idParam) {
+        setCloudInvoiceId(idParam);
+      }
+
       const keyToUse = isRestore ? DRAFT_STORAGE_KEY : STORAGE_KEY;
       const raw = window.localStorage.getItem(keyToUse);
 
@@ -195,7 +206,7 @@ function PreviewContent() {
           if (parsed.templateId) {
             setSelectedTemplate(parsed.templateId);
           }
-          if (parsed.cloudInvoiceId) {
+          if (parsed.cloudInvoiceId && !idParam) {
             setCloudInvoiceId(parsed.cloudInvoiceId);
           }
         }
@@ -207,6 +218,38 @@ function PreviewContent() {
     }
   }, [searchParams]);
 
+  // Load invoice and lock attributes from database if cloudInvoiceId exists
+  useEffect(() => {
+    if (!cloudInvoiceId) return;
+
+    let active = true;
+    async function fetchLockAttributes() {
+      const { data: dbInvoice, error } = await loadInvoice(cloudInvoiceId as string);
+      if (error) {
+        console.error("Failed to load invoice from database:", error);
+        return;
+      }
+      if (dbInvoice && active) {
+        setSharedToEmail(dbInvoice.shared_to_email);
+        setClientMsaNote(dbInvoice.client_msa_note);
+        setInvoiceStatusState(dbInvoice.status);
+        setMsaResponse(dbInvoice.msa_status);
+        setSharedAt(dbInvoice.shared_at);
+        setShareToken(dbInvoice.share_token);
+        setCurrentMsaId(dbInvoice.msa_id);
+        
+        // Also hydrate raw invoice form data if it exists
+        if (dbInvoice.form_data) {
+          setData(mergeInvoiceFormData(dbInvoice.form_data));
+        }
+      }
+    }
+    void fetchLockAttributes();
+    return () => {
+      active = false;
+    };
+  }, [cloudInvoiceId]);
+
   const requiresExportChoice = data
     ? requiresExplicitExportTaxChoice(data.agency, data.client)
     : false;
@@ -217,6 +260,15 @@ function PreviewContent() {
   const invoiceNumber = data?.meta?.invoiceNumber;
   const previewTitle = getInvoiceTitle(invoiceNumber);
   const pdfTitle = getPdfTitle(invoiceNumber);
+
+  const lockState = useMemo(() => {
+    return getInvoiceLockState({
+      status: invoiceStatusState,
+      msaStatus: msaResponse,
+      sharedToEmail: sharedToEmail,
+      clientMsaNote: clientMsaNote,
+    });
+  }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote]);
 
   useEffect(() => {
     async function debugAuth() {
@@ -448,6 +500,9 @@ function PreviewContent() {
       setShareToken(saved.share_token || null);
       setSharedAt(saved.shared_at || null);
       setCurrentMsaId(saved.msa_id || null);
+      setSharedToEmail(saved.shared_to_email || (data?.client?.clientEmail ?? null));
+      setInvoiceStatusState(saved.status);
+      setMsaResponse(saved.msa_status);
       setSaveState("cloud-saved");
 
       // Brief delay for transition
@@ -767,6 +822,34 @@ function PreviewContent() {
               </MotionReveal>
             )}
 
+            {/* Neo-Brutalist Locked Invoice Status Banner */}
+            {lockState.isReadOnly && (
+              <MotionReveal preset="fade-up" className="mb-8 print:hidden">
+                <div className="flex flex-col items-center justify-between gap-4 border-2 border-black bg-[#FFE5E5] p-4 sm:flex-row sm:p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-black bg-red-400 text-xl font-bold">
+                      🔒
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-black">
+                        Invoice is Locked
+                      </h3>
+                      <p className="text-[13px] text-gray-800">
+                        {lockState.reason}
+                      </p>
+                    </div>
+                  </div>
+                  {lockState.alternativeAction && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-gray-700 bg-white border border-gray-300 px-2 py-1 uppercase tracking-wider">
+                        Suggested: {lockState.alternativeAction.label}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </MotionReveal>
+            )}
+
             {/* Main Layout: Invoice Hero + Slim Right Template Bar */}
             <div 
               className="flex flex-col xl:flex-row gap-0 print:block print:h-auto print:overflow-visible" 
@@ -980,14 +1063,15 @@ function PreviewContent() {
 
               <MotionButton
                 type="button"
-                disabled={isSavingAndSharing}
+                disabled={isSavingAndSharing || !lockState.canShare}
                 onClick={handleShareClick}
                 className={cn(
                   "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-100 active:scale-[0.97]",
-                  isSavingAndSharing
+                  isSavingAndSharing || !lockState.canShare
                     ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-80 border border-[color:var(--border-subtle)]"
                     : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00] active:bg-[#9acc00]"
                 )}
+                title={!lockState.canShare ? lockState.reason : undefined}
               >
                 {isSavingAndSharing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

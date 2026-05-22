@@ -91,6 +91,7 @@ import {
   getOptionalFieldEmptyCounts,
 } from "@/lib/invoice-validation";
 import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
+import { getInvoiceLockState } from "@/lib/invoice-lock-state";
 import {
   appContainerCenteredClass,
   appContainerFullClass,
@@ -850,38 +851,23 @@ function EditorContent() {
     });
   };
 
+  const lockState = useMemo(() => {
+    return getInvoiceLockState({
+      status: invoiceStatus,
+      msaStatus: msaStatus,
+      sharedToEmail: sharedToEmail,
+      clientMsaNote: clientMsaNote,
+    });
+  }, [invoiceStatus, msaStatus, sharedToEmail, clientMsaNote]);
+
   const isReadOnlyMode = useMemo(() => {
     if (!parserDocumentId) return false;
-
-    const msaStatusLower = msaStatus?.toLowerCase() || "";
-    const isMsaAccepted = msaStatusLower === "accepted";
-    const isMsaPendingAndShared = !!sharedToEmail && msaStatusLower === "pending";
-
-    const invoiceStatusLower = invoiceStatus?.toLowerCase() || "";
-    const isSettled =
-      invoiceStatusLower === "settled" || invoiceStatusLower === "paid";
-
-    return isMsaAccepted || isMsaPendingAndShared || isSettled;
-  }, [parserDocumentId, msaStatus, sharedToEmail, invoiceStatus]);
+    return lockState.isReadOnly;
+  }, [parserDocumentId, lockState]);
 
   const readOnlyReason = useMemo(() => {
-    const msaStatusLower = msaStatus?.toLowerCase();
-    const invoiceStatusLower = invoiceStatus?.toLowerCase();
-
-    if (invoiceStatusLower === "settled" || invoiceStatusLower === "paid") {
-      return "This invoice is settled and fully archived. Editing has been disabled.";
-    }
-
-    if (msaStatusLower === "accepted") {
-      return "The client has accepted the Master Service Agreement (MSA) or project addendum for this invoice. Changes are disabled to preserve legal compliance.";
-    }
-
-    if (!!sharedToEmail && msaStatusLower === "pending") {
-      return "This invoice has been shared with the client and MSA acceptance is pending. Changing terms is disabled.";
-    }
-
-    return "This invoice is currently in read-only mode.";
-  }, [invoiceStatus, msaStatus, sharedToEmail]);
+    return lockState.reason;
+  }, [lockState]);
 
   useEffect(() => {
     if (!isBootstrapped || !formData) return;

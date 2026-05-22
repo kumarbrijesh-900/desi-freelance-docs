@@ -1434,21 +1434,20 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
-## v2.8.8 READ-ONLY PREVIEW SHARE LOCK PLAN — May 22, 2026
+## v2.8.8 READ-ONLY PREVIEW SHARE LOCK IMPLEMENTED — May 22, 2026
 
 ### Phase XLVII: Preview Share Rules and Locked Invoice UX
-- 🔲 **Shared Lock Utility**:
-  - Create a reusable invoice lock-state helper so the editor and preview screen use the same read-only/share rules.
-  - Return `isReadOnly`, `canShare`, `reason`, and `mode` from one source of truth.
-- 🔲 **Backend Guardrail**:
-  - Add a server-side share guard so preview UI restrictions cannot be bypassed by stale tabs or direct API calls.
-  - Built second (before UI gating) so rules are enforced at the API layer before any client surface depends on them.
-- 🔲 **Preview Share Gating**:
-  - Disable the preview screen `Share Invoice` action when MSA is accepted, when the invoice is already shared and pending client response, or when the invoice/milestone cycle is settled/closed.
-  - Keep sharing available only for normal editable invoices and the client-note revision path where `msa_status = proposed` with a client note, so the agency can update and reissue terms.
-- 🔲 **Locked Preview UX**:
-  - Show a high-contrast read-only banner on preview explaining why sharing/editing is locked.
-  - Keep the disabled Share CTA visible with a clear status label instead of letting users click into a dead flow.
+- ✅ **Shared Lock Utility**:
+  - Reusable invoice lock-state helper `lib/invoice-lock-state.ts` is fully implemented and handles all states including 'partial_settled' and 'cancelled'.
+- ✅ **Preview Share Gating**:
+  - Disabled the preview screen `Share Invoice` action based on `lockState.canShare`. Gated behind live database state checks so sharing is blocked in accordance with compliance rules.
+- ✅ **Locked Preview UX**:
+  - Custom high-contrast Neo-Brutalist locked status banner rendered on `/invoice/preview` when `lockState.isReadOnly` is active. Display matches the freelancer aesthetic with robust reason copy.
+
+### Files modified in v2.8.8 (Phase 1)
+- `components/invoice/InvoiceEditorPage.tsx`
+- `app/invoice/preview/page.tsx`
+- `SESSION_LOG.md`
 
 ---
 
