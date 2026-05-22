@@ -1324,7 +1324,7 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
   - `20260523_backfill_applied_msa_snapshot.sql` [NEW]: Backfills existing records in the database by parsing historical values from the `form_data` JSONB payload.
 - ✅ **TypeScript & Database Wiring**:
   - Implemented `lib/msa-applied-snapshot.ts` [NEW] to compute the snapshot details based on a prioritized hierarchy (Client Addendum overrides -> Agency defaults -> Platform hardcoded fallbacks).
-  - Wired `computeAppliedMsaSnapshot` into `saveInvoice` and `updateInvoice` in `lib/supabase/invoices.ts` so the snapshot values are cleanly written during both update and new creation paths.
+  - Wired `computeAppliedMsaSnapshot` into `saveInvoice` (covers fresh-create and editor-save paths) and `reissueNegotiatedInvoice` (covers the negotiation reissue path after Propose Changes) in `lib/supabase/invoices.ts`. Two additional `form_data` write paths remain unwired and are queued as v2.8.x backlog: `app/dashboard/page.tsx::handleSettleMilestone` and `app/api/invoice/trigger-next-milestone/route.ts` — these produce NULL snapshots on milestone settlement and auto-spawned child invoices respectively until wired in a follow-up pass.
   - Restored and displayed effective terms dynamically from snapshot-based fields in `app/dashboard/page.tsx`.
 
 ## v2.8.4 CLIENT DATABASE SCHEMA RECONCILIATION — May 22, 2026
@@ -1434,8 +1434,48 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ---
 
+## v2.8.8 READ-ONLY PREVIEW SHARE LOCK PLAN — May 22, 2026
+
+### Phase XLVII: Preview Share Rules and Locked Invoice UX
+- 🔲 **Shared Lock Utility**:
+  - Create a reusable invoice lock-state helper so the editor and preview screen use the same read-only/share rules.
+  - Return `isReadOnly`, `canShare`, `reason`, and `mode` from one source of truth.
+- 🔲 **Backend Guardrail**:
+  - Add a server-side share guard so preview UI restrictions cannot be bypassed by stale tabs or direct API calls.
+  - Built second (before UI gating) so rules are enforced at the API layer before any client surface depends on them.
+- 🔲 **Preview Share Gating**:
+  - Disable the preview screen `Share Invoice` action when MSA is accepted, when the invoice is already shared and pending client response, or when the invoice/milestone cycle is settled/closed.
+  - Keep sharing available only for normal editable invoices and the client-note revision path where `msa_status = proposed` with a client note, so the agency can update and reissue terms.
+- 🔲 **Locked Preview UX**:
+  - Show a high-contrast read-only banner on preview explaining why sharing/editing is locked.
+  - Keep the disabled Share CTA visible with a clear status label instead of letting users click into a dead flow.
+
+---
+
+## Open items / v2.9 scope
+
+### Twin Invoice diagnosis (resolved as feature gap, not bug)
+
+Investigation triggered by observing INV-2026-9446 and INV-2026-1238 for the same client (ckccc) with identical amounts but different MSA states. Hypothesized that Propose Changes was auto-cloning rows. SQL diagnostic ruled this out — both rows had `parent_invoice_id = NULL` and `milestone_index = NULL`, so neither was a milestone child. Reading `client_msa_note` on INV-1238 ("for this Particular invoice lets set the NET Payment to 20") + the matching Net 20 terms on INV-9446 confirmed: the agency manually created a new invoice in response to a client's Net-20 proposal, because there is no in-place "Apply Proposal" action.
+
+Conclusion: not auto-clone, not test data pollution — **a missing agency-side feature**. Every accepted counter-proposal currently produces a duplicate invoice row by design. The Command Center MSA Revision card surfaces the note correctly (v2.11) and the UPDATE ADDENDUM button opens the existing invoice in the editor at `/invoice/new?id=<id>&restore=1&step=payment`, which is the right routing — but completing the "update terms → reissue" loop without manually re-keying the addendum is the missing piece.
+
+### v2.9 scope (queued)
+
+- **Apply Proposal & Update In-Place flow**: Command Center MSA Revision card grows an explicit `Apply Proposal` action that reads the client's note, applies the proposed terms to the existing invoice's addendum, resets `msa_status` to `pending`, and triggers a re-share so the client re-accepts the updated terms. No new invoice row created.
+- **Counter / Decline action**: an agency-side reply textarea for cases where the agency wants to push back on the proposal rather than accept it. Reply surfaces to the client via the share-link channel.
+- **Duplicate-invoice soft warning**: when creating a new invoice for a client + amount combination that already has an active receivable, show a "you have a live invoice with this client at this amount, continue?" modal.
+
+### v2.8.x backlog (queued, not blocking)
+
+- Wire `computeAppliedMsaSnapshot` into `app/dashboard/page.tsx::handleSettleMilestone`
+- Wire `computeAppliedMsaSnapshot` into `app/api/invoice/trigger-next-milestone/route.ts`
+- Without these, milestone settlement and auto-spawned child invoices write NULL snapshots until populated by backfill or manual reissue. Same helper, same pattern as v2.8.3.
+
+---
+
 ## Start next chat with this prompt
 
-> *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically the v2.8 / v2.8.1 / v2.8.2 entries documenting the MSA security architecture, RLS policy fix, and Propose Changes wire-up. My current focus is open item #1: investigating the Twin Invoice duplicate hypothesis. Before proposing next steps, briefly summarize the four security layers protecting MSA acceptance — if you can't articulate them, the project knowledge didn't load and we should retry."*
+> *"I'm continuing work on Lance (lanceinvoice.xyz). Read SESSION_LOG.md from project knowledge — specifically v2.8.3 through v2.8.7 (snapshot pattern, read-only editor, settlement state machine, cross-surface refresh) and the v2.8.8 plan (preview share lock). My current focus is executing v2.8.8 starting with the shared lock utility in `lib/invoice-lock-state.ts`. Before proposing the file structure, summarize the three conditions that should produce `isReadOnly=true` and the two conditions that should produce `canShare=false` per v2.8.5 and v2.8.8 — if you can't articulate them, the project knowledge didn't load and we should retry."*
 
 This forces the new Claude to demonstrate context comprehension before acting. The four layers it should be able to name: UI removal, server-side layout redirect, DB trigger, RLS policy (+ column GRANT supporting the trigger). If it can articulate that *and* explain why the column GRANT alone wasn't enough (no RLS policy → 406 PGRST116), you have a properly-warmed Claude. If not, retry.
