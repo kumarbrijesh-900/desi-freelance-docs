@@ -561,41 +561,75 @@ export default function DashboardPage() {
         invoicesWithMilestones.forEach((inv: any) => {
           const statusLower = inv.status.toLowerCase();
           if (statusLower === "cancelled") return; // Skip cancelled invoices from metrics
-          const totalAmount = inv.totalAmount;
           const dueDateStr = inv.due_date || inv.form_data?.meta?.dueDate;
           let isOverdue = false;
+          let isDueThisWeek = false;
 
           if (dueDateStr) {
             const due = new Date(dueDateStr);
             due.setHours(0, 0, 0, 0);
             if (due < todayVal) {
               isOverdue = true;
+            } else if (due >= todayVal && due <= todayPlus7Val) {
+              isDueThisWeek = true;
             }
           }
 
-          // Outstanding receivables include partially paid milestone invoices.
-          if (isReceivableStatus(statusLower)) {
-            outstanding += totalAmount;
-            outstandingCount++;
-          }
+          if (inv.milestones && inv.milestones.length > 0) {
+            let hasOutstandingMilestones = false;
+            let hasOverdueMilestones = false;
+            let hasDueThisWeekMilestones = false;
 
-          // Settled
-          if (statusLower === "settled") {
-            settled += totalAmount;
-            settledCount++;
-          }
+            inv.milestones.forEach((m: any) => {
+              const mStatus = (m.status || "").toLowerCase();
+              const mAmount = Number(m.amount || 0);
 
-          // Overdue receivables
-          if (isReceivableStatus(statusLower) && isOverdue) {
-            overdue += totalAmount;
-            overdueCount++;
-          }
+              if (mStatus === "settled") {
+                settled += mAmount;
+              } else if (isReceivableStatus(statusLower)) {
+                outstanding += mAmount;
+                hasOutstandingMilestones = true;
+                if (isOverdue) {
+                  overdue += mAmount;
+                  hasOverdueMilestones = true;
+                }
+                if (isDueThisWeek) {
+                  dueThisWeek += mAmount;
+                  hasDueThisWeekMilestones = true;
+                }
+              }
+            });
 
-          // Due this week
-          if (statusLower !== "settled" && dueDateStr) {
-            const due = new Date(dueDateStr);
-            due.setHours(0, 0, 0, 0);
-            if (due >= todayVal && due <= todayPlus7Val) {
+            if (hasOutstandingMilestones) outstandingCount++;
+            if (hasOverdueMilestones) overdueCount++;
+            if (hasDueThisWeekMilestones) dueThisWeekCount++;
+            if (statusLower === "settled") {
+              settledCount++;
+            }
+          } else {
+            // Fallback for invoices without milestones (legacy/offline/line-item)
+            const totalAmount = inv.totalAmount;
+
+            // Outstanding receivables include partially paid milestone invoices.
+            if (isReceivableStatus(statusLower)) {
+              outstanding += totalAmount;
+              outstandingCount++;
+            }
+
+            // Settled
+            if (statusLower === "settled") {
+              settled += totalAmount;
+              settledCount++;
+            }
+
+            // Overdue receivables
+            if (isReceivableStatus(statusLower) && isOverdue) {
+              overdue += totalAmount;
+              overdueCount++;
+            }
+
+            // Due this week
+            if (statusLower !== "settled" && isDueThisWeek) {
               dueThisWeek += totalAmount;
               dueThisWeekCount++;
             }
@@ -684,10 +718,22 @@ export default function DashboardPage() {
             sharedAt: inv.shared_at,
           });
 
-          if (isSettled) {
-            clientHealth.totalCollected += inv.totalAmount;
+          if (inv.milestones && inv.milestones.length > 0) {
+            inv.milestones.forEach((m: any) => {
+              const mStatus = (m.status || "").toLowerCase();
+              const mAmount = Number(m.amount || 0);
+              if (mStatus === "settled") {
+                clientHealth.totalCollected += mAmount;
+              } else if (statusLower !== "cancelled") {
+                clientHealth.totalOwed += mAmount;
+              }
+            });
           } else {
-            clientHealth.totalOwed += inv.totalAmount;
+            if (isSettled) {
+              clientHealth.totalCollected += inv.totalAmount;
+            } else if (statusLower !== "cancelled") {
+              clientHealth.totalOwed += inv.totalAmount;
+            }
           }
         });
 

@@ -1481,37 +1481,68 @@ export default function InvoiceHistoryPage() {
     let totalProject = 0;
 
     trackedForStats.forEach(inv => {
-      const amount = getAmount(inv);
       const isIssued = isPending(inv.status);
+      const msaPending = (inv.msa_status ?? "pending") === "pending";
       
-      if (isIssued) {
-        outstanding += amount;
-        
-        if (inv.form_data?.meta?.dueDate) {
-          const dueDate = new Date(inv.form_data.meta.dueDate);
-          if (dueDate < today) {
-            overdue += amount;
-          } else if (dueDate <= endOf7Days) {
-            dueThisWeek += amount;
-          }
-        }
-      }
-
-      if ((inv.msa_status ?? "pending") === "pending") {
+      if (msaPending) {
         awaitingMsa++;
       }
 
-      if (inv.status === "SETTLED") {
-        totalSettled += amount;
-        if (inv.settled_at) {
-          const settledDate = new Date(inv.settled_at);
-          if (settledDate >= startOfCurrentMonth) {
-            settledThisMonth += amount;
+      let isOverdue = false;
+      let isDueThisWeek = false;
+
+      if (inv.form_data?.meta?.dueDate) {
+        const dueDate = new Date(inv.form_data.meta.dueDate);
+        if (dueDate < today) {
+          isOverdue = true;
+        } else if (dueDate <= endOf7Days) {
+          isDueThisWeek = true;
+        }
+      }
+
+      // Check if milestones exist
+      if (inv.milestones && inv.milestones.length > 0) {
+        inv.milestones.forEach((m: any) => {
+          const mStatus = (m.status || "").toLowerCase();
+          const mAmount = Number(m.amount || 0);
+
+          if (mStatus === "settled") {
+            totalSettled += mAmount;
+            if (inv.settled_at) {
+              const settledDate = new Date(inv.settled_at);
+              if (settledDate >= startOfCurrentMonth) {
+                settledThisMonth += mAmount;
+              }
+            }
+          } else if (isIssued) {
+            outstanding += mAmount;
+            if (isOverdue) overdue += mAmount;
+            else if (isDueThisWeek) dueThisWeek += mAmount;
+          }
+        });
+      } else {
+        // Fallback for line-item / legacy invoices
+        const amount = getAmount(inv);
+        
+        if (isIssued) {
+          outstanding += amount;
+          if (isOverdue) overdue += amount;
+          else if (isDueThisWeek) dueThisWeek += amount;
+        }
+
+        if (inv.status === "SETTLED") {
+          totalSettled += amount;
+          if (inv.settled_at) {
+            const settledDate = new Date(inv.settled_at);
+            if (settledDate >= startOfCurrentMonth) {
+              settledThisMonth += amount;
+            }
           }
         }
       }
 
       if (!inv.parent_invoice_id) {
+        const amount = getAmount(inv);
         totalProject += amount;
       }
     });
