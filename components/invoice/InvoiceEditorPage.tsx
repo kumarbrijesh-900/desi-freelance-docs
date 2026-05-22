@@ -21,6 +21,8 @@ import {
   CreditCard,
   ArrowLeft,
   ArrowRight,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
@@ -728,6 +730,148 @@ function InlineStepSection({
         </motion.div>
       </div>
     </motion.section>
+  );
+}
+
+function WorkbenchReadinessPanel({
+  ready,
+  completedCount,
+  totalCount,
+  issueCount,
+  activeStepLabel,
+  nextStepLabel,
+  nextFields,
+  total,
+  currency,
+  dueDate,
+  clientName,
+  onReview,
+  compact = false,
+  rail = false,
+}: {
+  ready: boolean;
+  completedCount: number;
+  totalCount: number;
+  issueCount: number;
+  activeStepLabel: string;
+  nextStepLabel?: string;
+  nextFields: string[];
+  total: number;
+  currency: string;
+  dueDate?: string;
+  clientName?: string;
+  onReview: () => void;
+  compact?: boolean;
+  rail?: boolean;
+}) {
+  const progress = totalCount > 0
+    ? Math.min(100, Math.max(0, Math.round((completedCount / totalCount) * 100)))
+    : 0;
+  const visibleFields = nextFields.slice(0, rail ? 2 : 3);
+  const hiddenFieldCount = Math.max(0, nextFields.length - visibleFields.length);
+  const readinessLabel = rail ? "Status" : "Workbench readiness";
+  const statusText = ready
+    ? rail ? "Ready" : "Ready for preview"
+    : rail
+      ? `${issueCount} left`
+      : `${issueCount} required ${issueCount === 1 ? "detail" : "details"} remaining`;
+
+  return (
+    <div
+      className={cn(
+        "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]",
+        compact ? "px-4 py-3" : "px-3 py-3",
+      )}
+      aria-label="Invoice workbench readiness"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <span
+            className={cn(
+              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border-2 border-[#111118]",
+              ready ? "bg-[#00DCB4] text-[#111118]" : "bg-[#FFFBE6] text-[#B45309]",
+            )}
+            aria-hidden="true"
+          >
+            {ready ? (
+              <CheckCircle2 className="h-4 w-4" strokeWidth={2.4} />
+            ) : (
+              <AlertCircle className="h-4 w-4" strokeWidth={2.4} />
+            )}
+          </span>
+          <div className="min-w-0">
+            <p className={cn(
+              "font-black uppercase text-[color:var(--text-muted)]",
+              rail ? "text-[9px] tracking-[0.08em]" : "text-[10px] tracking-[0.14em]",
+            )}>
+              {readinessLabel}
+            </p>
+            <p className="mt-0.5 text-[14px] font-black text-[#111118]">
+              {statusText}
+            </p>
+          </div>
+        </div>
+        <span className="shrink-0 text-[11px] font-black text-[#111118]">
+          {progress}%
+        </span>
+      </div>
+
+      <div className="mt-3 h-2 border-2 border-[#111118] bg-[#F5F5F0]">
+        <div
+          className={cn("h-full", ready ? "bg-[#00DCB4]" : "bg-[#BEFF00]")}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <div className="mt-3 border-t border-[color:var(--border-subtle)] pt-3" aria-live="polite">
+        {ready ? (
+          <p className="text-[12px] font-bold leading-5 text-[#111118]">
+            All required sections are complete. Review totals, then open preview.
+          </p>
+        ) : (
+          <>
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+              Next blocker
+            </p>
+            <p className="mt-0.5 text-[12px] font-bold leading-5 text-[#111118]">
+              {rail ? "" : nextStepLabel ? `${nextStepLabel}: ` : `${activeStepLabel}: `}
+              {visibleFields.length > 0
+                ? visibleFields.join(", ")
+                : "Complete the highlighted fields."}
+              {hiddenFieldCount > 0 ? ` +${hiddenFieldCount} more` : ""}
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className={cn(
+        "mt-3 grid border-t border-[color:var(--border-subtle)] pt-3",
+        rail ? "grid-cols-1 gap-2" : "grid-cols-3 gap-3",
+      )}>
+        <div className="min-w-0">
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Client</p>
+          <p className="truncate text-[12px] font-bold text-[#111118]">{clientName?.trim() || "Not set"}</p>
+        </div>
+        <div className="min-w-0">
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Due</p>
+          <p className="truncate text-[12px] font-bold text-[#111118]">{dueDate || "Not set"}</p>
+        </div>
+        <div className={cn("min-w-0", !rail && "text-right")}>
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Total</p>
+          <p className="truncate text-[12px] font-black text-[#4F46E5]">{formatCurrency(total, currency)}</p>
+        </div>
+      </div>
+
+      {!ready && (
+        <button
+          type="button"
+          onClick={onReview}
+          className="mt-3 flex h-9 w-full items-center justify-center border-2 border-[#111118] bg-[#BEFF00] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+        >
+          {rail ? "Review" : "Review blocker"}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -1617,6 +1761,16 @@ function EditorContent() {
     () => orderedSteps.filter((step) => displayStepValidityByStep[step]).length,
     [displayStepValidityByStep],
   );
+  const completedValidationStepCount = useMemo(
+    () => VALIDATION_STEPS.filter((step) => displayStepValidityByStep[step]).length,
+    [displayStepValidityByStep],
+  );
+  const totalRequiredIssueCount = useMemo(
+    () => missingFieldGroups.reduce((sum, group) => sum + group.fields.length, 0),
+    [missingFieldGroups],
+  );
+  const nextBlockingGroup = missingFieldGroups[0] ?? null;
+  const nextBlockingFields = nextBlockingGroup?.fields ?? [];
   const guideToSection = (
     step: InvoiceStepperStep,
     options?: { focus?: boolean },
@@ -1889,6 +2043,17 @@ const handlePreviewInvoice = async () => {
     console.error("Failed to save preview data:", error);
     alert("Could not open preview. Please try again.");
   }
+};
+
+const handleReviewBlockingStep = () => {
+  if (!nextBlockingGroup) {
+    void handlePreviewInvoice();
+    return;
+  }
+
+  setShowAllValidationErrors(true);
+  scrollToStep(nextBlockingGroup.step, { focus: true });
+  triggerToast(`Review ${getStepShortLabel(nextBlockingGroup.step)} details.`);
 };
 
 const persistDraft = () => {
@@ -2807,6 +2972,24 @@ return (
                 </div>
               </div>
             </MotionReveal>
+
+            <MotionReveal preset="fade-up" delay={80}>
+              <WorkbenchReadinessPanel
+                rail
+                ready={invoiceReadyForPreview}
+                completedCount={completedValidationStepCount}
+                totalCount={VALIDATION_STEPS.length}
+                issueCount={totalRequiredIssueCount}
+                activeStepLabel={getStepShortLabel(currentStep)}
+                nextStepLabel={nextBlockingGroup ? getStepShortLabel(nextBlockingGroup.step) : undefined}
+                nextFields={nextBlockingFields}
+                total={computedTotals.grandTotal}
+                currency={displayCurrency}
+                dueDate={formData.meta.dueDate}
+                clientName={formData.client.clientName}
+                onReview={handleReviewBlockingStep}
+              />
+            </MotionReveal>
           </div>
         </aside>
 
@@ -2988,6 +3171,24 @@ return (
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="mb-3 px-4 lg:hidden">
+              <WorkbenchReadinessPanel
+                compact
+                ready={invoiceReadyForPreview}
+                completedCount={completedValidationStepCount}
+                totalCount={VALIDATION_STEPS.length}
+                issueCount={totalRequiredIssueCount}
+                activeStepLabel={getStepShortLabel(currentStep)}
+                nextStepLabel={nextBlockingGroup ? getStepShortLabel(nextBlockingGroup.step) : undefined}
+                nextFields={nextBlockingFields}
+                total={computedTotals.grandTotal}
+                currency={displayCurrency}
+                dueDate={formData.meta.dueDate}
+                clientName={formData.client.clientName}
+                onReview={handleReviewBlockingStep}
+              />
             </div>
 
             {/* Mobile interactive step pills */}
@@ -3297,7 +3498,7 @@ return (
             <div className={`${appEditorGridClass} px-4 sm:px-6 lg:px-8`}>
               {/* Spacer for left column on lg+ */}
               <div className="hidden lg:block" />
-              <div className="flex h-16 items-center justify-between">
+              <div className="flex h-16 items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={handleBackToHome}
@@ -3306,6 +3507,31 @@ return (
                   <ArrowLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">Close</span>
                 </button>
+
+                <div className="hidden min-w-0 flex-1 justify-center px-2 md:flex">
+                  <div
+                    className={cn(
+                      "flex min-w-0 max-w-[520px] items-center gap-2 border px-3 py-1.5 text-[11px] font-bold",
+                      invoiceReadyForPreview
+                        ? "border-[#00A884] bg-[#EBFDF9] text-[#007A63]"
+                        : "border-[#F59E0B] bg-[#FFFBE6] text-[#8A4B00]",
+                    )}
+                    role="status"
+                  >
+                    {invoiceReadyForPreview ? (
+                      <CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} />
+                    )}
+                    <span className="truncate">
+                      {invoiceReadyForPreview
+                        ? "Ready for preview. Confirm totals before sending."
+                        : nextBlockingGroup
+                          ? `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
+                          : "Complete the highlighted fields before preview."}
+                    </span>
+                  </div>
+                </div>
     
                 <div className="flex items-center gap-2">
                   {/* Auto-save status removed */}
@@ -3324,15 +3550,25 @@ return (
                   )}
                   <button
                     type="button"
-                    onClick={handlePreviewInvoice}
+                    onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
                     className={cn(
                       "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                       invoiceReadyForPreview
                         ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                        : "border-2 border-[#bfff00] bg-transparent text-[color:var(--text-primary)] active:scale-[0.97] transition-transform"
+                        : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[2px_2px_0_#111118] active:scale-[0.97] transition-transform"
                     )}
                   >
-                    Preview <ArrowRight className="ml-2 h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
+                    </span>
+                    <span className="sm:hidden">
+                      {invoiceReadyForPreview ? "Preview" : "Review"}
+                    </span>
+                    {invoiceReadyForPreview ? (
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    ) : (
+                      <AlertCircle className="ml-2 h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>

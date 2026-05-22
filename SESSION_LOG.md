@@ -1,5 +1,42 @@
 # Session Log — May 22, 2026
 
+## Latest checkpoint: v1.9 Phase 3 Invoice Editor Workbench — May 22, 2026
+
+### Sequence
+
+1. **Phase 2 was checkpointed first:** Dashboard Project OS was documented, versioned, committed, and pushed to `main` as `40d31bf`.
+2. **Phase 3 started next:** Invoice Editor Workbench focused on scanability, readiness, validation guidance, and action clarity.
+3. **Design System Hardening remains deferred:** no global token, icon-system, or broad visual-system refactor was performed.
+
+### Phase 3 implementation
+
+- Added an editor readiness panel using Lucide status icons, not emoji icons.
+- Surfaced readiness progress across all validation steps, including hidden/support steps such as invoice meta and totals.
+- Added next-blocker guidance with required missing fields, client, due date, and live invoice total.
+- Added a direct `Review blocker` action that reveals validation errors and routes the user to the next blocked section.
+- Added a mobile readiness panel before the step pills and a compact rail version for desktop support navigation.
+- Updated the fixed bottom action bar so blocked invoices show a contextual blocker hint and `Review blocker`; ready invoices show `Preview invoice`.
+
+### Verification
+
+- `npm run build` passed on May 22, 2026.
+- Playwright screenshot verification completed for `/invoice/new` at desktop `1440x1200`.
+- Playwright screenshot verification completed for `/invoice/new` at mobile `390x1200`.
+- Local dev server was stopped after verification.
+
+### Files changed in this checkpoint
+
+- `components/invoice/InvoiceEditorPage.tsx`
+- `SESSION_LOG.md`
+- `docs/versions/2026-05-22-phase-3-invoice-editor-workbench.md`
+
+### Next phase
+
+- Phase 4: Client Trust Layer.
+- Direction: improve client-facing preview hierarchy, MSA/payment state clarity, and accept/request-changes/download flow.
+
+---
+
 ## Latest checkpoint: v1.8 Phase 2 Project OS — May 22, 2026
 
 ### Sequence
