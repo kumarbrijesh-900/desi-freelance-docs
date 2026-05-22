@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { ratelimit } from "@/lib/upstash";
 import { randomBytes } from "crypto";
+import { getInvoiceLockState } from "@/lib/invoice-lock-state";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id")
+      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note")
       .eq("id", invoiceId)
       .single();
 
@@ -83,6 +84,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Invoice not found." },
         { status: 404 },
+      );
+    }
+
+    // Apply lock state guardrail
+    const lock = getInvoiceLockState({
+      status: invoice.status,
+      msaStatus: invoice.msa_status,
+      sharedToEmail: invoice.shared_to_email,
+      clientMsaNote: invoice.client_msa_note,
+    });
+
+    const isResend = !!invoice.share_token;
+
+    if (!lock.canShare && !(isResend && lock.state === "awaiting-client")) {
+      return NextResponse.json(
+        {
+          error: "Share not allowed in current invoice state",
+          reason: lock.reason,
+          state: lock.state,
+        },
+        { status: 403 }
       );
     }
 
