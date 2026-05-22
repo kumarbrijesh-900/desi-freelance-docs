@@ -100,19 +100,32 @@ export default function PublicInvoiceSharePage({
     setIsSubmittingMsa(true);
     try {
       // Direct update as requested by the prompt instructions
-      const { error } = await supabase
+      const { data: inv, error } = await supabase
         .from("invoices")
         .update({ 
           msa_response: 'accepted',
           msa_status: 'accepted',
           msa_responded_at: new Date().toISOString(),
+          msa_accepted_at: new Date().toISOString(),
         })
-        .eq("share_token", token);
+        .eq("share_token", token)
+        .select("id, user_id")
+        .single();
 
       if (error) {
         console.error("Supabase Update Error:", error);
-        alert("Failed to accept terms. Please try again.");
-        return;
+        throw new Error("Failed to accept terms. Please try again.");
+      }
+
+      if (inv) {
+        await supabase.from("notifications").insert({
+          user_id: inv.user_id,
+          invoice_id: inv.id,
+          type: 'msa_accepted',
+          title: 'MSA Accepted',
+          message: 'The client has accepted the terms for this invoice.',
+          is_read: false
+        });
       }
 
       // Success: Reveal the invoice
@@ -121,7 +134,7 @@ export default function PublicInvoiceSharePage({
       setShowAcceptedToast(true);
     } catch (err) {
       console.error("ACCEPT_ERROR:", err);
-      alert("An unexpected error occurred.");
+      throw err;
     } finally {
       setIsSubmittingMsa(false);
     }
@@ -160,7 +173,7 @@ export default function PublicInvoiceSharePage({
       setMsaStatus("proposed");
       setMsaResponse(note.trim());
       setShowProposedToast(true);
-    } catch (err: any) {
+    } catch (err) {
       console.error("PROPOSE_ERROR:", err);
       throw err;
     }
@@ -212,8 +225,6 @@ export default function PublicInvoiceSharePage({
       </main>
     );
   }
-
-  const isMsaPending = msaStatus === "pending";
 
   return (
     <>

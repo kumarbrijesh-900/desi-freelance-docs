@@ -9,6 +9,14 @@ import MSAAcceptanceModal from "@/components/invoice/share/MSAAcceptanceModal";
 import { prepareTemplateData } from "@/lib/templates/template-data";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  Download,
+  FileCheck2,
+  ShieldCheck,
+} from "lucide-react";
 
 interface SharedMsaPreviewContentProps {
   invoice: {
@@ -56,7 +64,42 @@ export default function SharedMsaPreviewContent({
   const formattedTotal = templateData?.grandTotalFormatted?.replace(/[₹$]/, "") || "0";
 
   const [previewDismissed, setPreviewDismissed] = useState(false);
-  const showMsaOverlay = msaStatus !== "accepted" && msaStatus !== "ACCEPTED" && !previewDismissed;
+  const normalizedMsaStatus = (msaStatus || "").toLowerCase();
+  const isTermsAccepted = normalizedMsaStatus === "accepted";
+  const isTermsProposed = normalizedMsaStatus === "proposed";
+  const showMsaOverlay = !isTermsAccepted && !previewDismissed;
+  const trustState = isChildInvoice
+    ? {
+        label: "Agreement inherited",
+        detail: parentMsaAcceptedOn
+          ? `Covered by the parent agreement accepted on ${parentMsaAcceptedOn}.`
+          : "Covered by the previously accepted parent agreement.",
+        tone: "success" as const,
+      }
+    : isTermsAccepted
+      ? {
+          label: "Terms accepted",
+          detail: "This invoice is active and ready for payment.",
+          tone: "success" as const,
+        }
+      : isTermsProposed
+        ? {
+            label: "Changes requested",
+            detail: "The freelancer needs to review your requested terms before payment.",
+            tone: "warning" as const,
+          }
+        : {
+            label: "Terms review required",
+            detail: "Review and accept the agreement to unlock the invoice for payment.",
+            tone: "warning" as const,
+          };
+  const paymentStateLabel = isTermsAccepted || isChildInvoice ? "Payment ready" : "Payment locked";
+  const paymentStateDetail =
+    isTermsAccepted || isChildInvoice
+      ? "Use the bank or QR details inside the invoice."
+      : "Payment details unlock after terms are accepted.";
+  const dueDateLabel = templateData?.dueDate && templateData.dueDate !== "—" ? templateData.dueDate : "Not specified";
+  const paymentTermsLabel = addendum?.paymentTerms || templateData?.paymentTerms || "Standard terms";
 
   return (
     <>
@@ -108,33 +151,130 @@ export default function SharedMsaPreviewContent({
           </div>
         </div>
 
-        {/* ── Payment Summary Banner ── */}
+        {/* ── Client Trust Summary ── */}
         <div className={cn(
           "mx-auto mb-6 max-w-[210mm] print:hidden",
           showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
-          <div className="border-2 border-[#111118] bg-[#FFFBE6] px-6 py-4 text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-1">
-              Amount Due
-            </p>
-            <p className="text-2xl font-black text-[#111118]">
-              {currencySymbol}{formattedTotal}
-            </p>
-            {invoiceNumber && (
-              <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
-                Invoice {invoiceNumber}
-              </p>
-            )}
-            <div className="mt-3 inline-flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                Status:
-              </span>
-              <span className="inline-flex items-center border border-[#111118] bg-[#BEFF00] px-3 py-1 text-[11px] font-bold text-[#111118] uppercase">
-                Awaiting Payment
-              </span>
+          <div className="overflow-hidden border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+            <div className="flex flex-col gap-4 border-b-2 border-[#111118] bg-[#FFFBE6] px-5 py-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  Client invoice summary
+                </p>
+                <p className="mt-1 text-[15px] font-black text-[#111118]">
+                  Invoice {invoiceNumber || templateData?.invoiceNumber || "—"} from {formData.agency?.agencyName || "the freelancer"}
+                </p>
+              </div>
+              <div className="text-left md:text-right">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  Amount Due
+                </p>
+                <p className="text-2xl font-black text-[#111118]">
+                  {currencySymbol}{formattedTotal}
+                </p>
+              </div>
             </div>
+
+            <div className="grid gap-0 md:grid-cols-3">
+              <div className="border-b-2 border-[#111118] p-4 md:border-b-0 md:border-r-2">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118]",
+                      trustState.tone === "success" ? "bg-[#EBFDF9] text-[#007A63]" : "bg-[#FFFBE6] text-[#B45309]",
+                    )}
+                    aria-hidden="true"
+                  >
+                    {trustState.tone === "success" ? (
+                      <ShieldCheck className="h-5 w-5" strokeWidth={2.3} />
+                    ) : (
+                      <Clock3 className="h-5 w-5" strokeWidth={2.3} />
+                    )}
+                  </span>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      Agreement
+                    </p>
+                    <p className="mt-1 text-[13px] font-black text-[#111118]">{trustState.label}</p>
+                    <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                      {trustState.detail}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-b-2 border-[#111118] p-4 md:border-b-0 md:border-r-2">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#E0F3FF] text-[#164E63]" aria-hidden="true">
+                    <CreditCard className="h-5 w-5" strokeWidth={2.3} />
+                  </span>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      Payment
+                    </p>
+                    <p className="mt-1 text-[13px] font-black text-[#111118]">{paymentStateLabel}</p>
+                    <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                      {paymentTermsLabel} · Due {dueDateLabel}. {paymentStateDetail}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#F5F5F0] text-[#111118]" aria-hidden="true">
+                    <FileCheck2 className="h-5 w-5" strokeWidth={2.3} />
+                  </span>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      Client action
+                    </p>
+                    <p className="mt-1 text-[13px] font-black text-[#111118]">
+                      {isTermsAccepted || isChildInvoice ? "Download or pay" : isTermsProposed ? "Await reissue" : "Review terms first"}
+                    </p>
+                    <p className="mt-1 text-[12px] font-medium leading-5 text-[color:var(--text-secondary)]">
+                      {isTermsAccepted || isChildInvoice
+                        ? "Save a PDF copy and settle using the invoice instructions."
+                        : isTermsProposed
+                          ? "Your note has been sent. The invoice remains locked."
+                          : "Accept terms or request changes before payment."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {(isTermsAccepted || isChildInvoice) && (
+              <div className="flex flex-col gap-3 border-t-2 border-[#111118] bg-[#F8F8F4] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[12px] font-bold text-[#111118]">
+                  Keep this invoice for your records before making payment.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex items-center justify-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5"
+                >
+                  <Download className="h-4 w-4" strokeWidth={2.4} />
+                  Download PDF
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
+        {!showMsaOverlay && (
+          <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
+            <div className="flex items-center gap-2.5 border-2 border-[#111118] bg-[#EBFDF9] px-4 py-2.5">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-[#007A63]" strokeWidth={2.5} />
+              <p className="text-sm font-semibold text-[#007A63]">
+                {isChildInvoice
+                  ? "This milestone invoice is covered by an accepted agreement."
+                  : "Terms are accepted. The invoice is active and ready for payment."}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
         {isChildInvoice && (

@@ -5,7 +5,14 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { DocumentSparkIcon, CheckCircleIcon } from "@/components/ui/app-icons";
-import { getAppButtonClass } from "@/lib/ui-foundation";
+import {
+  AlertCircle,
+  CheckCircle2,
+  CreditCard,
+  FileText,
+  MessageSquare,
+  ShieldCheck,
+} from "lucide-react";
 
 interface MSAAcceptanceModalProps {
   invoiceNumber: string;
@@ -17,7 +24,7 @@ interface MSAAcceptanceModalProps {
   isSubmitting: boolean;
   msaStatus?: string;
   msaResponseText?: string | null;
-  onAccept: () => void;
+  onAccept: () => void | Promise<void>;
   onPropose?: (note: string) => Promise<void>;
   previewMode?: boolean;
   onClosePreview?: () => void;
@@ -48,12 +55,17 @@ export default function MSAAcceptanceModal({
   );
   const [proposalText, setProposalText] = useState("");
   const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   const handleSubmitProposal = async () => {
     const trimmedNote = proposalText.trim();
-    if (!trimmedNote || !token) return;
+    if (!trimmedNote || !token) {
+      setActionError("Add a short note describing what should change.");
+      return;
+    }
     
     setIsSubmittingProposal(true);
+    setActionError("");
     try {
       if (onPropose) {
         await onPropose(trimmedNote);
@@ -73,7 +85,7 @@ export default function MSAAcceptanceModal({
 
         if (error) {
           console.error("PROPOSAL_SUBMIT_ERROR:", error);
-          alert("Failed to submit proposal. Please try again.");
+          setActionError("Failed to submit proposal. Please try again.");
         } else {
           // Trigger Freelancer Notification
           if (inv) {
@@ -89,11 +101,21 @@ export default function MSAAcceptanceModal({
           setMode("success");
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("PROPOSAL_ERROR:", err);
-      alert(err.message || "Failed to submit proposal. Please try again.");
+      setActionError(err instanceof Error ? err.message : "Failed to submit proposal. Please try again.");
     } finally {
       setIsSubmittingProposal(false);
+    }
+  };
+
+  const handleAcceptTerms = async () => {
+    setActionError("");
+    try {
+      await onAccept();
+    } catch (err) {
+      console.error("ACCEPT_TERMS_ERROR:", err);
+      setActionError(err instanceof Error ? err.message : "Failed to accept terms. Please try again.");
     }
   };
 
@@ -117,7 +139,7 @@ export default function MSAAcceptanceModal({
                   Client Note
                 </p>
                 <p className="text-[13px] font-medium text-[#111118] italic whitespace-pre-wrap">
-                  "{msaResponseText}"
+                  &quot;{msaResponseText}&quot;
                 </p>
               </div>
             )}
@@ -131,7 +153,7 @@ export default function MSAAcceptanceModal({
                     PREVIEW MODE
                   </h3>
                   <p className="text-xs font-medium text-[#111118]">
-                    This is the "Proposal Submitted" screen your client sees.
+                    This is the &quot;Proposal Submitted&quot; screen your client sees.
                   </p>
                 </div>
                 <button
@@ -176,6 +198,42 @@ export default function MSAAcceptanceModal({
                 <p className="text-sm text-[color:var(--text-secondary)]">
                   Invoice #{invoiceNumber} from <strong>{agencyName}</strong>
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid border-b-2 border-[#111118] bg-white sm:grid-cols-3">
+            <div className="border-b-2 border-[#111118] p-4 sm:border-b-0 sm:border-r-2">
+              <div className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#EBFDF9] text-[#007A63]">
+                  <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Step 1</p>
+                  <p className="mt-1 text-[12px] font-black text-[#111118]">Review agreement</p>
+                </div>
+              </div>
+            </div>
+            <div className="border-b-2 border-[#111118] p-4 sm:border-b-0 sm:border-r-2">
+              <div className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#E0F3FF] text-[#164E63]">
+                  <CreditCard className="h-4 w-4" strokeWidth={2.4} />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Step 2</p>
+                  <p className="mt-1 text-[12px] font-black text-[#111118]">{paymentTerms || "Confirm payment terms"}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <div className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#F5F5F0] text-[#111118]">
+                  <FileText className="h-4 w-4" strokeWidth={2.4} />
+                </span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">Step 3</p>
+                  <p className="mt-1 text-[12px] font-black text-[#111118]">Accept or request changes</p>
+                </div>
               </div>
             </div>
           </div>
@@ -251,6 +309,15 @@ export default function MSAAcceptanceModal({
                 </p>
               </div>
             )}
+
+            {actionError && (
+              <div className="mt-5 flex items-start gap-2 border-2 border-[#FF5C00] bg-[#FFF0EC] px-4 py-3" role="alert">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#C2410C]" strokeWidth={2.5} />
+                <p className="text-[12px] font-bold leading-5 text-[#C2410C]">
+                  {actionError}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -284,40 +351,10 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     disabled={isSubmitting}
-                    onClick={async () => {
-                      // Integrated Accept logic with Notifications
-                      const { data: inv, error } = await supabase
-                        .from("invoices")
-                        .update({ 
-                          msa_status: 'accepted', 
-                          msa_accepted_at: new Date().toISOString() 
-                        })
-                        .eq("share_token", token)
-                        .select("id, user_id")
-                        .single();
-
-                      if (error) {
-                        console.error("Supabase Update Error:", error);
-                        alert("Failed to accept terms. Please try again.");
-                        return;
-                      }
-
-                      // Trigger Freelancer Notification
-                      if (inv) {
-                        await supabase.from("notifications").insert({
-                          user_id: inv.user_id,
-                          invoice_id: inv.id,
-                          type: 'msa_accepted',
-                          title: 'MSA Accepted',
-                          message: 'The client has accepted the terms for this invoice.',
-                          is_read: false
-                        });
-                      }
-
-                      onAccept();
-                    }}
-                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                    onClick={handleAcceptTerms}
+                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
+                    {!isSubmitting && <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />}
                     {isSubmitting ? "Processing…" : "Accept Terms"}
                   </button>
                   {onPropose && (
@@ -325,8 +362,9 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setMode("propose")}
-                      className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)]"
+                      className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--bg-surface-soft)] inline-flex items-center justify-center gap-2"
                     >
+                      <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                       Propose Changes
                     </button>
                   )}

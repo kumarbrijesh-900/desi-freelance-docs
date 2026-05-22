@@ -1,5 +1,47 @@
 # Session Log — May 22, 2026
 
+## Latest checkpoint: v2.0 Phase 4 Client Trust Layer — May 22, 2026
+
+### Sequence
+
+1. **Phase 3 was verified and shipped first:** Invoice Editor Workbench was documented, versioned, committed, and pushed to `main` as `1f4cbfc`.
+2. **Phase 4 started next:** Client Trust Layer focused on the public share experience, MSA acceptance confidence, payment readiness, and client action clarity.
+3. **Design System Hardening remains deferred:** no global token, icon-system, or broad visual-system refactor was performed.
+
+### Phase 4 implementation
+
+- Replaced the simple amount banner on shared invoices with a client trust summary covering agreement state, payment readiness, due date/payment terms, and next client action.
+- Added payment-ready affordances for accepted invoices and child milestone invoices, including a prominent PDF download action.
+- Added an accepted-terms confirmation strip above the invoice sheet so clients can distinguish locked, proposed, and active invoice states.
+- Upgraded the MSA gate modal with a three-step review path, clearer agreement/payment/action hierarchy, Lucide icons, and mobile-safe stacked layout.
+- Replaced blocking browser alerts in MSA accept/propose flows with inline, accessible recovery errors.
+- Centralized public-share acceptance handling in `app/share/[token]/page.tsx` so acceptance updates `msa_response`, `msa_status`, `msa_responded_at`, and `msa_accepted_at`, then notifies the freelancer.
+
+### Verification
+
+- `npm run build` passed on May 22, 2026.
+- Targeted ESLint passed for the Phase 4 files.
+- Full repo `npm run lint` still fails on pre-existing unrelated lint debt across archived files, API routes, dashboard, templates, and scratch scripts.
+- Playwright screenshot verification completed for pending-MSA `/share/[token]` at desktop `1440x1200`.
+- Playwright screenshot verification completed for pending-MSA `/share/[token]` at mobile `390x1400`.
+- Playwright screenshot verification completed for accepted `/share/[token]` at desktop `1440x1200`.
+- Local dev server was stopped after verification.
+
+### Files changed in this checkpoint
+
+- `app/share/[token]/page.tsx`
+- `components/invoice/share/MSAAcceptanceModal.tsx`
+- `components/invoice/share/SharedMsaPreviewContent.tsx`
+- `SESSION_LOG.md`
+- `docs/versions/2026-05-22-phase-4-client-trust-layer.md`
+
+### Next phase
+
+- Phase 5: Payment and settlement confidence.
+- Direction: tighten the post-acceptance path from client payment instructions to owner-side settlement tracking, while preserving the MSA anti-self-accept safeguards.
+
+---
+
 ## Latest checkpoint: v1.9 Phase 3 Invoice Editor Workbench — May 22, 2026
 
 ### Sequence
