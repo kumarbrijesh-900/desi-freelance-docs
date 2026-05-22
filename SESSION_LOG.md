@@ -1,4 +1,41 @@
-# Session Log — May 8, 2026
+# Session Log — May 22, 2026
+
+## Latest checkpoint: v1.8 Phase 2 Project OS — May 22, 2026
+
+### Sequence
+
+1. **Stability precondition shipped first:** preserved invoice `projectId` through editor drafts, preview storage, preview saves, and share/export save paths so invoices keep their project linkage across the full workflow.
+2. **Phase 1 intentionally deferred:** Design System Hardening is skipped for now per product direction. Global tokens, icon system, and broad visual cleanup remain later work.
+3. **Phase 2 implemented:** Dashboard Project OS started and shipped as the next highest-impact UX layer.
+
+### Phase 2 implementation
+
+- Added project-level action prioritization for revision requested, overdue payment, due soon, awaiting signature, active receivable, draft pipeline, ready-to-bill, and complete states.
+- Added a `Project OS` portfolio strip above the ledger with active projects, at-risk projects, contract queue, project receivable, and next best project action.
+- Upgraded project ledger cards with action state, open receivable, progress percentage, open items, settled value, invoice count, and a contextual next-action CTA.
+- Updated project health sorting to use the new action-priority model instead of overdue-only health, so revision/signature blockers rise correctly.
+- Kept this phase scoped to `app/dashboard/page.tsx`; no global design-system hardening was performed.
+
+### Verification
+
+- `npm run build` passed on May 22, 2026.
+- Playwright screenshot smoke reached the auth flow; full authenticated dashboard visual QA still needs an active logged-in browser session.
+- Local dev server was stopped after verification.
+
+### Files changed in this checkpoint
+
+- `app/dashboard/page.tsx`
+- `SESSION_LOG.md`
+- `docs/versions/2026-05-22-phase-2-project-os.md`
+
+### Next phase started
+
+- Phase 3: Invoice Editor Workbench.
+- Initial direction: make invoice creation easier to scan and recover from by improving step state, sticky payment/totals context, validation feedback, and review readiness without touching global design-system hardening.
+
+---
+
+## Archived session: May 8, 2026
 
 ## Previous session: May 7, 2026 (v1.5 COMPLETE)
 
@@ -1487,4 +1524,3 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 ### Phase 4: Dashboard Project-Pivot
 - Pivot main dashboard metrics and ledgers under parent Project folders instead of Clients.
 - Render stunning Project progress cards with milestone completion bars.
-

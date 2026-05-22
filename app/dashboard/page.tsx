@@ -133,6 +133,19 @@ interface ProjectHealth {
   health: "good" | "overdue" | "clear" | "draft";
 }
 
+type DashboardInvoice = ClientHealth["invoices"][0];
+
+interface ProjectActionState {
+  label: string;
+  detail: string;
+  actionLabel: string;
+  tone: "danger" | "warning" | "active" | "success" | "neutral" | "draft";
+  priority: number;
+  invoice?: DashboardInvoice;
+  actionHref?: string;
+  nudgeTone?: "initial" | "polite" | "firm" | "final";
+}
+
 interface ActivityItem {
   id: string;
   action: string;
@@ -167,6 +180,165 @@ function parsePaymentTermsDays(termsStr?: string | null): number {
 function isReceivableStatus(status: string) {
   return ["finalized", "sent", "partial", "saved"].includes(status.toLowerCase());
 }
+
+function getDaysUntil(dateStr?: string | null): number | null {
+  if (!dateStr) return null;
+  const due = new Date(dateStr);
+  if (Number.isNaN(due.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  return Math.ceil((due.getTime() - today.getTime()) / 86400000);
+}
+
+function getProjectProgress(project: ProjectHealth): number {
+  const total = project.totalCollected + project.totalOwed;
+  if (total <= 0) return project.invoices.length > 0 ? 100 : 0;
+  return Math.min(100, Math.max(0, Math.round((project.totalCollected / total) * 100)));
+}
+
+function getProjectOpenInvoiceCount(project: ProjectHealth): number {
+  return project.invoices.filter((inv) => {
+    const status = inv.status.toLowerCase();
+    return status !== "settled" && status !== "cancelled";
+  }).length;
+}
+
+function getProjectActionState(project: ProjectHealth): ProjectActionState {
+  const openInvoices = project.invoices.filter((inv) => {
+    const status = inv.status.toLowerCase();
+    return status !== "settled" && status !== "cancelled";
+  });
+
+  const revisionInvoice = openInvoices.find(
+    (inv) => inv.msaStatus?.toLowerCase() === "proposed" && inv.clientMsaNote
+  );
+  if (revisionInvoice) {
+    return {
+      label: "Revision requested",
+      detail: `${revisionInvoice.invoiceNumber} has client edits waiting.`,
+      actionLabel: "Update addendum",
+      actionHref: `/invoice/new?id=${revisionInvoice.id}&restore=1&step=payment`,
+      tone: "danger",
+      priority: 1,
+      invoice: revisionInvoice,
+    };
+  }
+
+  const overdueInvoice = openInvoices.find((inv) => {
+    const status = inv.status.toLowerCase();
+    const daysUntil = getDaysUntil(inv.dueDate);
+    return isReceivableStatus(status) && daysUntil !== null && daysUntil < 0;
+  });
+  if (overdueInvoice) {
+    const daysPast = Math.abs(getDaysUntil(overdueInvoice.dueDate) ?? 0);
+    return {
+      label: "Payment overdue",
+      detail: `${overdueInvoice.invoiceNumber} is ${daysPast} ${daysPast === 1 ? "day" : "days"} late.`,
+      actionLabel: daysPast > 30 ? "Send final notice" : daysPast > 7 ? "Send firm reminder" : "Send payment nudge",
+      nudgeTone: daysPast > 30 ? "final" : daysPast > 7 ? "firm" : "polite",
+      tone: "danger",
+      priority: 2,
+      invoice: overdueInvoice,
+    };
+  }
+
+  const dueSoonInvoice = openInvoices.find((inv) => {
+    const status = inv.status.toLowerCase();
+    const daysUntil = getDaysUntil(inv.dueDate);
+    return isReceivableStatus(status) && daysUntil !== null && daysUntil >= 0 && daysUntil <= 3;
+  });
+  if (dueSoonInvoice) {
+    const daysUntil = getDaysUntil(dueSoonInvoice.dueDate) ?? 0;
+    return {
+      label: daysUntil === 0 ? "Due today" : "Due soon",
+      detail: `${dueSoonInvoice.invoiceNumber} is due ${daysUntil === 0 ? "today" : `in ${daysUntil} ${daysUntil === 1 ? "day" : "days"}`}.`,
+      actionLabel: "Send reminder",
+      nudgeTone: "polite",
+      tone: "warning",
+      priority: 3,
+      invoice: dueSoonInvoice,
+    };
+  }
+
+  const pendingMsaInvoice = openInvoices.find(
+    (inv) => inv.msaStatus?.toLowerCase() === "pending" && inv.sharedToEmail
+  );
+  if (pendingMsaInvoice) {
+    return {
+      label: "Awaiting signature",
+      detail: `${pendingMsaInvoice.invoiceNumber} is with ${pendingMsaInvoice.sharedToEmail}.`,
+      actionLabel: "Resend invoice",
+      nudgeTone: "initial",
+      tone: "warning",
+      priority: 4,
+      invoice: pendingMsaInvoice,
+    };
+  }
+
+  const draftInvoice = openInvoices.find((inv) => inv.status.toLowerCase() === "draft");
+  if (draftInvoice) {
+    return {
+      label: "Draft pipeline",
+      detail: `${draftInvoice.invoiceNumber} has not been sent yet.`,
+      actionLabel: "Finalize draft",
+      actionHref: `/invoice/new?id=${draftInvoice.id}&restore=1`,
+      tone: "draft",
+      priority: 5,
+      invoice: draftInvoice,
+    };
+  }
+
+  const activeInvoice = openInvoices.find((inv) => isReceivableStatus(inv.status));
+  if (activeInvoice) {
+    return {
+      label: "Active receivable",
+      detail: `${activeInvoice.invoiceNumber} is live with payment pending.`,
+      actionLabel: "Review invoice",
+      tone: "active",
+      priority: 6,
+      invoice: activeInvoice,
+    };
+  }
+
+  if (project.invoices.length === 0) {
+    return {
+      label: "Ready to bill",
+      detail: "No invoices have been linked to this project yet.",
+      actionLabel: "Create invoice",
+      actionHref: "/invoice/new",
+      tone: "neutral",
+      priority: 7,
+    };
+  }
+
+  return {
+    label: "Complete",
+    detail: "All linked invoices are settled.",
+    actionLabel: "Review record",
+    tone: "success",
+    priority: 99,
+    invoice: project.invoices[0],
+  };
+}
+
+const PROJECT_ACTION_TONE_CLASSES: Record<ProjectActionState["tone"], string> = {
+  danger: "bg-[#FFF0EC] text-[#C2410C]",
+  warning: "bg-[#FFFBE6] text-[#B45309]",
+  active: "bg-[#E0F3FF] text-[#164E63]",
+  success: "bg-[#EBFDF9] text-[#007A63]",
+  neutral: "bg-[#F5F5F0] text-[#555]",
+  draft: "bg-[#F0EAFF] text-[#5530DB]",
+};
+
+const PROJECT_ACTION_BORDER_CLASSES: Record<ProjectActionState["tone"], string> = {
+  danger: "border-[#FF5C00]",
+  warning: "border-[#F59E0B]",
+  active: "border-[#0EA5E9]",
+  success: "border-[#00A884]",
+  neutral: "border-[#111118]",
+  draft: "border-[#8B5CF6]",
+};
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -1407,10 +1579,10 @@ export default function DashboardPage() {
         return a.projectName.localeCompare(b.projectName);
       }
       if (sortBy === "health") {
-        const healthOrder: Record<string, number> = { overdue: 0, good: 1, clear: 2, draft: 3 };
-        const orderA = healthOrder[a.health.toLowerCase()] ?? 9;
-        const orderB = healthOrder[b.health.toLowerCase()] ?? 9;
-        return orderA - orderB;
+        const actionA = getProjectActionState(a);
+        const actionB = getProjectActionState(b);
+        if (actionA.priority !== actionB.priority) return actionA.priority - actionB.priority;
+        return b.totalOwed - a.totalOwed;
       }
       return 0;
     });
@@ -1467,6 +1639,23 @@ export default function DashboardPage() {
       return 0;
     });
   })();
+
+  const projectActionQueue = projectsHealth
+    .map((project) => ({ project, action: getProjectActionState(project) }))
+    .sort((a, b) => {
+      if (a.action.priority !== b.action.priority) return a.action.priority - b.action.priority;
+      return b.project.totalOwed - a.project.totalOwed;
+    });
+
+  const primaryProjectAction = projectActionQueue.find(({ action }) => action.priority < 99);
+  const projectOperatingStats = {
+    activeProjects: projectsHealth.filter((project) => getProjectOpenInvoiceCount(project) > 0).length,
+    atRiskProjects: projectActionQueue.filter(({ action }) => action.tone === "danger").length,
+    contractQueue: projectActionQueue.filter(({ action }) =>
+      action.label === "Revision requested" || action.label === "Awaiting signature"
+    ).length,
+    receivable: projectsHealth.reduce((sum, project) => sum + project.totalOwed, 0),
+  };
 
   try {
     return (
@@ -1905,6 +2094,116 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {projectsHealth.length > 0 && (
+            <div className="mb-6 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
+              <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#111118] text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <p className="text-[12px] font-black tracking-[0.12em] uppercase m-0">Project OS</p>
+                  <p className="text-[12px] text-white/70 m-0 mt-0.5">
+                    Portfolio health, contract blockers, and receivables before the ledger.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setLedgerView("project");
+                    setFilterType("all");
+                  }}
+                  className="self-start sm:self-center border-2 border-white bg-[#BEFF00] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_rgba(255,255,255,0.55)] hover:-translate-y-0.5 transition-all"
+                >
+                  Open Project Ledger
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 border-b-2 border-[#111118]">
+                <button
+                  onClick={() => {
+                    setLedgerView("project");
+                    setFilterType("all");
+                  }}
+                  className="p-4 text-left border-r-2 border-b-2 lg:border-b-0 border-[#111118] hover:bg-[#F8F8F4] transition-colors"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Active Projects</p>
+                  <p className="text-[24px] font-black font-syne text-[#111118]">{projectOperatingStats.activeProjects}</p>
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">with open work or payment</p>
+                </button>
+                <button
+                  onClick={() => {
+                    setLedgerView("project");
+                    setSortBy("health");
+                  }}
+                  className="p-4 text-left lg:border-r-2 border-b-2 lg:border-b-0 border-[#111118] hover:bg-[#FFF0EC] transition-colors"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">At Risk</p>
+                  <p className="text-[24px] font-black font-syne text-[#FF5C00]">{projectOperatingStats.atRiskProjects}</p>
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">late or revision-blocked</p>
+                </button>
+                <button
+                  onClick={() => {
+                    setLedgerView("project");
+                    setSortBy("health");
+                  }}
+                  className="p-4 text-left border-r-2 border-[#111118] hover:bg-[#FFFBE6] transition-colors"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Contract Queue</p>
+                  <p className="text-[24px] font-black font-syne text-[#B45309]">{projectOperatingStats.contractQueue}</p>
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">pending signatures or edits</p>
+                </button>
+                <button
+                  onClick={() => {
+                    setLedgerView("project");
+                    setFilterType("outstanding");
+                  }}
+                  className="p-4 text-left hover:bg-[#FFFBE6] transition-colors"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Project Receivable</p>
+                  <p className="text-[24px] font-black font-syne text-[#111118]">₹{formatIndian(projectOperatingStats.receivable)}</p>
+                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">still open across projects</p>
+                </button>
+              </div>
+
+              <div className="px-4 py-3 bg-[#F8F8F4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                {primaryProjectAction ? (
+                  <>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Next Best Project Action</p>
+                      <p className="text-[14px] font-black text-[#111118] m-0 mt-0.5">
+                        {primaryProjectAction.project.projectName} · {primaryProjectAction.action.label}
+                      </p>
+                      <p className="text-[12px] font-bold text-[color:var(--text-muted)] m-0 mt-0.5 truncate">
+                        {primaryProjectAction.action.detail}
+                      </p>
+                    </div>
+                    {primaryProjectAction.action.actionHref ? (
+                      <Link
+                        href={primaryProjectAction.action.actionHref}
+                        className="inline-flex justify-center border-2 border-[#111118] bg-[#BEFF00] px-4 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                      >
+                        {primaryProjectAction.action.actionLabel}
+                      </Link>
+                    ) : primaryProjectAction.action.invoice ? (
+                      <button
+                        onClick={() => {
+                          if (primaryProjectAction.action.nudgeTone && primaryProjectAction.action.invoice) {
+                            void handleNudge(primaryProjectAction.action.invoice, primaryProjectAction.action.nudgeTone);
+                            return;
+                          }
+                          setSelectedInvoice(primaryProjectAction.action.invoice);
+                        }}
+                        className="inline-flex justify-center border-2 border-[#111118] bg-[#BEFF00] px-4 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                      >
+                        {primaryProjectAction.action.actionLabel}
+                      </button>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="text-[13px] font-bold text-[#111118] m-0">
+                    No open project action. The portfolio is clear.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* SECTION 4: LEDGER */}
           <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
@@ -2031,6 +2330,10 @@ export default function DashboardPage() {
                     }, 0) || 1;
 
                     const isCollapsed = collapsedProjectIds.includes(project.projectId);
+                    const projectAction = getProjectActionState(project);
+                    const progressPercent = getProjectProgress(project);
+                    const openInvoiceCount = getProjectOpenInvoiceCount(project);
+                    const settledInvoiceCount = project.invoices.filter((inv) => inv.status.toLowerCase() === "settled").length;
                     
                     return (
                       <div key={project.projectId} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
@@ -2040,11 +2343,11 @@ export default function DashboardPage() {
                           onClick={() => toggleProjectCollapse(project.projectId)}
                           className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white cursor-pointer select-none group"
                         >
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-5">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[20px] sm:text-[22px]">📁</span>
-                                <h3 className="text-[18px] sm:text-[22px] font-black text-[#111118] uppercase tracking-wider m-0 leading-tight group-hover:text-[#FF5C00] transition-colors">
+                          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start gap-3">
+                                <span className={cn("mt-1 h-5 w-5 shrink-0 border-2 bg-white shadow-[2px_2px_0_#111118]", PROJECT_ACTION_BORDER_CLASSES[projectAction.tone])} />
+                                <h3 className="text-[18px] sm:text-[22px] font-black text-[#111118] tracking-normal m-0 leading-tight group-hover:text-[#FF5C00] transition-colors">
                                   {project.projectName}
                                 </h3>
                                 <span className="text-[14px] text-[color:var(--text-muted)] font-black transition-transform group-hover:translate-y-[1px]">
@@ -2060,20 +2363,75 @@ export default function DashboardPage() {
                                 Client: <span className="text-[#111118]">{project.clientName}</span> {project.clientCity ? `(${project.clientCity})` : ""}
                               </p>
                             </div>
-                            <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
-                              <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", project.health === "overdue" ? "text-[#FF5C00]" : "text-[#111118]")}>
+                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1">
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Open Receivable</p>
+                                <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", projectAction.tone === "danger" ? "text-[#FF5C00]" : "text-[#111118]")}>
                                 ₹{formatIndian(project.totalOwed)}
-                              </p>
+                                </p>
+                              </div>
                               <span className={cn(
-                                "text-[10px] font-black px-2 py-1 border-2 border-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118]",
-                                project.health === "good" && "bg-[#E0FFF7] text-[#006B52]",
-                                project.health === "overdue" && "bg-[#FFF0EC] text-[#FF5C00]",
-                                project.health === "clear" && "bg-[#EBFDF9] text-[#00967D]",
-                                project.health === "draft" && "bg-[#F0EAFF] text-[#5530DB]"
+                                "text-[10px] font-black px-2 py-1 border-2 uppercase tracking-wider shadow-[2px_2px_0_#111118]",
+                                PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
+                                PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
                               )}>
-                                {project.health === "good" ? "GOOD" : project.health === "overdue" ? "LATE" : project.health === "clear" ? "CLEAR" : "DRAFT"}
+                                {projectAction.label}
                               </span>
                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Progress</p>
+                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{progressPercent}%</p>
+                            </div>
+                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Open Items</p>
+                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{openInvoiceCount}</p>
+                            </div>
+                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Settled</p>
+                              <p className="text-[18px] font-black font-syne text-[#007A63] m-0">₹{formatIndian(project.totalCollected)}</p>
+                            </div>
+                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
+                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Invoices</p>
+                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{settledInvoiceCount}/{project.invoices.length}</p>
+                            </div>
+                          </div>
+
+                          <div className={cn(
+                            "mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-2 p-3",
+                            PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
+                            PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
+                          )}>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-black uppercase tracking-[0.12em] m-0 opacity-70">Next action</p>
+                              <p className="text-[13px] font-black text-[#111118] m-0 mt-0.5">{projectAction.detail}</p>
+                            </div>
+                            {projectAction.actionHref ? (
+                              <Link
+                                href={projectAction.actionHref}
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                              >
+                                {projectAction.actionLabel}
+                              </Link>
+                            ) : projectAction.invoice ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (projectAction.nudgeTone && projectAction.invoice) {
+                                    void handleNudge(projectAction.invoice, projectAction.nudgeTone);
+                                    return;
+                                  }
+                                  setSelectedInvoice(projectAction.invoice);
+                                }}
+                                className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                              >
+                                {projectAction.actionLabel}
+                              </button>
+                            ) : null}
                           </div>
 
                           {/* Milestone Progress Bar */}
@@ -2100,10 +2458,7 @@ export default function DashboardPage() {
                               <div className="flex justify-between text-[10px] font-bold text-[#888] uppercase tracking-widest mt-1">
                                 <span>0%</span>
                                 <span className="text-[#111118] font-black lowercase">
-                                  timeline · {(() => {
-                                    const total = project.totalCollected + project.totalOwed;
-                                    return total > 0 ? Math.round((project.totalCollected / total) * 100) : 0;
-                                  })()}% completed
+                                  timeline · {progressPercent}% completed
                                 </span>
                                 <span>100%</span>
                               </div>
