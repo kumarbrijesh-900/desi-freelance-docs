@@ -9,6 +9,7 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { markInvoiceSettled, cancelInvoice } from "@/lib/supabase/invoices";
+import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 import {
   announceInvoiceDataChanged,
   INVOICE_DATA_CHANGED_EVENT,
@@ -298,6 +299,7 @@ export default function DashboardPage() {
             due_date: newDueDateIso,
             status: "PARTIAL",
             form_data: updatedFormData as any,
+            ...computeAppliedMsaSnapshot(updatedFormData as any),
           })
           .eq("id", selectedInvoice.id);
 
@@ -334,6 +336,7 @@ export default function DashboardPage() {
             status: "SETTLED",
             settled_at: new Date().toISOString(),
             form_data: updatedFormData as any,
+            ...computeAppliedMsaSnapshot(updatedFormData as any),
           })
           .eq("id", selectedInvoice.id);
 

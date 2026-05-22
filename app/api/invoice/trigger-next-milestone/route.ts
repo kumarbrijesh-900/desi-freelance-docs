@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { z } from "zod";
+import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
         shared_to_email: parent.shared_to_email,
         shared_at: new Date().toISOString(),
         due_date: calculatedDueDate,
+        ...computeAppliedMsaSnapshot(childFormData as any),
       })
       .select()
       .single();

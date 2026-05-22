@@ -82,6 +82,8 @@ function PreviewContent() {
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
   const [invoiceStatusState, setInvoiceStatusState] = useState<string | null>(null);
+  const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
+  const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE_ID);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
@@ -237,6 +239,8 @@ function PreviewContent() {
         setSharedAt(dbInvoice.shared_at);
         setShareToken(dbInvoice.share_token);
         setCurrentMsaId(dbInvoice.msa_id);
+        setProjectMsaAcceptedAt(dbInvoice.project?.msa_accepted_at ?? null);
+        setProjectStatus(dbInvoice.project?.status ?? null);
         
         // Also hydrate raw invoice form data if it exists
         if (dbInvoice.form_data) {
@@ -267,8 +271,10 @@ function PreviewContent() {
       msaStatus: msaResponse,
       sharedToEmail: sharedToEmail,
       clientMsaNote: clientMsaNote,
+      projectMsaAcceptedAt: projectMsaAcceptedAt,
+      projectStatus: projectStatus,
     });
-  }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote]);
+  }, [invoiceStatusState, msaResponse, sharedToEmail, clientMsaNote, projectMsaAcceptedAt, projectStatus]);
 
   useEffect(() => {
     async function debugAuth() {

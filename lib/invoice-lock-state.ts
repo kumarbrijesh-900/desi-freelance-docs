@@ -22,6 +22,8 @@ export interface InvoiceLockInput {
   msaStatus?: string | null;     // invoice.msa_status, lowercase comparison
   sharedToEmail?: string | null; // null/empty if never shared
   clientMsaNote?: string | null; // populated when client used Propose Changes
+  projectMsaAcceptedAt?: string | null; // populated when project-level MSA accepted
+  projectStatus?: string | null;        // populated with parent project status
 }
 
 /**
@@ -38,6 +40,8 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
   const msaStatus = input.msaStatus?.toLowerCase() || '';
   const sharedToEmail = input.sharedToEmail || '';
   const clientMsaNote = input.clientMsaNote || '';
+  const projectMsaAcceptedAt = input.projectMsaAcceptedAt || null;
+  const projectStatus = input.projectStatus?.toLowerCase() || '';
 
   // 1. Settled or paid (invoice complete)
   if (status === 'settled' || status === 'paid') {
@@ -62,7 +66,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
   }
 
   // 3. Project cancelled
-  if (status === 'cancelled') {
+  if (status === 'cancelled' || projectStatus === 'cancelled') {
     return {
       isReadOnly: true,
       canShare: false,
@@ -72,13 +76,15 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
     };
   }
 
-  // 4. Terms accepted by client (MSA accepted)
-  if (msaStatus === 'accepted') {
+  // 4. Terms accepted by client (MSA accepted or project MSA active)
+  if (msaStatus === 'accepted' || projectMsaAcceptedAt !== null) {
     return {
       isReadOnly: true,
       canShare: false,
       state: 'msa-accepted',
-      reason: 'Terms accepted by client — invoice is locked.',
+      reason: projectMsaAcceptedAt
+        ? 'Project Master Service Agreement is active — invoice is locked.'
+        : 'Terms accepted by client — invoice is locked.',
       alternativeAction: { label: 'Download PDF' },
     };
   }

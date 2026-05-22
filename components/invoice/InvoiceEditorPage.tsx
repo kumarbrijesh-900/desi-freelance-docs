@@ -775,6 +775,8 @@ function EditorContent() {
   const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null);
   const [msaStatus, setMsaStatus] = useState<string | null>(null);
   const [sharedToEmail, setSharedToEmail] = useState<string | null>(null);
+  const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
+  const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -857,8 +859,10 @@ function EditorContent() {
       msaStatus: msaStatus,
       sharedToEmail: sharedToEmail,
       clientMsaNote: clientMsaNote,
+      projectMsaAcceptedAt: projectMsaAcceptedAt,
+      projectStatus: projectStatus,
     });
-  }, [invoiceStatus, msaStatus, sharedToEmail, clientMsaNote]);
+  }, [invoiceStatus, msaStatus, sharedToEmail, clientMsaNote, projectMsaAcceptedAt, projectStatus]);
 
   const isReadOnlyMode = useMemo(() => {
     if (!parserDocumentId) return false;
@@ -949,6 +953,8 @@ function EditorContent() {
       setInvoiceStatus(data.status ?? null);
       setMsaStatus(data.msa_status ?? null);
       setSharedToEmail(data.shared_to_email ?? null);
+      setProjectMsaAcceptedAt(data.project?.msa_accepted_at ?? null);
+      setProjectStatus(data.project?.status ?? null);
       
       if (data.client_msa_note) {
         setClientMsaNote(data.client_msa_note);
@@ -965,6 +971,8 @@ function EditorContent() {
       setInvoiceStatus(null);
       setMsaStatus(null);
       setSharedToEmail(null);
+      setProjectMsaAcceptedAt(null);
+      setProjectStatus(null);
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
     }

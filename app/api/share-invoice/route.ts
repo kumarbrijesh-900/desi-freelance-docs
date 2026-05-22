@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note")
+      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note, project_id, project:projects(msa_accepted_at, status)")
       .eq("id", invoiceId)
       .single();
 
@@ -93,6 +93,8 @@ export async function POST(req: NextRequest) {
       msaStatus: invoice.msa_status,
       sharedToEmail: invoice.shared_to_email,
       clientMsaNote: invoice.client_msa_note,
+      projectMsaAcceptedAt: (invoice.project as any)?.msa_accepted_at,
+      projectStatus: (invoice.project as any)?.status,
     });
 
     const isResend = !!invoice.share_token;

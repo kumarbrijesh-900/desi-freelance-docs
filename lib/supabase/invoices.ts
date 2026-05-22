@@ -73,6 +73,11 @@ export interface SavedInvoice {
     invoice_number: string;
     milestone_index: number;
   }[];
+  project_id?: string | null;
+  project?: {
+    msa_accepted_at: string | null;
+    status: string;
+  } | null;
 }
 
 export interface SaveInvoiceInput {
@@ -311,7 +316,7 @@ export async function loadInvoice(
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
-    .select("*")
+    .select("*, project:projects(msa_accepted_at, status)")
     .eq("id", invoiceId)
     .single();
 
@@ -499,7 +504,7 @@ export async function loadInvoiceByToken(
 ): Promise<{ data: SavedInvoice | null; error: string | null }> {
   const { data, error } = await supabase
     .from("invoices")
-    .select("*")
+    .select("*, project:projects(msa_accepted_at, status)")
     .eq("share_token", token)
     .single();
 
@@ -819,11 +824,24 @@ export async function markMilestoneSettled(
 
   const newStatus = allSettled ? "SETTLED" : "PARTIAL";
   const settledAt = allSettled ? new Date().toISOString() : null;
+
+  const updatedFormData = mergeInvoiceFormData(inv.form_data);
+  const mIndex = milestone.order_index ?? orderIndex;
+  if (updatedFormData.milestones && updatedFormData.milestones[mIndex]) {
+    updatedFormData.milestones[mIndex].status = "SETTLED";
+  }
+
   const invoiceUpdatePayload: {
     status: InvoiceStatus;
     settled_at?: string;
+    form_data: any;
+    applied_payment_terms?: string;
+    applied_late_fee_rate?: number;
+    applied_late_fee_unit?: string;
   } = {
     status: newStatus as InvoiceStatus,
+    form_data: updatedFormData as any,
+    ...computeAppliedMsaSnapshot(updatedFormData),
   };
 
   if (settledAt) {
