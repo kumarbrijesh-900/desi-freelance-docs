@@ -1,4 +1,40 @@
-# Session Log — May 22, 2026
+# Session Log — May 22-23, 2026
+
+## Latest checkpoint: v2.1.1 PostgREST Relationship Disambiguation — May 23, 2026
+
+### Sequence
+
+1. **Phase 5 was already shipped:** Payment and Settlement Confidence was committed and pushed to `main` as `ae8fa5d`.
+2. **Production risk surfaced next:** Vercel/Supabase logs showed PostgREST returning HTTP 300 Multiple Choices on invoice queries joining `project:projects(...)`.
+3. **Root cause was relationship ambiguity:** `invoices.project_id -> projects.id` and `projects.msa_accepted_via_invoice_id -> invoices.id` both connect invoices and projects, so PostgREST needed an explicit relationship hint.
+4. **Minimal stability fix applied:** only the three known invoice-to-project read sites were changed, and `share-invoice` fetch failures were separated from true not-found responses.
+
+### Implementation
+
+- Replaced ambiguous `project:projects(msa_accepted_at, status)` joins with `project:projects!project_id(msa_accepted_at, status)` in the share route, `loadInvoice`, and `loadInvoiceByToken`.
+- Split `share-invoice` fetch handling so Supabase query failures log `SHARE_INVOICE_FETCH_FAILED` with code, message, details, and hint, then return HTTP 500.
+- Preserved true missing-row handling as HTTP 404 with `Invoice not found.`
+- Left `getInvoiceLockState`, settlement flow behavior, and unrelated Supabase queries unchanged.
+
+### Verification
+
+- `npm run build` passed on May 23, 2026, with only the existing Upstash Redis environment warning.
+- `npx tsc --noEmit` passed cleanly on May 23, 2026.
+- `grep -rn "project:projects(" --include="*.ts" --include="*.tsx" .` returned zero matches because no unqualified project join remains.
+- Broader grep for `project:projects` confirmed the three intended fixed sites, all using `!project_id`.
+- Fix commit was pushed to `main` as `ca1a43b`.
+
+### Files changed in this checkpoint
+
+- `app/api/share-invoice/route.ts`
+- `lib/supabase/invoices.ts`
+- `SESSION_LOG.md`
+
+### Next phase
+
+- Continue Phase 6: DB mapping and schema sanity, authenticated owner QA, and operational polish around project-organized invoices.
+
+---
 
 ## Latest checkpoint: v2.1 Phase 5 Payment and Settlement Confidence — May 22, 2026
 
