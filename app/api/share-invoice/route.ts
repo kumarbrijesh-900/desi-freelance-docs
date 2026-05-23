@@ -76,11 +76,29 @@ export async function POST(req: NextRequest) {
     /* ── 1. Fetch invoice and verify it exists ── */
     const { data: invoice, error: fetchError } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note, project_id, project:projects(msa_accepted_at, status)")
+      .select("id, user_id, share_token, form_data, template_id, status, msa_status, shared_to_email, client_msa_note, project_id, project:projects!project_id(msa_accepted_at, status)")
       .eq("id", invoiceId)
       .single();
 
-    if (fetchError || !invoice) {
+    if (fetchError) {
+      console.error("SHARE_INVOICE_FETCH_FAILED:", {
+        invoiceId,
+        code: fetchError.code,
+        message: fetchError.message,
+        details: fetchError.details,
+        hint: fetchError.hint,
+      });
+      return NextResponse.json(
+        {
+          error: "Failed to fetch invoice",
+          reason: fetchError.message,
+          code: fetchError.code,
+        },
+        { status: 500 },
+      );
+    }
+
+    if (!invoice) {
       return NextResponse.json(
         { error: "Invoice not found." },
         { status: 404 },
