@@ -7,7 +7,7 @@
  */
 
 import { supabase } from "@/lib/supabase/client";
-import type { ClientDetails } from "@/types/invoice";
+import type { ClientDetails, InvoiceFormData } from "@/types/invoice";
 
 /* ─── Types ───────────────────────────────────────── */
 
@@ -49,6 +49,8 @@ export interface SavedClient {
   created_at: string;
   updated_at: string;
 }
+
+export type ClientRow = SavedClient;
 
 /* ─── Converters ──────────────────────────────────── */
 
@@ -118,6 +120,110 @@ export function clientDetailsToRow(
     extra_revision_fee_percent: details.extraRevisionFeePercent ?? 15,
     updated_at: new Date().toISOString(),
   };
+}
+
+async function getProfileMsaDefaults(userId: string) {
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select(
+      "msa_payment_terms_days, msa_late_fee_rate, msa_late_fee_unit, msa_ip_trigger_type, msa_jurisdiction_city, free_revision_rounds, extra_revision_fee_percent",
+    )
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("createClientFromInvoice: profile defaults unavailable", error.message);
+  }
+
+  return data;
+}
+
+export async function createClientFromInvoice(
+  formData: InvoiceFormData,
+  userId: string,
+): Promise<ClientRow> {
+  const client = formData.client;
+  const clientName = client.clientName.trim();
+  const clientEmail = client.clientEmail.trim().toLowerCase();
+
+  if (!clientName) {
+    throw new Error("Client name is required before adding to client list.");
+  }
+
+  if (!clientEmail) {
+    throw new Error("Client email is required before adding to client list.");
+  }
+
+  const profileDefaults = await getProfileMsaDefaults(userId);
+  const now = new Date().toISOString();
+  const clientAddress =
+    client.clientAddress ||
+    [
+      client.clientAddressLine1,
+      client.clientAddressLine2,
+      client.clientCity,
+      client.clientState,
+      client.clientPinCode,
+      client.clientCountry,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+  const { data, error } = await supabase
+    .from("clients")
+    .insert({
+      user_id: userId,
+      client_name: clientName,
+      client_email: clientEmail,
+      client_address: clientAddress,
+      address_line_1: client.clientAddressLine1 || "",
+      address_line_2: client.clientAddressLine2 || "",
+      city: client.clientCity || "",
+      pin_code: client.clientPinCode || "",
+      client_postal_code: client.clientPostalCode || "",
+      state: client.clientState || "",
+      country: client.clientCountry || "",
+      client_currency: client.clientCurrency || "",
+      gstin: client.clientGstin || "",
+      client_type: client.clientLocation || "domestic",
+      client_entity_type: client.clientType || "agency",
+      sez_status: client.isClientSezUnit || "no",
+      msa_effective_date: null,
+      msa_payment_terms_days:
+        profileDefaults?.msa_payment_terms_days ?? formData.agency.msaPaymentTermsDays ?? 20,
+      msa_late_fee_rate:
+        profileDefaults?.msa_late_fee_rate ?? formData.agency.msaLateFeeRate ?? 1.5,
+      msa_late_fee_unit:
+        profileDefaults?.msa_late_fee_unit ?? formData.agency.msaLateFeeUnit ?? "monthly",
+      msa_ip_trigger_type:
+        profileDefaults?.msa_ip_trigger_type ??
+        formData.agency.msaIpTriggerType ??
+        "upon_full_payment",
+      msa_jurisdiction_city:
+        profileDefaults?.msa_jurisdiction_city ??
+        formData.agency.msaJurisdictionCity ??
+        formData.agency.city ??
+        "Bangalore",
+      msa_version_label: "Global Agency MSA",
+      msa_notes_boilerplate: null,
+      free_revision_rounds:
+        profileDefaults?.free_revision_rounds ?? formData.agency.freeRevisionRounds ?? 2,
+      extra_revision_fee_percent:
+        profileDefaults?.extra_revision_fee_percent ??
+        formData.agency.extraRevisionFeePercent ??
+        15,
+      invoice_count: 1,
+      last_invoiced_at: now,
+      updated_at: now,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as ClientRow;
 }
 
 /* ─── List ────────────────────────────────────────── */

@@ -64,6 +64,7 @@ interface ClientDetailsSectionProps {
   showAllErrors?: boolean;
   savedClients?: SavedClient[];
   onClientSelect?: (client: SavedClient) => void;
+  onNewClientStart?: () => void;
   agency?: AgencyDetails;
   isNew?: boolean;
   autoFilledFields?: Set<string>;
@@ -87,6 +88,7 @@ export default function ClientDetailsSection({
   showAllErrors = false,
   savedClients,
   onClientSelect,
+  onNewClientStart,
   agency,
   isNew = false,
   autoFilledFields = new Set(),
@@ -117,6 +119,7 @@ export default function ClientDetailsSection({
     {},
   );
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isAddingNewClient, setIsAddingNewClient] = useState(false);
   const [internalClients, setInternalClients] = useState<SavedClient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -175,9 +178,24 @@ export default function ClientDetailsSection({
   const handleSelectClient = (client: SavedClient) => {
     const details = savedClientToClientDetails(client);
     const finalDetails = applyMsaCascade(details);
+    setIsAddingNewClient(false);
     onChange(finalDetails);
     setShowSuggestions(false);
     if (onClientSelect) onClientSelect(client);
+  };
+
+  const handleAddNewClient = () => {
+    setIsAddingNewClient(true);
+    setShowSuggestions(false);
+    onNewClientStart?.();
+    onChange(
+      applyMsaCascade({
+        ...value,
+        clientLocation: value.clientLocation || "domestic",
+        clientType: value.clientType || "agency",
+        isClientSezUnit: value.isClientSezUnit || "no",
+      }),
+    );
   };
 
   const syncClientDetails = (nextValue: ClientDetails) => {
@@ -329,7 +347,7 @@ export default function ClientDetailsSection({
                   )}
                 />
 
-                {showSuggestions && (isLoading || effectiveClients.length > 0) && (
+                {showSuggestions && !isReadOnly && (
                   <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     {isLoading ? (
                       <div className="px-3 py-4 text-center">
@@ -354,6 +372,17 @@ export default function ClientDetailsSection({
                             </div>
                           </button>
                         ))}
+                        <button
+                          type="button"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={handleAddNewClient}
+                          className="mt-1 flex w-full items-center justify-between border-t border-[color:var(--border-subtle)] px-3 py-2.5 text-left text-[12px] font-black uppercase tracking-[0.08em] text-[#111118] transition-colors hover:bg-[#F5F4F0]"
+                        >
+                          <span>+ Add new client</span>
+                          <span className="text-[10px] font-bold text-[color:var(--text-muted)]">
+                            inline
+                          </span>
+                        </button>
                       </>
                     )}
                   </div>
@@ -389,6 +418,103 @@ export default function ClientDetailsSection({
                 )}
               </div>
             </div>
+
+            {isAddingNewClient && !isReadOnly && (
+              <div className="border-2 border-[#111118] bg-[#FAF7F2] p-4 shadow-[3px_3px_0_#111118]">
+                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="m-0 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118]">
+                    New client
+                  </p>
+                  <p className="m-0 text-[11px] font-bold text-[color:var(--text-muted)]">
+                    New client — will be added to your client list on save.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  <div>
+                    <label className={appFieldLabelClass}>Client name *</label>
+                    <input
+                      suppressHydrationWarning
+                      type="text"
+                      required
+                      value={value.clientName}
+                      onChange={(e) => {
+                        onFieldManualEdit("client.clientName");
+                        updateField("clientName", e.target.value);
+                      }}
+                      onBlur={() => markTouched("clientName")}
+                      placeholder="Client or company name"
+                      className={cn(
+                        inputClass(clientNameError, Boolean(value.clientName)),
+                        getInputStateClass("client.clientName", value.clientName),
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>Client email *</label>
+                    <input
+                      suppressHydrationWarning
+                      type="email"
+                      required
+                      value={value.clientEmail}
+                      onChange={(e) => {
+                        onFieldManualEdit("client.clientEmail");
+                        updateField("clientEmail", e.target.value);
+                      }}
+                      placeholder="Email address"
+                      className={cn(
+                        inputClass(undefined, Boolean(value.clientEmail)),
+                        getInputStateClass("client.clientEmail", value.clientEmail),
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <label className={appFieldLabelClass}>Location *</label>
+                    <ChoiceCards
+                      name="new-client-location"
+                      value={value.clientLocation}
+                      onChange={(nextValue) =>
+                        syncClientDetails({
+                          ...value,
+                          clientLocation: nextValue as ClientDetails["clientLocation"],
+                          clientCountry: nextValue === "domestic" ? "" : value.clientCountry,
+                          clientState: nextValue === "international" ? "" : value.clientState,
+                        })
+                      }
+                      variant="minimal-segmented"
+                      columns={2}
+                      options={[
+                        { value: "domestic", label: "Domestic" },
+                        { value: "international", label: "International" },
+                      ]}
+                    />
+                  </div>
+
+                  {!isInternational && (
+                    <div>
+                      <label className={appFieldLabelClass}>GSTIN</label>
+                      <input
+                        suppressHydrationWarning
+                        type="text"
+                        autoComplete="off"
+                        value={value.clientGstin}
+                        onChange={(e) => {
+                          onFieldManualEdit("client.clientGstin");
+                          updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""));
+                        }}
+                        placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
+                        className={cn(
+                          inputClass(clientGstinError, Boolean(value.clientGstin)),
+                          getInputStateClass("client.clientGstin", value.clientGstin),
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className={appFieldLabelClass}>

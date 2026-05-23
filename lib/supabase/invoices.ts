@@ -10,6 +10,10 @@
 import { supabase } from "@/lib/supabase/client";
 import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
+import {
+  createClientFromInvoice,
+  type ClientRow,
+} from "@/lib/supabase/clients";
 
 /* ─── Types ───────────────────────────────────────────────── */
 
@@ -73,6 +77,9 @@ export interface SavedInvoice {
     invoice_number: string;
     milestone_index: number;
   }[];
+  client_id?: string | null;
+  created_client?: ClientRow | null;
+  client_persistence_error?: string | null;
   project_id?: string | null;
   project?: {
     msa_accepted_at: string | null;
@@ -161,6 +168,68 @@ export async function getCurrentUserEmail(): Promise<string | null> {
   return user?.email ?? null;
 }
 
+type ClientPersistenceOutcome = {
+  createdClient: ClientRow | null;
+  error: string | null;
+};
+
+async function persistNewClientFromInvoice(
+  formData: InvoiceFormData,
+  userId: string,
+  invoiceId: string,
+  invoiceRow?: Record<string, unknown> | null,
+): Promise<ClientPersistenceOutcome> {
+  const clientName = formData.client?.clientName?.trim();
+  const clientEmail = formData.client?.clientEmail?.trim().toLowerCase();
+
+  if (!clientName || !clientEmail) {
+    return { createdClient: null, error: null };
+  }
+
+  try {
+    const { data: existingClient, error: lookupError } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", userId)
+      .ilike("client_email", clientEmail)
+      .maybeSingle();
+
+    if (lookupError) {
+      return { createdClient: null, error: lookupError.message };
+    }
+
+    if (existingClient) {
+      return { createdClient: null, error: null };
+    }
+
+    const createdClient = await createClientFromInvoice(formData, userId);
+
+    if (
+      invoiceRow &&
+      Object.prototype.hasOwnProperty.call(invoiceRow, "client_id")
+    ) {
+      const { error: updateError } = await supabase
+        .from("invoices")
+        .update({ client_id: createdClient.id })
+        .eq("id", invoiceId)
+        .eq("user_id", userId);
+
+      if (updateError) {
+        return { createdClient, error: updateError.message };
+      }
+
+      invoiceRow.client_id = createdClient.id;
+    }
+
+    return { createdClient, error: null };
+  } catch (error) {
+    return {
+      createdClient: null,
+      error: error instanceof Error ? error.message : "Could not add client.",
+    };
+  }
+}
+
 /* ─── Save (upsert) ──────────────────────────────────────── */
 
 export async function saveInvoice(
@@ -247,6 +316,22 @@ export async function saveInvoice(
           (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
         );
     (result.data as any).grand_total = grand_total;
+
+    const clientPersistence = await persistNewClientFromInvoice(
+      input.formData,
+      userId,
+      result.data.id,
+      result.data as Record<string, unknown>,
+    );
+    if (clientPersistence.createdClient) {
+      (result.data as SavedInvoice).created_client =
+        clientPersistence.createdClient;
+    }
+    if (clientPersistence.error) {
+      console.warn("saveInvoice: client persistence failed", clientPersistence.error);
+      (result.data as SavedInvoice).client_persistence_error =
+        clientPersistence.error;
+    }
   }
 
   return { data: result.data as SavedInvoice, error: null };
@@ -971,7 +1056,11 @@ export async function markInvoiceSettled(
 export async function reissueNegotiatedInvoice(
   invoiceId: string,
   newFormData: InvoiceFormData,
-): Promise<{ error: string | null }> {
+): Promise<{
+  error: string | null;
+  createdClient?: ClientRow | null;
+  clientPersistenceError?: string | null;
+}> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
 
@@ -979,7 +1068,7 @@ export async function reissueNegotiatedInvoice(
   // but preserve msa_response (the client's previous proposal text) and
   // msa_responded_at (when they made it) as a permanent audit trail.
   // Also preserve client_msa_note for editor-side display of negotiation history.
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("invoices")
     .update({
       form_data: newFormData as unknown as Record<string, unknown>,
@@ -989,9 +1078,33 @@ export async function reissueNegotiatedInvoice(
       applied_license_type: newFormData.payment?.license?.licenseType || null,
     })
     .eq("id", invoiceId)
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select()
+    .single();
 
-  return { error: error?.message ?? null };
+  if (error) {
+    return { error: error.message };
+  }
+
+  const clientPersistence = await persistNewClientFromInvoice(
+    newFormData,
+    userId,
+    invoiceId,
+    data as Record<string, unknown>,
+  );
+
+  if (clientPersistence.error) {
+    console.warn(
+      "reissueNegotiatedInvoice: client persistence failed",
+      clientPersistence.error,
+    );
+  }
+
+  return {
+    error: null,
+    createdClient: clientPersistence.createdClient,
+    clientPersistenceError: clientPersistence.error,
+  };
 }
 
 /**

@@ -138,6 +138,13 @@ const orderedSteps: InvoiceStepperStep[] = [
   "payment",
 ];
 
+function clampNewInvoiceStartStep(step: InvoiceStepperStep): InvoiceStepperStep {
+  const stepIndex = orderedSteps.indexOf(step);
+  const clientIndex = orderedSteps.indexOf("client");
+  if (stepIndex > clientIndex) return "client";
+  return step;
+}
+
 const stepVariants = {
   initial: (direction: number) => ({
     x: direction > 0 ? 40 : -40,
@@ -943,7 +950,8 @@ function EditorContent() {
   );
   const [currentStep, setCurrentStep] = useState<InvoiceStepperStep>(() => {
     const queryStep = searchParams.get("step") as InvoiceStepperStep | null;
-    return (queryStep && ["agency", "client", "deliverables", "payment"].includes(queryStep)) ? queryStep : "agency";
+    if (!queryStep || !orderedSteps.includes(queryStep)) return "agency";
+    return searchParams.get("id") ? queryStep : clampNewInvoiceStartStep(queryStep);
   });
   const [direction, setDirection] = useState(0);
   const [isGuestMode, setIsGuestMode] = useState(false);
@@ -991,8 +999,6 @@ function EditorContent() {
     confident: import("@/lib/invoice-brief-intake").BriefAutofillFieldSummary[];
     isNewClient: boolean;
   } | null>(null);
-  const [shouldSaveNewClientMaster, setShouldSaveNewClientMaster] =
-    useState(false);
   const [postSubmitActionModal, setPostSubmitActionModal] = useState<{
     isOpen: boolean;
     isReady: boolean;
@@ -1111,13 +1117,13 @@ function EditorContent() {
     let nextProjectId: string | null = null;
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
+    const initialInvoiceId = searchParams.get("id");
 
     // Restore draft from localStorage if available
     try {
       const savedDraft = localStorage.getItem("lance_draft_invoice");
       const savedTimestamp = localStorage.getItem("lance_draft_timestamp");
-      const urlId = searchParams.get("id");
-      if (savedDraft && savedTimestamp && !urlId) {
+      if (savedDraft && savedTimestamp && !initialInvoiceId) {
         const draftAge = Date.now() - new Date(savedTimestamp).getTime();
         const ONE_HOUR = 60 * 60 * 1000;
         // Only restore if draft is less than 1 hour old
@@ -1180,9 +1186,8 @@ function EditorContent() {
     }
 
     try {
-      const urlId = searchParams.get("id");
-      if (urlId) {
-        void loadCloudInvoice(urlId);
+      if (initialInvoiceId) {
+        void loadCloudInvoice(initialInvoiceId);
         return;
       }
 
@@ -1198,7 +1203,7 @@ function EditorContent() {
               parsedDraft?.currentStep &&
               orderedSteps.includes(parsedDraft.currentStep)
             ) {
-              nextStep = parsedDraft.currentStep;
+              nextStep = clampNewInvoiceStartStep(parsedDraft.currentStep);
               nextDocumentId = parsedDraft.documentId ?? null;
               nextMsaNote = parsedDraft.clientMsaNote ?? null;
             }
@@ -1440,8 +1445,10 @@ function EditorContent() {
     );
     if (client && (!selectedClientMsa || selectedClientMsa.id !== client.id)) {
       setSelectedClientMsa(client);
+    } else if (!client && selectedClientMsa) {
+      setSelectedClientMsa(null);
     }
-  }, [isBootstrapped, savedClients, formData.client.clientName]);
+  }, [isBootstrapped, savedClients, formData.client.clientName, selectedClientMsa]);
 
   useEffect(() => {
     let needsUpdate = false;
@@ -2071,12 +2078,6 @@ const handlePreviewInvoice = async () => {
       }),
     );
 
-    if (shouldSaveNewClientMaster && !isGuestMode && !isReadOnlyMode) {
-      import("@/lib/supabase/clients").then(({ upsertClient }) => {
-        upsertClient(formData.client).catch(console.error);
-      });
-    }
-
     if (!isReadOnlyMode) {
       window.localStorage.setItem(
         DRAFT_STORAGE_KEY,
@@ -2276,16 +2277,34 @@ const handleSaveDraft = async () => {
     }
 
     if (!result.error) {
+      const createdClient =
+        (result as any).data?.created_client ?? (result as any).createdClient;
+      const clientPersistenceError =
+        (result as any).data?.client_persistence_error ??
+        (result as any).clientPersistenceError;
+
       try {
         localStorage.removeItem("lance_draft_invoice");
         localStorage.removeItem("lance_draft_timestamp");
       } catch (e) {}
 
-      triggerToast(
-        clientMsaNote
-          ? "Reissued & saved to cloud ☁"
-          : "Draft saved to cloud ☁",
-      );
+      if (createdClient) {
+        setSavedClients((prev) =>
+          prev.some((client) => client.id === createdClient.id)
+            ? prev
+            : [createdClient, ...prev],
+        );
+        setSelectedClientMsa(createdClient);
+        triggerToast(`New client '${createdClient.client_name}' added to your client list.`);
+      } else if (clientPersistenceError) {
+        triggerToast(`Invoice saved, but client was not added: ${clientPersistenceError}`);
+      } else {
+        triggerToast(
+          clientMsaNote
+            ? "Reissued & saved to cloud ☁"
+            : "Draft saved to cloud ☁",
+        );
+      }
       playInteractionCue("saveSuccess");
       announceInvoiceDataChanged({
         invoiceId: (result as any).data?.id ?? parserDocumentId ?? undefined,
@@ -2570,7 +2589,7 @@ const handleModalSubmit = (
     return;
   }
 
-  setShouldSaveNewClientMaster(saveClient);
+  void saveClient;
 
   // FIX 3: If extraction filled GSTIN, auto-toggle GST registered
   if (
@@ -2595,7 +2614,7 @@ const handleModalSubmit = (
   setShowAllValidationErrors(true);
 
   const missingStep = getFirstInvalidStep(finalData);
-  const recommendedStep = missingStep ?? "totals";
+  const recommendedStep = clampNewInvoiceStartStep(missingStep ?? "totals");
 
   // FIX 4: Mark ALL extracted fields as auto-filled (confident + client)
   const autoFilledPaths: string[] = [];
@@ -2766,6 +2785,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isReadOnly={isReadOnlyMode}
           onChange={(client) => updateFormSection("client", client)}
           onClientSelect={handleClientSelect}
+          onNewClientStart={() => setSelectedClientMsa(null)}
           errors={fieldErrors.client}
           showAllErrors={showAllValidationErrors}
           savedClients={savedClients}
