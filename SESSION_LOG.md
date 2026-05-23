@@ -1,5 +1,37 @@
 # Session Log — May 22-23, 2026
 
+## Latest checkpoint: v2.9.0 Sprint 2 — Projects First-Class Entity & Reactivity Hardening — May 23, 2026
+
+### Sequence
+1. Shipped Task: Make Projects a first-class entity (user-named project creation, dedicated dynamic details route `/project/[id]`, horizontal clickable chronological ProjectTimeline component).
+2. Resolved a series of Git sequencing issues between stashed active Projects work and Codex pushed changes, cleanly merging guest auth fixes with deliverables Projects selector.
+3. Addressed "stale dashboard / no updates" bug by unblocking draft invoices from Client and Project Ledger views and wiring `announceInvoiceDataChanged` event-broadcasts into the complete editor/preview saving lifecycles.
+4. Next.js production build and TypeScript compilation fully verified with zero warnings.
+
+### Implementation
+- Added a neobrutalist project selector (text name and opt 2-row description) to `components/invoice/DeliverablesSection.tsx` with auto-selection support.
+- Built a horizontal, neobrutalist, chronological `<ProjectTimeline>` component in `components/project/ProjectTimeline.tsx` mapping milestones to active status states.
+- Implemented `/project/[id]` dynamic details route in `app/project/[id]/page.tsx` rendering active timelines, project metrics, and invoices.
+- Integrated ProjectTimeline and view link/actions directly into dashboard cards in `app/dashboard/page.tsx`.
+- Unblocked draft invoices in dashboard client and project grouping logic while isolating drafts from outstanding receivable metrics to keep financial ledger correct.
+- Wired up `announceInvoiceDataChanged` triggers in `components/invoice/InvoiceEditorPage.tsx` and `app/invoice/preview/page.tsx` across auto-saving, draft saving, sharing, and PDF export events.
+
+### Verification
+- `npx tsc --noEmit` clean.
+- `npm run build` compiled successfully in 5.0s, generated all static routes without warning.
+
+### Files changed
+- app/dashboard/page.tsx
+- app/invoice/preview/page.tsx
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/DeliverablesSection.tsx
+- lib/invoice-lock-state.ts
+- [NEW] lib/supabase/projects.ts
+- [NEW] components/project/ProjectTimeline.tsx
+- [NEW] app/project/[id]/page.tsx
+
+---
+
 ## Latest checkpoint: v2.8.8 Sprint 1.5 — Locked Child Sections Chrome — May 23, 2026
 
 ### Sequence
