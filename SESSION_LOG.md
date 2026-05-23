@@ -1,5 +1,77 @@
 # Session Log — May 22-23, 2026
 
+## Latest checkpoint: v2.9 Sprint 4.5 — Projects Nav + Invoice Client Flow — May 23, 2026
+
+### Sequence
+1. **Projects first-class navigation shipped** as commit `3656af2`.
+2. **Invoice client-step flow fix shipped** as commit `e29ced2`.
+3. Both implementation commits were pushed to `origin/main` before this session-log checkpoint.
+
+### Implementation
+- Added `PROJECTS` to global nav in desktop and mobile, active for both `/projects` and `/project/[id]`.
+- Added `/projects` index with search, sort, filters, canonical invoice-state badges, project cards, aggregate metrics, and embedded `ProjectTimeline`.
+- Extended `lib/supabase/projects.ts` with `getAllProjectsWithInvoices()` returning projects, invoices, milestones, and billed/collected/outstanding/days-active metrics.
+- Stopped new invoice creation from auto-skipping beyond Client by clamping fresh/restored new-invoice startup to Agency or Client.
+- Extended the saved-client picker with `+ Add new client` and an inline form for name, email, domestic/international location, and optional domestic GSTIN.
+- Deferred new-client persistence to invoice save/reissue via `createClientFromInvoice()` and `persistNewClientFromInvoice()`, inheriting agency MSA defaults from `user_profiles` and avoiding `client_msas` creation.
+
+### Verification
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+- Existing Upstash Redis environment warnings remain unrelated.
+
+### Files changed
+- components/AppHeader.tsx
+- app/projects/page.tsx
+- lib/supabase/projects.ts
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/ClientDetailsSection.tsx
+- lib/supabase/clients.ts
+- lib/supabase/invoices.ts
+
+### Unresolved / watch items
+- `getAgencyDefaults` does not exist as an exported profile helper, so the client persistence helper reads `user_profiles` directly.
+- Client dedupe is case-insensitive by email but does not normalize plus-aliases.
+- Invoice `client_id` backfill runs only if the returned invoice row exposes a `client_id` column.
+- Inline new-client email is required in the inline form, but global invoice validation was not changed in this scoped pass.
+
+---
+
+## Latest checkpoint: v2.9 Sprint 3 — Dashboard Restructure — May 23, 2026
+
+### Sequence
+1. Sprint 2's badge taxonomy, MONEY IN fix, and preview banner repolish landed across Codex's earlier commits.
+2. Sprint 3 prompt fired at Codex to collapse the 5+ panel dashboard into 3 focused neo-brutal sections.
+3. Restructure shipped as commit `bc1d2f9` with no backend changes — pure JSX/structural refactor.
+
+### Implementation
+- Three sections only: What Needs Attention, Portfolio Pulse, Project Ledger.
+- What Needs Attention: uniform white action cards with `border-[3px] border-[#111118]` + hard shadow; single CTA per card; no color-coding by alert type.
+- Portfolio Pulse: single black-on-white strip with Outstanding / Collected / At Risk + sparkline. Replaces the previous 4 metric cards and the Project OS portfolio strip.
+- Project Ledger: tightened cards using canonical Sprint 2 badges; milestone progress only (no Settled ₹X / Invoices 0/X double counter); embedded ProjectTimeline from Sprint 4 work.
+- AT RISK formula: overdue + revision-blocked invoice open amounts, deduped by invoice id.
+
+### Removed from dashboard
+- Quick Links sidebar
+- Recent Activity feed (data fetch retained for future re-surfacing)
+- Upcoming panel (data fetch retained)
+- 4-metric-card grid + Project OS strip (replaced by Portfolio Pulse)
+- Command Center duplicate-action surfaces (deduped into What Needs Attention)
+
+### Files changed
+- app/dashboard/page.tsx (single file)
+
+### Verification
+- npx tsc --noEmit clean
+- npm run build clean
+- git diff --check clean
+- Side-by-side visual verification on localhost vs production
+
+### Note on naming
+The earlier session log entry "v2.9.0 Sprint 2 — Projects First-Class Entity & Reactivity Hardening" was content-wise the original Sprint 4 (Project entity surfacing). Naming retained for git history continuity, but conceptually it represents Sprint 4 in the v2.8.8 → v2.9 arc.
+
+---
+
 ## Latest checkpoint: v2.9.0 Sprint 2 — Projects First-Class Entity & Reactivity Hardening — May 23, 2026
 
 ### Sequence
