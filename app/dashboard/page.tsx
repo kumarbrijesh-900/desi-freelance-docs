@@ -208,7 +208,11 @@ function getDaysUntil(dateStr?: string | null): number | null {
 
 function getProjectProgress(project: ProjectHealth): number {
   const total = project.totalCollected + project.totalOwed;
-  if (total <= 0) return project.invoices.length > 0 ? 100 : 0;
+  if (total <= 0) {
+    const hasOnlyDrafts = project.invoices.length > 0 && project.invoices.every(inv => inv.status.toLowerCase() === "draft");
+    if (hasOnlyDrafts) return 0;
+    return project.invoices.length > 0 ? 100 : 0;
+  }
   return Math.min(100, Math.max(0, Math.round((project.totalCollected / total) * 100)));
 }
 
@@ -962,14 +966,12 @@ export default function DashboardPage() {
           });
         });
 
-        // Group invoices — only include non-draft invoices in the Client Ledger
+        // Group invoices — include draft invoices in the Client Ledger but exclude their amounts from owed/collected until finalized/sent
         invoicesWithMilestones.forEach((inv: any) => {
           const invClientName = inv.form_data?.client?.clientName?.trim();
           if (!invClientName) return;
 
-          // Client Ledger gate: skip draft invoices (offline already filtered by trackedOnly)
           const statusLower = inv.status.toLowerCase();
-          if (statusLower === "draft") return;
 
           let matchedClient = clientsList.find(
             (cl: any) => cl.client_name.trim().toLowerCase() === invClientName.toLowerCase()
@@ -1025,14 +1027,14 @@ export default function DashboardPage() {
               const mAmount = Number(m.amount || 0);
               if (mStatus === "settled") {
                 clientHealth.totalCollected += mAmount;
-              } else if (statusLower !== "cancelled") {
+              } else if (statusLower !== "cancelled" && statusLower !== "draft") {
                 clientHealth.totalOwed += mAmount;
               }
             });
           } else {
             if (isSettled) {
               clientHealth.totalCollected += inv.totalAmount;
-            } else if (statusLower !== "cancelled") {
+            } else if (statusLower !== "cancelled" && statusLower !== "draft") {
               clientHealth.totalOwed += inv.totalAmount;
             }
           }
@@ -1105,13 +1107,12 @@ export default function DashboardPage() {
           });
         });
 
-        // Group invoices under projects — skip draft invoices
+        // Group invoices under projects — include drafts but exclude their amounts from owed/collected until finalized/sent
         invoicesWithMilestones.forEach((inv: any) => {
           const invClientName = inv.form_data?.client?.clientName?.trim();
           if (!invClientName) return;
 
           const statusLower = inv.status.toLowerCase();
-          if (statusLower === "draft") return;
 
           let matchedClient = clientsList.find(
             (cl: any) => cl.client_name.trim().toLowerCase() === invClientName.toLowerCase()
@@ -1173,14 +1174,14 @@ export default function DashboardPage() {
                 const mAmount = Number(m.amount || 0);
                 if (mStatus === "settled") {
                   projectHealth.totalCollected += mAmount;
-                } else if (statusLower !== "cancelled") {
+                } else if (statusLower !== "cancelled" && statusLower !== "draft") {
                   projectHealth.totalOwed += mAmount;
                 }
               });
             } else {
               if (isSettled) {
                 projectHealth.totalCollected += inv.totalAmount;
-              } else if (statusLower !== "cancelled") {
+              } else if (statusLower !== "cancelled" && statusLower !== "draft") {
                 projectHealth.totalOwed += inv.totalAmount;
               }
             }
