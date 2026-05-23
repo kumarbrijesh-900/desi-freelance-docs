@@ -2104,8 +2104,70 @@ const handleLockedPreviewRoute = () => {
   router.push(previewUrl);
 };
 
-const handleLockedAlternativeAction = () => {
-  handleLockedPreviewRoute();
+const handleLockedAlternativeAction = async () => {
+  const action = lockState.alternativeAction;
+  const previewUrl = parserDocumentId
+    ? `/invoice/preview?id=${parserDocumentId}`
+    : "/invoice/preview";
+
+  switch (action?.intent ?? "preview") {
+    case "download":
+      router.push(parserDocumentId ? `${previewUrl}&autoDownload=1` : previewUrl);
+      return;
+    case "resend": {
+      if (!parserDocumentId || !sharedToEmail) {
+        triggerToast("Missing saved invoice email for resend.");
+        return;
+      }
+      try {
+        const response = await fetch("/api/share-invoice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invoiceId: parserDocumentId,
+            clientEmail: sharedToEmail,
+            tone: "polite",
+          }),
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => null);
+          triggerToast(error?.error || "Could not resend invoice email.");
+          return;
+        }
+        triggerToast(`Resent invoice to ${sharedToEmail}.`);
+      } catch (error) {
+        console.error("LOCKED_RESEND_FAILED:", error);
+        triggerToast("Could not resend invoice email.");
+      }
+      return;
+    }
+    case "duplicate":
+      triggerToast("Duplicate flow is not available yet. Opening preview.");
+      handleLockedPreviewRoute();
+      return;
+    case "reactivate": {
+      if (!parserDocumentId) {
+        handleLockedPreviewRoute();
+        return;
+      }
+      const { error } = await supabase
+        .from("invoices")
+        .update({ status: "DRAFT" })
+        .eq("id", parserDocumentId);
+      if (error) {
+        console.error("LOCKED_REACTIVATE_FAILED:", error);
+        triggerToast("Could not reactivate invoice.");
+        return;
+      }
+      setInvoiceStatus("DRAFT");
+      triggerToast("Invoice reactivated as draft.");
+      router.push(`/invoice/new?id=${parserDocumentId}&restore=1`);
+      return;
+    }
+    case "preview":
+    default:
+      handleLockedPreviewRoute();
+  }
 };
 
 const handleReviewBlockingStep = () => {

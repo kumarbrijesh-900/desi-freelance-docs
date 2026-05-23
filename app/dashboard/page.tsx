@@ -23,7 +23,9 @@ import {
   ReceiptText,
   Send,
   ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
+import ProjectTimeline from "@/components/project/ProjectTimeline";
 
 interface DashboardMetrics {
   outstanding: number;
@@ -2357,6 +2359,18 @@ export default function DashboardPage() {
                   {/* PROJECT VIEW LOGIC */}
                   {filteredAndSortedProjects.map((project) => {
                     const allMilestones = project.invoices.flatMap(inv => inv.milestones);
+                    const projectMilestones = project.invoices.flatMap((inv) => {
+                      return inv.milestones.map((m: any) => ({
+                        id: m.id,
+                        title: m.title || "Untitled",
+                        order_index: m.order_index ?? m.orderIndex ?? 0,
+                        status: m.status,
+                        amount: m.amount || 0,
+                        due_date: inv.dueDate || inv.due_date || "",
+                        invoice_id: inv.id,
+                        invoice_number: inv.invoiceNumber || "",
+                      }));
+                    });
                     const sparkTotal = allMilestones.reduce((sum, m) => {
                       let amount = m.amount || 0;
                       if (amount === 0) {
@@ -2402,20 +2416,29 @@ export default function DashboardPage() {
                                 Client: <span className="text-[#111118]">{project.clientName}</span> {project.clientCity ? `(${project.clientCity})` : ""}
                               </p>
                             </div>
-                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1">
+                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1.5 shrink-0">
                               <div>
                                 <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Open Receivable</p>
                                 <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", projectAction.tone === "danger" ? "text-[#FF5C00]" : "text-[#111118]")}>
                                 ₹{formatIndian(project.totalOwed)}
                                 </p>
                               </div>
-                              <span className={cn(
-                                "text-[10px] font-black px-2 py-1 border-2 uppercase tracking-wider shadow-[2px_2px_0_#111118]",
-                                PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
-                                PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
-                              )}>
-                                {projectAction.label}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <Link
+                                  href={`/project/${project.projectId}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="border-2 border-[#111118] bg-[#D4FF00] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_#111118] transition-all"
+                                >
+                                  VIEW PROJECT →
+                                </Link>
+                                <span className={cn(
+                                  "text-[10px] font-black px-2 py-1 border-2 uppercase tracking-wider shadow-[2px_2px_0_#111118]",
+                                  PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
+                                  PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
+                                )}>
+                                  {projectAction.label}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
@@ -2473,38 +2496,10 @@ export default function DashboardPage() {
                             ) : null}
                           </div>
 
-                          {/* Milestone Progress Bar */}
-                          {allMilestones.length > 0 ? (
-                            <div className="w-full flex flex-col gap-1.5">
-                              <div className="w-full h-[14px] border-2 border-[#111118] flex overflow-hidden shadow-[2px_2px_0_#111118]">
-                                {allMilestones.map((m, i) => {
-                                  const s = (m.status || "").toLowerCase();
-                                  const bg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
-                                  
-                                  let effectiveAmount = m.amount;
-                                  if (effectiveAmount === 0) {
-                                    const parentInv = project.invoices.find(inv => inv.milestones.some(pm => pm.orderIndex === m.orderIndex));
-                                    if (parentInv?.formDataMilestones?.[m.orderIndex]) {
-                                      effectiveAmount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
-                                    }
-                                  }
-                                  const widthPct = Math.max((effectiveAmount / sparkTotal) * 100, 2);
-                                  return (
-                                    <div key={i} style={{ width: `${widthPct}%`, backgroundColor: bg }} className="h-full border-r-2 border-[#111118] last:border-r-0" />
-                                  );
-                                })}
-                              </div>
-                              <div className="flex justify-between text-[10px] font-bold text-[#888] uppercase tracking-widest mt-1">
-                                <span>0%</span>
-                                <span className="text-[#111118] font-black lowercase">
-                                  timeline · {progressPercent}% completed
-                                </span>
-                                <span>100%</span>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-full h-[14px] border-2 border-[#111118] bg-[#E0E0E0] shadow-[2px_2px_0_#111118]" />
-                          )}
+                          {/* Chronological Milestone Timeline */}
+                          <div className="w-full mt-2" onClick={(e) => e.stopPropagation()}>
+                            <ProjectTimeline milestones={projectMilestones} />
+                          </div>
                         </div>
 
                         {/* Body: Invoices list under the project */}

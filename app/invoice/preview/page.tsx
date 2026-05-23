@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, Suspense } from "react";
+import { useEffect, useRef, useState, useMemo, Suspense, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import TemplatePicker from "@/components/invoice/TemplatePicker";
 import AppHeader from "@/components/AppHeader";
 import TemplateRenderer from "@/lib/templates/renderer";
@@ -45,7 +45,7 @@ import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 import ConversionModal from "@/components/invoice/ConversionModal";
 import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
 import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
-import { getInvoiceLockState } from "@/lib/invoice-lock-state";
+import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -58,6 +58,53 @@ function getInvoiceTitle(invoiceNumber?: string) {
 
 function getPdfTitle(invoiceNumber?: string) {
   return invoiceNumber?.trim() ? `${invoiceNumber.trim()}.pdf` : "invoice.pdf";
+}
+
+const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: string; style?: CSSProperties }> = {
+  editable: {
+    label: "DRAFT",
+    className: "border-[#D4D2CC] bg-transparent text-[#6B6660]",
+  },
+  "client-proposed": {
+    label: "REVISION REQUESTED",
+    className: "border-[#111118] bg-[#FFB35F] text-[#111118]",
+  },
+  "awaiting-client": {
+    label: "AWAITING CLIENT",
+    className: "border-[#111118] bg-[#FFE08A] text-[#111118]",
+  },
+  "msa-accepted": {
+    label: "LOCKED",
+    className: "border-[#111118] bg-[#FBE5E5] text-[#111118]",
+  },
+  "invoice-settled": {
+    label: "SETTLED",
+    className: "border-[#111118] bg-[#00DCB4] text-[#111118]",
+  },
+  "invoice-partial": {
+    label: "PARTIALLY SETTLED",
+    className: "border-[#111118] text-[#111118]",
+    style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
+  },
+  "invoice-cancelled": {
+    label: "CANCELLED",
+    className: "border-[#111118] bg-[#D4D2CC] text-[#111118]",
+  },
+};
+
+function CanonicalStateBadge({ state }: { state: LockState }) {
+  const badge = CANONICAL_BADGE_STYLES[state];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center border-2 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em]",
+        badge.className,
+      )}
+      style={badge.style}
+    >
+      {badge.label}
+    </span>
+  );
 }
 
 export default function InvoicePreviewPage() {
@@ -624,6 +671,82 @@ function PreviewContent() {
     handleDownloadPdf({ markAsSent: false });
   };
 
+  const handleLockedAlternativeAction = async () => {
+    const action = lockState.alternativeAction;
+    const previewUrl = cloudInvoiceId
+      ? `/invoice/preview?id=${cloudInvoiceId}`
+      : "/invoice/preview";
+
+    switch (action?.intent ?? "preview") {
+      case "download":
+        await handleDownloadPdf({ markAsSent: false });
+        return;
+      case "resend": {
+        const clientEmail = sharedToEmail || data?.client?.clientEmail;
+        if (!cloudInvoiceId || !clientEmail) {
+          triggerToast("Missing saved invoice email for resend.");
+          return;
+        }
+        try {
+          const response = await fetch("/api/share-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              invoiceId: cloudInvoiceId,
+              clientEmail,
+              tone: "polite",
+            }),
+          });
+          if (!response.ok) {
+            const error = await response.json().catch(() => null);
+            triggerToast(error?.error || "Could not resend invoice email.");
+            return;
+          }
+          triggerToast(`Resent invoice to ${clientEmail}.`);
+        } catch (error) {
+          console.error("PREVIEW_LOCKED_RESEND_FAILED:", error);
+          triggerToast("Could not resend invoice email.");
+        }
+        return;
+      }
+      case "duplicate":
+        triggerToast("Duplicate flow is not available yet. Staying on preview.");
+        router.push(previewUrl);
+        return;
+      case "reactivate": {
+        if (!cloudInvoiceId) {
+          router.push(previewUrl);
+          return;
+        }
+        const { error } = await supabase
+          .from("invoices")
+          .update({ status: "DRAFT" })
+          .eq("id", cloudInvoiceId);
+        if (error) {
+          console.error("PREVIEW_LOCKED_REACTIVATE_FAILED:", error);
+          triggerToast("Could not reactivate invoice.");
+          return;
+        }
+        setInvoiceStatusState("DRAFT");
+        triggerToast("Invoice reactivated as draft.");
+        router.push(`/invoice/new?id=${cloudInvoiceId}&restore=1`);
+        return;
+      }
+      case "preview":
+      default:
+        router.push(previewUrl);
+    }
+  };
+
+  useEffect(() => {
+    if (!isReady || !data) return;
+    if (searchParams.get("autoDownload") !== "1") return;
+    void handleDownloadPdf({ markAsSent: false });
+    const url = new URL(window.location.href);
+    url.searchParams.delete("autoDownload");
+    window.history.replaceState({}, "", url.toString());
+  }, [data, isReady, searchParams]);
+
   const handleLoginClick = async () => {
     const nextPath = cloudInvoiceId 
       ? `/invoice/preview?id=${cloudInvoiceId}&restore=1`
@@ -799,9 +922,7 @@ function PreviewContent() {
             {/* Minimal Header */}
             <MotionReveal className="mb-6 print:hidden" preset="fade-up">
               <div className="flex items-center gap-3">
-                <span className="inline-flex items-center border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em]">
-                  Ready to export
-                </span>
+                <CanonicalStateBadge state={lockState.state} />
                 <button
                   onClick={() => {
                     if (!invoiceNumber) return;
@@ -864,26 +985,26 @@ function PreviewContent() {
             {/* Neo-Brutalist Locked Invoice Status Banner */}
             {lockState.isReadOnly && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-center justify-between gap-4 border-2 border-black bg-[#FFE5E5] p-4 sm:flex-row sm:p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="flex items-center gap-3 text-left">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-black bg-red-400 text-xl font-bold">
-                      🔒
-                    </div>
+                <div className="flex flex-col items-start justify-between gap-5 border-[3px] border-black bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#000] sm:flex-row sm:items-center sm:p-6">
+                  <div className="flex items-start gap-4 text-left">
+                    <Lock className="h-8 w-8 shrink-0 text-black" strokeWidth={2.8} />
                     <div>
-                      <h3 className="text-sm font-bold text-black">
-                        Invoice is Locked
+                      <h3 className="text-[24px] font-extrabold uppercase leading-none tracking-[0.02em] text-black">
+                        INVOICE LOCKED
                       </h3>
-                      <p className="text-[13px] text-gray-800">
+                      <p className="mt-2 text-[14px] font-medium leading-5 text-[#6B6660]">
                         {lockState.reason}
                       </p>
                     </div>
                   </div>
                   {lockState.alternativeAction && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-gray-700 bg-white border border-gray-300 px-2 py-1 uppercase tracking-wider">
-                        Suggested: {lockState.alternativeAction.label}
-                      </span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleLockedAlternativeAction}
+                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[#D4FF00] shadow-[4px_4px_0_#000] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_#000]"
+                    >
+                      {lockState.alternativeAction.label}
+                    </button>
                   )}
                 </div>
               </MotionReveal>

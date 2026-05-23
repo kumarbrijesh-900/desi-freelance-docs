@@ -38,7 +38,6 @@ import {
   requestNextMilestone,
   getReadReceiptsBatch,
   type SavedInvoice,
-  type MsaResponse,
   markInvoiceAsTracked,
 } from "@/lib/supabase/invoices";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
@@ -50,6 +49,7 @@ import {
 } from "@/lib/supabase/client";
 import AppHeader from "@/components/AppHeader";
 import SettlementModal from "@/components/invoice/SettlementModal";
+import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
 
 /* ─── Helpers ────────────────────────────────────── */
 
@@ -104,76 +104,58 @@ function formatCurrency(amount: number): string {
 
 /* ─── Badge components ─────────────────────────── */
 
-function CombinedStatusBadge({ 
-  status, 
-  msaStatus, 
-  msaId, 
-  dueDate 
-}: { 
-  status: string; 
-  msaStatus: MsaResponse; 
-  msaId: string | null; 
-  dueDate?: string; 
-}) {
-  const normalizedInv = status.toLowerCase();
-  
-  // Priority 1: Settled (Paid)
-  if (normalizedInv === "settled") {
-    return (
-      <span className="border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        Paid
-      </span>
-    );
-  }
+const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: string; style?: React.CSSProperties }> = {
+  editable: {
+    label: "DRAFT",
+    className: "border-[#D4D2CC] bg-transparent text-[#6B6660]",
+  },
+  "client-proposed": {
+    label: "REVISION REQUESTED",
+    className: "border-[#111118] bg-[#FFB35F] text-[#111118]",
+  },
+  "awaiting-client": {
+    label: "AWAITING CLIENT",
+    className: "border-[#111118] bg-[#FFE08A] text-[#111118]",
+  },
+  "msa-accepted": {
+    label: "LOCKED",
+    className: "border-[#111118] bg-[#FBE5E5] text-[#111118]",
+  },
+  "invoice-settled": {
+    label: "SETTLED",
+    className: "border-[#111118] bg-[#00DCB4] text-[#111118]",
+  },
+  "invoice-partial": {
+    label: "PARTIALLY SETTLED",
+    className: "border-[#111118] text-[#111118]",
+    style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
+  },
+  "invoice-cancelled": {
+    label: "CANCELLED",
+    className: "border-[#111118] bg-[#D4D2CC] text-[#111118]",
+  },
+};
 
-  // Priority 2: MSA Pending/Proposed/Rejected
-  if (msaId && (msaStatus === "proposed" || msaStatus === "rejected" || msaStatus === "pending")) {
-    const label = msaStatus === "rejected" ? "Revision Asked" : "MSA Pending";
-    return (
-      <span className="border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        {label}
-      </span>
-    );
-  }
+function CombinedStatusBadge({ invoice }: { invoice: SavedInvoice }) {
+  const lockState = getInvoiceLockState({
+    status: invoice.status,
+    msaStatus: invoice.msa_status,
+    sharedToEmail: invoice.shared_to_email,
+    clientMsaNote: invoice.client_msa_note,
+    projectMsaAcceptedAt: invoice.project?.msa_accepted_at ?? null,
+    projectStatus: invoice.project?.status ?? null,
+  });
+  const badge = CANONICAL_BADGE_STYLES[lockState.state];
 
-  // Priority 3: MSA Accepted
-  if (msaId && msaStatus === "accepted") {
-    return (
-      <span className="border-2 border-[#111118] bg-[#BEFF00] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        MSA Accepted
-      </span>
-    );
-  }
-
-  // Priority 4: Overdue
-  let isOverdue = false;
-  if (normalizedInv === "finalized" && dueDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(dueDate);
-    due.setHours(0, 0, 0, 0);
-    if (due < today) isOverdue = true;
-  }
-
-  if (isOverdue)
-    return (
-      <span className="border-2 border-[#111118] bg-[#FF5C00] text-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        Overdue
-      </span>
-    );
-
-  // Priority 5: Sent (Finalized)
-  if (normalizedInv === "finalized")
-    return (
-      <span className="border-2 border-[#111118] bg-[#BEFF00] text-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-        Sent
-      </span>
-    );
-
-  // Priority 6: Draft
   return (
-    <span className="border-2 border-[#111118] bg-[#F0EAFF] text-[#8B5CF6] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]">
-      Draft
+    <span
+      className={cn(
+        "border-2 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em]",
+        badge.className,
+      )}
+      style={badge.style}
+    >
+      {badge.label}
     </span>
   );
 }
@@ -410,12 +392,7 @@ function InvoiceRow({
                 </div>
               )}
               <div className="sm:hidden mt-2 flex items-center gap-2">
-                <CombinedStatusBadge 
-                  status={invoice.status} 
-                  msaStatus={invoice.msa_status ?? "pending"} 
-                  msaId={invoice.msa_id}
-                  dueDate={invoice.form_data?.meta?.dueDate}
-                />
+                <CombinedStatusBadge invoice={invoice} />
                 <ViewsBadge count={viewCount} />
               </div>
             </div>
@@ -444,12 +421,7 @@ function InvoiceRow({
         {/* Status */}
         <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
           <div className="flex items-center">
-            <CombinedStatusBadge 
-              status={invoice.status} 
-              msaStatus={invoice.msa_status ?? "pending"} 
-              msaId={invoice.msa_id}
-              dueDate={invoice.form_data?.meta?.dueDate}
-            />
+            <CombinedStatusBadge invoice={invoice} />
             <ViewsBadge count={viewCount} />
           </div>
         </td>

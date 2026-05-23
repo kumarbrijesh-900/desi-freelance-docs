@@ -14,7 +14,10 @@ export interface InvoiceLockState {
   /** One-line plain-English explanation suitable for banner copy */
   reason: string;
   /** Suggested next action when share is disabled; null when canShare is true or no obvious alternative */
-  alternativeAction: { label: string } | null;
+  alternativeAction: {
+    label: string;
+    intent: 'download' | 'resend' | 'duplicate' | 'reactivate' | 'preview';
+  } | null;
 }
 
 export interface InvoiceLockInput {
@@ -50,18 +53,18 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
       canShare: false,
       state: 'invoice-settled',
       reason: 'Invoice cycle complete — read-only archive.',
-      alternativeAction: { label: 'Duplicate Invoice' },
+      alternativeAction: { label: 'Duplicate Invoice', intent: 'duplicate' },
     };
   }
 
   // 2. Partially settled milestones
-  if (status === 'partial_settled') {
+  if (status === 'partial_settled' || status === 'partial') {
     return {
       isReadOnly: true,
       canShare: false,
       state: 'invoice-partial',
       reason: 'Invoice partially settled — some milestones complete, others pending. Read-only archive.',
-      alternativeAction: { label: 'Download PDF' },
+      alternativeAction: { label: 'Download PDF', intent: 'download' },
     };
   }
 
@@ -72,7 +75,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
       canShare: false,
       state: 'invoice-cancelled',
       reason: 'Project cancelled — read-only archive.',
-      alternativeAction: { label: 'Reactivate Invoice' },
+      alternativeAction: { label: 'Reactivate Invoice', intent: 'reactivate' },
     };
   }
 
@@ -85,7 +88,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
       reason: projectMsaAcceptedAt
         ? 'Project Master Service Agreement is active — invoice is locked.'
         : 'Terms accepted by client — invoice is locked.',
-      alternativeAction: { label: 'Download PDF' },
+      alternativeAction: { label: 'Download PDF', intent: 'download' },
     };
   }
 
@@ -107,7 +110,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
       canShare: false,
       state: 'awaiting-client',
       reason: 'Awaiting client response — sharing again would duplicate the email.',
-      alternativeAction: { label: 'Resend Email' },
+      alternativeAction: { label: 'Resend Email', intent: 'resend' },
     };
   }
 
