@@ -830,3 +830,19 @@ input::placeholder, select::placeholder, textarea::placeholder {
     box-shadow: none;
   }
 }
+
+/* Locked-mode chrome (v2.8.8 Sprint 1) */
+[data-mode="locked"] input:disabled,
+[data-mode="locked"] textarea:disabled,
+[data-mode="locked"] select:disabled {
+  background: #F5F4F0;
+  border: 2px solid #D4D2CC;
+  color: #6B6660;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+[data-mode="locked"] input:disabled::placeholder,
+[data-mode="locked"] textarea:disabled::placeholder {
+  color: transparent;
+}

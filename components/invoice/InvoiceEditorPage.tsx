@@ -458,6 +458,25 @@ function getStepShortLabel(step: InvoiceStepperStep) {
   }
 }
 
+function getLockStateLabel(state: string) {
+  switch (state) {
+    case "msa-accepted":
+      return "Terms accepted by client";
+    case "invoice-settled":
+      return "Settlement complete";
+    case "invoice-partial":
+      return "Partially settled";
+    case "invoice-cancelled":
+      return "Cancelled";
+    case "awaiting-client":
+      return "Awaiting client response";
+    case "client-proposed":
+      return "Client proposed changes";
+    default:
+      return "Read-only";
+  }
+}
+
 function getFirstInvalidStep(formData: InvoiceFormData) {
   return (
     VALIDATION_STEPS.find((step) => !isInvoiceStepValid(formData, step)) ?? null
@@ -599,6 +618,7 @@ function InlineStepSection({
   onActivate,
   children,
   footer,
+  isReadOnly = false,
 }: {
   step: InvoiceStepperStep;
   isActive: boolean;
@@ -608,11 +628,15 @@ function InlineStepSection({
   onActivate: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  isReadOnly?: boolean;
 }) {
   const [isMounted, setIsMounted] = useState(false);
   const stepNumber = orderedSteps.indexOf(step) + 1;
   const stepLabel = getStepShortLabel(step);
   const detailCopy = getStepDescription(step);
+  const sectionDescription = isReadOnly
+    ? `${detailCopy.replace(/\.$/, "")} — read only.`
+    : detailCopy;
   const stepKind = getStepKind(step);
   let statusLabel =
     !isCompleted && isMounted && issueCount > 0
@@ -675,9 +699,11 @@ function InlineStepSection({
                 )}
               />
               <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                  Step {stepNumber}
-                </p>
+                {!isReadOnly && (
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Step {stepNumber}
+                  </p>
+                )}
                 <h2 className="mt-1 text-[19px] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]">
                   <div className="flex items-center gap-2">
                     {StepIcon && (
@@ -695,27 +721,29 @@ function InlineStepSection({
                   </div>
                 </h2>
                 <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--text-muted)]">
-                  {detailCopy}
+                  {sectionDescription}
                 </p>
               </div>
             </div>
           </button>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <span
-              className={cn(
-                statusLabel.toLowerCase().includes("ready")
-                  ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
-                  : statusLabel.toLowerCase().includes("mandatory")
-                    ? "border-2 border-[#111118] bg-[#FF5C00] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
-                    : getAppStatusPillClass(
-                        isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
-                      )
-              )}
-            >
-              {statusLabel}
-            </span>
-          </div>
+          {!isReadOnly && (
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <span
+                className={cn(
+                  statusLabel.toLowerCase().includes("ready")
+                    ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+                    : statusLabel.toLowerCase().includes("mandatory")
+                      ? "border-2 border-[#111118] bg-[#FF5C00] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+                      : getAppStatusPillClass(
+                          isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
+                        )
+                )}
+              >
+                {statusLabel}
+              </span>
+            </div>
+          )}
         </div>
 
         <motion.div
@@ -748,6 +776,8 @@ function WorkbenchReadinessPanel({
   onReview,
   compact = false,
   rail = false,
+  isReadOnly = false,
+  readOnlyReason,
 }: {
   ready: boolean;
   completedCount: number;
@@ -763,14 +793,20 @@ function WorkbenchReadinessPanel({
   onReview: () => void;
   compact?: boolean;
   rail?: boolean;
+  isReadOnly?: boolean;
+  readOnlyReason?: string;
 }) {
-  const progress = totalCount > 0
+  const progress = isReadOnly
+    ? 100
+    : totalCount > 0
     ? Math.min(100, Math.max(0, Math.round((completedCount / totalCount) * 100)))
     : 0;
   const visibleFields = nextFields.slice(0, rail ? 2 : 3);
   const hiddenFieldCount = Math.max(0, nextFields.length - visibleFields.length);
-  const readinessLabel = rail ? "Status" : "Workbench readiness";
-  const statusText = ready
+  const readinessLabel = isReadOnly ? "State" : rail ? "Status" : "Workbench readiness";
+  const statusText = isReadOnly
+    ? "Locked"
+    : ready
     ? rail ? "Ready" : "Ready for preview"
     : rail
       ? `${issueCount} left`
@@ -784,16 +820,20 @@ function WorkbenchReadinessPanel({
       )}
       aria-label="Invoice workbench readiness"
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="space-y-2">
         <div className="flex min-w-0 items-start gap-2.5">
           <span
             className={cn(
               "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border-2 border-[#111118]",
-              ready ? "bg-[#00DCB4] text-[#111118]" : "bg-[#FFFBE6] text-[#B45309]",
+              isReadOnly
+                ? "bg-[#F5F4F0] text-[#6B6660]"
+                : ready ? "bg-[#00DCB4] text-[#111118]" : "bg-[#FFFBE6] text-[#B45309]",
             )}
             aria-hidden="true"
           >
-            {ready ? (
+            {isReadOnly ? (
+              <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
+            ) : ready ? (
               <CheckCircle2 className="h-4 w-4" strokeWidth={2.4} />
             ) : (
               <AlertCircle className="h-4 w-4" strokeWidth={2.4} />
@@ -809,22 +849,31 @@ function WorkbenchReadinessPanel({
             <p className="mt-0.5 text-[14px] font-black text-[#111118]">
               {statusText}
             </p>
+            {!isReadOnly && (
+              <p className="mt-1 text-[11px] font-black text-[#111118]">
+                {progress}%
+              </p>
+            )}
           </div>
         </div>
-        <span className="shrink-0 text-[11px] font-black text-[#111118]">
-          {progress}%
-        </span>
       </div>
 
       <div className="mt-3 h-2 border-2 border-[#111118] bg-[#F5F5F0]">
         <div
-          className={cn("h-full", ready ? "bg-[#00DCB4]" : "bg-[#BEFF00]")}
+          className={cn(
+            "h-full",
+            isReadOnly ? "bg-[#D4D2CC]" : ready ? "bg-[#00DCB4]" : "bg-[#BEFF00]",
+          )}
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="mt-3 border-t border-[color:var(--border-subtle)] pt-3" aria-live="polite">
-        {ready ? (
+        {isReadOnly ? (
+          <p className="text-[12px] font-bold leading-5 text-[#6B6660]">
+            {readOnlyReason || "This invoice is read-only."}
+          </p>
+        ) : ready ? (
           <p className="text-[12px] font-bold leading-5 text-[#111118]">
             All required sections are complete. Review totals, then open preview.
           </p>
@@ -1018,6 +1067,9 @@ function EditorContent() {
   const readOnlyReason = useMemo(() => {
     return lockState.reason;
   }, [lockState]);
+  const readOnlyStateLabel = useMemo(() => {
+    return getLockStateLabel(lockState.state);
+  }, [lockState.state]);
 
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
@@ -2045,6 +2097,17 @@ const handlePreviewInvoice = async () => {
   }
 };
 
+const handleLockedPreviewRoute = () => {
+  const previewUrl = parserDocumentId
+    ? `/invoice/preview?id=${parserDocumentId}`
+    : "/invoice/preview";
+  router.push(previewUrl);
+};
+
+const handleLockedAlternativeAction = () => {
+  handleLockedPreviewRoute();
+};
+
 const handleReviewBlockingStep = () => {
   if (!nextBlockingGroup) {
     void handlePreviewInvoice();
@@ -2792,7 +2855,11 @@ const allowReadOnlyKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
 
 
 return (
-  <main className="relative min-h-screen w-full bg-transparent font-sans antialiased" suppressHydrationWarning>
+  <main
+    className="relative min-h-screen w-full bg-transparent font-sans antialiased"
+    data-mode={isReadOnlyMode ? "locked" : "editing"}
+    suppressHydrationWarning
+  >
     <AnimatePresence>
       {isProcessingAutofill && (
         <motion.div
@@ -2841,10 +2908,12 @@ return (
           {/* Header */}
           <MotionReveal className="mb-8" preset="fade-up">
             <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px] font-syne">
-              {invoiceId ? "Edit Invoice" : "New Invoice"}
+              {isReadOnlyMode ? "Locked Invoice" : invoiceId ? "Edit Invoice" : "New Invoice"}
             </h1>
             <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
-              {invoiceId 
+              {isReadOnlyMode
+                ? `${formData.meta?.invoiceNumber || '...'} · ${readOnlyStateLabel}`
+                : invoiceId
                 ? `Editing reference ${formData.meta?.invoiceNumber || '...'}` 
                 : "Create a professional GST-compliant invoice in minutes."
               }
@@ -2904,10 +2973,10 @@ return (
               >
                 <div className="border-b border-[color:var(--border-subtle)] px-1 pb-2">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
-                    Editor progress
+                    {isReadOnlyMode ? "Invoice state" : "Editor progress"}
                   </p>
                   <p className="mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]">
-                    {completedStepCount} of {orderedSteps.length} ready
+                    {isReadOnlyMode ? "LOCKED" : `${completedStepCount} of ${orderedSteps.length} ready`}
                   </p>
                 </div>
 
@@ -2923,7 +2992,9 @@ return (
                         ? "completed"
                         : "pending";
                     const railStatus =
-                      step === "totals" && !invoiceReadyForPreview
+                      isReadOnlyMode
+                        ? "view"
+                        : step === "totals" && !invoiceReadyForPreview
                         ? "Pending"
                         : isActive
                           ? missingFieldCountByStep[step] > 0
@@ -2947,7 +3018,13 @@ return (
                         key={step}
                         type="button"
                         onClick={() => scrollToStep(step)}
-                        data-rail-state={stepState}
+                        data-rail-state={isReadOnlyMode ? "locked" : stepState}
+                        style={isReadOnlyMode ? {
+                          background: "#F5F4F0",
+                          borderColor: "#D4D2CC",
+                          boxShadow: "none",
+                          opacity: 1,
+                        } : undefined}
                         className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]"
                       >
                         <div className="flex min-w-0 items-start gap-2">
@@ -2961,7 +3038,12 @@ return (
                             <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
                               {getStepShortLabel(step)}
                             </p>
-                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                            <p className={cn(
+                              "text-[10px] font-medium text-[color:var(--text-muted)]",
+                              isReadOnlyMode
+                                ? "normal-case tracking-normal text-[#6B6660]"
+                                : "uppercase tracking-[0.14em]",
+                            )}>
                               {railStatus}
                             </p>
                           </div>
@@ -2988,6 +3070,8 @@ return (
                 dueDate={formData.meta.dueDate}
                 clientName={formData.client.clientName}
                 onReview={handleReviewBlockingStep}
+                isReadOnly={isReadOnlyMode}
+                readOnlyReason={readOnlyReason}
               />
             </MotionReveal>
           </div>
@@ -3188,6 +3272,8 @@ return (
                 dueDate={formData.meta.dueDate}
                 clientName={formData.client.clientName}
                 onReview={handleReviewBlockingStep}
+                isReadOnly={isReadOnlyMode}
+                readOnlyReason={readOnlyReason}
               />
             </div>
 
@@ -3254,6 +3340,7 @@ return (
                     issueCount={missingFieldCountByStep[currentStep]}
                     optionalIssueCount={missingOptionalCountByStep[currentStep]}
                     onActivate={() => scrollToStep(currentStep)}
+                    isReadOnly={isReadOnlyMode}
                     footer={
                       getNextStep(currentStep) ? (
                         <div className="mt-8 flex flex-col items-end gap-2">
@@ -3512,19 +3599,25 @@ return (
                   <div
                     className={cn(
                       "flex min-w-0 max-w-[520px] items-center gap-2 border px-3 py-1.5 text-[11px] font-bold",
-                      invoiceReadyForPreview
+                      isReadOnlyMode
+                        ? "border-[#D4D2CC] bg-[#F5F4F0] text-[#6B6660]"
+                        : invoiceReadyForPreview
                         ? "border-[#00A884] bg-[#EBFDF9] text-[#007A63]"
                         : "border-[#F59E0B] bg-[#FFFBE6] text-[#8A4B00]",
                     )}
                     role="status"
                   >
-                    {invoiceReadyForPreview ? (
+                    {isReadOnlyMode ? (
+                      <ShieldCheck className="h-4 w-4 shrink-0" strokeWidth={2.3} />
+                    ) : invoiceReadyForPreview ? (
                       <CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} />
                     ) : (
                       <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} />
                     )}
                     <span className="truncate">
-                      {invoiceReadyForPreview
+                      {isReadOnlyMode
+                        ? `This invoice is locked — ${readOnlyReason}`
+                        : invoiceReadyForPreview
                         ? "Ready for preview. Confirm totals before sending."
                         : nextBlockingGroup
                           ? `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
@@ -3548,28 +3641,49 @@ return (
                       Save Draft
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
-                    className={cn(
-                      "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
-                      invoiceReadyForPreview
-                        ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                        : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[2px_2px_0_#111118] active:scale-[0.97] transition-transform"
-                    )}
-                  >
-                    <span className="hidden sm:inline">
-                      {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
-                    </span>
-                    <span className="sm:hidden">
-                      {invoiceReadyForPreview ? "Preview" : "Review"}
-                    </span>
-                    {invoiceReadyForPreview ? (
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    ) : (
-                      <AlertCircle className="ml-2 h-4 w-4" />
-                    )}
-                  </button>
+                  {isReadOnlyMode ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleLockedAlternativeAction}
+                        className="inline-flex items-center justify-center gap-2 border-0 bg-[#111118] p-4 text-[11px] font-black uppercase text-[#D4FF00] shadow-[4px_4px_0_#000] transition-transform active:scale-[0.97] sm:text-[12px]"
+                      >
+                        {lockState.alternativeAction?.label ?? "View preview"}
+                      </button>
+                      {lockState.alternativeAction && (
+                        <button
+                          type="button"
+                          onClick={handleLockedPreviewRoute}
+                          className="inline-flex items-center justify-center gap-2 border-2 border-[#111118] bg-transparent p-4 text-[11px] font-bold text-[#111118] shadow-[4px_4px_0_#000] transition-transform active:scale-[0.97] sm:text-[12px]"
+                        >
+                          View preview
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
+                      className={cn(
+                        "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
+                        invoiceReadyForPreview
+                          ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
+                          : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[2px_2px_0_#111118] active:scale-[0.97] transition-transform"
+                      )}
+                    >
+                      <span className="hidden sm:inline">
+                        {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
+                      </span>
+                      <span className="sm:hidden">
+                        {invoiceReadyForPreview ? "Preview" : "Review"}
+                      </span>
+                      {invoiceReadyForPreview ? (
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      ) : (
+                        <AlertCircle className="ml-2 h-4 w-4" />
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
               {/* Spacer for right column on xl+ */}
