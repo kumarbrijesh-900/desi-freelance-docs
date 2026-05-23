@@ -31,6 +31,7 @@ interface InvoiceMetaSectionProps {
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
   msaSource?: "client" | "global" | "project" | "default";
+  isReadOnly?: boolean;
 }
 
 export default function InvoiceMetaSection({
@@ -42,8 +43,10 @@ export default function InvoiceMetaSection({
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
   msaSource = "default",
+  isReadOnly = false,
 }: InvoiceMetaSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (isReadOnly) return "";
     if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
     return "input-manual";
@@ -138,7 +141,7 @@ export default function InvoiceMetaSection({
             <div className="md:max-w-[240px]">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
-                  Invoice Number *
+                  Invoice Number{!isReadOnly && " *"}
                   {autoFilledFields.has("meta.invoiceNumber") && (
                     <span className="autofill-indicator">auto-filled</span>
                   )}
@@ -220,7 +223,7 @@ export default function InvoiceMetaSection({
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
               <label className={appFieldLabelClass}>
-                Invoice Date *
+                Invoice Date{!isReadOnly && " *"}
                 {autoFilledFields.has("meta.invoiceDate") && (
                   <span className="autofill-indicator">auto-filled</span>
                 )}
@@ -246,7 +249,7 @@ export default function InvoiceMetaSection({
 
             <div className="md:max-w-[240px]">
               <label className={appFieldLabelClass}>
-                Due Date *
+                Due Date{!isReadOnly && " *"}
                 {autoFilledFields.has("meta.dueDate") && (
                   <span className="autofill-indicator">auto-filled</span>
                 )}

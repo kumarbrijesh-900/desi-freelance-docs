@@ -49,6 +49,7 @@ interface AgencyDetailsSectionProps {
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
   isGuestMode?: boolean;
+  isReadOnly?: boolean;
 }
 
 export default function AgencyDetailsSection({
@@ -60,8 +61,10 @@ export default function AgencyDetailsSection({
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
   isGuestMode = true,
+  isReadOnly = false,
 }: AgencyDetailsSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string) => {
+    if (isReadOnly) return "";
     if (!fieldValue || !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
     return "input-manual";
@@ -245,15 +248,17 @@ export default function AgencyDetailsSection({
   Required for charging GST on invoices. If registered, CGST/SGST or IGST is auto-calculated based on client location.
 </>} />
                   </div>
-                  <AppSwitch
-                    checked={value.gstRegistrationStatus === "registered"}
-                    onChange={(checked) =>
-                      updateField(
-                        "gstRegistrationStatus",
-                        checked ? "registered" : "not-registered",
-                      )
-                    }
-                  />
+                  {!isReadOnly && (
+                    <AppSwitch
+                      checked={value.gstRegistrationStatus === "registered"}
+                      onChange={(checked) =>
+                        updateField(
+                          "gstRegistrationStatus",
+                          checked ? "registered" : "not-registered",
+                        )
+                      }
+                    />
+                  )}
                   <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
                     {value.gstRegistrationStatus === "registered"
                       ? "Registered"
@@ -375,12 +380,14 @@ export default function AgencyDetailsSection({
   Letter of Undertaking — required to zero-rate exports to international clients without paying IGST upfront.
 </>} />
                             </div>
-                            <AppSwitch
-                              checked={value.lutAvailability === "yes"}
-                              onChange={(checked) =>
-                                updateField("lutAvailability", checked ? "yes" : "no")
-                              }
-                            />
+                            {!isReadOnly && (
+                              <AppSwitch
+                                checked={value.lutAvailability === "yes"}
+                                onChange={(checked) =>
+                                  updateField("lutAvailability", checked ? "yes" : "no")
+                                }
+                              />
+                            )}
                             <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
                               {value.lutAvailability === "yes" ? "Yes" : "No"}
                             </span>
@@ -491,7 +498,7 @@ export default function AgencyDetailsSection({
             <div className="space-y-6">
               <div>
                 <label className={appFieldLabelClass}>
-                  Business / Trade Name *
+                  Business / Trade Name{!isReadOnly && " *"}
                   {autoFilledFields.has("agency.agencyName") && (
                     <span className="autofill-indicator">auto-filled</span>
                   )}
@@ -550,29 +557,31 @@ export default function AgencyDetailsSection({
                         </p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={removeLogo}
-                      className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
-                      title="Remove Logo"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                    {!isReadOnly && (
+                      <button
+                        type="button"
+                        onClick={removeLogo}
+                        className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                        title="Remove Logo"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
-                ) : (
+                ) : !isReadOnly ? (
                   <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
                     <input
                       type="file"
@@ -598,6 +607,10 @@ export default function AgencyDetailsSection({
                       Upload Agency Logo
                     </span>
                   </label>
+                ) : (
+                  <div className="flex h-[46px] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-4 text-[13px] font-medium text-[#6B6660]">
+                    No logo attached
+                  </div>
                 )}
               </div>
             </div>
@@ -616,7 +629,7 @@ export default function AgencyDetailsSection({
               <div className="grid grid-cols-1 gap-5">
                 <div className={appFieldFullWidthStackClass}>
                   <label className={appFieldLabelClass}>
-                    Address Line 1 *
+                    Address Line 1{!isReadOnly && " *"}
                     {autoFilledFields.has("agency.addressLine1") && (
                       <span className="autofill-indicator">auto-filled</span>
                     )}
@@ -664,7 +677,7 @@ export default function AgencyDetailsSection({
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-[9fr_7fr_4fr]">
                   <div className="min-w-0">
                     <label className={appFieldLabelClass}>
-                      State *
+                      State{!isReadOnly && " *"}
                       {autoFilledFields.has("agency.agencyState") && (
                         <span className="autofill-indicator">auto-filled</span>
                       )}

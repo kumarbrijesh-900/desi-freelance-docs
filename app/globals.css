@@ -846,3 +846,11 @@ input::placeholder, select::placeholder, textarea::placeholder {
 [data-mode="locked"] textarea:disabled::placeholder {
   color: transparent;
 }
+
+/* Locked-mode provenance flattening (v2.8.8 Sprint 1.5) */
+[data-mode="locked"] input,
+[data-mode="locked"] textarea,
+[data-mode="locked"] select {
+  border-left-color: #D4D2CC !important;
+  border-left-width: 2px !important;
+}

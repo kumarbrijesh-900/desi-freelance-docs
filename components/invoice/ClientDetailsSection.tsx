@@ -68,6 +68,7 @@ interface ClientDetailsSectionProps {
   isNew?: boolean;
   autoFilledFields?: Set<string>;
   onFieldManualEdit?: (fieldPath: string) => void;
+  isReadOnly?: boolean;
 }
 
 const SNIPER_DEFAULTS = {
@@ -90,8 +91,10 @@ export default function ClientDetailsSection({
   isNew = false,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
+  isReadOnly = false,
 }: ClientDetailsSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string) => {
+    if (isReadOnly) return "";
     if (!fieldValue || !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
     return "input-manual";
@@ -294,7 +297,7 @@ export default function ClientDetailsSection({
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="relative">
                 <label className={appFieldLabelClass}>
-                  Client Name *
+                  Client Name{!isReadOnly && " *"}
                   {autoFilledFields.has("client.clientName") && (
                     <span className="autofill-indicator">auto-filled</span>
                   )}
@@ -357,22 +360,30 @@ export default function ClientDetailsSection({
 
               <div className="mb-4">
                 <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">Client Location *</label>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                    Client Location{!isReadOnly && " *"}
+                  </label>
                   <AppTooltip content={<>
   Domestic = Indian client (GST rules apply). International = foreign client (export rules, multi-currency).
 </>} />
                 </div>
-                <ChoiceCards
-                  name="client-location"
-                  value={value.clientLocation}
-                  onChange={(nextValue) => syncClientDetails({ ...value, clientLocation: nextValue as ClientDetails["clientLocation"], clientCountry: nextValue === "domestic" ? "" : value.clientCountry, clientState: nextValue === "international" ? "" : value.clientState })}
-                  variant="minimal-segmented"
-                  columns={2}
-                  options={[
-                    { value: "domestic", label: "Domestic" },
-                    { value: "international", label: "International" },
-                  ]}
-                />
+                {isReadOnly ? (
+                  <div className="flex h-11 items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 text-[13px] font-semibold text-[#6B6660]">
+                    {value.clientLocation === "international" ? "International" : "Domestic"}
+                  </div>
+                ) : (
+                  <ChoiceCards
+                    name="client-location"
+                    value={value.clientLocation}
+                    onChange={(nextValue) => syncClientDetails({ ...value, clientLocation: nextValue as ClientDetails["clientLocation"], clientCountry: nextValue === "domestic" ? "" : value.clientCountry, clientState: nextValue === "international" ? "" : value.clientState })}
+                    variant="minimal-segmented"
+                    columns={2}
+                    options={[
+                      { value: "domestic", label: "Domestic" },
+                      { value: "international", label: "International" },
+                    ]}
+                  />
+                )}
               </div>
             </div>
 
@@ -453,13 +464,20 @@ export default function ClientDetailsSection({
                     </div>
                     <div className="pb-1.5">
                       <div className="flex items-center gap-3">
-                        <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
+                        {!isReadOnly && (
+                          <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
+                        )}
                         <div className="flex items-center gap-1.5">
                           <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">SEZ Unit</span>
                           <AppTooltip content={<>
                             Special Economic Zone. Supplies to SEZ units are treated as exports (Zero-rated supply under GST). IGST is applicable unless you provide a Letter of Undertaking (LUT).
                           </>} />
                         </div>
+                        {isReadOnly && (
+                          <span className="text-[13px] font-medium text-[color:var(--text-muted)]">
+                            {value.isClientSezUnit === "yes" ? "Yes" : "No"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -477,7 +495,7 @@ export default function ClientDetailsSection({
                   <div className="space-y-5">
                     <div className={appFieldFullWidthStackClass}>
                       <label className={appFieldLabelClass}>
-                        Address Line 1 *
+                        Address Line 1{!isReadOnly && " *"}
                         {autoFilledFields.has("client.clientAddressLine1") && (
                           <span className="autofill-indicator">auto-filled</span>
                         )}
@@ -523,7 +541,7 @@ export default function ClientDetailsSection({
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-[9fr_7fr_4fr]">
                       <div className="min-w-0">
                         <label className={appFieldLabelClass}>
-                          State {agency && isAgencyGstRegistered(agency) ? '*' : ''}
+                          State {!isReadOnly && agency && isAgencyGstRegistered(agency) ? '*' : ''}
                           {autoFilledFields.has("client.clientState") && (
                             <span className="autofill-indicator">auto-filled</span>
                           )}
@@ -625,7 +643,7 @@ export default function ClientDetailsSection({
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="min-w-0">
                       <label className={appFieldLabelClass}>
-                        Country *
+                        Country{!isReadOnly && " *"}
                         {autoFilledFields.has("client.clientCountry") && (
                           <span className="autofill-indicator">auto-filled</span>
                         )}
@@ -691,7 +709,7 @@ export default function ClientDetailsSection({
                   <div className="space-y-5">
                     <div>
                       <label className={appFieldLabelClass}>
-                        Full Address *
+                        Full Address{!isReadOnly && " *"}
                         {autoFilledFields.has("client.clientAddress") && (
                           <span className="autofill-indicator">auto-filled</span>
                         )}
@@ -814,17 +832,19 @@ export default function ClientDetailsSection({
             </p>
           </div>
           <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center sm:gap-3">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleGenerateContract();
-              }}
-              className={cn(generateClauseButtonClass, "hidden sm:inline-flex")}
-              title="Auto-generate legal clause text from your settings below"
-            >
-              ✨ {clauseActionLabel}
-            </button>
+            {!isReadOnly && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleGenerateContract();
+                }}
+                className={cn(generateClauseButtonClass, "hidden sm:inline-flex")}
+                title="Auto-generate legal clause text from your settings below"
+              >
+                ✨ {clauseActionLabel}
+              </button>
+            )}
             <ChevronDownIcon
               className={cn(
                 "hidden h-5 w-5 shrink-0 sm:block transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]",
@@ -978,7 +998,8 @@ export default function ClientDetailsSection({
                 </div>
 
                 {/* Primary action — mobile: after inputs; desktop: also in header */}
-                <div className="border-t-2 border-dashed border-[#111118]/25 pt-4 sm:hidden">
+                {!isReadOnly && (
+                  <div className="border-t-2 border-dashed border-[#111118]/25 pt-4 sm:hidden">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -990,7 +1011,8 @@ export default function ClientDetailsSection({
                   >
                     ✨ {clauseActionLabel}
                   </button>
-                </div>
+                  </div>
+                )}
 
                 {/* Generated MSA — connected preview after generation action */}
                 <div className="space-y-3 border-t-2 border-[#111118] pt-4 min-w-0">
@@ -1015,18 +1037,20 @@ export default function ClientDetailsSection({
                         className={cn(inputClass(undefined, Boolean(value.msaNotesBoilerplate), true), "resize-y w-full min-w-0")}
                         style={{ minHeight: 120, maxHeight: 300 }}
                       />
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateField("msaNotesBoilerplate", "");
-                          }}
-                          className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[1px_1px_0_#111118] hover:bg-[#FFF5F2] transition-colors"
-                        >
-                          Clear
-                        </button>
-                      </div>
+                      {!isReadOnly && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateField("msaNotesBoilerplate", "");
+                            }}
+                            className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[1px_1px_0_#111118] hover:bg-[#FFF5F2] transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-[#111118]/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--text-muted)] leading-relaxed break-normal">

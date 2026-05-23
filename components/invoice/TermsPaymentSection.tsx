@@ -50,6 +50,7 @@ interface TermsPaymentSectionProps {
   agency: import("@/types/invoice").AgencyDetails;
   msaSource?: "client" | "global" | "project" | "default" | null;
   onPreview?: () => void;
+  isReadOnly?: boolean;
 }
 
 type StructuredBankAddressFields = {
@@ -109,8 +110,10 @@ export default function TermsPaymentSection({
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
   onPreview,
+  isReadOnly: editorReadOnly = false,
 }: TermsPaymentSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (editorReadOnly) return "";
     if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
     return "input-manual";
@@ -192,7 +195,7 @@ export default function TermsPaymentSection({
   const swiftBicCodeError = getVisibleError("swiftBicCode", errors?.swiftBicCode);
 
   const isAddendumMode = meta.hasAddendum;
-  const isReadOnly = !isAddendumMode;
+  const isReadOnly = editorReadOnly || !isAddendumMode;
 
   // Derive effective MSA data from local form state (Step 2) or DB (persisted client)
   const effectiveMsaDays = selectedClientMsa?.msa_payment_terms_days ?? agency.msaPaymentTermsDays ?? client.msaPaymentTermsDays;
@@ -300,6 +303,7 @@ export default function TermsPaymentSection({
                 </div>
               </div>
 
+              {!editorReadOnly && (
               <div className="flex items-center gap-6">
                 <button
                   type="button"
@@ -325,6 +329,7 @@ export default function TermsPaymentSection({
                   </div>
                 </button>
               </div>
+              )}
             </div>
           </div>
 
@@ -495,7 +500,7 @@ export default function TermsPaymentSection({
                             ? "Payment expected as soon as client receives invoice."
                             : `Calculated as ${meta.paymentTerms} days after issue date.`}
                         </p>
-                        {isReadOnly && (
+                        {isReadOnly && !editorReadOnly && (
                           <button
                             type="button"
                             onClick={() => updateMetaField("hasAddendum", true)}
@@ -676,7 +681,7 @@ export default function TermsPaymentSection({
                                   <label className={appFieldLabelClass}>
                                     <span className="flex flex-wrap items-center gap-1.5 group">
                                       {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
-                                      License Type *
+                                      License Type{!editorReadOnly && " *"}
                                     </span>
                                   </label>
                                   <div className={cn("flex flex-wrap gap-2", isReadOnly && "opacity-60 pointer-events-none")}>
@@ -709,7 +714,7 @@ export default function TermsPaymentSection({
                                         <label className={appFieldLabelClass}>
                                           <span className="flex flex-wrap items-center gap-1.5 group">
                                             {isReadOnly && <Lock size={11} className="text-[color:var(--text-soft)]"  />}
-                                            License Duration *
+                                            License Duration{!editorReadOnly && " *"}
                                           </span>
                                           {autoFilledFields.has("payment.license.licenseDuration") && (
                                             <span className="autofill-indicator">auto-filled</span>
@@ -1071,6 +1076,7 @@ export default function TermsPaymentSection({
               </AnimatePresence>
           </div>
 
+          {!editorReadOnly && (
           <div className="flex justify-end mt-8 pt-6 border-t-2 border-[color:var(--border-subtle)]">
             <button
               type="button"
@@ -1081,6 +1087,7 @@ export default function TermsPaymentSection({
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </button>
           </div>
+          )}
         </div>
       </section>
     </>

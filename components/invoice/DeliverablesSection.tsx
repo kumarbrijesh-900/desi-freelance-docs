@@ -63,6 +63,7 @@ interface DeliverablesSectionProps {
   projectId?: string | null;
   onChangeProjectId?: (id: string | null) => void;
   clientId?: string | null;
+  isReadOnly?: boolean;
 }
 
 
@@ -94,6 +95,7 @@ export default function DeliverablesSection({
   projectId = null,
   onChangeProjectId,
   clientId = null,
+  isReadOnly = false,
 }: DeliverablesSectionProps) {
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
@@ -136,6 +138,7 @@ export default function DeliverablesSection({
   }, [clientId, loadingProjects, onChangeProjectId, projectId, projectsList]);
 
   const handleCreateNewProject = async () => {
+    if (isReadOnly) return;
     if (!newProjectName.trim() || !clientId) return;
     setIsSubmittingNew(true);
     const { createProject } = await import("@/lib/supabase/invoices");
@@ -174,6 +177,7 @@ export default function DeliverablesSection({
   }, [createDefaultLineItem]);
 
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
+    if (isReadOnly) return "";
     if (typeof fieldValue === "string" && !fieldValue.trim()) return "";
     if (autoFilledFields.has(fieldPath)) return "input-autofilled";
     return "input-manual";
@@ -194,42 +198,52 @@ export default function DeliverablesSection({
 
   // Milestone-level operations
   const addMilestone = useCallback(() => {
+    if (isReadOnly) return;
     const next = [...effectiveMilestones, createDefaultMilestone(effectiveMilestones.length)];
     onChange(next);
-  }, [effectiveMilestones, onChange]);
+  }, [createDefaultMilestone, effectiveMilestones, isReadOnly, onChange]);
 
   const removeMilestone = useCallback((milestoneId: string) => {
+    if (isReadOnly) return;
     onChange(effectiveMilestones.filter((m) => m.id !== milestoneId));
-  }, [effectiveMilestones, onChange]);
+  }, [effectiveMilestones, isReadOnly, onChange]);
 
   const updateMilestoneTitle = useCallback((milestoneId: string, title: string) => {
+    if (isReadOnly) return;
     onChange(effectiveMilestones.map((m) => m.id === milestoneId ? { ...m, title } : m));
-  }, [effectiveMilestones, onChange]);
+  }, [effectiveMilestones, isReadOnly, onChange]);
 
   // Line item operations
   const addLineItem = useCallback((milestoneId: string) => {
+    if (isReadOnly) return;
     onChange(effectiveMilestones.map((m) =>
       m.id === milestoneId
         ? { ...m, lineItems: [...m.lineItems, createDefaultLineItem()] }
         : m
     ));
-  }, [effectiveMilestones, onChange]);
+  }, [createDefaultLineItem, effectiveMilestones, isReadOnly, onChange]);
 
   const removeLineItem = useCallback((milestoneId: string, itemId: string) => {
+    if (isReadOnly) return;
     onChange(effectiveMilestones.map((m) =>
       m.id === milestoneId
         ? { ...m, lineItems: m.lineItems.filter((li) => li.id !== itemId) }
         : m
     ));
-  }, [effectiveMilestones, onChange]);
+  }, [effectiveMilestones, isReadOnly, onChange]);
 
   const updateLineItem = useCallback((milestoneId: string, itemId: string, patch: Partial<InvoiceLineItem>) => {
+    if (isReadOnly) return;
     onChange(effectiveMilestones.map((m) =>
       m.id === milestoneId
         ? { ...m, lineItems: m.lineItems.map((li) => li.id === itemId ? { ...li, ...patch } : li) }
         : m
     ));
-  }, [effectiveMilestones, onChange]);
+  }, [effectiveMilestones, isReadOnly, onChange]);
+
+  const selectedProjectName =
+    projectsList.find((project) => project.id === projectId)?.name ||
+    (projectId ? "Linked project" : "No project linked");
 
   return (
     <section
@@ -258,7 +272,7 @@ export default function DeliverablesSection({
                   Organize your invoices and milestones under a parent Project for compliance and tracking.
                 </>} />
               </div>
-              {isCreatingNew && (
+              {isCreatingNew && !isReadOnly && (
                 <button
                   type="button"
                   onClick={() => {
@@ -272,7 +286,11 @@ export default function DeliverablesSection({
               )}
             </div>
 
-            {!isCreatingNew ? (
+            {isReadOnly ? (
+              <div className="border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 text-[13px] font-semibold text-[#6B6660]">
+                {selectedProjectName}
+              </div>
+            ) : !isCreatingNew ? (
               <div className="w-full">
                 <BrutalSelect
                   value={projectId || ""}
@@ -320,11 +338,13 @@ export default function DeliverablesSection({
             )}
           </div>
         ) : (
+          !isReadOnly ? (
           <div className="p-4 border-2 border-dashed border-gray-300 bg-gray-50 text-center">
             <p className="text-xs text-gray-500 font-medium">
               💡 Please select a Client in Step 2 to link this invoice to a project.
             </p>
           </div>
+          ) : null
         )}
 
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
@@ -349,7 +369,12 @@ export default function DeliverablesSection({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="overflow-visible border border-[color:var(--border-subtle)] bg-white shadow-sm transition-all hover:shadow-md"
+                className={cn(
+                  "overflow-visible border bg-white shadow-sm transition-all",
+                  isReadOnly
+                    ? "border-[#D4D2CC] hover:shadow-sm"
+                    : "border-[color:var(--border-subtle)] hover:shadow-md",
+                )}
               >
                 {/* Milestone header */}
                 {effectiveMilestones.length > 1 && (
@@ -368,7 +393,7 @@ export default function DeliverablesSection({
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
                           className="text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border"
                         />
-                        <PencilIcon className="h-4 w-4 text-gray-300" />
+                        {!isReadOnly && <PencilIcon className="h-4 w-4 text-gray-300" />}
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
@@ -376,13 +401,15 @@ export default function DeliverablesSection({
                         <p className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--text-muted)]">Milestone Subtotal</p>
                         <p className="text-lg font-black text-[color:var(--text-primary)]">{formatCurrency(milestoneSubtotal, currency)}</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeMilestone(milestone.id)}
-                        className="text-gray-300 hover:text-[#FF5C00] text-xl transition-colors"
-                      >
-                        ×
-                      </button>
+                      {!isReadOnly && (
+                        <button
+                          type="button"
+                          onClick={() => removeMilestone(milestone.id)}
+                          className="text-gray-300 hover:text-[#FF5C00] text-xl transition-colors"
+                        >
+                          ×
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -416,27 +443,30 @@ export default function DeliverablesSection({
                             milestoneIndex={mIdx}
                             itemIndex={milestone.lineItems.indexOf(item)}
                             isGuestMode={isGuestMode}
+                            isReadOnly={isReadOnly}
                           />
                         </motion.div>
                       ))}
                     </AnimatePresence>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => addLineItem(milestone.id)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--text-muted)] transition-colors hover:text-lime-600 group"
-                  >
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
-                    Add Line Item
-                  </button>
+                  {!isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={() => addLineItem(milestone.id)}
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--text-muted)] transition-colors hover:text-lime-600 group"
+                    >
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
+                      Add Line Item
+                    </button>
+                  )}
                 </div>
               </motion.div>
             );
           })}
         </AnimatePresence>
 
-        {MAX_MILESTONES > 1 && (
+        {!isReadOnly && MAX_MILESTONES > 1 && (
           <div className="pt-2">
             <button
               type="button"
@@ -476,6 +506,7 @@ function LineItemCard({
   milestoneIndex,
   itemIndex,
   isGuestMode,
+  isReadOnly,
 }: {
   item: InvoiceLineItem;
   currency: InvoiceDisplayCurrency;
@@ -493,6 +524,7 @@ function LineItemCard({
   milestoneIndex: number;
   itemIndex: number;
   isGuestMode?: boolean;
+  isReadOnly?: boolean;
 }) {
   const catalogEntry = getInvoiceLineItemCatalogEntry(item.type);
   const hasSubTypes = (catalogEntry as any)?.hasSubTypes;
@@ -550,15 +582,22 @@ function LineItemCard({
   };
 
   return (
-    <div className="group relative border-2 border-[#111118] bg-white p-4 transition-all hover:shadow-[var(--brutal-shadow-sm)]">
+    <div className={cn(
+      "group relative border-2 bg-white p-4 transition-all",
+      isReadOnly
+        ? "border-[#D4D2CC] hover:shadow-none"
+        : "border-[#111118] hover:shadow-[var(--brutal-shadow-sm)]",
+    )}>
       {/* Delete button */}
-      <button
-        type="button"
-        onClick={onRemove}
-        className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center bg-white border-2 border-[#111118] text-[color:var(--text-muted)] shadow-[var(--brutal-shadow-pressed)] transition-all hover:border-[#FF5C00] hover:bg-[#FFF0EC] hover:text-[#FF5C00] lg:opacity-0 lg:group-hover:opacity-100"
-      >
-        ×
-      </button>
+      {!isReadOnly && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center bg-white border-2 border-[#111118] text-[color:var(--text-muted)] shadow-[var(--brutal-shadow-pressed)] transition-all hover:border-[#FF5C00] hover:bg-[#FFF0EC] hover:text-[#FF5C00] lg:opacity-0 lg:group-hover:opacity-100"
+        >
+          ×
+        </button>
+      )}
 
       <div className="space-y-4">
         {/* Row 1: Type & SAC */}
@@ -573,6 +612,7 @@ function LineItemCard({
               options={invoiceLineItemTypeOptions.map(opt => ({ label: opt, value: opt }))}
               placeholder="Select category..."
               className={getInputStateClass(`deliverables.${itemIndex}.type`, item.type)}
+              isReadOnly={isReadOnly}
             />
           </div>
 
@@ -588,6 +628,7 @@ function LineItemCard({
                 options={subTypeOptions.map((st: any) => ({ label: st.label, value: st.key }))}
                 placeholder="Select sub-type..."
                 className={getInputStateClass(`deliverables.${itemIndex}.subType`, (item as any).subType || "")}
+                isReadOnly={isReadOnly}
               />
             </div>
           )}
@@ -636,7 +677,7 @@ function LineItemCard({
               }, 200);
             }}
           />
-          {showSuggestions && (
+          {!isReadOnly && showSuggestions && (
             <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s: string) => (
                 <button
@@ -681,6 +722,7 @@ function LineItemCard({
               options={allowedUnits.map(u => ({ label: invoiceRateUnitLabels[u], value: u }))}
               placeholder="Select unit..."
               className={getInputStateClass(`deliverables.${itemIndex}.unit`, item.rateUnit)}
+              isReadOnly={isReadOnly}
             />
           </div>
 
@@ -700,10 +742,13 @@ function LineItemCard({
                 type="number"
                 value={item.rate}
                 placeholder={isGuestMode ? "Enter" : "0"}
-                className={cn(
-                  "h-11 text-[14px] !pl-10",
-                  getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate)
-                )}
+                className={isReadOnly
+                  ? "h-11 text-[14px] !pl-10 border-[#D4D2CC] bg-[#F5F4F0] text-[#6B6660] shadow-none"
+                  : cn(
+                      "h-11 text-[14px] !pl-10",
+                      getInputStateClass(`deliverables.${itemIndex}.rate`, item.rate),
+                    )
+                }
                 errorText={(showAllErrors || touchedFields[`${item.id}:rate`]) ? errors?.rate : undefined}
                 onChange={(e) => {
                   onFieldManualEdit(`deliverables.${itemIndex}.rate`);
@@ -792,12 +837,14 @@ function BrutalSelect({
   options,
   placeholder = "Select...",
   className,
+  isReadOnly = false,
 }: {
   value: string;
   onChange: (val: string) => void;
   options: { label: string; value: string }[];
   placeholder?: string;
   className?: string;
+  isReadOnly?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -815,6 +862,19 @@ function BrutalSelect({
   }, [isOpen]);
 
   const selectedOption = options.find((opt) => opt.value === value);
+
+  if (isReadOnly) {
+    return (
+      <div
+        className={cn(
+          "flex h-11 w-full items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 text-[14px] font-normal text-[#6B6660]",
+          className,
+        )}
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("relative w-full", className)} ref={containerRef}>

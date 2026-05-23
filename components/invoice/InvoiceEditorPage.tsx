@@ -2678,6 +2678,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
           isGuestMode={isGuestMode}
+          isReadOnly={isReadOnlyMode}
           value={{ ...formData.agency, profileLogoUrl }}
           onChange={(agency) => updateFormSection("agency", agency)}
           errors={fieldErrors.agency}
@@ -2691,6 +2692,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <ClientDetailsSection
           key={isBootstrapped ? "hydrated" : "loading"}
           value={formData.client}
+          isReadOnly={isReadOnlyMode}
           onChange={(client) => updateFormSection("client", client)}
           onClientSelect={handleClientSelect}
           errors={fieldErrors.client}
@@ -2707,6 +2709,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <DeliverablesSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
+          isReadOnly={isReadOnlyMode}
           milestones={formData.milestones}
           currency={displayCurrency}
           onChange={(milestones) => {
@@ -2733,6 +2736,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <TermsPaymentSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
+          isReadOnly={isReadOnlyMode}
           value={{ ...formData.payment, profileQrUrl }}
           meta={formData.meta}
           client={formData.client}
@@ -2763,6 +2767,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
         <InvoiceMetaSection
           key={isBootstrapped ? "hydrated" : "loading"}
           embedded
+          isReadOnly={isReadOnlyMode}
           value={formData.meta}
           msaSource={msaSource}
           onChange={handleMetaChange}
@@ -3030,9 +3035,10 @@ return (
                         <div className="flex min-w-0 items-start gap-2">
                           <span className={cn(
                             "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
-                            isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
+                            isReadOnlyMode && "h-auto min-w-[32px] rounded-none border-0 bg-transparent text-[#6B6660] shadow-none",
+                            !isReadOnlyMode && isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
                           )}>
-                            {isCompleted ? "✓" : index + 1}
+                            {isReadOnlyMode ? "view" : isCompleted ? "✓" : index + 1}
                           </span>
                           <div className="min-w-0 space-y-1">
                             <p className="text-[12px] font-semibold leading-4 tracking-[0.005em] text-[color:var(--text-primary)]">
@@ -3342,7 +3348,7 @@ return (
                     onActivate={() => scrollToStep(currentStep)}
                     isReadOnly={isReadOnlyMode}
                     footer={
-                      getNextStep(currentStep) ? (
+                      !isReadOnlyMode && getNextStep(currentStep) ? (
                         <div className="mt-8 flex flex-col items-end gap-2">
                           {!stepValidityByStep[currentStep] && (
                             <p className="text-[12px] text-[color:var(--text-muted)]">
