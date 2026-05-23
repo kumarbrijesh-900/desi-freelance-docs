@@ -1,38 +1,26 @@
 # Session Log — May 22-23, 2026
 
-## Latest checkpoint: v2.1.1 PostgREST Relationship Disambiguation — May 23, 2026
+## Latest checkpoint: v2.8.8 Backend Share Guardrail — May 23, 2026
 
 ### Sequence
-
-1. **Phase 5 was already shipped:** Payment and Settlement Confidence was committed and pushed to `main` as `ae8fa5d`.
-2. **Production risk surfaced next:** Vercel/Supabase logs showed PostgREST returning HTTP 300 Multiple Choices on invoice queries joining `project:projects(...)`.
-3. **Root cause was relationship ambiguity:** `invoices.project_id -> projects.id` and `projects.msa_accepted_via_invoice_id -> invoices.id` both connect invoices and projects, so PostgREST needed an explicit relationship hint.
-4. **Minimal stability fix applied:** only the three known invoice-to-project read sites were changed, and `share-invoice` fetch failures were separated from true not-found responses.
-
-### Implementation
-
-- Replaced ambiguous `project:projects(msa_accepted_at, status)` joins with `project:projects!project_id(msa_accepted_at, status)` in the share route, `loadInvoice`, and `loadInvoiceByToken`.
-- Split `share-invoice` fetch handling so Supabase query failures log `SHARE_INVOICE_FETCH_FAILED` with code, message, details, and hint, then return HTTP 500.
-- Preserved true missing-row handling as HTTP 404 with `Invoice not found.`
-- Left `getInvoiceLockState`, settlement flow behavior, and unrelated Supabase queries unchanged.
+1. **v2.8.8 Step 1+2 originally shipped** as commit `aac399a` (lock helper + backend guard).
+2. **Step 3 (preview UI gating)** shipped as commit `8ff3bb5`.
+3. **PostgREST join ambiguity bug** discovered during E2E testing — every share-invoice POST returned 404 because the invoices↔projects join had two valid FK paths and PostgREST refused to guess.
+4. **Fix shipped** disambiguating join with `!project_id` at 3 sites + splitting the misleading 404/500 error handler.
 
 ### Verification
+- `npx tsc --noEmit` clean.
+- Production E2E confirmed: POST /api/share-invoice on INV-2026-9446 (msa_status='accepted') returns 403 with `reason: "Terms accepted by client — invoice is locked."` and `state: "msa-accepted"`.
+- v2.8.8 backend guardrail proven live.
 
-- `npm run build` passed on May 23, 2026, with only the existing Upstash Redis environment warning.
-- `npx tsc --noEmit` passed cleanly on May 23, 2026.
-- `grep -rn "project:projects(" --include="*.ts" --include="*.tsx" .` returned zero matches because no unqualified project join remains.
-- Broader grep for `project:projects` confirmed the three intended fixed sites, all using `!project_id`.
-- Fix commit was pushed to `main` as `ca1a43b`.
+### Files changed
+- app/api/share-invoice/route.ts
+- lib/supabase/invoices.ts
 
-### Files changed in this checkpoint
-
-- `app/api/share-invoice/route.ts`
-- `lib/supabase/invoices.ts`
-- `SESSION_LOG.md`
-
-### Next phase
-
-- Continue Phase 6: DB mapping and schema sanity, authenticated owner QA, and operational polish around project-organized invoices.
+### Open items
+- Visual QA on preview UI lock banners (commit `8ff3bb5` work)
+- "MONEY IN ₹8,63,384 / 0 settled" dashboard label contradiction noted in earlier session
+- Resend semantics (DB-state-based vs request-signal-based isResend) — refactor candidate for v2.9
 
 ---
 
