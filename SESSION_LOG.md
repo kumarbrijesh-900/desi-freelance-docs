@@ -1,26 +1,25 @@
 # Session Log — May 22-23, 2026
 
-## Latest checkpoint: v2.8.8 Backend Share Guardrail — May 23, 2026
+## Latest checkpoint: v2.8.8 Sprint 1 — Locked-Mode Chrome Theme — May 23, 2026
 
 ### Sequence
-1. **v2.8.8 Step 1+2 originally shipped** as commit `aac399a` (lock helper + backend guard).
-2. **Step 3 (preview UI gating)** shipped as commit `8ff3bb5`.
-3. **PostgREST join ambiguity bug** discovered during E2E testing — every share-invoice POST returned 404 because the invoices↔projects join had two valid FK paths and PostgREST refused to guess.
-4. **Fix shipped** disambiguating join with `!project_id` at 3 sites + splitting the misleading 404/500 error handler.
-
-### Verification
-- `npx tsc --noEmit` clean.
-- Production E2E confirmed: POST /api/share-invoice on INV-2026-9446 (msa_status='accepted') returns 403 with `reason: "Terms accepted by client — invoice is locked."` and `state: "msa-accepted"`.
-- v2.8.8 backend guardrail proven live.
+1. Critical UX bug surfaced: locked invoices opened in editor with editing chrome contradicting the lock banner. Users saw "Edit Invoice" title, "Editor progress / 4 of 4 ready" rail, "Preview invoice →" CTA despite fields being disabled.
+2. Sprint 1 prompt executed via Codex: chrome theme driven by `data-mode={isReadOnlyMode ? "locked" : "editing"}` on the editor root.
+3. Six surfaces updated: page header, step header, left rail, status card, field CSS, bottom bar. Status card overlap bug fixed as a side effect of re-flowing the card layout.
 
 ### Files changed
-- app/api/share-invoice/route.ts
-- lib/supabase/invoices.ts
+- components/invoice/InvoiceEditorPage.tsx
+- app/globals.css
 
-### Open items
-- Visual QA on preview UI lock banners (commit `8ff3bb5` work)
-- "MONEY IN ₹8,63,384 / 0 settled" dashboard label contradiction noted in earlier session
-- Resend semantics (DB-state-based vs request-signal-based isResend) — refactor candidate for v2.9
+### Verification
+- npx tsc --noEmit clean
+- npm run build clean (existing Upstash warning unrelated)
+- Local /invoice/new render check passed
+- Visual verification on locked + editable invoices passed
+
+### Deferred (UNRESOLVED, queued for Sprint 2)
+- Required asterisks in child section components still visible when locked (5 files: AgencyDetailsSection, ClientDetailsSection, DeliverablesSection, TermsPaymentSection, InvoiceMetaSection)
+- `lockState.alternativeAction` is label-only; needs `intent` discriminator for action-specific routing (Download/Resend/Duplicate/Reactivate)
 
 ---
 
