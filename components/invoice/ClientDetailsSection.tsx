@@ -144,7 +144,10 @@ export default function ClientDetailsSection({
       const { data, error } = await listClients();
       setIsLoading(false);
 
-      if (error) console.error(error);
+      // Fix 3B: listClients() returns "Not authenticated" for guest/unauthenticated
+      // users — this is expected and should not surface as a console error (which
+      // Turbopack dev overlay picks up and renders as a blocking full-screen modal).
+      if (error && error !== "Not authenticated") console.error(error);
       if (data) setInternalClients(data);
     }
   };
