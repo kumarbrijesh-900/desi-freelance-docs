@@ -9,8 +9,7 @@ import { supabase, getClientSessionUser } from "@/lib/supabase/client";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { cn } from "@/lib/ui-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import { markInvoiceSettled, cancelInvoice } from "@/lib/supabase/invoices";
-import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
+import { cancelInvoice } from "@/lib/supabase/invoices";
 import {
   announceInvoiceDataChanged,
   INVOICE_DATA_CHANGED_EVENT,
@@ -46,6 +45,7 @@ interface ClientHealth {
   clientCity: string;
   invoices: Array<{
     id: string;
+    project_id?: string | null;
     invoiceNumber: string;
     status: string;
     totalAmount: number;
@@ -104,6 +104,7 @@ interface ProjectHealth {
   clientCity: string;
   invoices: Array<{
     id: string;
+    project_id?: string | null;
     invoiceNumber: string;
     status: string;
     totalAmount: number;
@@ -268,6 +269,25 @@ function getDaysUntil(dateStr?: string | null): number | null {
   today.setHours(0, 0, 0, 0);
   due.setHours(0, 0, 0, 0);
   return Math.ceil((due.getTime() - today.getTime()) / 86400000);
+}
+
+type MilestoneTriggerMode = "immediate" | "scheduled" | "cancelled";
+
+function toDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getDefaultScheduleDate(): string {
+  const date = new Date();
+  date.setDate(date.getDate() + 7);
+  return toDateInputValue(date);
+}
+
+function dateInputToIso(dateValue: string): string {
+  return new Date(`${dateValue}T09:00:00`).toISOString();
 }
 
 function getProjectProgress(project: ProjectHealth): number {
@@ -449,6 +469,11 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"receivable" | "collected" | "name" | "health">("receivable");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [settlementModal, setSettlementModal] = useState<{
+    milestoneIndex: number;
+    triggerMode: MilestoneTriggerMode;
+    triggerDate: string;
+  } | null>(null);
   const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
   const [collapsedProjectIds, setCollapsedProjectIds] = useState<string[]>([]);
 
@@ -510,12 +535,16 @@ export default function DashboardPage() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
+        if (settlementModal) {
+          setSettlementModal(null);
+          return;
+        }
         setSelectedInvoice(null);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [settlementModal]);
 
   // Detect mobile for default-expanded accordions
   useEffect(() => {
@@ -568,7 +597,28 @@ export default function DashboardPage() {
     });
   }
 
-  const handleSettleMilestone = async (miIndex: number) => {
+  const openSettlementModal = (miIndex: number) => {
+    if (!selectedInvoice) return;
+    const milestones = selectedInvoice.milestones || [];
+    const nextIndex = miIndex + 1;
+    const hasNext = nextIndex < milestones.length;
+
+    if (!hasNext) {
+      void handleSettleMilestone(miIndex, { triggerMode: "cancelled" });
+      return;
+    }
+
+    setSettlementModal({
+      milestoneIndex: miIndex,
+      triggerMode: "scheduled",
+      triggerDate: getDefaultScheduleDate(),
+    });
+  };
+
+  const handleSettleMilestone = async (
+    miIndex: number,
+    options: { triggerMode: MilestoneTriggerMode; triggerDate?: string },
+  ) => {
     if (!selectedInvoice) return;
     try {
       const activeM = selectedInvoice.milestones[miIndex];
@@ -577,132 +627,53 @@ export default function DashboardPage() {
       const nextIndex = miIndex + 1;
       const hasNext = nextIndex < selectedInvoice.milestones.length;
       const nextM = hasNext ? selectedInvoice.milestones[nextIndex] : null;
-      const netDays = parsePaymentTermsDays(
-        selectedInvoice.applied_payment_terms || selectedInvoice.form_data?.meta?.paymentTerms
-      );
-      const dueDateStr = selectedInvoice.dueDate || selectedInvoice.due_date || selectedInvoice.form_data?.meta?.dueDate;
-      const settlementAmount = Number(activeM.amount || 0);
-      const confirmText = hasNext
-        ? `Confirm payment received for M${miIndex + 1} (${activeM.title}) worth ₹${formatIndian(settlementAmount)}. Current due date: ${formatDashboardDate(dueDateStr)}. After confirmation, M${nextIndex + 1} (${nextM?.title || "next milestone"}) becomes LIVE and gets a new Net ${netDays} due date.`
-        : `Confirm final payment received for ${activeM.title} worth ₹${formatIndian(settlementAmount)}. Current due date: ${formatDashboardDate(dueDateStr)}. After confirmation, this invoice closes as fully settled.`;
+      const triggerMode = hasNext ? options.triggerMode : "cancelled";
+      const triggerDate =
+        triggerMode === "scheduled" && options.triggerDate
+          ? dateInputToIso(options.triggerDate)
+          : undefined;
 
-      const confirmed = await showConfirm("Confirm Payment Received", confirmText, "warning", "Mark Paid", "Cancel");
-      if (!confirmed) return;
+      const response = await fetch("/api/invoice/trigger-next-milestone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoice_id: selectedInvoice.id,
+          project_id: selectedInvoice.project_id ?? null,
+          trigger_mode: triggerMode,
+          trigger_date: triggerDate,
+        }),
+      });
 
-      // 1. Settle current milestone in database
-      const { error: settleErr } = await supabase
-        .from("invoice_milestones")
-        .update({ status: "SETTLED" })
-        .eq("invoice_id", selectedInvoice.id)
-        .eq("order_index", miIndex);
-
-      if (settleErr) {
-        showAlert("Settlement Error", `Error settling milestone: ${settleErr.message}`, "error");
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.error) {
+        showAlert(
+          "Settlement Error",
+          payload?.error || payload?.reason || "Could not settle this milestone.",
+          "error",
+        );
         return;
       }
 
-      if (hasNext) {
-        // 2. Start next milestone
-        if (!nextM) return;
-        
-        // Calculate new due date based on Today + Net Days
-        const newDueDate = new Date();
-        newDueDate.setDate(newDueDate.getDate() + netDays);
-        const newDueDateIso = newDueDate.toISOString().split("T")[0]; // YYYY-MM-DD
-
-        // Update next milestone status to LIVE
-        const { error: nextErr } = await supabase
-          .from("invoice_milestones")
-          .update({ status: "LIVE" })
-          .eq("invoice_id", selectedInvoice.id)
-          .eq("order_index", nextIndex);
-
-        if (nextErr) {
-          showAlert("Milestone Error", `Error starting next milestone: ${nextErr.message}`, "error");
-          return;
-        }
-
-        // Update invoice overall due_date and form_data payload
-        const updatedFormData = {
-          ...selectedInvoice.form_data,
-          meta: {
-            ...(selectedInvoice.form_data?.meta || {}),
-            dueDate: newDueDateIso,
-          },
-          milestones: (selectedInvoice.form_data?.milestones || []).map((m: any, idx: number) => {
-            if (idx === miIndex) return { ...m, status: "SETTLED" };
-            if (idx === nextIndex) return { ...m, status: "LIVE" };
-            return m;
-          }),
-        };
-
-        const { error: invErr } = await supabase
-          .from("invoices")
-          .update({
-            due_date: newDueDateIso,
-            status: "PARTIAL",
-            form_data: updatedFormData as any,
-            ...computeAppliedMsaSnapshot(updatedFormData as any),
-          })
-          .eq("id", selectedInvoice.id);
-
-        if (invErr) {
-          showAlert("Update Error", `Error updating invoice due date: ${invErr.message}`, "error");
-          return;
-        }
-
-        // Create notification
-        const { data: userSession } = await supabase.auth.getSession();
-        const userId = userSession?.session?.user?.id;
-        if (userId) {
-          await supabase.from("notifications").insert({
-            user_id: userId,
-            invoice_id: selectedInvoice.id,
-            type: "milestone_settled",
-            title: "Milestone Paid & Next Started",
-            message: `Milestone ${miIndex + 1} settled. Milestone ${nextIndex + 1} ("${nextM.title}") is now LIVE and due on ${newDueDateIso} (calculated as today + ${netDays} days terms).`,
-            is_read: false,
-          });
-        }
-
-        showAlert("Milestone Settled", `Milestone ${miIndex + 1} settled! Milestone ${nextIndex + 1} is now LIVE with due date ${newDueDateIso} (Net ${netDays} days).`, "success");
+      if (triggerMode === "immediate") {
+        showAlert(
+          "Milestone Settled",
+          `Milestone ${miIndex + 1} settled. M${nextIndex + 1} (${nextM?.title || "next milestone"}) invoice was generated and sent.`,
+          "success",
+        );
+      } else if (triggerMode === "scheduled") {
+        showAlert(
+          "Milestone Scheduled",
+          `Milestone ${miIndex + 1} settled. M${nextIndex + 1} (${nextM?.title || "next milestone"}) will be generated on ${formatDashboardDate(payload?.trigger_date || triggerDate)}.`,
+          "success",
+        );
       } else {
-        // Settle entire invoice
-        const updatedFormData = {
-          ...selectedInvoice.form_data,
-          milestones: (selectedInvoice.form_data?.milestones || []).map((m: any) => ({ ...m, status: "SETTLED" })),
-        };
-
-        const { error: invErr } = await supabase
-          .from("invoices")
-          .update({
-            status: "SETTLED",
-            settled_at: new Date().toISOString(),
-            form_data: updatedFormData as any,
-            ...computeAppliedMsaSnapshot(updatedFormData as any),
-          })
-          .eq("id", selectedInvoice.id);
-
-        if (invErr) {
-          showAlert("Settlement Error", `Error settling invoice: ${invErr.message}`, "error");
-          return;
-        }
-
-        // Create notification
-        const { data: userSession } = await supabase.auth.getSession();
-        const userId = userSession?.session?.user?.id;
-        if (userId) {
-          await supabase.from("notifications").insert({
-            user_id: userId,
-            invoice_id: selectedInvoice.id,
-            type: "invoice_settled",
-            title: "Invoice Fully Settled",
-            message: `All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully paid.`,
-            is_read: false,
-          });
-        }
-
-        showAlert("Invoice Settled", `All milestones settled! Invoice ${selectedInvoice.invoiceNumber} is fully paid.`, "success");
+        showAlert(
+          hasNext ? "Project Closed" : "Invoice Settled",
+          hasNext
+            ? `Milestone ${miIndex + 1} settled. Remaining milestones were cancelled.`
+            : `Final milestone settled. Invoice ${selectedInvoice.invoiceNumber} is fully paid.`,
+          "success",
+        );
       }
 
       announceInvoiceDataChanged({
@@ -1065,6 +1036,7 @@ export default function DashboardPage() {
 
           clientHealth.invoices.push({
             id: inv.id,
+            project_id: inv.project_id,
             invoiceNumber: inv.invoice_number,
             status: inv.status,
             totalAmount: inv.totalAmount,
@@ -1214,6 +1186,7 @@ export default function DashboardPage() {
 
             projectHealth.invoices.push({
               id: inv.id,
+              project_id: inv.project_id,
               invoiceNumber: inv.invoice_number,
               status: inv.status,
               totalAmount: inv.totalAmount,
@@ -3057,7 +3030,7 @@ export default function DashboardPage() {
                     {/* Milestone settlement button */}
                     {milestones.length > 0 && activeMilestoneIndex !== -1 && (
                       <button
-                        onClick={() => handleSettleMilestone(activeMilestoneIndex)}
+                        onClick={() => openSettlementModal(activeMilestoneIndex)}
                         className="inline-flex w-full items-center justify-center gap-2 bg-[#00DCB4] text-[#111118] border-2 border-[#111118] py-2.5 text-[12px] font-black shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118] transition-all cursor-pointer uppercase font-syne"
                       >
                         <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
@@ -3086,6 +3059,146 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      {settlementModal && selectedInvoice && (() => {
+        const milestone = selectedInvoice.milestones?.[settlementModal.milestoneIndex];
+        const nextIndex = settlementModal.milestoneIndex + 1;
+        const todayValue = toDateInputValue(new Date());
+        const scheduleDateInvalid =
+          settlementModal.triggerMode === "scheduled" &&
+          (!settlementModal.triggerDate || settlementModal.triggerDate < todayValue);
+        const optionRowClass = (mode: MilestoneTriggerMode) => cn(
+          "flex cursor-pointer items-start gap-3 border-2 border-black p-3 transition-colors hover:bg-[#FAF7F2]",
+          settlementModal.triggerMode === mode ? "bg-[#FAF7F2]" : "bg-white",
+        );
+
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            onClick={() => setSettlementModal(null)}
+          >
+            <div
+              className="w-full max-w-[480px] border-[3px] border-black bg-white p-5 shadow-[4px_4px_0_#000]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="border-b-2 border-black pb-3">
+                <h2 className="m-0 text-lg font-black uppercase tracking-wide text-[#111118]">
+                  Settle Milestone {milestone?.title || `M${settlementModal.milestoneIndex + 1}`}?
+                </h2>
+                <p className="m-0 mt-1 text-sm font-medium text-neutral-600">
+                  What happens to the next milestone?
+                </p>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <label className={optionRowClass("immediate")}>
+                  <input
+                    type="radio"
+                    name="milestone-trigger-mode"
+                    value="immediate"
+                    checked={settlementModal.triggerMode === "immediate"}
+                    onChange={() =>
+                      setSettlementModal((prev) =>
+                        prev ? { ...prev, triggerMode: "immediate" } : prev
+                      )
+                    }
+                    className="mt-1 h-4 w-4 accent-[#111118]"
+                  />
+                  <span>
+                    <span className="block text-[13px] font-black uppercase text-[#111118]">
+                      Send next milestone invoice now
+                    </span>
+                    <span className="mt-1 block text-[12px] font-medium text-neutral-600">
+                      M{nextIndex + 1} invoice generated and emailed immediately
+                    </span>
+                  </span>
+                </label>
+
+                <label className={optionRowClass("scheduled")}>
+                  <input
+                    type="radio"
+                    name="milestone-trigger-mode"
+                    value="scheduled"
+                    checked={settlementModal.triggerMode === "scheduled"}
+                    onChange={() =>
+                      setSettlementModal((prev) =>
+                        prev ? { ...prev, triggerMode: "scheduled" } : prev
+                      )
+                    }
+                    className="mt-1 h-4 w-4 accent-[#111118]"
+                  />
+                  <span className="flex-1">
+                    <span className="block text-[13px] font-black uppercase text-[#111118]">
+                      Schedule for later
+                    </span>
+                    <span className="mt-1 block text-[12px] font-medium text-neutral-600">
+                      M{nextIndex + 1} invoice generated and emailed on the chosen date
+                    </span>
+                    {settlementModal.triggerMode === "scheduled" && (
+                      <input
+                        type="date"
+                        min={todayValue}
+                        value={settlementModal.triggerDate}
+                        onChange={(event) =>
+                          setSettlementModal((prev) =>
+                            prev ? { ...prev, triggerDate: event.target.value } : prev
+                          )
+                        }
+                        className="mt-3 w-full border-2 border-black bg-white px-3 py-2 text-[13px] font-bold text-[#111118] outline-none focus:bg-[#FAF7F2]"
+                      />
+                    )}
+                  </span>
+                </label>
+
+                <label className={optionRowClass("cancelled")}>
+                  <input
+                    type="radio"
+                    name="milestone-trigger-mode"
+                    value="cancelled"
+                    checked={settlementModal.triggerMode === "cancelled"}
+                    onChange={() =>
+                      setSettlementModal((prev) =>
+                        prev ? { ...prev, triggerMode: "cancelled" } : prev
+                      )
+                    }
+                    className="mt-1 h-4 w-4 accent-[#111118]"
+                  />
+                  <span>
+                    <span className="block text-[13px] font-black uppercase text-[#111118]">
+                      Close project — no more milestones
+                    </span>
+                    <span className="mt-1 block text-[12px] font-medium text-neutral-600">
+                      Remaining milestones soft-cancelled. No invoices generated.
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSettlementModal(null)}
+                  className="border-2 border-black bg-white px-4 py-2 text-[12px] font-black uppercase text-[#111118] hover:bg-[#FAF7F2]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={scheduleDateInvalid}
+                  onClick={() => {
+                    if (scheduleDateInvalid) return;
+                    const { milestoneIndex, triggerMode, triggerDate } = settlementModal;
+                    setSettlementModal(null);
+                    void handleSettleMilestone(milestoneIndex, { triggerMode, triggerDate });
+                  }}
+                  className="border-[3px] border-black bg-[#D4FF00] px-4 py-2 text-[12px] font-black uppercase text-[#111118] shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:bg-[#D4D2CC] disabled:text-[#6B6660] disabled:shadow-none"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {/* --- Neo-Brutalist Modal --- */}
       {modal.open && (
         <div
