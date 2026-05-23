@@ -60,9 +60,6 @@ interface DeliverablesSectionProps {
   isGuestMode?: boolean;
   freeRevisionRounds?: number;
   extraRevisionFeePercent?: number;
-  projectId?: string | null;
-  onChangeProjectId?: (id: string | null) => void;
-  clientId?: string | null;
   isReadOnly?: boolean;
 }
 
@@ -92,75 +89,8 @@ export default function DeliverablesSection({
   isGuestMode = false,
   freeRevisionRounds = 2,
   extraRevisionFeePercent = 15,
-  projectId = null,
-  onChangeProjectId,
-  clientId = null,
   isReadOnly = false,
 }: DeliverablesSectionProps) {
-  const [projectsList, setProjectsList] = useState<any[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(false);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [isSubmittingNew, setIsSubmittingNew] = useState(false);
-
-  useEffect(() => {
-    if (!clientId) {
-      setProjectsList([]);
-      setLoadingProjects(false);
-      return;
-    }
-    const activeClientId: string = clientId;
-    let active = true;
-    async function loadProjects() {
-      setLoadingProjects(true);
-      setProjectsList([]);
-      const { listProjectsByClient } = await import("@/lib/supabase/projects");
-      const { data } = await listProjectsByClient(activeClientId);
-      if (active) {
-        setProjectsList(data ?? []);
-      }
-      if (active) {
-        setLoadingProjects(false);
-      }
-    }
-    void loadProjects();
-    return () => {
-      active = false;
-    };
-  }, [clientId]);
-
-  useEffect(() => {
-    if (!clientId || loadingProjects || !projectId) return;
-    const projectBelongsToClient = projectsList.some((project) => project.id === projectId);
-    if (!projectBelongsToClient) {
-      onChangeProjectId?.(null);
-    }
-  }, [clientId, loadingProjects, onChangeProjectId, projectId, projectsList]);
-
-  const handleCreateNewProject = async () => {
-    if (isReadOnly) return;
-    if (!newProjectName.trim() || !clientId) return;
-    setIsSubmittingNew(true);
-    const { createProject } = await import("@/lib/supabase/projects");
-    const { data, error } = await createProject(
-      newProjectName.trim(),
-      clientId,
-      newProjectDescription.trim() || undefined
-    );
-    setIsSubmittingNew(false);
-    if (!error && data) {
-      setProjectsList((prev) => [data, ...prev]);
-      if (onChangeProjectId) {
-        onChangeProjectId(data.id);
-      }
-      setIsCreatingNew(false);
-      setNewProjectName("");
-      setNewProjectDescription("");
-    } else {
-      console.error("Failed to create project:", error);
-    }
-  };
   const createDefaultLineItem = useCallback((): InvoiceLineItem => {
     return {
       id: crypto.randomUUID(),
@@ -247,10 +177,6 @@ export default function DeliverablesSection({
     ));
   }, [effectiveMilestones, isReadOnly, onChange]);
 
-  const selectedProjectName =
-    projectsList.find((project) => project.id === projectId)?.name ||
-    (projectId ? "Linked project" : "No project linked");
-
   return (
     <section
       className={cn(
@@ -266,98 +192,6 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
-        {/* Project Selector Panel */}
-        {clientId ? (
-          <div className="p-5 border-2 border-[#111118] bg-[#F9F9FB] shadow-[var(--brutal-shadow-sm)] space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <label className="text-[11px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider block ml-0.5">
-                  Link to Project
-                </label>
-                <AppTooltip content={<>
-                  Organize your invoices and milestones under a parent Project for compliance and tracking.
-                </>} />
-              </div>
-              {isCreatingNew && !isReadOnly && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCreatingNew(false);
-                    setNewProjectName("");
-                  }}
-                  className="text-xs font-bold text-red-500 hover:underline"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-
-            {isReadOnly ? (
-              <div className="border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 text-[13px] font-semibold text-[#6B6660]">
-                {selectedProjectName}
-              </div>
-            ) : !isCreatingNew ? (
-              <div className="w-full">
-                <BrutalSelect
-                  value={projectId || ""}
-                  onChange={(val) => {
-                    if (val === "__create_new__") {
-                      setIsCreatingNew(true);
-                    } else {
-                      if (onChangeProjectId) onChangeProjectId(val || null);
-                    }
-                  }}
-                  options={[
-                    { label: "None (Unassigned)", value: "" },
-                    ...projectsList.map((p) => ({ label: p.name, value: p.id })),
-                    { label: "+ Create New Project", value: "__create_new__" }
-                  ]}
-                  placeholder={loadingProjects ? "Loading projects..." : "Select a project..."}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1">
-                    <AppTextField
-                      type="text"
-                      value={newProjectName}
-                      placeholder="e.g. Ckccc Retail Store Redesign"
-                      className="h-11 text-[14px]"
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    disabled={isSubmittingNew || !newProjectName.trim()}
-                    onClick={handleCreateNewProject}
-                    className="h-11 px-5 border-2 border-[#111118] bg-[#BEFF00] font-black text-xs uppercase tracking-wider hover:bg-[#A3ED00] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    {isSubmittingNew ? "Saving..." : "Create"}
-                  </button>
-                </div>
-                <div>
-                  <textarea
-                    value={newProjectDescription}
-                    onChange={(e) => setNewProjectDescription(e.target.value)}
-                    rows={2}
-                    placeholder="Short Description (Optional)"
-                    className="w-full px-3.5 py-2.5 text-[14px] font-semibold text-[#111118] placeholder-gray-400 bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none transition-all resize-none"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          !isReadOnly ? (
-          <div className="p-4 border-2 border-dashed border-gray-300 bg-gray-50 text-center">
-            <p className="text-xs text-gray-500 font-medium">
-              💡 Please select a Client in Step 2 to link this invoice to a project.
-            </p>
-          </div>
-          ) : null
-        )}
-
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
           <div className="flex items-center gap-2 border-2 border-[color:var(--border-subtle)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
             <span className="text-[12px]">📎</span>

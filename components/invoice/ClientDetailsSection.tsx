@@ -1,7 +1,7 @@
 "use client";
 import { AppTooltip } from "@/components/ui/AppTooltip";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ClientDetails } from "@/types/invoice";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
@@ -64,7 +64,6 @@ interface ClientDetailsSectionProps {
   showAllErrors?: boolean;
   savedClients?: SavedClient[];
   onClientSelect?: (client: SavedClient) => void;
-  onNewClientStart?: () => void;
   agency?: AgencyDetails;
   isNew?: boolean;
   autoFilledFields?: Set<string>;
@@ -88,7 +87,6 @@ export default function ClientDetailsSection({
   showAllErrors = false,
   savedClients,
   onClientSelect,
-  onNewClientStart,
   agency,
   isNew = false,
   autoFilledFields = new Set(),
@@ -119,9 +117,9 @@ export default function ClientDetailsSection({
     {},
   );
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isAddingNewClient, setIsAddingNewClient] = useState(false);
   const [internalClients, setInternalClients] = useState<SavedClient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const clientEmailInputRef = useRef<HTMLInputElement | null>(null);
 
   // Use provided clients or fetch them if needed
   const effectiveClients =
@@ -171,31 +169,32 @@ export default function ClientDetailsSection({
     }
   }, [agency?.city]);
 
-  const filteredClients = effectiveClients.filter((c) =>
-    c.client_name.toLowerCase().includes(value.clientName.toLowerCase()),
+  const clientNameQuery = value.clientName.trim().toLowerCase();
+  const filteredClients = effectiveClients
+    .filter((c) => {
+      if (!clientNameQuery) return true;
+      return (
+        c.client_name.toLowerCase().includes(clientNameQuery) ||
+        c.client_email.toLowerCase().includes(clientNameQuery)
+      );
+    })
+    .slice(0, 5);
+  const hasExactClientNameMatch = Boolean(
+    clientNameQuery &&
+      effectiveClients.some(
+        (c) => c.client_name.trim().toLowerCase() === clientNameQuery,
+      ),
+  );
+  const showNewClientBadge = Boolean(
+    value.clientName.trim() && !hasExactClientNameMatch && !isReadOnly,
   );
 
   const handleSelectClient = (client: SavedClient) => {
     const details = savedClientToClientDetails(client);
     const finalDetails = applyMsaCascade(details);
-    setIsAddingNewClient(false);
     onChange(finalDetails);
     setShowSuggestions(false);
     if (onClientSelect) onClientSelect(client);
-  };
-
-  const handleAddNewClient = () => {
-    setIsAddingNewClient(true);
-    setShowSuggestions(false);
-    onNewClientStart?.();
-    onChange(
-      applyMsaCascade({
-        ...value,
-        clientLocation: value.clientLocation || "domestic",
-        clientType: value.clientType || "agency",
-        isClientSezUnit: value.isClientSezUnit || "no",
-      }),
-    );
   };
 
   const syncClientDetails = (nextValue: ClientDetails) => {
@@ -327,6 +326,19 @@ export default function ClientDetailsSection({
                   suppressHydrationWarning
                   type="text"
                   value={value.clientName}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setShowSuggestions(false);
+                    }
+                    if (event.key === "Enter" && filteredClients.length === 0) {
+                      event.preventDefault();
+                      setShowSuggestions(false);
+                      clientEmailInputRef.current?.focus();
+                    }
+                    if (event.key === "Tab" && filteredClients.length === 0) {
+                      setShowSuggestions(false);
+                    }
+                  }}
                   onChange={(e) => {
                     onFieldManualEdit("client.clientName");
                     updateField("clientName", e.target.value);
@@ -344,8 +356,14 @@ export default function ClientDetailsSection({
                   className={cn(
                     inputClass(clientNameError, Boolean(value.clientName)),
                     getInputStateClass("client.clientName", value.clientName),
+                    showNewClientBadge && "pr-14",
                   )}
                 />
+                {showNewClientBadge && (
+                  <span className="pointer-events-none absolute right-2 top-[32px] border border-[#111118] bg-[#F5F4F0] px-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#111118]">
+                    New
+                  </span>
+                )}
 
                 {showSuggestions && !isReadOnly && (
                   <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
@@ -356,33 +374,28 @@ export default function ClientDetailsSection({
                     ) : (
                       <>
                         <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">{filteredClients.length === 0 ? "No matches found" : "Saved Clients"}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Saved Clients</span>
                         </div>
-                        {filteredClients.map((client) => (
-                          <button
-                            key={client.id}
-                            type="button"
-                            onClick={() => handleSelectClient(client)}
-                            className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
-                          >
-                            <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
-                            <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
-                              <span>{client.client_email}</span>
-                              {client.city && <span>• {client.city}</span>}
-                            </div>
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          onMouseDown={(event) => event.preventDefault()}
-                          onClick={handleAddNewClient}
-                          className="mt-1 flex w-full items-center justify-between border-t border-[color:var(--border-subtle)] px-3 py-2.5 text-left text-[12px] font-black uppercase tracking-[0.08em] text-[#111118] transition-colors hover:bg-[#F5F4F0]"
-                        >
-                          <span>+ Add new client</span>
-                          <span className="text-[10px] font-bold text-[color:var(--text-muted)]">
-                            inline
-                          </span>
-                        </button>
+                        {filteredClients.length > 0 ? (
+                          filteredClients.map((client) => (
+                            <button
+                              key={client.id}
+                              type="button"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => handleSelectClient(client)}
+                              className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
+                            >
+                              <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
+                              <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
+                                <span>{client.city || client.client_type || "Saved client"}</span>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-3 text-[12px] font-semibold text-[color:var(--text-muted)]">
+                            No saved clients match. Press Tab or Enter to add as new.
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
@@ -419,103 +432,6 @@ export default function ClientDetailsSection({
               </div>
             </div>
 
-            {isAddingNewClient && !isReadOnly && (
-              <div className="border-2 border-[#111118] bg-[#FAF7F2] p-4 shadow-[3px_3px_0_#111118]">
-                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="m-0 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118]">
-                    New client
-                  </p>
-                  <p className="m-0 text-[11px] font-bold text-[color:var(--text-muted)]">
-                    New client — will be added to your client list on save.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <div>
-                    <label className={appFieldLabelClass}>Client name *</label>
-                    <input
-                      suppressHydrationWarning
-                      type="text"
-                      required
-                      value={value.clientName}
-                      onChange={(e) => {
-                        onFieldManualEdit("client.clientName");
-                        updateField("clientName", e.target.value);
-                      }}
-                      onBlur={() => markTouched("clientName")}
-                      placeholder="Client or company name"
-                      className={cn(
-                        inputClass(clientNameError, Boolean(value.clientName)),
-                        getInputStateClass("client.clientName", value.clientName),
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={appFieldLabelClass}>Client email *</label>
-                    <input
-                      suppressHydrationWarning
-                      type="email"
-                      required
-                      value={value.clientEmail}
-                      onChange={(e) => {
-                        onFieldManualEdit("client.clientEmail");
-                        updateField("clientEmail", e.target.value);
-                      }}
-                      placeholder="Email address"
-                      className={cn(
-                        inputClass(undefined, Boolean(value.clientEmail)),
-                        getInputStateClass("client.clientEmail", value.clientEmail),
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={appFieldLabelClass}>Location *</label>
-                    <ChoiceCards
-                      name="new-client-location"
-                      value={value.clientLocation}
-                      onChange={(nextValue) =>
-                        syncClientDetails({
-                          ...value,
-                          clientLocation: nextValue as ClientDetails["clientLocation"],
-                          clientCountry: nextValue === "domestic" ? "" : value.clientCountry,
-                          clientState: nextValue === "international" ? "" : value.clientState,
-                        })
-                      }
-                      variant="minimal-segmented"
-                      columns={2}
-                      options={[
-                        { value: "domestic", label: "Domestic" },
-                        { value: "international", label: "International" },
-                      ]}
-                    />
-                  </div>
-
-                  {!isInternational && (
-                    <div>
-                      <label className={appFieldLabelClass}>GSTIN</label>
-                      <input
-                        suppressHydrationWarning
-                        type="text"
-                        autoComplete="off"
-                        value={value.clientGstin}
-                        onChange={(e) => {
-                          onFieldManualEdit("client.clientGstin");
-                          updateField("clientGstin", e.target.value.toUpperCase().replace(/\s+/g, ""));
-                        }}
-                        placeholder={agency ? getClientTaxIdPlaceholder(value, agency) : "Client GSTIN"}
-                        className={cn(
-                          inputClass(clientGstinError, Boolean(value.clientGstin)),
-                          getInputStateClass("client.clientGstin", value.clientGstin),
-                        )}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
             <div>
               <label className={appFieldLabelClass}>
                 Client Email
@@ -524,6 +440,7 @@ export default function ClientDetailsSection({
                 )}
               </label>
               <input
+                ref={clientEmailInputRef}
                 suppressHydrationWarning
                 type="email"
                 value={value.clientEmail}

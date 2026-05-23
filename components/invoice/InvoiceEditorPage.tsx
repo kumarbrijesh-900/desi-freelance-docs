@@ -88,6 +88,11 @@ import {
   type SavedClient,
 } from "@/lib/supabase/clients";
 import {
+  createProject,
+  getAllProjectsWithInvoices,
+  type ProjectWithInvoices,
+} from "@/lib/supabase/projects";
+import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
   getOptionalFieldEmptyCounts,
@@ -981,6 +986,9 @@ function EditorContent() {
   const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
+  const [availableProjects, setAvailableProjects] = useState<ProjectWithInvoices[]>([]);
+  const [isProjectAutocompleteOpen, setIsProjectAutocompleteOpen] = useState(false);
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -1077,6 +1085,98 @@ function EditorContent() {
   const readOnlyStateLabel = useMemo(() => {
     return getLockStateLabel(lockState.state);
   }, [lockState.state]);
+
+  const projectNameQuery = projectName.trim().toLowerCase();
+  const matchingProjects = useMemo(() => {
+    return availableProjects
+      .filter((record) => {
+        if (!projectNameQuery) return true;
+        const clientName = record.project.client?.client_name ?? "";
+        return (
+          record.project.name.toLowerCase().includes(projectNameQuery) ||
+          clientName.toLowerCase().includes(projectNameQuery)
+        );
+      })
+      .slice(0, 5);
+  }, [availableProjects, projectNameQuery]);
+  const exactProjectMatch = useMemo(() => {
+    if (!projectNameQuery) return null;
+    return (
+      availableProjects.find(
+        (record) => record.project.name.trim().toLowerCase() === projectNameQuery,
+      ) ?? null
+    );
+  }, [availableProjects, projectNameQuery]);
+  const showNewProjectBadge = Boolean(
+    projectName.trim() && !exactProjectMatch && !isReadOnlyMode,
+  );
+
+  const handleProjectNameChange = (nextName: string) => {
+    setProjectName(nextName);
+    const nextQuery = nextName.trim().toLowerCase();
+    const exactMatch = availableProjects.find(
+      (record) => record.project.name.trim().toLowerCase() === nextQuery,
+    );
+    setProjectId(exactMatch?.project.id ?? null);
+    setIsProjectAutocompleteOpen(true);
+  };
+
+  const handleProjectSelect = (record: ProjectWithInvoices) => {
+    setProjectId(record.project.id);
+    setProjectName(record.project.name);
+    setIsProjectAutocompleteOpen(false);
+  };
+
+  const resolveProjectIdForSave = async () => {
+    if (projectId || !projectName.trim() || isReadOnlyMode) {
+      return projectId;
+    }
+
+    if (exactProjectMatch) {
+      setProjectId(exactProjectMatch.project.id);
+      return exactProjectMatch.project.id;
+    }
+
+    if (!selectedClientMsa?.id) {
+      return null;
+    }
+
+    const { data, error } = await createProject(
+      projectName.trim(),
+      selectedClientMsa.id,
+    );
+
+    if (error || !data) {
+      console.error("PROJECT_CREATE_FROM_INVOICE_FAILED:", error);
+      triggerToast("Invoice saved without project link.");
+      return null;
+    }
+
+    setProjectId(data.id);
+    setAvailableProjects((prev) => [
+      {
+        project: {
+          ...data,
+          client: {
+            id: selectedClientMsa.id,
+            client_name: selectedClientMsa.client_name,
+            city: selectedClientMsa.city || null,
+            client_address: selectedClientMsa.client_address || null,
+          },
+        },
+        invoices: [],
+        milestones: [],
+        metrics: {
+          billed: 0,
+          collected: 0,
+          outstanding: 0,
+          daysActive: 0,
+        },
+      },
+      ...prev,
+    ]);
+    return data.id;
+  };
 
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
@@ -1303,12 +1403,13 @@ function EditorContent() {
     async function autoCloudSave() {
       const userId = await getCurrentUserId();
       if (!userId) return;
+      const projectIdForSave = await resolveProjectIdForSave();
 
       const { data, error } = await saveInvoice({
         formData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
-        projectId,
+        projectId: projectIdForSave,
       });
 
       if (!error) {
@@ -1390,6 +1491,31 @@ function EditorContent() {
     }
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (!isBootstrapped) return;
+
+    let cancelled = false;
+    async function fetchProjects() {
+      const { data } = await getAllProjectsWithInvoices();
+      if (!cancelled) {
+        setAvailableProjects(data || []);
+      }
+    }
+
+    void fetchProjects();
+    return () => {
+      cancelled = true;
+    };
+  }, [isBootstrapped]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    const match = availableProjects.find((record) => record.project.id === projectId);
+    if (match && projectName !== match.project.name) {
+      setProjectName(match.project.name);
+    }
+  }, [availableProjects, projectId, projectName]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
@@ -2244,6 +2370,7 @@ const handleSaveDraft = async () => {
 
   try {
     let result;
+    const projectIdForSave = await resolveProjectIdForSave();
     if (clientMsaNote && parserDocumentId) {
       result = await reissueNegotiatedInvoice(parserDocumentId, formData);
       if (!result.error) {
@@ -2267,7 +2394,7 @@ const handleSaveDraft = async () => {
         formData: formDataForSave,
         status: "draft" as InvoiceStatus,
         existingId: parserDocumentId ?? undefined,
-        projectId,
+        projectId: projectIdForSave,
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);
@@ -2785,7 +2912,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isReadOnly={isReadOnlyMode}
           onChange={(client) => updateFormSection("client", client)}
           onClientSelect={handleClientSelect}
-          onNewClientStart={() => setSelectedClientMsa(null)}
           errors={fieldErrors.client}
           showAllErrors={showAllValidationErrors}
           savedClients={savedClients}
@@ -2817,9 +2943,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isGuestMode={isGuestMode}
           freeRevisionRounds={formData.client.freeRevisionRounds}
           extraRevisionFeePercent={formData.client.extraRevisionFeePercent}
-          projectId={projectId}
-          onChangeProjectId={setProjectId}
-          clientId={selectedClientMsa?.id}
         />
       );
     case "payment":
@@ -3047,6 +3170,80 @@ return (
           </div>
         </div>
       )}
+
+      <div className="border-b border-[#D4D2CC] bg-[#FAF7F2]/60 py-4">
+        <div className={appGridClass}>
+          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
+            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center">
+              <label className="text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                Project
+              </label>
+              <div className="relative">
+                <input
+                  suppressHydrationWarning
+                  type="text"
+                  value={projectName}
+                  disabled={isReadOnlyMode}
+                  onFocus={() => setIsProjectAutocompleteOpen(true)}
+                  onBlur={() => {
+                    window.setTimeout(() => setIsProjectAutocompleteOpen(false), 180);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setIsProjectAutocompleteOpen(false);
+                    }
+                    if (
+                      (event.key === "Enter" || event.key === "Tab") &&
+                      matchingProjects.length === 0
+                    ) {
+                      setIsProjectAutocompleteOpen(false);
+                    }
+                  }}
+                  onChange={(event) => handleProjectNameChange(event.target.value)}
+                  placeholder="Optional project name"
+                  className={cn(
+                    getAppFieldClass({ hasValue: Boolean(projectName) }),
+                    "h-10 bg-white text-[13px] font-semibold",
+                    showNewProjectBadge && "pr-14",
+                  )}
+                />
+                {showNewProjectBadge && (
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 border border-[#111118] bg-[#F5F4F0] px-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#111118]">
+                    New
+                  </span>
+                )}
+
+                {isProjectAutocompleteOpen && !isReadOnlyMode && (
+                  <div className="absolute left-0 right-0 z-[9998] mt-1 max-h-[220px] overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+                    {matchingProjects.length > 0 ? (
+                      matchingProjects.map((record) => (
+                        <button
+                          key={record.project.id}
+                          type="button"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => handleProjectSelect(record)}
+                          className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition-colors hover:bg-[color:var(--color-lime-50)]"
+                        >
+                          <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                            {record.project.name}
+                          </span>
+                          <span className="text-[10px] font-medium text-[color:var(--text-muted)]">
+                            {record.project.client?.client_name || "No linked client"}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-3 text-[12px] font-semibold text-[color:var(--text-muted)]">
+                        No saved projects match. Press Tab or Enter to add as new.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className={appEditorGridClass}>
         {/* ── COL 1: Desktop Stepper Rail ── */}
