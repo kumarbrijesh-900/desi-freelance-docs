@@ -101,6 +101,7 @@ export default function DeliverablesSection({
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
   const [isSubmittingNew, setIsSubmittingNew] = useState(false);
 
   useEffect(() => {
@@ -114,7 +115,7 @@ export default function DeliverablesSection({
     async function loadProjects() {
       setLoadingProjects(true);
       setProjectsList([]);
-      const { listProjectsByClient } = await import("@/lib/supabase/invoices");
+      const { listProjectsByClient } = await import("@/lib/supabase/projects");
       const { data } = await listProjectsByClient(activeClientId);
       if (active) {
         setProjectsList(data ?? []);
@@ -141,8 +142,12 @@ export default function DeliverablesSection({
     if (isReadOnly) return;
     if (!newProjectName.trim() || !clientId) return;
     setIsSubmittingNew(true);
-    const { createProject } = await import("@/lib/supabase/invoices");
-    const { data, error } = await createProject(newProjectName.trim(), clientId);
+    const { createProject } = await import("@/lib/supabase/projects");
+    const { data, error } = await createProject(
+      newProjectName.trim(),
+      clientId,
+      newProjectDescription.trim() || undefined
+    );
     setIsSubmittingNew(false);
     if (!error && data) {
       setProjectsList((prev) => [data, ...prev]);
@@ -151,6 +156,7 @@ export default function DeliverablesSection({
       }
       setIsCreatingNew(false);
       setNewProjectName("");
+      setNewProjectDescription("");
     } else {
       console.error("Failed to create project:", error);
     }
@@ -310,30 +316,35 @@ export default function DeliverablesSection({
                 />
               </div>
             ) : (
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="flex-1">
-                  <AppTextField
-                    type="text"
-                    value={newProjectName}
-                    placeholder="e.g. Ckccc Retail Store Redesign"
-                    className="h-11 text-[14px]"
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        void handleCreateNewProject();
-                      }
-                    }}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1">
+                    <AppTextField
+                      type="text"
+                      value={newProjectName}
+                      placeholder="e.g. Ckccc Retail Store Redesign"
+                      className="h-11 text-[14px]"
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isSubmittingNew || !newProjectName.trim()}
+                    onClick={handleCreateNewProject}
+                    className="h-11 px-5 border-2 border-[#111118] bg-[#BEFF00] font-black text-xs uppercase tracking-wider hover:bg-[#A3ED00] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {isSubmittingNew ? "Saving..." : "Create"}
+                  </button>
+                </div>
+                <div>
+                  <textarea
+                    value={newProjectDescription}
+                    onChange={(e) => setNewProjectDescription(e.target.value)}
+                    rows={2}
+                    placeholder="Short Description (Optional)"
+                    className="w-full px-3.5 py-2.5 text-[14px] font-semibold text-[#111118] placeholder-gray-400 bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none transition-all resize-none"
                   />
                 </div>
-                <button
-                  type="button"
-                  disabled={isSubmittingNew || !newProjectName.trim()}
-                  onClick={handleCreateNewProject}
-                  className="h-11 px-5 border-2 border-[#111118] bg-[#BEFF00] font-black text-xs uppercase tracking-wider hover:bg-[#A3ED00] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  {isSubmittingNew ? "Saving..." : "Create"}
-                </button>
               </div>
             )}
           </div>
