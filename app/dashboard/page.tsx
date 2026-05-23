@@ -1887,7 +1887,7 @@ export default function DashboardPage() {
                     bgColor: "#FFF0EC",
                     badgeBg: "#FF5C00",
                     badgeText: "white",
-                    badgeLabel: "⚡ MSA REVISION REQUESTED",
+                    badgeLabel: "⚡ REVISION REQUESTED",
                     shadowColor: "#FF5C00",
                   },
                   past_due: {
@@ -1911,7 +1911,7 @@ export default function DashboardPage() {
                     bgColor: "#FEFCE8",
                     badgeBg: "#EAB308",
                     badgeText: "#111118",
-                    badgeLabel: "⏳ AWAITING CLIENT RESPONSE",
+                    badgeLabel: "⏳ AWAITING CLIENT",
                     shadowColor: "#EAB308",
                   },
                   draft: {
