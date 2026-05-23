@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
@@ -16,6 +17,7 @@ import {
   INVOICE_DATA_CHANGED_STORAGE_KEY,
 } from "@/lib/invoice-events";
 import { trackedOnly, offlineOnly } from "@/lib/invoice-channel-helpers";
+import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
 import {
   CalendarClock,
   CheckCircle2,
@@ -85,6 +87,8 @@ interface ClientHealth {
     msaStatus?: string | null;
     sharedToEmail?: string | null;
     sharedAt?: string | null;
+    projectMsaAcceptedAt?: string | null;
+    projectStatus?: string | null;
   }>;
   totalOwed: number;
   totalCollected: number;
@@ -141,6 +145,8 @@ interface ProjectHealth {
     msaStatus?: string | null;
     sharedToEmail?: string | null;
     sharedAt?: string | null;
+    projectMsaAcceptedAt?: string | null;
+    projectStatus?: string | null;
   }>;
   totalOwed: number;
   totalCollected: number;
@@ -148,6 +154,64 @@ interface ProjectHealth {
 }
 
 type DashboardInvoice = ClientHealth["invoices"][0];
+
+const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: string; style?: CSSProperties }> = {
+  editable: {
+    label: "DRAFT",
+    className: "border-[#D4D2CC] bg-transparent text-[#6B6660]",
+  },
+  "client-proposed": {
+    label: "REVISION REQUESTED",
+    className: "border-[#111118] bg-[#FFB35F] text-[#111118]",
+  },
+  "awaiting-client": {
+    label: "AWAITING CLIENT",
+    className: "border-[#111118] bg-[#FFE08A] text-[#111118]",
+  },
+  "msa-accepted": {
+    label: "LOCKED",
+    className: "border-[#111118] bg-[#FBE5E5] text-[#111118]",
+  },
+  "invoice-settled": {
+    label: "SETTLED",
+    className: "border-[#111118] bg-[#00DCB4] text-[#111118]",
+  },
+  "invoice-partial": {
+    label: "PARTIALLY SETTLED",
+    className: "border-[#111118] text-[#111118]",
+    style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
+  },
+  "invoice-cancelled": {
+    label: "CANCELLED",
+    className: "border-[#111118] bg-[#D4D2CC] text-[#111118]",
+  },
+};
+
+function getDashboardInvoiceState(invoice: DashboardInvoice): LockState {
+  return getInvoiceLockState({
+    status: invoice.status,
+    msaStatus: invoice.msaStatus,
+    sharedToEmail: invoice.sharedToEmail,
+    clientMsaNote: invoice.clientMsaNote,
+    projectMsaAcceptedAt: invoice.projectMsaAcceptedAt,
+    projectStatus: invoice.projectStatus,
+  }).state;
+}
+
+function CanonicalInvoiceStateBadge({ invoice }: { invoice: DashboardInvoice }) {
+  const badge = CANONICAL_BADGE_STYLES[getDashboardInvoiceState(invoice)];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center border-2 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em]",
+        badge.className,
+      )}
+      style={badge.style}
+    >
+      {badge.label}
+    </span>
+  );
+}
 
 interface ProjectActionState {
   label: string;
@@ -833,6 +897,7 @@ export default function DashboardPage() {
             const items = inv.form_data?.lineItems ?? [];
             totalAmount = items.reduce((s: number, i: any) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
           }
+          const linkedProject = projectsList.find((project: any) => project.id === inv.project_id);
 
           return {
             ...inv,
@@ -841,6 +906,8 @@ export default function DashboardPage() {
             invoiceNumber: inv.invoice_number,
             clientName: inv.form_data?.client?.clientName || "Client",
             dueDate: inv.due_date || inv.form_data?.meta?.dueDate || "",
+            projectMsaAcceptedAt: linkedProject?.msa_accepted_at ?? null,
+            projectStatus: linkedProject?.status ?? null,
           };
         });
 
@@ -1019,6 +1086,8 @@ export default function DashboardPage() {
             msaStatus: inv.msa_status,
             sharedToEmail: inv.shared_to_email,
             sharedAt: inv.shared_at,
+            projectMsaAcceptedAt: inv.projectMsaAcceptedAt,
+            projectStatus: inv.projectStatus,
           });
 
           if (inv.milestones && inv.milestones.length > 0) {
@@ -1166,6 +1235,8 @@ export default function DashboardPage() {
               msaStatus: inv.msa_status,
               sharedToEmail: inv.shared_to_email,
               sharedAt: inv.shared_at,
+              projectMsaAcceptedAt: inv.projectMsaAcceptedAt,
+              projectStatus: inv.projectStatus,
             });
 
             if (inv.milestones && inv.milestones.length > 0) {
@@ -1303,7 +1374,7 @@ export default function DashboardPage() {
     }
   }, [loading, clientsHealth]);
 
-  // ─── INVOICE COMMAND CENTER: Derive actionable invoices ───
+  // ─── WHAT NEEDS ATTENTION: Derive actionable invoices ───
   interface ActionCard {
     type: "msa_revision" | "past_due" | "due_soon" | "msa_pending" | "draft";
     priority: number;
@@ -1365,10 +1436,36 @@ export default function DashboardPage() {
       });
     });
 
-    return cards.sort((a, b) => a.priority - b.priority).slice(0, 5);
+    return cards.sort((a, b) => a.priority - b.priority);
   }, [clientsHealth, dismissedCards]);
 
-  // ─── Command Center Action Handlers ───
+  const portfolioAtRisk = useMemo(() => {
+    const riskInvoices = new Map<string, number>();
+
+    clientsHealth.forEach((client) => {
+      client.invoices.forEach((inv) => {
+        const status = inv.status.toLowerCase();
+        const daysUntil = getDaysUntil(inv.dueDate);
+        const isOverdue = isReceivableStatus(status) && daysUntil !== null && daysUntil < 0;
+        const isRevisionBlocked = inv.msaStatus?.toLowerCase() === "proposed" && Boolean(inv.clientMsaNote);
+
+        if (!isOverdue && !isRevisionBlocked) return;
+
+        const openAmount = inv.milestones?.length
+          ? inv.milestones.reduce((sum, milestone) => {
+              const milestoneStatus = (milestone.status || "").toLowerCase();
+              return milestoneStatus === "settled" ? sum : sum + Number(milestone.amount || 0);
+            }, 0)
+          : Number(inv.totalAmount || 0);
+
+        riskInvoices.set(inv.id, openAmount);
+      });
+    });
+
+    return Array.from(riskInvoices.values()).reduce((sum, amount) => sum + amount, 0);
+  }, [clientsHealth]);
+
+  // ─── Attention Action Handlers ───
   const handleNudge = async (inv: ClientHealth["invoices"][0], tone: "initial" | "polite" | "firm" | "final" = "polite") => {
     if (!inv.sharedToEmail || !inv.shareToken) {
       showAlert("Cannot Send", "This invoice hasn't been shared yet. Share it first from the invoice wizard.", "warning");
@@ -1493,7 +1590,7 @@ export default function DashboardPage() {
       }
 
       if (filterType === "settled") {
-        // MONEY IN (Settled): client has at least one settled invoice or total collected > 0
+        // Collected: client has at least one settled invoice or total collected > 0
         return client.invoices.some((inv) => inv.status.toLowerCase() === "settled") || client.totalCollected > 0;
       }
 
@@ -1678,22 +1775,13 @@ export default function DashboardPage() {
     });
   })();
 
-  const projectActionQueue = projectsHealth
-    .map((project) => ({ project, action: getProjectActionState(project) }))
-    .sort((a, b) => {
-      if (a.action.priority !== b.action.priority) return a.action.priority - b.action.priority;
-      return b.project.totalOwed - a.project.totalOwed;
-    });
-
-  const primaryProjectAction = projectActionQueue.find(({ action }) => action.priority < 99);
-  const projectOperatingStats = {
-    activeProjects: projectsHealth.filter((project) => getProjectOpenInvoiceCount(project) > 0).length,
-    atRiskProjects: projectActionQueue.filter(({ action }) => action.tone === "danger").length,
-    contractQueue: projectActionQueue.filter(({ action }) =>
-      action.label === "Revision requested" || action.label === "Awaiting signature"
-    ).length,
-    receivable: projectsHealth.reduce((sum, project) => sum + project.totalOwed, 0),
-  };
+  const visibleAttentionCards = actionableInvoices.slice(0, 3);
+  const hiddenAttentionCount = Math.max(actionableInvoices.length - visibleAttentionCards.length, 0);
+  const pulseSparkValues = [metrics.outstanding, metrics.settled, portfolioAtRisk];
+  const pulseSparkMax = Math.max(...pulseSparkValues, 1);
+  const pulseSparkPoints = pulseSparkValues
+    .map((value, index) => `${index * 50},${36 - (value / pulseSparkMax) * 28}`)
+    .join(" ");
 
   try {
     return (
@@ -1731,528 +1819,242 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {/* SECTION 2: PINNED METRIC CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 py-6">
-            {/* Card 1: Outstanding - hero card */}
-            {(() => { const isZero = metrics.outstanding === 0; return (
-            <div
-              onClick={() => setFilterType(filterType === "outstanding" ? "all" : "outstanding")}
-              className={cn(
-                "relative border-2 border-[#111118] p-4 transition-all select-none",
-                isZero && filterType !== "outstanding"
-                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
-                  : "bg-[#FFFBE6] shadow-[var(--brutal-shadow-md)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-lg)] cursor-pointer",
-                filterType === "outstanding" && "ring-4 ring-[#111118] bg-[#FFF8CC] !opacity-100"
-              )}
-              style={{ transform: "rotate(-0.5deg)" }}
-            >
-              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
-              {filterType === "outstanding" && (
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FF5C00] rounded-full border border-[#111118] animate-pulse"></div>
-              )}
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
-                THEY OWE YOU
-              </p>
-              <p className={cn("text-[26px] tracking-[-0.02em] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
-                ₹{formatIndian(metrics.outstanding)}
-              </p>
-              <p className="text-[12px] text-[color:var(--text-muted)]">
-                across {metrics.outstandingCount} {metrics.outstandingCount === 1 ? 'invoice' : 'invoices'}
-              </p>
-            </div>
-            ); })()}
-
-            {/* Card 2: Settled */}
-            {(() => { const isZero = metrics.settled === 0; return (
-            <div
-              onClick={() => setFilterType(filterType === "settled" ? "all" : "settled")}
-              className={cn(
-                "relative border-2 border-[#111118] p-4 transition-all select-none",
-                isZero && filterType !== "settled"
-                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
-                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
-                filterType === "settled" && "ring-4 ring-[#111118] bg-[#EBFDF9] !opacity-100"
-              )}
-              style={{ transform: "rotate(0.6deg)" }}
-            >
-              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#00DCB4] border-2 border-[#111118]"></div>
-              {filterType === "settled" && (
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#00DCB4] rounded-full border border-[#111118] animate-pulse"></div>
-              )}
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
-                MONEY IN
-              </p>
-              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
-                ₹{formatIndian(metrics.settled)}
-              </p>
-              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#00967D]")}>
-                {metrics.settledCount} settled
-              </p>
-            </div>
-            ); })()}
-
-            {/* Card 3: Overdue */}
-            {(() => { const isZero = metrics.overdue === 0; return (
-            <div
-              onClick={() => setFilterType(filterType === "overdue" ? "all" : "overdue")}
-              className={cn(
-                "relative border-2 border-[#111118] p-4 transition-all select-none",
-                isZero && filterType !== "overdue"
-                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
-                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
-                filterType === "overdue" && "ring-4 ring-[#111118] bg-[#FFF5F2] !opacity-100"
-              )}
-              style={{ transform: "rotate(-0.3deg)" }}
-            >
-              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FF5C00] border-2 border-[#111118]"></div>
-              {filterType === "overdue" && (
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FF5C00] rounded-full border border-[#111118] animate-pulse"></div>
-              )}
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
-                OVERDUE
-              </p>
-              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#FF5C00]")}>
-                ₹{formatIndian(metrics.overdue)}
-              </p>
-              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#FF5C00]")}>
-                {metrics.overdueCount} {metrics.overdueCount === 1 ? 'invoice' : 'invoices'}
-              </p>
-            </div>
-            ); })()}
-
-            {/* Card 4: Due this week */}
-            {(() => { const isZero = metrics.dueThisWeek === 0; return (
-            <div
-              onClick={() => setFilterType(filterType === "due_this_week" ? "all" : "due_this_week")}
-              className={cn(
-                "relative border-2 border-[#111118] p-4 transition-all select-none",
-                isZero && filterType !== "due_this_week"
-                  ? "bg-[#F8F8F4] opacity-60 cursor-default"
-                  : "bg-white shadow-[var(--brutal-shadow-sm)] hover:-translate-y-1 hover:translate-x-0.5 hover:shadow-[var(--brutal-shadow-md)] cursor-pointer",
-                filterType === "due_this_week" && "ring-4 ring-[#111118] bg-[#F7FFD6] !opacity-100"
-              )}
-              style={{ transform: "rotate(0.4deg)" }}
-            >
-              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[#FBBF24] border-2 border-[#111118]"></div>
-              {filterType === "due_this_week" && (
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#FBBF24] rounded-full border border-[#111118] animate-pulse"></div>
-              )}
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] mt-1 uppercase">
-                DUE THIS WEEK
-              </p>
-              <p className={cn("text-[22px] mt-0.5 font-syne antialiased", isZero ? "font-semibold text-[color:var(--text-muted)]" : "font-black text-[#111118]")}>
-                ₹{formatIndian(metrics.dueThisWeek)}
-              </p>
-              <p className={cn("text-[12px] font-semibold", isZero ? "text-[color:var(--text-muted)]" : "text-[#FF5C00]")}>
-                {metrics.dueThisWeekCount} {metrics.dueThisWeekCount === 1 ? 'invoice' : 'invoices'}
-              </p>
-            </div>
-            ); })()}
-          </div>
-
-          {offlineInvoicesCount > 0 && (
-            <div
-              className="mt-3 mb-6 text-[11px] font-black uppercase tracking-wider"
-              style={{ color: "#111118", opacity: 0.6 }}
-            >
-              {offlineInvoicesCount} {offlineInvoicesCount === 1 ? "invoice" : "invoices"} managed offline
-              <a href="/invoices" className="ml-2 underline underline-offset-4">
-                View list
-              </a>
-            </div>
-          )}
-
-          {/* SECTION 3: INVOICE COMMAND CENTER */}
-          {actionableInvoices.length > 0 ? (
-            <div className="mb-6 space-y-3">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-[18px] h-[18px] bg-[#111118] border-[1.5px] border-[#111118] flex items-center justify-center text-[12px] text-[#BEFF00] font-black">
-                  ⚡
-                </div>
-                <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em] uppercase">
-                  COMMAND CENTER
+          {/* SECTION 1: WHAT NEEDS ATTENTION */}
+          <section className="py-6 border-b-2 border-[#111118]">
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="m-0 text-[13px] font-black uppercase tracking-[0.12em] text-[#111118]">
+                  What Needs Attention
                 </p>
-                <span className="text-[11px] font-bold text-[color:var(--text-muted)] tracking-wider">
-                  {actionableInvoices.length} {actionableInvoices.length === 1 ? "action" : "actions"} needed
-                </span>
+                <p className="m-0 mt-1 text-[12px] font-bold text-[color:var(--text-muted)]">
+                  One deduplicated action per invoice.
+                </p>
               </div>
+              <span className="text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                {actionableInvoices.length} {actionableInvoices.length === 1 ? "action" : "actions"}
+              </span>
+            </div>
 
-              {actionableInvoices.map((card) => {
-                const { type, invoice: inv, client, daysPast, daysUntil } = card;
+            {visibleAttentionCards.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                {visibleAttentionCards.map((card) => {
+                  const { type, invoice: inv, client, daysPast, daysUntil } = card;
+                  const sentAgo = inv.sharedAt ? timeAgo(inv.sharedAt) : null;
+                  const actionLabel =
+                    type === "msa_revision"
+                      ? "REVISION REQUESTED"
+                      : type === "past_due"
+                      ? "PAYMENT OVERDUE"
+                      : type === "due_soon"
+                      ? "PAYMENT DUE SOON"
+                      : type === "msa_pending"
+                      ? "AWAITING CLIENT"
+                      : "DRAFT NOT SENT";
+                  const context =
+                    type === "msa_revision" && inv.clientMsaNote
+                      ? `Client note: "${inv.clientMsaNote}"`
+                      : type === "past_due"
+                      ? `Due on ${inv.dueDate}. ${daysPast ?? 0} ${(daysPast ?? 0) === 1 ? "day" : "days"} overdue.`
+                      : type === "due_soon"
+                      ? `Due on ${inv.dueDate}. ${daysUntil ?? 0} ${(daysUntil ?? 0) === 1 ? "day" : "days"} left.`
+                      : type === "msa_pending"
+                      ? `Sent to ${inv.sharedToEmail}${sentAgo ? ` (${sentAgo})` : ""}.`
+                      : "Invoice created but not yet sent.";
 
-                // Card style config per type
-                const cardConfig = {
-                  msa_revision: {
-                    borderColor: "#FF5C00",
-                    bgColor: "#FFF0EC",
-                    badgeBg: "#FF5C00",
-                    badgeText: "white",
-                    badgeLabel: "⚡ REVISION REQUESTED",
-                    shadowColor: "#FF5C00",
-                  },
-                  past_due: {
-                    borderColor: "#EF4444",
-                    bgColor: "#FEF2F2",
-                    badgeBg: "#EF4444",
-                    badgeText: "white",
-                    badgeLabel: `🔴 OVERDUE — ${daysPast} DAY${daysPast !== 1 ? "S" : ""} PAST DUE`,
-                    shadowColor: "#EF4444",
-                  },
-                  due_soon: {
-                    borderColor: "#F59E0B",
-                    bgColor: "#FFFBEB",
-                    badgeBg: "#F59E0B",
-                    badgeText: "#111118",
-                    badgeLabel: `⚠️ DUE IN ${daysUntil} DAY${daysUntil !== 1 ? "S" : ""}`,
-                    shadowColor: "#F59E0B",
-                  },
-                  msa_pending: {
-                    borderColor: "#EAB308",
-                    bgColor: "#FEFCE8",
-                    badgeBg: "#EAB308",
-                    badgeText: "#111118",
-                    badgeLabel: "⏳ AWAITING CLIENT",
-                    shadowColor: "#EAB308",
-                  },
-                  draft: {
-                    borderColor: "#8B5CF6",
-                    bgColor: "#FAF5FF",
-                    badgeBg: "#8B5CF6",
-                    badgeText: "white",
-                    badgeLabel: "📝 DRAFT — NOT SENT",
-                    shadowColor: "#8B5CF6",
-                  },
-                };
-
-                const cfg = cardConfig[type];
-                const sentAgo = inv.sharedAt ? timeAgo(inv.sharedAt) : null;
-                const isPastDueLong = type === "past_due" && (daysPast ?? 0) > 7;
-
-                return (
-                  <div
-                    key={inv.id}
-                    className="border-2 p-0 overflow-hidden transition-all duration-300"
-                    style={{
-                      borderColor: cfg.borderColor,
-                      backgroundColor: cfg.bgColor,
-                      boxShadow: `3px 3px 0 ${cfg.shadowColor}`,
-                      animation: isPastDueLong ? "pulse 2s ease-in-out infinite" : undefined,
-                    }}
-                  >
-                    {/* Badge strip */}
-                    <div
-                      className="px-4 py-2 flex items-center justify-between"
-                      style={{ backgroundColor: cfg.badgeBg }}
+                  return (
+                    <article
+                      key={inv.id}
+                      className="flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]"
                     >
-                      <span
-                        className="text-[11px] font-black tracking-[0.1em] uppercase"
-                        style={{ color: cfg.badgeText }}
-                      >
-                        {cfg.badgeLabel}
-                      </span>
-                      <button
-                        onClick={() => handleDismissCard(inv.id)}
-                        className="text-[11px] font-bold uppercase tracking-wider opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
-                        style={{ color: cfg.badgeText }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    {/* Card body */}
-                    <div className="px-4 py-3">
-                      {/* Invoice identifier */}
-                      <div className="flex items-baseline gap-2 mb-2">
-                        <span className="text-[14px] font-black text-[#111118] font-syne">
-                          {inv.invoiceNumber}
-                        </span>
-                        <span className="text-[12px] font-semibold text-[color:var(--text-muted)]">
-                          · {client.clientName}
-                        </span>
-                        <span className="text-[14px] font-bold text-[#111118] ml-auto font-syne">
-                          ₹{formatIndian(inv.totalAmount)}
-                        </span>
-                      </div>
-
-                      {/* Context line (type-specific) */}
-                      {type === "msa_revision" && inv.clientMsaNote && (
-                        <div className="border-l-4 border-[#FF5C00] bg-[#FFFBE6] pl-3 py-2 mb-3 text-[13px] text-[#111118] italic">
-                          &ldquo;{inv.clientMsaNote}&rdquo;
+                      <div>
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="border-2 border-[#111118] bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#111118]">
+                            {actionLabel}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label={`Dismiss ${inv.invoiceNumber} action`}
+                            onClick={() => handleDismissCard(inv.id)}
+                            className="h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]"
+                          >
+                            x
+                          </button>
                         </div>
-                      )}
-                      {type === "past_due" && (
-                        <p className="text-[13px] text-[#111118] mb-3">
-                          Due on {inv.dueDate}. <span className="font-bold text-[#EF4444]">{daysPast} days overdue.</span>
+                        <h2 className="m-0 mt-4 text-[18px] font-black leading-tight text-[#111118]">
+                          {inv.invoiceNumber}
+                        </h2>
+                        <p className="m-0 mt-1 text-[12px] font-black uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+                          {client.clientName}
                         </p>
-                      )}
-                      {type === "due_soon" && (
-                        <p className="text-[13px] text-[#111118] mb-3">
-                          Due on {inv.dueDate}. Send a polite reminder?
+                        <p className="m-0 mt-3 text-[13px] font-bold leading-5 text-[#111118]">
+                          {context}
                         </p>
-                      )}
-                      {type === "msa_pending" && (
-                        <p className="text-[13px] text-[#111118] mb-3">
-                          Sent to {inv.sharedToEmail}{sentAgo ? ` (${sentAgo})` : ""}. Client hasn&apos;t responded yet.
-                        </p>
-                      )}
-                      {type === "draft" && (
-                        <p className="text-[13px] text-[color:var(--text-muted)] mb-3">
-                          Invoice created but not yet sent. Ready to finalize?
-                        </p>
-                      )}
+                      </div>
 
-                      {/* Action buttons */}
-                      <div className="flex flex-wrap gap-2">
-                        {/* MSA Revision actions */}
-                        {type === "msa_revision" && (
-                          <>
-                            <Link
-                              href={getMsaEditLink(inv, client)}
-                              className="bg-[#FF5C00] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              {getMsaEditLabel(inv, client)}
-                            </Link>
-                            {inv.has_addendum && !client.clientId.startsWith("pseudo-") && (
-                              <Link
-                                href={`/clients/${client.clientId}`}
-                                className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                              >
-                                Edit Client MSA →
-                              </Link>
-                            )}
-                            <button
-                              onClick={() => handleCancelProject(inv)}
-                              className="text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
-                            >
-                              Close Project
-                            </button>
-                          </>
-                        )}
-
-                        {/* Past Due actions */}
-                        {type === "past_due" && (
-                          <>
-                            <button
-                              onClick={() => handleNudge(inv, getNudgeTone(daysPast))}
-                              className="inline-flex items-center gap-1.5 bg-[#EF4444] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
-                              {getNudgeLabel(daysPast)}
-                            </button>
-                            <button
-                              onClick={() => setSelectedInvoice(inv)}
-                              className="inline-flex items-center gap-1.5 bg-[#00DCB4] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
-                              Mark Paid
-                            </button>
-                            <button
-                              onClick={() => handleCancelProject(inv)}
-                              className="text-[11px] font-bold text-[#EF4444] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
-                            >
-                              Close Project
-                            </button>
-                          </>
-                        )}
-
-                        {/* Due Soon actions */}
-                        {type === "due_soon" && (
-                          <>
-                            <button
-                              onClick={() => handleNudge(inv, "polite")}
-                              className="inline-flex items-center gap-1.5 bg-[#F59E0B] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
-                              Send Polite Reminder
-                            </button>
-                            <button
-                              onClick={() => setSelectedInvoice(inv)}
-                              className="inline-flex items-center gap-1.5 bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2.5} />
-                              Mark Paid
-                            </button>
-                          </>
-                        )}
-
-                        {/* MSA Pending actions */}
-                        {type === "msa_pending" && (
-                          <>
-                            <button
-                              onClick={() => handleNudge(inv, "initial")}
-                              className="bg-[#EAB308] text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              Resend Invoice Email ↻
-                            </button>
-                            <Link
-                              href={`/invoice/${inv.id}/client-preview`}
-                              className="bg-white text-[#111118] border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] cursor-pointer uppercase font-syne"
-                            >
-                              Preview as Client →
-                            </Link>
-                            <button
-                              onClick={() => handleCancelProject(inv)}
-                              className="text-[11px] font-bold text-[#EAB308] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
-                            >
-                              Close Project
-                            </button>
-                          </>
-                        )}
-
-                        {/* Draft actions */}
-                        {type === "draft" && (
-                          <>
-                            <Link
-                              href={`/invoice/new?id=${inv.id}&restore=1`}
-                              className="bg-[#8B5CF6] text-white border-2 border-[#111118] px-4 py-1.5 text-[11px] font-bold shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:-translate-y-0.5 transition-all cursor-pointer uppercase font-syne"
-                            >
-                              Finalize & Send →
-                            </Link>
-                            <button
-                              onClick={() => handleCancelProject(inv)}
-                              className="text-[11px] font-bold text-[#8B5CF6] uppercase tracking-wider hover:underline cursor-pointer ml-auto"
-                            >
-                              Delete Draft
-                            </button>
-                          </>
+                      <div className="mt-4">
+                        {type === "msa_revision" ? (
+                          <Link
+                            href={getMsaEditLink(inv, client)}
+                            className="inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5"
+                          >
+                            {getMsaEditLabel(inv, client)}
+                          </Link>
+                        ) : type === "past_due" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleNudge(inv, getNudgeTone(daysPast))}
+                            className="inline-flex w-full items-center justify-center gap-2 border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5"
+                          >
+                            <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            {getNudgeLabel(daysPast)}
+                          </button>
+                        ) : type === "due_soon" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleNudge(inv, "polite")}
+                            className="inline-flex w-full items-center justify-center gap-2 border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5"
+                          >
+                            <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            Send reminder
+                          </button>
+                        ) : type === "msa_pending" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleNudge(inv, "initial")}
+                            className="inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5"
+                          >
+                            Resend invoice
+                          </button>
+                        ) : (
+                          <Link
+                            href={`/invoice/new?id=${inv.id}&restore=1`}
+                            className="inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5"
+                          >
+                            Finalize draft
+                          </Link>
                         )}
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div
-              className="border-2 border-[#00DCB4] bg-[#EBFDF9] p-4 shadow-[3px_3px_0_#00DCB4] mb-6 text-center"
-              style={{ transform: "rotate(0.2deg)" }}
-            >
-              <p className="text-[14px] font-bold text-[#111118] font-syne">
-                🎉 All clear! No invoices need your attention right now.
-              </p>
-              <p className="text-[12px] text-[color:var(--text-muted)] mt-1">
-                Your pipeline is healthy. Time for a coffee.
-              </p>
-            </div>
-          )}
-
-          {projectsHealth.length > 0 && (
-            <div className="mb-6 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-              <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#111118] text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <p className="text-[12px] font-black tracking-[0.12em] uppercase m-0">Project OS</p>
-                  <p className="text-[12px] text-white/70 m-0 mt-0.5">
-                    Portfolio health, contract blockers, and receivables before the ledger.
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setLedgerView("project");
-                    setFilterType("all");
-                  }}
-                  className="self-start sm:self-center border-2 border-white bg-[#BEFF00] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_rgba(255,255,255,0.55)] hover:-translate-y-0.5 transition-all"
-                >
-                  Open Project Ledger
-                </button>
+                    </article>
+                  );
+                })}
               </div>
+            ) : (
+              <div className="border-[3px] border-[#111118] bg-white p-5 text-center shadow-[4px_4px_0_#000]">
+                <p className="m-0 text-[14px] font-black uppercase tracking-[0.1em] text-[#111118]">
+                  No open dashboard actions
+                </p>
+                <p className="m-0 mt-1 text-[12px] font-bold text-[color:var(--text-muted)]">
+                  The ledger remains available for review and settlement work.
+                </p>
+              </div>
+            )}
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 border-b-2 border-[#111118]">
+            {hiddenAttentionCount > 0 && (
+              <a
+                href="#project-ledger"
+                onClick={() => {
+                  setLedgerView("invoice");
+                  setFilterType("all");
+                  setSortBy("health");
+                }}
+                className="mt-3 inline-flex text-[12px] font-black uppercase tracking-[0.12em] text-[#111118] underline decoration-2 underline-offset-4"
+              >
+                {hiddenAttentionCount} more →
+              </a>
+            )}
+          </section>
+
+          {/* SECTION 2: PORTFOLIO PULSE */}
+          <section className="py-6">
+            <div className="border-[3px] border-[#111118] bg-[#111118] text-white shadow-[4px_4px_0_#000]">
+              <div className="grid grid-cols-1 divide-y-2 divide-white/20 lg:grid-cols-[1fr_1fr_1fr_180px] lg:divide-x-2 lg:divide-y-0">
                 <button
+                  type="button"
                   onClick={() => {
-                    setLedgerView("project");
-                    setFilterType("all");
-                  }}
-                  className="p-4 text-left border-r-2 border-b-2 lg:border-b-0 border-[#111118] hover:bg-[#F8F8F4] transition-colors"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Active Projects</p>
-                  <p className="text-[24px] font-black font-syne text-[#111118]">{projectOperatingStats.activeProjects}</p>
-                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">with open work or payment</p>
-                </button>
-                <button
-                  onClick={() => {
-                    setLedgerView("project");
-                    setSortBy("health");
-                  }}
-                  className="p-4 text-left lg:border-r-2 border-b-2 lg:border-b-0 border-[#111118] hover:bg-[#FFF0EC] transition-colors"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">At Risk</p>
-                  <p className="text-[24px] font-black font-syne text-[#FF5C00]">{projectOperatingStats.atRiskProjects}</p>
-                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">late or revision-blocked</p>
-                </button>
-                <button
-                  onClick={() => {
-                    setLedgerView("project");
-                    setSortBy("health");
-                  }}
-                  className="p-4 text-left border-r-2 border-[#111118] hover:bg-[#FFFBE6] transition-colors"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Contract Queue</p>
-                  <p className="text-[24px] font-black font-syne text-[#B45309]">{projectOperatingStats.contractQueue}</p>
-                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">pending signatures or edits</p>
-                </button>
-                <button
-                  onClick={() => {
-                    setLedgerView("project");
+                    setLedgerView("invoice");
                     setFilterType("outstanding");
                   }}
-                  className="p-4 text-left hover:bg-[#FFFBE6] transition-colors"
+                  className="group p-5 text-left transition-colors hover:text-[#D4FF00]"
                 >
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Project Receivable</p>
-                  <p className="text-[24px] font-black font-syne text-[#111118]">₹{formatIndian(projectOperatingStats.receivable)}</p>
-                  <p className="text-[11px] font-bold text-[color:var(--text-muted)]">still open across projects</p>
-                </button>
-              </div>
-
-              <div className="px-4 py-3 bg-[#F8F8F4] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                {primaryProjectAction ? (
-                  <>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Next Best Project Action</p>
-                      <p className="text-[14px] font-black text-[#111118] m-0 mt-0.5">
-                        {primaryProjectAction.project.projectName} · {primaryProjectAction.action.label}
-                      </p>
-                      <p className="text-[12px] font-bold text-[color:var(--text-muted)] m-0 mt-0.5 truncate">
-                        {primaryProjectAction.action.detail}
-                      </p>
-                    </div>
-                    {primaryProjectAction.action.actionHref ? (
-                      <Link
-                        href={primaryProjectAction.action.actionHref}
-                        className="inline-flex justify-center border-2 border-[#111118] bg-[#BEFF00] px-4 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                      >
-                        {primaryProjectAction.action.actionLabel}
-                      </Link>
-                    ) : primaryProjectAction.action.invoice ? (
-                      <button
-                        onClick={() => {
-                          if (primaryProjectAction.action.nudgeTone && primaryProjectAction.action.invoice) {
-                            void handleNudge(primaryProjectAction.action.invoice, primaryProjectAction.action.nudgeTone);
-                            return;
-                          }
-                          setSelectedInvoice(primaryProjectAction.action.invoice);
-                        }}
-                        className="inline-flex justify-center border-2 border-[#111118] bg-[#BEFF00] px-4 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                      >
-                        {primaryProjectAction.action.actionLabel}
-                      </button>
-                    ) : null}
-                  </>
-                ) : (
-                  <p className="text-[13px] font-bold text-[#111118] m-0">
-                    No open project action. The portfolio is clear.
+                  <p className="m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]">
+                    Outstanding
                   </p>
-                )}
+                  <p className="m-0 mt-2 text-[26px] font-black font-syne">₹{formatIndian(metrics.outstanding)}</p>
+                  <p className="m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55">
+                    {metrics.outstandingCount} {metrics.outstandingCount === 1 ? "invoice" : "invoices"}
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLedgerView("invoice");
+                    setFilterType("settled");
+                  }}
+                  className="group p-5 text-left transition-colors hover:text-[#D4FF00]"
+                >
+                  <p className="m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]">
+                    Collected
+                  </p>
+                  <p className="m-0 mt-2 text-[26px] font-black font-syne">₹{formatIndian(metrics.settled)}</p>
+                  <p className="m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55">
+                    {metrics.settledCount} {metrics.settledCount === 1 ? "invoice" : "invoices"}
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLedgerView("project");
+                    setFilterType("all");
+                    setSortBy("health");
+                  }}
+                  className="group p-5 text-left transition-colors hover:text-[#D4FF00]"
+                >
+                  <p className="m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]">
+                    At Risk
+                  </p>
+                  <p className="m-0 mt-2 text-[26px] font-black font-syne">₹{formatIndian(portfolioAtRisk)}</p>
+                  <p className="m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55">
+                    Overdue + revision-blocked
+                  </p>
+                </button>
+                <div className="flex items-center p-5">
+                  <svg
+                    viewBox="0 0 100 40"
+                    role="img"
+                    aria-label="Portfolio pulse sparkline"
+                    className="h-16 w-full"
+                  >
+                    <polyline
+                      points={pulseSparkPoints}
+                      fill="none"
+                      stroke="#D4FF00"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
+                      strokeWidth="4"
+                    />
+                    {pulseSparkValues.map((value, index) => (
+                      <rect
+                        key={`${value}-${index}`}
+                        x={index * 50 - 2}
+                        y={36 - (value / pulseSparkMax) * 28 - 2}
+                        width="4"
+                        height="4"
+                        fill="#FFFFFF"
+                      />
+                    ))}
+                  </svg>
+                </div>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* SECTION 4: LEDGER */}
-          <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
+          {/* SECTION 3: PROJECT LEDGER */}
+          <div id="project-ledger" className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6">
             {/* Header */}
             <div className="px-4 py-3 border-b-2 border-[#111118] bg-[#F5F5F0] flex flex-wrap justify-between items-center gap-2">
               <div className="flex items-center gap-4">
-                <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">
-                  {ledgerView === 'project' ? 'PROJECT LEDGER' : ledgerView === 'client' ? 'CLIENT LEDGER' : 'INVOICE LEDGER'}
+	                <p className="text-[13px] font-bold text-[#111118] tracking-[0.08em]">
+	                  PROJECT LEDGER
                 </p>
                 <div className="flex border-2 border-[#111118] overflow-hidden shadow-[2px_2px_0_#111118]">
                   <button
@@ -2372,23 +2174,13 @@ export default function DashboardPage() {
                         invoice_number: inv.invoiceNumber || "",
                       }));
                     });
-                    const sparkTotal = allMilestones.reduce((sum, m) => {
-                      let amount = m.amount || 0;
-                      if (amount === 0) {
-                        const parentInv = project.invoices.find(i => i.milestones.some(pm => pm.orderIndex === m.orderIndex));
-                        if (parentInv?.formDataMilestones?.[m.orderIndex]) {
-                          amount = (parentInv.formDataMilestones[m.orderIndex].lineItems || []).reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
-                        }
-                      }
-                      return sum + amount;
-                    }, 0) || 1;
-
-                    const isCollapsed = collapsedProjectIds.includes(project.projectId);
+                    const settledMilestoneCount = allMilestones.filter((milestone) => (milestone.status || "").toLowerCase() === "settled").length;
+                    const projectMilestoneProgress = allMilestones.length > 0
+                      ? Math.round((settledMilestoneCount / allMilestones.length) * 100)
+                      : 0;
+                    const isCollapsed = !collapsedProjectIds.includes(project.projectId);
                     const projectAction = getProjectActionState(project);
-                    const progressPercent = getProjectProgress(project);
-                    const openInvoiceCount = getProjectOpenInvoiceCount(project);
-                    const settledInvoiceCount = project.invoices.filter((inv) => inv.status.toLowerCase() === "settled").length;
-                    
+
                     return (
                       <div key={project.projectId} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
                         
@@ -2398,7 +2190,7 @@ export default function DashboardPage() {
                           className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white cursor-pointer select-none group"
                         >
                           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
-                            <div className="min-w-0 flex-1">
+	                            <div className="min-w-0 flex-1">
                               <div className="flex items-start gap-3">
                                 <span className={cn("mt-1 h-5 w-5 shrink-0 border-2 bg-white shadow-[2px_2px_0_#111118]", PROJECT_ACTION_BORDER_CLASSES[projectAction.tone])} />
                                 <h3 className="text-[18px] sm:text-[22px] font-black text-[#111118] tracking-normal m-0 leading-tight group-hover:text-[#FF5C00] transition-colors">
@@ -2416,51 +2208,26 @@ export default function DashboardPage() {
                               <p className="text-[11px] font-bold text-[#888] m-0 mt-2 uppercase tracking-widest">
                                 Client: <span className="text-[#111118]">{project.clientName}</span> {project.clientCity ? `(${project.clientCity})` : ""}
                               </p>
-                            </div>
-                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1.5 shrink-0">
-                              <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Open Receivable</p>
-                                <p className={cn("text-[20px] sm:text-[24px] font-black font-syne m-0", projectAction.tone === "danger" ? "text-[#FF5C00]" : "text-[#111118]")}>
-                                ₹{formatIndian(project.totalOwed)}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Link
-                                  href={`/project/${project.projectId}`}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="border-2 border-[#111118] bg-[#D4FF00] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_#111118] transition-all"
-                                >
-                                  VIEW PROJECT →
-                                </Link>
-                                <span className={cn(
-                                  "text-[10px] font-black px-2 py-1 border-2 uppercase tracking-wider shadow-[2px_2px_0_#111118]",
-                                  PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
-                                  PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
-                                )}>
-                                  {projectAction.label}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+	                            </div>
+	                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1.5 shrink-0">
+	                              {projectAction.invoice && <CanonicalInvoiceStateBadge invoice={projectAction.invoice} />}
+	                              <span className="border-2 border-[#111118] bg-[#F8F8F4] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118]">
+	                                {settledMilestoneCount}/{allMilestones.length || 0} milestones
+	                              </span>
+	                            </div>
+	                          </div>
 
-                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
-                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Progress</p>
-                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{progressPercent}%</p>
-                            </div>
-                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Open Items</p>
-                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{openInvoiceCount}</p>
-                            </div>
-                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Settled</p>
-                              <p className="text-[18px] font-black font-syne text-[#007A63] m-0">₹{formatIndian(project.totalCollected)}</p>
-                            </div>
-                            <div className="border-2 border-[#111118] bg-[#F8F8F4] p-3">
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)] m-0">Invoices</p>
-                              <p className="text-[18px] font-black font-syne text-[#111118] m-0">{settledInvoiceCount}/{project.invoices.length}</p>
-                            </div>
-                          </div>
+	                          <div className="mb-4 w-full" onClick={(e) => e.stopPropagation()}>
+	                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+	                              <p className="m-0 text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+	                                Milestone progress
+	                              </p>
+	                              <p className="m-0 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118]">
+	                                {projectMilestoneProgress}% · {settledMilestoneCount}/{allMilestones.length || 0} settled
+	                              </p>
+	                            </div>
+	                            <ProjectTimeline milestones={projectMilestones} />
+	                          </div>
 
                           <div className={cn(
                             "mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-2 p-3",
@@ -2470,7 +2237,7 @@ export default function DashboardPage() {
                             <div className="min-w-0">
                               <p className="text-[10px] font-black uppercase tracking-[0.12em] m-0 opacity-70">Next action</p>
                               <p className="text-[13px] font-black text-[#111118] m-0 mt-0.5">{projectAction.detail}</p>
-                            </div>
+	                        </div>
                             {projectAction.actionHref ? (
                               <Link
                                 href={projectAction.actionHref}
@@ -2497,11 +2264,7 @@ export default function DashboardPage() {
                             ) : null}
                           </div>
 
-                          {/* Chronological Milestone Timeline */}
-                          <div className="w-full mt-2" onClick={(e) => e.stopPropagation()}>
-                            <ProjectTimeline milestones={projectMilestones} />
-                          </div>
-                        </div>
+	                        </div>
 
                         {/* Body: Invoices list under the project */}
                         {!isCollapsed && (
@@ -2518,19 +2281,12 @@ export default function DashboardPage() {
                                       <div className="flex items-center gap-3 flex-wrap">
                                         <button
                                           onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
-                                          className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
-                                        >
-                                          {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-                                        </button>
-                                        {msaLower !== "accepted" && (
-                                          <span className={cn(
-                                            "text-[9px] font-bold px-1.5 py-0.5 border-2 uppercase tracking-wider",
-                                            isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
-                                          )}>
-                                            {isProposed ? "Proposed Changes" : "MSA Pending"}
-                                          </span>
-                                        )}
-                                      </div>
+	                                          className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
+	                                        >
+	                                          {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+	                                        </button>
+	                                        <CanonicalInvoiceStateBadge invoice={inv} />
+	                                      </div>
                                       <span className="text-[14px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
                                     </div>
 
@@ -2719,19 +2475,12 @@ export default function DashboardPage() {
                               <div className="flex items-center gap-3 flex-wrap">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
-                                  className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
-                                >
-                                  {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-                                </button>
-                                {msaLower !== "accepted" && (
-                                  <span className={cn(
-                                    "text-[9px] font-bold px-1.5 py-0.5 border-2 uppercase tracking-wider",
-                                    isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
-                                  )}>
-                                    {isProposed ? "Proposed Changes" : "MSA Pending"}
-                                  </span>
-                                )}
-                              </div>
+	                                  className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
+	                                >
+	                                  {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+	                                </button>
+	                                <CanonicalInvoiceStateBadge invoice={inv} />
+	                              </div>
                               <span className="text-[14px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
                             </div>
 
@@ -2850,30 +2599,16 @@ export default function DashboardPage() {
                                   href={`/invoice/${inv.id}/client-preview`}
                                   className="text-[20px] sm:text-[24px] font-black text-[#111118] uppercase tracking-wider m-0 leading-tight hover:text-[#FF5C00] transition-colors"
                                 >
-                                  {inv.invoiceNumber} <span className="text-[16px]">↗</span>
-                                </Link>
-                                {msaLower !== "accepted" && (
-                                  <span className={`text-[10px] font-bold px-2 py-1 border-2 uppercase tracking-wider ${
-                                    isProposed ? "bg-[#FFF8E1] text-[#B45309] border-[#B45309]" : "bg-[#F0F0F0] text-[#666] border-[#999]"
-                                  }`}>
-                                    {isProposed ? "Proposed Changes" : "MSA Pending"}
-                                  </span>
-                                )}
-                              </div>
+	                                  {inv.invoiceNumber} <span className="text-[16px]">↗</span>
+	                                </Link>
+	                              </div>
                               <p className="text-[12px] font-bold text-[#888] m-0 mt-1 uppercase tracking-widest">{inv.clientName} {inv.clientCity ? `· ${inv.clientCity}` : ''}</p>
                             </div>
                             <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
-                              <p className={`text-[20px] sm:text-[24px] font-black font-syne m-0 ${inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? 'text-[#FF5C00]' : 'text-[#111118]'}`}>
-                                ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(inv.totalAmount)}
-                              </p>
-                              <span className={`text-[10px] font-black px-2 py-1 border-2 border-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] ${
-                                inv.status.toLowerCase() === 'settled' ? 'bg-[#E0FFF7] text-[#006B52]' :
-                                inv.status.toLowerCase() === 'draft' ? 'bg-[#F0EAFF] text-[#5530DB]' :
-                                inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? 'bg-[#FFF0EC] text-[#FF5C00]' :
-                                'bg-[#EBFDF9] text-[#00967D]'
-                              }`}>
-                                {inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? "OVERDUE" : inv.status.toUpperCase()}
-                              </span>
+	                              <p className={`text-[20px] sm:text-[24px] font-black font-syne m-0 ${inv.status.toLowerCase() === 'sent' && new Date(inv.dueDate) < new Date() ? 'text-[#FF5C00]' : 'text-[#111118]'}`}>
+	                                ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(inv.totalAmount)}
+	                              </p>
+	                              <CanonicalInvoiceStateBadge invoice={inv} />
                             </div>
                           </div>
 
@@ -3021,260 +2756,26 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Footer with double border */}
-            <div className="border-t-2 border-[#111118] px-4 py-3 bg-[#F8F8F4] flex flex-wrap justify-between items-center gap-2">
-              <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
-                {ledgerView === "project" ? (
-                  <>
-                    Showing {filteredAndSortedProjects.length} of {projectsHealth.length} {projectsHealth.length === 1 ? 'project' : 'projects'} · {(() => { const c = filteredAndSortedProjects.reduce((sum, p) => sum + p.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
-                  </>
-                ) : ledgerView === "client" ? (
-                  <>
-                    Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
-                  </>
-                ) : (
-                  <>
-                    Showing {filteredAndSortedInvoices.length} of {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0)} {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0) === 1 ? 'invoice' : 'invoices'}
-                  </>
-                )}
-              </p>
-              <div className="flex gap-4 flex-wrap">
-                <p className="text-[12px]">
-                  <span className="text-[color:var(--text-muted)] font-bold">Total receivable:</span>{" "}
-                  <span className="font-bold text-[#111118]">
-                    ₹{formatIndian(
-                      ledgerView === "project"
-                        ? filteredAndSortedProjects.reduce((sum, p) => sum + p.totalOwed, 0)
-                        : ledgerView === "client"
-                        ? filteredAndSortedClients.reduce((sum, c) => sum + c.totalOwed, 0)
-                        : filteredAndSortedInvoices.reduce((sum, inv) => {
-                            const statusLower = (inv.status || "").toLowerCase();
-                            if (statusLower === "settled" || statusLower === "cancelled") return sum;
-                            if (inv.milestones && inv.milestones.length > 0) {
-                              return sum + inv.milestones.reduce((mSum: number, m: any) => {
-                                const mStatus = (m.status || "").toLowerCase();
-                                return mStatus !== "settled" ? mSum + Number(m.amount || 0) : mSum;
-                              }, 0);
-                            }
-                            return sum + inv.totalAmount;
-                          }, 0)
-                    )}
-                  </span>
-                </p>
-                <p className="text-[12px]">
-                  <span className="text-[color:var(--text-muted)] font-bold">Total collected:</span>{" "}
-                  <span className="font-bold text-[#00967D]">
-                    ₹{formatIndian(
-                      ledgerView === "project"
-                        ? filteredAndSortedProjects.reduce((sum, p) => sum + p.totalCollected, 0)
-                        : ledgerView === "client"
-                        ? filteredAndSortedClients.reduce((sum, c) => sum + c.totalCollected, 0)
-                        : filteredAndSortedInvoices.reduce((sum, inv) => {
-                            const statusLower = (inv.status || "").toLowerCase();
-                            if (inv.milestones && inv.milestones.length > 0) {
-                              return sum + inv.milestones.reduce((mSum: number, m: any) => {
-                                const mStatus = (m.status || "").toLowerCase();
-                                return mStatus === "settled" ? mSum + Number(m.amount || 0) : mSum;
-                              }, 0);
-                            }
-                            return statusLower === "settled" ? sum + inv.totalAmount : sum;
-                          }, 0)
-                    )}
-                  </span>
-                </p>
-              </div>
-            </div>
+	            {/* Footer */}
+	            <div className="border-t-2 border-[#111118] px-4 py-3 bg-[#F8F8F4]">
+	              <p className="text-[12px] font-bold text-[color:var(--text-muted)]">
+	                {ledgerView === "project" ? (
+	                  <>
+	                    Showing {filteredAndSortedProjects.length} of {projectsHealth.length} {projectsHealth.length === 1 ? 'project' : 'projects'} · {(() => { const c = filteredAndSortedProjects.reduce((sum, p) => sum + p.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
+	                  </>
+	                ) : ledgerView === "client" ? (
+	                  <>
+	                    Showing {filteredAndSortedClients.length} of {clientsHealth.length} {clientsHealth.length === 1 ? 'client' : 'clients'} · {(() => { const c = filteredAndSortedClients.reduce((sum, cl) => sum + cl.invoices.length, 0); return `${c} ${c === 1 ? 'invoice' : 'invoices'}`; })()}
+	                  </>
+	                ) : (
+	                  <>
+	                    Showing {filteredAndSortedInvoices.length} of {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0)} {clientsHealth.reduce((sum, c) => sum + c.invoices.length, 0) === 1 ? 'invoice' : 'invoices'}
+	                  </>
+	                )}
+	              </p>
+	            </div>
           </div>
-
-          {/* SECTION 5: ACTIVITY + QUICK LINKS + DEADLINES */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pb-8 w-full">
-            {/* Activity feed */}
-            <div className="lg:col-span-7 xl:col-span-8 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] h-fit">
-              <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
-                  RECENT ACTIVITY
-                </p>
-              </div>
-              {activity.length > 0 ? (
-                activity.map((item) => (
-                  <div
-                    key={item.id}
-                    className="px-3 py-2 border-b-2 border-[#111118] last:border-b-0 flex gap-2 items-start hover:bg-[#F9F9F6] transition-colors"
-                  >
-                    <div
-                      className={cn(
-                        "w-2.5 h-2.5 border-2 border-[#111118] mt-1 shrink-0",
-                        (item.action.toLowerCase().includes("created") || item.action.toLowerCase().includes("draft")) && "bg-[#BEFF00]",
-                        (item.action.toLowerCase().includes("settled") || item.action.toLowerCase().includes("collected")) && "bg-[#00DCB4]",
-                        item.action.toLowerCase().includes("accepted") && "bg-[#00DCB4]",
-                        item.action.toLowerCase().includes("viewed") && "bg-[#8B5CF6]",
-                        item.action.toLowerCase().includes("sent") && "bg-[#BEFF00]",
-                        item.action.toLowerCase().includes("overdue") && "bg-[#FF5C00]",
-                        item.action.toLowerCase().includes("negotiating") && "bg-[#FF9F0A]",
-                        !item.action.toLowerCase().includes("created") &&
-                          !item.action.toLowerCase().includes("draft") &&
-                          !item.action.toLowerCase().includes("settled") &&
-                          !item.action.toLowerCase().includes("collected") &&
-                          !item.action.toLowerCase().includes("accepted") &&
-                          !item.action.toLowerCase().includes("viewed") &&
-                          !item.action.toLowerCase().includes("sent") &&
-                          !item.action.toLowerCase().includes("overdue") &&
-                          !item.action.toLowerCase().includes("negotiating") &&
-                          "bg-[#EBFDF9]"
-                      )}
-                    ></div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] text-[#111118] font-bold truncate">
-                        {item.entityLabel}
-                      </p>
-                      <p className="text-[12px] text-[#111118]/70 truncate">
-                        {item.detail} — {timeAgo(item.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="px-3 py-6 text-center text-[12px] text-[color:var(--text-muted)]">
-                  No activity yet. Create and send your first invoice.
-                </div>
-              )}
-            </div>
-
-            {/* Right column */}
-            <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
-              {/* Quick links */}
-              <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-                <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                  <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
-                    QUICK LINKS
-                  </p>
-                </div>
-                <Link
-                  href="/invoice/new"
-                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
-                >
-                  Create invoice <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
-                </Link>
-                <Link
-                  href="/clients"
-                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
-                >
-                  Manage clients <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
-                </Link>
-                <Link
-                  href="/invoices"
-                  className="flex justify-between items-center px-3 py-2 border-b-2 border-[#111118] text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
-                >
-                  All invoices <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
-                </Link>
-                <Link
-                  href="/profile"
-                  className="flex justify-between items-center px-3 py-2 text-[13px] font-bold text-[#111118] hover:bg-[#BEFF00] hover:translate-x-1 transition-all duration-150 select-none group"
-                >
-                  Profile settings <span className="text-[#111118] group-hover:translate-x-1 transition-transform">→</span>
-                </Link>
-              </div>
-
-              {/* Upcoming deadlines */}
-              <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-                <div className="px-3 py-2 border-b-2 border-[#111118] bg-[#F8F8F4]">
-                  <p className="text-[12px] font-bold text-[color:var(--text-muted)] tracking-[0.12em] uppercase">
-                    UPCOMING
-                  </p>
-                </div>
-                {deadlines.length > 0 ? (
-                  deadlines.filter(d => d.daysUntilDue <= 21).slice(0, 5).map((d) => {
-                    const formattedDueDate = new Date(d.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-                    const hasPassed = d.daysUntilDue <= 0;
-
-                    return (
-                      <div
-                        key={d.id}
-                        onClick={() => setSelectedInvoice(d.rawInvoice)}
-                        className="px-3 py-2.5 border-b-2 border-[#111118] last:border-b-0 flex justify-between items-center cursor-pointer hover:bg-[#F9F9F6] active:bg-[#F0F0EB] transition-colors select-none group"
-                      >
-                        <div className="min-w-0 flex-1 pr-2">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <p className="text-[13px] font-bold text-[#111118] group-hover:text-[#FF5C00] transition-colors truncate">
-                              {d.invoiceNumber}
-                            </p>
-                            {d.nextMilestoneTitle && (
-                              <span className="text-[9px] px-1 py-0.5 border border-[#111118] bg-[#F0EAFF] text-[#5530DB] font-extrabold uppercase truncate max-w-[120px]">
-                                {d.nextMilestoneTitle}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[12px] text-[color:var(--text-muted)] font-medium mt-0.5 truncate">
-                            {d.clientName} · <span className="font-bold text-[#111118]">₹{formatIndian(d.nextMilestoneAmount || d.totalAmount)}</span>
-                            <span className="text-[10px] text-[color:var(--text-muted)] font-extrabold ml-1.5 whitespace-nowrap">
-                              (Due {formattedDueDate} · {d.daysUntilDue > 0 ? `+${d.daysUntilDue}d` : `${d.daysUntilDue}d`})
-                            </span>
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                          {hasPassed && (
-                            <button
-                              onClick={async () => {
-                                try {
-                                  const paymentAmount = d.nextMilestoneAmount || d.totalAmount;
-                                  const confirmed = await showConfirm(
-                                    "Confirm Payment Received",
-                                    `Record ₹${formatIndian(paymentAmount)} as received for ${d.invoiceNumber}? Current due date: ${formattedDueDate}. Confirm only after the payment is visible in your bank account.`,
-                                    "warning",
-                                    "Mark Paid",
-                                    "Cancel"
-                                  );
-                                  if (!confirmed) return;
-                                  
-                                  const { error } = await markInvoiceSettled(d.id);
-                                  if (error) {
-                                    showAlert("Settlement Error", `Failed to settle invoice: ${error}`, "error");
-                                  } else {
-                                    showAlert("Invoice Settled", `Invoice ${d.invoiceNumber} successfully marked as settled!`, "success");
-                                    announceInvoiceDataChanged({
-                                      invoiceId: d.id,
-                                      action: "dashboard_invoice_settled",
-                                    });
-                                    setRefreshNonce((value) => value + 1);
-                                  }
-                                } catch (err) {
-                                  console.error(err);
-                                }
-                              }}
-                              className="inline-flex items-center gap-1 bg-[#00DCB4] hover:bg-[#00c4a0] active:translate-y-[1px] text-[#111118] border-2 border-[#111118] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-[1px_1px_0_#111118] cursor-pointer"
-                            >
-                              <CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />
-                              Mark Paid
-                            </button>
-                          )}
-                          <span
-                            className={cn(
-                              "text-[10px] font-black px-2 py-1 border-2 border-[#111118] shadow-[2px_2px_0_#111118] uppercase tracking-wider",
-                              d.daysUntilDue <= 0
-                                ? "bg-[#FFF0EC] text-[#FF5C00]"
-                                : d.daysUntilDue <= 3
-                                ? "bg-[#FFFBE6] text-[#D97706]"
-                                : d.daysUntilDue <= 7
-                                ? "bg-[#F7FFD6] text-[#84CC16]"
-                                : "bg-[#F0F0F0] text-[color:var(--text-muted)]"
-                            )}
-                          >
-                            {d.daysUntilDue === 0 ? "TODAY" : d.daysUntilDue === 1 ? "TOMORROW" : d.daysUntilDue === -1 ? "YESTERDAY" : `${d.daysUntilDue} DAYS`}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="px-3 py-4 text-center text-[12px] text-[color:var(--text-muted)]">
-                    {deadlines.length > 0 ? "No urgent deadlines (all 21+ days out)." : "No upcoming deadlines."}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </MotionReveal>
+	        </MotionReveal>
       </main>
 
       {/* SECTION 6: INVOICE SIDE-DRAWER DETAIL INSPECTOR */}
