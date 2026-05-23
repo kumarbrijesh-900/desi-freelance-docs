@@ -46,6 +46,7 @@ import ConversionModal from "@/components/invoice/ConversionModal";
 import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
 import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
 import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
+import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -436,6 +437,11 @@ function PreviewContent() {
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
         window.history.replaceState({}, "", url.toString());
+
+        announceInvoiceDataChanged({
+          invoiceId: saved.id,
+          action: "cloud_save_restore",
+        });
       }
     }
 
@@ -528,6 +534,10 @@ function PreviewContent() {
           persistDraft();
 
           playInteractionCue("saveSuccess");
+          announceInvoiceDataChanged({
+            invoiceId: saved.id,
+            action: "invoice_saved",
+          });
           return;
         }
         
@@ -590,6 +600,11 @@ function PreviewContent() {
       setMsaResponse(saved.msa_status);
       setSaveState("cloud-saved");
 
+      announceInvoiceDataChanged({
+        invoiceId: saved.id,
+        action: "invoice_shared",
+      });
+
       // Brief delay for transition
       await new Promise((resolve) => setTimeout(resolve, 300));
       setShowShareModal(true);
@@ -627,6 +642,10 @@ function PreviewContent() {
       });
       if (saved) {
         setCloudInvoiceId(saved.id);
+        announceInvoiceDataChanged({
+          invoiceId: saved.id,
+          action: "invoice_sent_pdf",
+        });
       }
     }
 

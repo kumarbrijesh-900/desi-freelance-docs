@@ -94,6 +94,7 @@ import {
 } from "@/lib/invoice-validation";
 import { syncMsaToInvoice } from "@/lib/msa-sync-utils";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
+import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import {
   appContainerCenteredClass,
   appContainerFullClass,
@@ -1298,7 +1299,7 @@ function EditorContent() {
       const userId = await getCurrentUserId();
       if (!userId) return;
 
-      const { error } = await saveInvoice({
+      const { data, error } = await saveInvoice({
         formData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
@@ -1312,6 +1313,10 @@ function EditorContent() {
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
         window.history.replaceState({}, "", url.toString());
+        announceInvoiceDataChanged({
+          invoiceId: data?.id,
+          action: "cloud_save_restore",
+        });
       }
     }
 
@@ -2282,6 +2287,10 @@ const handleSaveDraft = async () => {
           : "Draft saved to cloud ☁",
       );
       playInteractionCue("saveSuccess");
+      announceInvoiceDataChanged({
+        invoiceId: (result as any).data?.id ?? parserDocumentId ?? undefined,
+        action: clientMsaNote ? "invoice_reissued" : "invoice_saved",
+      });
     } else {
       triggerToast("Saved locally (cloud save failed)");
       playInteractionCue("saveSuccess");
