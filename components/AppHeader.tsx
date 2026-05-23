@@ -17,9 +17,16 @@ interface AppHeaderProps {
 
 /* ─── Nav Link ─── */
 
+function isNavActive(pathname: string, href: string) {
+  if (href === "/projects") {
+    return pathname.startsWith("/projects") || pathname.startsWith("/project/");
+  }
+  return pathname === href;
+}
+
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = isNavActive(pathname, href);
 
   return (
     <Link
@@ -216,6 +223,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
               {user && <NavLink href="/dashboard" label="Dashboard" />}
               {user && (
                 <>
+                  <NavLink href="/projects" label="Projects" />
                   <NavLink href="/invoices" label="Invoices" />
                   <NavLink href="/clients" label="Clients" />
                 </>
@@ -280,6 +288,18 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 )}
                 {user && (
                   <>
+                    <Link
+                      href="/projects"
+                      className={cn(
+                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                        isNavActive(pathname, "/projects")
+                          ? "bg-[#BEFF00] text-[#111118]"
+                          : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Projects
+                    </Link>
                     <Link
                       href="/invoices"
                       className={cn(
