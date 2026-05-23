@@ -1,5 +1,43 @@
 # Session Log — May 22-23, 2026
 
+## Latest checkpoint: v2.8.8 Sprint 1.5 — Locked Child Sections Chrome — May 23, 2026
+
+### Sequence
+1. Sprint 1 shipped page-level locked-mode chrome, but verification found locked invoices still leaked editing affordances inside child sections.
+2. Sprint 1.5 extended the same locked-state signal into all five section components using `isReadOnly={isReadOnlyMode}` from `InvoiceEditorPage.tsx`.
+3. Implementation shipped as commit `ad8786c` and was pushed to `main`.
+
+### Implementation
+- Hidden required asterisks in locked mode across Agency, Client, Deliverables, Terms & Payment, and Invoice Meta sections.
+- Hidden child mutation controls in locked mode: line item delete buttons, add line item, add milestone, agency logo mutation controls, generated MSA clear/regenerate actions, and Terms override controls.
+- Rendered toggles/switch-like controls as static state where applicable, including GST registration, LUT, Client Location, and SEZ.
+- Fixed the desktop rail active-card leak so locked invoices show `view` for active and inactive section cards.
+- Gated the centralized step-to-step Continue CTA while locked.
+- Gated the project-link nudge in Deliverables while locked.
+- Flattened data-provenance field accents to warm gray under `[data-mode="locked"]`.
+
+### Verification
+- `npx tsc --noEmit` clean.
+- `npm run build` clean, with existing Upstash Redis env warning unrelated.
+- `git diff --check` clean for the seven touched files.
+
+### Files changed
+- components/invoice/InvoiceEditorPage.tsx
+- components/invoice/AgencyDetailsSection.tsx
+- components/invoice/ClientDetailsSection.tsx
+- components/invoice/DeliverablesSection.tsx
+- components/invoice/TermsPaymentSection.tsx
+- components/invoice/InvoiceMetaSection.tsx
+- app/globals.css
+
+### Unresolved / prompt-structure notes
+- The prompt expected the "Please select a Client in Step 2 to link this invoice to a project" banner in `InvoiceEditorPage.tsx`, but the actual code keeps it in `DeliverablesSection.tsx`; it was fixed there using the threaded `isReadOnly` prop.
+- The prompt expected "Continue to <next-section>" CTAs may live in section components, but the main step-to-step CTA is centralized in `InvoiceEditorPage.tsx`; it was fixed there. `TermsPaymentSection.tsx` also had its own `Continue to Preview` CTA and that was hidden separately.
+- The prompt expected Tailwind `border-l-*` provenance classes, but the actual field provenance system uses `input-autofilled` / `input-manual`; the implementation suppresses those classes in read-only mode and also adds the requested `[data-mode="locked"]` CSS flattening override.
+- Browser visual QA was not rerun after Sprint 1.5; compile/build verification passed, but one locked invoice should still be visually checked after deployment for spacing/polish.
+
+---
+
 ## Latest checkpoint: v2.8.8 Sprint 1 — Locked-Mode Chrome Theme — May 23, 2026
 
 ### Sequence
