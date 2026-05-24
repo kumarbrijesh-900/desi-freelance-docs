@@ -88,7 +88,6 @@ import {
   type SavedClient,
 } from "@/lib/supabase/clients";
 import {
-  createProject,
   getAllProjectsWithInvoices,
   type ProjectWithInvoices,
 } from "@/lib/supabase/projects";
@@ -1127,57 +1126,6 @@ function EditorContent() {
     setIsProjectAutocompleteOpen(false);
   };
 
-  const resolveProjectIdForSave = async () => {
-    if (projectId || !projectName.trim() || isReadOnlyMode) {
-      return projectId;
-    }
-
-    if (exactProjectMatch) {
-      setProjectId(exactProjectMatch.project.id);
-      return exactProjectMatch.project.id;
-    }
-
-    if (!selectedClientMsa?.id) {
-      return null;
-    }
-
-    const { data, error } = await createProject(
-      projectName.trim(),
-      selectedClientMsa.id,
-    );
-
-    if (error || !data) {
-      console.error("PROJECT_CREATE_FROM_INVOICE_FAILED:", error);
-      triggerToast("Invoice saved without project link.");
-      return null;
-    }
-
-    setProjectId(data.id);
-    setAvailableProjects((prev) => [
-      {
-        project: {
-          ...data,
-          client: {
-            id: selectedClientMsa.id,
-            client_name: selectedClientMsa.client_name,
-            city: selectedClientMsa.city || null,
-            client_address: selectedClientMsa.client_address || null,
-          },
-        },
-        invoices: [],
-        milestones: [],
-        metrics: {
-          billed: 0,
-          collected: 0,
-          outstanding: 0,
-          daysActive: 0,
-        },
-      },
-      ...prev,
-    ]);
-    return data.id;
-  };
-
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
     if (isReadOnlyMode) return;
@@ -1403,13 +1351,13 @@ function EditorContent() {
     async function autoCloudSave() {
       const userId = await getCurrentUserId();
       if (!userId) return;
-      const projectIdForSave = await resolveProjectIdForSave();
 
       const { data, error } = await saveInvoice({
         formData,
         status: "draft" as InvoiceStatus,
         existingId: undefined,
-        projectId: projectIdForSave,
+        projectId,
+        projectName: projectName.trim() || undefined,
       });
 
       if (!error) {
@@ -2370,9 +2318,11 @@ const handleSaveDraft = async () => {
 
   try {
     let result;
-    const projectIdForSave = await resolveProjectIdForSave();
     if (clientMsaNote && parserDocumentId) {
-      result = await reissueNegotiatedInvoice(parserDocumentId, formData);
+      result = await reissueNegotiatedInvoice(parserDocumentId, formData, {
+        projectId,
+        projectName: projectName.trim() || undefined,
+      });
       if (!result.error) {
         setClientMsaNote(null);
       }
@@ -2394,7 +2344,8 @@ const handleSaveDraft = async () => {
         formData: formDataForSave,
         status: "draft" as InvoiceStatus,
         existingId: parserDocumentId ?? undefined,
-        projectId: projectIdForSave,
+        projectId,
+        projectName: projectName.trim() || undefined,
       });
       if (!result.error && result.data) {
         setParserDocumentId(result.data.id);
@@ -2409,6 +2360,9 @@ const handleSaveDraft = async () => {
       const clientPersistenceError =
         (result as any).data?.client_persistence_error ??
         (result as any).clientPersistenceError;
+      const projectPersistenceError =
+        (result as any).data?.project_persistence_error ??
+        (result as any).projectPersistenceError;
 
       try {
         localStorage.removeItem("lance_draft_invoice");
@@ -2422,6 +2376,13 @@ const handleSaveDraft = async () => {
             : [createdClient, ...prev],
         );
         setSelectedClientMsa(createdClient);
+      }
+
+      if (projectPersistenceError) {
+        triggerToast(
+          `Invoice saved, but project '${projectName.trim()}' could not be linked. ${projectPersistenceError}`,
+        );
+      } else if (createdClient) {
         triggerToast(`New client '${createdClient.client_name}' added to your client list.`);
       } else if (clientPersistenceError) {
         triggerToast(`Invoice saved, but client was not added: ${clientPersistenceError}`);

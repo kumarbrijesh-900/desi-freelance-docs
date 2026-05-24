@@ -81,6 +81,8 @@ export interface SavedInvoice {
   created_client?: ClientRow | null;
   client_persistence_error?: string | null;
   project_id?: string | null;
+  created_project?: { id: string; name: string } | null;
+  project_persistence_error?: string | null;
   project?: {
     msa_accepted_at: string | null;
     status: string;
@@ -94,6 +96,8 @@ export interface SaveInvoiceInput {
   /** Pass an existing ID to update instead of insert */
   existingId?: string;
   projectId?: string | null;
+  projectName?: string | null;
+  projectDescription?: string | null;
 }
 
 /* ─── Helpers ─────────────────────────────────────────────── */
@@ -169,6 +173,7 @@ export async function getCurrentUserEmail(): Promise<string | null> {
 }
 
 type ClientPersistenceOutcome = {
+  clientId: string | null;
   createdClient: ClientRow | null;
   error: string | null;
 };
@@ -176,14 +181,14 @@ type ClientPersistenceOutcome = {
 async function persistNewClientFromInvoice(
   formData: InvoiceFormData,
   userId: string,
-  invoiceId: string,
+  invoiceId?: string | null,
   invoiceRow?: Record<string, unknown> | null,
 ): Promise<ClientPersistenceOutcome> {
   const clientName = formData.client?.clientName?.trim();
   const clientEmail = formData.client?.clientEmail?.trim().toLowerCase();
 
   if (!clientName || !clientEmail) {
-    return { createdClient: null, error: null };
+    return { clientId: null, createdClient: null, error: null };
   }
 
   try {
@@ -195,16 +200,17 @@ async function persistNewClientFromInvoice(
       .maybeSingle();
 
     if (lookupError) {
-      return { createdClient: null, error: lookupError.message };
+      return { clientId: null, createdClient: null, error: lookupError.message };
     }
 
     if (existingClient) {
-      return { createdClient: null, error: null };
+      return { clientId: existingClient.id, createdClient: null, error: null };
     }
 
     const createdClient = await createClientFromInvoice(formData, userId);
 
     if (
+      invoiceId &&
       invoiceRow &&
       Object.prototype.hasOwnProperty.call(invoiceRow, "client_id")
     ) {
@@ -215,15 +221,16 @@ async function persistNewClientFromInvoice(
         .eq("user_id", userId);
 
       if (updateError) {
-        return { createdClient, error: updateError.message };
+        return { clientId: createdClient.id, createdClient, error: updateError.message };
       }
 
       invoiceRow.client_id = createdClient.id;
     }
 
-    return { createdClient, error: null };
+    return { clientId: createdClient.id, createdClient, error: null };
   } catch (error) {
     return {
+      clientId: null,
       createdClient: null,
       error: error instanceof Error ? error.message : "Could not add client.",
     };
@@ -245,6 +252,71 @@ export async function saveInvoice(
 
   const invoiceNumber = getInvoiceNumber(input.formData);
   const status = input.status ?? "DRAFT";
+  const clientPersistence = await persistNewClientFromInvoice(
+    input.formData,
+    userId,
+  );
+  const resolvedClientId = clientPersistence.clientId;
+  let resolvedProjectId = input.projectId ?? null;
+  let createdProject: { id: string; name: string } | null = null;
+  let projectPersistenceError: string | null = null;
+
+  const formDataWithProject = input.formData as InvoiceFormData & {
+    projectName?: string | null;
+    projectDescription?: string | null;
+    project?: { name?: string | null; description?: string | null };
+  };
+  const requestedProjectName =
+    input.projectName?.trim() ||
+    formDataWithProject.projectName?.trim() ||
+    formDataWithProject.project?.name?.trim() ||
+    "";
+  const requestedProjectDescription =
+    input.projectDescription?.trim() ||
+    formDataWithProject.projectDescription?.trim() ||
+    formDataWithProject.project?.description?.trim() ||
+    undefined;
+
+  if (!resolvedProjectId && requestedProjectName) {
+    if (resolvedClientId) {
+      try {
+        const { data: existingProject, error: projectLookupError } = await supabase
+          .from("projects")
+          .select("id, name")
+          .eq("user_id", userId)
+          .ilike("name", requestedProjectName)
+          .limit(1)
+          .maybeSingle();
+
+        if (projectLookupError) {
+          projectPersistenceError = projectLookupError.message;
+        } else if (existingProject) {
+          resolvedProjectId = existingProject.id;
+        } else {
+          const { data: newProject, error: projectCreateError } =
+            await createProject(
+              requestedProjectName,
+              resolvedClientId,
+              requestedProjectDescription,
+            );
+
+          if (projectCreateError || !newProject) {
+            projectPersistenceError =
+              projectCreateError || "Could not add project.";
+          } else {
+            resolvedProjectId = newProject.id;
+            createdProject = { id: newProject.id, name: newProject.name };
+          }
+        }
+      } catch (error) {
+        projectPersistenceError =
+          error instanceof Error ? error.message : "Could not add project.";
+      }
+    } else {
+      projectPersistenceError =
+        "Project was not added because client_id was unavailable.";
+    }
+  }
 
   // Fix Bug 2: Map MSA fields correctly to database columns
   const row: any = {
@@ -260,8 +332,12 @@ export async function saveInvoice(
     user_id: userId,
   };
 
-  if (input.projectId !== undefined) {
-    row.project_id = input.projectId;
+  if (resolvedClientId) {
+    row.client_id = resolvedClientId;
+  }
+
+  if (input.projectId !== undefined || resolvedProjectId) {
+    row.project_id = resolvedProjectId;
   }
 
   console.log("saveInvoice - sending row:", row);
@@ -317,12 +393,6 @@ export async function saveInvoice(
         );
     (result.data as any).grand_total = grand_total;
 
-    const clientPersistence = await persistNewClientFromInvoice(
-      input.formData,
-      userId,
-      result.data.id,
-      result.data as Record<string, unknown>,
-    );
     if (clientPersistence.createdClient) {
       (result.data as SavedInvoice).created_client =
         clientPersistence.createdClient;
@@ -331,6 +401,14 @@ export async function saveInvoice(
       console.warn("saveInvoice: client persistence failed", clientPersistence.error);
       (result.data as SavedInvoice).client_persistence_error =
         clientPersistence.error;
+    }
+    if (createdProject) {
+      (result.data as SavedInvoice).created_project = createdProject;
+    }
+    if (projectPersistenceError) {
+      console.warn("saveInvoice: project persistence failed", projectPersistenceError);
+      (result.data as SavedInvoice).project_persistence_error =
+        projectPersistenceError;
     }
   }
 
@@ -1056,27 +1134,110 @@ export async function markInvoiceSettled(
 export async function reissueNegotiatedInvoice(
   invoiceId: string,
   newFormData: InvoiceFormData,
+  options: {
+    projectId?: string | null;
+    projectName?: string | null;
+    projectDescription?: string | null;
+  } = {},
 ): Promise<{
   error: string | null;
   createdClient?: ClientRow | null;
   clientPersistenceError?: string | null;
+  createdProject?: { id: string; name: string } | null;
+  projectPersistenceError?: string | null;
 }> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "Not authenticated" };
+
+  const clientPersistence = await persistNewClientFromInvoice(
+    newFormData,
+    userId,
+  );
+  const resolvedClientId = clientPersistence.clientId;
+  let resolvedProjectId = options.projectId ?? null;
+  let createdProject: { id: string; name: string } | null = null;
+  let projectPersistenceError: string | null = null;
+
+  const formDataWithProject = newFormData as InvoiceFormData & {
+    projectName?: string | null;
+    projectDescription?: string | null;
+    project?: { name?: string | null; description?: string | null };
+  };
+  const requestedProjectName =
+    options.projectName?.trim() ||
+    formDataWithProject.projectName?.trim() ||
+    formDataWithProject.project?.name?.trim() ||
+    "";
+  const requestedProjectDescription =
+    options.projectDescription?.trim() ||
+    formDataWithProject.projectDescription?.trim() ||
+    formDataWithProject.project?.description?.trim() ||
+    undefined;
+
+  if (!resolvedProjectId && requestedProjectName) {
+    if (resolvedClientId) {
+      try {
+        const { data: existingProject, error: projectLookupError } = await supabase
+          .from("projects")
+          .select("id, name")
+          .eq("user_id", userId)
+          .ilike("name", requestedProjectName)
+          .limit(1)
+          .maybeSingle();
+
+        if (projectLookupError) {
+          projectPersistenceError = projectLookupError.message;
+        } else if (existingProject) {
+          resolvedProjectId = existingProject.id;
+        } else {
+          const { data: newProject, error: projectCreateError } =
+            await createProject(
+              requestedProjectName,
+              resolvedClientId,
+              requestedProjectDescription,
+            );
+
+          if (projectCreateError || !newProject) {
+            projectPersistenceError =
+              projectCreateError || "Could not add project.";
+          } else {
+            resolvedProjectId = newProject.id;
+            createdProject = { id: newProject.id, name: newProject.name };
+          }
+        }
+      } catch (error) {
+        projectPersistenceError =
+          error instanceof Error ? error.message : "Could not add project.";
+      }
+    } else {
+      projectPersistenceError =
+        "Project was not added because client_id was unavailable.";
+    }
+  }
+
+  const updateRow: Record<string, unknown> = {
+    form_data: newFormData as unknown as Record<string, unknown>,
+    msa_status: "pending" as MsaStatus,
+    msa_accepted_at: null,
+    ...computeAppliedMsaSnapshot(newFormData),
+    applied_license_type: newFormData.payment?.license?.licenseType || null,
+  };
+
+  if (resolvedClientId) {
+    updateRow.client_id = resolvedClientId;
+  }
+
+  if (options.projectId !== undefined || resolvedProjectId) {
+    updateRow.project_id = resolvedProjectId;
+  }
 
   // Reset status back to 'pending' so the client must accept the new version,
   // but preserve msa_response (the client's previous proposal text) and
   // msa_responded_at (when they made it) as a permanent audit trail.
   // Also preserve client_msa_note for editor-side display of negotiation history.
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("invoices")
-    .update({
-      form_data: newFormData as unknown as Record<string, unknown>,
-      msa_status: "pending" as MsaStatus,
-      msa_accepted_at: null,
-      ...computeAppliedMsaSnapshot(newFormData),
-      applied_license_type: newFormData.payment?.license?.licenseType || null,
-    })
+    .update(updateRow)
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .select()
@@ -1086,17 +1247,16 @@ export async function reissueNegotiatedInvoice(
     return { error: error.message };
   }
 
-  const clientPersistence = await persistNewClientFromInvoice(
-    newFormData,
-    userId,
-    invoiceId,
-    data as Record<string, unknown>,
-  );
-
   if (clientPersistence.error) {
     console.warn(
       "reissueNegotiatedInvoice: client persistence failed",
       clientPersistence.error,
+    );
+  }
+  if (projectPersistenceError) {
+    console.warn(
+      "reissueNegotiatedInvoice: project persistence failed",
+      projectPersistenceError,
     );
   }
 
@@ -1104,6 +1264,8 @@ export async function reissueNegotiatedInvoice(
     error: null,
     createdClient: clientPersistence.createdClient,
     clientPersistenceError: clientPersistence.error,
+    createdProject,
+    projectPersistenceError,
   };
 }
 
