@@ -482,6 +482,10 @@ export default function DashboardPage() {
     triggerMode: MilestoneTriggerMode;
     triggerDate: string;
   } | null>(null);
+  const [pendingProjectSettlement, setPendingProjectSettlement] = useState<{
+    invoiceId: string;
+    milestoneIndex: number;
+  } | null>(null);
   const [scheduledMilestonePopover, setScheduledMilestonePopover] = useState<{
     milestoneId: string;
     triggerDate: string;
@@ -658,6 +662,13 @@ export default function DashboardPage() {
       triggerDate: getDefaultScheduleDate(),
     });
   };
+
+  useEffect(() => {
+    if (!pendingProjectSettlement) return;
+    if (selectedInvoice?.id !== pendingProjectSettlement.invoiceId) return;
+    openSettlementModal(pendingProjectSettlement.milestoneIndex);
+    setPendingProjectSettlement(null);
+  }, [pendingProjectSettlement, selectedInvoice]);
 
   const handleSettleMilestone = async (
     miIndex: number,
@@ -2261,6 +2272,34 @@ export default function DashboardPage() {
                           (a.order_index ?? a.orderIndex ?? 0) -
                           (b.order_index ?? b.orderIndex ?? 0)
                       )[0];
+                    const activeMilestoneForSettle = scheduledMilestone
+                      ? null
+                      : project.invoices
+                          .flatMap((invoice) =>
+                            invoice.milestones.map((milestone, milestoneIndex, milestoneList) => {
+                              const milestoneOrder = milestone.order_index ?? milestone.orderIndex ?? milestoneIndex;
+                              const hasNextMilestone = milestoneList.some(
+                                (candidate, candidateIndex) =>
+                                  (candidate.order_index ?? candidate.orderIndex ?? candidateIndex) > milestoneOrder
+                              );
+
+                              return {
+                                invoice,
+                                milestone,
+                                milestoneIndex,
+                                milestoneOrder,
+                                milestoneNumber: milestoneOrder + 1,
+                                hasNextMilestone,
+                              };
+                            })
+                          )
+                          .filter(
+                            ({ milestone, hasNextMilestone }) =>
+                              (milestone.status || "").toUpperCase() === "LIVE" &&
+                              (milestone.trigger_mode || "").toLowerCase() !== "cancelled" &&
+                              hasNextMilestone
+                          )
+                          .sort((a, b) => a.milestoneOrder - b.milestoneOrder)[0] ?? null;
                     const projectMilestones = project.invoices.flatMap((inv) => {
                       return inv.milestones.map((m: any) => ({
                         id: m.id,
@@ -2442,30 +2481,48 @@ export default function DashboardPage() {
                               <p className="text-[10px] font-black uppercase tracking-[0.12em] m-0 opacity-70">Next action</p>
                               <p className="text-[13px] font-black text-[#111118] m-0 mt-0.5">{projectAction.detail}</p>
 	                        </div>
-                            {projectAction.actionHref ? (
-                              <Link
-                                href={projectAction.actionHref}
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                              >
-                                {projectAction.actionLabel}
-                              </Link>
-                            ) : projectAction.invoice ? (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (projectAction.nudgeTone && projectAction.invoice) {
-                                    void handleNudge(projectAction.invoice, projectAction.nudgeTone);
-                                    return;
-                                  }
-                                  setSelectedInvoice(projectAction.invoice);
-                                }}
-                                className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                              >
-                                {projectAction.actionLabel}
-                              </button>
-                            ) : null}
+                            <div className="flex flex-wrap items-center gap-2">
+                              {activeMilestoneForSettle && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedInvoice(activeMilestoneForSettle.invoice);
+                                    setPendingProjectSettlement({
+                                      invoiceId: activeMilestoneForSettle.invoice.id,
+                                      milestoneIndex: activeMilestoneForSettle.milestoneIndex,
+                                    });
+                                  }}
+                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] hover:bg-[#FAF7F2] transition-colors"
+                                >
+                                  MARK M{activeMilestoneForSettle.milestoneNumber} SETTLED
+                                </button>
+                              )}
+                              {projectAction.actionHref ? (
+                                <Link
+                                  href={projectAction.actionHref}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                                >
+                                  {projectAction.actionLabel}
+                                </Link>
+                              ) : projectAction.invoice ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (projectAction.nudgeTone && projectAction.invoice) {
+                                      void handleNudge(projectAction.invoice, projectAction.nudgeTone);
+                                      return;
+                                    }
+                                    setSelectedInvoice(projectAction.invoice);
+                                  }}
+                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
+                                >
+                                  {projectAction.actionLabel}
+                                </button>
+                              ) : null}
+                            </div>
                           </div>
 
 	                        </div>
