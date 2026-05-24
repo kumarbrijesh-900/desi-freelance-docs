@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Clock3 } from "lucide-react";
 import { cn } from "@/lib/ui-foundation";
 
 export interface MilestoneTimelineProp {
@@ -12,6 +13,9 @@ export interface MilestoneTimelineProp {
   due_date: string;
   invoice_id: string;
   invoice_number: string;
+  trigger_mode?: string | null;
+  trigger_status?: string | null;
+  trigger_date?: string | null;
 }
 
 export interface ProjectTimelineProps {
@@ -34,6 +38,8 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
   const getMilestoneNodeStyle = (m: MilestoneTimelineProp) => {
     const statusLower = (m.status || "").toLowerCase();
     const isSettled = statusLower === "settled" || statusLower === "paid";
+    const isScheduled =
+      m.trigger_mode === "scheduled" && m.trigger_status === "pending";
 
     let isOverdue = false;
     if (m.due_date && !isSettled) {
@@ -69,6 +75,12 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
       return {
         bg: "bg-[#D4FF00]",
         border: "border-2 border-[#111118]",
+      };
+    }
+    if (isScheduled) {
+      return {
+        bg: "bg-white",
+        border: "border-2 border-dashed border-[#111118]",
       };
     }
     // pending or msa not yet accepted -> hollow circle with 2px black border, 16px
@@ -114,6 +126,8 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
 
         {sorted.map((m, idx) => {
           const style = getMilestoneNodeStyle(m);
+          const isScheduled =
+            m.trigger_mode === "scheduled" && m.trigger_status === "pending";
           return (
             <div
               key={m.id || idx}
@@ -126,12 +140,17 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
               >
                 {/* Circle Node: 16px */}
                 <div
+                  title={isScheduled ? `Scheduled for ${formatDate(m.trigger_date || "")}` : undefined}
                   className={cn(
-                    "w-[16px] h-[16px] rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118]",
+                    "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118]",
                     style.bg,
                     style.border
                   )}
-                />
+                >
+                  {isScheduled && (
+                    <Clock3 className="h-3 w-3 text-[#111118]" strokeWidth={2.5} />
+                  )}
+                </div>
 
                 {/* Label under each node (small, 11px) */}
                 <div className="mt-3 space-y-0.5 max-w-[140px]">

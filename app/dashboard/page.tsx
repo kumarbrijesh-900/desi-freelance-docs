@@ -52,11 +52,15 @@ interface ClientHealth {
     dueDate: string;
     milestones: Array<{
       id?: string;
+      invoice_id?: string;
       title: string;
       status: string;
       amount: number;
       orderIndex: number;
       order_index?: number;
+      trigger_mode?: string | null;
+      trigger_status?: string | null;
+      trigger_date?: string | null;
     }>;
     has_addendum?: boolean;
     msa_id?: string | null;
@@ -111,11 +115,15 @@ interface ProjectHealth {
     dueDate: string;
     milestones: Array<{
       id?: string;
+      invoice_id?: string;
       title: string;
       status: string;
       amount: number;
       orderIndex: number;
       order_index?: number;
+      trigger_mode?: string | null;
+      trigger_status?: string | null;
+      trigger_date?: string | null;
     }>;
     has_addendum?: boolean;
     msa_id?: string | null;
@@ -474,6 +482,10 @@ export default function DashboardPage() {
     triggerMode: MilestoneTriggerMode;
     triggerDate: string;
   } | null>(null);
+  const [scheduledMilestonePopover, setScheduledMilestonePopover] = useState<{
+    milestoneId: string;
+    triggerDate: string;
+  } | null>(null);
   const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
   const [collapsedProjectIds, setCollapsedProjectIds] = useState<string[]>([]);
 
@@ -511,6 +523,7 @@ export default function DashboardPage() {
     open: false, title: "", message: "", tone: "info", type: "alert",
   });
   const modalResolveRef = useRef<((value: boolean) => void) | null>(null);
+  const scheduledPopoverRef = useRef<HTMLDivElement | null>(null);
 
   const showAlert = useCallback((title: string, message: string, tone: ModalState["tone"] = "info") => {
     setModal({ open: true, title, message, tone, type: "alert" });
@@ -535,6 +548,10 @@ export default function DashboardPage() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
+        if (scheduledMilestonePopover) {
+          setScheduledMilestonePopover(null);
+          return;
+        }
         if (settlementModal) {
           setSettlementModal(null);
           return;
@@ -544,7 +561,24 @@ export default function DashboardPage() {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [settlementModal]);
+  }, [scheduledMilestonePopover, settlementModal]);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (
+        scheduledPopoverRef.current &&
+        !scheduledPopoverRef.current.contains(event.target as Node)
+      ) {
+        setScheduledMilestonePopover(null);
+      }
+    }
+
+    if (scheduledMilestonePopover) {
+      document.addEventListener("mousedown", handlePointerDown);
+    }
+
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [scheduledMilestonePopover]);
 
   // Detect mobile for default-expanded accordions
   useEffect(() => {
@@ -594,6 +628,16 @@ export default function DashboardPage() {
       day: "numeric",
       month: "short",
       year: "numeric",
+    });
+  }
+
+  function formatShortDashboardDate(dateStr?: string | null): string {
+    if (!dateStr) return "Not set";
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
     });
   }
 
@@ -685,6 +729,68 @@ export default function DashboardPage() {
     } catch (err) {
       console.error(err);
       showAlert("Error", "An unexpected error occurred during milestone settlement.", "error");
+    }
+  };
+
+  const handleScheduledMilestoneAction = async (
+    milestone: {
+      id?: string;
+      invoice_id?: string;
+      order_index?: number;
+      orderIndex?: number;
+      trigger_date?: string | null;
+    },
+    action: "send_now" | "reschedule" | "cancel",
+    newTriggerDate?: string,
+  ) => {
+    if (!milestone.id) return;
+
+    const milestoneNumber = (milestone.order_index ?? milestone.orderIndex ?? 0) + 1;
+    try {
+      const response = await fetch("/api/invoice/scheduled-milestone-action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          milestone_id: milestone.id,
+          action,
+          new_trigger_date:
+            action === "reschedule" && newTriggerDate
+              ? dateInputToIso(newTriggerDate)
+              : undefined,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.error) {
+        showAlert(
+          "Scheduled Milestone Error",
+          payload?.reason || payload?.error || "Could not update this scheduled milestone.",
+          "error",
+        );
+        return;
+      }
+
+      setScheduledMilestonePopover(null);
+      announceInvoiceDataChanged({
+        invoiceId: milestone.invoice_id,
+        action: `scheduled_milestone_${action}`,
+      });
+      setRefreshNonce((value) => value + 1);
+
+      if (action === "send_now") {
+        showAlert("Milestone Sent", `M${milestoneNumber} invoice sent.`, "success");
+      } else if (action === "reschedule") {
+        showAlert(
+          "Milestone Rescheduled",
+          `Rescheduled to ${formatShortDashboardDate(payload?.trigger_date || newTriggerDate)}.`,
+          "success",
+        );
+      } else {
+        showAlert("Milestone Cancelled", `M${milestoneNumber} cancelled.`, "success");
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert("Error", "Failed to update scheduled milestone.", "error");
     }
   };
 
@@ -845,8 +951,12 @@ export default function DashboardPage() {
               status: (m.status || "pending").toLowerCase(),
               amount: Number(m.amount || 0),
               id: m.id,
+              invoice_id: m.invoice_id,
               orderIndex: m.order_index ?? 0,
               order_index: m.order_index ?? 0,
+              trigger_mode: m.trigger_mode ?? null,
+              trigger_status: m.trigger_status ?? null,
+              trigger_date: m.trigger_date ?? null,
             }));
 
           // Fallback to form_data.milestones if DB milestones is empty
@@ -856,8 +966,12 @@ export default function DashboardPage() {
               status: (m.status || "pending").toLowerCase(),
               amount: Number(m.amount || 0),
               id: m.id || `temp-${idx}`,
+              invoice_id: inv.id,
               orderIndex: idx,
               order_index: idx,
+              trigger_mode: m.trigger_mode ?? null,
+              trigger_status: m.trigger_status ?? null,
+              trigger_date: m.trigger_date ?? null,
             }));
           }
 
@@ -2135,6 +2249,18 @@ export default function DashboardPage() {
                   {/* PROJECT VIEW LOGIC */}
                   {filteredAndSortedProjects.map((project) => {
                     const allMilestones = project.invoices.flatMap(inv => inv.milestones);
+                    const scheduledMilestone = allMilestones
+                      .filter(
+                        (milestone) =>
+                          milestone.id &&
+                          milestone.trigger_mode === "scheduled" &&
+                          milestone.trigger_status === "pending"
+                      )
+                      .sort(
+                        (a, b) =>
+                          (a.order_index ?? a.orderIndex ?? 0) -
+                          (b.order_index ?? b.orderIndex ?? 0)
+                      )[0];
                     const projectMilestones = project.invoices.flatMap((inv) => {
                       return inv.milestones.map((m: any) => ({
                         id: m.id,
@@ -2145,12 +2271,24 @@ export default function DashboardPage() {
                         due_date: inv.dueDate || inv.due_date || "",
                         invoice_id: inv.id,
                         invoice_number: inv.invoiceNumber || "",
+                        trigger_mode: m.trigger_mode ?? null,
+                        trigger_status: m.trigger_status ?? null,
+                        trigger_date: m.trigger_date ?? null,
                       }));
                     });
                     const settledMilestoneCount = allMilestones.filter((milestone) => (milestone.status || "").toLowerCase() === "settled").length;
                     const projectMilestoneProgress = allMilestones.length > 0
                       ? Math.round((settledMilestoneCount / allMilestones.length) * 100)
                       : 0;
+                    const scheduledDateInputValue =
+                      scheduledMilestone?.trigger_date &&
+                      !Number.isNaN(new Date(scheduledMilestone.trigger_date).getTime())
+                        ? toDateInputValue(new Date(scheduledMilestone.trigger_date))
+                        : getDefaultScheduleDate();
+                    const activeScheduledPopover =
+                      scheduledMilestonePopover?.milestoneId === scheduledMilestone?.id
+                        ? scheduledMilestonePopover
+                        : null;
                     const isCollapsed = !collapsedProjectIds.includes(project.projectId);
                     const projectAction = getProjectActionState(project);
 
@@ -2189,6 +2327,99 @@ export default function DashboardPage() {
 	                              </span>
 	                            </div>
 	                          </div>
+
+                            {scheduledMilestone && (
+                              <div
+                                className="mb-4 flex w-full flex-col gap-3 border-t border-[#D4D2CC] bg-[#FAF7F2] px-4 py-2 sm:flex-row sm:items-center sm:justify-between"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[#111118]">
+                                  M{(scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1} scheduled · {formatShortDashboardDate(scheduledMilestone.trigger_date)}
+                                </p>
+                                <div className="flex flex-wrap items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const milestoneNumber = (scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1;
+                                      if (window.confirm(`Send M${milestoneNumber} invoice now?`)) {
+                                        void handleScheduledMilestoneAction(scheduledMilestone, "send_now");
+                                      }
+                                    }}
+                                    className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
+                                  >
+                                    Send now
+                                  </button>
+                                  <div className="relative" ref={activeScheduledPopover ? scheduledPopoverRef : null}>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setScheduledMilestonePopover({
+                                          milestoneId: scheduledMilestone.id!,
+                                          triggerDate:
+                                            activeScheduledPopover
+                                              ? activeScheduledPopover.triggerDate
+                                              : scheduledDateInputValue,
+                                        })
+                                      }
+                                      className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
+                                    >
+                                      Reschedule
+                                    </button>
+                                    {activeScheduledPopover && (
+                                      <div className="absolute right-0 top-full z-30 mt-2 w-[260px] border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]">
+                                        <input
+                                          type="date"
+                                          min={toDateInputValue(new Date())}
+                                          value={activeScheduledPopover.triggerDate}
+                                          onChange={(event) =>
+                                            setScheduledMilestonePopover((prev) =>
+                                              prev
+                                                ? { ...prev, triggerDate: event.target.value }
+                                                : prev
+                                            )
+                                          }
+                                          className="w-full border-2 border-black bg-white px-3 py-2 text-[13px] font-bold text-[#111118] outline-none focus:bg-[#FAF7F2]"
+                                        />
+                                        <div className="mt-3 flex justify-end gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => setScheduledMilestonePopover(null)}
+                                            className="border-2 border-black bg-white px-3 py-1.5 text-[11px] font-black uppercase hover:bg-[#FAF7F2]"
+                                          >
+                                            Cancel
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              void handleScheduledMilestoneAction(
+                                                scheduledMilestone,
+                                                "reschedule",
+                                                activeScheduledPopover.triggerDate,
+                                              )
+                                            }
+                                            className="border-[3px] border-black bg-[#D4FF00] px-3 py-1.5 text-[11px] font-black uppercase shadow-[4px_4px_0_#000]"
+                                          >
+                                            Update
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const milestoneNumber = (scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1;
+                                      if (window.confirm(`Cancel scheduled milestone M${milestoneNumber}? Remaining milestones will be soft-cancelled.`)) {
+                                        void handleScheduledMilestoneAction(scheduledMilestone, "cancel");
+                                      }
+                                    }}
+                                    className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
 
 	                          <div className="mb-4 w-full" onClick={(e) => e.stopPropagation()}>
 	                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
