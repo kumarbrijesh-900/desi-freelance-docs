@@ -23,13 +23,19 @@ export interface ProjectTimelineProps {
 }
 
 export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
-  const sorted = [...milestones].sort((a, b) => {
+  const sortedMilestones = [...milestones].sort((a, b) => {
     if (a.order_index !== b.order_index) {
       return a.order_index - b.order_index;
     }
     const timeA = a.due_date ? new Date(a.due_date).getTime() : 0;
     const timeB = b.due_date ? new Date(b.due_date).getTime() : 0;
     return timeA - timeB;
+  });
+  const seenOrderIndexes = new Set<number>();
+  const sorted = sortedMilestones.filter((milestone) => {
+    if (seenOrderIndexes.has(milestone.order_index)) return false;
+    seenOrderIndexes.add(milestone.order_index);
+    return true;
   });
 
   const today = new Date();

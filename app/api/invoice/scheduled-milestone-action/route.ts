@@ -16,7 +16,10 @@ function parseFutureDate(value?: string): Date | null {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  if (date.getTime() <= Date.now()) return null;
+  // Allow today and future. Reject only dates before start-of-today UTC.
+  const startOfTodayUtc = new Date();
+  startOfTodayUtc.setUTCHours(0, 0, 0, 0);
+  if (date.getTime() < startOfTodayUtc.getTime()) return null;
   return date;
 }
 
