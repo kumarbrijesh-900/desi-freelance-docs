@@ -1,5 +1,72 @@
 # Session Log — May 22-23, 2026
 
+## v2.9 — Milestone Trigger Workstream + Cleanup (May 24, 2026)
+
+Multi-hour session covering Workstream B revision, full v2.9 milestone trigger build (C1-C4), production smoke test, and 6-bug cleanup pass. Net: v2.9 shipped end-to-end with audit trail intact and v2.8.4 backlog closed.
+
+### Shipped this session
+
+| # | Scope | Files | Status |
+|---|---|---|---|
+| Workstream B rev | Autocomplete pattern for CLIENT NAME + decouple PROJECT from client (removed inline "+ Add new client" modal-form, added inline autocomplete with NEW badge, elevated Project field to top of editor) | `ClientDetailsSection.tsx`, `DeliverablesSection.tsx`, `InvoiceEditorPage.tsx` | Pushed |
+| C1 | Migration: `invoice_milestones` adds `trigger_mode` / `trigger_date` / `trigger_status` / `trigger_error` / `trigger_fired_at` + partial index on (trigger_date) WHERE scheduled+pending + CHECK constraints on mode/status | `supabase/migrations/20260525000500_milestone_trigger_options.sql` | Applied to prod |
+| C2 | Settlement choice surface - drawer with SETTLEMENT CHECKPOINT (Clear/Timing/After), CONTRACT AUTHORITY panel, MILESTONE PROGRESS CHECKLIST, three trigger choices (immediate/scheduled/cancelled). API extended at `trigger-next-milestone/route.ts` with branch logic. Closed v2.8.4 backlog by integrating `computeAppliedMsaSnapshot` in immediate path | `app/dashboard/page.tsx`, `app/api/invoice/trigger-next-milestone/route.ts` | Pushed |
+| C3 | Cron route scanning scheduled+pending+due milestones, `vercel.json` daily schedule `0 6 * * *` (within Hobby tier). Helper extracted: `fireMilestoneInvoice(supabase, milestoneRow, projectRow?)` - reused by cron AND C4 send_now AND C2 immediate. Audit trail design: `trigger_mode='scheduled'` preserved across fire so `(trigger_date, trigger_fired_at)` reveals "scheduled for X, fired at Y" | `app/api/cron/trigger-scheduled-milestones/route.ts`, `lib/supabase/milestones.ts`, `vercel.json` | Pushed |
+| C4 | Dashboard scheduled-milestone strip (SEND NOW / RESCHEDULE / CANCEL), new auth-gated action endpoint with ownership check + status guard, ProjectTimeline scheduled state (dashed border + clock icon) | `app/api/invoice/scheduled-milestone-action/route.ts`, `app/dashboard/page.tsx`, `components/project/ProjectTimeline.tsx` | Pushed |
+| Bug A | `invoices.status` CHECK constraint missing `'PARTIAL'` blocked `fireMilestoneInvoice` from setting parent to partial state. Patched in prod during smoke test, codified as migration | `supabase/migrations/20260525000600_allow_partial_invoice_status.sql` | Codified |
+| Bug B | Dashboard project card had no discoverable "Mark Settled" affordance - C2 drawer existed but no inline trigger. Added "MARK M{N} SETTLED" secondary button to NEXT ACTION strip with mutual exclusion against C4 scheduled strip. Detection filters by `status='LIVE'` + `trigger_mode != 'cancelled'` + `hasNextMilestone` | `app/dashboard/page.tsx` (commit `c7031c8`) | Pushed |
+| Bug C | `form_data.milestones[].status` <-> `invoice_milestones.status` drift (older TDS settle on `/invoices` updates only one side). Backfilled 2 drifted invoices in prod | DB only (no code change) | Backfilled |
+| Bug D | ProjectTimeline showed milestone twice after fire (parent's invoice_milestones row + child invoice's milestone_index reference). Deduped by `order_index` keeping first sorted node | `components/project/ProjectTimeline.tsx` | Pushed |
+| Bug E | No unique constraint on `invoices(parent_invoice_id, milestone_index)` - theoretical duplicate child invoice risk if `fireMilestoneInvoice` fails mid-flow. Added partial unique index | `supabase/migrations/20260525000700_unique_child_invoice_per_milestone.sql` | Applied + codified |
+| Bug F | `parseFutureDate` in action endpoint rejected today (HTML date input UI allowed it) - caused 400 on reschedule popover. Relaxed to compare against start-of-today UTC | `app/api/invoice/scheduled-milestone-action/route.ts` | Pushed |
+
+### v2.8.4 closure confirmed
+`computeAppliedMsaSnapshot` is now called in all three milestone fire paths:
+1. C2 immediate branch in `trigger-next-milestone/route.ts`
+2. C3 cron in `trigger-scheduled-milestones/route.ts` (via `fireMilestoneInvoice`)
+3. C4 send_now in `scheduled-milestone-action/route.ts` (via `fireMilestoneInvoice`)
+
+Smoke-test-verified: child invoice INV-2026-9997 (M2 of "mega project for Alehandro") has populated `applied_late_fee_rate=1.4`, `applied_late_fee_unit='day'`, `applied_payment_terms='Net 20 days'`.
+
+### Smoke test verdict (production, May 24, 2026)
+
+Two paths exercised:
+
+**Path Y (pragmatic, ~10:02 IST):** SQL-set M2 of INV-2026-9996 into scheduled state, clicked SEND NOW from dashboard, validated C4 strip + ProjectTimeline state + action endpoint + C3 helper + child invoice creation + audit trail + applied_* snapshot in one click.
+
+**Natural flow (~11:32 IST):** Clicked MARK M2 SETTLED -> C2 drawer opened -> picked Schedule with date 2026-05-26 -> success modal "Milestone 2 settled. M3 (prototyping) will be generated on 26 May 2026". DB confirmed: M2 status=SETTLED + trigger_mode='scheduled' (audit) + trigger_status='fired' + trigger_fired_at preserved; M3 trigger_mode='scheduled' + trigger_date=2026-05-26 + trigger_status='pending'.
+
+**Passive self-validation pending:** Cron at 06:00 UTC on 2026-05-26 will pick up M3 and auto-fire. Zero manual action required to validate C3's cron path - DB state on May 26 will confirm.
+
+### Architecture findings
+- **C2 implementation diverged from spec - for the better.** Prompt asked for a 3-radio modal; Codex built a full settlement drawer with Settlement Checkpoint, Contract Authority, and Milestone Progress Checklist sections. Richer context, same code path. Drawer pattern is more discoverable and provides better audit context for solo founders.
+- **Audit trail design proven.** `trigger_mode` is preserved across fire (scheduled milestones stay 'scheduled' after firing, only `trigger_status` flips to 'fired'). Combined with `trigger_date` (original schedule) and `trigger_fired_at` (actual fire time), the audit reveals "scheduled for X, fired at Y" - useful for both CA compliance and user history.
+- **fireMilestoneInvoice helper is the shared spine.** All three fire paths converge on this helper, which makes future refactors (transaction wrapping, retry policy, idempotency) single-location changes.
+
+### Open carryovers
+- **Path A sequencing fix** (from Workstream B revision): `lib/supabase/invoices.ts` save handler still creates new client AFTER invoice save. When user types BOTH new client + new project on same invoice, the project's `createProject(name, clientId)` silently fails because clientId doesn't exist at save time. 3-line save-handler reorder. Prompt drafted earlier in session, not yet fired.
+- **Older TDS settle drift root cause**: `/invoices` page's TDS settle button still updates only `invoice_milestones`, not `form_data`. Future TDS settlements will re-introduce drift. Two fixes possible: (a) update TDS handler to write both sides, (b) consolidate `/invoices` page to use new C2 drawer pattern. Backlog.
+- **ProjectTimeline dedup data-order-dependent**: Bug D fix dedups by `order_index` keeping first-sorted node. Works because parent invoices come before children in current data fetch order. If fetch order ever inverts (e.g., reverse chronological), child invoice state could win over parent. Future-proof fix: filter to `parent_invoice_id IS NULL` invoices, but `ProjectTimeline.tsx` data shape doesn't currently expose `parent_invoice_id`.
+- **`fireMilestoneInvoice` lacks transaction wrapping**: 6 sequential writes (parent update -> invoice number gen -> child insert -> milestone update -> email send -> notification insert). If a write fails mid-flow, partial state is possible. Bug E unique index now catches duplicate child invoice attempts loud, but orphan child invoices (created but milestone update failed) still possible. Solo-founder volume makes this negligible. Future: wrap in RPC function for transactional guarantees.
+- **Dashboard simplification**: User feedback documented this session - "3 ledger tables" feels like info overload. Wireframe shared (project card with milestone carousel) critiqued through architect/CA/UX/visual-designer lenses; rejected as-is for losing neo-brutal aesthetic + missing money/aging info + adding per-card carousel state complexity. Recommended direction: streamline existing Project Ledger cards (project name + client + total + outstanding + next due + ProjectTimeline + context-aware action strip), kill accordion expansion, move line-item detail to `/project/[id]` exclusively. Not yet scoped as a Codex prompt.
+
+### Commits this session
+- `e29ced2` `fix(invoice): keep client step in creation flow` - Workstream B initial
+- `af2e7b9` `fix(invoice flow): autocomplete pattern for client + decouple project (Workstream B revision)`
+- Migration `20260525000500_milestone_trigger_options.sql` applied to prod (C1)
+- `6957777` `feat(milestones): settlement trigger choice (immediate/scheduled/cancelled) + MSA snapshot on trigger (v2.9 C2)` (C2)
+- `65d364a` `feat(milestones): scheduled milestone cron + shared fireMilestoneInvoice helper (v2.9 C3)` (C3)
+- `5b309ac` `feat(milestones): scheduled milestone surface on dashboard with send_now/reschedule/cancel actions (v2.9 C4)` (C4)
+- `c7031c8` `fix(dashboard): add MARK M{N} SETTLED affordance + correct filter for LIVE milestone detection (Bug B)`
+- `770d70f` `chore(v2.9): cleanup pass - codify Bug A migration, add Bug E unique index, relax Bug F date check, dedup Bug D timeline`
+
+### Tooling notes
+- Supabase MCP used extensively for schema verification, state queries, migration application, and data backfill. Faster + safer than asking user to paste SQL into dashboard for read-only checks.
+- Codex agent maintained strict prompt scope across 7+ prompts this session; one filter-logic bug originated from spec, Codex implemented faithfully.
+- Production-first validation pattern proved efficient: skip local env troubleshooting when prod data already confirms the code path works.
+
+---
+
 ## Latest checkpoint: v2.9 Sprint 4.5 — Projects Nav + Invoice Client Flow — May 23, 2026
 
 ### Sequence
@@ -1810,36 +1877,3 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - Render stunning Project progress cards with milestone completion bars.
 
 ---
-
-## v2.9 — Milestone Trigger Workstream (May 24, 2026)
-
-### Shipped
-- **C1**: Migration `20260525000500_milestone_trigger_options.sql` — added trigger_mode/trigger_date/trigger_status/trigger_error/trigger_fired_at columns + partial index on (trigger_date) WHERE scheduled+pending + CHECK constraints. Applied to production.
-- **C2**: Settlement choice modal (`app/dashboard/page.tsx`) with 3 radios (Send now / Schedule / Close project), API extension (`app/api/invoice/trigger-next-milestone/route.ts`) with 3 trigger modes. Closed v2.8.4 backlog by integrating `computeAppliedMsaSnapshot` into the immediate path.
-- **C3**: Cron route (`app/api/cron/trigger-scheduled-milestones/route.ts`) scanning scheduled+pending+due milestones. Helper extracted: `lib/supabase/milestones.ts::fireMilestoneInvoice(supabase, milestoneRow, projectRow?)`. Reused by both cron and C4 send_now. `vercel.json` cron schedule `0 6 * * *` (6 AM UTC / 11:30 IST). Daily fire works within Vercel Hobby tier limits.
-- **C4**: Dashboard scheduled-milestone strip (SEND NOW / RESCHEDULE / CANCEL), new action endpoint `app/api/invoice/scheduled-milestone-action/route.ts` (cookie-auth + ownership check + status guard), ProjectTimeline scheduled state (dashed border + clock icon).
-
-### Smoke test verdict (May 24, 2026 — 10:02 AM IST)
-**Path Y (pragmatic) executed.** Validated:
-- C4 dashboard strip rendering, ProjectTimeline scheduled state
-- C4 action endpoint send_now branch → C3 fireMilestoneInvoice → child invoice creation
-- Audit trail intact: M2 of test invoice INV-2026-9996 → child INV-2026-9997 with trigger_mode='scheduled' preserved, trigger_status='fired', trigger_fired_at populated, trigger_date preserved (2026-05-26)
-- v2.8.4 closure: INV-2026-9997 has `applied_late_fee_rate=1.4`, `applied_late_fee_unit='day'`, `applied_payment_terms='Net 20 days'`
-- Parent status transition: 'finalized' → 'PARTIAL'
-- Notification created
-- Email sent via Resend (won't deliver to test@example.com but call completed)
-
-**C2 modal interaction NOT tested** — dashboard trigger not discoverable (see Bug B below).
-
-### Bugs found during smoke test
-| Bug | Severity | Status |
-|---|---|---|
-| A: `invoices_status_check` CHECK constraint missing `'PARTIAL'` | Was a blocker | **Fixed in prod DB**, no migration file in repo yet — needs codification |
-| B: Dashboard project card has no discoverable "Mark M{N} Settled" affordance — C2 modal exists but no UI to trigger it | UX gap | **Open** — prompt drafted, ready to fire |
-| C: Older TDS settle on `/invoices` page updates `invoice_milestones.status` but NOT `form_data.milestones[].status` — drift between sources of truth | Data integrity | **Open** — backlog |
-| D: ProjectTimeline shows milestone twice after fire (parent's milestone entry + new child invoice) | Visual duplication | **Open** — needs render dedup |
-| E: No unique constraint on `invoices(parent_invoice_id, milestone_index)` — duplicate child invoice possible if `fireMilestoneInvoice` fails mid-flow | Theoretical at solo-founder volume | **Open** — backlog |
-| F: `parseFutureDate` in action endpoint rejects today's date (HTML date input allows it) | Minor UX | **Open** — backlog |
-
-### Codification backlog
-- Codify Bug A fix as `supabase/migrations/<next-timestamp>_allow_partial_invoice_status.sql` in repo for parity with prod
