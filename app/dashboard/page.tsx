@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
@@ -24,7 +24,6 @@ import {
   ReceiptText,
   Send,
   ShieldCheck,
-  ChevronDown,
 } from "lucide-react";
 import ProjectTimeline from "@/components/project/ProjectTimeline";
 
@@ -61,6 +60,8 @@ interface ClientHealth {
       trigger_mode?: string | null;
       trigger_status?: string | null;
       trigger_date?: string | null;
+      created_at?: string | null;
+      updated_at?: string | null;
     }>;
     has_addendum?: boolean;
     msa_id?: string | null;
@@ -103,6 +104,7 @@ interface ProjectHealth {
   projectId: string;
   projectName: string;
   projectDescription: string;
+  isRealProject: boolean;
   clientId: string | null;
   clientName: string;
   clientCity: string;
@@ -124,6 +126,8 @@ interface ProjectHealth {
       trigger_mode?: string | null;
       trigger_status?: string | null;
       trigger_date?: string | null;
+      created_at?: string | null;
+      updated_at?: string | null;
     }>;
     has_addendum?: boolean;
     msa_id?: string | null;
@@ -269,6 +273,13 @@ function isReceivableStatus(status: string) {
   return ["finalized", "sent", "partial", "saved"].includes(status.toLowerCase());
 }
 
+function isUuid(value?: string | null): boolean {
+  return Boolean(
+    value &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  );
+}
+
 function getDaysUntil(dateStr?: string | null): number | null {
   if (!dateStr) return null;
   const due = new Date(dateStr);
@@ -277,6 +288,76 @@ function getDaysUntil(dateStr?: string | null): number | null {
   today.setHours(0, 0, 0, 0);
   due.setHours(0, 0, 0, 0);
   return Math.ceil((due.getTime() - today.getTime()) / 86400000);
+}
+
+type DashboardMilestone = DashboardInvoice["milestones"][number];
+type DashboardFormMilestone = NonNullable<DashboardInvoice["formDataMilestones"]>[number] & {
+  description?: string;
+};
+
+function truncateDashboardText(value: string, maxLength = 110): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 3).trim()}...`;
+}
+
+function getMilestoneOrderIndex(
+  milestone: Pick<DashboardMilestone, "orderIndex" | "order_index">,
+  fallbackIndex = 0,
+): number {
+  return milestone.order_index ?? milestone.orderIndex ?? fallbackIndex;
+}
+
+function getMilestoneFormData(
+  invoice: DashboardInvoice,
+  milestone: Pick<DashboardMilestone, "orderIndex" | "order_index">,
+  fallbackIndex = 0,
+) {
+  const orderIndex = getMilestoneOrderIndex(milestone, fallbackIndex);
+  return invoice.formDataMilestones?.[orderIndex] ?? null;
+}
+
+function getDashboardMilestoneAmount(
+  invoice: DashboardInvoice,
+  milestone: DashboardMilestone,
+  fallbackIndex = 0,
+): number {
+  const relationalAmount = Number(milestone.amount || 0);
+  if (relationalAmount > 0) return relationalAmount;
+
+  const formMilestone = getMilestoneFormData(invoice, milestone, fallbackIndex);
+  const lineItems = formMilestone?.lineItems ?? [];
+  return lineItems.reduce(
+    (sum: number, item: any) =>
+      sum + Number(item.qty || 0) * Number(item.rate || 0),
+    0,
+  );
+}
+
+function getDeliverableSummary(
+  invoice: DashboardInvoice,
+  milestone: DashboardMilestone,
+  fallbackIndex = 0,
+): string | null {
+  const formMilestone = getMilestoneFormData(invoice, milestone, fallbackIndex) as
+    | DashboardFormMilestone
+    | null;
+  const lineItems = formMilestone?.lineItems ?? [];
+
+  if (lineItems.length > 0) {
+    const names = lineItems
+      .slice(0, 3)
+      .map((item: DashboardFormMilestone["lineItems"][number]) => item.description || item.type || "Deliverable")
+      .filter(Boolean);
+    const overflow = lineItems.length > 3 ? ` + ${lineItems.length - 3} more` : "";
+    return truncateDashboardText(`${names.join(", ")}${overflow}`);
+  }
+
+  if (formMilestone?.description?.trim()) {
+    return truncateDashboardText(formMilestone.description);
+  }
+
+  return null;
 }
 
 type MilestoneTriggerMode = "immediate" | "scheduled" | "cancelled";
@@ -433,23 +514,14 @@ function getProjectActionState(project: ProjectHealth): ProjectActionState {
   };
 }
 
-const PROJECT_ACTION_TONE_CLASSES: Record<ProjectActionState["tone"], string> = {
-  danger: "bg-[#FFF0EC] text-[#C2410C]",
-  warning: "bg-[#FFFBE6] text-[#B45309]",
-  active: "bg-[#E0F3FF] text-[#164E63]",
-  success: "bg-[#EBFDF9] text-[#007A63]",
-  neutral: "bg-[#F5F5F0] text-[#555]",
-  draft: "bg-[#F0EAFF] text-[#5530DB]",
-};
+const PROJECT_PANEL_PRIMARY_BUTTON_CLASS =
+  "inline-flex items-center justify-center border-2 border-black bg-[#D4FF00] px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_#000]";
 
-const PROJECT_ACTION_BORDER_CLASSES: Record<ProjectActionState["tone"], string> = {
-  danger: "border-[#FF5C00]",
-  warning: "border-[#F59E0B]",
-  active: "border-[#0EA5E9]",
-  success: "border-[#00A884]",
-  neutral: "border-[#111118]",
-  draft: "border-[#8B5CF6]",
-};
+const PROJECT_PANEL_SECONDARY_BUTTON_CLASS =
+  "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]";
+
+const PROJECT_PANEL_DESTRUCTIVE_BUTTON_CLASS =
+  "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-red-600 transition-colors hover:bg-[#FAF7F2]";
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -470,6 +542,10 @@ export default function DashboardPage() {
   const [deadlines, setDeadlines] = useState<UpcomingDeadline[]>([]);
   const [offlineInvoicesCount, setOfflineInvoicesCount] = useState(0);
   const router = useRouter();
+  const stopCardNavigation = (event: ReactMouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   // Client-side UX Interactive States
   const [filterType, setFilterType] = useState<"all" | "outstanding" | "settled" | "overdue" | "due_this_week">("all");
@@ -491,15 +567,6 @@ export default function DashboardPage() {
     triggerDate: string;
   } | null>(null);
   const [expandedClientIds, setExpandedClientIds] = useState<string[]>([]);
-  const [collapsedProjectIds, setCollapsedProjectIds] = useState<string[]>([]);
-
-  const toggleProjectCollapse = useCallback((projectId: string) => {
-    setCollapsedProjectIds((prev) =>
-      prev.includes(projectId)
-        ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId]
-    );
-  }, []);
 
   const toggleClientExpand = useCallback((clientId: string) => {
     setExpandedClientIds((prev) =>
@@ -509,7 +576,6 @@ export default function DashboardPage() {
     );
   }, []);
 
-  const [isMobile, setIsMobile] = useState(false);
   const [dismissedCards, setDismissedCards] = useState<Set<string>>(new Set());
   const [refreshNonce, setRefreshNonce] = useState(0);
 
@@ -583,15 +649,6 @@ export default function DashboardPage() {
 
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [scheduledMilestonePopover]);
-
-  // Detect mobile for default-expanded accordions
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   useEffect(() => {
     const refreshDashboard = () => setRefreshNonce((value) => value + 1);
@@ -968,6 +1025,8 @@ export default function DashboardPage() {
               trigger_mode: m.trigger_mode ?? null,
               trigger_status: m.trigger_status ?? null,
               trigger_date: m.trigger_date ?? null,
+              created_at: m.created_at ?? null,
+              updated_at: m.updated_at ?? null,
             }));
 
           // Fallback to form_data.milestones if DB milestones is empty
@@ -983,6 +1042,8 @@ export default function DashboardPage() {
               trigger_mode: m.trigger_mode ?? null,
               trigger_status: m.trigger_status ?? null,
               trigger_date: m.trigger_date ?? null,
+              created_at: m.created_at ?? null,
+              updated_at: m.updated_at ?? null,
             }));
           }
 
@@ -1263,6 +1324,7 @@ export default function DashboardPage() {
             projectId: pj.id,
             projectName: pj.name,
             projectDescription: pj.description || "",
+            isRealProject: isUuid(pj.id),
             clientId: pj.client_id,
             clientName: matchedClient?.client_name || "Unknown Client",
             clientCity: matchedClient?.city || matchedClient?.client_address || "",
@@ -1294,6 +1356,7 @@ export default function DashboardPage() {
                 projectId: matchedProjectId,
                 projectName: `${inv.form_data?.client?.clientName || invClientName} General Engagements`,
                 projectDescription: "Automatically grouped non-project engagements",
+                isRealProject: false,
                 clientId: matchedClient?.id || null,
                 clientName: inv.form_data?.client?.clientName || invClientName,
                 clientCity: inv.form_data?.client?.clientCity || "",
@@ -2259,40 +2322,48 @@ export default function DashboardPage() {
                 <>
                   {/* PROJECT VIEW LOGIC */}
                   {filteredAndSortedProjects.map((project) => {
-                    const allMilestones = project.invoices.flatMap(inv => inv.milestones);
-                    const scheduledMilestone = allMilestones
+                    const milestoneContexts = project.invoices.flatMap((invoice) =>
+                      invoice.milestones.map((milestone, milestoneIndex, milestoneList) => {
+                        const milestoneOrder = getMilestoneOrderIndex(milestone, milestoneIndex);
+                        const hasNextMilestone = milestoneList.some(
+                          (candidate, candidateIndex) =>
+                            getMilestoneOrderIndex(candidate, candidateIndex) > milestoneOrder
+                        );
+
+                        return {
+                          invoice,
+                          milestone,
+                          milestoneIndex,
+                          milestoneOrder,
+                          milestoneNumber: milestoneOrder + 1,
+                          hasNextMilestone,
+                        };
+                      })
+                    );
+                    const orderedMilestoneContexts = Array.from(
+                      milestoneContexts
+                        .sort((a, b) => a.milestoneOrder - b.milestoneOrder)
+                        .reduce((map, context) => {
+                          if (!map.has(context.milestoneOrder)) {
+                            map.set(context.milestoneOrder, context);
+                          }
+                          return map;
+                        }, new Map<number, (typeof milestoneContexts)[number]>())
+                        .values()
+                    );
+                    const allMilestones = orderedMilestoneContexts.map((context) => context.milestone);
+                    const scheduledMilestoneContext = milestoneContexts
                       .filter(
-                        (milestone) =>
+                        ({ milestone }) =>
                           milestone.id &&
                           milestone.trigger_mode === "scheduled" &&
                           milestone.trigger_status === "pending"
                       )
-                      .sort(
-                        (a, b) =>
-                          (a.order_index ?? a.orderIndex ?? 0) -
-                          (b.order_index ?? b.orderIndex ?? 0)
-                      )[0];
-                    const activeMilestoneForSettle = scheduledMilestone
+                      .sort((a, b) => a.milestoneOrder - b.milestoneOrder)[0] ?? null;
+                    const scheduledMilestone = scheduledMilestoneContext?.milestone ?? null;
+                    const activeMilestoneForSettle = scheduledMilestoneContext
                       ? null
-                      : project.invoices
-                          .flatMap((invoice) =>
-                            invoice.milestones.map((milestone, milestoneIndex, milestoneList) => {
-                              const milestoneOrder = milestone.order_index ?? milestone.orderIndex ?? milestoneIndex;
-                              const hasNextMilestone = milestoneList.some(
-                                (candidate, candidateIndex) =>
-                                  (candidate.order_index ?? candidate.orderIndex ?? candidateIndex) > milestoneOrder
-                              );
-
-                              return {
-                                invoice,
-                                milestone,
-                                milestoneIndex,
-                                milestoneOrder,
-                                milestoneNumber: milestoneOrder + 1,
-                                hasNextMilestone,
-                              };
-                            })
-                          )
+                      : milestoneContexts
                           .filter(
                             ({ milestone, hasNextMilestone }) =>
                               (milestone.status || "").toUpperCase() === "LIVE" &&
@@ -2300,25 +2371,59 @@ export default function DashboardPage() {
                               hasNextMilestone
                           )
                           .sort((a, b) => a.milestoneOrder - b.milestoneOrder)[0] ?? null;
-                    const projectMilestones = project.invoices.flatMap((inv) => {
-                      return inv.milestones.map((m: any) => ({
-                        id: m.id,
-                        title: m.title || "Untitled",
-                        order_index: m.order_index ?? m.orderIndex ?? 0,
-                        status: m.status,
-                        amount: m.amount || 0,
-                        due_date: inv.dueDate || inv.due_date || "",
-                        invoice_id: inv.id,
-                        invoice_number: inv.invoiceNumber || "",
-                        trigger_mode: m.trigger_mode ?? null,
-                        trigger_status: m.trigger_status ?? null,
-                        trigger_date: m.trigger_date ?? null,
-                      }));
-                    });
+                    const awaitingClientInvoice = project.invoices.find(
+                      (invoice) =>
+                        invoice.msaStatus?.toLowerCase() === "pending" &&
+                        invoice.sharedToEmail
+                    );
+                    const awaitingClientMilestone = awaitingClientInvoice?.milestones?.[0] ?? null;
+                    const awaitingClientContext =
+                      awaitingClientInvoice && awaitingClientMilestone
+                        ? {
+                            invoice: awaitingClientInvoice,
+                            milestone: awaitingClientMilestone,
+                            milestoneIndex: 0,
+                            milestoneOrder: getMilestoneOrderIndex(awaitingClientMilestone, 0),
+                            milestoneNumber: getMilestoneOrderIndex(awaitingClientMilestone, 0) + 1,
+                            hasNextMilestone: awaitingClientInvoice.milestones.length > 1,
+                          }
+                        : null;
+                    const projectMilestones = milestoneContexts.map(({ invoice, milestone, milestoneOrder }) => ({
+                      id: milestone.id ?? `${invoice.id}-${milestoneOrder}`,
+                      title: milestone.title || "Untitled",
+                      order_index: milestoneOrder,
+                      status: milestone.status,
+                      amount: getDashboardMilestoneAmount(invoice, milestone, milestoneOrder),
+                      due_date: invoice.dueDate || invoice.due_date || "",
+                      invoice_id: invoice.id,
+                      invoice_number: invoice.invoiceNumber || "",
+                      trigger_mode: milestone.trigger_mode ?? null,
+                      trigger_status: milestone.trigger_status ?? null,
+                      trigger_date: milestone.trigger_date ?? null,
+                    }));
                     const settledMilestoneCount = allMilestones.filter((milestone) => (milestone.status || "").toLowerCase() === "settled").length;
-                    const projectMilestoneProgress = allMilestones.length > 0
-                      ? Math.round((settledMilestoneCount / allMilestones.length) * 100)
-                      : 0;
+                    const isProjectComplete =
+                      allMilestones.length > 0 &&
+                      allMilestones.every((milestone) => (milestone.status || "").toLowerCase() === "settled");
+                    const latestSettledContext = orderedMilestoneContexts
+                      .filter(({ milestone }) => (milestone.status || "").toLowerCase() === "settled")
+                      .sort((a, b) => {
+                        const aDate = new Date(
+                          a.milestone.updated_at ||
+                          a.milestone.created_at ||
+                          a.invoice.dueDate ||
+                          a.invoice.due_date ||
+                          0
+                        ).getTime();
+                        const bDate = new Date(
+                          b.milestone.updated_at ||
+                          b.milestone.created_at ||
+                          b.invoice.dueDate ||
+                          b.invoice.due_date ||
+                          0
+                        ).getTime();
+                        return bDate - aDate;
+                      })[0] ?? null;
                     const scheduledDateInputValue =
                       scheduledMilestone?.trigger_date &&
                       !Number.isNaN(new Date(scheduledMilestone.trigger_date).getTime())
@@ -2328,323 +2433,352 @@ export default function DashboardPage() {
                       scheduledMilestonePopover?.milestoneId === scheduledMilestone?.id
                         ? scheduledMilestonePopover
                         : null;
-                    const isCollapsed = !collapsedProjectIds.includes(project.projectId);
                     const projectAction = getProjectActionState(project);
+                    const fallbackInvoice = projectAction.invoice ?? project.invoices[0] ?? null;
+                    const panelContext =
+                      scheduledMilestoneContext ??
+                      activeMilestoneForSettle ??
+                      awaitingClientContext ??
+                      latestSettledContext ??
+                      null;
+                    const panelInvoice = panelContext?.invoice ?? fallbackInvoice;
+                    const panelMilestone = panelContext?.milestone ?? panelInvoice?.milestones?.[0] ?? null;
+                    const panelMilestoneIndex = panelContext?.milestoneIndex ?? 0;
+                    const panelSummary =
+                      panelInvoice && panelMilestone
+                        ? getDeliverableSummary(panelInvoice, panelMilestone, panelMilestoneIndex)
+                        : null;
+                    const panelAmount =
+                      panelInvoice && panelMilestone
+                        ? getDashboardMilestoneAmount(panelInvoice, panelMilestone, panelMilestoneIndex)
+                        : 0;
+                    const latestSettledDate =
+                      latestSettledContext
+                        ? formatDashboardDate(
+                            latestSettledContext.milestone.updated_at ||
+                            latestSettledContext.milestone.created_at ||
+                            latestSettledContext.invoice.dueDate ||
+                            latestSettledContext.invoice.due_date ||
+                            null
+                          )
+                        : "Date unavailable";
+                    const reviewInvoice = (invoice?: DashboardInvoice | null) => {
+                      if (!invoice) return;
+                      setSelectedInvoice(invoice);
+                    };
+                    const renderMetricChip = (label: string, value: string) => (
+                      <div>
+                        <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                          {label}
+                        </p>
+                        <p className="m-0 mt-1 text-base font-extrabold text-black">
+                          {value}
+                        </p>
+                      </div>
+                    );
+                    const renderReviewButton = (invoice?: DashboardInvoice | null) => (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          stopCardNavigation(event);
+                          reviewInvoice(invoice);
+                        }}
+                        className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                      >
+                        Review invoice
+                      </button>
+                    );
+                    const renderResendButton = (invoice?: DashboardInvoice | null) => (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          stopCardNavigation(event);
+                          if (invoice) void handleNudge(invoice, "initial");
+                        }}
+                        className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                      >
+                        Resend invoice
+                      </button>
+                    );
+                    const projectCardClassName = cn(
+                      "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000]",
+                      project.isRealProject &&
+                        "cursor-pointer transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[6px_6px_0_#000]"
+                    );
 
-                    return (
-                      <div key={project.projectId} className="border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] flex flex-col transition-all hover:shadow-[6px_6px_0_#111118] hover:-translate-y-[2px]">
-                        
-                        {/* Header: Project Summary */}
-                        <div 
-                          onClick={() => toggleProjectCollapse(project.projectId)}
-                          className="p-4 sm:p-5 border-b-2 border-[#111118] bg-white cursor-pointer select-none group"
-                        >
-                          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
-	                            <div className="min-w-0 flex-1">
-                              <div className="flex items-start gap-3">
-                                <span className={cn("mt-1 h-5 w-5 shrink-0 border-2 bg-white shadow-[2px_2px_0_#111118]", PROJECT_ACTION_BORDER_CLASSES[projectAction.tone])} />
-                                <h3 className="text-[18px] sm:text-[22px] font-black text-[#111118] tracking-normal m-0 leading-tight group-hover:text-[#FF5C00] transition-colors">
-                                  {project.projectName}
-                                </h3>
-                                <span className="text-[14px] text-[color:var(--text-muted)] font-black transition-transform group-hover:translate-y-[1px]">
-                                  {isCollapsed ? "▼" : "▲"}
-                                </span>
-                              </div>
-                              {project.projectDescription && (
-                                <p className="text-[12px] font-medium text-[color:var(--text-muted)] italic m-0 mt-1.5 max-w-2xl leading-relaxed">
-                                  {project.projectDescription}
+                    const projectCardContent = (
+                      <>
+                        {/* ZONE 1: HEADER */}
+                        <div className="flex flex-col gap-3 border-b-2 border-black px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <h3 className="m-0 text-xl font-black uppercase tracking-tight text-[#111118]">
+                              {project.projectName}
+                            </h3>
+                            <p className="m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600">
+                              {project.clientName}
+                              {project.clientCity ? ` · ${project.clientCity}` : ""}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 flex-row flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+                            {projectAction.invoice && <CanonicalInvoiceStateBadge invoice={projectAction.invoice} />}
+                            <span className="text-[11px] font-bold uppercase tracking-wide text-neutral-600">
+                              {settledMilestoneCount}/{allMilestones.length || 0} milestones
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* ZONE 2: MILESTONE TIMELINE */}
+                        <div className="px-5 py-5">
+                          <ProjectTimeline milestones={projectMilestones} />
+                        </div>
+
+                        {/* ZONE 3: ACTIVE MILESTONE PANEL */}
+                        <div className="mx-5 mb-5 border-2 border-black bg-[#FAF7F2] p-4">
+                          {scheduledMilestoneContext && scheduledMilestone ? (
+                            <>
+                              <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                Scheduled to send
+                              </p>
+                              <h4 className="m-0 mt-1 text-base font-black uppercase text-[#111118]">
+                                M{scheduledMilestoneContext.milestoneNumber} · {scheduledMilestone.title || "Milestone"}
+                              </h4>
+                              {panelSummary && (
+                                <p className="mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700">
+                                  {panelSummary}
                                 </p>
                               )}
-                              <p className="text-[11px] font-bold text-[#888] m-0 mt-2 uppercase tracking-widest">
-                                Client: <span className="text-[#111118]">{project.clientName}</span> {project.clientCity ? `(${project.clientCity})` : ""}
-                              </p>
-	                            </div>
-	                            <div className="text-left lg:text-right flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-1.5 shrink-0">
-	                              {projectAction.invoice && <CanonicalInvoiceStateBadge invoice={projectAction.invoice} />}
-	                              <span className="border-2 border-[#111118] bg-[#F8F8F4] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118]">
-	                                {settledMilestoneCount}/{allMilestones.length || 0} milestones
-	                              </span>
-	                            </div>
-	                          </div>
-
-                            {scheduledMilestone && (
-                              <div
-                                className="mb-4 flex w-full flex-col gap-3 border-t border-[#D4D2CC] bg-[#FAF7F2] px-4 py-2 sm:flex-row sm:items-center sm:justify-between"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-[#111118]">
-                                  M{(scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1} scheduled · {formatShortDashboardDate(scheduledMilestone.trigger_date)}
-                                </p>
-                                <div className="flex flex-wrap items-center gap-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const milestoneNumber = (scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1;
-                                      if (window.confirm(`Send M${milestoneNumber} invoice now?`)) {
-                                        void handleScheduledMilestoneAction(scheduledMilestone, "send_now");
-                                      }
-                                    }}
-                                    className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
-                                  >
-                                    Send now
-                                  </button>
-                                  <div className="relative" ref={activeScheduledPopover ? scheduledPopoverRef : null}>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setScheduledMilestonePopover({
-                                          milestoneId: scheduledMilestone.id!,
-                                          triggerDate:
-                                            activeScheduledPopover
-                                              ? activeScheduledPopover.triggerDate
-                                              : scheduledDateInputValue,
-                                        })
-                                      }
-                                      className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
-                                    >
-                                      Reschedule
-                                    </button>
-                                    {activeScheduledPopover && (
-                                      <div className="absolute right-0 top-full z-30 mt-2 w-[260px] border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]">
-                                        <input
-                                          type="date"
-                                          min={toDateInputValue(new Date())}
-                                          value={activeScheduledPopover.triggerDate}
-                                          onChange={(event) =>
-                                            setScheduledMilestonePopover((prev) =>
-                                              prev
-                                                ? { ...prev, triggerDate: event.target.value }
-                                                : prev
-                                            )
-                                          }
-                                          className="w-full border-2 border-black bg-white px-3 py-2 text-[13px] font-bold text-[#111118] outline-none focus:bg-[#FAF7F2]"
-                                        />
-                                        <div className="mt-3 flex justify-end gap-2">
-                                          <button
-                                            type="button"
-                                            onClick={() => setScheduledMilestonePopover(null)}
-                                            className="border-2 border-black bg-white px-3 py-1.5 text-[11px] font-black uppercase hover:bg-[#FAF7F2]"
-                                          >
-                                            Cancel
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              void handleScheduledMilestoneAction(
-                                                scheduledMilestone,
-                                                "reschedule",
-                                                activeScheduledPopover.triggerDate,
-                                              )
-                                            }
-                                            className="border-[3px] border-black bg-[#D4FF00] px-3 py-1.5 text-[11px] font-black uppercase shadow-[4px_4px_0_#000]"
-                                          >
-                                            Update
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const milestoneNumber = (scheduledMilestone.order_index ?? scheduledMilestone.orderIndex ?? 0) + 1;
-                                      if (window.confirm(`Cancel scheduled milestone M${milestoneNumber}? Remaining milestones will be soft-cancelled.`)) {
-                                        void handleScheduledMilestoneAction(scheduledMilestone, "cancel");
-                                      }
-                                    }}
-                                    className="border border-black bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-[#FAF7F2]"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
+                              <div className="mb-3 flex flex-wrap gap-6">
+                                {renderMetricChip("Amount", `₹${formatIndian(panelAmount)}`)}
+                                {renderMetricChip("Will send", formatShortDashboardDate(scheduledMilestone.trigger_date))}
                               </div>
-                            )}
-
-	                          <div className="mb-4 w-full" onClick={(e) => e.stopPropagation()}>
-	                            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-	                              <p className="m-0 text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
-	                                Milestone progress
-	                              </p>
-	                              <p className="m-0 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118]">
-	                                {projectMilestoneProgress}% · {settledMilestoneCount}/{allMilestones.length || 0} settled
-	                              </p>
-	                            </div>
-	                            <ProjectTimeline milestones={projectMilestones} />
-	                          </div>
-
-                          <div className={cn(
-                            "mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-2 p-3",
-                            PROJECT_ACTION_BORDER_CLASSES[projectAction.tone],
-                            PROJECT_ACTION_TONE_CLASSES[projectAction.tone]
-                          )}>
-                            <div className="min-w-0">
-                              <p className="text-[10px] font-black uppercase tracking-[0.12em] m-0 opacity-70">Next action</p>
-                              <p className="text-[13px] font-black text-[#111118] m-0 mt-0.5">{projectAction.detail}</p>
-	                        </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              {activeMilestoneForSettle && (
+                              <div className="flex flex-wrap items-center gap-2" onClick={stopCardNavigation}>
                                 <button
                                   type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
+                                  onClick={(event) => {
+                                    stopCardNavigation(event);
+                                    if (window.confirm(`Send M${scheduledMilestoneContext.milestoneNumber} invoice now?`)) {
+                                      void handleScheduledMilestoneAction(scheduledMilestone, "send_now");
+                                    }
+                                  }}
+                                  className={PROJECT_PANEL_PRIMARY_BUTTON_CLASS}
+                                >
+                                  Send now
+                                </button>
+                                <div className="relative" ref={activeScheduledPopover ? scheduledPopoverRef : null}>
+                                  <button
+                                    type="button"
+                                    onClick={(event) => {
+                                      stopCardNavigation(event);
+                                      setScheduledMilestonePopover({
+                                        milestoneId: scheduledMilestone.id!,
+                                        triggerDate:
+                                          activeScheduledPopover
+                                            ? activeScheduledPopover.triggerDate
+                                            : scheduledDateInputValue,
+                                      });
+                                    }}
+                                    className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                                  >
+                                    Reschedule
+                                  </button>
+                                  {activeScheduledPopover && (
+                                    <div
+                                      className="absolute right-0 top-full z-30 mt-2 w-[260px] border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]"
+                                      onClick={stopCardNavigation}
+                                    >
+                                      <input
+                                        type="date"
+                                        min={toDateInputValue(new Date())}
+                                        value={activeScheduledPopover.triggerDate}
+                                        onClick={stopCardNavigation}
+                                        onChange={(event) =>
+                                          setScheduledMilestonePopover((prev) =>
+                                            prev
+                                              ? { ...prev, triggerDate: event.target.value }
+                                              : prev
+                                          )
+                                        }
+                                        className="w-full border-2 border-black bg-white px-3 py-2 text-[13px] font-bold text-[#111118] outline-none focus:bg-[#FAF7F2]"
+                                      />
+                                      <div className="mt-3 flex justify-end gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={(event) => {
+                                            stopCardNavigation(event);
+                                            setScheduledMilestonePopover(null);
+                                          }}
+                                          className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={(event) => {
+                                            stopCardNavigation(event);
+                                            void handleScheduledMilestoneAction(
+                                              scheduledMilestone,
+                                              "reschedule",
+                                              activeScheduledPopover.triggerDate,
+                                            );
+                                          }}
+                                          className={PROJECT_PANEL_PRIMARY_BUTTON_CLASS}
+                                        >
+                                          Update
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    stopCardNavigation(event);
+                                    if (window.confirm(`Cancel scheduled milestone M${scheduledMilestoneContext.milestoneNumber}? Remaining milestones will be soft-cancelled.`)) {
+                                      void handleScheduledMilestoneAction(scheduledMilestone, "cancel");
+                                    }
+                                  }}
+                                  className={PROJECT_PANEL_DESTRUCTIVE_BUTTON_CLASS}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </>
+                          ) : activeMilestoneForSettle ? (
+                            <>
+                              <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                Now live
+                              </p>
+                              <h4 className="m-0 mt-1 text-base font-black uppercase text-[#111118]">
+                                M{activeMilestoneForSettle.milestoneNumber} · {activeMilestoneForSettle.milestone.title || "Milestone"}
+                              </h4>
+                              {panelSummary && (
+                                <p className="mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700">
+                                  {panelSummary}
+                                </p>
+                              )}
+                              <div className="mb-3 flex flex-wrap gap-6">
+                                {renderMetricChip("Amount", `₹${formatIndian(panelAmount)}`)}
+                                {renderMetricChip(
+                                  "Due",
+                                  formatDashboardDate(activeMilestoneForSettle.invoice.dueDate || activeMilestoneForSettle.invoice.due_date)
+                                )}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    stopCardNavigation(event);
                                     setSelectedInvoice(activeMilestoneForSettle.invoice);
                                     setPendingProjectSettlement({
                                       invoiceId: activeMilestoneForSettle.invoice.id,
                                       milestoneIndex: activeMilestoneForSettle.milestoneIndex,
                                     });
                                   }}
-                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] hover:bg-[#FAF7F2] transition-colors"
+                                  className={PROJECT_PANEL_PRIMARY_BUTTON_CLASS}
                                 >
                                   MARK M{activeMilestoneForSettle.milestoneNumber} SETTLED
                                 </button>
+                                {renderReviewButton(activeMilestoneForSettle.invoice)}
+                              </div>
+                            </>
+                          ) : awaitingClientContext ? (
+                            <>
+                              <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                Awaiting client
+                              </p>
+                              <h4 className="m-0 mt-1 text-base font-black uppercase text-[#111118]">
+                                M{awaitingClientContext.milestoneNumber} · {awaitingClientContext.milestone.title || "Milestone"}
+                              </h4>
+                              {panelSummary && (
+                                <p className="mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700">
+                                  {panelSummary}
+                                </p>
                               )}
-                              {projectAction.actionHref ? (
-                                <Link
-                                  href={projectAction.actionHref}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                                >
-                                  {projectAction.actionLabel}
-                                </Link>
-                              ) : projectAction.invoice ? (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (projectAction.nudgeTone && projectAction.invoice) {
-                                      void handleNudge(projectAction.invoice, projectAction.nudgeTone);
-                                      return;
-                                    }
-                                    setSelectedInvoice(projectAction.invoice);
-                                  }}
-                                  className="inline-flex justify-center border-2 border-[#111118] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-wider text-[#111118] shadow-[2px_2px_0_#111118] hover:-translate-y-0.5 transition-all"
-                                >
-                                  {projectAction.actionLabel}
-                                </button>
-                              ) : null}
-                            </div>
-                          </div>
+                              <div className="mb-3 flex flex-wrap gap-6">
+                                {renderMetricChip("Amount", `₹${formatIndian(panelAmount)}`)}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {renderReviewButton(awaitingClientContext.invoice)}
+                                {renderResendButton(awaitingClientContext.invoice)}
+                              </div>
+                            </>
+                          ) : isProjectComplete ? (
+                            <>
+                              <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                Project complete
+                              </p>
+                              <h4 className="m-0 mt-1 text-base font-black uppercase text-[#111118]">
+                                All {allMilestones.length} milestones settled
+                              </h4>
+                              <p className="mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700">
+                                Last settled {latestSettledDate}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {renderReviewButton(fallbackInvoice)}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <p className="m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600">
+                                {projectAction.label}
+                              </p>
+                              <h4 className="m-0 mt-1 text-base font-black uppercase text-[#111118]">
+                                {projectAction.label === "Revision requested"
+                                  ? "Revision requested by client"
+                                  : projectAction.label}
+                              </h4>
+                              <p className="mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700">
+                                {projectAction.detail}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {projectAction.actionHref ? (
+                                  <button
+                                    type="button"
+                                    onClick={(event) => {
+                                      stopCardNavigation(event);
+                                      router.push(projectAction.actionHref!);
+                                    }}
+                                    className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                                  >
+                                    {projectAction.actionLabel}
+                                  </button>
+                                ) : projectAction.invoice ? (
+                                  <button
+                                    type="button"
+                                    onClick={(event) => {
+                                      stopCardNavigation(event);
+                                      if (projectAction.nudgeTone && projectAction.invoice) {
+                                        void handleNudge(projectAction.invoice, projectAction.nudgeTone);
+                                        return;
+                                      }
+                                      reviewInvoice(projectAction.invoice);
+                                    }}
+                                    className={PROJECT_PANEL_SECONDARY_BUTTON_CLASS}
+                                  >
+                                    {projectAction.actionLabel}
+                                  </button>
+                                ) : null}
+                                {fallbackInvoice && projectAction.actionLabel.toLowerCase() !== "review invoice" && (
+                                  renderReviewButton(fallbackInvoice)
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    );
 
-	                        </div>
-
-                        {/* Body: Invoices list under the project */}
-                        {!isCollapsed && (
-                          <div className="bg-[#FAFAF6] p-4 sm:p-5 flex flex-col gap-6 border-t-2 border-[#111118]">
-                            {project.invoices.length > 0 ? (
-                              project.invoices.map((inv) => {
-                                const msaLower = (inv.msaStatus || "").toLowerCase();
-                                const isProposed = msaLower === "proposed";
-                                
-                                return (
-                                  <div key={inv.id} className="flex flex-col gap-3">
-                                    {/* Invoice Context Header */}
-                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-dashed border-[#111118]/20 pb-2">
-                                      <div className="flex items-center gap-3 flex-wrap">
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}
-	                                          className="text-[13px] sm:text-[15px] font-black text-[#111118] uppercase tracking-wider hover:text-[#FF5C00] transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center group"
-	                                        >
-	                                          {inv.invoiceNumber} <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-	                                        </button>
-	                                        <CanonicalInvoiceStateBadge invoice={inv} />
-	                                      </div>
-                                      <span className="text-[14px] font-black text-[#111118] font-syne">₹{formatIndian(inv.totalAmount)}</span>
-                                    </div>
-
-                                    {/* Client Note & Action Button */}
-                                    {isProposed && inv.clientMsaNote && (
-                                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full bg-[#FFFBE6] border-2 border-[#B45309] p-3 shadow-[2px_2px_0_#B45309]">
-                                        <div className="flex-1">
-                                          <p className="text-[10px] font-black text-[#B45309] uppercase tracking-wider m-0 mb-1 flex items-center gap-1.5">
-                                            <span className="text-[12px]">⚠️</span> Client Note
-                                          </p>
-                                          <p className="text-[12px] text-[#B45309] m-0 italic font-medium leading-relaxed">&quot;{inv.clientMsaNote}&quot;</p>
-                                        </div>
-                                        <Link
-                                          href={`/invoice/new?id=${inv.id}&restore=1&step=payment`}
-                                          className="shrink-0 flex items-center justify-center px-4 py-2 text-[12px] font-black text-[#111118] bg-[#BEFF00] border-2 border-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[4px_4px_0_#111118] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all uppercase tracking-wider min-h-[44px]"
-                                        >
-                                          UPDATE ADDENDUM →
-                                        </Link>
-                                      </div>
-                                    )}
-
-                                    {/* Flattened Milestones inside this project invoice */}
-                                    <div className="flex flex-col gap-4 mt-1">
-                                      {inv.milestones.length > 0 ? (
-                                        inv.milestones.map((m, mi) => {
-                                          const s = (m.status || "").toLowerCase();
-                                          const isPending =
-                                            s === "pending" ||
-                                            s === "live" ||
-                                            s === "overdue" ||
-                                            s === "sent" ||
-                                            s === "partial" ||
-                                            s === "saved";
-                                          const statusBg = s === "settled" ? "#00DCB4" : s === "overdue" ? "#FF5C00" : ["live", "sent", "finalized", "partial", "saved"].includes(s) ? "#BEFF00" : "#E0E0E0";
-                                          const title = m.title || "(No Milestone Title)";
-                                          
-                                          const formMilestone = inv.formDataMilestones?.[m.orderIndex];
-                                          const milestoneLineItems = formMilestone?.lineItems || [];
-                                          
-                                          let dueDateText = "Upcoming";
-                                          let isPastDue = false;
-                                          if (s === "settled") dueDateText = "Settled ✓";
-                                          else if (isPending) {
-                                            if (inv.dueDate) {
-                                              const diffDays = Math.ceil((new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                                              if (diffDays < 0) { isPastDue = true; dueDateText = `${Math.abs(diffDays)} days past due`; }
-                                              else if (diffDays === 0) dueDateText = "Due today";
-                                              else dueDateText = `${diffDays} days till due`;
-                                            } else dueDateText = "Pending";
-                                          }
-
-                                          let effectiveAmount = m.amount;
-                                          if (effectiveAmount === 0 && milestoneLineItems.length > 0) {
-                                            effectiveAmount = milestoneLineItems.reduce((s: number, li: any) => s + Number(li.qty || 0) * Number(li.rate || 0), 0);
-                                          }
-
-                                          return (
-                                            <div key={mi} className="flex flex-col gap-1.5">
-                                              <div className="flex justify-between items-start gap-3">
-                                                <div className="flex items-start gap-2.5">
-                                                  <div className="w-[14px] h-[14px] border-2 border-[#111118] shrink-0 mt-[2px] flex items-center justify-center shadow-[1px_1px_0_#111118]" style={{ backgroundColor: statusBg }} />
-                                                  <div>
-                                                    <span className="text-[13px] font-black text-[#111118] uppercase tracking-tight">{title}</span>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                      <span className={cn("text-[10px] font-bold uppercase", isPastDue ? "text-[#FF5C00]" : "text-[#888]")}>{dueDateText}</span>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <span className="text-[12px] font-bold text-[#111118]">₹{formatIndian(effectiveAmount)}</span>
-                                              </div>
-                                              
-                                              {/* Line Items */}
-                                              {milestoneLineItems.length > 0 && (
-                                                <div className="pl-[26px] flex flex-col gap-1 text-[11px] font-medium text-[#555]">
-                                                  {milestoneLineItems.map((li: any, liIdx: number) => (
-                                                    <div key={liIdx} className="flex items-start gap-1">
-                                                      <span className="text-[#888] mt-[-1px]">↳</span>
-                                                      <span>{li.description || li.type || "Deliverable"} <span className="opacity-70">({li.qty} {li.rateUnit?.replace("per-", "") || "unit"} @ ₹{formatIndian(Number(li.rate || 0))})</span></span>
-                                                    </div>
-                                                  ))}
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })
-                                      ) : (
-                                        <div className="text-[11px] font-bold text-[#888] uppercase italic pl-[26px]">Standard Invoice (No detailed milestones)</div>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })
-                            ) : (
-                              <div className="text-[12px] text-center font-bold text-[color:var(--text-muted)] py-4">No active invoices grouped under this project.</div>
-                            )}
-                          </div>
-                        )}
+                    return project.isRealProject ? (
+                      <Link
+                        key={project.projectId}
+                        href={`/project/${project.projectId}`}
+                        className={projectCardClassName}
+                      >
+                        {projectCardContent}
+                      </Link>
+                    ) : (
+                      <div key={project.projectId} className={projectCardClassName}>
+                        {projectCardContent}
                       </div>
                     );
                   })}
