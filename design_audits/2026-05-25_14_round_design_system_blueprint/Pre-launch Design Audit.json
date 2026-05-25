@@ -1,0 +1,307 @@
+{
+  "title": "Pre-launch Design Audit",
+  "version": "2026-05-25.prelaunch.design-audit.sanitized.v1",
+  "repository": "desi-freelance-docs",
+  "project": "Lance Invoice",
+  "created_at": "2026-05-25",
+  "timezone": "Asia/Kolkata",
+  "audit_root": "design_audits/2026-05-25_14_round_design_system_blueprint",
+  "sanitization": {
+    "repo_safe": true,
+    "source_code_changed": false,
+    "raw_json_committed": false,
+    "screenshots_committed": false,
+    "scripts_committed": false,
+    "removed_from_repo_summary": [
+      "live invoice numbers",
+      "client names",
+      "project names",
+      "emails",
+      "share tokens",
+      "authenticated production screenshots",
+      "raw DOM dumps",
+      "raw scan JSON",
+      "browser automation scripts"
+    ],
+    "local_raw_evidence_note": "Full raw evidence may exist locally in the project folder, but it is intentionally not tracked in git."
+  },
+  "status": {
+    "phase": "pre-launch design-system blueprint audit",
+    "app_code_change_approval_required": true,
+    "ready_for_other_ai_agents": true,
+    "notes": [
+      "This file is the repo-safe machine-readable handoff summary.",
+      "Do not treat this as approval to modify source code.",
+      "Read the markdown summaries beside this file for human-readable detail."
+    ]
+  },
+  "audit_aim": {
+    "primary_goal": "Establish a launch-ready design system blueprint by auditing visual consistency, semantic clarity, CA/legal trust surfaces, client-facing invoice output, profile/global MSA settings, and critical invoice creation flows.",
+    "design_direction": "Neo-brutal, high-contrast, square geometry, hard shadows, strict borders, restrained color tokens, and plain-language support for formal legal/payment terms.",
+    "business_lens": [
+      "Lance is a delivery and invoicing tracker, not only a finance table.",
+      "Money and legal terms must be accurate, visible, and trustworthy.",
+      "Client-facing invoice/share/print outputs must not leak internal or irrelevant metadata.",
+      "Profile and Global MSA are source-of-truth settings, so save reliability and legal clarity matter more than decoration."
+    ]
+  },
+  "global_constraints_for_future_agents": [
+    "Do not modify application source code until the blueprint is approved or the user asks for a scoped implementation.",
+    "Use audit markdown and this JSON as repo-safe context.",
+    "Do not assume raw screenshots or raw JSON are available in the repository.",
+    "If additional scans are needed, use the already-running authenticated Chrome session over CDP on port 9222.",
+    "Do not launch a new browser instance for authenticated scans.",
+    "Preserve Neo Brutal design intent: strong black borders, hard shadows, square corners, high contrast, and restrained status colors."
+  ],
+  "artifact_index": {
+    "master_markdown_blueprint": "design_audits/2026-05-25_14_round_design_system_blueprint/design_system.md",
+    "committed_reports": [
+      {
+        "name": "Creating Invoice Draft Flow and Check Status",
+        "path": "design_audits/2026-05-25_14_round_design_system_blueprint/CREATING INVOICE DRAFT FLOW and CHECK STATUS.md",
+        "purpose": "Sanitized summary of a draft invoice creation attempt and post-save status visibility."
+      },
+      {
+        "name": "Invoice Client Surface Print Digital Share Audit",
+        "path": "design_audits/2026-05-25_14_round_design_system_blueprint/INVOICE CLIENT SURFACE PRINT DIGITAL SHARE AUDIT.md",
+        "purpose": "Sanitized summary of invoice preview, print, templates, share modal/share behavior, and client-facing relevance."
+      },
+      {
+        "name": "Profile Settings Global MSA Deep Audit",
+        "path": "design_audits/2026-05-25_14_round_design_system_blueprint/PROFILE SETTINGS GLOBAL MSA DEEP AUDIT.md",
+        "purpose": "Sanitized summary of profile settings, banking, compliance, global MSA, upload/crop modal, and profile responsiveness."
+      }
+    ],
+    "excluded_from_commit": [
+      "results/",
+      "screenshots/",
+      "scripts/",
+      "older raw NeoBrutal audit directory"
+    ]
+  },
+  "coverage_summary": [
+    {
+      "area": "Foundation visual scan",
+      "pages": [
+        "dashboard",
+        "projects",
+        "invoices",
+        "clients",
+        "invoice editor"
+      ],
+      "checked": [
+        "soft UI violations",
+        "border contract violations",
+        "colors",
+        "layout screenshots"
+      ],
+      "key_result": "Soft UI and border-contract drift exists and needs token-level cleanup before launch."
+    },
+    {
+      "area": "New invoice draft flow",
+      "pages": [
+        "invoice editor",
+        "dashboard",
+        "projects",
+        "invoices",
+        "clients"
+      ],
+      "checked": [
+        "create draft flow",
+        "save-as-draft behavior",
+        "post-save status visibility"
+      ],
+      "key_result": "Draft save failed in tested production state due a Supabase/PostgREST schema-cache issue involving an invoice-client relationship field."
+    },
+    {
+      "area": "Invoice client-facing surfaces",
+      "pages": [
+        "invoice preview",
+        "public/digital share",
+        "invoice templates",
+        "share/download modal surfaces"
+      ],
+      "checked": [
+        "preview",
+        "print media",
+        "digital share",
+        "templates",
+        "client-facing relevance"
+      ],
+      "key_result": "Client-facing output needs stricter data relevance, placeholder suppression, milestone-source correctness, and final/draft context propagation."
+    },
+    {
+      "area": "Profile settings and Global MSA",
+      "pages": [
+        "profile"
+      ],
+      "checked": [
+        "agency fields",
+        "banking fields",
+        "contract defaults",
+        "global MSA",
+        "compliance",
+        "upload/crop modal",
+        "tablet layout",
+        "mobile layout"
+      ],
+      "key_result": "The data model is strong, but Global MSA save reliability, legal clarity, validation, sticky layout, and responsive behavior need hardening."
+    }
+  ],
+  "critical_findings": [
+    {
+      "id": "AUDIT-P0-001",
+      "severity": "P0/P1",
+      "area": "Profile / Global MSA",
+      "finding": "Global MSA save can silently fail while the UI still shows success.",
+      "risk": "Agency may believe legal terms were updated while future invoices still use stale terms.",
+      "recommended_direction": "Make profile + Global MSA save atomic or show exact partial-save recovery state."
+    },
+    {
+      "id": "AUDIT-P0-002",
+      "severity": "P0/P1",
+      "area": "Invoice save / Supabase schema",
+      "finding": "Draft save and share flow are blocked in tested production state by a Supabase/PostgREST schema-cache issue.",
+      "risk": "Users cannot reliably save/share new invoices until the backend/schema mismatch is resolved.",
+      "recommended_direction": "Resolve database/schema cache mismatch before visual polish work on draft/share flows."
+    },
+    {
+      "id": "AUDIT-P1-003",
+      "severity": "P1",
+      "area": "Client-facing invoice output",
+      "finding": "Invoice templates can expose irrelevant, placeholder, or incorrectly sourced client-facing data.",
+      "risk": "Final invoice output can look unprofessional or legally noisy.",
+      "recommended_direction": "Define a strict client-facing invoice data contract."
+    },
+    {
+      "id": "AUDIT-P1-004",
+      "severity": "P1",
+      "area": "Profile contract defaults",
+      "finding": "Payment terms, late fee, revision rounds, and extra revision fee need hard validation.",
+      "risk": "Invalid contract defaults can flow into invoices and MSA snapshots.",
+      "recommended_direction": "Add field-level validation rules for legal/payment defaults."
+    },
+    {
+      "id": "AUDIT-P1-005",
+      "severity": "P1",
+      "area": "Global MSA comprehension",
+      "finding": "Global MSA is edited as raw legal text without an effective-terms summary or version status.",
+      "risk": "Users cannot quickly verify what clients will accept.",
+      "recommended_direction": "Add effective-terms preview and last-saved/version status."
+    },
+    {
+      "id": "AUDIT-P2-006",
+      "severity": "P2",
+      "area": "Visual system",
+      "finding": "Soft UI drift exists across warnings, save bars, modal/crop surfaces, shadows, and some border treatments.",
+      "risk": "The app loses the strong Lance neo-brutal identity in important system surfaces.",
+      "recommended_direction": "Codify token rules for hard shadows, black borders, no-radius cards, warnings, modals, and disabled states."
+    },
+    {
+      "id": "AUDIT-P2-007",
+      "severity": "P2",
+      "area": "Responsive layout",
+      "finding": "Profile tablet layout can horizontally overflow.",
+      "risk": "Tablet users get a visually unstable settings page.",
+      "recommended_direction": "Treat tablet as its own breakpoint and collapse header/actions before overflow."
+    },
+    {
+      "id": "AUDIT-P2-008",
+      "severity": "P2",
+      "area": "Mobile profile settings",
+      "finding": "Mobile profile tabs and sticky save behavior need tightening.",
+      "risk": "Profile completion feels cramped and error-prone on mobile.",
+      "recommended_direction": "Use a clearer mobile settings switcher and reserve bottom space for save actions."
+    }
+  ],
+  "semantic_replacement_map": [
+    {
+      "current": "Master Services Agreement / MSA",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Your default client contract"
+    },
+    {
+      "current": "IP Transfer Trigger",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "When ownership moves to the client"
+    },
+    {
+      "current": "Jurisdiction",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Legal city for disputes"
+    },
+    {
+      "current": "Late Fee Rate",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Fee charged when client pays late"
+    },
+    {
+      "current": "Revision Policy",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Free edits and paid extra edits"
+    },
+    {
+      "current": "LUT Availability",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Export tax letter status"
+    },
+    {
+      "current": "Outstanding",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Money still unpaid"
+    },
+    {
+      "current": "Settled",
+      "retain_for_legal_traceability": true,
+      "plain_language_support": "Paid and marked done"
+    }
+  ],
+  "recommended_implementation_sequence": [
+    {
+      "phase": "0",
+      "name": "Launch blockers",
+      "items": [
+        "Fix invoice save/share schema-cache blocker.",
+        "Make profile + Global MSA save reliable and error-visible.",
+        "Remove client-facing invoice placeholders/noise."
+      ]
+    },
+    {
+      "phase": "1",
+      "name": "Legal and profile trust",
+      "items": [
+        "Add Global MSA effective-terms preview.",
+        "Add validation constraints to payment terms, late fee, revisions, and relevant compliance fields.",
+        "Normalize late-fee unit semantics."
+      ]
+    },
+    {
+      "phase": "2",
+      "name": "Client-facing invoice refinement",
+      "items": [
+        "Audit all templates against a strict final-invoice data contract.",
+        "Fix milestone summary source.",
+        "Separate agency preview affordances from client-facing invoice content."
+      ]
+    },
+    {
+      "phase": "3",
+      "name": "Design system hardening",
+      "items": [
+        "Codify Neo Brutal tokens.",
+        "Remove soft UI drift.",
+        "Normalize badges, spacing, shadows, borders, and typography scale."
+      ]
+    },
+    {
+      "phase": "4",
+      "name": "Responsive cleanup",
+      "items": [
+        "Fix tablet overflow.",
+        "Rework mobile profile tabs.",
+        "Reserve space for sticky controls."
+      ]
+    }
+  ],
+  "handoff_instruction_for_next_agent": "Read this JSON first, then read design_system.md and the three sanitized markdown reports. Do not request or rely on raw screenshots/JSON from the repository. Do not implement until the user approves the blueprint or explicitly asks for a scoped fix."
+}
