@@ -1,0 +1,59 @@
+{
+  "summary": "Save Draft did not persist a new invoice. The UI flow created master data first, then the invoice insert failed.",
+  "confirmed_blocker": {
+    "supabase_code": "PGRST204",
+    "message": "Could not find the 'client_id' column of 'invoices' in the schema cache",
+    "endpoint": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/invoices?select=*",
+    "method": "POST",
+    "status": 400
+  },
+  "first_audit_attempt": {
+    "project": "AUDIT DRAFT FLOW 20260525_095449",
+    "client": "Audit Draft Client 20260525_095449",
+    "email": "audit.draft.20260525_095449@example.com",
+    "invoice_reference_seen_in_editor": "INV-2026-4470",
+    "status_page_result": {
+      "dashboard": "test project/client/email not visible",
+      "projects": "test project/client/email not visible",
+      "invoices": "test project/client/email/invoice reference not visible",
+      "clients": "test client/email visible"
+    },
+    "network_evidence": [
+      "POST /rest/v1/clients returned 201",
+      "No successful invoice write was observed",
+      "Status pages did not contain INV-2026-4470"
+    ]
+  },
+  "focused_retry_with_new_client_and_project": {
+    "project": "AUDIT DRAFT RETRY 20260525_095716",
+    "client": "Audit Draft Retry Client 20260525_095716",
+    "email": "audit.retry.20260525_095716@example.com",
+    "network_evidence": [
+      "POST /rest/v1/clients returned 201",
+      "POST /rest/v1/projects returned 201",
+      "POST /rest/v1/invoices returned 400"
+    ],
+    "invoice_error": {
+      "code": "PGRST204",
+      "message": "Could not find the 'client_id' column of 'invoices' in the schema cache"
+    }
+  },
+  "minimal_retry_existing_client_no_project": {
+    "client": "ruhnika",
+    "email": "rryry@gmail.com",
+    "network_evidence": [
+      "GET /rest/v1/clients existing lookup returned 200",
+      "POST /rest/v1/invoices returned 400"
+    ],
+    "invoice_error": {
+      "code": "PGRST204",
+      "message": "Could not find the 'client_id' column of 'invoices' in the schema cache"
+    }
+  },
+  "audit_interpretation": [
+    "This is not just a visual issue. It is a draft-save integrity blocker.",
+    "The flow can create client/project master data before the invoice write fails, leaving orphaned setup records from a user's perspective.",
+    "The editor remains on /invoice/new and does not show a clear failure confirmation.",
+    "Status pages cannot show the new draft because no invoice row was persisted."
+  ]
+}

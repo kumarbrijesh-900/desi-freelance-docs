@@ -303,5 +303,26 @@
       ]
     }
   ],
-  "handoff_instruction_for_next_agent": "Read this JSON first, then read design_system.md and the three sanitized markdown reports. Do not request or rely on raw screenshots/JSON from the repository. Do not implement until the user approves the blueprint or explicitly asks for a scoped fix."
+  "handoff_instruction_for_next_agent": "Read this JSON first, then read design_system.md and the three sanitized markdown reports. Do not request or rely on raw screenshots/JSON from the repository. Do not implement until the user approves the blueprint or explicitly asks for a scoped fix.",
+  "proposed_implementation_plan": {
+    "title": "Phase 0: Launch Blocker Resolutions",
+    "description": "This plan addresses the P0 and P1 functional bugs discovered during the 14-round audit, focusing strictly on data persistence and schema-cache issues.",
+    "steps": [
+      {
+        "area": "Invoice Save Schema-Cache Fix (P0)",
+        "files_to_modify": ["lib/supabase/invoices.ts"],
+        "action": "Audit the saveInvoice function to ensure it uses a single transactional RPC call or implements strict manual rollback logic if the invoice insertion fails after a client/project creation. Check the foreign key relationships to ensure client_id and project_id constraints are met exactly as PostgREST expects."
+      },
+      {
+        "area": "Profile & Global MSA Save Reliability (P0/P1)",
+        "files_to_modify": ["lib/supabase/profiles.ts", "lib/supabase/msa-resolver.ts", "app/(authenticated)/profile/page.tsx"],
+        "action": "In upsertProfile and syncGlobalMsaFromProfile, verify that the Supabase response error object is explicitly checked. Wrap these in strict try/catch blocks and return typed objects. Wire up the returned error state to visually block the 'Success' toast."
+      },
+      {
+        "area": "Contract Defaults Hard Validation (P1)",
+        "files_to_modify": ["lib/supabase/profiles.ts"],
+        "action": "Add strict Zod or runtime validation checks to upsertProfile before attempting to push to Supabase."
+      }
+    ]
+  }
 }

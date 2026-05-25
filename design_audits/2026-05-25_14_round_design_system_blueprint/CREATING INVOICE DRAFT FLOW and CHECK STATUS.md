@@ -46,5 +46,23 @@ Client/project master data has record-keeping implications. Creating master reco
 Failure states need the same visual strength as success states. A neo-brutal system should not only celebrate completion; it should make blockers loud, plain, and recoverable.
 
 ## Approval Gate
-
 This report is audit-only. No source-code implementation is approved by this document.
+
+---
+
+## 🚀 Proposed Implementation Plan: Phase 0 Launch Blockers
+
+To resolve the P0 data persistence and schema-cache issues blocking invoice draft saves, the following plan is proposed:
+
+### 1. Invoice Save Schema-Cache Fix (P0)
+- **Target File:** `lib/supabase/invoices.ts`
+- **Action:** Audit the `saveInvoice` function to ensure it uses a single transactional RPC call (if available) or implements strict manual rollback logic if the invoice insertion fails after a client/project creation.
+- **Verification:** Ensure `client_id` and `project_id` constraints are met exactly as PostgREST expects.
+
+### 2. Profile & Global MSA Save Reliability (P0/P1)
+- **Target Files:** `lib/supabase/profiles.ts`, `lib/supabase/msa-resolver.ts`, and relevant UI Profile forms.
+- **Action:** In `upsertProfile` and `syncGlobalMsaFromProfile`, verify that the Supabase response error object is explicitly checked (`if (error) throw error`). Return typed `{ success: false, error: ... }` objects and wire this up to block the "Success" toast, displaying a loud neo-brutal error instead.
+
+### 3. Contract Defaults Hard Validation (P1)
+- **Target File:** `lib/supabase/profiles.ts`
+- **Action:** Add strict validation checks to `upsertProfile` before pushing to Supabase (e.g., ensuring late fee rate is valid, payment terms are positive).

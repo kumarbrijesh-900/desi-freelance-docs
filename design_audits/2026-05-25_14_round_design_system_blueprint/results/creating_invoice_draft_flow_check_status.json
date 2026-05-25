@@ -1,0 +1,1376 @@
+{
+  "run_timestamp": "2026-05-25T04:24:49.694414+00:00",
+  "cdp_endpoint": "http://127.0.0.1:9222",
+  "navigation_strategy": "browser.contexts[0].new_page(); create draft through UI; navigate dashboard/projects/invoices/clients; page.close()",
+  "identity": {
+    "project": "AUDIT DRAFT FLOW 20260525_095449",
+    "client": "Audit Draft Client 20260525_095449",
+    "email": "audit.draft.20260525_095449@example.com"
+  },
+  "draft_flow": {
+    "save_clicked": true,
+    "url_after_save": "https://lanceinvoice.xyz/invoice/new",
+    "save_status_text": "INVOICES + NEW INVOICE New Invoice Create a professional GST-compliant invoice in minutes. Audit Draft Client 20260525_095449 Save Draft Preview invoice INVOICE DETAILS No valid LUT has been provided for this international invoice. Export of services may require 18% IGST. Choose how you want to handle this invoice. Add 18% IGST to the client invoice Keep client invoice at 0% tax \u2014 I will handle IGST separately",
+    "invoice_reference": "INV-2026-4470",
+    "screenshots": {
+      "01_start": "screenshots/draft_flow_01_invoice_new_start.png",
+      "02_client_filled": "screenshots/draft_flow_02_client_filled.png",
+      "03_items_checked": "screenshots/draft_flow_03_items_checked.png",
+      "04_before_save_draft": "screenshots/draft_flow_04_before_save_draft.png",
+      "05_after_save_draft": "screenshots/draft_flow_05_after_save_draft.png"
+    }
+  },
+  "network_responses": [
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/projects?select=*%2Cclient%3Aclients%28id%2Cclient_name%2Ccity%2Cclient_address%29&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/clients?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/invoices?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&project_id=in.%281075aae3-b7c9-46c8-aacf-b140c680a9a4%2Cb8e51299-6efe-42a6-b94b-783cf924f983%29&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/clients?select=id&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&client_email=ilike.audit.draft.20260525_095449%40example.com",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/clients?select=*",
+      "status": 201,
+      "method": "POST"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/invoices?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/clients?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/projects?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/projects?select=*%2Cclient%3Aclients%28id%2Cclient_name%2Ccity%2Cclient_address%29&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/invoices?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&project_id=in.%281075aae3-b7c9-46c8-aacf-b140c680a9a4%2Cb8e51299-6efe-42a6-b94b-783cf924f983%29&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/invoices?select=*%2Cmilestones%3Ainvoice_milestones%28*%2Cline_items%3Ainvoice_line_items%28*%29%29%2Cchildren%3Ainvoices%21parent_invoice_id%28id%2Cinvoice_number%2Cmilestone_index%29&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&parent_invoice_id=is.null&order=created_at.desc",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "url": "https://mjrbytfvesgvbuxyoidp.supabase.co/rest/v1/clients?select=*&user_id=eq.c2b2dc67-ed9c-4957-a42e-807aba43e883&order=updated_at.desc",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "status_scans": {
+    "dashboard": {
+      "url": "https://lanceinvoice.xyz/dashboard",
+      "title": "Lance \u2014 Smart Invoice Generator for Indian Freelancers",
+      "screenshot": "screenshots/draft_flow_status_dashboard.png",
+      "identity_hits": {
+        "project": false,
+        "client": false,
+        "email": false,
+        "draft": true
+      },
+      "draft_contexts": [
+        {
+          "selector": "div.min-h-screen.bg-transparent > main.mx-auto.w-full.max-w-\\[1440px\\] > div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3)",
+          "tag": "div",
+          "text": "BKB GENERAL ENGAGEMENTS BKB \u00b7 BANGALORE LOCKED 0/1 MILESTONES MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551 DRAFT PIPELINE DRAFT PIPELINE INV-2026-6551 has not bee"
+        },
+        {
+          "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1)",
+          "tag": "div",
+          "text": "BKB GENERAL ENGAGEMENTS BKB \u00b7 BANGALORE LOCKED 0/1 MILESTONES MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551 DRAFT PIPELINE DRAFT PIPELINE INV-2026-6551 has not bee"
+        },
+        {
+          "selector": "div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.mx-5.mb-5.border-2:nth-of-type(3)",
+          "tag": "div",
+          "text": "DRAFT PIPELINE DRAFT PIPELINE INV-2026-6551 has not been sent yet. FINALIZE DRAFT REVIEW INVOICE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.mx-5.mb-5.border-2:nth-of-type(3) > p.m-0.text-\\[10px\\].font-black:nth-of-type(1)",
+          "tag": "p",
+          "text": "DRAFT PIPELINE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.mx-5.mb-5.border-2:nth-of-type(3) > h4.m-0.mt-1.text-base",
+          "tag": "h4",
+          "text": "DRAFT PIPELINE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.mx-5.mb-5.border-2:nth-of-type(3) > div.flex.flex-wrap.items-center",
+          "tag": "div",
+          "text": "FINALIZE DRAFT REVIEW INVOICE"
+        },
+        {
+          "selector": "div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.mx-5.mb-5.border-2:nth-of-type(3) > div.flex.flex-wrap.items-center > button.inline-flex.items-center.justify-center:nth-of-type(1)",
+          "tag": "button",
+          "text": "FINALIZE DRAFT"
+        },
+        {
+          "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4)",
+          "tag": "div",
+          "text": "RUHNIKA GENERAL ENGAGEMENTS RUHNIKA \u00b7 BANGALORE DRAFT 0/4 MILESTONES DISCOVERY PHASE 13 JUN \u00b7 \u20b94,36,510 INV-2026-1230 PROTOTYPING 13 JUN \u00b7 \u20b9728 INV-2026-1230 PR"
+        },
+        {
+          "selector": "div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.flex.flex-col.gap-3:nth-of-type(1)",
+          "tag": "div",
+          "text": "RUHNIKA GENERAL ENGAGEMENTS RUHNIKA \u00b7 BANGALORE DRAFT 0/4 MILESTONES"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.flex.flex-col.gap-3:nth-of-type(1) > div.flex.shrink-0.flex-row:nth-of-type(2)",
+          "tag": "div",
+          "text": "DRAFT 0/4 MILESTONES"
+        },
+        {
+          "selector": "div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.flex.flex-col.gap-3:nth-of-type(1) > div.flex.shrink-0.flex-row:nth-of-type(2) > span.inline-flex.items-center.border-2:nth-of-type(1)",
+          "tag": "span",
+          "text": "DRAFT"
+        },
+        {
+          "selector": "div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.mx-5.mb-5.border-2:nth-of-type(3)",
+          "tag": "div",
+          "text": "DRAFT PIPELINE DRAFT PIPELINE INV-2026-1230 has not been sent yet. FINALIZE DRAFT REVIEW INVOICE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.mx-5.mb-5.border-2:nth-of-type(3) > p.m-0.text-\\[10px\\].font-black:nth-of-type(1)",
+          "tag": "p",
+          "text": "DRAFT PIPELINE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.mx-5.mb-5.border-2:nth-of-type(3) > h4.m-0.mt-1.text-base",
+          "tag": "h4",
+          "text": "DRAFT PIPELINE"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.mx-5.mb-5.border-2:nth-of-type(3) > div.flex.flex-wrap.items-center",
+          "tag": "div",
+          "text": "FINALIZE DRAFT REVIEW INVOICE"
+        },
+        {
+          "selector": "div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(4) > div.mx-5.mb-5.border-2:nth-of-type(3) > div.flex.flex-wrap.items-center > button.inline-flex.items-center.justify-center:nth-of-type(1)",
+          "tag": "button",
+          "text": "FINALIZE DRAFT"
+        }
+      ],
+      "visible_text_sample": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Good morning, kumar.brijesh900 Monday, 25 May 2026 + NEW INVOICE WHAT NEEDS ATTENTION One deduplicated action per invoice. 5 ACTIONS REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\" UPDATE ADDENDUM \u2192 AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE 2 MORE \u2192 OUTSTANDING \u20b946,006 4 INVOICES COLLECTED \u20b912,95,204 0 INVOICES AT RISK \u20b90 OVERDUE + REVISION-BLOCKED PROJECT LEDGER BY PROJECT BY CLIENT BY INVOICE MILESTONE KEY: Settled Live Overdue Pending FILTER: ALL PROJECTS SORT: Receivable (High-Low) Collected (High-Low) Name (A-Z) Health Status BKB GENERAL ENGAGEMENTS BKB \u00b7 BANGALORE LOCKED 0/1 MILESTONES MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551 DRAFT PIPELINE DRAFT PIPELINE INV-2026-6551 has not been sent yet. FINALIZE DRAFT REVIEW INVOICE MEGA PROJECT FOR ALEHANDRO ALEHANDRO \u00b7 BANGALORE AWAITING CLIENT 2/5 MILESTONES DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 DELIVERY 21 JUL \u00b7 \u20b912,826 INV-2026-9996 SCHEDULED TO SEND M3 \u00b7 PROTOTYPING Explainer video editing + voice-over sync AMOUNT \u20b9728 WILL SEND 26 May SEND NOW RESCHEDULE CANCEL LAZYPANDA GENERAL ENGAGEMENTS LAZYPANDA \u00b7 BANGALORE AWAITING CLIENT 0/1 MILESTONES MILESTONE 1 02 JUL \u00b7 \u20b910,288 INV-2026-4078 AWAITING CLIENT M1 \u00b7 MILESTONE 1 Office space planning and design, Material selection and specification schedule AMOUNT \u20b910,288 REVIEW INVOICE RESEND INVOICE CKCCC GENERAL ENGAGEMENTS CKCCC \u00b7 BANGALORE REVISION REQUESTED 1/1 MILESTONES MILESTONE 1 10 JUN \u00b7 \u20b94,31,692 INV-2026-9446 PROJECT COMPLETE ALL 1 MILESTONES SETTLED Last settled 21 May 2026 REVIEW INVOICE RUHNIKA GENERAL ENGAGEMENTS RUHNIKA \u00b7 BANGALORE DRAFT 0/4 MILESTONES DISCOVERY PHASE 13 JUN \u00b7 \u20b94,36,510 INV-2026-1230 PROTOTYPING 13 JUN \u00b7 \u20b9728 INV-2026-1230 PRE-PROD 13 JUN \u00b7 \u20b94,292 INV-2026-1230 DELIVERY 13 JUN \u00b7 \u20b912,826 INV-2026-1230 DRAFT PIPELINE DRAFT PIPELINE INV-2026-1230 has not been sent yet. FINALIZE DRAFT REVIEW INVOICE Showing 5 of 6 projects \u00b7 8 invoices",
+      "unique_strings": [
+        "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Good morning, kumar.brijesh900 Monday, 25 May 2026 + NEW INVOICE WHAT NEEDS ATTENTION One deduplicated action per invoice.",
+        "5 ACTIONS REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\" UPDATE ADDENDUM \u2192 AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago).",
+        "RESEND INVOICE AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago).",
+        "RESEND INVOICE 2 MORE \u2192 OUTSTANDING \u20b946,006 4 INVOICES COLLECTED \u20b912,95,204 0 INVOICES AT RISK \u20b90 OVERDUE + REVISION-BLOCKED PROJECT LEDGER BY PROJECT BY CLIENT BY INVOICE MILESTONE KEY: Settled Live Overdue Pending FILTER: ALL PROJECTS SORT: Receivable (High-Low) Collected (High-Low) Name (A-Z) Health Status BKB GENERAL ENGAGEMENTS BKB \u00b7 BANGALORE LOCKED 0/1 MILESTONES MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551 DRAFT PIPELINE DRAFT PIPELINE INV-2026-6551 has not been sent yet.",
+        "FINALIZE DRAFT REVIEW INVOICE MEGA PROJECT FOR ALEHANDRO ALEHANDRO \u00b7 BANGALORE AWAITING CLIENT 2/5 MILESTONES DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 DELIVERY 21 JUL \u00b7 \u20b912,826 INV-2026-9996 SCHEDULED TO SEND M3 \u00b7 PROTOTYPING Explainer video editing + voice-over sync AMOUNT \u20b9728 WILL SEND 26 May SEND NOW RESCHEDULE CANCEL LAZYPANDA GENERAL ENGAGEMENTS LAZYPANDA \u00b7 BANGALORE AWAITING CLIENT 0/1 MILESTONES MILESTONE 1 02 JUL \u00b7 \u20b910,288 INV-2026-4078 AWAITING CLIENT M1 \u00b7 MILESTONE 1 Office space planning and design, Material selection and specification schedule AMOUNT \u20b910,288 REVIEW INVOICE RESEND INVOICE CKCCC GENERAL ENGAGEMENTS CKCCC \u00b7 BANGALORE REVISION REQUESTED 1/1 MILESTONES MILESTONE 1 10 JUN \u00b7 \u20b94,31,692 INV-2026-9446 PROJECT COMPLETE ALL 1 MILESTONES SETTLED Last settled 21 May 2026 REVIEW INVOICE RUHNIKA GENERAL ENGAGEMENTS RUHNIKA \u00b7 BANGALORE DRAFT 0/4 MILESTONES DISCOVERY PHASE 13 JUN \u00b7 \u20b94,36,510 INV-2026-1230 PROTOTYPING 13 JUN \u00b7 \u20b9728 INV-2026-1230 PRE-PROD 13 JUN \u00b7 \u20b94,292 INV-2026-1230 DELIVERY 13 JUN \u00b7 \u20b912,826 INV-2026-1230 DRAFT PIPELINE DRAFT PIPELINE INV-2026-1230 has not been sent yet.",
+        "FINALIZE DRAFT REVIEW INVOICE Showing 5 of 6 projects \u00b7 8 invoices"
+      ],
+      "violations": {
+        "soft_ui_count": 14,
+        "border_contract_count": 56,
+        "missing_gap_container_count": 24,
+        "overflow_count": 1,
+        "soft_ui_examples": [
+          {
+            "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.pointer-events-none.fixed.inset-0:nth-of-type(2) > div.absolute.inset-0",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "linear-gradient(rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(90deg, rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px)",
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > div.min-h-screen.bg-transparent > main.mx-auto.w-full.max-w-\\[1440px\\]",
+            "tag": "main",
+            "text": "Good morning, kumar.brijesh900 Monday, 25 May 2026 + NEW INVOICE WHAT NEEDS ATTENTION One deduplicated action per invoice. 5 ACTIONS REVISION REQUESTED x INV-20",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "repeating-linear-gradient(0deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 31px, rgb(232, 232, 226) 31px, rgb(232, 232, 226) 32px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 31px, rgb(232, 232, 226) 31px, rgb(232, 232, 226) 32px)",
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(3) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(4) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(5) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(6) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(3) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          }
+        ],
+        "border_examples": [
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(1)",
+            "tag": "article",
+            "text": "REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay",
+            "side": "top",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(1)",
+            "tag": "article",
+            "text": "REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay",
+            "side": "right",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(1)",
+            "tag": "article",
+            "text": "REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay",
+            "side": "bottom",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(1)",
+            "tag": "article",
+            "text": "REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay",
+            "side": "left",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(2)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE",
+            "side": "top",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(2)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE",
+            "side": "right",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(2)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE",
+            "side": "bottom",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(2)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE",
+            "side": "left",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(3)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE",
+            "side": "top",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(3)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE",
+            "side": "right",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(3)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE",
+            "side": "bottom",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(3)",
+            "tag": "article",
+            "text": "AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE",
+            "side": "left",
+            "width": 3,
+            "style": "solid",
+            "color": "#111118"
+          }
+        ],
+        "missing_gap_examples": [
+          {
+            "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > div.min-h-screen.bg-transparent > header.sticky.top-0.z-50 > div.mx-auto.w-full.max-w-\\[1440px\\]",
+            "display": "flex",
+            "child_count": 2,
+            "text": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+"
+          },
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "display": "flex",
+            "child_count": 2,
+            "text": "9+"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(1)",
+            "display": "flex",
+            "child_count": 2,
+            "text": "REVISION REQUESTED x INV-2026-1238 CKCCC Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(2)",
+            "display": "flex",
+            "child_count": 2,
+            "text": "AWAITING CLIENT x INV-2026-4078 LAZYPANDA Sent to Kumar.brijesh900@gmail.com (5d ago). RESEND INVOICE"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6.border-b-2.border-\\[\\#111118\\]:nth-of-type(1) > div.grid.grid-cols-1.gap-3:nth-of-type(2) > article.flex.min-h-\\[188px\\].flex-col:nth-of-type(3)",
+            "display": "flex",
+            "child_count": 2,
+            "text": "AWAITING CLIENT x INV-2026-9997 ALEHANDRO Sent to test@example.com (23h ago). RESEND INVOICE"
+          },
+          {
+            "selector": "main.mx-auto.w-full.max-w-\\[1440px\\] > div > section.py-6:nth-of-type(2) > div.border-\\[3px\\].border-\\[\\#111118\\].bg-\\[\\#111118\\] > div.grid.grid-cols-1.divide-y-2",
+            "display": "grid",
+            "child_count": 4,
+            "text": "OUTSTANDING \u20b946,006 4 INVOICES COLLECTED \u20b912,95,204 0 INVOICES AT RISK \u20b90 OVERDUE + REVISION-BLOCKED"
+          },
+          {
+            "selector": "div > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.px-4.py-3.border-b-2:nth-of-type(1) > div.flex.items-center.gap-4:nth-of-type(1) > div.flex.border-2.border-\\[\\#111118\\]",
+            "display": "flex",
+            "child_count": 3,
+            "text": "BY PROJECT BY CLIENT BY INVOICE"
+          },
+          {
+            "selector": "div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > div.block.border-\\[3px\\].border-black:nth-of-type(1) > div.px-5.py-5:nth-of-type(2) > div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max",
+            "display": "flex",
+            "child_count": 2,
+            "text": "MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551"
+          },
+          {
+            "selector": "div.px-5.py-5:nth-of-type(2) > div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "MILESTONE 1 16 JUL \u00b7 \u20b917,872 INV-2026-6551"
+          },
+          {
+            "selector": "div.space-y-6.bg-\\[\\#F5F5F0\\].p-4:nth-of-type(3) > a.block.border-\\[3px\\].border-black > div.px-5.py-5:nth-of-type(2) > div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max",
+            "display": "flex",
+            "child_count": 6,
+            "text": "DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 "
+          },
+          {
+            "selector": "div.px-5.py-5:nth-of-type(2) > div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996"
+          },
+          {
+            "selector": "div.px-5.py-5:nth-of-type(2) > div.relative.w-full.overflow-x-auto > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(3) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996"
+          }
+        ],
+        "overflow_examples": [
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "tag": "button",
+            "scrollWidth": 30,
+            "clientWidth": 28,
+            "text": "9+"
+          }
+        ]
+      }
+    },
+    "projects": {
+      "url": "https://lanceinvoice.xyz/projects",
+      "title": "Lance \u2014 Smart Invoice Generator for Indian Freelancers",
+      "screenshot": "screenshots/draft_flow_status_projects.png",
+      "identity_hits": {
+        "project": false,
+        "client": false,
+        "email": false,
+        "draft": true
+      },
+      "draft_contexts": [
+        {
+          "selector": "section.mx-auto.w-full.max-w-\\[1440px\\] > div > div.mx-auto.max-w-7xl.space-y-6 > div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(2)",
+          "tag": "article",
+          "text": "DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192 BILLED \u20b90 COLLECTED \u20b90 OUTSTANDING \u20b90 DAYS ACTIVE 3d MILESTONE PROGRE"
+        },
+        {
+          "selector": "div > div.mx-auto.max-w-7xl.space-y-6 > div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(2) > div.flex.flex-col.gap-4:nth-of-type(1)",
+          "tag": "div",
+          "text": "DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192 BILLED \u20b90 COLLECTED \u20b90 OUTSTANDING \u20b90 DAYS ACTIVE 3d MILESTONE PROGRE"
+        },
+        {
+          "selector": "div.mx-auto.max-w-7xl.space-y-6 > div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(2) > div.flex.flex-col.gap-4:nth-of-type(1) > div.flex.flex-col.gap-3:nth-of-type(1)",
+          "tag": "div",
+          "text": "DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192"
+        },
+        {
+          "selector": "div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(2) > div.flex.flex-col.gap-4:nth-of-type(1) > div.flex.flex-col.gap-3:nth-of-type(1) > div.min-w-0",
+          "tag": "div",
+          "text": "DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS"
+        },
+        {
+          "selector": "article.flex.flex-col.border-2:nth-of-type(2) > div.flex.flex-col.gap-4:nth-of-type(1) > div.flex.flex-col.gap-3:nth-of-type(1) > div.min-w-0 > div.flex.flex-wrap.items-center",
+          "tag": "div",
+          "text": "DRAFT 0/0 MILESTONES"
+        },
+        {
+          "selector": "div.flex.flex-col.gap-4:nth-of-type(1) > div.flex.flex-col.gap-3:nth-of-type(1) > div.min-w-0 > div.flex.flex-wrap.items-center > span.inline-flex.items-center.border-2:nth-of-type(1)",
+          "tag": "span",
+          "text": "DRAFT"
+        }
+      ],
+      "visible_text_sample": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ PROJECTS 1 ACTIVE Track project-level contracts, invoices, milestone timelines, and receivables from one ledger. + NEW INVOICE Receivable High-Low Recent activity Alphabetical ALL ACTIVE AT RISK AWAITING SIGNATURE COMPLETE AWAITING CLIENT 2/6 MILESTONES MEGA PROJECT FOR ALEHANDRO CLIENT: ALEHANDRO VIEW PROJECT \u2192 BILLED \u20b94,49,666 COLLECTED \u20b94,31,820 OUTSTANDING \u20b917,846 DAYS ACTIVE 2d MILESTONE PROGRESS 33% COMPLETE DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 DELIVERY 21 JUL \u00b7 \u20b912,826 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9997 NEXT ACTION INV-2026-9997 is awaiting client response. OPEN INVOICE DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192 BILLED \u20b90 COLLECTED \u20b90 OUTSTANDING \u20b90 DAYS ACTIVE 3d MILESTONE PROGRESS 0% COMPLETE NO MILESTONES DEFINED NEXT ACTION No invoices linked yet. VIEW PROJECT",
+      "unique_strings": [
+        "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ PROJECTS 1 ACTIVE Track project-level contracts, invoices, milestone timelines, and receivables from one ledger.",
+        "+ NEW INVOICE Receivable High-Low Recent activity Alphabetical ALL ACTIVE AT RISK AWAITING SIGNATURE COMPLETE AWAITING CLIENT 2/6 MILESTONES MEGA PROJECT FOR ALEHANDRO CLIENT: ALEHANDRO VIEW PROJECT \u2192 BILLED \u20b94,49,666 COLLECTED \u20b94,31,820 OUTSTANDING \u20b917,846 DAYS ACTIVE 2d MILESTONE PROGRESS 33% COMPLETE DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 DELIVERY 21 JUL \u00b7 \u20b912,826 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9997 NEXT ACTION INV-2026-9997 is awaiting client response.",
+        "OPEN INVOICE DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192 BILLED \u20b90 COLLECTED \u20b90 OUTSTANDING \u20b90 DAYS ACTIVE 3d MILESTONE PROGRESS 0% COMPLETE NO MILESTONES DEFINED NEXT ACTION No invoices linked yet.",
+        "VIEW PROJECT"
+      ],
+      "violations": {
+        "soft_ui_count": 7,
+        "border_contract_count": 0,
+        "missing_gap_container_count": 11,
+        "overflow_count": 1,
+        "soft_ui_examples": [
+          {
+            "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.pointer-events-none.fixed.inset-0:nth-of-type(2) > div.absolute.inset-0",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "linear-gradient(rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(90deg, rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px)",
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(3) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(4) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(5) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(6) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(7) > a.group.flex.flex-col > div.relative.flex.w-\\[16px\\]:nth-of-type(1)",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": [
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px",
+                "1.67772e+07px"
+              ],
+              "soft_box_shadow": null,
+              "gradient_background": null,
+              "blur_filter": null
+            }
+          }
+        ],
+        "border_examples": [],
+        "missing_gap_examples": [
+          {
+            "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > header.sticky.top-0.z-50 > div.mx-auto.w-full.max-w-\\[1440px\\]",
+            "display": "flex",
+            "child_count": 2,
+            "text": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+"
+          },
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "display": "flex",
+            "child_count": 2,
+            "text": "9+"
+          },
+          {
+            "selector": "section.mx-auto.w-full.max-w-\\[1440px\\] > div > div.mx-auto.max-w-7xl.space-y-6 > div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(1)",
+            "display": "flex",
+            "child_count": 2,
+            "text": "AWAITING CLIENT 2/6 MILESTONES MEGA PROJECT FOR ALEHANDRO CLIENT: ALEHANDRO VIEW PROJECT \u2192 BILLED \u20b94,49,666 COLLECTED \u20b94,31,820 OUTSTANDING \u20b917,846 DAYS ACTIVE "
+          },
+          {
+            "selector": "article.flex.flex-col.border-2:nth-of-type(1) > div.flex.flex-col.gap-4:nth-of-type(1) > div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max",
+            "display": "flex",
+            "child_count": 7,
+            "text": "DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996 EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996 PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996 PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996 "
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(2) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "DISCOVERY 21 JUL \u00b7 \u20b94,31,820 INV-2026-9996"
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(3) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9996"
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(4) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "PROTOTYPING 21 JUL \u00b7 \u20b9728 INV-2026-9996"
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(5) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "PRE-PROD 21 JUL \u00b7 \u20b94,292 INV-2026-9996"
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(6) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "DELIVERY 21 JUL \u00b7 \u20b912,826 INV-2026-9996"
+          },
+          {
+            "selector": "div:nth-of-type(3) > div.relative.w-full.overflow-x-auto:nth-of-type(2) > div.flex.items-center.min-w-max > div.relative.z-10.flex:nth-of-type(7) > a.group.flex.flex-col",
+            "display": "flex",
+            "child_count": 2,
+            "text": "EXPLORATION 21 JUL \u00b7 \u20b90 INV-2026-9997"
+          },
+          {
+            "selector": "section.mx-auto.w-full.max-w-\\[1440px\\] > div > div.mx-auto.max-w-7xl.space-y-6 > div.grid.grid-cols-1.gap-5:nth-of-type(3) > article.flex.flex-col.border-2:nth-of-type(2)",
+            "display": "flex",
+            "child_count": 2,
+            "text": "DRAFT 0/0 MILESTONES TEST PROJECT 1779434613075 CLIENT: GENERAL ENGAGEMENTS VIEW PROJECT \u2192 BILLED \u20b90 COLLECTED \u20b90 OUTSTANDING \u20b90 DAYS ACTIVE 3d MILESTONE PROGRE"
+          }
+        ],
+        "overflow_examples": [
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "tag": "button",
+            "scrollWidth": 30,
+            "clientWidth": 28,
+            "text": "9+"
+          }
+        ]
+      }
+    },
+    "invoices": {
+      "url": "https://lanceinvoice.xyz/invoices",
+      "title": "Lance \u2014 Smart Invoice Generator for Indian Freelancers",
+      "screenshot": "screenshots/draft_flow_status_invoices.png",
+      "identity_hits": {
+        "project": false,
+        "client": false,
+        "email": false,
+        "draft": true
+      },
+      "draft_contexts": [
+        {
+          "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\]",
+          "tag": "section",
+          "text": "Invoices 7 invoices total \u20b917,846 outstanding \u00b7 7 invoices Settled \u20b912,95,204 Overdue \u20b90 Due this week \u20b90 This month \u20b90 TRACKED (7) OFFLINE (0) All Status Draft"
+        },
+        {
+          "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4",
+          "tag": "div",
+          "text": "Invoices 7 invoices total \u20b917,846 outstanding \u00b7 7 invoices Settled \u20b912,95,204 Overdue \u20b90 Due this week \u20b90 This month \u20b90 TRACKED (7) OFFLINE (0) All Status Draft"
+        },
+        {
+          "selector": "div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10",
+          "tag": "div",
+          "text": "Invoices 7 invoices total \u20b917,846 outstanding \u00b7 7 invoices Settled \u20b912,95,204 Overdue \u20b90 Due this week \u20b90 This month \u20b90 TRACKED (7) OFFLINE (0) All Status Draft"
+        },
+        {
+          "selector": "main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3)",
+          "tag": "div",
+          "text": "TRACKED (7) OFFLINE (0) All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Am"
+        },
+        {
+          "selector": "section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2)",
+          "tag": "div",
+          "text": "All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Amount \u2191 7 RESULTS INVOICE"
+        },
+        {
+          "selector": "div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1)",
+          "tag": "div",
+          "text": "All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Amount \u2191 7 RESULTS"
+        },
+        {
+          "selector": "div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap",
+          "tag": "div",
+          "text": "All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Amount \u2191 7 RESULTS"
+        },
+        {
+          "selector": "div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(1)",
+          "tag": "div",
+          "text": "All Status Draft Saved Sent Partial Settled"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(1) > div.group.relative.flex",
+          "tag": "div",
+          "text": "All Status Draft Saved Sent Partial Settled"
+        },
+        {
+          "selector": "div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(1) > div.group.relative.flex > select.app-interactive-field.app-focus-ring.app-soft-field",
+          "tag": "select",
+          "text": "All Status Draft Saved Sent Partial Settled"
+        },
+        {
+          "selector": "div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2)",
+          "tag": "div",
+          "text": "INVOICE CLIENT AMOUNT STATUS ACTIONS INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2"
+        },
+        {
+          "selector": "div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\]",
+          "tag": "table",
+          "text": "INVOICE CLIENT AMOUNT STATUS ACTIONS INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2"
+        },
+        {
+          "selector": "div:nth-of-type(3) > div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody",
+          "tag": "tbody",
+          "text": "INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2026 2 of 5 settled alehandro test@exa"
+        },
+        {
+          "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1)",
+          "tag": "tr",
+          "text": "INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT"
+        },
+        {
+          "selector": "div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(5)",
+          "tag": "td",
+          "text": "DRAFT"
+        },
+        {
+          "selector": "table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(5) > div.flex.items-center",
+          "tag": "div",
+          "text": "DRAFT"
+        },
+        {
+          "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(5) > div.flex.items-center > span.border-2.px-2\\.5.py-1",
+          "tag": "span",
+          "text": "DRAFT"
+        }
+      ],
+      "visible_text_sample": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Invoices 7 invoices total \u20b917,846 outstanding \u00b7 7 invoices Settled \u20b912,95,204 Overdue \u20b90 Due this week \u20b90 This month \u20b90 TRACKED (7) OFFLINE (0) All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Amount \u2191 7 RESULTS INVOICE CLIENT AMOUNT STATUS ACTIONS INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2026 2 of 5 settled alehandro test@example.com \u20b94,49,666 PARTIALLY SETTLED INV-2026-9446 21 May 2026 \u00b7 Due 10 Jun 2026 ckccc test@example.com \u20b94,31,692 LOCKED INV-2026-1238 21 May 2026 \u00b7 Due 18 Jul 2026 Proposal: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\" ckccc test@example.com \u20b94,31,692 REVISION REQUESTED INV-2026-6551 21 May 2026 \u00b7 Due 16 Jul 2026 BKB brijeshbalabantray@gmail.com \u20b917,872 LOCKED INV-2026-3173 20 May 2026 \u00b7 Due 16 Jul 2026 BKB test@example.com \u20b917,872 LOCKED INV-2026-4078 19 May 2026 \u00b7 Due 02 Jul 2026 LazyPanda Kumar.brijesh900@gmail.com \u20b910,288 AWAITING CLIENT",
+      "unique_strings": [
+        "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Invoices 7 invoices total \u20b917,846 outstanding \u00b7 7 invoices Settled \u20b912,95,204 Overdue \u20b90 Due this week \u20b90 This month \u20b90 TRACKED (7) OFFLINE (0) All Status Draft Saved Sent Partial Settled All MSA No MSA MSA Pending MSA Accepted Revision Asked Newest First Oldest First Amount \u2193 Amount \u2191 7 RESULTS INVOICE CLIENT AMOUNT STATUS ACTIONS INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2026 2 of 5 settled alehandro test@example.com \u20b94,49,666 PARTIALLY SETTLED INV-2026-9446 21 May 2026 \u00b7 Due 10 Jun 2026 ckccc test@example.com \u20b94,31,692 LOCKED INV-2026-1238 21 May 2026 \u00b7 Due 18 Jul 2026 Proposal: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\" ckccc test@example.com \u20b94,31,692 REVISION REQUESTED INV-2026-6551 21 May 2026 \u00b7 Due 16 Jul 2026 BKB brijeshbalabantray@gmail.com \u20b917,872 LOCKED INV-2026-3173 20 May 2026 \u00b7 Due 16 Jul 2026 BKB test@example.com \u20b917,872 LOCKED INV-2026-4078 19 May 2026 \u00b7 Due 02 Jul 2026 LazyPanda Kumar.brijesh900@gmail.com \u20b910,288 AWAITING CLIENT"
+      ],
+      "violations": {
+        "soft_ui_count": 2,
+        "border_contract_count": 36,
+        "missing_gap_container_count": 12,
+        "overflow_count": 2,
+        "soft_ui_examples": [
+          {
+            "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.pointer-events-none.fixed.inset-0:nth-of-type(2) > div.absolute.inset-0",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "linear-gradient(rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(90deg, rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px)",
+              "blur_filter": null
+            }
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.whitespace-nowrap:nth-of-type(5) > div.flex.items-center > span.border-2.px-2\\.5.py-1",
+            "tag": "span",
+            "text": "PARTIALLY SETTLED",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "linear-gradient(90deg, rgb(0, 220, 180) 0px, rgb(0, 220, 180) 50%, rgb(255, 179, 95) 50%, rgb(255, 179, 95) 100%)",
+              "blur_filter": null
+            }
+          }
+        ],
+        "border_examples": [
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > thead > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]",
+            "tag": "tr",
+            "text": "INVOICE CLIENT AMOUNT STATUS ACTIONS",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#D0D0DA"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1)",
+            "tag": "tr",
+            "text": "INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled ruhnika \u20b94,54,356 DRAFT",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#D0D0DA"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "top",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "right",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "left",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2)",
+            "tag": "tr",
+            "text": "INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2026 2 of 5 settled alehandro test@example.com \u20b94,49,666 PARTIALLY SETTLED",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#D0D0DA"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "top",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "right",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.whitespace-nowrap:nth-of-type(6) > div.relative.inline-block.text-left > button.flex.h-8.w-8",
+            "tag": "button",
+            "text": "",
+            "side": "left",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.overflow-visible:nth-of-type(2) > table.w-full.min-w-full.sm\\:min-w-\\[900px\\] > tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(3)",
+            "tag": "tr",
+            "text": "INV-2026-9446 21 May 2026 \u00b7 Due 10 Jun 2026 ckccc test@example.com \u20b94,31,692 LOCKED",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#D0D0DA"
+          }
+        ],
+        "missing_gap_examples": [
+          {
+            "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > header.sticky.top-0.z-50 > div.mx-auto.w-full.max-w-\\[1440px\\]",
+            "display": "flex",
+            "child_count": 2,
+            "text": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+"
+          },
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "display": "flex",
+            "child_count": 2,
+            "text": "9+"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(1) > div.group.relative.flex",
+            "display": "flex",
+            "child_count": 2,
+            "text": "All Status Draft Saved Sent Partial Settled"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(2) > div.group.relative.flex",
+            "display": "flex",
+            "child_count": 2,
+            "text": "All MSA No MSA MSA Pending MSA Accepted Revision Asked"
+          },
+          {
+            "selector": "div.border-2.border-\\[\\#111118\\].bg-white:nth-of-type(2) > div.border-b-2.border-\\[\\#111118\\].bg-\\[color\\:var\\(--bg-surface-soft\\)\\]:nth-of-type(1) > div.mb-4.flex.flex-wrap > div.w-full.sm\\:w-\\[160px\\]:nth-of-type(3) > div.group.relative.flex",
+            "display": "flex",
+            "child_count": 2,
+            "text": "Newest First Oldest First Amount \u2193 Amount \u2191"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(1) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 4,
+            "text": "INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun 2026 0 of 4 settled"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(2) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 4,
+            "text": "INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul 2026 2 of 5 settled"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(3) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 3,
+            "text": "INV-2026-9446 21 May 2026 \u00b7 Due 10 Jun 2026"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(4) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 4,
+            "text": "INV-2026-1238 21 May 2026 \u00b7 Due 18 Jul 2026 Proposal: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Pay"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(5) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 3,
+            "text": "INV-2026-6551 21 May 2026 \u00b7 Due 16 Jul 2026"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(6) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 3,
+            "text": "INV-2026-3173 20 May 2026 \u00b7 Due 16 Jul 2026"
+          },
+          {
+            "selector": "tbody > tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(7) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col",
+            "display": "flex",
+            "child_count": 3,
+            "text": "INV-2026-4078 19 May 2026 \u00b7 Due 02 Jul 2026"
+          }
+        ],
+        "overflow_examples": [
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "tag": "button",
+            "scrollWidth": 30,
+            "clientWidth": 28,
+            "text": "9+"
+          },
+          {
+            "selector": "tr.border-b.border-\\[color\\:var\\(--border-subtle\\)\\].hover\\:bg-indigo-light\\/40:nth-of-type(4) > td.px-4.py-4.text-\\[13px\\]:nth-of-type(2) > div.flex.items-center.gap-3 > div.flex.flex-col > div.mt-1\\.5.max-w-\\[280px\\].border-2:nth-of-type(1)",
+            "tag": "div",
+            "scrollWidth": 682,
+            "clientWidth": 276,
+            "text": "Proposal: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\""
+          }
+        ]
+      }
+    },
+    "clients": {
+      "url": "https://lanceinvoice.xyz/clients",
+      "title": "Lance \u2014 Smart Invoice Generator for Indian Freelancers",
+      "screenshot": "screenshots/draft_flow_status_clients.png",
+      "identity_hits": {
+        "project": false,
+        "client": true,
+        "email": true,
+        "draft": true
+      },
+      "draft_contexts": [
+        {
+          "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\]",
+          "tag": "section",
+          "text": "Clients 5 clients saved ADD CLIENT CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com"
+        },
+        {
+          "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4",
+          "tag": "div",
+          "text": "Clients 5 clients saved ADD CLIENT CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com"
+        },
+        {
+          "selector": "div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10",
+          "tag": "div",
+          "text": "Clients 5 clients saved ADD CLIENT CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com"
+        },
+        {
+          "selector": "main.min-h-screen.bg-transparent > section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(2)",
+          "tag": "div",
+          "text": "CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@"
+        },
+        {
+          "selector": "section.mx-auto.w-full.max-w-\\[1440px\\] > div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(2) > div.overflow-visible.border-2.border-\\[\\#111118\\]",
+          "tag": "div",
+          "text": "CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@"
+        },
+        {
+          "selector": "div.grid.grid-cols-4.gap-4 > div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(2) > div.overflow-visible.border-2.border-\\[\\#111118\\] > div.overflow-x-auto:nth-of-type(2)",
+          "tag": "div",
+          "text": "CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@"
+        },
+        {
+          "selector": "div.col-span-4.sm\\:col-span-8.lg\\:col-span-10 > div:nth-of-type(2) > div.overflow-visible.border-2.border-\\[\\#111118\\] > div.overflow-x-auto:nth-of-type(2) > table.w-full.text-left",
+          "tag": "table",
+          "text": "CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@"
+        },
+        {
+          "selector": "div:nth-of-type(2) > div.overflow-visible.border-2.border-\\[\\#111118\\] > div.overflow-x-auto:nth-of-type(2) > table.w-full.text-left > tbody",
+          "tag": "tbody",
+          "text": "Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@gmail.com BANGALORE 665775774848478 INDIA 1 alehand"
+        },
+        {
+          "selector": "div.overflow-visible.border-2.border-\\[\\#111118\\] > div.overflow-x-auto:nth-of-type(2) > table.w-full.text-left > tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1)",
+          "tag": "tr",
+          "text": "Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1"
+        },
+        {
+          "selector": "div.overflow-x-auto:nth-of-type(2) > table.w-full.text-left > tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3:nth-of-type(1)",
+          "tag": "td",
+          "text": "Audit Draft Client 20260525_095449"
+        },
+        {
+          "selector": "table.w-full.text-left > tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3:nth-of-type(1) > a.text-\\[13px\\].font-semibold.text-\\[color\\:var\\(--text-primary\\)\\]",
+          "tag": "a",
+          "text": "Audit Draft Client 20260525_095449"
+        },
+        {
+          "selector": "div.overflow-x-auto:nth-of-type(2) > table.w-full.text-left > tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.hidden.px-4.py-3:nth-of-type(2)",
+          "tag": "td",
+          "text": "audit.draft.20260525_095449@example.com"
+        }
+      ],
+      "visible_text_sample": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Clients 5 clients saved ADD CLIENT CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@gmail.com BANGALORE 665775774848478 INDIA 1 alehandro populasen@gmail.com BANGALORE 665775774848478 INDIA 1 Acme Studios hello@acme.com Bengaluru 24AAAGM0289C1ZP INDIA 0 LazyPanda Lazypanda.08@gmail.com Mumbai 665775774848475 INDIA 0",
+      "unique_strings": [
+        "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+ Clients 5 clients saved ADD CLIENT CLIENT NAME EMAIL CITY GSTIN TYPE INVOICES ACTIONS Audit Draft Client 20260525_095449 audit.draft.20260525_095449@example.com Bangalore \u2014 INDIA 1 ruhnika rryry@gmail.com BANGALORE 665775774848478 INDIA 1 alehandro populasen@gmail.com BANGALORE 665775774848478 INDIA 1 Acme Studios hello@acme.com Bengaluru 24AAAGM0289C1ZP INDIA 0 LazyPanda Lazypanda.08@gmail.com Mumbai 665775774848475 INDIA 0"
+      ],
+      "violations": {
+        "soft_ui_count": 1,
+        "border_contract_count": 40,
+        "missing_gap_container_count": 2,
+        "overflow_count": 1,
+        "soft_ui_examples": [
+          {
+            "selector": "html.syne_e53e1cbf-module__B_Q-eq__variable.outfit_e6aa4aba-module__jlwK0G__variable.inter_55e7864c-module__Z2_8rW__variable > body.min-h-full.flex.flex-col > div.pointer-events-none.fixed.inset-0:nth-of-type(2) > div.absolute.inset-0",
+            "tag": "div",
+            "text": "",
+            "reasons": {
+              "border_radius": null,
+              "soft_box_shadow": null,
+              "gradient_background": "linear-gradient(rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(90deg, rgb(17, 17, 24) 1px, rgba(0, 0, 0, 0) 1px)",
+              "blur_filter": null
+            }
+          }
+        ],
+        "border_examples": [
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "top",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "right",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "left",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(2)",
+            "tag": "button",
+            "text": "",
+            "side": "top",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(2)",
+            "tag": "button",
+            "text": "",
+            "side": "right",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(2)",
+            "tag": "button",
+            "text": "",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(1) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(2)",
+            "tag": "button",
+            "text": "",
+            "side": "left",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(2) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "top",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(2) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "right",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(2) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "bottom",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          },
+          {
+            "selector": "tbody > tr.group.transition-colors.hover\\:bg-\\[color\\:var\\(--bg-surface-muted\\)\\]:nth-of-type(2) > td.px-4.py-3.text-right:nth-of-type(7) > div.flex.items-center.justify-end > button.inline-flex.h-7.w-7:nth-of-type(1)",
+            "tag": "button",
+            "text": "",
+            "side": "left",
+            "width": 1,
+            "style": "solid",
+            "color": "#111118"
+          }
+        ],
+        "missing_gap_examples": [
+          {
+            "selector": "body.min-h-full.flex.flex-col > div.relative.z-10.flex:nth-of-type(3) > main.min-h-screen.bg-transparent > header.sticky.top-0.z-50 > div.mx-auto.w-full.max-w-\\[1440px\\]",
+            "display": "flex",
+            "child_count": 2,
+            "text": "L LANCE DASHBOARD PROJECTS INVOICES CLIENTS FAQ + NEW INVOICE 9+"
+          },
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "display": "flex",
+            "child_count": 2,
+            "text": "9+"
+          }
+        ],
+        "overflow_examples": [
+          {
+            "selector": "div.mx-auto.w-full.max-w-\\[1440px\\] > div.flex.items-center.gap-3:nth-of-type(2) > div.flex.items-center.gap-3 > div.relative:nth-of-type(1) > button.relative.flex.h-8",
+            "tag": "button",
+            "scrollWidth": 30,
+            "clientWidth": 28,
+            "text": "9+"
+          }
+        ]
+      }
+    }
+  }
+}
