@@ -59,6 +59,9 @@ export interface MilestoneRow {
   status: string | null;
   amount: number | null;
   order_index: number | null;
+  trigger_mode?: "scheduled" | "immediate" | "manual";
+  trigger_status?: "pending" | "fired" | "failed";
+  trigger_date?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }
