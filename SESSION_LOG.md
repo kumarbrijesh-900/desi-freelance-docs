@@ -1968,6 +1968,8 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 ### Open / watch items
 - These implementation files are local working-tree changes at this checkpoint; this commit only records the session log unless the implementation files are committed separately.
+- External review note: a later agent correctly identified the Phase 1B refactor trap where the rich C2 drawer was temporarily orphaned, but that observation is stale after this checkpoint because the richer drawer has now been restored in `app/dashboard/page.tsx`.
+- Type-model watch: Phase 1B exposed frontend/backend drift around milestone date fields. `invoice_milestones` rows expose `trigger_date`, `order_index`, and `status`, but UI code briefly assumed fields like `due_date` directly on `MilestoneRow`. Future lifecycle/dashboard work should either extend `MilestoneRow` deliberately or derive due/timing from invoice/form_data with explicit fallback rules.
 - Orphan backfill migration has been created but not applied by Codex. Preflight SQL should confirm the orphan master count before apply and `0` remaining after apply.
 - Untracked Vim swap file exists at `supabase/migrations/.20260526000500_backfill_orphan_invoice_projects.sql.swp`; it was not staged.
 - Passive scheduled milestone cron validation from the earlier v2.9 workstream should still be checked against production DB state after the relevant scheduled date.
