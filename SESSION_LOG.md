@@ -1877,3 +1877,42 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - Render stunning Project progress cards with milestone completion bars.
 
 ---
+
+## Latest checkpoint: Phase 1B Patch — Lifecycle Dashboard + Invoice Ledger Guardrails — May 25, 2026
+
+### Sequence
+1. Verification review found 14 issues in the Phase 1B dashboard/invoice-lifecycle rewrite, including placeholder `alert()` handlers, dollar currency, hardcoded timing pills, draft precedence errors, missing invoice filters, and layout drift.
+2. Patch shipped as commit `b9b669b` to replace placeholder behavior with real dashboard actions and align the new lifecycle surfaces with the pre-launch design audit rules.
+3. Staged scope was deliberately limited to Phase 1B files: dashboard/invoices pages, new dashboard/invoice/lifecycle components, and the `MilestoneRow` type extension needed by scheduled milestone UI.
+
+### Implementation
+- Dashboard Phase 1B shell now uses real handlers for SEND NOW, MARK SETTLED, RESEND, FINALIZE, REVISION REVIEW, and PREVIEW instead of `alert()`.
+- Added a functional settlement-choice bridge in `app/dashboard/page.tsx` that posts to `/api/invoice/trigger-next-milestone` using the existing trigger-mode contract.
+- Active drilldown now uses cream `#FAF7F2`, prefers milestone `trigger_date` over invoice `due_date`, supports a no-master sentinel, and formats currency as Indian rupees.
+- Lifecycle logic now checks draft first, treats only `LIVE` milestones as settle-ready, always emits `msa_accepted`, and formats early/late timing from actual `days_diff`.
+- `/invoices` now has `Invoices · {count}`, search, filter chips, semantic status pills, rupee formatting, and dashboard-focused invoice links.
+- Project rail width corrected to 240px, attention-dot logic moved to milestone-level checks, and dead milestone `parent_invoice_id` filters were corrected to master-invoice ownership checks.
+
+### Files changed
+- `app/dashboard/page.tsx`
+- `app/invoices/page.tsx`
+- `components/dashboard/ActiveDrilldown.tsx`
+- `components/dashboard/LifecycleStepper.tsx`
+- `components/dashboard/ProjectInvoicesLedger.tsx`
+- `components/dashboard/ProjectRail.tsx`
+- `components/invoices/InvoiceEventRow.tsx`
+- `lib/lifecycle/computeActiveDrilldown.ts`
+- `lib/lifecycle/computeProjectLifecycle.ts`
+- `lib/lifecycle/timing.ts`
+- `lib/supabase/projects.ts`
+
+### Verification
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+- Existing Upstash Redis warning remains unrelated.
+- Scoped grep confirmed no placeholder `alert()`, no `window.location`, no hardcoded dollar symbols, and no old 280px rail width in the Phase 1B files.
+
+### Open / watch items
+- The original rich C2 settlement drawer was already removed by the Phase 1B rewrite; this patch restored a functional settlement-choice bridge, not the older full drawer chrome.
+- `/api/invoice/trigger-next-milestone` still requires scheduled dates to be strictly future; the dashboard defaults to today + 7 days, but selecting today would still be rejected by the API.
+- Other local uncommitted changes were intentionally left unstaged because they are outside this Phase 1B patch: `/projects` redirects, AppHeader nav removal, project detail redirect, and design audit folders.
