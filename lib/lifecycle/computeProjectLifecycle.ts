@@ -93,7 +93,9 @@ export function computeProjectLifecycle(project: ProjectWithInvoices): Lifecycle
       title = `M${idx + 1} ${title}`;
     }
 
-    if ((m.status || '').toLowerCase() === 'cancelled') {
+    const milestoneStatus = (m.status || '').toLowerCase();
+
+    if (milestoneStatus === 'cancelled') {
       addStep('milestone_cancelled', `${title} cancelled`, true, m.updated_at);
       return;
     }
@@ -101,9 +103,10 @@ export function computeProjectLifecycle(project: ProjectWithInvoices): Lifecycle
     hasValidMilestones = true;
 
     // Fired step
-    // completed if milestone has child_invoice OR trigger_status='fired'
+    // completed if milestone has child_invoice, trigger_status='fired', or the milestone is already settled.
     const hasChildInvoice = project.invoices.some(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1);
-    const isFired = hasChildInvoice || m.trigger_status === 'fired';
+    const isSettled = milestoneStatus === 'settled';
+    const isFired = hasChildInvoice || m.trigger_status === 'fired' || isSettled;
 
     if (isFired) {
       addStep('milestone_fired', `${title} fired`, true, m.trigger_date || m.updated_at);
@@ -117,7 +120,6 @@ export function computeProjectLifecycle(project: ProjectWithInvoices): Lifecycle
     }
 
     // Settled step
-    const isSettled = (m.status || '').toLowerCase() === 'settled';
     if (!isSettled) {
       allNonCancelledSettled = false;
     }

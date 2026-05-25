@@ -16,6 +16,18 @@ function addDays(dateString: string, days: number) {
   return `${year}-${month}-${day}`;
 }
 
+function lateFeeUnitLabel(unit?: ClientDetails["msaLateFeeUnit"]) {
+  switch (unit) {
+    case "daily":
+      return "per day";
+    case "annually":
+      return "per annum";
+    case "monthly":
+    default:
+      return "per month";
+  }
+}
+
 /**
  * Derives a suggested due date based on payment terms and an invoice date.
  * Matches "Net X" or "Due on Receipt".
@@ -68,7 +80,7 @@ export function syncMsaToInvoice(
 
     // Add Late Fee Rate if specified in the blueprint
     if (client.msaLateFeeRate && client.msaLateFeeRate > 0) {
-      const lateFeeText = `\n\nNote: A late fee of ${client.msaLateFeeRate}% per month applies to overdue balances.`;
+      const lateFeeText = `\n\nNote: A late fee of ${client.msaLateFeeRate}% ${lateFeeUnitLabel(client.msaLateFeeUnit)} applies to overdue balances.`;
       if (!finalNotes.includes(lateFeeText.trim())) {
         finalNotes += lateFeeText;
       }

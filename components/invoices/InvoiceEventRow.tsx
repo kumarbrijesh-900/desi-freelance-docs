@@ -53,8 +53,15 @@ export function InvoiceEventRow({
     total = Number(invoice.form_data?.totals?.total || 0);
   }
 
+  const rowHref = projectId || invoice.project_id
+    ? `/dashboard?project=${projectId || invoice.project_id}&invoice=${invoice.id}`
+    : `/invoice/preview?id=${invoice.id}`;
+
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between border-2 border-black bg-white shadow-[4px_4px_0_#000] p-4 mb-4 gap-4 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#000]">
+    <Link
+      href={rowHref}
+      className="flex flex-col sm:flex-row items-center justify-between border-2 border-black bg-white shadow-[4px_4px_0_#000] p-4 mb-4 gap-4 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#000]"
+    >
 
       {/* Col 1: Invoice Number & Type */}
       <div className="flex flex-col sm:w-[150px] shrink-0">
@@ -91,14 +98,11 @@ export function InvoiceEventRow({
 
       {/* Col 5: Action */}
       <div className="flex sm:w-[100px] shrink-0 justify-end">
-        <Link
-          href={projectId || invoice.project_id ? `/dashboard?project=${projectId || invoice.project_id}&invoice=${invoice.id}` : `/invoice/preview?id=${invoice.id}`}
-          className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-widest text-black shadow-[2px_2px_0_#000] transition-colors hover:bg-black hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none whitespace-nowrap"
-        >
+        <span className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-widest text-black shadow-[2px_2px_0_#000] transition-colors hover:bg-black hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none whitespace-nowrap">
           VIEW →
-        </Link>
+        </span>
       </div>
 
-    </div>
+    </Link>
   );
 }

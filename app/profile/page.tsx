@@ -35,7 +35,7 @@ import {
 import { ChevronLeftIcon, SaveIcon } from "@/components/ui/app-icons";
 import {
   loadProfile,
-  upsertProfile,
+  saveProfileWithGlobalMsa,
   type UserProfile,
 } from "@/lib/supabase/profiles";
 import {
@@ -105,9 +105,10 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "success">(
-    "idle",
-  );
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "success" | "partial" | "error"
+  >("idle");
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<ProfileTab>('agency');
   const [isDirty, setIsDirty] = useState(false);
@@ -548,6 +549,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaveState("saving");
+    setSaveFeedback(null);
     playInteractionCue("stepComplete");
 
     try {
@@ -591,48 +593,48 @@ export default function ProfilePage() {
         qrCodeUrl,
       };
 
-      const { error } = await upsertProfile(agency, payment);
+      const result = await saveProfileWithGlobalMsa({
+        agency,
+        payment,
+        globalMsaId,
+        globalMsaTitle,
+        globalMsaContent,
+      });
 
-      if (error) {
-        console.error("Save failed:", error);
-        setSaveState("idle");
+      if (result.status === "failed") {
+        console.error("Profile save failed:", result.error);
+        setSaveState("error");
+        setSaveFeedback(
+          result.atomic
+            ? `Nothing was saved. ${result.error || "Please try again."}`
+            : `Profile save failed. ${result.error || "Please try again."}`,
+        );
         return;
       }
 
-      // Save Global MSA
-      if (userId) {
-        if (globalMsaId) {
-          await supabase
-            .from('client_msas')
-            .update({
-              title: globalMsaTitle,
-              content: globalMsaContent,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', globalMsaId);
-        } else {
-          const { data } = await supabase
-            .from('client_msas')
-            .insert({
-              user_id: userId,
-              client_id: null,
-              title: globalMsaTitle,
-              content: globalMsaContent,
-              status: 'active',
-            })
-            .select('id')
-            .single();
-          if (data) setGlobalMsaId(data.id);
-        }
+      if (result.status === "partial_profile_saved") {
+        console.error("Profile partial save:", result.error);
+        setSaveState("partial");
+        setSaveFeedback(
+          `Profile details saved, but Global MSA did not save. ${result.error || "Please retry from the Contract & MSA tab."}`,
+        );
+        setIsDirty(true);
+        return;
       }
 
+      if (result.data?.globalMsaId) setGlobalMsaId(result.data.globalMsaId);
       setSaveState("success");
       setIsDirty(false);
+      setSaveFeedback("Profile and Global MSA saved.");
       playInteractionCue("saveSuccess");
-      setTimeout(() => setSaveState("idle"), 2500);
+      setTimeout(() => {
+        setSaveState("idle");
+        setSaveFeedback(null);
+      }, 2500);
     } catch (err) {
       console.error("Unexpected save error:", err);
-      setSaveState("idle");
+      setSaveState("error");
+      setSaveFeedback("Unexpected save error. Please try again.");
     }
   };
 
@@ -1328,7 +1330,21 @@ export default function ProfilePage() {
 
       {/* Sticky Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--border-subtle)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
-        <div className="mx-auto flex max-w-3xl items-center justify-end gap-3">
+        <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          {saveFeedback && (
+            <div
+              className={cn(
+                "w-full border-2 border-[#111118] px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#000] sm:flex-1",
+                saveState === "partial"
+                  ? "bg-[#FFFBE6] text-[#111118]"
+                  : saveState === "error"
+                    ? "bg-[#FFF0EC] text-[#111118]"
+                    : "bg-[#E0FFF7] text-[#111118]",
+              )}
+            >
+              {saveFeedback}
+            </div>
+          )}
           {isDirty && (
             <button
               onClick={handleDiscard}
@@ -1347,6 +1363,10 @@ export default function ProfilePage() {
               "Saving…"
             ) : saveState === "success" ? (
               <SuccessPulse>✓ Saved!</SuccessPulse>
+            ) : saveState === "partial" ? (
+              "Partial Save"
+            ) : saveState === "error" ? (
+              "Retry Save"
             ) : (
               "Save Profile"
             )}

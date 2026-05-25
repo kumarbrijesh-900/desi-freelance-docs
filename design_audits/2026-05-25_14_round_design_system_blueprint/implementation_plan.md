@@ -40,3 +40,7 @@ Invalid contract defaults (e.g., negative late fees, missing payment terms) can 
 ### Manual Verification
 - We will attempt to create a draft invoice with a brand new client. If it fails, we verify that the client is not orphaned and the error is clearly surfaced. If it succeeds, we verify it appears in the Dashboard and Invoices list.
 - We will attempt to save a Global MSA with an invalid payload (e.g., disconnecting the network or forcing an error) and verify that the UI strictly displays a failure state rather than a silent success.
+
+
+## Session Log Addendum
+**Type model watch:** Phase 1B surfaced frontend/backend drift around milestone date fields. Milestone rows expose `trigger_date`, `order_index`, and `status`, but not every UI-assumed field like `due_date`. Future dashboard lifecycle work should either extend `MilestoneRow` deliberately or derive due/timing from invoice/form_data with explicit fallback rules.

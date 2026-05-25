@@ -1,0 +1,1517 @@
+[
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE 9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "REVISION REQUESTED x INV-2026-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-407",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-999",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "min-w-0",
+    "text": "BKB GENERAL ENGAGEMENTS  BKB \u00b7",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "H3",
+    "className": "m-0 text-xl font-black uppercase tracking-tight text-[#111118]",
+    "text": "BKB GENERAL ENGAGEMENTS",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "min-w-0",
+    "text": "LAZYPANDA GENERAL ENGAGEMENTS ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "H3",
+    "className": "m-0 text-xl font-black uppercase tracking-tight text-[#111118]",
+    "text": "LAZYPANDA GENERAL ENGAGEMENTS",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "min-w-0",
+    "text": "CKCCC GENERAL ENGAGEMENTS  CKC",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "H3",
+    "className": "m-0 text-xl font-black uppercase tracking-tight text-[#111118]",
+    "text": "CKCCC GENERAL ENGAGEMENTS",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "min-w-0",
+    "text": "RUHNIKA GENERAL ENGAGEMENTS  R",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "H3",
+    "className": "m-0 text-xl font-black uppercase tracking-tight text-[#111118]",
+    "text": "RUHNIKA GENERAL ENGAGEMENTS",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 265 > clientWidth 261)"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  13 JUN \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  13 JUN \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  13 JUN \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "relative z-10 flex min-h-screen flex-col",
+    "text": "L LANCE 9+ PROJECTS 1 ACTIVE  ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 462 > clientWidth 375)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "MAIN",
+    "className": "min-h-screen bg-transparent",
+    "text": "L LANCE 9+ PROJECTS 1 ACTIVE  ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 462 > clientWidth 375)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE 9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "SECTION",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 py-8 sm:py-12",
+    "text": "PROJECTS 1 ACTIVE  Track proje",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 462 > clientWidth 375)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "",
+    "text": "PROJECTS 1 ACTIVE  Track proje",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 446 > clientWidth 343)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "mx-auto max-w-7xl space-y-6",
+    "text": "PROJECTS 1 ACTIVE  Track proje",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 446 > clientWidth 343)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "flex flex-col gap-4 border-b-2 border-[#111118] pb-6 lg:flex-row lg:items-end lg:justify-between",
+    "text": "PROJECTS 1 ACTIVE  Track proje",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 446 > clientWidth 343)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "",
+    "text": "PROJECTS 1 ACTIVE  Track proje",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 446 > clientWidth 343)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "flex flex-wrap items-center gap-3",
+    "text": "PROJECTS 1 ACTIVE",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 446 > clientWidth 343)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-[#F8F8F4] p-3",
+    "text": "BILLED  \u20b94,49,666",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 154 > clientWidth 146)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "P",
+    "className": "m-0 text-[18px] font-black text-[#111118] font-syne",
+    "text": "\u20b94,49,666",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 142 > clientWidth 122)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "P",
+    "className": "m-0 text-[18px] font-black text-[#007A63] font-syne",
+    "text": "\u20b94,31,820",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 126 > clientWidth 122)"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE 9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "INVOICE REFERENCE INV-2026-598",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "INVOICE REFERENCE INV-2026-598",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "ISSUED 2026-05-25",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "DUE 2026-06-14",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between",
+    "text": "INVOICE DETAILS  Edit",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "SECTION",
+    "className": "rounded-none border-0 bg-transparent p-0 shadow-none",
+    "text": "No valid LUT has been provided",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 323 > clientWidth 307)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "w-full",
+    "text": "Subtotal \u20b94,54,356 Tax (0%) \u20b90",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 323 > clientWidth 307)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "space-y-6",
+    "text": "Subtotal \u20b94,54,356 Tax (0%) \u20b90",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 323 > clientWidth 307)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between text-[14px]",
+    "text": "Subtotal \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex items-start justify-between text-[14px]",
+    "text": "Tax (0%) \u20b90  RCM ACTIVE \u2014 GST ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "Grand Total \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "mt-4 border-t border-[color:var(--border-subtle)] pt-4",
+    "text": "Advanced Options Hide Reverse ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 323 > clientWidth 307)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "space-y-4",
+    "text": "Advanced Options Hide Reverse ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 323 > clientWidth 307)"
+    ]
+  },
+  {
+    "context": "Mobile_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "Advanced Options Hide",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "relative z-10 flex min-h-screen flex-col",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "min-h-screen bg-transparent",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "HEADER",
+    "className": "sticky top-0 z-50 border-b-2 border-[#BEFF00] bg-[#111118] print:hidden",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "REVISION REQUESTED x INV-2026-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-407",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-999",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  13 JUN \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  13 JUN \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  13 JUN \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "DIV",
+    "className": "relative z-10 flex min-h-screen flex-col",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "MAIN",
+    "className": "min-h-screen bg-transparent",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "HEADER",
+    "className": "sticky top-0 z-50 border-b-2 border-[#BEFF00] bg-[#111118] print:hidden",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 802 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "relative z-10 flex min-h-screen flex-col",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 810 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "MAIN",
+    "className": "relative min-h-screen w-full bg-transparent font-sans antialiased",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 810 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "HEADER",
+    "className": "sticky top-0 z-50 border-b-2 border-[#BEFF00] bg-[#111118] print:hidden",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 810 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 810 > clientWidth 768)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "INVOICE REFERENCE INV-2026-604",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "INVOICE REFERENCE INV-2026-604",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "ISSUED 2026-05-25",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex flex-col",
+    "text": "DUE 2026-06-14",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between",
+    "text": "INVOICE DETAILS  Edit",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "SECTION",
+    "className": "rounded-none border-0 bg-transparent p-0 shadow-none",
+    "text": "No valid LUT has been provided",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 700 > clientWidth 684)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "w-full",
+    "text": "Subtotal \u20b94,54,356 Tax (0%) \u20b90",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 700 > clientWidth 684)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "space-y-6",
+    "text": "Subtotal \u20b94,54,356 Tax (0%) \u20b90",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 700 > clientWidth 684)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between text-[14px]",
+    "text": "Subtotal \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex items-start justify-between text-[14px]",
+    "text": "Tax (0%) \u20b90  RCM ACTIVE \u2014 GST ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "Grand Total \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "mt-4 border-t border-[color:var(--border-subtle)] pt-4",
+    "text": "Advanced Options Hide Reverse ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 700 > clientWidth 684)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "space-y-4",
+    "text": "Advanced Options Hide Reverse ",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 700 > clientWidth 684)"
+    ]
+  },
+  {
+    "context": "Tablet_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "Advanced Options Hide",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "REVISION REQUESTED x INV-2026-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-407",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "text": "AWAITING CLIENT x INV-2026-999",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  16 JUL \u00b7 \u20b917,872 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  02 JUL \u00b7 \u20b910,288 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "MILESTONE 1  10 JUN \u00b7 \u20b94,31,69",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY PHASE  13 JUN \u00b7 \u20b94,3",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  13 JUN \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  13 JUN \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_dashboard",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  13 JUN \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "DIV",
+    "className": "flex items-center min-w-max relative h-28",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DISCOVERY  21 JUL \u00b7 \u20b94,31,820 ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PROTOTYPING  21 JUL \u00b7 \u20b9728  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "PRE-PROD  21 JUL \u00b7 \u20b94,292  INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "DELIVERY  21 JUL \u00b7 \u20b912,826  IN",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_projects",
+    "tag": "A",
+    "className": "group flex flex-col items-center cursor-pointer",
+    "text": "EXPLORATION  21 JUL \u00b7 \u20b90  INV-",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 flex items-center justify-between py-3",
+    "text": "L LANCE DASHBOARD PROJECTS INV",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "BUTTON",
+    "className": "relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--bg-surface-soft)] active:scale-95",
+    "text": "9+",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin",
+      "Grid Break: Element Overflows Container (scrollWidth 30 > clientWidth 28)"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "INPUT",
+    "className": "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[#111118] text-[14px] font-normal leading-6 text-[color:var(--text-primary)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)] h-11 px-3 disabled:cursor-not-allowed disabled:border-[color:var(--border-subtle)] disabled:bg-[color:var(--bg-surface-muted)] disabled:text-[color:var(--text-soft)] disabled:shadow-none [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65 h-10 bg-white text-[13px] font-semibold",
+    "text": "",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 878 > clientWidth 877)"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex min-w-0 items-start gap-2",
+    "text": "\u2713  Items  COMPLETE \u2713",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 97 > clientWidth 90)"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "min-w-0 space-y-1",
+    "text": "Items  COMPLETE \u2713",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 68 > clientWidth 61)"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "P",
+    "className": "text-[10px] font-medium text-[color:var(--text-muted)] uppercase tracking-[0.14em]",
+    "text": "COMPLETE \u2713",
+    "reasons": [
+      "Grid Break: Element Overflows Container (scrollWidth 68 > clientWidth 61)"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "border-b border-[color:var(--border-subtle)] pb-2 mb-3 flex items-center justify-between",
+    "text": "INVOICE DETAILS  Edit",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "INV # ? INV-2026-7532",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "DATE ? 2026-05-25",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "DUE ? 2026-06-14",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "PO # ? --",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between text-[14px]",
+    "text": "Subtotal \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-start justify-between text-[14px]",
+    "text": "Tax (0%) \u20b90  RCM ACTIVE \u2014 GST ",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  },
+  {
+    "context": "Desktop_new",
+    "tag": "DIV",
+    "className": "flex items-center justify-between",
+    "text": "Grand Total \u20b94,54,356",
+    "reasons": [
+      "Gestalt Violation: Cramped Flex/Grid without Gap or Margin"
+    ]
+  }
+]

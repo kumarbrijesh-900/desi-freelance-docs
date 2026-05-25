@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { createClient as createServerClient } from "@/lib/supabase/server";
+import { parseScheduledMilestoneTriggerDate } from "@/lib/milestone-trigger-date";
 import { fireMilestoneInvoice } from "@/lib/supabase/milestones";
 
 export const dynamic = "force-dynamic";
@@ -11,17 +12,6 @@ const ScheduledMilestoneActionSchema = z.object({
   action: z.enum(["send_now", "reschedule", "cancel"]),
   new_trigger_date: z.string().optional(),
 });
-
-function parseFutureDate(value?: string): Date | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  // Allow today and future. Reject only dates before start-of-today UTC.
-  const startOfTodayUtc = new Date();
-  startOfTodayUtc.setUTCHours(0, 0, 0, 0);
-  if (date.getTime() < startOfTodayUtc.getTime()) return null;
-  return date;
-}
 
 export async function POST(req: NextRequest) {
   const supabaseAuth = await createServerClient();
@@ -128,10 +118,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === "reschedule") {
-    const nextDate = parseFutureDate(new_trigger_date);
+    const nextDate = parseScheduledMilestoneTriggerDate(new_trigger_date);
     if (!nextDate) {
       return NextResponse.json(
-        { error: "new_trigger_date must be a valid future ISO date" },
+        { error: "new_trigger_date must be a valid today-or-future date" },
         { status: 400 },
       );
     }

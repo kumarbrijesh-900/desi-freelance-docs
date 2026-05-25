@@ -21,7 +21,7 @@ Work-in-progress files, source files, and intermediate assets remain the propert
 
 3. PAYMENT TERMS
 - Payment is due as specified in each invoice.
-- Late payments will incur a fee of 1.5% per month (18% per annum) on the outstanding balance.
+- Late payments will incur the late fee rate and frequency specified in the associated invoice or payment terms on the outstanding balance.
 - The Agency reserves the right to suspend work if payment is overdue by more than 15 days.
 
 4. REVISIONS & SCOPE CHANGES

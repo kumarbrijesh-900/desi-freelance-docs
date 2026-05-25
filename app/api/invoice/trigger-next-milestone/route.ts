@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
+import { parseScheduledMilestoneTriggerDate } from "@/lib/milestone-trigger-date";
 import { fireMilestoneInvoice } from "@/lib/supabase/milestones";
 
 export const dynamic = "force-dynamic";
@@ -64,11 +65,7 @@ function updateFormDataMilestones(
 }
 
 function validateScheduledDate(triggerDate?: string | null): Date | null {
-  if (!triggerDate) return null;
-  const date = new Date(triggerDate);
-  if (Number.isNaN(date.getTime())) return null;
-  if (date.getTime() <= Date.now()) return null;
-  return date;
+  return parseScheduledMilestoneTriggerDate(triggerDate);
 }
 
 export async function POST(req: NextRequest) {
@@ -158,7 +155,7 @@ export async function POST(req: NextRequest) {
     const scheduledDateForMode =
       triggerMode === "scheduled" ? validateScheduledDate(requestedTriggerDate) : null;
     if (triggerMode === "scheduled" && !scheduledDateForMode) {
-      return NextResponse.json({ error: "trigger_date must be a valid future ISO date" }, { status: 400 });
+      return NextResponse.json({ error: "trigger_date must be a valid today-or-future date" }, { status: 400 });
     }
 
     const nowIso = new Date().toISOString();
@@ -189,7 +186,7 @@ export async function POST(req: NextRequest) {
     if (triggerMode === "scheduled") {
       const scheduledDate = scheduledDateForMode;
       if (!scheduledDate) {
-        return NextResponse.json({ error: "trigger_date must be a valid future ISO date" }, { status: 400 });
+        return NextResponse.json({ error: "trigger_date must be a valid today-or-future date" }, { status: 400 });
       }
 
       const { data: scheduledMilestone, error: scheduleError } = await supabaseAdmin

@@ -79,6 +79,35 @@ function getLicenseLabel(type?: string): string {
   return type ? (map[type] ?? type) : "—";
 }
 
+function cleanText(value?: string | null): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function clientSafeSacCode(value?: string | null): string {
+  const code = cleanText(value);
+  if (!code) return "";
+  const lower = code.toLowerCase();
+  if (["pending", "tbd", "na", "n/a", "not set", "unknown"].includes(lower)) {
+    return "";
+  }
+  return code;
+}
+
+function clientSafeNotes(value?: string | null): string {
+  const notes = cleanText(value);
+  if (!notes) return "";
+
+  const defaultPlaceholderNotes = [
+    "1.5% monthly late fee applies. Final files delivered after full payment.",
+  ];
+
+  if (defaultPlaceholderNotes.some((placeholder) => notes.toLowerCase() === placeholder.toLowerCase())) {
+    return "";
+  }
+
+  return notes;
+}
+
 function getTaxLineLabel(
   taxType: "CGST_SGST" | "IGST" | "NONE",
   rate: number,
@@ -127,8 +156,8 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
         fullAddress: formData.client.clientAddress,
         postalCode: formData.client.clientPostalCode,
         country: formData.client.clientCountry,
-      }) || "—"
-    : formData.client?.clientAddress || "—";
+      }) || ""
+    : formData.client?.clientAddress || "";
 
   const taxComplianceNote = getClientFacingTaxComplianceNote({
     agency: formData.agency,
@@ -181,7 +210,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
           unit: getUnitLabel(item.rateUnit),
           amount: Number(item.qty || 0) * Number(item.rate || 0),
           amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
-          sacCode: resolveLineItemSacCode(item) || "pending",
+          sacCode: clientSafeSacCode(resolveLineItemSacCode(item)),
           isMilestoneHeader: false,
           groupSubtotalFormatted: "",
         });
@@ -210,7 +239,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
         unit: getUnitLabel(item.rateUnit),
         amount: Number(item.qty || 0) * Number(item.rate || 0),
         amountFormatted: formatCurrency(Number(item.qty || 0) * Number(item.rate || 0), displayCurrency),
-        sacCode: resolveLineItemSacCode(item) || "pending",
+        sacCode: clientSafeSacCode(resolveLineItemSacCode(item)),
         isMilestoneHeader: item.is_milestone_header,
         groupSubtotalFormatted,
       });
@@ -251,15 +280,15 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     remainingMilestonesFormatted: formatCurrency(remainingAmount, displayCurrency),
     totalProjectFormatted: formatCurrency(totalProjectAmount, displayCurrency),
 
-    agencyName: formData.agency?.agencyName || "Your Agency Name",
-    agencyAddress: formData.agency?.address || "—",
+    agencyName: cleanText(formData.agency?.agencyName) || "Service provider",
+    agencyAddress: cleanText(formData.agency?.address),
     agencyState: formData.agency?.agencyState || "",
     agencyGstin: formData.agency?.gstin || "",
     agencyPan: formData.agency?.pan || "",
     agencyLogoUrl: formData.agency?.logoUrl || "",
     showAgencyGstin: showGstin,
 
-    clientName: formData.client?.clientName || "—",
+    clientName: cleanText(formData.client?.clientName) || "Client",
     clientAddress: clientAddress,
     clientState: formData.client?.clientState || "",
     clientCountry: formData.client?.clientCountry || "",
@@ -267,7 +296,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     clientTaxLabel: clientTaxLabel,
     isInternational: international,
 
-    invoiceNumber: formData.meta?.invoiceNumber || "—",
+    invoiceNumber: cleanText(formData.meta?.invoiceNumber) || "Invoice",
     poNumber: formData.meta?.poNumber || "",
     invoiceDate: formatDate(formData.meta?.invoiceDate),
     dueDate: formatDate(formData.meta?.dueDate),
@@ -299,8 +328,8 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     hasBankDetails: international ? hasIntlBank : hasDomesticBank,
     hasQrCode: !international && Boolean(formData.payment?.qrCodeUrl),
 
-    notes: formData.payment?.notes || "",
-    hasNotes: Boolean(formData.payment?.notes?.trim()),
+    notes: clientSafeNotes(formData.payment?.notes),
+    hasNotes: Boolean(clientSafeNotes(formData.payment?.notes)),
     hasLicense: Boolean(formData.payment?.license?.isLicenseIncluded),
     licenseType: getLicenseLabel(formData.payment?.license?.licenseType),
     licenseDuration: formData.payment?.license?.licenseDuration || "",
@@ -315,6 +344,6 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     isDraft: false,
     projectName: (useMilestones
       ? formData.milestones[0]?.lineItems[0]?.description
-      : formData.lineItems[0]?.description) || "Project Invoice",
+      : formData.lineItems[0]?.description) || "",
   };
 }

@@ -1,0 +1,1111 @@
+[
+  {
+    "step": "Step_1_Initial",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "text": "1  Agency  READY",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "text": "1",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "text": "STEP 1  Agency  Issuer details, address,",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--interactive-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-200",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "text": "Preview invoice",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_1_Initial",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "text": "2  Client  READY",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "text": "2",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "text": "STEP 2  Client  Bill-to details and bill",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SECTION",
+    "className": "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[#111118] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] app-soft-panel",
+    "text": "CLIENT  Details of the person or company",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "flex h-full min-w-0 items-center justify-center gap-2 rounded-[4px] px-3 py-1 text-center text-[13px] font-medium transition-all duration-200 bg-white text-[color:var(--text-primary)] shadow-sm ring-1 ring-black/5 peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+    "text": "Domestic",
+    "reasons": [
+      "Soft Radius: 4px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--text-primary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "flex h-full min-w-0 items-center justify-center gap-2 rounded-[4px] px-3 py-1 text-center text-[13px] font-medium transition-all duration-200 bg-transparent text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] peer-focus-visible:ring-2 peer-focus-visible:ring-[color:var(--focus-ring)] peer-focus-visible:ring-offset-1",
+    "text": "International",
+    "reasons": [
+      "Soft Radius: 4px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--interactive-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-200",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "DIV",
+    "className": "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--border-subtle)] bg-white hover:bg-[color:var(--bg-surface-soft)] transition-colors text-left group cursor-pointer",
+    "text": "Client Specific Payment & Legal Terms ? ",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "text": "Preview invoice",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_2_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "text": "3  Items  COMPLETE \u2713",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "text": "3",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "text": "STEP 3  Items  Deliverables, quantities,",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "flex flex-col gap-4 bg-[color:var(--bg-surface-soft)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)] rounded-t-2xl",
+    "text": "MILESTONE 1  MILESTONE SUBTOTAL  \u20b94,36,5",
+    "reasons": [
+      "Soft Radius: 16px 16px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "INPUT",
+    "className": "text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 4px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all",
+    "text": "+",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "flex flex-col gap-4 bg-[color:var(--bg-surface-soft)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)] rounded-t-2xl",
+    "text": "MILESTONE 2  MILESTONE SUBTOTAL  \u20b9728  \u00d7",
+    "reasons": [
+      "Soft Radius: 16px 16px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "INPUT",
+    "className": "text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 4px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all",
+    "text": "+",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "flex flex-col gap-4 bg-[color:var(--bg-surface-soft)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)] rounded-t-2xl",
+    "text": "MILESTONE 3  MILESTONE SUBTOTAL  \u20b94,292 ",
+    "reasons": [
+      "Soft Radius: 16px 16px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "INPUT",
+    "className": "text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 4px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all",
+    "text": "+",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "DIV",
+    "className": "flex flex-col gap-4 bg-[color:var(--bg-surface-soft)] px-6 py-5 md:flex-row md:items-center border-b border-[color:var(--border-subtle)] rounded-t-2xl",
+    "text": "MILESTONE 4  MILESTONE SUBTOTAL  \u20b912,826",
+    "reasons": [
+      "Soft Radius: 16px 16px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "INPUT",
+    "className": "text-xl font-bold bg-transparent border-transparent hover:border-[color:var(--border-subtle)] focus:border-gray-900 rounded px-1 -ml-1 w-full transition-all outline-none border",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 4px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--border-subtle)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all",
+    "text": "+",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "text": "Preview invoice",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_3_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "text": "4  Payment  READY",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "text": "4",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "text": "STEP 4  Payment  Settlement details and ",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "DIV",
+    "className": "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-gray-200 group-hover:bg-gray-300",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SPAN",
+    "className": "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-0",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "text": "Preview invoice",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Step_4_Expanded",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "text": "4  Payment  READY",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "text": "4",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "text": "STEP 4  Payment  Settlement details and ",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "DIV",
+    "className": "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-gray-200 group-hover:bg-gray-300",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SPAN",
+    "className": "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-0",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "text": "Preview invoice",
+    "reasons": [
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  },
+  {
+    "step": "Dynamic_Subform_Opened_1",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Weak Border (1px instead of 2px)"
+    ]
+  }
+]

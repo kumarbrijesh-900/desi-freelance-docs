@@ -127,22 +127,9 @@ export default function SharedMsaPreviewContent({
 
       <main className="min-h-screen bg-[#F5F5F8] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
         <div className={cn(
-          "mx-auto mb-10 flex max-w-[210mm] items-center justify-between print:hidden",
+          "mx-auto mb-10 flex max-w-[210mm] items-center justify-end print:hidden",
           showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
-          <a
-            href="https://lanceinvoice.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <span className="flex h-7 w-7 items-center justify-center bg-[color:var(--color-lime-300)] text-[12px] font-extrabold text-[#111118]">
-              L
-            </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em] text-[color:var(--text-primary)]">
-              Lance
-            </span>
-          </a>
           <div className="flex items-center gap-3">
             {mode === "agency-preview" && (
               <button
@@ -311,7 +298,7 @@ export default function SharedMsaPreviewContent({
                     Payment reference
                   </p>
                   <p className="mt-0.5 text-[13px] font-black text-[#111118]">
-                    {invoiceNumber || templateData?.invoiceNumber || "Invoice number"}
+                    {invoiceNumber || templateData?.invoiceNumber || "Invoice"}
                   </p>
                 </div>
               </div>
@@ -434,7 +421,7 @@ export default function SharedMsaPreviewContent({
           "mx-auto border-t-2 border-[#111118] py-4 text-center text-[12px] text-[color:var(--text-muted)] print:hidden max-w-[210mm] mt-8",
           showMsaOverlay && "opacity-0"
         )}>
-          Invoice #{invoiceNumber} • Shared via Lance
+          Invoice #{invoiceNumber || templateData?.invoiceNumber || "Invoice"}
         </div>
 
         {showMsaOverlay && msaTerms && (

@@ -7,10 +7,11 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
-import { ActiveDrilldown } from "@/components/dashboard/ActiveDrilldown";
+import { ActiveDrilldown, formatInr } from "@/components/dashboard/ActiveDrilldown";
 import { ProjectInvoicesLedger } from "@/components/dashboard/ProjectInvoicesLedger";
 import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle";
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
+import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
 
 type TriggerMode = "immediate" | "scheduled" | "cancelled";
 
@@ -23,14 +24,78 @@ type SettlementChoice = {
   triggerDate: string;
 };
 
-function dateInputValue(daysFromToday = 7): string {
-  const date = new Date();
-  date.setDate(date.getDate() + daysFromToday);
-  return date.toISOString().slice(0, 10);
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
-function dateInputToIso(value: string): string {
-  return new Date(`${value}T00:00:00.000Z`).toISOString();
+function formatDrawerDate(value?: string | null): string {
+  if (!value) return "Not set";
+  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const date = dateOnlyMatch
+    ? new Date(Number(dateOnlyMatch[1]), Number(dateOnlyMatch[2]) - 1, Number(dateOnlyMatch[3]))
+    : new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not set";
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatTimingLabel(value?: string | null): string {
+  if (!value) return "Date not set";
+  const target = new Date(value);
+  if (Number.isNaN(target.getTime())) return "Date not set";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round((target.getTime() - today.getTime()) / 86400000);
+  if (diffDays === 0) return "Due today";
+  if (diffDays > 0) return `Due in ${diffDays} day${diffDays === 1 ? "" : "s"}`;
+  const overdueDays = Math.abs(diffDays);
+  return `Overdue by ${overdueDays} day${overdueDays === 1 ? "" : "s"}`;
+}
+
+function normalizeLateFeeUnit(unit?: string | null): string {
+  const value = (unit || "month").toLowerCase();
+  if (value === "daily") return "day";
+  if (value === "weekly") return "week";
+  if (value === "monthly") return "month";
+  if (value === "annually" || value === "yearly") return "year";
+  return value;
+}
+
+function getPaymentTermsLabel(invoice: Record<string, any> | null): string {
+  if (!invoice) return "Net 20 days";
+  if (invoice.applied_payment_terms) return String(invoice.applied_payment_terms);
+
+  const days =
+    invoice.payment_terms_days ??
+    invoice.form_data?.meta?.paymentTerms ??
+    invoice.form_data?.agency?.msaPaymentTermsDays ??
+    invoice.form_data?.client?.msaPaymentTermsDays;
+
+  if (days === 0) return "Due on Receipt";
+  if (days != null && days !== "") return `Net ${days} days`;
+  return "Net 20 days";
+}
+
+function getLateFeeLabel(invoice: Record<string, any> | null): string {
+  if (!invoice) return "1.5% per month";
+  const rate =
+    invoice.applied_late_fee_rate ??
+    invoice.form_data?.agency?.msaLateFeeRate ??
+    invoice.form_data?.client?.msaLateFeeRate ??
+    1.5;
+  const unit = normalizeLateFeeUnit(
+    invoice.applied_late_fee_unit ??
+    invoice.form_data?.agency?.msaLateFeeUnit ??
+    invoice.form_data?.client?.msaLateFeeUnit,
+  );
+
+  return `${rate}% per ${unit}`;
 }
 
 function DashboardContent() {
@@ -98,7 +163,7 @@ function DashboardContent() {
       milestoneNumber: (state.milestone.order_index ?? 0) + 1,
       milestoneTitle: state.milestone.title || `Milestone ${(state.milestone.order_index ?? 0) + 1}`,
       triggerMode: "scheduled",
-      triggerDate: dateInputValue(),
+      triggerDate: formatDateInputValue(7),
     });
   };
 
@@ -107,13 +172,13 @@ function DashboardContent() {
 
     const body: Record<string, unknown> = {
       invoice_id: settlementChoice.invoiceId,
-      project_id: settlementChoice.projectId,
+      project_id: isUuid(settlementChoice.projectId) ? settlementChoice.projectId : null,
       trigger_mode: settlementChoice.triggerMode,
     };
 
     if (settlementChoice.triggerMode === "scheduled") {
       if (!settlementChoice.triggerDate) return;
-      body.trigger_date = dateInputToIso(settlementChoice.triggerDate);
+      body.trigger_date = dateInputToMilestoneTriggerIso(settlementChoice.triggerDate);
     }
 
     const response = await fetch("/api/invoice/trigger-next-milestone", {
@@ -227,72 +292,269 @@ function DashboardContent() {
         </div>
       )}
 
-      {settlementChoice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-[480px] border-[3px] border-black bg-white p-5 shadow-[4px_4px_0_#000]">
-            <div className="mb-1 text-lg font-black uppercase tracking-wide">
-              Settle M{settlementChoice.milestoneNumber}?
-            </div>
-            <div className="mb-4 text-sm font-medium text-neutral-600">
-              What happens to the next milestone after {settlementChoice.milestoneTitle}?
-            </div>
+      {settlementChoice && (() => {
+        const masterInvoice = getMasterInvoice();
+        const settlementMilestones = selectedProject?.milestones
+          .filter(milestone => milestone.invoice_id === masterInvoice?.id)
+          .slice()
+          .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)) ?? [];
+        const currentMilestone = settlementMilestones.find(
+          milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber,
+        ) ?? null;
+        const nextMilestone = settlementMilestones.find(
+          milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber + 1,
+        ) ?? null;
+        const nextMilestoneNumber = nextMilestone ? (nextMilestone.order_index ?? 0) + 1 : settlementChoice.milestoneNumber + 1;
+        const settlementAmount = Number(currentMilestone?.amount || 0);
+        const timingSource = currentMilestone?.trigger_date || masterInvoice?.due_date;
+        const hasProjectAddendum = Boolean(selectedProject?.project.project_addendum_text || masterInvoice?.has_addendum);
+        const contractTitle = hasProjectAddendum ? "Project addendum" : "Global agency terms";
+        const contractCopy = hasProjectAddendum
+          ? "Active project-specific overrides are applied for this invoice's milestones, payment timeline, and late-fee guidelines."
+          : "Default agency terms are applied for this invoice's milestones, payment timeline, and late-fee guidelines.";
+        const afterCopy =
+          settlementChoice.triggerMode === "immediate"
+            ? nextMilestone
+              ? `M${nextMilestoneNumber} starts and invoice sends now.`
+              : "Project closes after this final settlement."
+            : settlementChoice.triggerMode === "scheduled"
+              ? nextMilestone
+                ? `M${nextMilestoneNumber} starts on ${formatDrawerDate(settlementChoice.triggerDate)}.`
+                : "Project closes after this final settlement."
+              : "Remaining milestones are soft-cancelled.";
+        const scheduleDateInvalid = settlementChoice.triggerMode === "scheduled" && !settlementChoice.triggerDate;
+        const optionRowClass = (mode: TriggerMode) =>
+          `flex cursor-pointer items-start gap-3 border-2 border-black p-3 hover:bg-[#FAF7F2] ${
+            settlementChoice.triggerMode === mode ? "bg-[#FAF7F2]" : "bg-white"
+          }`;
 
-            <div className="flex flex-col gap-3">
-              {[
-                { value: "immediate", title: "Send next milestone invoice now", copy: "Next invoice generated and emailed immediately." },
-                { value: "scheduled", title: "Schedule for later", copy: "Next invoice generated and emailed on the chosen date." },
-                { value: "cancelled", title: "Close project — no more milestones", copy: "Remaining milestones are cancelled. No invoices generated." },
-              ].map(option => (
-                <label
-                  key={option.value}
-                  className="flex cursor-pointer gap-3 border-2 border-black bg-white p-3 hover:bg-[#FAF7F2]"
+        return (
+          <div
+            className="fixed inset-0 z-50 bg-black/40"
+            onClick={() => setSettlementChoice(null)}
+          >
+            <aside
+              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-black bg-white shadow-[-4px_0_0_#000]"
+              onClick={event => event.stopPropagation()}
+            >
+              <div className="flex items-start justify-between border-b-[3px] border-black bg-[#FAF7F2] px-5 py-4">
+                <div>
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                    Settlement drawer
+                  </div>
+                  <h2 className="mt-1 text-2xl font-black uppercase tracking-tight text-[#111118]">
+                    Settle M{settlementChoice.milestoneNumber}?
+                  </h2>
+                  <p className="mt-1 text-sm font-bold text-neutral-600">
+                    {settlementChoice.milestoneTitle}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSettlementChoice(null)}
+                  className="border-2 border-black bg-[#FF6B35] px-3 py-1 text-xl font-black leading-none text-white shadow-[3px_3px_0_#000]"
+                  aria-label="Close settlement drawer"
                 >
-                  <input
-                    type="radio"
-                    name="triggerMode"
-                    value={option.value}
-                    checked={settlementChoice.triggerMode === option.value}
-                    onChange={() => setSettlementChoice(choice => choice ? { ...choice, triggerMode: option.value as TriggerMode } : choice)}
-                    className="mt-1"
-                  />
-                  <span>
-                    <span className="block text-sm font-extrabold uppercase tracking-wide">{option.title}</span>
-                    <span className="block text-xs font-medium text-neutral-600">{option.copy}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+                  ×
+                </button>
+              </div>
 
-            {settlementChoice.triggerMode === "scheduled" && (
-              <input
-                type="date"
-                min={dateInputValue(0)}
-                value={settlementChoice.triggerDate}
-                onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
-                className="mt-4 w-full border-2 border-black bg-white px-3 py-2 text-sm font-bold"
-              />
-            )}
+              <div className="flex-1 overflow-y-auto px-5 py-5">
+                <section className="border-[3px] border-black bg-white shadow-[4px_4px_0_#000]">
+                  <div className="border-b-2 border-black px-4 py-3">
+                    <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                      Settlement checkpoint
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 border-b-2 border-black sm:grid-cols-3">
+                    <div className="border-b-2 border-black px-4 py-3 sm:border-b-0 sm:border-r-2">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                        Clear
+                      </div>
+                      <div className="mt-1 text-xl font-black text-[#111118]">
+                        {formatInr(settlementAmount)}
+                      </div>
+                    </div>
+                    <div className="border-b-2 border-black px-4 py-3 sm:border-b-0 sm:border-r-2">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                        Timing
+                      </div>
+                      <div className="mt-1 text-sm font-black text-[#111118]">
+                        {formatTimingLabel(timingSource)}
+                      </div>
+                    </div>
+                    <div className="px-4 py-3">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                        After
+                      </div>
+                      <div className="mt-1 text-sm font-black text-[#111118]">
+                        {afterCopy}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 text-sm font-extrabold text-[#111118]">
+                    Confirm only after the payment is visible in your bank account.
+                  </div>
+                </section>
 
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setSettlementChoice(null)}
-                className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide hover:bg-[#FAF7F2]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmSettlement}
-                disabled={settlementChoice.triggerMode === "scheduled" && !settlementChoice.triggerDate}
-                className="border-[3px] border-black bg-[#D4FF00] px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#000] disabled:opacity-50"
-              >
-                Confirm
-              </button>
-            </div>
+                <section className="mt-5 border-[3px] border-black bg-[#FFFBE6] p-4 shadow-[4px_4px_0_#000]">
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                    Contract authority
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-sm font-black">
+                      §
+                    </div>
+                    <div className="text-base font-black uppercase text-[#111118]">
+                      {contractTitle}
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-neutral-700">
+                    {contractCopy}
+                  </p>
+                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-black/40 pt-3 text-sm sm:grid-cols-2">
+                    <div>
+                      <span className="font-extrabold text-neutral-600">Payment:</span>{" "}
+                      <span className="font-black text-[#111118]">{getPaymentTermsLabel(masterInvoice as any)}</span>
+                    </div>
+                    <div>
+                      <span className="font-extrabold text-neutral-600">Late Fee:</span>{" "}
+                      <span className="font-black text-[#111118]">{getLateFeeLabel(masterInvoice as any)}</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000]">
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                    Milestone progress checklist
+                  </div>
+                  {settlementMilestones.length > 0 ? (
+                    <div className="relative ml-3 mt-4 border-l-2 border-black pl-5">
+                      {settlementMilestones.map(milestone => {
+                        const milestoneNumber = (milestone.order_index ?? 0) + 1;
+                        const status = (milestone.status || "pending").toLowerCase();
+                        const isCurrent = milestoneNumber === settlementChoice.milestoneNumber;
+                        const isSettled = status === "settled";
+                        const isCancelled = status === "cancelled";
+                        const statusLabel = isCurrent
+                          ? "settling"
+                          : isSettled
+                            ? "settled"
+                            : isCancelled
+                              ? "cancelled"
+                              : status;
+                        const markerClass = isSettled
+                          ? "bg-[#00DCB4]"
+                          : isCurrent
+                            ? "bg-[#D4FF00]"
+                            : isCancelled
+                              ? "bg-[#D4D2CC]"
+                              : "bg-white border-dashed";
+
+                        return (
+                          <div key={milestone.id} className="relative pb-5 last:pb-0">
+                            <div className={`absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center border-2 border-black text-[10px] font-black ${markerClass}`}>
+                              {isSettled ? "✓" : isCurrent ? "●" : ""}
+                            </div>
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="text-sm font-black uppercase text-[#111118]">
+                                  M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
+                                </div>
+                                <div className="mt-1 text-sm font-bold text-neutral-600">
+                                  {formatInr(Number(milestone.amount || 0))}
+                                </div>
+                              </div>
+                              <span className="border-2 border-black bg-white px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[#111118]">
+                                {statusLabel}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="mt-4 border-2 border-dashed border-neutral-400 bg-[#FAF7F2] p-3 text-sm font-bold text-neutral-600">
+                      No milestone checklist found for this invoice.
+                    </div>
+                  )}
+                </section>
+
+                <fieldset className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000]">
+                  <legend className="px-2 text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                    What happens next?
+                  </legend>
+                  <div className="mt-2 flex flex-col gap-3">
+                    {[
+                      {
+                        value: "immediate" as const,
+                        title: "Send next milestone invoice now",
+                        copy: nextMilestone
+                          ? `M${nextMilestoneNumber} invoice generated and emailed immediately.`
+                          : "No next milestone exists; the project will close.",
+                      },
+                      {
+                        value: "scheduled" as const,
+                        title: "Schedule for later",
+                        copy: nextMilestone
+                          ? `M${nextMilestoneNumber} invoice generated and emailed on the chosen date.`
+                          : "No next milestone exists; the project will close.",
+                      },
+                      {
+                        value: "cancelled" as const,
+                        title: "Close project — no more milestones",
+                        copy: "Remaining milestones are soft-cancelled. No invoices generated.",
+                      },
+                    ].map(option => (
+                      <label key={option.value} className={optionRowClass(option.value)}>
+                        <input
+                          type="radio"
+                          name="triggerMode"
+                          value={option.value}
+                          checked={settlementChoice.triggerMode === option.value}
+                          onChange={() => setSettlementChoice(choice => choice ? { ...choice, triggerMode: option.value } : choice)}
+                          className="mt-1 h-4 w-4 accent-black"
+                        />
+                        <span className="flex-1">
+                          <span className="block text-sm font-extrabold uppercase tracking-wide">{option.title}</span>
+                          <span className="block text-xs font-medium text-neutral-600">{option.copy}</span>
+                          {option.value === "scheduled" && settlementChoice.triggerMode === "scheduled" && (
+                            <input
+                              type="date"
+                              min={formatDateInputValue(0)}
+                              value={settlementChoice.triggerDate}
+                              onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
+                              className="mt-3 w-full border-2 border-black bg-white px-3 py-2 text-sm font-bold outline-none focus:bg-[#FAF7F2]"
+                            />
+                          )}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+
+              <div className="flex justify-end gap-2 border-t-[3px] border-black bg-[#FAF7F2] px-5 py-4">
+                <button
+                  type="button"
+                  onClick={() => setSettlementChoice(null)}
+                  className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#000] hover:bg-[#FAF7F2]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmSettlement}
+                  disabled={scheduleDateInvalid}
+                  className="border-[3px] border-black bg-[#D4FF00] px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:bg-[#D4D2CC] disabled:text-neutral-600 disabled:shadow-none"
+                >
+                  Confirm settlement
+                </button>
+              </div>
+            </aside>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

@@ -1,0 +1,1058 @@
+[
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Lance",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "Dashboard",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "Projects",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "Invoices",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "Clients",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "FAQ",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "+ New Invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h1",
+    "text": "Good morning, kumar.brijesh900",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Monday, 25 May 2026",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "What Needs Attention",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "One deduplicated action per invoice.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "5 actions",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "REVISION REQUESTED",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "h2",
+    "text": "INV-2026-1238",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "ckccc",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Client note: \"I would Like to Update the MSA , Lets connect soon, also for this Particular invoice lets set the NET Payment to 20\"",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "Update Addendum \u2192",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "AWAITING CLIENT",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "h2",
+    "text": "INV-2026-4078",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "LazyPanda",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Sent to Kumar.brijesh900@gmail.com (5d ago).",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Resend invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h2",
+    "text": "INV-2026-9997",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "alehandro",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Sent to test@example.com (23h ago).",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "a",
+    "text": "2 more \u2192",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Outstanding",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "4 invoices",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Collected",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "0 invoices",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "At Risk",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Overdue + revision-blocked",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "PROJECT LEDGER",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "By Project",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "By Client",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "By Invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "MILESTONE KEY:",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Settled",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Live",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Overdue",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Pending",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Filter:",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "All Projects",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "Sort:",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h3",
+    "text": "BKB General Engagements",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "BKB \u00b7 BANGALORE",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "LOCKED",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "0/1 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Milestone 1",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "16 Jul \u00b7",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-6551",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Draft pipeline",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-6551 has not been sent yet.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Finalize draft",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Review invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h3",
+    "text": "mega project for Alehandro",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "alehandro \u00b7 BANGALORE",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "2/5 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "discovery",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "21 Jul \u00b7",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-9996",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "exploration",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "prototyping",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "pre-prod",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "delivery",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Scheduled to send",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h4",
+    "text": "M3 \u00b7 prototyping",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Explainer video editing + voice-over sync",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Amount",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Will send",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "26 May",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Send now",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Reschedule",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "button",
+    "text": "Cancel",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h3",
+    "text": "LazyPanda General Engagements",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "LazyPanda \u00b7 BANGALORE",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "02 Jul \u00b7",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Awaiting client",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "h4",
+    "text": "M1 \u00b7 Milestone 1",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Office space planning and design, Material selection and specification schedule",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h3",
+    "text": "ckccc General Engagements",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "ckccc \u00b7 BANGALORE",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "1/1 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "10 Jun \u00b7",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-9446",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Project complete",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "h4",
+    "text": "All 1 milestones settled",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Last settled 21 May 2026",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "h3",
+    "text": "ruhnika General Engagements",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "ruhnika \u00b7 BANGALORE",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "DRAFT",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "span",
+    "text": "0/4 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "discovery phase",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "13 Jun \u00b7",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-1230",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "INV-2026-1230 has not been sent yet.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "dashboard",
+    "tag": "p",
+    "text": "Showing 5 of 6 projects \u00b7 8 invoices",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "span",
+    "text": "1 active",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Track project-level contracts, invoices, milestone timelines, and receivables from one ledger.",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "button",
+    "text": "All",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "button",
+    "text": "Active",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "button",
+    "text": "Awaiting Signature",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "button",
+    "text": "Complete",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "span",
+    "text": "2/6 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Client:",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "a",
+    "text": "View project \u2192",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Billed",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Days Active",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Milestone progress",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "33% complete",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "Next action",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "INV-2026-9997 is awaiting client response.",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "a",
+    "text": "Open invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "span",
+    "text": "0/0 milestones",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "projects",
+    "tag": "h2",
+    "text": "Test Project 1779434613075",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "span",
+    "text": "General Engagements",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "0% complete",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "p",
+    "text": "No invoices linked yet.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "projects",
+    "tag": "a",
+    "text": "View project",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "h1",
+    "text": "New Invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Create a professional GST-compliant invoice in minutes.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "Project",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Editor progress",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "4 of 4 ready",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Agency",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Ready",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Client",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Items",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Complete \u2713",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Payment",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Status",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "All required sections are complete. Review totals, then open preview.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "ruhnika",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Due",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Total",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Invoice Reference",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "INV-2026-2333",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "button",
+    "text": "Edit",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Issued",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Workbench readiness",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Ready for preview",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Step 1",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Issuer details, address, and tax registration.",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "h3",
+    "text": "Tax & Identity",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "GST Registration Status",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Not registered",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Required for tax compliance in India",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "PAN",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "h3",
+    "text": "Business Details",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "Business / Trade Name *",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Locked to your registered Agency Name.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "Agency Logo",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Upload Agency Logo",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "h3",
+    "text": "Registered Address",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "Address Line 1 *",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "Address Line 2",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "State *",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "City",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "label",
+    "text": "PIN",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "button",
+    "text": "Continue to Client \u2192",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Close",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Ready for preview. Confirm totals before sending.",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "button",
+    "text": "Save Draft",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Preview invoice",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Preview",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Invoice Details",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "INV #",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Date",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "PO #",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Totals",
+    "isCorporateJargon": false
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "No valid LUT has been provided for this international invoice. Export of services may require 18% IGST. Choose how you want to handle this invoice.",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Add 18% IGST to the client invoice",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "span",
+    "text": "Keep client invoice at 0% tax \u2014 I will handle IGST separately",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "RCM active \u2014 GST handled by client",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "p",
+    "text": "Tax: 0% \u2014 agency not GST registered",
+    "isCorporateJargon": true
+  },
+  {
+    "context": "new",
+    "tag": "button",
+    "text": "Advanced tax options \u2192",
+    "isCorporateJargon": true
+  }
+]

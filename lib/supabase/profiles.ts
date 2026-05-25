@@ -244,6 +244,204 @@ export async function upsertProfile(
   return { data: data as UserProfile, error: null };
 }
 
+export type ProfileGlobalMsaSaveStatus =
+  | "success"
+  | "partial_profile_saved"
+  | "failed";
+
+export type ProfileGlobalMsaSaveResult = {
+  status: ProfileGlobalMsaSaveStatus;
+  atomic: boolean;
+  data: {
+    profileId: string | null;
+    globalMsaId: string | null;
+  } | null;
+  error: string | null;
+};
+
+function isMissingAtomicSaveFunction(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return (
+    error.code === "PGRST202" ||
+    error.message?.includes("save_profile_with_global_msa") ||
+    error.message?.includes("Could not find the function") ||
+    false
+  );
+}
+
+async function upsertGlobalMsaFallback(input: {
+  userId: string;
+  globalMsaId: string | null;
+  title: string;
+  content: string;
+}): Promise<{ id: string | null; error: string | null }> {
+  if (input.globalMsaId) {
+    const { data, error } = await supabase
+      .from("client_msas")
+      .update({
+        title: input.title,
+        content: input.content,
+        status: "active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", input.globalMsaId)
+      .eq("user_id", input.userId)
+      .is("client_id", null)
+      .select("id")
+      .maybeSingle();
+
+    if (error) return { id: null, error: error.message };
+    if (!data?.id) return { id: null, error: "Global MSA was not found for this user." };
+    return { id: data.id as string, error: null };
+  }
+
+  const { data: existing, error: existingError } = await supabase
+    .from("client_msas")
+    .select("id")
+    .eq("user_id", input.userId)
+    .is("client_id", null)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingError) return { id: null, error: existingError.message };
+
+  if (existing?.id) {
+    const { data, error } = await supabase
+      .from("client_msas")
+      .update({
+        title: input.title,
+        content: input.content,
+        status: "active",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .eq("user_id", input.userId)
+      .is("client_id", null)
+      .select("id")
+      .single();
+
+    if (error) return { id: null, error: error.message };
+    return { id: data.id as string, error: null };
+  }
+
+  const { data, error } = await supabase
+    .from("client_msas")
+    .insert({
+      user_id: input.userId,
+      client_id: null,
+      title: input.title,
+      content: input.content,
+      status: "active",
+    })
+    .select("id")
+    .single();
+
+  if (error) return { id: null, error: error.message };
+  return { id: data.id as string, error: null };
+}
+
+export async function saveProfileWithGlobalMsa(input: {
+  agency: AgencyDetails;
+  payment?: Partial<PaymentDetails>;
+  globalMsaId: string | null;
+  globalMsaTitle: string;
+  globalMsaContent: string;
+}): Promise<ProfileGlobalMsaSaveResult> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return {
+      status: "failed",
+      atomic: false,
+      data: null,
+      error: "Not authenticated",
+    };
+  }
+
+  const row = agencyToProfileRow(input.agency, input.payment);
+  const { data: rpcData, error: rpcError } = await supabase.rpc(
+    "save_profile_with_global_msa",
+    {
+      p_profile: row,
+      p_global_msa_id: input.globalMsaId,
+      p_global_msa_title: input.globalMsaTitle,
+      p_global_msa_content: input.globalMsaContent,
+    },
+  );
+
+  if (!rpcError) {
+    const payload = rpcData as { profile_id?: string; global_msa_id?: string } | null;
+    return {
+      status: "success",
+      atomic: true,
+      data: {
+        profileId: payload?.profile_id ?? null,
+        globalMsaId: payload?.global_msa_id ?? null,
+      },
+      error: null,
+    };
+  }
+
+  if (!isMissingAtomicSaveFunction(rpcError)) {
+    console.error("PROFILE_ATOMIC_SAVE_ERROR:", rpcError.message);
+    return {
+      status: "failed",
+      atomic: true,
+      data: null,
+      error: rpcError.message,
+    };
+  }
+
+  console.warn(
+    "PROFILE_ATOMIC_SAVE_RPC_MISSING: Falling back to explicit partial-success save. Apply migration 20260526000000_atomic_profile_global_msa_save.sql.",
+  );
+
+  const { data: profile, error: profileError } = await upsertProfile(
+    input.agency,
+    input.payment,
+  );
+
+  if (profileError) {
+    return {
+      status: "failed",
+      atomic: false,
+      data: null,
+      error: profileError,
+    };
+  }
+
+  const globalMsaResult = await upsertGlobalMsaFallback({
+    userId: session.user.id,
+    globalMsaId: input.globalMsaId,
+    title: input.globalMsaTitle,
+    content: input.globalMsaContent,
+  });
+
+  if (globalMsaResult.error) {
+    return {
+      status: "partial_profile_saved",
+      atomic: false,
+      data: {
+        profileId: profile?.id ?? null,
+        globalMsaId: null,
+      },
+      error: globalMsaResult.error,
+    };
+  }
+
+  return {
+    status: "success",
+    atomic: false,
+    data: {
+      profileId: profile?.id ?? null,
+      globalMsaId: globalMsaResult.id,
+    },
+    error: null,
+  };
+}
+
 /**
  * Syncs the user profile from a given invoice form data.
  * Useful for "Guest to Registered" transition.

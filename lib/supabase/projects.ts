@@ -35,6 +35,8 @@ export interface InvoiceRow {
   id: string;
   user_id: string;
   project_id: string | null;
+  parent_invoice_id?: string | null;
+  milestone_index?: number | null;
   invoice_number: string;
   form_data: any;
   status: string;
@@ -59,11 +61,55 @@ export interface MilestoneRow {
   status: string | null;
   amount: number | null;
   order_index: number | null;
-  trigger_mode?: "scheduled" | "immediate" | "manual";
-  trigger_status?: "pending" | "fired" | "failed";
+  trigger_mode?: "scheduled" | "immediate" | "cancelled" | "manual";
+  trigger_status?: "pending" | "fired" | "failed" | "cancelled";
   trigger_date?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+}
+
+function getInvoiceProjectLabel(invoice: InvoiceRow): string {
+  const formData = invoice.form_data || {};
+  return (
+    formData.projectName ||
+    formData.project?.name ||
+    formData.meta?.projectName ||
+    formData.client?.projectName ||
+    (formData.client?.clientName ? `${formData.client.clientName} project` : null) ||
+    invoice.invoice_number ||
+    "Unlinked invoice"
+  );
+}
+
+function getInvoiceClient(invoice: InvoiceRow): ProjectClient | null {
+  const client = invoice.form_data?.client || {};
+  const clientName = client.clientName || client.client_name;
+  if (!clientName) return null;
+
+  return {
+    id: `pseudo-client-${invoice.id}`,
+    client_name: clientName,
+    city: client.clientCity || client.city || client.location || null,
+    client_address:
+      client.clientAddress ||
+      [client.clientAddressLine1, client.clientAddressLine2, client.clientCity]
+        .filter(Boolean)
+        .join(", ") ||
+      null,
+  };
+}
+
+function getLatestActivity(record: ProjectWithInvoices): number {
+  const dates = [
+    record.project.updated_at,
+    ...record.invoices.map((invoice) => invoice.updated_at || invoice.created_at),
+    ...record.milestones.map((milestone) => milestone.updated_at || milestone.created_at || ""),
+  ]
+    .filter(Boolean)
+    .map((date) => new Date(date as string).getTime())
+    .filter((time) => !Number.isNaN(time));
+
+  return dates.length > 0 ? Math.max(...dates) : 0;
 }
 
 export interface ProjectWithInvoices {
@@ -263,23 +309,17 @@ export async function getAllProjectsWithInvoices(): Promise<{
     return { data: [], error: projectsError.message };
   }
 
-  const projects = (projectsData ?? []) as ProjectRow[];
-  if (projects.length === 0) {
-    return { data: [], error: null };
-  }
-
-  const projectIds = projects.map((project) => project.id);
   const { data: invoicesData, error: invoicesError } = await supabase
     .from("invoices")
     .select("*")
     .eq("user_id", userId)
-    .in("project_id", projectIds)
     .order("updated_at", { ascending: false });
 
   if (invoicesError) {
     return { data: [], error: invoicesError.message };
   }
 
+  const projects = (projectsData ?? []) as ProjectRow[];
   const invoices = (invoicesData ?? []) as InvoiceRow[];
   const invoiceIds = invoices.map((invoice) => invoice.id);
   let milestones: MilestoneRow[] = [];
@@ -297,24 +337,33 @@ export async function getAllProjectsWithInvoices(): Promise<{
     milestones = (milestonesData ?? []) as MilestoneRow[];
   }
 
+  const invoiceById = new Map(invoices.map((invoice) => [invoice.id, invoice]));
+  const getInvoiceProjectKey = (invoice: InvoiceRow): string => {
+    if (invoice.project_id) return invoice.project_id;
+    const parent = invoice.parent_invoice_id ? invoiceById.get(invoice.parent_invoice_id) : null;
+    if (parent?.project_id) return parent.project_id;
+    return `pseudo:${parent?.id || invoice.id}`;
+  };
+
   const invoicesByProject = new Map<string, InvoiceRow[]>();
   invoices.forEach((invoice) => {
-    if (!invoice.project_id) return;
-    const list = invoicesByProject.get(invoice.project_id) ?? [];
+    const projectKey = getInvoiceProjectKey(invoice);
+    const list = invoicesByProject.get(projectKey) ?? [];
     list.push(invoice);
-    invoicesByProject.set(invoice.project_id, list);
+    invoicesByProject.set(projectKey, list);
   });
 
   const milestonesByProject = new Map<string, MilestoneRow[]>();
   milestones.forEach((milestone) => {
     const invoice = invoices.find((item) => item.id === milestone.invoice_id);
-    if (!invoice?.project_id) return;
-    const list = milestonesByProject.get(invoice.project_id) ?? [];
+    if (!invoice) return;
+    const projectKey = getInvoiceProjectKey(invoice);
+    const list = milestonesByProject.get(projectKey) ?? [];
     list.push(milestone);
-    milestonesByProject.set(invoice.project_id, list);
+    milestonesByProject.set(projectKey, list);
   });
 
-  const data = projects.map((project) => {
+  const realProjectRecords = projects.map((project) => {
     const projectInvoices = invoicesByProject.get(project.id) ?? [];
     const projectMilestones = milestonesByProject.get(project.id) ?? [];
 
@@ -325,6 +374,49 @@ export async function getAllProjectsWithInvoices(): Promise<{
       metrics: getProjectMetrics(project, projectInvoices, projectMilestones),
     };
   });
+
+  const realProjectIds = new Set(projects.map((project) => project.id));
+  const pseudoProjectRecords = Array.from(invoicesByProject.entries())
+    .filter(([projectKey]) => projectKey.startsWith("pseudo:") && !realProjectIds.has(projectKey))
+    .map(([projectKey, projectInvoices]) => {
+      const master =
+        projectInvoices.find((invoice) => !invoice.parent_invoice_id) ||
+        projectInvoices[0];
+      const projectMilestones = milestonesByProject.get(projectKey) ?? [];
+      const latestIso = new Date(
+        Math.max(
+          new Date(master.updated_at || master.created_at).getTime(),
+          ...projectInvoices.map((invoice) => new Date(invoice.updated_at || invoice.created_at).getTime()),
+        ),
+      ).toISOString();
+
+      const project: ProjectRow = {
+        id: projectKey,
+        user_id: userId,
+        client_id: null,
+        name: getInvoiceProjectLabel(master),
+        description: "Historical invoice grouped as a dashboard project.",
+        status: "active",
+        msa_accepted_at: null,
+        msa_accepted_via_invoice_id: null,
+        project_addendum_text: null,
+        master_po_number: null,
+        created_at: master.created_at,
+        updated_at: latestIso,
+        client: getInvoiceClient(master),
+      };
+
+      return {
+        project,
+        invoices: projectInvoices,
+        milestones: projectMilestones,
+        metrics: getProjectMetrics(project, projectInvoices, projectMilestones),
+      };
+    });
+
+  const data = [...realProjectRecords, ...pseudoProjectRecords].sort(
+    (a, b) => getLatestActivity(b) - getLatestActivity(a),
+  );
 
   return { data, error: null };
 }

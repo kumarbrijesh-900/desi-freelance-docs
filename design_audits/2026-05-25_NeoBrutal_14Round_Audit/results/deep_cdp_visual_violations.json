@@ -1,0 +1,2908 @@
+[
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1196.359375,
+      "y": 12,
+      "width": 123.640625,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1196.359375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-3 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-md)] hover:shadow-[var(--brutal-shadow-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-syne",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 1240.671875,
+      "y": 86.5,
+      "width": 167.328125,
+      "height": 47.5,
+      "top": 86.5,
+      "right": 1408,
+      "bottom": 134,
+      "left": 1240.671875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "REVISION REQUESTED x INV-2026-1238  CKCC",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 32,
+      "y": 245.5,
+      "width": 450.6640625,
+      "height": 231,
+      "top": 245.5,
+      "right": 482.6640625,
+      "bottom": 476.5,
+      "left": 32
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "id": "",
+    "text": "x",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 435.6640625,
+      "y": 264.5,
+      "width": 28,
+      "height": 28,
+      "top": 264.5,
+      "right": 463.6640625,
+      "bottom": 292.5,
+      "left": 435.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "id": "",
+    "text": "UPDATE ADDENDUM \u2192",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 51,
+      "y": 421,
+      "width": 412.6640625,
+      "height": 36.5,
+      "top": 421,
+      "right": 463.6640625,
+      "bottom": 457.5,
+      "left": 51
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "AWAITING CLIENT x INV-2026-4078  LAZYPAN",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 494.6640625,
+      "y": 245.5,
+      "width": 450.6640625,
+      "height": 231,
+      "top": 245.5,
+      "right": 945.328125,
+      "bottom": 476.5,
+      "left": 494.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "id": "",
+    "text": "x",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 898.328125,
+      "y": 264.5,
+      "width": 28,
+      "height": 28,
+      "top": 264.5,
+      "right": 926.328125,
+      "bottom": 292.5,
+      "left": 898.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "id": "",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 513.6640625,
+      "y": 421,
+      "width": 412.6640625,
+      "height": 36.5,
+      "top": 421,
+      "right": 926.328125,
+      "bottom": 457.5,
+      "left": 513.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "ARTICLE",
+    "className": "flex min-h-[188px] flex-col justify-between border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "AWAITING CLIENT x INV-2026-9997  ALEHAND",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 957.328125,
+      "y": 245.5,
+      "width": 450.6640625,
+      "height": 231,
+      "top": 245.5,
+      "right": 1407.9921875,
+      "bottom": 476.5,
+      "left": 957.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "id": "",
+    "text": "x",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1360.9921875,
+      "y": 264.5,
+      "width": 28,
+      "height": 28,
+      "top": 264.5,
+      "right": 1388.9921875,
+      "bottom": 292.5,
+      "left": 1360.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "id": "",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 976.328125,
+      "y": 421,
+      "width": 412.6640625,
+      "height": 36.5,
+      "top": 421,
+      "right": 1388.9921875,
+      "bottom": 457.5,
+      "left": 976.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-[3px] border-[#111118] bg-[#111118] text-white shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "OUTSTANDING  \u20b946,006  4 INVOICES  COLLEC",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 32,
+      "y": 558,
+      "width": 1376,
+      "height": 130,
+      "top": 558,
+      "right": 1408,
+      "bottom": 688,
+      "left": 32
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] mb-6",
+    "id": "project-ledger",
+    "text": "PROJECT LEDGER  BY PROJECT BY CLIENT BY ",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 32,
+      "y": 712,
+      "width": 1376,
+      "height": 2749.25,
+      "top": 712,
+      "right": 1408,
+      "bottom": 3461.25,
+      "left": 32
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "flex border-2 border-[#111118] overflow-hidden shadow-[2px_2px_0_#111118]",
+    "id": "",
+    "text": "BY PROJECT BY CLIENT BY INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 191.796875,
+      "y": 726,
+      "width": 277.0390625,
+      "height": 28.5,
+      "top": 726,
+      "right": 468.8359375,
+      "bottom": 754.5,
+      "left": 191.796875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold px-2.5 py-1 border-2 border-[#111118] uppercase shadow-[2px_2px_0_#111118] bg-[#E0F3FF] text-[#111118]",
+    "id": "",
+    "text": "ALL PROJECTS",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 102.2578125,
+      "y": 779.25,
+      "width": 102.5390625,
+      "height": 28.5,
+      "top": 779.25,
+      "right": 204.796875,
+      "bottom": 807.75,
+      "left": 102.2578125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "INPUT",
+    "className": "px-2.5 py-1 text-[12px] font-bold text-[#111118] placeholder-[#888] bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[1px_1px_0_#111118] transition-all w-full sm:w-44",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 992.0546875,
+      "y": 778.5,
+      "width": 176,
+      "height": 30,
+      "top": 778.5,
+      "right": 1168.0546875,
+      "bottom": 808.5,
+      "left": 992.0546875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "SELECT",
+    "className": "px-2 py-1 text-[12px] font-bold text-[#111118] bg-white border-2 border-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none cursor-pointer",
+    "id": "",
+    "text": "Receivable (High-Low) Collected (High-Lo",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1216.5,
+      "y": 778.75,
+      "width": 173.5,
+      "height": 29.5,
+      "top": 778.75,
+      "right": 1390,
+      "bottom": 808.25,
+      "left": 1216.5
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "BKB GENERAL ENGAGEMENTS  BKB \u00b7 BANGALORE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 58,
+      "y": 844.5,
+      "width": 1324,
+      "height": 467.75,
+      "top": 844.5,
+      "right": 1382,
+      "bottom": 1312.25,
+      "left": 58
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 168.9921875,
+      "y": 995.875,
+      "width": 16,
+      "height": 16,
+      "top": 995.875,
+      "right": 184.9921875,
+      "bottom": 1011.875,
+      "left": 168.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "FINALIZE DRAFT",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 99,
+      "y": 1235.25,
+      "width": 124.5703125,
+      "height": 36,
+      "top": 1235.25,
+      "right": 223.5703125,
+      "bottom": 1271.25,
+      "left": 99
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "REVIEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 231.5703125,
+      "y": 1235.25,
+      "width": 129.34375,
+      "height": 36,
+      "top": 1235.25,
+      "right": 360.9140625,
+      "bottom": 1271.25,
+      "left": 231.5703125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "A",
+    "className": "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000] cursor-pointer transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[6px_6px_0_#000]",
+    "id": "",
+    "text": "MEGA PROJECT FOR ALEHANDRO  ALEHANDRO \u00b7 ",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 58,
+      "y": 1336.25,
+      "width": 1324,
+      "height": 522.75,
+      "top": 1336.25,
+      "right": 1382,
+      "bottom": 1859,
+      "left": 58
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-[#00DCB4] border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 168.9921875,
+      "y": 1487.625,
+      "width": 16,
+      "height": 16,
+      "top": 1487.625,
+      "right": 184.9921875,
+      "bottom": 1503.625,
+      "left": 168.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-[#00DCB4] border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 328.9921875,
+      "y": 1487.625,
+      "width": 16,
+      "height": 16,
+      "top": 1487.625,
+      "right": 344.9921875,
+      "bottom": 1503.625,
+      "left": 328.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-dashed border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 489,
+      "y": 1487.625,
+      "width": 16,
+      "height": 16,
+      "top": 1487.625,
+      "right": 505,
+      "bottom": 1503.625,
+      "left": 489
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 648.9921875,
+      "y": 1487.625,
+      "width": 16,
+      "height": 16,
+      "top": 1487.625,
+      "right": 664.9921875,
+      "bottom": 1503.625,
+      "left": 648.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 808.9921875,
+      "y": 1487.625,
+      "width": 16,
+      "height": 16,
+      "top": 1487.625,
+      "right": 824.9921875,
+      "bottom": 1503.625,
+      "left": 808.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-[#D4FF00] px-3 py-2 text-xs font-extrabold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "SEND NOW",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 99,
+      "y": 1782,
+      "width": 94.75,
+      "height": 36,
+      "top": 1782,
+      "right": 193.75,
+      "bottom": 1818,
+      "left": 99
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "RESCHEDULE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 201.75,
+      "y": 1782,
+      "width": 107.640625,
+      "height": 36,
+      "top": 1782,
+      "right": 309.390625,
+      "bottom": 1818,
+      "left": 201.75
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "LAZYPANDA GENERAL ENGAGEMENTS  LAZYPANDA",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 58,
+      "y": 1883,
+      "width": 1324,
+      "height": 522.75,
+      "top": 1883,
+      "right": 1382,
+      "bottom": 2405.75,
+      "left": 58
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 168.9921875,
+      "y": 2034.375,
+      "width": 16,
+      "height": 16,
+      "top": 2034.375,
+      "right": 184.9921875,
+      "bottom": 2050.375,
+      "left": 168.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "REVIEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 99,
+      "y": 2328.75,
+      "width": 129.34375,
+      "height": 36,
+      "top": 2328.75,
+      "right": 228.34375,
+      "bottom": 2364.75,
+      "left": 99
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 236.34375,
+      "y": 2328.75,
+      "width": 129.8671875,
+      "height": 36,
+      "top": 2328.75,
+      "right": 366.2109375,
+      "bottom": 2364.75,
+      "left": 236.34375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "CKCCC GENERAL ENGAGEMENTS  CKCCC \u00b7 BANGA",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 58,
+      "y": 2429.75,
+      "width": 1324,
+      "height": 467.75,
+      "top": 2429.75,
+      "right": 1382,
+      "bottom": 2897.5,
+      "left": 58
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-[#00DCB4] border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 169,
+      "y": 2581.125,
+      "width": 16,
+      "height": 16,
+      "top": 2581.125,
+      "right": 185,
+      "bottom": 2597.125,
+      "left": 169
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "REVIEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 99,
+      "y": 2820.5,
+      "width": 129.34375,
+      "height": 36,
+      "top": 2820.5,
+      "right": 228.34375,
+      "bottom": 2856.5,
+      "left": 99
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "block border-[3px] border-black bg-white shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "RUHNIKA GENERAL ENGAGEMENTS  RUHNIKA \u00b7 B",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 58,
+      "y": 2921.5,
+      "width": 1324,
+      "height": 467.75,
+      "top": 2921.5,
+      "right": 1382,
+      "bottom": 3389.25,
+      "left": 58
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 169,
+      "y": 3072.875,
+      "width": 16,
+      "height": 16,
+      "top": 3072.875,
+      "right": 185,
+      "bottom": 3088.875,
+      "left": 169
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 329,
+      "y": 3072.875,
+      "width": 16,
+      "height": 16,
+      "top": 3072.875,
+      "right": 345,
+      "bottom": 3088.875,
+      "left": 329
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 488.9921875,
+      "y": 3072.875,
+      "width": 16,
+      "height": 16,
+      "top": 3072.875,
+      "right": 504.9921875,
+      "bottom": 3088.875,
+      "left": 488.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 648.9921875,
+      "y": 3072.875,
+      "width": 16,
+      "height": 16,
+      "top": 3072.875,
+      "right": 664.9921875,
+      "bottom": 3088.875,
+      "left": 648.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "FINALIZE DRAFT",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 99,
+      "y": 3312.25,
+      "width": 124.5703125,
+      "height": 36,
+      "top": 3312.25,
+      "right": 223.5703125,
+      "bottom": 3348.25,
+      "left": 99
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#111118] shadow-[3px_3px_0_#000] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:bg-[#FAF7F2] hover:shadow-[4px_4px_0_#000]",
+    "id": "",
+    "text": "REVIEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 231.5703125,
+      "y": 3312.25,
+      "width": 129.34375,
+      "height": 36,
+      "top": 3312.25,
+      "right": 360.9140625,
+      "bottom": 3348.25,
+      "left": 231.5703125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "x",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "x",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "x",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 3px 3px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/dashboard",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1196.359375,
+      "y": 12,
+      "width": 123.640625,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1196.359375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "border-2 border-[#111118] bg-[#D4FF00] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118]",
+    "id": "",
+    "text": "1 ACTIVE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 538.1640625,
+      "y": 116.25,
+      "width": 84.3046875,
+      "height": 28.5,
+      "top": 116.25,
+      "right": 622.46875,
+      "bottom": 144.75,
+      "left": 538.1640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex justify-center border-2 border-[#111118] bg-[#D4FF00] px-5 py-3 text-[12px] font-black uppercase tracking-[0.1em] text-[#111118] shadow-[3px_3px_0_#111118] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_#111118]",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 1211.0390625,
+      "y": 136,
+      "width": 148.9609375,
+      "height": 46,
+      "top": 136,
+      "right": 1360,
+      "bottom": 182,
+      "left": 1211.0390625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-white p-4 shadow-[4px_4px_0_#111118]",
+    "id": "",
+    "text": "Receivable High-Low Recent activity Alph",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 80,
+      "y": 232,
+      "width": 1280,
+      "height": 128,
+      "top": 232,
+      "right": 1360,
+      "bottom": 360,
+      "left": 80
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "SELECT",
+    "className": "w-full border-2 border-[#111118] bg-white px-3 py-2.5 text-[12px] font-black uppercase tracking-[0.08em] text-[#111118] shadow-[2px_2px_0_#111118] focus:outline-none",
+    "id": "",
+    "text": "Receivable High-Low Recent activity Alph",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1122,
+      "y": 250,
+      "width": 220,
+      "height": 43.5,
+      "top": 250,
+      "right": 1342,
+      "bottom": 293.5,
+      "left": 1122
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "border-2 border-[#111118] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.1em] transition-all bg-[#111118] text-[#D4FF00] shadow-[2px_2px_0_#111118]",
+    "id": "",
+    "text": "ALL",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 98,
+      "y": 309.5,
+      "width": 51.3984375,
+      "height": 32.5,
+      "top": 309.5,
+      "right": 149.3984375,
+      "bottom": 342,
+      "left": 98
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "ARTICLE",
+    "className": "flex flex-col border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] transition-all hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#111118]",
+    "id": "",
+    "text": "AWAITING CLIENT 2/6 MILESTONES MEGA PROJ",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 80,
+      "y": 384,
+      "width": 1280,
+      "height": 493,
+      "top": 384,
+      "right": 1360,
+      "bottom": 877,
+      "left": 80
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "border-2 border-[#111118] bg-[#F8F8F4] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118]",
+    "id": "",
+    "text": "2/6 MILESTONES",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 225.4765625,
+      "y": 406,
+      "width": 111.3515625,
+      "height": 25.5,
+      "top": 406,
+      "right": 336.828125,
+      "bottom": 431.5,
+      "left": 225.4765625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex shrink-0 justify-center border-2 border-[#111118] bg-[#D4FF00] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_#111118]",
+    "id": "",
+    "text": "VIEW PROJECT \u2192",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1189.1640625,
+      "y": 406,
+      "width": 148.8359375,
+      "height": 36.5,
+      "top": 406,
+      "right": 1338,
+      "bottom": 442.5,
+      "left": 1189.1640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-[#00DCB4] border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 189.9921875,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 205.9921875,
+      "bottom": 684.875,
+      "left": 189.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-[#00DCB4] border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 349.9921875,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 365.9921875,
+      "bottom": 684.875,
+      "left": 349.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 510,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 526,
+      "bottom": 684.875,
+      "left": 510
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 669.9921875,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 685.9921875,
+      "bottom": 684.875,
+      "left": 669.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 829.9921875,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 845.9921875,
+      "bottom": 684.875,
+      "left": 829.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "DIV",
+    "className": "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118] bg-white border-2 border-[#111118]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 989.9921875,
+      "y": 668.875,
+      "width": 16,
+      "height": 16,
+      "top": 668.875,
+      "right": 1005.9921875,
+      "bottom": 684.875,
+      "left": 989.9921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex justify-center border-2 border-[#111118] bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5",
+    "id": "",
+    "text": "OPEN INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1213.0390625,
+      "y": 822.5,
+      "width": 128.9609375,
+      "height": 36.5,
+      "top": 822.5,
+      "right": 1342,
+      "bottom": 859,
+      "left": 1213.0390625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "ARTICLE",
+    "className": "flex flex-col border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] transition-all hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#111118]",
+    "id": "",
+    "text": "DRAFT 0/0 MILESTONES TEST PROJECT 177943",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 80,
+      "y": 897,
+      "width": 1280,
+      "height": 383,
+      "top": 897,
+      "right": 1360,
+      "bottom": 1280,
+      "left": 80
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "border-2 border-[#111118] bg-[#F8F8F4] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118]",
+    "id": "",
+    "text": "0/0 MILESTONES",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 167.3046875,
+      "y": 919,
+      "width": 112.796875,
+      "height": 25.5,
+      "top": 919,
+      "right": 280.1015625,
+      "bottom": 944.5,
+      "left": 167.3046875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex shrink-0 justify-center border-2 border-[#111118] bg-[#D4FF00] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0_#111118]",
+    "id": "",
+    "text": "VIEW PROJECT \u2192",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1189.1640625,
+      "y": 919,
+      "width": 148.8359375,
+      "height": 36.5,
+      "top": 919,
+      "right": 1338,
+      "bottom": 955.5,
+      "left": 1189.1640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "base",
+    "tag": "A",
+    "className": "inline-flex justify-center border-2 border-[#111118] bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5",
+    "id": "",
+    "text": "VIEW PROJECT",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1209.890625,
+      "y": 1225.5,
+      "width": 132.109375,
+      "height": 36.5,
+      "top": 1225.5,
+      "right": 1342,
+      "bottom": 1262,
+      "left": 1209.890625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "ALL",
+    "reasons": [
+      "Hover Shadow triggered: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/projects",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1196.359375,
+      "y": 12,
+      "width": 123.640625,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1196.359375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] px-5 py-4",
+    "id": "",
+    "text": "\u20b917,846 outstanding \u00b7 7 invoices  Settle",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 210.5,
+      "width": 1142.6640625,
+      "height": 94,
+      "top": 210.5,
+      "right": 1291.328125,
+      "bottom": 304.5,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "DIV",
+    "className": "mb-4 inline-flex items-center",
+    "id": "",
+    "text": "TRACKED (7) OFFLINE (0)",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 4px 4px 0px 0px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 328.5,
+      "width": 241.8359375,
+      "height": 46,
+      "top": 328.5,
+      "right": 390.5,
+      "bottom": 374.5,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] overflow-visible",
+    "id": "",
+    "text": "All Status Draft Saved Sent Partial Sett",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 390.5,
+      "width": 1142.6640625,
+      "height": 689.5,
+      "top": 390.5,
+      "right": 1291.328125,
+      "bottom": 1080,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-1230 24 May 2026 \u00b7 Due 13 Jun",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 523,
+      "width": 1138.6640625,
+      "height": 87.5,
+      "top": 523,
+      "right": 1289.328125,
+      "bottom": 610.5,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 550.75,
+      "width": 32,
+      "height": 32,
+      "top": 550.75,
+      "right": 1273.328125,
+      "bottom": 582.75,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-9996 23 May 2026 \u00b7 Due 21 Jul",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 610.5,
+      "width": 1138.6640625,
+      "height": 87.5,
+      "top": 610.5,
+      "right": 1289.328125,
+      "bottom": 698,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 638.25,
+      "width": 32,
+      "height": 32,
+      "top": 638.25,
+      "right": 1273.328125,
+      "bottom": 670.25,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-9446 21 May 2026 \u00b7 Due 10 Jun",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 698,
+      "width": 1138.6640625,
+      "height": 69,
+      "top": 698,
+      "right": 1289.328125,
+      "bottom": 767,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 716.5,
+      "width": 32,
+      "height": 32,
+      "top": 716.5,
+      "right": 1273.328125,
+      "bottom": 748.5,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-1238 21 May 2026 \u00b7 Due 18 Jul",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 767,
+      "width": 1138.6640625,
+      "height": 103.5,
+      "top": 767,
+      "right": 1289.328125,
+      "bottom": 870.5,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "DIV",
+    "className": "mt-1.5 max-w-[280px] border-2 border-[#111118] bg-[#FFFBE6] px-2 py-1 text-[11px] font-bold text-[#111118] shadow-[2px_2px_0_#111118] truncate",
+    "id": "",
+    "text": "Proposal: \"I would Like to Update the MS",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 246.6640625,
+      "y": 825.5,
+      "width": 280,
+      "height": 28.5,
+      "top": 825.5,
+      "right": 526.6640625,
+      "bottom": 854,
+      "left": 246.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 802.75,
+      "width": 32,
+      "height": 32,
+      "top": 802.75,
+      "right": 1273.328125,
+      "bottom": 834.75,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-6551 21 May 2026 \u00b7 Due 16 Jul",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 870.5,
+      "width": 1138.6640625,
+      "height": 69,
+      "top": 870.5,
+      "right": 1289.328125,
+      "bottom": 939.5,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 889,
+      "width": 32,
+      "height": 32,
+      "top": 889,
+      "right": 1273.328125,
+      "bottom": 921,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-3173 20 May 2026 \u00b7 Due 16 Jul",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 939.5,
+      "width": 1138.6640625,
+      "height": 69,
+      "top": 939.5,
+      "right": 1289.328125,
+      "bottom": 1008.5,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 958,
+      "width": 32,
+      "height": 32,
+      "top": 958,
+      "right": 1273.328125,
+      "bottom": 990,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "TR",
+    "className": "border-b border-[color:var(--border-subtle)] hover:bg-indigo-light/40 transition-colors group cursor-pointer",
+    "id": "",
+    "text": "\t INV-2026-4078 19 May 2026 \u00b7 Due 02 Jul",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 150.6640625,
+      "y": 1008.5,
+      "width": 1138.6640625,
+      "height": 69,
+      "top": 1008.5,
+      "right": 1289.328125,
+      "bottom": 1077.5,
+      "left": 150.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "flex h-8 w-8 items-center justify-center border border-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors text-[color:var(--text-muted)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1241.328125,
+      "y": 1027,
+      "width": 32,
+      "height": 32,
+      "top": 1027,
+      "right": 1273.328125,
+      "bottom": 1059,
+      "left": 1241.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoices",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 2px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(190,255,0,0.03)_0%,transparent_70%)] rounded-full blur-3xl",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": 940,
+      "y": 0,
+      "width": 500,
+      "height": 500,
+      "top": 0,
+      "right": 1440,
+      "bottom": 500,
+      "left": 940
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "absolute top-[20%] left-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(0,212,160,0.03)_0%,transparent_70%)] rounded-full blur-2xl",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": -144,
+      "y": 155.59375,
+      "width": 300,
+      "height": 300,
+      "top": 155.59375,
+      "right": 156,
+      "bottom": 455.59375,
+      "left": -144
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(190,255,0,0.02)_0%,transparent_70%)] rounded-full blur-3xl",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": 1112,
+      "y": 300.203125,
+      "width": 400,
+      "height": 400,
+      "top": 300.203125,
+      "right": 1512,
+      "bottom": 700.203125,
+      "left": 1112
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1180.6953125,
+      "y": 12,
+      "width": 139.3046875,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1180.6953125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-3 py-3 shadow-[var(--brutal-shadow-sm)]",
+    "id": "",
+    "text": "EDITOR PROGRESS  4 of 4 ready  1  Agency",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 32,
+      "y": 287.5,
+      "width": 160,
+      "height": 381.5,
+      "top": 287.5,
+      "right": 192,
+      "bottom": 669,
+      "left": 32
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--text-secondary)] transition duration-[var(--app-duration-fast)]",
+    "id": "",
+    "text": "1  Agency  READY",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 60,
+      "y": 376,
+      "width": 118,
+      "height": 63,
+      "top": 376,
+      "right": 178,
+      "bottom": 439,
+      "left": 60
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+    "id": "",
+    "text": "1",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 1px 1px 0px 0px"
+    ],
+    "rect": {
+      "x": 75,
+      "y": 392,
+      "width": 21,
+      "height": 21,
+      "top": 392,
+      "right": 96,
+      "bottom": 413,
+      "left": 75
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] px-3 py-3",
+    "id": "",
+    "text": "STATUS  Ready  100%  All required sectio",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 32,
+      "y": 681,
+      "width": 160,
+      "height": 365.5,
+      "top": 681,
+      "right": 192,
+      "bottom": 1046.5,
+      "left": 32
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SECTION",
+    "className": "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+    "id": "step-agency",
+    "text": "STEP 1  Agency  Issuer details, address,",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ],
+    "rect": {
+      "x": 216,
+      "y": 287.5,
+      "width": 888,
+      "height": 1036.5,
+      "top": 287.5,
+      "right": 1104,
+      "bottom": 1324,
+      "left": 216
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-[color:var(--interactive-secondary)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": 238,
+      "y": 314.5,
+      "width": 10,
+      "height": 10,
+      "top": 314.5,
+      "right": 248,
+      "bottom": 324.5,
+      "left": 238
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SECTION",
+    "className": "rounded-none border-0 bg-transparent p-0 shadow-none",
+    "id": "",
+    "text": "TAX & IDENTITY GST Registration Status ?",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+    ],
+    "rect": {
+      "x": 238,
+      "y": 395,
+      "width": 844,
+      "height": 759,
+      "top": 395,
+      "right": 1082,
+      "bottom": 1154,
+      "left": 238
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 400.40625,
+      "y": 436.5,
+      "width": 16,
+      "height": 16,
+      "top": 436.5,
+      "right": 416.40625,
+      "bottom": 452.5,
+      "left": 400.40625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--interactive-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-200",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": 428.40625,
+      "y": 434.5,
+      "width": 36,
+      "height": 20,
+      "top": 434.5,
+      "right": 464.40625,
+      "bottom": 454.5,
+      "left": 428.40625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+    ],
+    "rect": {
+      "x": 430.40625,
+      "y": 436.5,
+      "width": 16,
+      "height": 16,
+      "top": 436.5,
+      "right": 446.40625,
+      "bottom": 452.5,
+      "left": 430.40625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 271.953125,
+      "y": 509.25,
+      "width": 16,
+      "height": 16,
+      "top": 509.25,
+      "right": 287.953125,
+      "bottom": 525.25,
+      "left": 271.953125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200 bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm active:scale-[0.97] transition-all",
+    "id": "",
+    "text": "Continue to Client \u2192",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+    ],
+    "rect": {
+      "x": 892.078125,
+      "y": 1186,
+      "width": 189.921875,
+      "height": 40,
+      "top": 1186,
+      "right": 1082,
+      "bottom": 1226,
+      "left": 892.078125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6 bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform",
+    "id": "",
+    "text": "Preview invoice",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 885.7421875,
+      "y": 726,
+      "width": 218.2578125,
+      "height": 40,
+      "top": 726,
+      "right": 1104,
+      "bottom": 766,
+      "left": 885.7421875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]",
+    "id": "",
+    "text": "INVOICE DETAILS  Edit INV # ? INV-2026-8",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1128,
+      "y": 287.5,
+      "width": 280,
+      "height": 186.5,
+      "top": 287.5,
+      "right": 1408,
+      "bottom": 474,
+      "left": 1128
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "pointer-events-none block h-4 w-4 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0.5",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+    ],
+    "rect": {
+      "x": 1356,
+      "y": 307.5,
+      "width": 16,
+      "height": 16,
+      "top": 307.5,
+      "right": 1372,
+      "bottom": 323.5,
+      "left": 1356
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1184,
+      "y": 348.25,
+      "width": 16,
+      "height": 16,
+      "top": 348.25,
+      "right": 1200,
+      "bottom": 364.25,
+      "left": 1184
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1182.4453125,
+      "y": 379,
+      "width": 16,
+      "height": 16,
+      "top": 379,
+      "right": 1198.4453125,
+      "bottom": 395,
+      "left": 1182.4453125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SPAN",
+    "className": "inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--border-subtle)] text-[8px] text-[color:var(--text-muted)] cursor-help shrink-0",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px"
+    ],
+    "rect": {
+      "x": 1176.796875,
+      "y": 410,
+      "width": 14,
+      "height": 14,
+      "top": 410,
+      "right": 1190.796875,
+      "bottom": 424,
+      "left": 1176.796875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1180.3828125,
+      "y": 439,
+      "width": 16,
+      "height": 16,
+      "top": 439,
+      "right": 1196.3828125,
+      "bottom": 455,
+      "left": 1180.3828125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "border-2 border-[#111118] bg-[color:var(--app-color-surface-muted)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]",
+    "id": "",
+    "text": "TOTALS ?  No valid LUT has been provided",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1128,
+      "y": 490,
+      "width": 280,
+      "height": 376.5,
+      "top": 490,
+      "right": 1408,
+      "bottom": 866.5,
+      "left": 1128
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1200.0703125,
+      "y": 508,
+      "width": 16,
+      "height": 16,
+      "top": 508,
+      "right": 1216.0703125,
+      "bottom": 524,
+      "left": 1200.0703125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "SECTION",
+    "className": "rounded-none border-0 bg-transparent p-0 shadow-none",
+    "id": "",
+    "text": "No valid LUT has been provided for this ",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+    ],
+    "rect": {
+      "x": 1146,
+      "y": 545,
+      "width": 244,
+      "height": 303.5,
+      "top": 545,
+      "right": 1390,
+      "bottom": 848.5,
+      "left": 1146
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "DIV",
+    "className": "mt-4 rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] p-4 ring-1 ring-inset ring-[color:var(--state-warning-border)]",
+    "id": "",
+    "text": "No valid LUT has been provided for this ",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(255, 92, 0) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+    ],
+    "rect": {
+      "x": 1146,
+      "y": 561,
+      "width": 244,
+      "height": 336,
+      "top": 561,
+      "right": 1390,
+      "bottom": 897,
+      "left": 1146
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "id": "",
+    "text": "?",
+    "reasons": [
+      "Soft Radius: 1.67772e+07px",
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1311.15625,
+      "y": 831.5,
+      "width": 16,
+      "height": 16,
+      "top": 831.5,
+      "right": 1327.15625,
+      "bottom": 847.5,
+      "left": 1311.15625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "1\n\nAgency\n\nREADY",
+    "reasons": [
+      "Hover Shadow triggered: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/invoice/new",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1196.359375,
+      "y": 12,
+      "width": 123.640625,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1196.359375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[#111118] font-bold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed h-9 px-3 text-[13px] app-soft-button-primary text-[#111118] font-extrabold uppercase",
+    "id": "",
+    "text": "ADD CLIENT",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 1164.7109375,
+      "y": 124.5,
+      "width": 126.6171875,
+      "height": 36,
+      "top": 124.5,
+      "right": 1291.328125,
+      "bottom": 160.5,
+      "left": 1164.7109375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "DIV",
+    "className": "overflow-visible border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]",
+    "id": "",
+    "text": "CLIENT NAME\tEMAIL\tCITY\tGSTIN\tTYPE\tINVOIC",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 202.5,
+      "width": 1142.6640625,
+      "height": 330.5,
+      "top": 202.5,
+      "right": 1291.328125,
+      "bottom": 533,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1213.328125,
+      "y": 329,
+      "width": 28,
+      "height": 28,
+      "top": 329,
+      "right": 1241.328125,
+      "bottom": 357,
+      "left": 1213.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1245.328125,
+      "y": 329,
+      "width": 28,
+      "height": 28,
+      "top": 329,
+      "right": 1273.328125,
+      "bottom": 357,
+      "left": 1245.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1213.328125,
+      "y": 383,
+      "width": 28,
+      "height": 28,
+      "top": 383,
+      "right": 1241.328125,
+      "bottom": 411,
+      "left": 1213.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1245.328125,
+      "y": 383,
+      "width": 28,
+      "height": 28,
+      "top": 383,
+      "right": 1273.328125,
+      "bottom": 411,
+      "left": 1245.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1213.328125,
+      "y": 437,
+      "width": 28,
+      "height": 28,
+      "top": 437,
+      "right": 1241.328125,
+      "bottom": 465,
+      "left": 1213.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1245.328125,
+      "y": 437,
+      "width": 28,
+      "height": 28,
+      "top": 437,
+      "right": 1273.328125,
+      "bottom": 465,
+      "left": 1245.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1213.328125,
+      "y": 491,
+      "width": 28,
+      "height": 28,
+      "top": 491,
+      "right": 1241.328125,
+      "bottom": 519,
+      "left": 1213.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]",
+    "id": "",
+    "text": "",
+    "reasons": [
+      "Weak Border (1px instead of 2px) on interactive element"
+    ],
+    "rect": {
+      "x": 1245.328125,
+      "y": 491,
+      "width": 28,
+      "height": 28,
+      "top": 491,
+      "right": 1273.328125,
+      "bottom": 519,
+      "left": 1245.328125
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "hover",
+    "tag": "BUTTON",
+    "text": "ADD CLIENT",
+    "reasons": [
+      "Hover Shadow triggered: rgb(17, 17, 24) 5px 5px 0px 0px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/clients",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "base",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "id": "",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 1196.359375,
+      "y": 12,
+      "width": 123.640625,
+      "height": 32.5,
+      "top": 12,
+      "right": 1320,
+      "bottom": 44.5,
+      "left": 1196.359375
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "base",
+    "tag": "DIV",
+    "className": "mb-6 border border-amber-200 bg-amber-50 p-4 shadow-sm",
+    "id": "",
+    "text": "\u26a0\ufe0f Complete your profile  Please fill in",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 326,
+      "width": 1142.6640625,
+      "height": 78,
+      "top": 326,
+      "right": 1291.328125,
+      "bottom": 404,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "base",
+    "tag": "DIV",
+    "className": "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[#111118] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] app-soft-panel",
+    "id": "",
+    "text": "AGENCY DETAILS  Your studio or freelance",
+    "reasons": [
+      "Soft Shadow Blur: rgb(17, 17, 24) 2px 2px 0px 0px"
+    ],
+    "rect": {
+      "x": 148.6640625,
+      "y": 428,
+      "width": 1142.6640625,
+      "height": 717,
+      "top": 428,
+      "right": 1291.328125,
+      "bottom": 1145,
+      "left": 148.6640625
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "base",
+    "tag": "DIV",
+    "className": "fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--border-subtle)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]",
+    "id": "",
+    "text": "SAVE PROFILE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.04) 0px -1px 3px 0px"
+    ],
+    "rect": {
+      "x": 0,
+      "y": 701,
+      "width": 1440,
+      "height": 77,
+      "top": 701,
+      "right": 1440,
+      "bottom": 778,
+      "left": 0
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "base",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+    "id": "",
+    "text": "SAVE PROFILE",
+    "reasons": [
+      "Transparent/Soft Shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 17, 24) 3px 3px 0px 0px"
+    ],
+    "rect": {
+      "x": 957.4921875,
+      "y": 718,
+      "width": 146.5078125,
+      "height": 44,
+      "top": 718,
+      "right": 1104,
+      "bottom": 762,
+      "left": 957.4921875
+    }
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  },
+  {
+    "url": "https://lanceinvoice.xyz/profile",
+    "state": "focus",
+    "tag": "INPUT",
+    "text": "Form Input",
+    "reasons": [
+      "Focus Ring/Shadow triggered: rgb(190, 255, 0) 0px 0px 0px 3px"
+    ]
+  }
+]

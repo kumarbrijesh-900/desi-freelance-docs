@@ -1,0 +1,1211 @@
+[
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[16px] font-black tracking-[0.1em] uppercase text-white font-syne antialiased",
+    "text": "LANCE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#BEFF00]",
+    "text": "DASHBOARD",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.16:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "PROJECTS",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "INVOICES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "CLIENTS",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "FAQ",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in",
+    "text": "9+",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 3.10:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[13px] text-[color:var(--text-muted)] mt-1",
+    "text": "Monday, 25 May 2026",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-3 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-md)] hover:shadow-[var(--brutal-shadow-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all font-syne",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[13px] font-black uppercase tracking-[0.12em] text-[#111118]",
+    "text": "WHAT NEEDS ATTENTION",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]",
+    "text": "5 ACTIONS",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "text": "x",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-3 text-[13px] font-bold leading-5 text-[#111118]",
+    "text": "Client note: \"I would Like to ",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "A",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "text": "UPDATE ADDENDUM \u2192",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "text": "x",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-3 text-[13px] font-bold leading-5 text-[#111118]",
+    "text": "Sent to Kumar.brijesh900@gmail",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "h-7 w-7 border-2 border-[#111118] bg-white text-[13px] font-black text-[#111118] shadow-[2px_2px_0_#111118] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#111118]",
+    "text": "x",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-3 text-[13px] font-bold leading-5 text-[#111118]",
+    "text": "Sent to test@example.com (23h ",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "inline-flex w-full justify-center border-2 border-[#111118] bg-[#111118] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#D4FF00] shadow-[3px_3px_0_#000] transition-all hover:-translate-y-0.5",
+    "text": "RESEND INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]",
+    "text": "OUTSTANDING",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-2 text-[26px] font-black font-syne",
+    "text": "\u20b946,006",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 3:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55",
+    "text": "4 INVOICES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]",
+    "text": "COLLECTED",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-2 text-[26px] font-black font-syne",
+    "text": "\u20b912,95,204",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 3:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55",
+    "text": "0 INVOICES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[11px] font-black uppercase tracking-[0.16em] text-white/55 group-hover:text-[#D4FF00]",
+    "text": "AT RISK",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-2 text-[26px] font-black font-syne",
+    "text": "\u20b90",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 3:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white/55",
+    "text": "OVERDUE + REVISION-BLOCKED",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[13px] font-bold text-[#111118] tracking-[0.08em]",
+    "text": "PROJECT LEDGER",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors bg-[#111118] text-white",
+    "text": "BY PROJECT",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors border-l-2 border-[#111118] bg-white text-[#111118] hover:bg-[#F5F5F0]",
+    "text": "BY CLIENT",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors border-l-2 border-[#111118] bg-white text-[#111118] hover:bg-[#F5F5F0]",
+    "text": "BY INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold px-2.5 py-1 border-2 border-[#111118] uppercase shadow-[2px_2px_0_#111118] bg-[#E0F3FF] text-[#111118]",
+    "text": "ALL PROJECTS",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600",
+    "text": "BKB \u00b7 BANGALORE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold uppercase tracking-wide text-neutral-600",
+    "text": "0/1 MILESTONES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "MILESTONE 1",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-6551",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "DRAFT PIPELINE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700",
+    "text": "INV-2026-6551 has not been sen",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600",
+    "text": "ALEHANDRO \u00b7 BANGALORE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold uppercase tracking-wide text-neutral-600",
+    "text": "2/5 MILESTONES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "DISCOVERY",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9996",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "EXPLORATION",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9996",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "PROTOTYPING",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9996",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "PRE-PROD",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9996",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "DELIVERY",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9996",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "SCHEDULED TO SEND",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700",
+    "text": "Explainer video editing + voic",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "AMOUNT",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "WILL SEND",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center border-2 border-black bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-red-600 transition-colors hover:bg-[#FAF7F2]",
+    "text": "CANCEL",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600",
+    "text": "LAZYPANDA \u00b7 BANGALORE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold uppercase tracking-wide text-neutral-600",
+    "text": "0/1 MILESTONES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "MILESTONE 1",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-4078",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "AWAITING CLIENT",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700",
+    "text": "Office space planning and desi",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "AMOUNT",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600",
+    "text": "CKCCC \u00b7 BANGALORE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold uppercase tracking-wide text-neutral-600",
+    "text": "1/1 MILESTONES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "MILESTONE 1",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-9446",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "PROJECT COMPLETE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700",
+    "text": "Last settled 21 May 2026",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 mt-1 text-xs font-bold uppercase tracking-wide text-neutral-600",
+    "text": "RUHNIKA \u00b7 BANGALORE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "SPAN",
+    "className": "text-[11px] font-bold uppercase tracking-wide text-neutral-600",
+    "text": "0/4 MILESTONES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "DISCOVERY PHASE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-1230",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "PROTOTYPING",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-1230",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "PRE-PROD",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-1230",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate",
+    "text": "DELIVERY",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase",
+    "text": "INV-2026-1230",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "m-0 text-[10px] font-black uppercase tracking-widest text-neutral-600",
+    "text": "DRAFT PIPELINE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_dashboard",
+    "tag": "P",
+    "className": "mb-3.5 mt-1.5 text-sm leading-relaxed text-neutral-700",
+    "text": "INV-2026-1230 has not been sen",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[16px] font-black tracking-[0.1em] uppercase text-white font-syne antialiased",
+    "text": "LANCE",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "DASHBOARD",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "PROJECTS",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "INVOICES",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "CLIENTS",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased text-[#9999A8] hover:text-white",
+    "text": "FAQ",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.71:1 (Requires 4.5:1)",
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "A",
+    "className": "hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all",
+    "text": "+ NEW INVOICE",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in",
+    "text": "9+",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 3.10:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SECTION",
+    "className": "mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 2xl:px-10 pt-8 sm:pt-12 relative z-10 pb-32",
+    "text": "New Invoice  Create a professi",
+    "reasons": [
+      "Unnecessary Whitespace (padding-bottom): 128px"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]",
+    "text": "PROJECT",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "P",
+    "className": "mt-1 text-[13px] font-semibold tracking-[-0.018em] text-[color:var(--text-primary)]",
+    "text": "4 of 4 ready",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "P",
+    "className": "mt-1 text-[11px] font-black text-[#111118]",
+    "text": "100%",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "H2",
+    "className": "mt-1 text-[19px] font-semibold tracking-[-0.024em] text-[color:var(--text-primary)]",
+    "text": "Agency",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (19px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "DIV",
+    "className": "flex items-center gap-2",
+    "text": "Agency",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (19px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "P",
+    "className": "mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--text-muted)]",
+    "text": "Issuer details, address, and t",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "H3",
+    "className": "text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]",
+    "text": "TAX & IDENTITY",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[13px] font-semibold text-[color:var(--text-primary)]",
+    "text": "GST Registration Status",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200",
+    "text": "Not registered",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "P",
+    "className": "text-[11px] text-[color:var(--text-muted)]",
+    "text": "Required for tax compliance in",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block",
+    "text": "PAN",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "H3",
+    "className": "text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]",
+    "text": "BUSINESS DETAILS",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "BUSINESS / TRADE NAME *",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "P",
+    "className": "mt-1 text-[10px] font-medium text-indigo-600",
+    "text": "Locked to your registered Agen",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.04:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "AGENCY LOGO",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[#4F46E5]",
+    "text": "Upload Agency Logo",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "H3",
+    "className": "text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]",
+    "text": "REGISTERED ADDRESS",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "ADDRESS LINE 1 *",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "ADDRESS LINE 2",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "STATE *",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "CITY",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "LABEL",
+    "className": "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]",
+    "text": "PIN",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200 bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm active:scale-[0.97] transition-all",
+    "text": "Continue to Client \u2192",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "DIV",
+    "className": "flex min-w-0 max-w-[520px] items-center gap-2 border px-3 py-1.5 text-[11px] font-bold border-[#00A884] bg-[#EBFDF9] text-[#007A63]",
+    "text": "Ready for preview. Confirm tot",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "circle",
+    "className": {},
+    "text": "",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "truncate",
+    "text": "Ready for preview. Confirm tot",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (11px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[#111118] font-bold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed h-9 px-3 text-[13px] app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)] h-9 px-4 border border-[color:var(--border-subtle)] text-[color:var(--text-secondary)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+    "text": "Save Draft",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[13px] font-bold text-[color:var(--text-primary)]",
+    "text": "INV-2026-9877",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "text-[12px] font-medium text-[#FF5C00]",
+    "text": "2026-06-14",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 2.99:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "block text-[13px] font-medium leading-5",
+    "text": "Add 18% IGST to the client inv",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "SPAN",
+    "className": "block text-[13px] font-medium leading-5",
+    "text": "Keep client invoice at 0% tax ",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (13px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "DT",
+    "className": "text-[15px] font-bold text-[color:var(--text-primary)]",
+    "text": "Grand Total",
+    "reasons": [
+      "Visual Inconsistency: Non-standard font size (15px) breaks typographical scale"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "text-[#8B5CF6] font-bold text-[12px] hover:underline",
+    "text": "Advanced tax options \u2192",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 4.09:1 (Requires 4.5:1)"
+    ]
+  },
+  {
+    "context": "WCAG_new",
+    "tag": "BUTTON",
+    "className": "inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors focus:outline-none ring-1 ring-transparent focus:ring-[#BEFF00]",
+    "text": "?",
+    "reasons": [
+      "WCAG Contrast Violation: Ratio is 1.00:1 (Requires 4.5:1)"
+    ]
+  }
+]
