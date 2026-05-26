@@ -107,6 +107,32 @@ function getInvoiceNumber(data: InvoiceFormData): string {
   return data.meta?.invoiceNumber || `INV-${year}-000`;
 }
 
+function computeGrandTotalFromFormData(formData?: any): number {
+  if (!formData) return 0;
+
+  const milestones = formData.milestones || [];
+  if (milestones.length > 0) {
+    return milestones.reduce((sum: number, milestone: any) =>
+      sum + (milestone.lineItems || []).reduce(
+        (lineSum: number, lineItem: any) =>
+          lineSum + Number(lineItem.qty || 0) * Number(lineItem.rate || 0),
+        0,
+      ), 0);
+  }
+
+  return (formData.lineItems || []).reduce(
+    (sum: number, lineItem: any) =>
+      sum + Number(lineItem.qty || 0) * Number(lineItem.rate || 0),
+    0,
+  );
+}
+
+function resolveInvoiceGrandTotal(invoice: any): number {
+  const persistedGrandTotal = Number(invoice.grand_total || 0);
+  if (persistedGrandTotal !== 0) return persistedGrandTotal;
+  return computeGrandTotalFromFormData(invoice.form_data);
+}
+
 /**
  * Query Supabase for the highest invoice number this year for the current user
  * and return the next sequential number in INV-YYYY-NNN format.
@@ -539,8 +565,7 @@ export async function listInvoices(): Promise<{
     
     // Process flat data with legacy fallback
     const fallbackProcessed = (fallbackData || []).map((inv: any) => {
-      const items = inv.form_data?.lineItems ?? [];
-      const grandTotal = items.reduce((s: number, i: any) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
+      const grandTotal = resolveInvoiceGrandTotal(inv);
       return { ...inv, grand_total: grandTotal };
     });
     return { data: fallbackProcessed as SavedInvoice[], error: null };
@@ -554,17 +579,17 @@ export async function listInvoices(): Promise<{
     }
 
     // Calculate total amount from relational data if available, fallback to form_data
-    let grandTotal = 0;
-    if (inv.milestones && inv.milestones.length > 0) {
+    let grandTotal = Number(inv.grand_total || 0);
+    if (grandTotal === 0 && inv.milestones && inv.milestones.length > 0) {
       inv.milestones.forEach((m: any) => {
         // Use the pre-calculated amount column in invoice_milestones
         const milestoneAmount = Number(m.amount || 0);
         grandTotal += milestoneAmount;
       });
-    } else {
-      // Fallback to form_data logic
-      const items = inv.form_data?.lineItems ?? [];
-      grandTotal = items.reduce((s: number, i: any) => s + Number(i.qty ?? 0) * Number(i.rate ?? 0), 0);
+    }
+
+    if (grandTotal === 0) {
+      grandTotal = computeGrandTotalFromFormData(inv.form_data);
     }
 
     return {
