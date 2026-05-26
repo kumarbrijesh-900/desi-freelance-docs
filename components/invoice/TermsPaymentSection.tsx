@@ -49,7 +49,6 @@ interface TermsPaymentSectionProps {
   client: import("@/types/invoice").ClientDetails;
   agency: import("@/types/invoice").AgencyDetails;
   msaSource?: "client" | "global" | "project" | "default" | null;
-  onPreview?: () => void;
   isReadOnly?: boolean;
 }
 
@@ -109,7 +108,6 @@ export default function TermsPaymentSection({
   msaSource = null,
   autoFilledFields = new Set(),
   onFieldManualEdit = () => {},
-  onPreview,
   isReadOnly: editorReadOnly = false,
 }: TermsPaymentSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string | number) => {
@@ -1075,19 +1073,6 @@ export default function TermsPaymentSection({
                 )}
               </AnimatePresence>
           </div>
-
-          {!editorReadOnly && (
-          <div className="flex justify-end mt-8 pt-6 border-t-2 border-[color:var(--border-subtle)]">
-            <button
-              type="button"
-              onClick={onPreview}
-              className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-3 text-[13px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-md)] hover:shadow-[var(--brutal-shadow-lg)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
-            >
-              Continue to Preview
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-            </button>
-          </div>
-          )}
         </div>
       </section>
     </>

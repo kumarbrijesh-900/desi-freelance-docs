@@ -751,6 +751,7 @@ export default function EditorContent() {
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
   const [parserDocumentId, setParserDocumentId] = useState<string | null>(null);
   const [clientMsaNote, setClientMsaNote] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -2306,6 +2307,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           embedded
           milestones={formData.milestones}
           currency={displayCurrency}
+          projectName={projectName}
+          onProjectNameChange={setProjectName}
           onChange={(milestones) =>
             setFormData((prev) => ({
               ...prev,
@@ -2345,7 +2348,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
-          onPreview={handlePreviewInvoice}
         />
       );
     case "meta": {

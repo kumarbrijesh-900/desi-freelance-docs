@@ -172,6 +172,7 @@ type StoredDraft = {
   documentId?: string | null;
   clientMsaNote?: string | null;
   projectId?: string | null;
+  projectName?: string;
 };
 
 function getTodayDateString() {
@@ -578,9 +579,9 @@ type MissingFieldGroup = {
 
 function withProjectRequirement(
   groups: MissingFieldGroup[],
-  hasProject: boolean,
+  hasProjectName: boolean,
 ) {
-  if (hasProject) return groups;
+  if (hasProjectName) return groups;
 
   const deliverablesGroup = groups.find((group) => group.step === "deliverables");
   if (deliverablesGroup) {
@@ -614,17 +615,17 @@ function withProjectRequirement(
 function isStepValidWithProject(
   formData: InvoiceFormData,
   step: InvoiceStepperStep,
-  hasProject: boolean,
+  hasProjectName: boolean,
 ) {
-  return isInvoiceStepValid(formData, step) && (step !== "deliverables" || hasProject);
+  return isInvoiceStepValid(formData, step) && (step !== "deliverables" || hasProjectName);
 }
 
 function getFirstInvalidStepWithProject(
   formData: InvoiceFormData,
-  hasProject: boolean,
+  hasProjectName: boolean,
 ) {
   const firstInvalidStep = getFirstInvalidStep(formData);
-  if (hasProject) return firstInvalidStep;
+  if (hasProjectName) return firstInvalidStep;
   if (!firstInvalidStep) return "deliverables";
 
   const deliverablesIndex = VALIDATION_STEPS.indexOf("deliverables");
@@ -634,9 +635,9 @@ function getFirstInvalidStepWithProject(
     : "deliverables";
 }
 
-function isInvoiceReadyForPreview(formData: InvoiceFormData, hasProject: boolean) {
+function isInvoiceReadyForPreview(formData: InvoiceFormData, hasProjectName: boolean) {
   return VALIDATION_STEPS.every((step) =>
-    isStepValidWithProject(formData, step, hasProject),
+    isStepValidWithProject(formData, step, hasProjectName),
   );
 }
 
@@ -1143,28 +1144,6 @@ function EditorContent() {
     return getLockStateLabel(lockState.state);
   }, [lockState.state]);
 
-  const selectedClientId = useMemo(() => {
-    if (selectedClientMsa?.id) return selectedClientMsa.id;
-
-    const clientEmail = formData.client.clientEmail.trim().toLowerCase();
-    const clientName = formData.client.clientName.trim().toLowerCase();
-    const savedClient = savedClients.find((client) => {
-      const savedEmail = client.client_email?.trim().toLowerCase() ?? "";
-      const savedName = client.client_name?.trim().toLowerCase() ?? "";
-      return Boolean(
-        (clientEmail && savedEmail === clientEmail) ||
-          (clientName && savedName === clientName),
-      );
-    });
-
-    return savedClient?.id;
-  }, [
-    formData.client.clientEmail,
-    formData.client.clientName,
-    savedClients,
-    selectedClientMsa,
-  ]);
-
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
     if (isReadOnlyMode) return;
@@ -1249,6 +1228,13 @@ function EditorContent() {
       setProjectMsaAcceptedAt(data.project?.msa_accepted_at ?? null);
       setProjectStatus(data.project?.status ?? null);
       setProjectId(data.project_id ?? null);
+      const loadedProject = data.project as { name?: string } | null | undefined;
+      setProjectName(
+        loadedProject?.name ??
+          (data.form_data as any)?.projectName ??
+          (data.form_data as any)?.meta?.projectName ??
+          "",
+      );
       
       if (data.client_msa_note) {
         setClientMsaNote(data.client_msa_note);
@@ -1268,6 +1254,7 @@ function EditorContent() {
       setProjectMsaAcceptedAt(null);
       setProjectStatus(null);
       setProjectId(null);
+      setProjectName("");
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
     }
@@ -1295,6 +1282,7 @@ function EditorContent() {
               nextMsaNote = parsedDraft.clientMsaNote ?? null;
             }
             nextProjectId = parsedDraft?.projectId ?? null;
+            setProjectName(parsedDraft?.projectName ?? "");
             if (!nextFormData && parsedDraft?.formData) {
               nextFormData = mergeInvoiceFormData(parsedDraft.formData);
               shouldShowRestoreToast = true;
@@ -1844,16 +1832,16 @@ function EditorContent() {
     : undefined;
 
 
-  const hasSelectedProject = Boolean(projectId);
+  const hasNamedProject = Boolean(projectName.trim());
   const missingFieldGroups = useMemo(
-    () => withProjectRequirement(getMissingFieldLabels(formData), hasSelectedProject),
-    [formData, hasSelectedProject],
+    () => withProjectRequirement(getMissingFieldLabels(formData), hasNamedProject),
+    [formData, hasNamedProject],
   );
   const stepValidityByStep = useMemo(
     () =>
       VALIDATION_STEPS.reduce<Record<InvoiceStepperStep, boolean>>(
         (result, step) => {
-          result[step] = isStepValidWithProject(formData, step, hasSelectedProject);
+          result[step] = isStepValidWithProject(formData, step, hasNamedProject);
           return result;
         },
         {
@@ -1865,7 +1853,7 @@ function EditorContent() {
           totals: false,
         },
       ),
-    [formData, hasSelectedProject],
+    [formData, hasNamedProject],
   );
 
   const showSummaryInline = !isXl && 
@@ -1895,13 +1883,13 @@ function EditorContent() {
     [formData]
   );
   const firstInvalidStep = useMemo(
-    () => getFirstInvalidStepWithProject(formData, hasSelectedProject),
-    [formData, hasSelectedProject],
+    () => getFirstInvalidStepWithProject(formData, hasNamedProject),
+    [formData, hasNamedProject],
   );
 
   const invoiceReadyForPreview = useMemo(
-    () => isInvoiceReadyForPreview(formData, hasSelectedProject),
-    [formData, hasSelectedProject],
+    () => isInvoiceReadyForPreview(formData, hasNamedProject),
+    [formData, hasNamedProject],
   );
   const displayStepValidityByStep = useMemo(
     () => ({
@@ -2163,6 +2151,7 @@ const handlePreviewInvoice = async () => {
       JSON.stringify({
         formData: previewFormData,
         projectId,
+        projectName,
         cloudInvoiceId: parserDocumentId,
       }),
     );
@@ -2177,6 +2166,7 @@ const handlePreviewInvoice = async () => {
           documentId: parserDocumentId,
           clientMsaNote,
           projectId,
+          projectName,
         } satisfies StoredDraft),
       );
     }
@@ -2286,6 +2276,8 @@ const persistDraft = () => {
       currentStep,
       savedAt: new Date().toISOString(),
       documentId: parserDocumentId,
+      projectId,
+      projectName,
     } satisfies StoredDraft),
   );
 };
@@ -2708,7 +2700,7 @@ const handleModalSubmit = (
 
   setFormData(finalData);
 
-  const readyForPreview = isInvoiceReadyForPreview(finalData, hasSelectedProject);
+  const readyForPreview = isInvoiceReadyForPreview(finalData, hasNamedProject);
   setBriefSummaryData(null);
   setPostSubmitActionModal({ isOpen: true, isReady: readyForPreview });
 
@@ -2716,7 +2708,7 @@ const handleModalSubmit = (
   setIsBriefIntakeCollapsed(true);
   setShowAllValidationErrors(true);
 
-  const missingStep = getFirstInvalidStepWithProject(finalData, hasSelectedProject);
+  const missingStep = getFirstInvalidStepWithProject(finalData, hasNamedProject);
   const recommendedStep = clampNewInvoiceStartStep(missingStep ?? "totals");
 
   // FIX 4: Mark ALL extracted fields as auto-filled (confident + client)
@@ -2905,13 +2897,11 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isReadOnly={isReadOnlyMode}
           milestones={formData.milestones}
           currency={displayCurrency}
-          clientId={selectedClientId}
-          projectId={projectId}
           projectName={projectName}
-          onProjectChange={(nextProjectId, nextProjectName) => {
+          onProjectNameChange={(nextProjectName) => {
             if (isReadOnlyMode) return;
-            setProjectId(nextProjectId);
             setProjectName(nextProjectName);
+            setProjectId(null);
           }}
           onChange={(milestones) => {
             if (isReadOnlyMode) return;
@@ -2957,7 +2947,6 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
-          onPreview={handlePreviewInvoice}
         />
       );
     case "meta": {
@@ -3556,7 +3545,7 @@ return (
                                   return "Complete all required fields to continue.";
                                 }
                                 if (group.step === "deliverables" && group.fields.includes("Project")) {
-                                  return "Select a project to continue.";
+                                  return "Name your project to continue.";
                                 }
                                 if (group.fields.length === 1) {
                                   return `Fill in ${group.fields[0]} to continue.`;
@@ -3828,7 +3817,7 @@ return (
                         ? "Ready for preview. Confirm totals before sending."
                         : nextBlockingGroup
                           ? nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
-                            ? "Select a project to continue."
+                            ? "Name your project to continue."
                             : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
                           : "Complete the highlighted fields before preview."}
                     </span>
