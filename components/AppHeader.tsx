@@ -150,6 +150,19 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleNewInvoice = () => {
+    const targetPath = user ? "/invoice/new" : "/invoice/new?guest=1";
+    setIsMobileMenuOpen(false);
+
+    if (window.location.pathname === "/invoice/new") {
+      window.location.href = targetPath;
+      return;
+    }
+
+    router.push(targetPath);
+  };
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -233,12 +246,13 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
           <div className="flex items-center gap-3">
             {rightSlot}
-            <Link
-              href={user ? "/invoice/new" : "/invoice/new?guest=1"}
+            <button
+              type="button"
+              onClick={handleNewInvoice}
               className="hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
-            </Link>
+            </button>
             {user ? (
               <div className="flex items-center gap-3">
                 <InstallPwaButton />
@@ -264,13 +278,13 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
           <div className="sm:hidden border-t-2 border-[#333] bg-[#111118]">
             <div className={`${appPageContainerClass} py-3`}>
               <nav className="flex flex-col gap-1">
-                <Link
-                  href={user ? "/invoice/new" : "/invoice/new?guest=1"}
+                <button
+                  type="button"
+                  onClick={handleNewInvoice}
                   className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-[#BEFF00] text-[#111118] border-b-2 border-[#333] mb-1"
-                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   + New Invoice
-                </Link>
+                </button>
                 {user && (
                   <Link
                     href="/dashboard"
