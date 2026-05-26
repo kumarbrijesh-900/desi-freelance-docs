@@ -31,6 +31,11 @@ export interface ProjectRow extends Project {
   client?: ProjectClient | null;
 }
 
+export type ClientProjectOption = Pick<
+  Project,
+  "id" | "name" | "description" | "status"
+>;
+
 export interface InvoiceRow {
   id: string;
   user_id: string;
@@ -199,7 +204,7 @@ export async function createProject(
  */
 export async function listProjectsByClient(
   clientId: string
-): Promise<{ data: Project[] | null; error: string | null }> {
+): Promise<{ data: ClientProjectOption[] | null; error: string | null }> {
   const userId = await getCurrentUserId();
   if (!userId) {
     return { data: null, error: "Not authenticated" };
@@ -207,15 +212,15 @@ export async function listProjectsByClient(
 
   const { data, error } = await supabase
     .from("projects")
-    .select("*")
+    .select("id, name, description, status")
     .eq("user_id", userId)
     .eq("client_id", clientId)
-    .order("created_at", { ascending: false });
+    .order("updated_at", { ascending: false });
 
   if (error) {
     return { data: null, error: error.message };
   }
-  return { data: data as Project[], error: null };
+  return { data: data as ClientProjectOption[], error: null };
 }
 
 function getInvoiceTotal(invoice: InvoiceRow, milestones: MilestoneRow[]): number {

@@ -88,10 +88,6 @@ import {
   type SavedClient,
 } from "@/lib/supabase/clients";
 import {
-  getAllProjectsWithInvoices,
-  type ProjectWithInvoices,
-} from "@/lib/supabase/projects";
-import {
   getInvoiceFieldErrors,
   isInvoiceStepValid,
   getOptionalFieldEmptyCounts,
@@ -119,7 +115,6 @@ import {
 import {
   cn,
   getAppButtonClass,
-  getAppFieldClass,
   getAppPanelClass,
   getAppStatusPillClass,
   getAppSubtlePanelClass,
@@ -576,8 +571,73 @@ function getMissingFieldLabels(formData: InvoiceFormData) {
     .filter((group) => group.fields.length > 0);
 }
 
-function isInvoiceReadyForPreview(formData: InvoiceFormData) {
-  return VALIDATION_STEPS.every((step) => isInvoiceStepValid(formData, step));
+type MissingFieldGroup = {
+  step: InvoiceStepperStep;
+  fields: string[];
+};
+
+function withProjectRequirement(
+  groups: MissingFieldGroup[],
+  hasProject: boolean,
+) {
+  if (hasProject) return groups;
+
+  const deliverablesGroup = groups.find((group) => group.step === "deliverables");
+  if (deliverablesGroup) {
+    if (deliverablesGroup.fields.includes("Project")) return groups;
+    return groups.map((group) =>
+      group.step === "deliverables"
+        ? { ...group, fields: ["Project", ...group.fields] }
+        : group,
+    );
+  }
+
+  const nextGroups = [...groups];
+  const deliverablesIndex = VALIDATION_STEPS.indexOf("deliverables");
+  const insertIndex = nextGroups.findIndex(
+    (group) => VALIDATION_STEPS.indexOf(group.step) > deliverablesIndex,
+  );
+  const projectGroup: MissingFieldGroup = {
+    step: "deliverables",
+    fields: ["Project"],
+  };
+
+  if (insertIndex === -1) {
+    nextGroups.push(projectGroup);
+  } else {
+    nextGroups.splice(insertIndex, 0, projectGroup);
+  }
+
+  return nextGroups;
+}
+
+function isStepValidWithProject(
+  formData: InvoiceFormData,
+  step: InvoiceStepperStep,
+  hasProject: boolean,
+) {
+  return isInvoiceStepValid(formData, step) && (step !== "deliverables" || hasProject);
+}
+
+function getFirstInvalidStepWithProject(
+  formData: InvoiceFormData,
+  hasProject: boolean,
+) {
+  const firstInvalidStep = getFirstInvalidStep(formData);
+  if (hasProject) return firstInvalidStep;
+  if (!firstInvalidStep) return "deliverables";
+
+  const deliverablesIndex = VALIDATION_STEPS.indexOf("deliverables");
+  const firstInvalidIndex = VALIDATION_STEPS.indexOf(firstInvalidStep);
+  return firstInvalidIndex <= deliverablesIndex
+    ? firstInvalidStep
+    : "deliverables";
+}
+
+function isInvoiceReadyForPreview(formData: InvoiceFormData, hasProject: boolean) {
+  return VALIDATION_STEPS.every((step) =>
+    isStepValidWithProject(formData, step, hasProject),
+  );
 }
 
 function getStepDescription(step: InvoiceStepperStep) {
@@ -986,8 +1046,6 @@ function EditorContent() {
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState("");
-  const [availableProjects, setAvailableProjects] = useState<ProjectWithInvoices[]>([]);
-  const [isProjectAutocompleteOpen, setIsProjectAutocompleteOpen] = useState(false);
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
@@ -1085,46 +1143,27 @@ function EditorContent() {
     return getLockStateLabel(lockState.state);
   }, [lockState.state]);
 
-  const projectNameQuery = projectName.trim().toLowerCase();
-  const matchingProjects = useMemo(() => {
-    return availableProjects
-      .filter((record) => {
-        if (!projectNameQuery) return true;
-        const clientName = record.project.client?.client_name ?? "";
-        return (
-          record.project.name.toLowerCase().includes(projectNameQuery) ||
-          clientName.toLowerCase().includes(projectNameQuery)
-        );
-      })
-      .slice(0, 5);
-  }, [availableProjects, projectNameQuery]);
-  const exactProjectMatch = useMemo(() => {
-    if (!projectNameQuery) return null;
-    return (
-      availableProjects.find(
-        (record) => record.project.name.trim().toLowerCase() === projectNameQuery,
-      ) ?? null
-    );
-  }, [availableProjects, projectNameQuery]);
-  const showNewProjectBadge = Boolean(
-    projectName.trim() && !exactProjectMatch && !isReadOnlyMode,
-  );
+  const selectedClientId = useMemo(() => {
+    if (selectedClientMsa?.id) return selectedClientMsa.id;
 
-  const handleProjectNameChange = (nextName: string) => {
-    setProjectName(nextName);
-    const nextQuery = nextName.trim().toLowerCase();
-    const exactMatch = availableProjects.find(
-      (record) => record.project.name.trim().toLowerCase() === nextQuery,
-    );
-    setProjectId(exactMatch?.project.id ?? null);
-    setIsProjectAutocompleteOpen(true);
-  };
+    const clientEmail = formData.client.clientEmail.trim().toLowerCase();
+    const clientName = formData.client.clientName.trim().toLowerCase();
+    const savedClient = savedClients.find((client) => {
+      const savedEmail = client.client_email?.trim().toLowerCase() ?? "";
+      const savedName = client.client_name?.trim().toLowerCase() ?? "";
+      return Boolean(
+        (clientEmail && savedEmail === clientEmail) ||
+          (clientName && savedName === clientName),
+      );
+    });
 
-  const handleProjectSelect = (record: ProjectWithInvoices) => {
-    setProjectId(record.project.id);
-    setProjectName(record.project.name);
-    setIsProjectAutocompleteOpen(false);
-  };
+    return savedClient?.id;
+  }, [
+    formData.client.clientEmail,
+    formData.client.clientName,
+    savedClients,
+    selectedClientMsa,
+  ]);
 
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
@@ -1439,31 +1478,6 @@ function EditorContent() {
     }
     checkAuth();
   }, []);
-
-  useEffect(() => {
-    if (!isBootstrapped) return;
-
-    let cancelled = false;
-    async function fetchProjects() {
-      const { data } = await getAllProjectsWithInvoices();
-      if (!cancelled) {
-        setAvailableProjects(data || []);
-      }
-    }
-
-    void fetchProjects();
-    return () => {
-      cancelled = true;
-    };
-  }, [isBootstrapped]);
-
-  useEffect(() => {
-    if (!projectId) return;
-    const match = availableProjects.find((record) => record.project.id === projectId);
-    if (match && projectName !== match.project.name) {
-      setProjectName(match.project.name);
-    }
-  }, [availableProjects, projectId, projectName]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
@@ -1830,15 +1844,16 @@ function EditorContent() {
     : undefined;
 
 
+  const hasSelectedProject = Boolean(projectId);
   const missingFieldGroups = useMemo(
-    () => getMissingFieldLabels(formData),
-    [formData],
+    () => withProjectRequirement(getMissingFieldLabels(formData), hasSelectedProject),
+    [formData, hasSelectedProject],
   );
   const stepValidityByStep = useMemo(
     () =>
       VALIDATION_STEPS.reduce<Record<InvoiceStepperStep, boolean>>(
         (result, step) => {
-          result[step] = isInvoiceStepValid(formData, step);
+          result[step] = isStepValidWithProject(formData, step, hasSelectedProject);
           return result;
         },
         {
@@ -1850,7 +1865,7 @@ function EditorContent() {
           totals: false,
         },
       ),
-    [formData],
+    [formData, hasSelectedProject],
   );
 
   const showSummaryInline = !isXl && 
@@ -1880,13 +1895,13 @@ function EditorContent() {
     [formData]
   );
   const firstInvalidStep = useMemo(
-    () => getFirstInvalidStep(formData),
-    [formData],
+    () => getFirstInvalidStepWithProject(formData, hasSelectedProject),
+    [formData, hasSelectedProject],
   );
 
   const invoiceReadyForPreview = useMemo(
-    () => isInvoiceReadyForPreview(formData),
-    [formData],
+    () => isInvoiceReadyForPreview(formData, hasSelectedProject),
+    [formData, hasSelectedProject],
   );
   const displayStepValidityByStep = useMemo(
     () => ({
@@ -2693,7 +2708,7 @@ const handleModalSubmit = (
 
   setFormData(finalData);
 
-  const readyForPreview = isInvoiceReadyForPreview(finalData);
+  const readyForPreview = isInvoiceReadyForPreview(finalData, hasSelectedProject);
   setBriefSummaryData(null);
   setPostSubmitActionModal({ isOpen: true, isReady: readyForPreview });
 
@@ -2701,7 +2716,7 @@ const handleModalSubmit = (
   setIsBriefIntakeCollapsed(true);
   setShowAllValidationErrors(true);
 
-  const missingStep = getFirstInvalidStep(finalData);
+  const missingStep = getFirstInvalidStepWithProject(finalData, hasSelectedProject);
   const recommendedStep = clampNewInvoiceStartStep(missingStep ?? "totals");
 
   // FIX 4: Mark ALL extracted fields as auto-filled (confident + client)
@@ -2890,6 +2905,14 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isReadOnly={isReadOnlyMode}
           milestones={formData.milestones}
           currency={displayCurrency}
+          clientId={selectedClientId}
+          projectId={projectId}
+          projectName={projectName}
+          onProjectChange={(nextProjectId, nextProjectName) => {
+            if (isReadOnlyMode) return;
+            setProjectId(nextProjectId);
+            setProjectName(nextProjectName);
+          }}
           onChange={(milestones) => {
             if (isReadOnlyMode) return;
             setFormData((prev) => ({
@@ -3131,80 +3154,6 @@ return (
           </div>
         </div>
       )}
-
-      <div className="border-b border-[#D4D2CC] bg-[#FAF7F2]/60 py-4">
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[120px_minmax(0,1fr)] sm:items-center">
-              <label className="text-[11px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                Project
-              </label>
-              <div className="relative">
-                <input
-                  suppressHydrationWarning
-                  type="text"
-                  value={projectName}
-                  disabled={isReadOnlyMode}
-                  onFocus={() => setIsProjectAutocompleteOpen(true)}
-                  onBlur={() => {
-                    window.setTimeout(() => setIsProjectAutocompleteOpen(false), 180);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Escape") {
-                      setIsProjectAutocompleteOpen(false);
-                    }
-                    if (
-                      (event.key === "Enter" || event.key === "Tab") &&
-                      matchingProjects.length === 0
-                    ) {
-                      setIsProjectAutocompleteOpen(false);
-                    }
-                  }}
-                  onChange={(event) => handleProjectNameChange(event.target.value)}
-                  placeholder="Optional project name"
-                  className={cn(
-                    getAppFieldClass({ hasValue: Boolean(projectName) }),
-                    "h-10 bg-white text-[13px] font-semibold",
-                    showNewProjectBadge && "pr-14",
-                  )}
-                />
-                {showNewProjectBadge && (
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 border border-[#111118] bg-[#F5F4F0] px-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#111118]">
-                    New
-                  </span>
-                )}
-
-                {isProjectAutocompleteOpen && !isReadOnlyMode && (
-                  <div className="absolute left-0 right-0 z-[9998] mt-1 max-h-[220px] overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
-                    {matchingProjects.length > 0 ? (
-                      matchingProjects.map((record) => (
-                        <button
-                          key={record.project.id}
-                          type="button"
-                          onMouseDown={(event) => event.preventDefault()}
-                          onClick={() => handleProjectSelect(record)}
-                          className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition-colors hover:bg-[color:var(--color-lime-50)]"
-                        >
-                          <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
-                            {record.project.name}
-                          </span>
-                          <span className="text-[10px] font-medium text-[color:var(--text-muted)]">
-                            {record.project.client?.client_name || "No linked client"}
-                          </span>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-3 py-3 text-[12px] font-semibold text-[color:var(--text-muted)]">
-                        No saved projects match. Press Tab or Enter to add as new.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className={appEditorGridClass}>
         {/* ── COL 1: Desktop Stepper Rail ── */}
@@ -3606,6 +3555,9 @@ return (
                                 if (!group || group.fields.length === 0) {
                                   return "Complete all required fields to continue.";
                                 }
+                                if (group.step === "deliverables" && group.fields.includes("Project")) {
+                                  return "Select a project to continue.";
+                                }
                                 if (group.fields.length === 1) {
                                   return `Fill in ${group.fields[0]} to continue.`;
                                 }
@@ -3875,7 +3827,9 @@ return (
                         : invoiceReadyForPreview
                         ? "Ready for preview. Confirm totals before sending."
                         : nextBlockingGroup
-                          ? `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
+                          ? nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
+                            ? "Select a project to continue."
+                            : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
                           : "Complete the highlighted fields before preview."}
                     </span>
                   </div>

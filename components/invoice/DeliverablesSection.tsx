@@ -18,6 +18,11 @@ import {
   invoiceRateUnitLabels as baseRateUnitLabels,
 } from "@/lib/invoice-deliverables";
 import { getInvoiceLineItemCatalogEntry } from "@/lib/invoice-line-item-catalog";
+import {
+  createProject,
+  listProjectsByClient,
+  type ClientProjectOption,
+} from "@/lib/supabase/projects";
 
 const invoiceRateUnitLabels: Record<string, string> = {
   ...baseRateUnitLabels,
@@ -52,6 +57,10 @@ interface DeliverablesSectionProps {
   milestones: Milestone[];
   currency?: InvoiceDisplayCurrency;
   onChange: (milestones: Milestone[]) => void;
+  clientId?: string;
+  projectId?: string | null;
+  projectName?: string;
+  onProjectChange?: (projectId: string | null, projectName: string) => void;
   embedded?: boolean;
   errors?: Record<string, { description?: string; qty?: string; rate?: string; sacCode?: string }>;
   showAllErrors?: boolean;
@@ -81,6 +90,10 @@ export default function DeliverablesSection({
   milestones,
   currency = "INR",
   onChange,
+  clientId,
+  projectId = null,
+  projectName = "",
+  onProjectChange,
   embedded = false,
   errors,
   showAllErrors = false,
@@ -120,6 +133,15 @@ export default function DeliverablesSection({
   };
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(null);
+  const [clientProjects, setClientProjects] = useState<ClientProjectOption[]>([]);
+  const [projectQuery, setProjectQuery] = useState(projectName);
+  const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [isProjectLoading, setIsProjectLoading] = useState(false);
+  const [isProjectSaving, setIsProjectSaving] = useState(false);
+  const [projectError, setProjectError] = useState<string | null>(null);
 
   const effectiveMilestones = useMemo(() => {
     if (!milestones || milestones.length === 0) {
@@ -127,6 +149,130 @@ export default function DeliverablesSection({
     }
     return milestones;
   }, [milestones]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!clientId) {
+      setClientProjects([]);
+      setIsProjectLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const scopedClientId = clientId;
+    async function fetchClientProjects() {
+      setIsProjectLoading(true);
+      setProjectError(null);
+      const { data, error } = await listProjectsByClient(scopedClientId);
+      if (cancelled) return;
+
+      if (error) {
+        setProjectError(error);
+        setClientProjects([]);
+      } else {
+        setClientProjects(data ?? []);
+      }
+      setIsProjectLoading(false);
+    }
+
+    void fetchClientProjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
+
+  const selectedProject = useMemo<ClientProjectOption | null>(() => {
+    if (!projectId) return null;
+    const match = clientProjects.find((project) => project.id === projectId);
+    if (match) return match;
+    return {
+      id: projectId,
+      name: projectName.trim() || "Selected project",
+      description: null,
+      status: "active",
+    };
+  }, [clientProjects, projectId, projectName]);
+
+  useEffect(() => {
+    if (selectedProject) {
+      setProjectQuery(selectedProject.name);
+    } else if (!projectId && !isProjectDropdownOpen) {
+      setProjectQuery(projectName);
+    }
+  }, [isProjectDropdownOpen, projectId, projectName, selectedProject]);
+
+  const matchingClientProjects = useMemo(() => {
+    const query = projectQuery.trim().toLowerCase();
+    return clientProjects
+      .filter((project) => !query || project.name.toLowerCase().includes(query))
+      .slice(0, 5);
+  }, [clientProjects, projectQuery]);
+
+  const handleProjectSelect = (project: ClientProjectOption) => {
+    if (isReadOnly) return;
+    onProjectChange?.(project.id, project.name);
+    setProjectQuery(project.name);
+    setIsProjectDropdownOpen(false);
+    setIsCreatingProject(false);
+    setProjectError(null);
+  };
+
+  const handleProjectDeselect = () => {
+    if (isReadOnly) return;
+    onProjectChange?.(null, "");
+    setProjectQuery("");
+    setIsProjectDropdownOpen(false);
+    setIsCreatingProject(false);
+  };
+
+  const handleCreateProject = async () => {
+    if (isReadOnly) return;
+    if (!clientId) {
+      setProjectError("Select a client before creating a project.");
+      return;
+    }
+
+    const trimmedName = newProjectName.trim();
+    if (!trimmedName) {
+      setProjectError("Project name is required.");
+      return;
+    }
+
+    setIsProjectSaving(true);
+    setProjectError(null);
+    const { data, error } = await createProject(
+      trimmedName,
+      clientId,
+      newProjectDescription.trim() || undefined,
+    );
+    setIsProjectSaving(false);
+
+    if (error || !data) {
+      setProjectError(error || "Could not create project.");
+      return;
+    }
+
+    const createdProject: ClientProjectOption = {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      status: data.status,
+    };
+
+    setClientProjects((prev) => [
+      createdProject,
+      ...prev.filter((project) => project.id !== createdProject.id),
+    ]);
+    onProjectChange?.(createdProject.id, createdProject.name);
+    setProjectQuery(createdProject.name);
+    setNewProjectName("");
+    setNewProjectDescription("");
+    setIsCreatingProject(false);
+    setIsProjectDropdownOpen(false);
+  };
 
   const markTouched = (id: string, field: string) => {
     setTouchedFields((prev) => ({ ...prev, [`${id}:${field}`]: true }));
@@ -192,6 +338,174 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
+        <div className="border-[3px] border-[#111118] bg-white p-5 shadow-[4px_4px_0px_#111118]">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#111118]">
+              Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
+            </label>
+            {!isReadOnly && clientId && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B6660]">
+                {clientProjects.length} saved for this client
+              </span>
+            )}
+          </div>
+
+          {isReadOnly ? (
+            <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-3 text-sm font-bold text-[#6B6660]">
+              {selectedProject?.name || projectName || "No project selected"}
+            </div>
+          ) : !clientId ? (
+            <div className="space-y-3">
+              <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-3 text-xs font-bold uppercase tracking-wide text-[#6B6660]">
+                Select a client in Step 2 to see available projects.
+              </div>
+              <input
+                type="text"
+                disabled
+                placeholder="Select or create a project for this invoice"
+                className="h-12 w-full border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 text-sm font-bold text-[#6B6660] outline-none"
+              />
+            </div>
+          ) : selectedProject ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex max-w-full items-center gap-2 bg-[#111118] px-3 py-2 text-sm font-black uppercase tracking-wide text-white">
+                <span className="truncate">{selectedProject.name}</span>
+                <button
+                  type="button"
+                  onClick={handleProjectDeselect}
+                  className="text-lg leading-none text-white hover:text-[#BEFF00]"
+                  aria-label="Deselect project"
+                >
+                  ×
+                </button>
+              </div>
+              {selectedProject.description && (
+                <p className="min-w-0 flex-1 text-xs font-semibold text-[#6B6660]">
+                  {selectedProject.description}
+                </p>
+              )}
+            </div>
+          ) : isCreatingProject ? (
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={newProjectName}
+                onChange={(event) => setNewProjectName(event.target.value)}
+                placeholder="Project name"
+                className="h-12 w-full border-[2px] border-[#111118] bg-white px-3 text-sm font-bold text-[#111118] outline-none focus:shadow-[3px_3px_0px_#111118]"
+              />
+              <input
+                type="text"
+                value={newProjectDescription}
+                onChange={(event) => setNewProjectDescription(event.target.value)}
+                placeholder="Short description (optional)"
+                className="h-12 w-full border-[2px] border-[#111118] bg-white px-3 text-sm font-bold text-[#111118] outline-none focus:shadow-[3px_3px_0px_#111118]"
+              />
+              {projectError && (
+                <p className="text-xs font-bold text-[#FF5C00]">{projectError}</p>
+              )}
+              <div className="flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreatingProject(false);
+                    setProjectError(null);
+                  }}
+                  className="border-[2px] border-[#111118] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#111118] hover:bg-[#F5F4F0]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCreateProject}
+                  disabled={isProjectSaving}
+                  className="border-[2px] border-[#111118] bg-[#BEFF00] px-4 py-2 text-xs font-black uppercase tracking-wider text-[#111118] shadow-[3px_3px_0px_#111118] disabled:cursor-wait disabled:opacity-60"
+                >
+                  {isProjectSaving ? "Creating..." : "Create"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative">
+              <input
+                type="text"
+                value={projectQuery}
+                onFocus={() => setIsProjectDropdownOpen(true)}
+                onBlur={() => {
+                  window.setTimeout(() => setIsProjectDropdownOpen(false), 180);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    setIsProjectDropdownOpen(false);
+                  }
+                }}
+                onChange={(event) => {
+                  setProjectQuery(event.target.value);
+                  onProjectChange?.(null, "");
+                  setIsProjectDropdownOpen(true);
+                  setProjectError(null);
+                }}
+                placeholder="Select or create a project for this invoice"
+                className="h-12 w-full border-[2px] border-[#111118] bg-white px-3 text-sm font-bold text-[#111118] outline-none focus:shadow-[3px_3px_0px_#111118]"
+              />
+
+              {isProjectDropdownOpen && (
+                <div className="absolute left-0 right-0 z-30 mt-2 max-h-[260px] overflow-y-auto border-[2px] border-[#111118] bg-white shadow-[4px_4px_0px_#111118]">
+                  {isProjectLoading ? (
+                    <div className="px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#6B6660]">
+                      Loading projects...
+                    </div>
+                  ) : matchingClientProjects.length > 0 ? (
+                    matchingClientProjects.map((project) => (
+                      <button
+                        key={project.id}
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => handleProjectSelect(project)}
+                        className="flex w-full flex-col items-start gap-1 border-b border-[#D4D2CC] px-3 py-3 text-left text-[#111118] hover:bg-[#BEFF00]"
+                      >
+                        <span className="text-sm font-black">{project.name}</span>
+                        {project.description && (
+                          <span className="text-xs font-semibold text-[#6B6660]">
+                            {project.description}
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-3 text-xs font-bold text-[#6B6660]">
+                      No matching projects for this client.
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setNewProjectName(projectQuery.trim());
+                      setNewProjectDescription("");
+                      setIsCreatingProject(true);
+                      setIsProjectDropdownOpen(false);
+                      setProjectError(null);
+                    }}
+                    className="w-full bg-[#BEFF00] px-3 py-3 text-left text-xs font-black uppercase tracking-wider text-[#111118]"
+                  >
+                    + New project
+                  </button>
+                </div>
+              )}
+
+              {showAllErrors && !projectId && (
+                <p className="mt-2 text-xs font-bold text-[#FF5C00]">
+                  Select a project to continue.
+                </p>
+              )}
+              {projectError && (
+                <p className="mt-2 text-xs font-bold text-[#FF5C00]">{projectError}</p>
+              )}
+            </div>
+          )}
+        </div>
+
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
           <div className="flex items-center gap-2 border-2 border-[color:var(--border-subtle)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
             <span className="text-[12px]">📎</span>
