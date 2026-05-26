@@ -112,7 +112,11 @@ function UserMenu({
           <button
             onClick={() => {
               setIsOpen(false);
-              router.push("/profile");
+              if (window.location.pathname === "/profile") {
+                window.location.reload();
+              } else {
+                router.push("/profile");
+              }
             }}
             className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#111118] hover:bg-[#BEFF00] transition-colors"
           >
