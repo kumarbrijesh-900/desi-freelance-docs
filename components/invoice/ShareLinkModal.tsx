@@ -93,6 +93,39 @@ interface ShareLinkModalProps {
   onShared: (token: string) => void;
 }
 
+function formatPaymentTerms(
+  value?: string | number | null,
+  fallbackDays?: string | number | null,
+) {
+  const rawValue = value ?? fallbackDays;
+  if (rawValue === null || rawValue === undefined || rawValue === "") {
+    return "Due on receipt";
+  }
+
+  const text = String(rawValue).trim();
+  if (!text) return "Due on receipt";
+  if (/^\d+$/.test(text)) return `Net ${text} days`;
+  return text;
+}
+
+function formatLateFeeUnit(unit?: string | null) {
+  const normalized = unit?.toLowerCase().trim();
+  const map: Record<string, string> = {
+    daily: "per day",
+    day: "per day",
+    monthly: "per month",
+    month: "per month",
+    annually: "per year",
+    annual: "per year",
+    yearly: "per year",
+    year: "per year",
+  };
+
+  if (!normalized) return "per month";
+  if (normalized.startsWith("per ")) return normalized;
+  return map[normalized] || normalized;
+}
+
 function getMilestoneFraming(invoiceData?: InvoiceFormData) {
   const milestones = invoiceData?.milestones;
   if (!milestones || milestones.length <= 1) return null;
@@ -133,6 +166,11 @@ export default function ShareLinkModal({
 }: ShareLinkModalProps) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const effectivePaymentTerms = formatPaymentTerms(
+    invoiceData?.meta?.paymentTerms,
+    invoiceData?.client?.msaPaymentTermsDays,
+  );
+  const lateFeeUnit = formatLateFeeUnit(invoiceData?.client?.msaLateFeeUnit);
   const [error, setError] = useState<string | null>(null);
 
 
@@ -329,11 +367,11 @@ export default function ShareLinkModal({
                 <ul className="space-y-2.5">
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Payment terms:</span> {invoiceData?.meta?.paymentTerms || (invoiceData?.client?.msaPaymentTermsDays ? `Net ${invoiceData.client.msaPaymentTermsDays} days` : "Due on Receipt")}
+                    <span className="font-semibold">Payment terms:</span> {effectivePaymentTerms}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% per {invoiceData?.client?.msaLateFeeUnit?.replace("monthly", "month") || "month"}
+                    <span className="font-semibold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {lateFeeUnit}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />

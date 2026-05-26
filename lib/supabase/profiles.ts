@@ -138,14 +138,14 @@ export function agencyToProfileRow(
     qr_code_url: payment?.qrCodeUrl || "",
     signature_url: agency.signatureUrl || "",
     // MSA Defaults
-    msa_payment_terms_days: agency.msaPaymentTermsDays ?? 20,
-    msa_late_fee_rate: agency.msaLateFeeRate ?? 1.5,
+    msa_payment_terms_days: Number.isFinite(agency.msaPaymentTermsDays) ? Math.max(0, agency.msaPaymentTermsDays as number) : 20,
+    msa_late_fee_rate: Number.isFinite(agency.msaLateFeeRate) ? Math.max(0, agency.msaLateFeeRate as number) : 1.5,
     msa_late_fee_unit: agency.msaLateFeeUnit || "monthly",
     msa_ip_trigger_type: agency.msaIpTriggerType || "upon_full_payment",
     msa_jurisdiction_city: agency.msaJurisdictionCity || "Bengaluru",
     primary_service: agency.primaryService || "",
-    free_revision_rounds: agency.freeRevisionRounds ?? 2,
-    extra_revision_fee_percent: agency.extraRevisionFeePercent ?? 15,
+    free_revision_rounds: Number.isFinite(agency.freeRevisionRounds) ? Math.max(0, agency.freeRevisionRounds as number) : 2,
+    extra_revision_fee_percent: Number.isFinite(agency.extraRevisionFeePercent) ? Math.max(0, agency.extraRevisionFeePercent as number) : 15,
     updated_at: new Date().toISOString(),
   };
 }
@@ -319,10 +319,10 @@ async function upsertGlobalMsaFallback(input: {
       .eq("user_id", input.userId)
       .is("client_id", null)
       .select("id")
-      .single();
+      .maybeSingle();
 
     if (error) return { id: null, error: error.message };
-    return { id: data.id as string, error: null };
+    return { id: data?.id as string | null, error: null };
   }
 
   const { data, error } = await supabase
@@ -335,10 +335,10 @@ async function upsertGlobalMsaFallback(input: {
       status: "active",
     })
     .select("id")
-    .single();
+    .maybeSingle();
 
   if (error) return { id: null, error: error.message };
-  return { id: data.id as string, error: null };
+  return { id: data?.id as string | null, error: null };
 }
 
 export async function saveProfileWithGlobalMsa(input: {

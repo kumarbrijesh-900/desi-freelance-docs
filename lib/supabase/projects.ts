@@ -66,9 +66,12 @@ export interface MilestoneRow {
   status: string | null;
   amount: number | null;
   order_index: number | null;
+  tds_amount?: number | null;
   trigger_mode?: "scheduled" | "immediate" | "cancelled" | "manual";
   trigger_status?: "pending" | "fired" | "failed" | "cancelled";
   trigger_date?: string | null;
+  /** Derived from invoice.due_date or form_data; not a DB column on milestones. */
+  due_date?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }

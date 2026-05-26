@@ -318,6 +318,16 @@ export async function saveInvoice(
     }
   }
 
+  // Compute grand_total before building the row so it's persisted to DB
+  const formMilestones = input.formData.milestones || [];
+  const computedGrandTotal = formMilestones.length > 0
+    ? formMilestones.reduce((s, m) => s + m.lineItems.reduce(
+        (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0
+      ), 0)
+    : (input.formData.lineItems || []).reduce(
+        (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
+      );
+
   // Fix Bug 2: Map MSA fields correctly to database columns
   const row: any = {
     invoice_number: invoiceNumber,
@@ -329,6 +339,7 @@ export async function saveInvoice(
     due_date: input.formData.meta?.dueDate || null,
     has_addendum: input.formData.meta?.hasAddendum || false,
     payment_terms_days: input.formData.meta?.paymentTerms || null,
+    grand_total: computedGrandTotal,
     user_id: userId,
   };
 
@@ -382,16 +393,8 @@ export async function saveInvoice(
   if (result.data) {
     await syncMilestonesFromInvoice(result.data.id, input.formData);
     
-    // Task 3: Map calculated grand_total to the returned object so UI updates immediately
-    const milestones = input.formData.milestones || [];
-    const grand_total = milestones.length > 0
-      ? milestones.reduce((s, m) => s + m.lineItems.reduce(
-          (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0
-        ), 0)
-      : (input.formData.lineItems || []).reduce(
-          (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
-        );
-    (result.data as any).grand_total = grand_total;
+    // Ensure the returned object has grand_total for immediate UI use
+    (result.data as any).grand_total = computedGrandTotal;
 
     if (clientPersistence.createdClient) {
       (result.data as SavedInvoice).created_client =

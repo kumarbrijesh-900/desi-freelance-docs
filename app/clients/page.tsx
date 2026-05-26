@@ -825,7 +825,7 @@ export default function ClientsPage() {
             <MotionReveal preset="fade-up">
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px] font-syne">
+                  <h1 className="text-[28px] font-black tracking-tighter text-[color:var(--text-primary)] sm:text-[36px] font-syne">
                     Clients
                   </h1>
                   {clients.length > 0 && (

@@ -91,7 +91,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
                 Milestone warning
               </div>
               <p className="text-sm leading-snug" style={{ color: INK }}>
-                This invoice has {milestoneCount} milestones. Downloading disables
+                {`This invoice has ${milestoneCount} milestones. Downloading disables `}
                 auto-progression — you&apos;ll need to mark each one settled manually.
               </p>
             </div>

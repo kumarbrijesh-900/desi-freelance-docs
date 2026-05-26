@@ -728,7 +728,7 @@ export default function ProfilePage() {
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7l7-7" /></svg>
                   Back
                 </button>
-                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+                <h1 className="text-[28px] font-black tracking-tighter text-[color:var(--text-primary)] sm:text-[36px]">
                   Your Profile
                 </h1>
                 <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">

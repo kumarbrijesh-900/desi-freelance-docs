@@ -186,10 +186,10 @@ export function ProjectRail({
 
                 <div className="flex flex-col h-full justify-between">
                   <div>
-                    <div className="text-sm font-extrabold uppercase tracking-tight truncate w-[90%]">
+                    <div className="text-sm font-extrabold uppercase tracking-tight truncate w-[90%]" title={p.project.name}>
                       {p.project.name}
                     </div>
-                    <div className="text-[10px] uppercase tracking-wide text-neutral-600 truncate">
+                    <div className="text-[10px] uppercase tracking-wide text-neutral-600 truncate" title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
                       {p.project.client?.client_name || "Unknown Client"} {p.project.client?.city ? `· ${p.project.client.city}` : ""}
                     </div>
                   </div>

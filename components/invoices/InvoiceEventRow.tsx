@@ -52,6 +52,18 @@ export function InvoiceEventRow({
   if (total === 0) {
     total = Number(invoice.form_data?.totals?.total || 0);
   }
+  if (total === 0 && invoice.form_data) {
+    const milestones = invoice.form_data.milestones || [];
+    if (milestones.length > 0) {
+      total = milestones.reduce((s: number, m: any) => s + (m.lineItems || []).reduce(
+        (sum: number, li: any) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0
+      ), 0);
+    } else {
+      total = (invoice.form_data.lineItems || []).reduce(
+        (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
+      );
+    }
+  }
 
   const rowHref = projectId || invoice.project_id
     ? `/dashboard?project=${projectId || invoice.project_id}&invoice=${invoice.id}`

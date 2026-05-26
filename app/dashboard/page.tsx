@@ -236,6 +236,7 @@ function DashboardContent() {
   return (
     <div className={appPageShellClass}>
       <AppHeader />
+      <h1 className="sr-only">Dashboard</h1>
       <main className={`${appPageContainerClass} max-w-none px-0 py-0 flex-1 flex h-[calc(100vh-64px)] overflow-hidden`}>
 
         {/* Left Rail */}
