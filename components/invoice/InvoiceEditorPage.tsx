@@ -1456,17 +1456,26 @@ function EditorContent() {
 
         markFieldsAutoFilled([
           "agency.agencyName",
+          "agency.address",
           "agency.addressLine1",
+          "agency.addressLine2",
           "agency.city",
           "agency.pinCode",
           "agency.agencyState",
           "agency.gstin",
           "agency.pan",
           "agency.gstRegistrationStatus",
+          "agency.lutAvailability",
+          "agency.lutNumber",
+          "agency.lutValidity",
+          "agency.noLutTaxHandling",
           "payment.bankName",
           "payment.accountName",
           "payment.accountNumber",
           "payment.ifscCode",
+          "payment.bankAddress",
+          "payment.swiftBicCode",
+          "payment.ibanRoutingCode",
         ]);
 
         return {
@@ -1480,7 +1489,7 @@ function EditorContent() {
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped, isReadOnlyMode]);
+  }, [isBootstrapped, isReadOnlyMode, userEmail]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -1521,7 +1530,7 @@ function EditorContent() {
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped, isReadOnlyMode]);
+  }, [isBootstrapped, isReadOnlyMode, userEmail]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
@@ -1537,7 +1546,7 @@ function EditorContent() {
       }
     }
     void checkAssets();
-  }, [isBootstrapped]);
+  }, [isBootstrapped, userEmail]);
 
   useEffect(() => {
     if (!isBootstrapped || savedClients.length === 0) return;
