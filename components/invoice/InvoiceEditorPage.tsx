@@ -1435,11 +1435,26 @@ function EditorContent() {
   useEffect(() => {
     if (!isBootstrapped) return;
     if (isReadOnlyMode) return;
-    const isFresh = searchParams.get("fresh") === "1";
-    if (formData.agency.agencyName.trim() && !isFresh) return;
+    if (invoiceId) return;
 
     let cancelled = false;
+
     async function applyProfile() {
+      // Wait for auth session — retry up to 3 times with 500ms delay
+      let session = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          session = data.session;
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+
+      if (cancelled || !session) return;
+
       const { data: profile } = await loadProfile();
       if (cancelled || !profile) return;
 
@@ -1485,11 +1500,12 @@ function EditorContent() {
         };
       });
     }
+
     applyProfile();
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped, isReadOnlyMode, userEmail]);
+  }, [isBootstrapped, isReadOnlyMode, invoiceId]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -1505,6 +1521,21 @@ function EditorContent() {
 
     let cancelled = false;
     async function fetchClients() {
+      // Wait for auth session — retry up to 3 times with 500ms delay
+      let session = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          session = data.session;
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+
+      if (cancelled || !session) return;
+
       const { data: clients } = await listClients();
       if (cancelled) return;
 
@@ -1530,13 +1561,31 @@ function EditorContent() {
     return () => {
       cancelled = true;
     };
-  }, [isBootstrapped, isReadOnlyMode, userEmail]);
+  }, [isBootstrapped, isReadOnlyMode]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
 
+    let cancelled = false;
     async function checkAssets() {
+      // Wait for auth session — retry up to 3 times with 500ms delay
+      let session = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          session = data.session;
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+
+      if (cancelled || !session) return;
+
       const { data: profile } = await loadProfile();
+      if (cancelled) return;
+
       if (profile) {
         const hasAssets = Boolean(
           profile.logo_url && profile.qr_code_url && profile.signature_url,
@@ -1546,7 +1595,10 @@ function EditorContent() {
       }
     }
     void checkAssets();
-  }, [isBootstrapped, userEmail]);
+    return () => {
+      cancelled = true;
+    };
+  }, [isBootstrapped]);
 
   useEffect(() => {
     if (!isBootstrapped || savedClients.length === 0) return;

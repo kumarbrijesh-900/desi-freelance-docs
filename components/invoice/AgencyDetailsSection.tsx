@@ -305,14 +305,14 @@ export default function AgencyDetailsSection({
                             placeholder="GSTIN"
                             autoCapitalize="characters"
                             spellCheck={false}
-                            readOnly={!isGuestMode}
+                            readOnly={!isGuestMode && !!value.gstin}
                             className={cn(
                               inputClass(gstinError, Boolean(value.gstin)),
                               getInputStateClass("agency.gstin", value.gstin),
-                              !isGuestMode && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
+                              !isGuestMode && !!value.gstin && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
                             )}
                           />
-                          {!isGuestMode && (
+                          {!isGuestMode && !!value.gstin && (
                             <p className="mt-1 text-[10px] font-medium text-indigo-600">
                               Locked to your verified profile GSTIN.
                             </p>
@@ -513,14 +513,14 @@ export default function AgencyDetailsSection({
                   }}
                   onBlur={() => markTouched("agencyName")}
                   placeholder="Your agency or freelance brand name"
-                  readOnly={!isGuestMode}
+                  readOnly={!isGuestMode && !!value.agencyName}
                   className={cn(
                     inputClass(agencyNameError, Boolean(value.agencyName)),
                     getInputStateClass("agency.agencyName", value.agencyName),
-                    !isGuestMode && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
+                    !isGuestMode && !!value.agencyName && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
                   )}
                 />
-                {!isGuestMode && (
+                {!isGuestMode && !!value.agencyName && (
                   <p className="mt-1 text-[10px] font-medium text-indigo-600">
                     Locked to your registered Agency Name.
                   </p>
