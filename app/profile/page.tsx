@@ -357,7 +357,8 @@ export default function ProfilePage() {
           onUrlChange(url);
           setIsDirty(true);
         } else if (error) {
-          alert("Upload failed: " + error);
+          setSaveState("error");
+          setSaveFeedback(`Upload failed: ${error}`);
         }
       } catch (err) {
         console.error("Cropping error:", err);

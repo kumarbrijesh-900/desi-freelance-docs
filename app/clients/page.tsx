@@ -151,7 +151,8 @@ function ClientForm({
     const { data, error } = await upsertClient(details, initial?.id);
     if (error) {
       console.error("Failed to save client:", error);
-      alert(`Save failed: ${error}`);
+      // TODO: replace with toast when the clients page gets app-wide notifications.
+      console.warn(`Save failed: ${error}`);
       setIsSaving(false);
       return;
     }
@@ -738,7 +739,8 @@ export default function ClientsPage() {
     const { error } = await deleteClient(deletingClientId);
     if (error) {
       console.error("Failed to delete client:", error);
-      alert(`Delete failed: ${error}`);
+      // TODO: replace with toast when the clients page gets app-wide notifications.
+      console.warn(`Delete failed: ${error}`);
       setDeletingClientId(null);
       return;
     }

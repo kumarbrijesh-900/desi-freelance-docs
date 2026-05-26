@@ -2203,7 +2203,7 @@ const handlePreviewInvoice = async () => {
     router.push(previewUrl);
   } catch (error) {
     console.error("Failed to save preview data:", error);
-    alert("Could not open preview. Please try again.");
+    triggerToast("Could not open preview. Please try again.");
   }
 };
 
@@ -2326,7 +2326,7 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
     }
   } catch (error) {
     console.error("Failed to save draft:", error);
-    alert("Could not save draft. Please try again.");
+    triggerToast("Could not save draft. Please try again.");
   }
 };
 
