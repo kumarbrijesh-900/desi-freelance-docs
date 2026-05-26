@@ -165,6 +165,18 @@ const PREVIEW_STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
 const ANONYMOUS_DRAFT_KEY = "lance_anonymous_draft";
 
+function clearPersistedInvoiceDrafts() {
+  try {
+    window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+    window.localStorage.removeItem(ANONYMOUS_DRAFT_KEY);
+    window.localStorage.removeItem("lance_draft_invoice");
+    window.localStorage.removeItem("lance_draft_timestamp");
+    window.localStorage.removeItem(PREVIEW_STORAGE_KEY);
+  } catch {
+    // Ignore unavailable storage; a fresh in-memory form is still initialized.
+  }
+}
+
 type StoredDraft = {
   formData: InvoiceFormData;
   currentStep: InvoiceStepperStep;
@@ -1184,12 +1196,24 @@ function EditorContent() {
     let shouldShowRestoreToast = false;
     let shouldShowFallbackToast = false;
     const initialInvoiceId = searchParams.get("id");
+    const isFresh = searchParams.get("fresh") === "1";
+    const isRestore = searchParams.get("restore") === "1";
+    const shouldStartFresh = !initialInvoiceId && (isFresh || !isRestore);
+
+    if (shouldStartFresh) {
+      clearPersistedInvoiceDrafts();
+      nextStep = "agency";
+      nextDocumentId = null;
+      nextMsaNote = null;
+      nextProjectId = null;
+      setProjectName("");
+    }
 
     // Restore draft from localStorage if available
     try {
       const savedDraft = localStorage.getItem("lance_draft_invoice");
       const savedTimestamp = localStorage.getItem("lance_draft_timestamp");
-      if (savedDraft && savedTimestamp && !initialInvoiceId) {
+      if (savedDraft && savedTimestamp && !initialInvoiceId && !shouldStartFresh) {
         const draftAge = Date.now() - new Date(savedTimestamp).getTime();
         const ONE_HOUR = 60 * 60 * 1000;
         // Only restore if draft is less than 1 hour old
@@ -1266,9 +1290,8 @@ function EditorContent() {
       }
 
       const anonymousRaw = localStorage.getItem(ANONYMOUS_DRAFT_KEY);
-      const isFresh = window.location.search.includes("fresh=1");
 
-      if (!isFresh) {
+      if (!shouldStartFresh) {
         try {
           const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
           if (rawDraft) {
@@ -1293,7 +1316,7 @@ function EditorContent() {
         }
       }
       
-      if (!nextFormData && anonymousRaw && !isFresh) {
+      if (!nextFormData && anonymousRaw && !shouldStartFresh) {
         try {
           const parsed = JSON.parse(anonymousRaw);
           if (parsed && typeof parsed === "object") {
@@ -1481,7 +1504,9 @@ function EditorContent() {
       const isFresh = searchParams.get("fresh") === "1";
       if (
         clients.length === 1 &&
-        (!formData.client.clientName.trim() || isFresh)
+        !isFresh &&
+        searchParams.get("restore") === "1" &&
+        !formData.client.clientName.trim()
       ) {
         const clientDetails = savedClientToClientDetails(clients[0]);
         setFormData((prev) => ({

@@ -75,7 +75,7 @@ export default function InvoicesPage() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-black tracking-tighter">Invoices · {filteredInvoices.length}</h1>
           <a
-            href="/invoice/new"
+            href="/invoice/new?fresh=1"
             className="border-2 border-black bg-[#D4FF00] px-6 py-3 text-sm font-extrabold uppercase tracking-widest text-black shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
           >
             + NEW INVOICE

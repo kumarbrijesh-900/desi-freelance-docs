@@ -243,7 +243,7 @@ function DashboardContent() {
         <ProjectRail
           projects={projects}
           selectedProjectId={projectId || undefined}
-          onNewInvoice={() => router.push('/invoice/new')}
+          onNewInvoice={() => router.push('/invoice/new?fresh=1')}
         />
 
         {/* Right Content */}

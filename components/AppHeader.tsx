@@ -153,7 +153,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
   const router = useRouter();
 
   const handleNewInvoice = () => {
-    const targetPath = user ? "/invoice/new" : "/invoice/new?guest=1";
+    const targetPath = user ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1";
     setIsMobileMenuOpen(false);
 
     if (window.location.pathname === "/invoice/new") {
