@@ -10,6 +10,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  devIndicators: {
+    appIsrStatus: false,
+    buildActivity: false,
+  },
   async headers() {
     return [
       {

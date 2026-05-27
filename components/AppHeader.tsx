@@ -9,6 +9,7 @@ import { getClientSessionUser, supabase } from "@/lib/supabase/client";
 import FeedbackModal from "./feedback/FeedbackModal";
 import NotificationBell from "./NotificationBell";
 import InstallPwaButton from "./ui/InstallPwaButton";
+import { Button } from "./ui/Button";
 
 interface AppHeaderProps {
   rightSlot?: React.ReactNode;
@@ -268,12 +269,13 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 />
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="text-[12px] font-bold uppercase tracking-[0.06em] text-ink hover:text-ink transition-colors border-2 border-ink px-3 py-1.5 hover:bg-acid"
+              <Button
+                variant="paper"
+                onClick={() => router.push("/login")}
+                className="text-[12px] px-3 py-1.5"
               >
                 Sign In
-              </Link>
+              </Button>
             )}
           </div>
         </div>

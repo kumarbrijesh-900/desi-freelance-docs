@@ -88,7 +88,7 @@ export default function Home() {
                 <Sticker rotate={-6} tone="acid">Takes 10s</Sticker>
               </div>
 
-              <Box shadow="coral" className="bg-paper p-8 transform rotate-2 relative z-20">
+              <Box shadow="coral" className="bg-paper p-8 relative z-20">
                 <div className="flex justify-between items-start border-b-2 border-ink pb-6 mb-6">
                   <div>
                     <h3 className="font-display text-3xl font-black uppercase tracking-tight text-ink">INV-042</h3>
@@ -178,7 +178,7 @@ export default function Home() {
                   A clean, zero-bloat editor. Add your client, define milestones, set line items with quantities and rates. GST tax codes auto-assigned. No accounting jargon.
                 </p>
               </div>
-              <div className="hidden sm:block text-6xl font-display font-black text-ink/10">
+              <div className="hidden sm:block text-6xl font-display font-black text-acid">
                 ✎
               </div>
             </Box>
@@ -196,7 +196,7 @@ export default function Home() {
                   IGST, CGST, SGST — computed from your GSTIN and client location. LUT validated for exports. You just fill in the amount.
                 </p>
               </div>
-              <div className="hidden sm:block text-6xl font-display font-black text-ink/10">
+              <div className="hidden sm:block text-6xl font-display font-black text-rose">
                 ∑
               </div>
             </Box>
@@ -214,7 +214,7 @@ export default function Home() {
                   Generate a secure link. Your client sees the invoice, accepts terms, and pays. You get notified the moment they open it.
                 </p>
               </div>
-              <div className="hidden sm:block text-6xl font-display font-black text-ink/10">
+              <div className="hidden sm:block text-6xl font-display font-black text-sky">
                 →
               </div>
             </Box>
@@ -232,7 +232,7 @@ export default function Home() {
                   Every invoice ships with a Master Service Agreement. Your client must accept terms before they can view the invoice. Payment terms, late fees, IP rights — all locked in upfront.
                 </p>
               </div>
-              <div className="hidden sm:block text-6xl font-display font-black text-ink/10">
+              <div className="hidden sm:block text-6xl font-display font-black text-lav">
                 §
               </div>
             </Box>

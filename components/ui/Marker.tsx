@@ -15,7 +15,7 @@ export function Marker({ tone = "acid", children, className }: MarkerProps) {
     <span 
       className={cn("inline-block", className)}
       style={{
-        background: `linear-gradient(180deg, transparent 55%, ${bg} 55% 92%, transparent 92%)`,
+        background: `linear-gradient(180deg, transparent 50%, ${bg} 50% 88%, transparent 88%)`,
         padding: "0 4px",
       }}
     >
