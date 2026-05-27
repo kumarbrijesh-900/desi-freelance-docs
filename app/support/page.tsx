@@ -8,7 +8,7 @@ import {
   appGridClass,
 } from "@/lib/layout-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
-import Marker from "@/components/ui/Marker";
+import { Marker } from "@/components/ui/Marker";
 
 export const metadata: Metadata = {
   title: "Freelance Invoicing Support & GST FAQs | Lance",

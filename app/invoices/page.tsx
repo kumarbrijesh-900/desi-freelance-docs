@@ -6,8 +6,8 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { InvoiceEventRow } from "@/components/invoices/InvoiceEventRow";
 import { AppPagination } from "@/components/ui/AppPagination";
-import Marker from "@/components/ui/Marker";
-import Pill from "@/components/ui/Pill";
+import { Marker } from "@/components/ui/Marker";
+import { Pill } from "@/components/ui/Pill";
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
   const [loading, setLoading] = useState(true);

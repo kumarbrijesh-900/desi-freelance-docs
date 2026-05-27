@@ -23,8 +23,8 @@ import {
   appPageContainerClass,
   appPageShellClass,
 } from "@/lib/layout-foundation";
-import Marker from "@/components/ui/Marker";
-import Pill from "@/components/ui/Pill";
+import { Marker } from "@/components/ui/Marker";
+import { Pill } from "@/components/ui/Pill";
 import {
   getAppButtonClass,
   getAppFieldClass,

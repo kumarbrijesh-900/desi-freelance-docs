@@ -32,7 +32,7 @@ import {
   MotionReveal,
   motion,
 } from "@/components/ui/motion-primitives";
-import Marker from "@/components/ui/Marker";
+import { Marker } from "@/components/ui/Marker";
 import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import { addDays } from "@/lib/date-math";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
