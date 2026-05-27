@@ -169,32 +169,51 @@ export function ProjectRail({
           filtered.map(p => {
             const isSelected = p.project.id === selectedProjectId;
             const dot = getAttentionDot(p);
+            const summary = getSummary(p);
 
             return (
               <Link
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
-                className={`block h-[80px] p-4 border-b border-black relative cursor-pointer
-                  ${isSelected ? "bg-[#FAFAF5]" : "bg-white hover:bg-neutral-50"}
+                className={`block min-h-[90px] p-4 pl-5 border-b-2 border-black relative cursor-pointer transition-all
+                  ${isSelected ? "bg-paper-2 shadow-[4px_4px_0_var(--color-rule)] z-10 -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
                 `}
               >
-                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[color:var(--color-lime-warm)]" />}
+                {/* 10px colored left stripe */}
+                <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-black ${
+                  summary.startsWith("DRAFT") ? "bg-butter" :
+                  summary === "COMPLETE" ? "bg-grass" :
+                  summary.startsWith("REVISION") ? "bg-coral" :
+                  summary.startsWith("LIVE") ? "bg-acid" :
+                  summary.startsWith("ACTIVE") ? "bg-sky" :
+                  "bg-lav"
+                }`} />
 
                 {dot && (
                   <div className="absolute top-4 right-4 w-[6px] h-[6px] rounded-full" style={{ backgroundColor: dot }} />
                 )}
 
-                <div className="flex flex-col h-full justify-between">
-                  <div>
-                    <div className="text-sm font-extrabold uppercase tracking-tight truncate w-[90%]" title={p.project.name}>
+                <div className="flex flex-col h-full justify-between pl-1">
+                  <div className="mb-2">
+                    <div className="text-[12px] font-extrabold uppercase tracking-tight truncate w-[90%] mb-1 text-ink" title={p.project.name}>
                       {p.project.name}
                     </div>
-                    <div className="text-[10px] uppercase tracking-wide text-neutral-600 truncate" title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
+                    <div className="text-[10px] uppercase tracking-wide text-ink/70 truncate" title={`${p.project.client?.client_name || "Unknown Client"} ${p.project.client?.city ? `· ${p.project.client.city}` : ""}`}>
                       {p.project.client?.client_name || "Unknown Client"} {p.project.client?.city ? `· ${p.project.client.city}` : ""}
                     </div>
                   </div>
-                  <div className="text-[10px] uppercase tracking-wide font-bold">
-                    {getSummary(p)}
+                  <div className="flex items-center justify-between">
+                    <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] ${
+                      summary.startsWith("DRAFT") ? "bg-butter text-ink" :
+                      summary === "COMPLETE" ? "bg-grass text-white" :
+                      summary.startsWith("REVISION") ? "bg-coral text-white" :
+                      summary.startsWith("LIVE") ? "bg-acid text-ink" :
+                      summary.startsWith("ACTIVE") ? "bg-sky text-white" :
+                      "bg-lav text-white"
+                    }`}>
+                      {summary}
+                    </div>
+                    {isSelected && <div className="text-grass font-black text-xs">→</div>}
                   </div>
                 </div>
               </Link>

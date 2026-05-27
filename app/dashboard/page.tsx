@@ -9,6 +9,8 @@ import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
 import { ActiveDrilldown, formatInr } from "@/components/dashboard/ActiveDrilldown";
 import { ProjectInvoicesLedger } from "@/components/dashboard/ProjectInvoicesLedger";
+import { Sticker } from "@/components/ui/Sticker";
+import { Marker } from "@/components/ui/Marker";
 import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle";
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
@@ -253,7 +255,62 @@ function DashboardContent() {
               Loading projects…
             </div>
           ) : selectedProject ? (
-            <div className="flex flex-col min-h-full">
+            <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
+              {/* Floating sticker */}
+              <div className="absolute top-6 right-10 z-10">
+                <Sticker rotate={6} tone="rose">✦ 11-day avg payment</Sticker>
+              </div>
+
+              {/* Title Section */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <div className="flex gap-2 mb-3 items-center">
+                    <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"/> LIVE</div>
+                    <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
+                      {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
+                    </div>
+                    <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
+                      {selectedProject.project.id.slice(0, 13).toUpperCase()}
+                    </div>
+                  </div>
+                  <h1 className="font-display font-black text-[56px] leading-[1.05] tracking-tight mb-2 text-ink max-w-[800px]">
+                    <Marker tone="rose">{selectedProject.project.name}</Marker>
+                  </h1>
+                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+                    CLIENT · {selectedProject.project.client?.client_name || "Unknown"} · {selectedProject.project.client?.city || "Unknown"}
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold text-[11px] uppercase tracking-widest transition-all">
+                    ⤓ EXPORT
+                  </button>
+                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold text-[11px] uppercase tracking-widest transition-all">
+                    ⋯
+                  </button>
+                  {drilldownState?.milestone && (
+                    <button className="px-4 py-2 bg-grass text-white border-2 border-ink font-extrabold text-[11px] uppercase tracking-widest shadow-[3px_3px_0_var(--color-ink)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none transition-all" onClick={() => handleSendNow(drilldownState)}>
+                      FINALIZE M{(drilldownState.milestone.order_index ?? 0) + 1} →
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 4-card stat strip */}
+              <div className="flex gap-4 mb-7">
+                {[
+                  { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, bg: "bg-paper", fg: "text-ink", shadow: "none" },
+                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => m.status==='settled').length} settled`, bg: "bg-grass", fg: "text-white", shadow: "shadow-[4px_4px_0_var(--color-rule)]" },
+                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", bg: "bg-acid", fg: "text-ink", shadow: "shadow-[4px_4px_0_var(--color-rule)]" },
+                  { label: "At risk", val: "₹0", sub: "—", bg: "bg-paper", fg: "text-ink", shadow: "none" }
+                ].map((s, i) => (
+                  <div key={i} className={`flex-1 p-4 ${s.bg} ${s.fg} border-2 border-ink ${s.shadow}`}>
+                    <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-85 mb-1">{s.label}</div>
+                    <div className="text-2xl font-black mb-1">{s.val}</div>
+                    <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-75">{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+
               {/* Vertical layout per spec */}
               <LifecycleStepper steps={computeProjectLifecycle(selectedProject)} />
 
