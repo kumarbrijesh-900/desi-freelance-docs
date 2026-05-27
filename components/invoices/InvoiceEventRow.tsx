@@ -155,10 +155,10 @@ export function InvoiceEventRow({
       {isExpanded && (
         <div className="mt-2 pt-4 border-t-2 border-black flex flex-col gap-4 text-sm" onClick={(e) => e.stopPropagation()}>
           
-          <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
             {/* Details Left Panel */}
-            <div className="flex-1 flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[color:var(--bg-surface-soft)] p-4 border-2 border-black h-full">
+            <div className="flex-1 flex flex-col gap-4 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[color:var(--bg-surface-soft)] p-4 border-2 border-black">
                 <div>
                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1">Issue Date</p>
                    <p className="font-extrabold">{invoice.issue_date || "Not Issued"}</p>
@@ -167,6 +167,27 @@ export function InvoiceEventRow({
                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1">Due Date</p>
                    <p className="font-extrabold">{invoice.due_date || "N/A"}</p>
                    {invoice.due_date && <p className="text-[10px] font-bold text-[#FF5C00] mt-1 uppercase">{dueDaysText}</p>}
+                </div>
+              </div>
+
+              {/* Line Items Container moved inside left panel */}
+              <div className="border-2 border-black">
+                <div className="bg-black text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest flex justify-between">
+                  <span>Item</span>
+                  <span className="text-right w-[100px]">Total</span>
+                </div>
+                <div className="flex flex-col">
+                  {lineItemsToRender.length > 0 ? lineItemsToRender.map((li: any, i: number) => (
+                    <div key={i} className="px-4 py-2 flex justify-between items-center border-b-2 border-black last:border-b-0 bg-white hover:bg-neutral-50 transition-colors">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sm">{li.title || "Item"}</span>
+                        <span className="text-[10px] text-neutral-500 font-bold">{li.qty} x {formatInr(li.rate)}</span>
+                      </div>
+                      <span className="font-black text-sm text-right w-[100px] shrink-0">{formatInr(Number(li.qty || 0) * Number(li.rate || 0))}</span>
+                    </div>
+                  )) : (
+                     <div className="px-4 py-4 text-center text-xs font-bold text-neutral-500 uppercase">No line items available</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -201,26 +222,6 @@ export function InvoiceEventRow({
                  </div>
               </div>
             )}
-          </div>
-          
-          <div className="border-2 border-black mt-2">
-            <div className="bg-black text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest flex justify-between">
-              <span>Item</span>
-              <span className="text-right w-[100px]">Total</span>
-            </div>
-            <div className="flex flex-col">
-              {lineItemsToRender.length > 0 ? lineItemsToRender.map((li: any, i: number) => (
-                <div key={i} className="px-4 py-2 flex justify-between items-center border-b-2 border-black last:border-b-0 bg-white hover:bg-neutral-50 transition-colors">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm">{li.title || "Item"}</span>
-                    <span className="text-[10px] text-neutral-500 font-bold">{li.qty} x {formatInr(li.rate)}</span>
-                  </div>
-                  <span className="font-black text-sm text-right w-[100px] shrink-0">{formatInr(Number(li.qty || 0) * Number(li.rate || 0))}</span>
-                </div>
-              )) : (
-                 <div className="px-4 py-4 text-center text-xs font-bold text-neutral-500 uppercase">No line items available</div>
-              )}
-            </div>
           </div>
         </div>
       )}
