@@ -1,5 +1,49 @@
 @import "tailwindcss";
 
+@theme {
+  /* Paper + ink */
+  --color-paper:        #fffaf0;
+  --color-paper-2:      #f5edda;
+  --color-ink:          #14110d;
+  --color-ink-2:        #5b554a;
+  --color-ink-3:        #9a9080;
+  --color-soft:         #e6dcc4;
+
+  /* Gen-Z accents — saturated, but seated on warm paper */
+  --color-acid:         #cbff3f;  /* PRIMARY · acid lime  */
+  --color-coral:        #ff5a4d;  /* ALERT  · hot coral   */
+  --color-rose:         #ff9ec7;  /* SOFT   · candy pink  */
+  --color-sky:          #4cb4ff;  /* INFO   · electric blue */
+  --color-lav:          #b29bff;  /* PRO    · lavender    */
+  --color-butter:       #ffd84d;  /* WARN   · butter      */
+  --color-grass:        #3acc7a;  /* OK     · fresh green */
+  --color-plum:         #7c2dd6;
+
+  /* Tonal page backgrounds (per-route) */
+  --color-paper-rose:   #ffeef5;
+  --color-paper-sky:    #e3f3ff;
+  --color-paper-lav:    #efeaff;
+  --color-paper-butter: #fff7d6;
+  --color-paper-mint:   #e6faec;
+
+  /* Fonts */
+  --font-display: var(--font-display);
+  --font-mono:    var(--font-mono);
+  --font-hand:    var(--font-hand);
+
+  /* Hard-shadow scale (the look) */
+  --shadow-chunk-sm:  3px 3px 0 var(--color-ink);
+  --shadow-chunk:     4px 4px 0 var(--color-ink);
+  --shadow-chunk-lg:  6px 6px 0 var(--color-ink);
+  --shadow-chunk-coral: 5px 5px 0 var(--color-coral);
+  --shadow-chunk-sky:   5px 5px 0 var(--color-sky);
+  --shadow-chunk-lav:   5px 5px 0 var(--color-lav);
+
+  --radius-pill: 9999px;
+  --radius-box:  4px;
+  --radius-soft: 10px;
+}
+
 :root {
   --color-bg-canvas: #FAFBFC;
   --color-bg-subtle: #F0F0F4;

@@ -1,40 +1,23 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, JetBrains_Mono, Outfit, Inter } from "next/font/google";
 import "./globals.css";
+import { Fraunces, JetBrains_Mono, Caveat } from "next/font/google";
 
-const syne = Syne({
-  variable: "--font-syne",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
+const fraunces = Fraunces({ 
+  subsets: ["latin"], 
+  variable: "--font-display", 
+  weight: ["500", "600", "700"] 
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+const mono = JetBrains_Mono({ 
+  subsets: ["latin"], 
+  variable: "--font-mono", 
+  weight: ["400", "500", "600", "700"] 
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500"],
+const caveat = Caveat({ 
+  subsets: ["latin"], 
+  variable: "--font-hand", 
+  weight: ["500", "600"] 
 });
 
 export const metadata: Metadata = {
@@ -65,22 +48,13 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${syne.variable} ${outfit.variable} ${inter.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${mono.variable} ${caveat.variable} h-full antialiased`}
     >
       <head>
         <meta name="theme-color" content="#F8F8FA" />
       </head>
       <body className="min-h-full flex flex-col relative">
-        {/* Global Aesthetic Grid */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden z-0 opacity-[0.03]">
-          <div 
-            style={{ 
-              backgroundImage: "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
-              backgroundSize: "48px 48px" 
-            }} 
-            className="absolute inset-0"
-          />
-        </div>
+        {/* Global Aesthetic Background */}
         <div className="relative z-10 flex min-h-screen flex-col">
           {children}
         </div>
