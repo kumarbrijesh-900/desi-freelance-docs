@@ -94,8 +94,8 @@
   --interactive-secondary-pressed: var(--color-coral-600);
 
   /* Semantic Brand Colors */
-  --color-lime-warm: var(--color-lime-warm);
-  --brand-indigo-deep: var(--brand-indigo-deep);
+  --color-lime-warm: #BEFF00;
+  --brand-indigo-deep: #4F46E5;
 
   /* Neo-Brutalist Shadows */
   --brutal-shadow-sm: 2px 2px 0 #111118;
