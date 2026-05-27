@@ -13,7 +13,7 @@ export function AppEmptyState({ title, description, icon, action, className, ...
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-none border-2 border-[#111118] border-dashed bg-[color:var(--bg-surface-soft)] p-8 text-center shadow-none",
+        "flex flex-col items-center justify-center rounded-none border-2 border-[#111118] border-dashed bg-[color:var(--color-paper)] p-8 text-center shadow-none",
         className
       )}
       {...props}
@@ -24,7 +24,7 @@ export function AppEmptyState({ title, description, icon, action, className, ...
         </div>
       )}
       <h3 className="mb-2 text-lg font-black uppercase tracking-tight text-[#111118]">{title}</h3>
-      {description && <p className="mb-6 max-w-sm text-sm font-normal text-[color:var(--text-muted)]">{description}</p>}
+      {description && <p className="mb-6 max-w-sm text-sm font-normal text-[color:var(--color-ink-2)]">{description}</p>}
       {action && <div>{action}</div>}
     </div>
   );

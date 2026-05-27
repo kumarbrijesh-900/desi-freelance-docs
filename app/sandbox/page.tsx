@@ -20,10 +20,10 @@ const InvoiceEditorPage = dynamic(
           <div className="mx-auto w-full max-w-[1120px]">
             <div className={getAppSubtlePanelClass("muted")}>
               <div className="space-y-2 px-6 py-7">
-                <p className="text-sm font-normal text-[color:var(--text-primary)]">
+                <p className="text-sm font-normal text-[color:var(--color-ink)]">
                   Loading sandbox...
                 </p>
-                <p className="text-sm leading-6 text-[color:var(--text-secondary)]">
+                <p className="text-sm leading-6 text-[color:var(--color-ink)]">
                   Preparing your guest session. No account required to test the
                   magic.
                 </p>

@@ -23,18 +23,18 @@ export default function TermsPage() {
         className={`${appPageContainerClass} mx-auto max-w-2xl pb-24 pt-12 sm:pt-16`}
       >
         <header className="mb-10">
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--color-ink-2)]">
             Legal
           </p>
-          <h1 className="mt-2 text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+          <h1 className="mt-2 text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
             Terms of Service
           </h1>
-          <p className="mt-3 text-sm text-[color:var(--text-muted)]">
+          <p className="mt-3 text-sm text-[color:var(--color-ink-2)]">
             Effective date: {EFFECTIVE_DATE}
           </p>
         </header>
 
-        <div className="prose-lance space-y-8 text-[color:var(--text-secondary)]">
+        <div className="prose-lance space-y-8 text-[color:var(--color-ink)]">
           <Section title="1. Acceptance of Terms">
             <p>
               By accessing or using Lance (&quot;the Service&quot;), you agree
@@ -91,7 +91,7 @@ export default function TermsPage() {
               Your use of the Service is also governed by our{" "}
               <Link
                 href="/privacy"
-                className="font-normal text-[color:var(--color-lime-700)] underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
+                className="font-normal text-[color:var(--color-lime-700)] underline underline-offset-2 hover:text-[color:var(--color-ink)] transition-colors"
               >
                 Privacy Policy
               </Link>
@@ -145,10 +145,10 @@ export default function TermsPage() {
           </Section>
         </div>
 
-        <footer className="mt-16 border-t border-[color:var(--border-subtle)] pt-6">
+        <footer className="mt-16 border-t border-[color:var(--color-soft)] pt-6">
           <Link
             href="/invoices"
-            className="text-sm font-normal text-[color:var(--color-lime-700)] hover:text-[color:var(--text-primary)] transition-colors"
+            className="text-sm font-normal text-[color:var(--color-lime-700)] hover:text-[color:var(--color-ink)] transition-colors"
           >
             ← Back to Invoices
           </Link>
@@ -167,7 +167,7 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="text-lg font-bold tracking-[-0.01em] text-[color:var(--text-primary)]">
+      <h2 className="text-lg font-bold tracking-[-0.01em] text-[color:var(--color-ink)]">
         {title}
       </h2>
       <div className="mt-2 text-sm leading-7">{children}</div>

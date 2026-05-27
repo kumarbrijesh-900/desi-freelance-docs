@@ -65,8 +65,8 @@ export default function ConversionModal({
             Your invoice is safe — sign up to download it
           </p>
 
-          <h2 className="text-xl font-bold text-[color:var(--text-primary)] mb-2">{title}</h2>
-          <p className="text-[13px] text-[color:var(--text-muted)] leading-relaxed mb-8">
+          <h2 className="text-xl font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
+          <p className="text-[13px] text-[color:var(--color-ink-2)] leading-relaxed mb-8">
             Your draft is saved locally and will be restored after sign-in. Create a free account to enable cloud save, PDF export, and sharing.
           </p>
 
@@ -82,7 +82,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 w-full h-11 border-2 border-[#111118] bg-white text-[11px] font-bold text-[#111118] uppercase transition-all hover:bg-[color:var(--bg-surface-soft)]"
+            className="mt-4 w-full h-11 border-2 border-[#111118] bg-white text-[11px] font-bold text-[#111118] uppercase transition-all hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>

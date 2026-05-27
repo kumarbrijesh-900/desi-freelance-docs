@@ -76,7 +76,7 @@ export default function InteractiveHeroGraphic() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="w-full aspect-square md:aspect-[4/3] relative overflow-hidden bg-[color:var(--bg-surface-soft)]/50 border border-[color:var(--border-subtle)] shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+      className="w-full aspect-square md:aspect-[4/3] relative overflow-hidden bg-[color:var(--color-paper)]/50 border border-[color:var(--color-soft)] shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
     >
       {/* LAYER 1: The Blobs (Colorful Background) */}
       <motion.div
@@ -123,15 +123,15 @@ export default function InteractiveHeroGraphic() {
           <div className="space-y-4">
             <div className="h-2 w-1/2 bg-gray-200 rounded-full" />
             <div className="space-y-2">
-              <div className="h-1.5 w-full bg-[color:var(--bg-surface-muted)] rounded-full" />
-              <div className="h-1.5 w-full bg-[color:var(--bg-surface-muted)] rounded-full" />
-              <div className="h-1.5 w-3/4 bg-[color:var(--bg-surface-muted)] rounded-full" />
+              <div className="h-1.5 w-full bg-[color:var(--color-paper-2)] rounded-full" />
+              <div className="h-1.5 w-full bg-[color:var(--color-paper-2)] rounded-full" />
+              <div className="h-1.5 w-3/4 bg-[color:var(--color-paper-2)] rounded-full" />
             </div>
           </div>
 
-          <div className="pt-6 border-t border-[color:var(--border-subtle)]/50 flex items-end justify-between">
+          <div className="pt-6 border-t border-[color:var(--color-soft)]/50 flex items-end justify-between">
             <div className="space-y-1">
-              <div className="h-1.5 w-12 bg-[color:var(--bg-surface-muted)] rounded-full" />
+              <div className="h-1.5 w-12 bg-[color:var(--color-paper-2)] rounded-full" />
               <div className="h-3 w-20 bg-gray-900 rounded-full" />
             </div>
             {/* Required Lime Square */}
@@ -236,7 +236,7 @@ export default function InteractiveHeroGraphic() {
               )}
             </AnimatePresence>
           </motion.div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">
             Agency
           </span>
         </div>
@@ -266,7 +266,7 @@ export default function InteractiveHeroGraphic() {
               )}
             </AnimatePresence>
           </motion.div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">
             Client
           </span>
         </div>
@@ -280,14 +280,14 @@ export default function InteractiveHeroGraphic() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-2.5 rounded-full bg-white/80 border border-[color:var(--border-subtle)] px-4 py-2 shadow-sm"
+            className="flex items-center gap-2.5 rounded-full bg-white/80 border border-[color:var(--color-soft)] px-4 py-2 shadow-sm"
           >
             {isGreenText ? (
               <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
             ) : (
               <div className="h-2 w-2 rounded-full bg-gray-300" />
             )}
-            <span className={isGreenText ? "text-xs font-bold text-[#10B981]" : "text-xs font-normal text-[color:var(--text-muted)]"}>
+            <span className={isGreenText ? "text-xs font-bold text-[#10B981]" : "text-xs font-normal text-[color:var(--color-ink-2)]"}>
               {getStatusText()}
             </span>
           </motion.div>

@@ -176,7 +176,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                 if (milestoneHeaderCount <= 1) return null;
 
                 return (
-                  <tr key={item.id} className="bg-[color:var(--bg-surface-soft)]/60 border-y border-[color:var(--border-subtle)]">
+                  <tr key={item.id} className="bg-[color:var(--color-paper)]/60 border-y border-[color:var(--color-soft)]">
                     <td colSpan={3} className="py-5 px-4">
                       <div className="flex flex-col gap-1">
                         <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A08E]">

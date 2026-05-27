@@ -195,14 +195,14 @@ function ThumbnailCard({
         ${
           isSelected
             ? "border-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)]"
-            : "border-[color:var(--border-subtle)] hover:border-[#111118]"
+            : "border-[color:var(--color-soft)] hover:border-[#111118]"
         }
         cursor-pointer
       `}
       title={`${template.name}${lockState !== "unlocked" ? " (Requires Login)" : ""}`}
     >
       {/* Preview area — compact aspect ratio */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[color:var(--bg-surface-muted)]">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[color:var(--color-paper-2)]">
         <div
           className={`h-full w-full ${lockState === "blurred" ? "blur-[4px] scale-110" : ""}`}
         >
@@ -213,7 +213,7 @@ function ThumbnailCard({
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
             <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow">
-              <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
+              <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>
         )}
@@ -222,7 +222,7 @@ function ThumbnailCard({
         {lockState === "locked" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
             <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow ring-1 ring-black/5">
-              <LockIcon className="h-3 w-3 text-[color:var(--text-muted)]" />
+              <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>
         )}
@@ -241,12 +241,12 @@ function ThumbnailCard({
           className={`text-[10px] font-bold leading-tight uppercase ${
             isSelected
               ? "text-[#111118]"
-              : "text-[color:var(--text-primary)]"
+              : "text-[color:var(--color-ink)]"
           }`}
         >
           {template.name}
         </p>
-        <p className="text-[10px] leading-snug text-[color:var(--text-muted)] mt-1">
+        <p className="text-[10px] leading-snug text-[color:var(--color-ink-2)] mt-1">
           {TEMPLATE_DESCRIPTIONS[template.id] || "Professional invoice layout."}
         </p>
       </div>
@@ -285,8 +285,8 @@ export default function TemplatePicker({
     >
       {/* Header */}
       <div className="flex items-center gap-1.5 px-1">
-        <PanelIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)]" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+        <PanelIcon className="h-3.5 w-3.5 text-[color:var(--color-ink-2)]" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
           Templates
         </span>
       </div>

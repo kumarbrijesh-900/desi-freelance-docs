@@ -129,7 +129,7 @@ export default function TotalsTaxesSection({
       ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]"
       : complianceVariant === "info"
         ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-success-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-success-text)] ring-1 ring-inset ring-[color:var(--state-success-border)]"
-        : "rounded-[var(--app-radius-card)] bg-[color:var(--bg-surface-soft)] px-4 py-3 text-sm leading-6 text-[color:var(--text-secondary)] ring-1 ring-inset ring-[color:var(--border-subtle)]";
+        : "rounded-[var(--app-radius-card)] bg-[color:var(--color-paper)] px-4 py-3 text-sm leading-6 text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-soft)]";
   const taxAmountHelperText =
     computed.taxType === "CGST_SGST"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
@@ -216,19 +216,19 @@ export default function TotalsTaxesSection({
           {/* Summary Rows */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-[14px]">
-              <dt className="text-[color:var(--text-muted)]">Subtotal</dt>
-              <dd className="font-normal text-[color:var(--text-primary)]">
+              <dt className="text-[color:var(--color-ink-2)]">Subtotal</dt>
+              <dd className="font-normal text-[color:var(--color-ink)]">
                 {formatCurrency(subtotal, currency)}
               </dd>
             </div>
 
             <div className="flex items-start justify-between text-[14px]">
-              <dt className="text-[color:var(--text-muted)]">
+              <dt className="text-[color:var(--color-ink-2)]">
                 {computed.taxType !== "NONE" 
                   ? `Tax (${effectiveRate}% ${taxModeSummaryLabel})` 
                   : "Tax (0%)"}
               </dt>
-              <dd className="text-right font-normal text-[color:var(--text-primary)]">
+              <dd className="text-right font-normal text-[color:var(--color-ink)]">
                 {formatCurrency(taxAmount, currency)}
                 {isRcmEnabled ? (
                   <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#4A7A00]">
@@ -242,7 +242,7 @@ export default function TotalsTaxesSection({
             <div className="border-t-2 border-[#111] pt-4 mt-2" />
 
             <div className="flex items-center justify-between">
-              <dt className="text-[15px] font-bold text-[color:var(--text-primary)]">Grand Total</dt>
+              <dt className="text-[15px] font-bold text-[color:var(--color-ink)]">Grand Total</dt>
               <dd className="flex flex-col items-end">
                 <span
                   className={cn(
@@ -256,7 +256,7 @@ export default function TotalsTaxesSection({
             </div>
 
             {grandTotal === 0 && !hasItems && (
-              <p className="text-[12px] text-[color:var(--text-muted)] italic text-right">
+              <p className="text-[12px] text-[color:var(--color-ink-2)] italic text-right">
                 Add billable items to see the final total.
               </p>
             )}
@@ -269,14 +269,14 @@ export default function TotalsTaxesSection({
           </div>
 
           {/* Tax Explanation */}
-          <div className="mt-6 pt-4 border-t border-[color:var(--border-subtle)]">
-            <p className="text-[12px] leading-relaxed text-[color:var(--text-muted)]">
+          <div className="mt-6 pt-4 border-t border-[color:var(--color-soft)]">
+            <p className="text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
               {complianceMessage || (computed.taxType === "NONE" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
             </p>
           </div>
 
           {/* Advanced Tax Disclosure */}
-          <div className="mt-4 border-t border-[color:var(--border-subtle)] pt-4">
+          <div className="mt-4 border-t border-[color:var(--color-soft)] pt-4">
             {!showAdvanced ? (
               <div className="flex flex-wrap items-center gap-1.5 group">
                 <button
@@ -293,11 +293,11 @@ export default function TotalsTaxesSection({
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] font-bold text-[color:var(--text-muted)]">Advanced Options</span>
+                  <span className="text-[12px] font-bold text-[color:var(--color-ink-2)]">Advanced Options</span>
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(false)}
-                    className="text-[11px] font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                    className="text-[11px] font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                   >
                     Hide
                   </button>
@@ -305,13 +305,13 @@ export default function TotalsTaxesSection({
                 {/* RCM Toggle */}
                 <div
                   className={cn(
-                    "border-t border-b border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]/30 min-w-0",
+                    "border-t border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/30 min-w-0",
                     embedded ? "-mx-4 px-4" : "-mx-6 px-6",
                   )}
                 >
                   <div className="flex min-h-[44px] flex-wrap items-center justify-between gap-2 py-2 sm:py-0 sm:h-[44px]">
                     <div className="flex min-w-0 flex-wrap items-center gap-1.5 group">
-                      <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                      <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
                         Reverse Charge (RCM)
                       </span>
                       <AppTooltip content={<>
@@ -335,8 +335,8 @@ export default function TotalsTaxesSection({
 
           {/* Payment Footer */}
           {(paymentTerms || bankName) && (
-            <div className="mt-4 pt-4 border-t border-[color:var(--border-subtle)]">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+            <div className="mt-4 pt-4 border-t border-[color:var(--color-soft)]">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
                 Settlement
               </p>
               <div className="flex flex-wrap items-center gap-2">
@@ -346,7 +346,7 @@ export default function TotalsTaxesSection({
                   </div>
                 )}
                 {bankName && (
-                  <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-muted)] text-[color:var(--text-secondary)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     Bank: {bankName}
                   </div>
                 )}
@@ -356,8 +356,8 @@ export default function TotalsTaxesSection({
         </div>
 
         {grandTotalReferenceLabel && typeof grandTotalReferenceAmount === "number" && (
-          <p className="mt-4 px-2 text-[11px] text-[color:var(--text-secondary)]">
-            {grandTotalReferenceLabel}: <span className="font-bold text-[color:var(--text-primary)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
+          <p className="mt-4 px-2 text-[11px] text-[color:var(--color-ink)]">
+            {grandTotalReferenceLabel}: <span className="font-bold text-[color:var(--color-ink)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
           </p>
         )}
       </div>

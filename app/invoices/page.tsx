@@ -6,7 +6,8 @@ import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundatio
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { InvoiceEventRow } from "@/components/invoices/InvoiceEventRow";
 import { AppPagination } from "@/components/ui/AppPagination";
-
+import Marker from "@/components/ui/Marker";
+import Pill from "@/components/ui/Pill";
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +88,12 @@ export default function InvoicesPage() {
       <main className={`${appPageContainerClass} max-w-[1200px] mx-auto py-8`}>
 
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-black tracking-tighter">Invoices · {filteredInvoices.length}</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
+              <Marker tone="acid">Invoices</Marker>
+            </h1>
+            <Pill tone="acid">{filteredInvoices.length}</Pill>
+          </div>
           <a
             href="/invoice/new?fresh=1"
             className="border-2 border-black bg-[color:var(--color-lime-warm)] px-6 py-3 text-sm font-extrabold uppercase tracking-widest text-black shadow-[4px_4px_0_#111118] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#111118] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"

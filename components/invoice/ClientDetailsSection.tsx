@@ -307,10 +307,10 @@ export default function ClientDetailsSection({
         {/* Section A: Client Info */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
               Client Info
             </h3>
-            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
           </div>
 
           <div className="space-y-6">
@@ -366,15 +366,15 @@ export default function ClientDetailsSection({
                 )}
 
                 {showSuggestions && !isReadOnly && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--border-subtle)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     {isLoading ? (
                       <div className="px-3 py-4 text-center">
-                        <span className="text-[12px] text-[color:var(--text-soft)] animate-pulse">Loading saved clients...</span>
+                        <span className="text-[12px] text-[color:var(--color-ink-3)] animate-pulse">Loading saved clients...</span>
                       </div>
                     ) : (
                       <>
-                        <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--border-subtle)] mb-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Saved Clients</span>
+                        <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Clients</span>
                         </div>
                         {filteredClients.length > 0 ? (
                           filteredClients.map((client) => (
@@ -385,14 +385,14 @@ export default function ClientDetailsSection({
                               onClick={() => handleSelectClient(client)}
                               className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
                             >
-                              <span className="text-[13px] font-bold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
-                              <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
+                              <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
+                              <div className="flex items-center gap-2 text-[10px] text-[color:var(--color-ink-2)]">
                                 <span>{client.city || client.client_type || "Saved client"}</span>
                               </div>
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-3 text-[12px] font-bold text-[color:var(--text-muted)]">
+                          <div className="px-3 py-3 text-[12px] font-bold text-[color:var(--color-ink-2)]">
                             No saved clients match. Press Tab or Enter to add as new.
                           </div>
                         )}
@@ -405,7 +405,7 @@ export default function ClientDetailsSection({
 
               <div className="mb-4">
                 <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                     Client Location{!isReadOnly && " *"}
                   </label>
                   <AppTooltip content={<>
@@ -471,16 +471,16 @@ export default function ClientDetailsSection({
                 {/* Section B: Tax Details (Domestic) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                       Tax Details
                     </h3>
-                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
                   </div>
 
                   <div className="flex flex-wrap gap-6 items-end">
                     <div className="w-full max-w-[360px]">
                       <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                           {agency ? getClientTaxIdLabel(value, agency) : "Client GSTIN"}
                           {autoFilledFields.has("client.clientGstin") && (
                             <span className="autofill-indicator">auto-filled</span>
@@ -514,13 +514,13 @@ export default function ClientDetailsSection({
                           <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
                         )}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[13px] font-bold text-[color:var(--text-primary)]">SEZ Unit</span>
+                          <span className="text-[13px] font-bold text-[color:var(--color-ink)]">SEZ Unit</span>
                           <AppTooltip content={<>
                             Special Economic Zone. Supplies to SEZ units are treated as exports (Zero-rated supply under GST). IGST is applicable unless you provide a Letter of Undertaking (LUT).
                           </>} />
                         </div>
                         {isReadOnly && (
-                          <span className="text-[13px] font-bold text-[color:var(--text-muted)]">
+                          <span className="text-[13px] font-bold text-[color:var(--color-ink-2)]">
                             {value.isClientSezUnit === "yes" ? "Yes" : "No"}
                           </span>
                         )}
@@ -532,10 +532,10 @@ export default function ClientDetailsSection({
                 {/* Section C: Client Address (Domestic) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                       Client Address
                     </h3>
-                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
                   </div>
 
                   <div className="space-y-5">
@@ -680,10 +680,10 @@ export default function ClientDetailsSection({
                 {/* Section B: Tax Details (International) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                       Tax Details
                     </h3>
-                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
                   </div>
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -746,10 +746,10 @@ export default function ClientDetailsSection({
                 {/* Section C: Client Address (International) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                       Client Address
                     </h3>
-                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+                    <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
                   </div>
 
                   <div className="space-y-5">
@@ -802,7 +802,7 @@ export default function ClientDetailsSection({
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                          <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                             {agency ? getClientTaxIdLabel(value, agency) : "Tax ID"}
                             {autoFilledFields.has("client.clientGstin") && (
                               <span className="autofill-indicator">auto-filled</span>
@@ -841,7 +841,7 @@ export default function ClientDetailsSection({
         {/* ─── Section Header ─── */}
         <div
           className={cn(
-            "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--border-subtle)] bg-white hover:bg-[color:var(--bg-surface-soft)] transition-colors text-left group cursor-pointer"
+            "flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start w-full min-w-0 p-4 border border-[color:var(--color-soft)] bg-white hover:bg-[color:var(--color-paper)] transition-colors text-left group cursor-pointer"
           )}
           onClick={() => {
             setIsMsaOpen(!isMsaOpen);
@@ -851,7 +851,7 @@ export default function ClientDetailsSection({
           <div className="flex min-w-0 w-full flex-1 flex-col gap-1.5 sm:pr-4">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <div className="flex min-w-0 flex-1 items-start gap-1.5">
-                <span className="text-[color:var(--text-primary)] font-bold text-[15px] leading-snug text-pretty break-normal">
+                <span className="text-[color:var(--color-ink)] font-bold text-[15px] leading-snug text-pretty break-normal">
                   Client Specific Payment &amp; Legal Terms
                 </span>
                 <AppTooltip content={
@@ -867,13 +867,13 @@ export default function ClientDetailsSection({
               </div>
               <ChevronDownIcon
                 className={cn(
-                  "h-5 w-5 shrink-0 sm:hidden transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]",
+                  "h-5 w-5 shrink-0 sm:hidden transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--color-ink-2)] group-hover:text-[color:var(--color-ink)]",
                   isMsaOpen && "rotate-180"
                 )}
               />
             </div>
             {/* Always-visible summary row */}
-            <p className="min-w-0 text-[12px] text-[color:var(--text-muted)] font-normal leading-relaxed break-normal">
+            <p className="min-w-0 text-[12px] text-[color:var(--color-ink-2)] font-normal leading-relaxed break-normal">
               {msaSummaryText}
             </p>
           </div>
@@ -893,7 +893,7 @@ export default function ClientDetailsSection({
             )}
             <ChevronDownIcon
               className={cn(
-                "hidden h-5 w-5 shrink-0 sm:block transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--text-muted)] group-hover:text-[color:var(--text-secondary)]",
+                "hidden h-5 w-5 shrink-0 sm:block transition-transform duration-300 ease-[var(--app-ease-standard)] text-[color:var(--color-ink-2)] group-hover:text-[color:var(--color-ink)]",
                 isMsaOpen && "rotate-180"
               )}
             />
@@ -909,21 +909,21 @@ export default function ClientDetailsSection({
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="overflow-hidden"
             >
-              <div className="border border-t-0 border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] p-4 sm:p-5 pb-24 sm:pb-5 space-y-6 min-w-0">
-                <p className="text-[12px] text-[color:var(--text-muted)] leading-relaxed break-normal sm:hidden">
+              <div className="border border-t-0 border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] p-4 sm:p-5 pb-24 sm:pb-5 space-y-6 min-w-0">
+                <p className="text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal sm:hidden">
                   Set payment terms, late fee, IP transfer, jurisdiction, and license type. We&apos;ll use these to generate the MSA clause.
                 </p>
 
                 {/* ── Group 1: Payment ── */}
                 <div>
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] mb-3 flex items-center gap-1.5">
+                  <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-ink-2)] mb-3 flex items-center gap-1.5">
                     <span>💰</span> Payment
                   </h4>
                   <div className="flex flex-wrap gap-6">
                     {/* Payment Terms */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Payment terms</label>
+                        <label className="text-[13px] font-bold text-[color:var(--color-ink)]">Payment terms</label>
                         <AppTooltip content={<>
                           <strong>Net payment days.</strong> The number of calendar days the client has to pay after the invoice issue date. Common values: Net 15, Net 30, Net 45. If the client doesn&apos;t pay within this window, the late fee kicks in.
                         </>} />
@@ -937,14 +937,14 @@ export default function ClientDetailsSection({
                           placeholder="e.g. 20"
                           className={cn(inputClass(undefined, Boolean(value.msaPaymentTermsDays)), "h-9 text-[13px] !w-32 min-w-0")}
                         />
-                        <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
+                        <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">days</span>
                       </div>
                     </div>
 
                     {/* Late Fee */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Late fee</label>
+                        <label className="text-[13px] font-bold text-[color:var(--color-ink)]">Late fee</label>
                         <AppTooltip content={<>
                           <strong>Overdue penalty rate.</strong> Interest charged on unpaid invoices past the payment deadline. Industry standard is 1.5% monthly. This clause discourages late payments and protects your cash flow.
                         </>} />
@@ -959,7 +959,7 @@ export default function ClientDetailsSection({
                           placeholder="1.5"
                           className={cn(inputClass(undefined, Boolean(value.msaLateFeeRate)), "h-9 text-[13px] !w-32 min-w-0")}
                         />
-                        <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
+                        <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">%</span>
                         <AppSelectField
                           value={value.msaLateFeeUnit || "monthly"}
                           onChange={(e) => updateField("msaLateFeeUnit", e.target.value as any)}
@@ -977,14 +977,14 @@ export default function ClientDetailsSection({
 
                 {/* ── Group 2: Legal ── */}
                 <div>
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] mb-3 flex items-center gap-1.5">
+                  <h4 className="text-[10px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-ink-2)] mb-3 flex items-center gap-1.5">
                     <span>⚖️</span> Legal &amp; IP
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* IP Transfer */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">IP Transfer</label>
+                        <label className="text-[13px] font-bold text-[color:var(--color-ink)]">IP Transfer</label>
                         <AppTooltip content={<>
                           <strong>Intellectual Property transfer trigger.</strong> Determines when ownership of the work (designs, code, content) passes to the client. &quot;Upon Full Payment&quot; is the safest option — it protects you if the client doesn&apos;t pay.
                         </>} />
@@ -1006,7 +1006,7 @@ export default function ClientDetailsSection({
                     {/* Jurisdiction */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Jurisdiction</label>
+                        <label className="text-[13px] font-bold text-[color:var(--color-ink)]">Jurisdiction</label>
                         <AppTooltip content={<>
                           <strong>Dispute resolution city.</strong> If a legal dispute arises, this is the city whose courts will have authority. Usually set to your own city for convenience.
                         </>} />
@@ -1023,7 +1023,7 @@ export default function ClientDetailsSection({
                     {/* License Type */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">License Type</label>
+                        <label className="text-[13px] font-bold text-[color:var(--color-ink)]">License Type</label>
                         <AppTooltip content={<>
                           <strong>Client rights model.</strong> &quot;Full Assignment&quot; = client owns everything outright. &quot;Exclusive License&quot; = client gets sole usage rights but you retain ownership. &quot;Non-Exclusive&quot; = you can reuse/resell the work.
                         </>} />
@@ -1063,10 +1063,10 @@ export default function ClientDetailsSection({
                 {/* Generated MSA — connected preview after generation action */}
                 <div className="space-y-3 border-t-2 border-[#111118] pt-4 min-w-0">
                   <div>
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-ink)]">
                       Generated MSA
                     </h3>
-                    <p className="mt-1 text-[11px] text-[color:var(--text-muted)] leading-relaxed break-normal">
+                    <p className="mt-1 text-[11px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
                       {hasGeneratedMsa
                         ? "Review and edit the clause below. Use Regenerate after changing terms above, or Clear to start over."
                         : "Your generated clause will appear here after you generate it from the payment and legal settings above."}
@@ -1099,7 +1099,7 @@ export default function ClientDetailsSection({
                       )}
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-[#111118]/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--text-muted)] leading-relaxed break-normal">
+                    <div className="border-2 border-dashed border-[#111118]/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
                       No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[#111118]">{clauseActionLabel}</span>.
                     </div>
                   )}

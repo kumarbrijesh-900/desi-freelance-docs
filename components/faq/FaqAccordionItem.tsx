@@ -16,18 +16,18 @@ export default function FaqAccordionItem({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-[color:var(--border-subtle)] last:border-0">
+    <div className="border-b border-[color:var(--color-soft)] last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between py-5 pr-4 text-left transition-all duration-200 group"
       >
-        <span className="text-base font-bold text-[color:var(--text-primary)] group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
+        <span className="text-base font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
           {question}
         </span>
         <ChevronDownIcon
           className={cn(
-            "h-5 w-5 text-[color:var(--text-muted)] transition-transform duration-300 ease-in-out",
-            isOpen ? "rotate-180 text-[color:var(--text-primary)]" : "rotate-0",
+            "h-5 w-5 text-[color:var(--color-ink-2)] transition-transform duration-300 ease-in-out",
+            isOpen ? "rotate-180 text-[color:var(--color-ink)]" : "rotate-0",
           )}
         />
       </button>
@@ -39,7 +39,7 @@ export default function FaqAccordionItem({
         )}
       >
         <div className="overflow-hidden">
-          <div className="pb-5 pr-12 text-sm leading-relaxed text-[color:var(--text-secondary)]">
+          <div className="pb-5 pr-12 text-sm leading-relaxed text-[color:var(--color-ink)]">
             {answer}
           </div>
         </div>

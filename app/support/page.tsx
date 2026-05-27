@@ -8,6 +8,7 @@ import {
   appGridClass,
 } from "@/lib/layout-foundation";
 import { MotionReveal } from "@/components/ui/motion-primitives";
+import Marker from "@/components/ui/Marker";
 
 export const metadata: Metadata = {
   title: "Freelance Invoicing Support & GST FAQs | Lance",
@@ -24,10 +25,10 @@ export default function SupportPage() {
         <div className={appGridClass}>
           <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
             <MotionReveal className="mb-8" preset="fade-up">
-              <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
-                Support & FAQ
+              <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
+                Support & <Marker tone="butter">FAQ</Marker>
               </h1>
-              <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+              <p className="mt-1 text-sm text-[color:var(--color-ink)]">
                 Everything you need to know about professional billing and Lance.
               </p>
             </MotionReveal>
@@ -42,7 +43,7 @@ export default function SupportPage() {
         <div
           className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
         >
-          <p className="text-xs font-bold text-[color:var(--text-muted)] uppercase tracking-wider">
+          <p className="text-xs font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
             © {new Date().getFullYear()} Lance. Built for Indian freelancers.
           </p>
         </div>

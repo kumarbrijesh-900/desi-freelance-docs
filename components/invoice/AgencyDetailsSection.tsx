@@ -231,17 +231,17 @@ export default function AgencyDetailsSection({
           {/* Section A: Tax & Identity */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Tax & Identity
               </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
             </div>
 
             <div className="space-y-6">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-wrap items-center gap-1.5 group">
-                    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
                       GST Registration Status
                     </span>
                     <AppTooltip content={<>
@@ -259,13 +259,13 @@ export default function AgencyDetailsSection({
                       }
                     />
                   )}
-                  <span className="text-[13px] font-bold text-[color:var(--text-muted)] transition-opacity duration-200">
+                  <span className="text-[13px] font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
                     {value.gstRegistrationStatus === "registered"
                       ? "Registered"
                       : "Not registered"}
                   </span>
                 </div>
-                <p className="text-[11px] text-[color:var(--text-muted)]">
+                <p className="text-[11px] text-[color:var(--color-ink-2)]">
                   Required for tax compliance in India
                 </p>
               </div>
@@ -309,7 +309,7 @@ export default function AgencyDetailsSection({
                             className={cn(
                               inputClass(gstinError, Boolean(value.gstin)),
                               getInputStateClass("agency.gstin", value.gstin),
-                              !isGuestMode && !!value.gstin && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
+                              !isGuestMode && !!value.gstin && "bg-[color:var(--color-paper)] cursor-not-allowed opacity-80"
                             )}
                           />
                           {!isGuestMode && !!value.gstin && (
@@ -328,7 +328,7 @@ export default function AgencyDetailsSection({
 
                         <div className="w-full max-w-[180px]">
                           <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                               PAN
                               {autoFilledFields.has("agency.pan") && (
                                 <span className="autofill-indicator">auto-filled</span>
@@ -369,11 +369,11 @@ export default function AgencyDetailsSection({
                         </div>
                       </div>
 
-                      <div className="space-y-4 bg-[color:var(--bg-surface-muted)]/40 p-4 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                      <div className="space-y-4 bg-[color:var(--color-paper-2)]/40 p-4 ring-1 ring-inset ring-[color:var(--color-soft)]">
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
                             <div className="flex flex-wrap items-center gap-1.5 group">
-                              <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                              <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
                                 Valid LUT for current financial year?
                               </span>
                               <AppTooltip content={<>
@@ -388,11 +388,11 @@ export default function AgencyDetailsSection({
                                 }
                               />
                             )}
-                            <span className="text-[13px] font-bold text-[color:var(--text-muted)] transition-opacity duration-200">
+                            <span className="text-[13px] font-bold text-[color:var(--color-ink-2)] transition-opacity duration-200">
                               {value.lutAvailability === "yes" ? "Yes" : "No"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[color:var(--text-muted)]">
+                          <p className="text-[11px] text-[color:var(--color-ink-2)]">
                             Required for Zero-Rated export invoices
                           </p>
                         </div>
@@ -432,8 +432,8 @@ export default function AgencyDetailsSection({
                         </AnimatePresence>
 
                         {showNoLutTotalsNote && (
-                          <div className="rounded-none bg-[color:var(--bg-surface-muted)] px-3 py-2">
-                            <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
+                          <div className="rounded-none bg-[color:var(--color-paper-2)] px-3 py-2">
+                            <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>
                           </div>
@@ -450,7 +450,7 @@ export default function AgencyDetailsSection({
                   >
                     <div className="w-full max-w-[180px] pt-2">
                       <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">PAN</label>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">PAN</label>
                         <AppTooltip content={<>
   10-character Permanent Account Number. Auto-derived from GSTIN if provided.
 </>} />
@@ -489,10 +489,10 @@ export default function AgencyDetailsSection({
           {/* Section B: Business Details */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Business Details
               </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
             </div>
 
             <div className="space-y-6">
@@ -517,7 +517,7 @@ export default function AgencyDetailsSection({
                   className={cn(
                     inputClass(agencyNameError, Boolean(value.agencyName)),
                     getInputStateClass("agency.agencyName", value.agencyName),
-                    !isGuestMode && !!value.agencyName && "bg-[color:var(--bg-surface-soft)] cursor-not-allowed opacity-80"
+                    !isGuestMode && !!value.agencyName && "bg-[color:var(--color-paper)] cursor-not-allowed opacity-80"
                   )}
                 />
                 {!isGuestMode && !!value.agencyName && (
@@ -533,7 +533,7 @@ export default function AgencyDetailsSection({
               <div className="space-y-2">
                 <label className={appFieldLabelClass}>Agency Logo</label>
                 {value.logoUrl ? (
-                  <div className="flex items-center justify-between bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                  <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center bg-white p-1 shadow-sm ring-1 ring-gray-200">
                         <img
@@ -543,7 +543,7 @@ export default function AgencyDetailsSection({
                         />
                       </div>
                       <div>
-                        <p className="text-[13px] font-normal text-[color:var(--text-primary)]">
+                        <p className="text-[13px] font-normal text-[color:var(--color-ink)]">
                           Agency Logo Attached
                           {value.logoUrl === value.profileLogoUrl &&
                             value.logoUrl !== "" && (
@@ -552,7 +552,7 @@ export default function AgencyDetailsSection({
                               </span>
                             )}
                         </p>
-                        <p className="text-[11px] text-[color:var(--text-muted)]">
+                        <p className="text-[11px] text-[color:var(--color-ink-2)]">
                           Appears at the top of the invoice
                         </p>
                       </div>
@@ -561,7 +561,7 @@ export default function AgencyDetailsSection({
                       <button
                         type="button"
                         onClick={removeLogo}
-                        className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                        className="group flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                         title="Remove Logo"
                       >
                         <svg
@@ -591,7 +591,7 @@ export default function AgencyDetailsSection({
                     />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--brand-indigo-deep)]"
+                      className="h-4 w-4 text-[color:var(--color-ink-2)] group-hover:text-[color:var(--brand-indigo-deep)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -603,7 +603,7 @@ export default function AgencyDetailsSection({
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-bold text-[color:var(--text-secondary)] group-hover:text-[color:var(--brand-indigo-deep)]">
+                    <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--brand-indigo-deep)]">
                       Upload Agency Logo
                     </span>
                   </label>
@@ -619,10 +619,10 @@ export default function AgencyDetailsSection({
           {/* Section C: Registered Address */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
                 Registered Address
               </h3>
-              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+              <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
             </div>
 
             <div className="space-y-5">

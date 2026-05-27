@@ -12,16 +12,16 @@ export function ExitConfirmModal({
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
-        <h2 className="text-xl font-black tracking-tight tracking-tight text-[color:var(--text-primary)]">
+        <h2 className="text-xl font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
           Leave invoice editor?
         </h2>
-        <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
+        <p className="mt-3 text-sm leading-6 text-[color:var(--color-ink)]">
           You have unsaved progress. Choose{" "}
-          <span className="font-bold text-[color:var(--text-primary)]">
+          <span className="font-bold text-[color:var(--color-ink)]">
             Save Draft
           </span>{" "}
           to keep your work, or{" "}
-          <span className="font-bold text-[color:var(--text-primary)]">
+          <span className="font-bold text-[color:var(--color-ink)]">
             Skip
           </span>{" "}
           to leave without saving.

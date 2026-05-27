@@ -91,16 +91,16 @@ export function InlineStepSection({
                     ? "bg-[color:var(--interactive-secondary)]"
                     : isActive
                       ? "bg-[color:var(--interactive-primary)]"
-                      : "bg-[color:var(--border-strong)]",
+                      : "bg-[color:var(--color-ink)]",
                 )}
               />
               <div className="min-w-0">
                 {!isReadOnly && (
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                     Step {stepNumber}
                   </p>
                 )}
-                <h2 className="mt-1 text-[19px] font-bold tracking-[-0.024em] text-[color:var(--text-primary)]">
+                <h2 className="mt-1 text-[19px] font-bold tracking-[-0.024em] text-[color:var(--color-ink)]">
                   <div className="flex items-center gap-2">
                     {StepIcon && (
                       <StepIcon
@@ -116,7 +116,7 @@ export function InlineStepSection({
                     {stepLabel}
                   </div>
                 </h2>
-                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--text-muted)]">
+                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--color-ink-2)]">
                   {sectionDescription}
                 </p>
               </div>

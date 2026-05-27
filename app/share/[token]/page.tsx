@@ -194,13 +194,13 @@ export default function PublicInvoiceSharePage({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[color:var(--bg-canvas)]">
+      <main className="flex min-h-screen items-center justify-center bg-[color:var(--color-paper)]">
         <MotionReveal preset="fade-up">
-          <div className="flex items-center gap-3 border border-[color:var(--border-default)] bg-white p-6 shadow-lg">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
-              <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-secondary)]" />
+          <div className="flex items-center gap-3 border border-[color:var(--color-ink)] bg-white p-6 shadow-lg">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--color-soft)] bg-[color:var(--color-paper)]">
+              <DocumentSparkIcon className="h-5 w-5 text-[color:var(--color-ink)]" />
             </span>
-            <p className="text-sm font-bold text-[color:var(--text-primary)]">
+            <p className="text-sm font-bold text-[color:var(--color-ink)]">
               Loading invoice…
             </p>
           </div>
@@ -211,13 +211,13 @@ export default function PublicInvoiceSharePage({
 
   if (notFound || !formData) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[color:var(--bg-canvas)]">
+      <main className="flex min-h-screen items-center justify-center bg-[color:var(--color-paper)]">
         <MotionReveal preset="fade-up">
-          <div className="mx-4 max-w-md border border-[color:var(--border-default)] bg-white p-8 text-center shadow-lg">
-            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+          <div className="mx-4 max-w-md border border-[color:var(--color-ink)] bg-white p-8 text-center shadow-lg">
+            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
               Invoice Not Found
             </h1>
-            <p className="mt-2 text-sm text-[color:var(--text-secondary)]">
+            <p className="mt-2 text-sm text-[color:var(--color-ink)]">
               Invoice not found or link expired.
             </p>
           </div>

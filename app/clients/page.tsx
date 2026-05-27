@@ -23,6 +23,8 @@ import {
   appPageContainerClass,
   appPageShellClass,
 } from "@/lib/layout-foundation";
+import Marker from "@/components/ui/Marker";
+import Pill from "@/components/ui/Pill";
 import {
   getAppButtonClass,
   getAppFieldClass,
@@ -53,8 +55,8 @@ import { appFieldHelperTextClass } from "@/lib/ui-foundation";
 
 function FormSectionLabel({ title }: { title: string }) {
   return (
-    <div className="mt-8 mb-4 border-b border-[color:var(--border-subtle)] pb-2 first:mt-0">
-      <h4 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
+    <div className="mt-8 mb-4 border-b border-[color:var(--color-soft)] pb-2 first:mt-0">
+      <h4 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)]">
         {title}
       </h4>
     </div>
@@ -195,13 +197,13 @@ function ClientForm({
         className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-[var(--brutal-shadow-lg)]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[color:var(--border-subtle)] p-6">
-          <h3 className="text-lg font-bold text-[color:var(--text-primary)]">
+        <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] p-6">
+          <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
             {initial ? "Edit Client" : "Add New Client"}
           </h3>
           <button
             onClick={onCancel}
-            className="rounded-full p-2 text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-secondary)] transition-colors"
+            className="rounded-full p-2 text-[color:var(--color-ink-2)] hover:bg-[color:var(--color-paper-2)] hover:text-[color:var(--color-ink)] transition-colors"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
@@ -251,15 +253,15 @@ function ClientForm({
 
               <div className="sm:col-span-2">
                 <label className={appFieldLabelClass}>Entity Type</label>
-                <div className="flex p-1 bg-[color:var(--bg-surface-soft)] border border-[color:var(--border-subtle)]">
+                <div className="flex p-1 bg-[color:var(--color-paper)] border border-[color:var(--color-soft)]">
                   <button
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "agency"
-                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                        : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
+                        ? "bg-white text-[color:var(--color-ink)] shadow-sm border border-[color:var(--color-soft)]"
+                        : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
                     )}
                   >
                     Agency / Biz
@@ -270,8 +272,8 @@ function ClientForm({
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "freelancer"
-                        ? "bg-white text-[color:var(--text-primary)] shadow-sm border border-[color:var(--border-subtle)]"
-                        : "text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]",
+                        ? "bg-white text-[color:var(--color-ink)] shadow-sm border border-[color:var(--color-soft)]"
+                        : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
                     )}
                   >
                     Individual
@@ -364,7 +366,7 @@ function ClientForm({
                       onChange={(e) => setMsaPaymentTermsDays(Number(e.target.value))}
                       className={cn(fc({ hasValue: true }), "!w-20")}
                     />
-                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
+                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">days</span>
                   </div>
                 </div>
                 <div className="col-span-1">
@@ -378,7 +380,7 @@ function ClientForm({
                       onChange={(e) => setMsaLateFeeRate(Number(e.target.value))}
                       className={cn(fc({ hasValue: true }), "!w-16")}
                     />
-                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
+                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">%</span>
                   </div>
                 </div>
                 <div className="col-span-1">
@@ -463,14 +465,14 @@ function ClientForm({
                       }
                       className={cn(fc({ hasValue: true }), "!w-16")}
                     />
-                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
+                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                   </div>
                 </div>
                 <div className="col-span-1">
                   <label className={appFieldLabelClass}>
                     Extra Fee Per Round
                   </label>
-                  <p className="text-[10px] text-[color:var(--text-muted)] mb-1">
+                  <p className="text-[10px] text-[color:var(--color-ink-2)] mb-1">
                     Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round.
                   </p>
                   <div className="flex items-center gap-2">
@@ -484,7 +486,7 @@ function ClientForm({
                       }
                       className={cn(fc({ hasValue: true }), "!w-20")}
                     />
-                    <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">% of line item</span>
+                    <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                   </div>
                 </div>
               </div>
@@ -542,7 +544,7 @@ function ClientForm({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 border-t border-[color:var(--border-subtle)] bg-white p-6 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 border-t border-[color:var(--color-soft)] bg-white p-6 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
@@ -781,7 +783,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-[color:var(--text-muted)]">Loading clients…</p>
+          <p className="text-[color:var(--color-ink-2)]">Loading clients…</p>
         </div>
       </main>
     );
@@ -792,10 +794,10 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
             Could not load your clients
           </p>
-          <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
+          <p className="max-w-md text-[13px] leading-6 text-[color:var(--color-ink-2)]">
             {loadError} Check your connection and try again.
           </p>
           <button
@@ -815,7 +817,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
             Sign in to manage your clients
           </p>
           <Link
@@ -839,15 +841,12 @@ export default function ClientsPage() {
             {/* Header */}
             <MotionReveal preset="fade-up">
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h1 className="text-[28px] font-black tracking-tighter text-[color:var(--text-primary)] sm:text-[36px] font-syne">
-                    Clients
+                <div className="flex items-center gap-4">
+                  <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
+                    Your <Marker tone="rose">roster</Marker>
                   </h1>
                   {clients.length > 0 && (
-                    <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
-                      {clients.length} client{clients.length !== 1 ? "s" : ""}{" "}
-                      saved
-                    </p>
+                    <Pill tone="rose">{clients.length}</Pill>
                   )}
                 </div>
 
@@ -884,10 +883,10 @@ export default function ClientsPage() {
                     </svg>
                   </div>
                   <div className="space-y-1.5">
-                    <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+                    <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                       Add your first client
                     </h2>
-                    <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-[color:var(--text-muted)]">
+                    <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">
                       Save client details here so they auto-fill when you create invoices. No more retyping names, addresses, or GSTINs.
                     </p>
                   </div>
@@ -906,9 +905,9 @@ export default function ClientsPage() {
                 <div className="overflow-visible border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
                   {/* Search Bar */}
                   {clients.length > 0 && (
-                    <div className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-4 py-3">
+                    <div className="border-b-2 border-[#111118] bg-[color:var(--color-paper)] px-4 py-3">
                       <div className="relative max-w-sm">
-                        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--text-muted)]" />
+                        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-ink-2)]" />
                         <input
                           type="text"
                           value={searchQuery}
@@ -919,7 +918,7 @@ export default function ClientsPage() {
                       </div>
                     </div>
                   )}
-                  <div className="flex flex-col gap-4 p-4 bg-[color:var(--bg-surface-muted)]">
+                  <div className="flex flex-col gap-4 p-4 bg-[color:var(--color-paper-2)]">
                     {paginatedClients.map((client) => (
                       <div key={client.id} className="flex flex-col sm:flex-row items-center justify-between border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] p-4 gap-4 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#111118]">
                         <div className="flex flex-col sm:w-[200px] shrink-0">
@@ -927,7 +926,7 @@ export default function ClientsPage() {
                             {client.client_name || "Unnamed"}
                           </Link>
                           {client.client_email && (
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] mt-1">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mt-1">
                               {client.client_email}
                             </span>
                           )}
@@ -937,7 +936,7 @@ export default function ClientsPage() {
                           <span className="text-sm font-extrabold uppercase tracking-wide truncate">
                             {client.city || client.state || "No Location"}
                           </span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] truncate mt-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] truncate mt-1">
                             {client.client_type === "international" ? "Intl" : "India"}
                             {client.gstin && ` · GST: ${client.gstin}`}
                           </span>
@@ -945,7 +944,7 @@ export default function ClientsPage() {
 
                         <div className="flex flex-col sm:w-[120px] shrink-0 text-left sm:text-center">
                           <span className="text-lg font-black tracking-tighter">{client.invoice_count || 0}</span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)]">Invoices</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)]">Invoices</span>
                         </div>
 
                         <div className="flex flex-col sm:flex-row sm:w-[320px] shrink-0 justify-end gap-2">
@@ -953,7 +952,7 @@ export default function ClientsPage() {
                              <div className="flex items-center justify-end gap-1.5 w-full">
                                <span className="text-[11px] text-[#FF5C00] font-bold mr-1">Delete?</span>
                                <button onClick={handleDeleteConfirm} className="border-2 border-[#111118] bg-red-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:bg-red-600 transition-colors">Yes</button>
-                               <button onClick={handleDeleteCancel} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors">No</button>
+                               <button onClick={handleDeleteCancel} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] hover:bg-[color:var(--color-paper-2)] transition-colors">No</button>
                              </div>
                           ) : (
                             <>
@@ -969,12 +968,12 @@ export default function ClientsPage() {
 
                   {/* No search results */}
                   {filteredClients.length === 0 && searchQuery && (
-                    <div className="border-t border-[color:var(--border-subtle)] px-4 py-8 text-center text-[13px] font-bold text-[color:var(--text-muted)]">
+                    <div className="border-t border-[color:var(--color-soft)] px-4 py-8 text-center text-[13px] font-bold text-[color:var(--color-ink-2)]">
                       No clients matching &ldquo;{searchQuery}&rdquo;
                     </div>
                   )}
 
-                  <div className="px-4 pb-4 bg-[color:var(--bg-surface-muted)]">
+                  <div className="px-4 pb-4 bg-[color:var(--color-paper-2)]">
                     <AppPagination 
                       currentPage={currentPage}
                       totalPages={totalPages}

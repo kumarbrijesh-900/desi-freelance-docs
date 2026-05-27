@@ -158,7 +158,7 @@ export function InvoiceEventRow({
           <div className="flex flex-col sm:flex-row gap-4 items-start">
             {/* Details Left Panel */}
             <div className="flex-1 flex flex-col gap-4 w-full">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[color:var(--bg-surface-soft)] p-4 border-2 border-black">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[color:var(--color-paper)] p-4 border-2 border-black">
                 <div>
                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1">Issue Date</p>
                    <p className="font-extrabold">{invoice.issue_date || "Not Issued"}</p>

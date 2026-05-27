@@ -23,17 +23,17 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
             )}
             <p className="text-[14px] font-bold">{data.agencyName}</p>
             {data.agencyAddress && data.agencyAddress !== "—" && (
-              <p className="text-[11px] text-[color:var(--text-muted)] whitespace-pre-line mt-1 max-w-[260px]">{data.agencyAddress}</p>
+              <p className="text-[11px] text-[color:var(--color-ink-2)] whitespace-pre-line mt-1 max-w-[260px]">{data.agencyAddress}</p>
             )}
-            {data.agencyState && <p className="text-[10px] text-[color:var(--text-muted)] mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
+            {data.agencyState && <p className="text-[10px] text-[color:var(--color-ink-2)] mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
             {data.showAgencyGstin && <p className="text-[10px] text-green-400 mt-0.5">GSTIN {data.agencyGstin}</p>}
-            {data.agencyPan && <p className="text-[10px] text-[color:var(--text-muted)]">PAN {data.agencyPan}</p>}
+            {data.agencyPan && <p className="text-[10px] text-[color:var(--color-ink-2)]">PAN {data.agencyPan}</p>}
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest">Invoice</p>
+            <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest">Invoice</p>
             <p className="text-[20px] font-bold text-green-400 mt-1">{data.invoiceNumber}</p>
-            {data.poNumber && <><p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mt-3">PO Number</p><p className="text-[16px] font-bold text-green-400 mt-1">{data.poNumber}</p></>}
-            <div className="mt-3 text-[11px] text-[color:var(--text-muted)] space-y-0.5">
+            {data.poNumber && <><p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mt-3">PO Number</p><p className="text-[16px] font-bold text-green-400 mt-1">{data.poNumber}</p></>}
+            <div className="mt-3 text-[11px] text-[color:var(--color-ink-2)] space-y-0.5">
               <p>issued: {data.invoiceDate}</p>
               <p>due: <span className="text-red-400">{data.dueDate}</span></p>
             </div>
@@ -44,18 +44,18 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
       {/* ── Client + Terms ────────────────────── */}
       <section className="grid grid-cols-[1fr_180px] gap-8 mb-10 pb-6 border-b border-dashed border-[#111118]">
         <div>
-          <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-2">// billed_to</p>
+          <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-2">// billed_to</p>
           <p className="text-[15px] font-bold">{data.clientName}</p>
           {data.clientAddress && data.clientAddress !== "—" && (
-            <p className="text-[11px] text-[color:var(--text-muted)] whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
+            <p className="text-[11px] text-[color:var(--color-ink-2)] whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
           )}
-          <div className="mt-2 text-[10px] text-[color:var(--text-muted)] space-y-0.5">
+          <div className="mt-2 text-[10px] text-[color:var(--color-ink-2)] space-y-0.5">
             {data.clientState && <p>{data.clientState?.replace(/\s*\(\d+\)/, '')}</p>}
             {data.clientTaxId && <p>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</p>}
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-1">// terms</p>
+          <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-1">// terms</p>
           <p className="text-[12px] font-normal">{data.paymentTerms}</p>
           {data.isInternational && <p className="mt-1 text-[10px] font-bold">currency: {data.displayCurrency}</p>}
         </div>
@@ -63,14 +63,14 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
 
       {/* ── Line Items ────────────────────────── */}
       <section className="mb-10">
-        <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-4">// line_items[]</p>
+        <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-4">// line_items[]</p>
         <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr className="border-b-2 border-[#111]">
-              <th className="py-2 text-left font-normal text-[color:var(--text-muted)] text-[10px] uppercase tracking-wider">description</th>
-              <th className="py-2 text-center w-[50px] font-normal text-[color:var(--text-muted)] text-[10px]">qty</th>
-              <th className="py-2 text-right w-[100px] font-normal text-[color:var(--text-muted)] text-[10px]">rate</th>
-              <th className="py-2 text-right w-[120px] font-normal text-[color:var(--text-muted)] text-[10px]">amount</th>
+              <th className="py-2 text-left font-normal text-[color:var(--color-ink-2)] text-[10px] uppercase tracking-wider">description</th>
+              <th className="py-2 text-center w-[50px] font-normal text-[color:var(--color-ink-2)] text-[10px]">qty</th>
+              <th className="py-2 text-right w-[100px] font-normal text-[color:var(--color-ink-2)] text-[10px]">rate</th>
+              <th className="py-2 text-right w-[120px] font-normal text-[color:var(--color-ink-2)] text-[10px]">amount</th>
             </tr>
           </thead>
           <tbody>
@@ -90,10 +90,10 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
                 );
               }
               return (
-                <tr key={item.id} className="border-b border-[color:var(--border-subtle)]">
+                <tr key={item.id} className="border-b border-[color:var(--color-soft)]">
                   <td className="py-3 pr-4">
                     <p className="font-normal text-[12px]">{item.description}</p>
-                    <div className="mt-0.5 text-[10px] text-[color:var(--text-muted)] flex gap-3">
+                    <div className="mt-0.5 text-[10px] text-[color:var(--color-ink-2)] flex gap-3">
                       {item.sacCode && <span>SAC:{item.sacCode}</span>}
                       {item.unit && <span>unit:{item.unit}</span>}
                     </div>
@@ -112,10 +112,10 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
       <section className="flex justify-end mb-12">
         <div className="w-[280px] space-y-2">
           <MilestoneSummaryBlock data={data} />
-          <div className="flex justify-between text-[11px] text-[color:var(--text-muted)]">
+          <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
             <span>subtotal</span><span className="font-bold text-[#111]">{data.subtotalFormatted}</span>
           </div>
-          <div className="flex justify-between text-[11px] text-[color:var(--text-muted)]">
+          <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
             <span>{data.taxLabel}</span><span className="font-bold text-[#111]">{data.taxFormatted}</span>
           </div>
           <div className="pt-3 mt-2 border-t-2 border-[#111] flex justify-between items-baseline">
@@ -123,10 +123,10 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
             <span className="text-[24px] font-bold text-green-600">{data.grandTotalFormatted}</span>
           </div>
           {data.amountInWords && (
-            <p className="text-right text-[10px] text-[color:var(--text-muted)] italic">{data.amountInWords}</p>
+            <p className="text-right text-[10px] text-[color:var(--color-ink-2)] italic">{data.amountInWords}</p>
           )}
           {data.approximateUsd && (
-            <p className="text-right text-[10px] text-[color:var(--text-muted)]">≈ {data.approximateUsd}</p>
+            <p className="text-right text-[10px] text-[color:var(--color-ink-2)]">≈ {data.approximateUsd}</p>
           )}
         </div>
       </section>
@@ -136,8 +136,8 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <div className="space-y-6">
           {data.hasBankDetails && (
             <div>
-              <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-2">// bank_details</p>
-              <div className="text-[11px] text-[color:var(--text-secondary)] space-y-0.5 bg-[#f5f5f0] p-3">
+              <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-2">// bank_details</p>
+              <div className="text-[11px] text-[color:var(--color-ink)] space-y-0.5 bg-[#f5f5f0] p-3">
                 <p className="font-bold text-[#111]">{data.bankName}</p>
                 {!data.isInternational ? (
                   <><p>acc: {data.accountNumber}</p><p>ifsc: {data.ifscCode}</p></>
@@ -149,26 +149,26 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           )}
           {data.hasNotes && (
             <div>
-              <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-1">// notes</p>
-              <p className="text-[10px] text-[color:var(--text-muted)] leading-relaxed whitespace-pre-line max-w-[300px]">{data.notes}</p>
+              <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-1">// notes</p>
+              <p className="text-[10px] text-[color:var(--color-ink-2)] leading-relaxed whitespace-pre-line max-w-[300px]">{data.notes}</p>
             </div>
           )}
           {data.hasQrCode && (
             <div>
-              <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-2">// payment_qr</p>
+              <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-2">// payment_qr</p>
               <img src={data.qrCodeUrl} alt="QR" className="h-16 w-16 object-contain" />
             </div>
           )}
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-4">// authorized</p>
+          <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-4">// authorized</p>
           {data.signatureUrl ? (
             <img src={data.signatureUrl} alt="Sig" className="h-10 w-auto object-contain ml-auto mb-2 brightness-0" />
           ) : (
             <p className="text-[16px] font-bold mb-2">{data.authorizedSignatory || data.agencyName}</p>
           )}
           <div className="h-px w-40 bg-[#111] ml-auto mb-1" />
-          <p className="text-[9px] text-[color:var(--text-muted)] uppercase tracking-widest">digital_signature</p>
+          <p className="text-[9px] text-[color:var(--color-ink-2)] uppercase tracking-widest">digital_signature</p>
         </div>
       </section>
 

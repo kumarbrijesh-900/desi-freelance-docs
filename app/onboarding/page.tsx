@@ -83,16 +83,16 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[color:var(--bg-app)] flex flex-col items-center justify-center p-6 select-none">
+    <div className="min-h-screen bg-[color:var(--color-paper)] flex flex-col items-center justify-center p-6 select-none">
       <div className="w-full max-w-md">
         <div className="mb-12 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-[color:var(--color-lime-300)] mb-4 shadow-[0_0_20px_rgba(191,255,0,0.3)]">
             <span className="text-xl font-black text-black">L</span>
           </div>
-          <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+          <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
             Welcome to Lance
           </h1>
-          <p className="text-sm text-[color:var(--text-muted)] mt-2">
+          <p className="text-sm text-[color:var(--color-ink-2)] mt-2">
             Let's set up your creative studio in seconds.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function OnboardingPage() {
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </AppSelectField>
-                    <p className="mt-2 text-[11px] text-[color:var(--text-muted)] leading-relaxed">
+                    <p className="mt-2 text-[11px] text-[color:var(--color-ink-2)] leading-relaxed">
                       Used to automate GST calculations (IGST/CGST/SGST) correctly.
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={skipOnboarding}
-                    className="w-full text-center text-sm text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
+                    className="w-full text-center text-sm text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
                   >
                     Skip for now
                   </button>
@@ -164,27 +164,27 @@ export default function OnboardingPage() {
                 <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-sm)]">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-[#bfff00]" />
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--text-primary)]">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
                       Standard Contract Terms
                     </h3>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                      <span className="text-sm text-[color:var(--text-muted)]">Payment Terms</span>
+                      <span className="text-sm text-[color:var(--color-ink-2)]">Payment Terms</span>
                       <span className="text-sm font-bold text-black">Net 15 Days</span>
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                      <span className="text-sm text-[color:var(--text-muted)]">Late Fee</span>
+                      <span className="text-sm text-[color:var(--color-ink-2)]">Late Fee</span>
                       <span className="text-sm font-bold text-black">1.5% / month</span>
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                      <span className="text-sm text-[color:var(--text-muted)]">IP Transfer</span>
+                      <span className="text-sm text-[color:var(--color-ink-2)]">IP Transfer</span>
                       <span className="text-sm font-bold text-black">Upon Full Payment</span>
                     </div>
                   </div>
                   
-                  <p className="mt-6 text-[11px] text-[color:var(--text-muted)] italic leading-relaxed">
+                  <p className="mt-6 text-[11px] text-[color:var(--color-ink-2)] italic leading-relaxed">
                     These "Sniper Defaults" ensure you're legally protected on every invoice. You can customize these later in your profile.
                   </p>
                 </div>
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     onClick={skipOnboarding}
-                    className="w-full text-center text-sm text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors"
+                    className="w-full text-center text-sm text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
                   >
                     Skip for now
                   </button>

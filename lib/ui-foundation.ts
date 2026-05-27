@@ -3,16 +3,16 @@ export function cn(...values: Array<string | false | null | undefined>) {
 }
 
 export const appSectionTitleClass =
-  "text-[1.1rem] font-bold tracking-[-0.01em] uppercase text-[color:var(--app-color-text-primary)]";
+  "text-[1.1rem] font-bold tracking-[-0.01em] uppercase text-[color:var(--color-ink)]";
 
 export const appSectionDescriptionClass =
-  "text-[12px] leading-5 text-[color:var(--app-color-text-muted)]";
+  "text-[12px] leading-5 text-[color:var(--color-ink-2)]";
 
 export const appFieldLabelClass =
-  "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--app-color-text-secondary)]";
+  "mb-1.5 block text-[11px] font-bold tracking-[0.06em] uppercase text-[color:var(--color-ink)]";
 
 export const appFieldHelperTextClass =
-  "mt-1 text-[11px] leading-[1.5] text-[color:var(--app-color-text-muted)]";
+  "mt-1 text-[11px] leading-[1.5] text-[color:var(--color-ink-2)]";
 
 export const appFieldErrorTextClass =
   "mt-1 text-[11px] font-bold leading-[1.45] text-[color:var(--state-danger-text)]";
@@ -25,8 +25,8 @@ export function getAppSubtlePanelClass(
     tone === "warning"
       ? "bg-[color:var(--state-warning-bg)]"
       : tone === "muted"
-        ? "bg-[color:var(--app-color-surface-muted)]"
-        : "bg-[color:var(--app-color-surface)]",
+        ? "bg-[color:var(--color-paper-2)]"
+        : "bg-[color:var(--color-paper)]",
   );
 }
 
@@ -60,16 +60,16 @@ export function getAppButtonClass(params?: {
         : "h-10 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "app-soft-button-primary text-[color:var(--text-primary)] font-black"
+      ? "app-soft-button-primary text-[color:var(--color-ink)] font-black"
       : variant === "ghost"
-        ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
+        ? "app-soft-button-ghost text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
         : variant === "tertiary"
-          ? "app-soft-button-tertiary text-[color:var(--app-color-text-secondary)] hover:text-[color:var(--app-color-text-primary)]"
+          ? "app-soft-button-tertiary text-[color:var(--color-ink)] hover:text-[color:var(--color-ink)]"
           : variant === "subtle"
-            ? "app-soft-button-subtle text-[color:var(--app-color-text-secondary)]"
+            ? "app-soft-button-subtle text-[color:var(--color-ink)]"
             : variant === "destructive-lite"
               ? "app-soft-button-destructive text-[color:var(--state-danger-text)]"
-              : "app-soft-button-secondary text-[color:var(--app-color-text-primary)]",
+              : "app-soft-button-secondary text-[color:var(--color-ink)]",
   );
 }
 
@@ -82,12 +82,12 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] text-[14px] font-normal leading-6 text-[color:var(--text-primary)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] text-[14px] font-normal leading-6 text-[color:var(--color-ink)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
     multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
       : "",
-    "disabled:cursor-not-allowed disabled:border-[color:var(--border-subtle)] disabled:bg-[color:var(--bg-surface-muted)] disabled:text-[color:var(--text-soft)] disabled:shadow-none",
+    "disabled:cursor-not-allowed disabled:border-[color:var(--color-soft)] disabled:bg-[color:var(--color-paper-2)] disabled:text-[color:var(--color-ink-3)] disabled:shadow-none",
     "[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-65",
     hasError
       ? "app-soft-field-error"
@@ -132,9 +132,9 @@ export function getAppStatusPillClass(
     tone === "success"
       ? "bg-[#E0FFF7] text-[#006B52]"
       : tone === "muted"
-        ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)]"
+        ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)]"
         : tone === "warning"
           ? "bg-[#FF5C00] text-white"
-          : "bg-[color:var(--bg-surface-soft)] text-[color:var(--text-primary)]",
+          : "bg-[color:var(--color-paper)] text-[color:var(--color-ink)]",
   );
 }

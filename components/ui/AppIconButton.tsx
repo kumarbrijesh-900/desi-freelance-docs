@@ -16,7 +16,7 @@ export const AppIconButton = React.forwardRef<HTMLButtonElement, AppIconButtonPr
           size === "sm" ? "h-8 w-8" : size === "lg" ? "h-12 w-12" : "h-10 w-10",
           variant === "primary" && "bg-[color:var(--color-lime-warm)] text-[#111118] hover:shadow-[var(--brutal-shadow-sm)] hover:translate-x-[-2px] hover:translate-y-[-2px]",
           variant === "secondary" && "bg-white text-[#111118] hover:shadow-[var(--brutal-shadow-sm)] hover:translate-x-[-2px] hover:translate-y-[-2px]",
-          variant === "subtle" && "bg-[color:var(--bg-surface-muted)] text-[#111118] hover:shadow-[var(--brutal-shadow-pressed)]",
+          variant === "subtle" && "bg-[color:var(--color-paper-2)] text-[#111118] hover:shadow-[var(--brutal-shadow-pressed)]",
           variant === "ghost" && "border-transparent bg-transparent hover:border-[#111118]",
           className
         )}

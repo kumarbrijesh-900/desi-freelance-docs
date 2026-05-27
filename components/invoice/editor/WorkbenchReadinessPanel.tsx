@@ -82,7 +82,7 @@ export function WorkbenchReadinessPanel({
           </span>
           <div className="min-w-0">
             <p className={cn(
-              "font-black uppercase text-[color:var(--text-muted)]",
+              "font-black uppercase text-[color:var(--color-ink-2)]",
               rail ? "text-[9px] tracking-[0.08em]" : "text-[10px] tracking-[0.14em]",
             )}>
               {readinessLabel}
@@ -109,7 +109,7 @@ export function WorkbenchReadinessPanel({
         />
       </div>
 
-      <div className="mt-3 border-t border-[color:var(--border-subtle)] pt-3" aria-live="polite">
+      <div className="mt-3 border-t border-[color:var(--color-soft)] pt-3" aria-live="polite">
         {isReadOnly ? (
           <p className="text-[12px] font-bold leading-5 text-[#6B6660]">
             {readOnlyReason || "This invoice is read-only."}
@@ -120,7 +120,7 @@ export function WorkbenchReadinessPanel({
           </p>
         ) : (
           <>
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
               Next blocker
             </p>
             <p className="mt-0.5 text-[12px] font-bold leading-5 text-[#111118]">
@@ -135,19 +135,19 @@ export function WorkbenchReadinessPanel({
       </div>
 
       <div className={cn(
-        "mt-3 grid border-t border-[color:var(--border-subtle)] pt-3",
+        "mt-3 grid border-t border-[color:var(--color-soft)] pt-3",
         rail ? "grid-cols-1 gap-2" : "grid-cols-3 gap-3",
       )}>
         <div className="min-w-0">
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Client</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Client</p>
           <p className="truncate text-[12px] font-bold text-[#111118]">{clientName?.trim() || "Not set"}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Due</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</p>
           <p className="truncate text-[12px] font-bold text-[#111118]">{dueDate || "Not set"}</p>
         </div>
         <div className={cn("min-w-0", !rail && "text-right")}>
-          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--text-muted)]">Total</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Total</p>
           <p className="truncate text-[12px] font-black text-[color:var(--brand-indigo-deep)]">{formatCurrency(total, currency)}</p>
         </div>
       </div>

@@ -163,7 +163,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
                   <p className="text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate">
                     {truncate(m.title, 20)}
                   </p>
-                  <p className="text-[9px] font-bold text-[color:var(--text-muted)] uppercase tracking-wider">
+                  <p className="text-[9px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
                     {formatDate(m.due_date)} ·{" "}
                     <span className="font-black text-[#111118]">
                       {formatCurrency(m.amount)}

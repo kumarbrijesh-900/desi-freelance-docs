@@ -12,7 +12,7 @@ AppTable.displayName = "AppTable";
 
 export const AppTableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("[&_tr]:border-b-2 [&_tr]:border-[#111118] bg-[color:var(--bg-surface-muted)]", className)} {...props} />
+    <thead ref={ref} className={cn("[&_tr]:border-b-2 [&_tr]:border-[#111118] bg-[color:var(--color-paper-2)]", className)} {...props} />
   )
 );
 AppTableHeader.displayName = "AppTableHeader";
@@ -29,7 +29,7 @@ export const AppTableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttri
     <tr
       ref={ref}
       className={cn(
-        "border-b border-[#111118] transition-colors hover:bg-[color:var(--bg-surface-soft)] data-[state=selected]:bg-[color:var(--bg-surface-muted)]",
+        "border-b border-[#111118] transition-colors hover:bg-[color:var(--color-paper)] data-[state=selected]:bg-[color:var(--color-paper-2)]",
         className
       )}
       {...props}
@@ -43,7 +43,7 @@ export const AppTableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLA
     <th
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-bold uppercase tracking-wider text-[color:var(--text-secondary)] [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-bold uppercase tracking-wider text-[color:var(--color-ink)] [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

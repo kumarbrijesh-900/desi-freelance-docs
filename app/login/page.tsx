@@ -52,10 +52,10 @@ function LoginCard() {
 
   return (
     <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
-      <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+      <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
         {isRestoring ? "Your draft is safe" : "Get started"}
       </h2>
-      <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
+      <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
         {isRestoring
           ? "Sign in to save your draft to the cloud. We'll restore exactly where you left off."
           : "Sign in to create your first invoice."}
@@ -70,14 +70,14 @@ function LoginCard() {
         Continue with Google
       </button>
 
-      <p className="mt-6 text-center text-[13px] text-[color:var(--text-secondary)]">
+      <p className="mt-6 text-center text-[13px] text-[color:var(--color-ink)]">
         Don't have an account?{" "}
         <Link href={`/signup${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-[color:var(--brand-indigo)] hover:underline">
           Sign up
         </Link>
       </p>
 
-      <p className="mt-6 text-[11px] leading-4 text-[color:var(--text-soft)]">
+      <p className="mt-6 text-[11px] leading-4 text-[color:var(--color-ink-3)]">
         By continuing, you agree to our{" "}
         <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
           Terms of Service
@@ -113,7 +113,7 @@ export default function LoginPage() {
 
         <MotionReveal preset="fade-up" delay={0}>
           <div className="max-w-lg">
-            <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
+            <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--color-ink)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
               Create invoices
               <br />
               <span className="text-[color:var(--color-lime-500)]">
@@ -121,7 +121,7 @@ export default function LoginPage() {
               </span>
             </h1>
 
-            <p className="mt-5 text-[15px] leading-7 text-[color:var(--text-muted)]">
+            <p className="mt-5 text-[15px] leading-7 text-[color:var(--color-ink-2)]">
               Fast GST invoicing for Indian freelancers.
               <br className="hidden sm:block" />
               Paste a brief, get an invoice in seconds.
@@ -134,13 +134,13 @@ export default function LoginPage() {
           <Suspense
             fallback={
               <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
-                <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+                <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                   Get started
                 </h2>
-                <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
+                <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
                   Sign in to create your first invoice.
                 </p>
-                <div className="mt-6 h-11 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
+                <div className="mt-6 h-11 border border-[color:var(--color-ink)] bg-[color:var(--color-paper)] animate-pulse" />
               </div>
             }
           >

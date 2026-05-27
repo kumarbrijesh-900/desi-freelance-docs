@@ -131,16 +131,16 @@ export default function InvoiceMetaSection({
         {/* Section A: Identity */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
               Identity
             </h3>
-            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
           </div>
 
           <div className={appFieldPairGridClass}>
             <div className="md:max-w-[240px]">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
                   Invoice Number{!isReadOnly && " *"}
                   {autoFilledFields.has("meta.invoiceNumber") && (
                     <span className="autofill-indicator">auto-filled</span>
@@ -154,7 +154,7 @@ export default function InvoiceMetaSection({
                     setCopiedField('invoiceNumber');
                     setTimeout(() => setCopiedField(null), 1500);
                   }}
-                  className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
+                  className="inline-flex items-center gap-1.5 text-[color:var(--color-ink)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
                   title="Click to copy"
                 >
                   <span className="text-[11px] font-bold">Copy</span>
@@ -185,8 +185,8 @@ export default function InvoiceMetaSection({
             
             <div className="md:max-w-[240px]">
               <div className="flex flex-wrap items-center gap-1.5 mb-2 group">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] m-0 p-0 block">
-                  PO Number <span className="text-[10px] font-normal lowercase tracking-normal text-[color:var(--text-muted)]">(Optional)</span>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink)] m-0 p-0 block">
+                  PO Number <span className="text-[10px] font-normal lowercase tracking-normal text-[color:var(--color-ink-2)]">(Optional)</span>
                 </label>
                 <AppTooltip content={<>
                   Purchase Order number. Required by larger enterprise clients to process payments. If your client requires a PO to authorize the budget, input it here to ensure your invoice is not rejected by their Accounts Payable department.
@@ -214,10 +214,10 @@ export default function InvoiceMetaSection({
         {/* Section B: Timelines */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink)]">
               Timelines
             </h3>
-            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
+            <div className="mt-1.5 h-[1px] w-full bg-[color:var(--color-soft)]" />
           </div>
 
           <div className={appFieldPairGridClass}>
@@ -272,7 +272,7 @@ export default function InvoiceMetaSection({
                 <p className={appFieldErrorTextClass}>{dueDateError}</p>
               ) : (
                 value.invoiceDate && value.dueDate && (
-                  <p className="mt-1 text-[10px] font-normal text-[color:var(--text-soft)]">
+                  <p className="mt-1 text-[10px] font-normal text-[color:var(--color-ink-3)]">
                     {(() => {
                       const days = getDaysDifference(value.invoiceDate, value.dueDate);
                       const sourceLabel = {

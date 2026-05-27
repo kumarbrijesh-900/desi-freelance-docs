@@ -22,6 +22,7 @@ import {
   appPageContainerClass,
   appPageShellClass,
 } from "@/lib/layout-foundation";
+import Marker from "@/components/ui/Marker";
 import {
   getAppButtonClass,
   getAppFieldClass,
@@ -68,7 +69,7 @@ function SectionLabel({
 }) {
   return (
     <div className="mb-6">
-      <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
         {title}
       </h2>
       <p className={`mt-1.5 ${appSectionDescriptionClass}`}>{description}</p>
@@ -373,7 +374,7 @@ export default function ProfilePage() {
         <FieldRow label={label} helper={helper}>
           <div className="mt-1">
             {value ? (
-              <div className="flex items-center justify-between bg-[color:var(--bg-surface-soft)] p-3 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+              <div className="flex items-center justify-between bg-[color:var(--color-paper)] p-3 ring-1 ring-inset ring-[color:var(--color-soft)]">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white p-1 shadow-sm ring-1 ring-gray-200">
                     <img
@@ -383,10 +384,10 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="min-w-0 overflow-hidden">
-                    <p className="truncate text-[13px] font-normal text-[color:var(--text-primary)]">
+                    <p className="truncate text-[13px] font-normal text-[color:var(--color-ink)]">
                       {label} Attached
                     </p>
-                    <p className="truncate text-[11px] text-[color:var(--text-muted)]">
+                    <p className="truncate text-[11px] text-[color:var(--color-ink-2)]">
                       Optimized for invoice placement
                     </p>
                   </div>
@@ -396,7 +397,7 @@ export default function ProfilePage() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-canvas)] hover:text-[color:var(--text-primary)]"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)]"
                     title="Change image"
                   >
                     <svg
@@ -420,7 +421,7 @@ export default function ProfilePage() {
                       onUrlChange("");
                       setIsDirty(true);
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[color:var(--color-ink-2)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
                     title="Remove"
                   >
                     <svg
@@ -445,12 +446,12 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--border-subtle)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--bg-surface-soft)] disabled:opacity-50"
+                className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[color:var(--color-soft)] bg-white px-4 transition-all hover:border-[color:var(--interactive-primary)] hover:bg-[color:var(--color-paper)] disabled:opacity-50"
               >
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
                       Processing...
                     </span>
                   </div>
@@ -458,7 +459,7 @@ export default function ProfilePage() {
                   <>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--text-primary)]"
+                      className="h-4 w-4 text-[color:var(--color-ink-2)] group-hover:text-[color:var(--color-ink)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -470,7 +471,7 @@ export default function ProfilePage() {
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-bold text-[color:var(--text-secondary)] group-hover:text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-ink)]">
                       Upload {label}
                     </span>
                   </>
@@ -493,21 +494,21 @@ export default function ProfilePage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
             <MotionReveal
               preset="fade-up"
-              className="w-full max-w-2xl overflow-hidden bg-[color:var(--bg-surface)] shadow-[var(--brutal-shadow-lg)]"
+              className="w-full max-w-2xl overflow-hidden bg-[color:var(--color-paper)] shadow-[var(--brutal-shadow-lg)]"
             >
-              <div className="border-b border-[color:var(--border-subtle)] p-4 flex justify-between items-center bg-[color:var(--bg-surface-soft)]">
-                <h3 className="font-bold text-[color:var(--text-primary)]">
+              <div className="border-b border-[color:var(--color-soft)] p-4 flex justify-between items-center bg-[color:var(--color-paper)]">
+                <h3 className="font-bold text-[color:var(--color-ink)]">
                   Optimize Your {label}
                 </h3>
                 <button
                   onClick={() => setCropModalOpen(false)}
-                  className="text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                  className="text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                 >
                   ✕
                 </button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[70vh] flex flex-col items-center">
-                <p className="mb-4 text-[13px] text-[color:var(--text-muted)] text-center">
+                <p className="mb-4 text-[13px] text-[color:var(--color-ink-2)] text-center">
                   Crop your image to remove unnecessary margins for a perfect
                   fit on the invoice.
                 </p>
@@ -527,10 +528,10 @@ export default function ProfilePage() {
                   />
                 </ReactCrop>
               </div>
-              <div className="border-t border-[color:var(--border-subtle)] p-4 bg-[color:var(--bg-surface-soft)] flex justify-end gap-3">
+              <div className="border-t border-[color:var(--color-soft)] p-4 bg-[color:var(--color-paper)] flex justify-end gap-3">
                 <button
                   onClick={() => setCropModalOpen(false)}
-                  className="px-4 py-2 text-sm font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                  className="px-4 py-2 text-sm font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
                 >
                   Cancel
                 </button>
@@ -648,7 +649,7 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-[color:var(--text-muted)]">Loading profile…</p>
+          <p className="text-[color:var(--color-ink-2)]">Loading profile…</p>
         </div>
       </main>
     );
@@ -659,10 +660,10 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
             Could not load your profile
           </p>
-          <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
+          <p className="max-w-md text-[13px] leading-6 text-[color:var(--color-ink-2)]">
             {loadError} Check your connection and try again.
           </p>
           <button
@@ -682,10 +683,10 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--color-ink)]">
             Sign in to manage your profile
           </p>
-          <p className="text-[13px] text-[color:var(--text-muted)]">
+          <p className="text-[13px] text-[color:var(--color-ink-2)]">
             Your profile auto-fills agency details on every invoice.
           </p>
           <Link
@@ -724,15 +725,15 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--text-muted)] hover:text-[#111118] transition-colors mb-4"
+                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--color-ink-2)] hover:text-[#111118] transition-colors mb-4"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7l7-7" /></svg>
                   Back
                 </button>
-                <h1 className="text-[28px] font-black tracking-tighter text-[color:var(--text-primary)] sm:text-[36px]">
-                  Your Profile
+                <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
+                  Your <Marker tone="lav">profile</Marker>
                 </h1>
-                <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
+                <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
                   Agency details saved here auto-fill every new invoice you
                   create.
                 </p>
@@ -1081,7 +1082,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-20")}
                           />
-                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">days</span>
+                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">days</span>
                         </div>
                       </FieldRow>
 
@@ -1098,7 +1099,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-16")}
                           />
-                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">%</span>
+                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">%</span>
                           <select
                             value={msaLateFeeUnit}
                             onChange={(e) => {
@@ -1173,7 +1174,7 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-16")}
                           />
-                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">rounds</span>
+                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                         </div>
                       </FieldRow>
 
@@ -1193,18 +1194,18 @@ export default function ProfilePage() {
                             }}
                             className={cn(fc({ hasValue: true }), "!w-20")}
                           />
-                          <span className="text-[12px] text-[color:var(--text-muted)] shrink-0">
+                          <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">
                             % of line item
                           </span>
                         </div>
                       </FieldRow>
                     </div>
 
-                    <div className="mt-6 border-l-4 border-[color:var(--color-lime-warm)] bg-[color:var(--bg-surface-soft)] p-4">
-                      <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)] mb-1">
+                    <div className="mt-6 border-l-4 border-[color:var(--color-lime-warm)] bg-[color:var(--color-paper)] p-4">
+                      <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[color:var(--color-ink-2)] mb-1">
                         Preview Clause
                       </p>
-                      <p className="text-[13px] italic text-[color:var(--text-primary)]">
+                      <p className="text-[13px] italic text-[color:var(--color-ink)]">
                         &quot;The quoted fee includes up to {freeRevisionRounds} rounds of revisions per deliverable. Each additional round beyond the included {freeRevisionRounds} will incur a surcharge of {extraRevisionFeePercent}% of that specific line item&apos;s total.&quot;
                       </p>
                     </div>
@@ -1218,7 +1219,7 @@ export default function ProfilePage() {
                       className="flex w-full items-center justify-between text-left"
                     >
                       <div className="flex items-center gap-2">
-                        <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+                        <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--color-ink-2)]">
                           Global MSA Document
                         </h2>
                       </div>
@@ -1229,7 +1230,7 @@ export default function ProfilePage() {
 
                     {isMsaExpanded && (
                       <div className="mt-6 space-y-4">
-                        <p className="text-[12px] text-[color:var(--text-muted)]">
+                        <p className="text-[12px] text-[color:var(--color-ink-2)]">
                           Your default Master Services Agreement. Automatically attached to invoices when no client-specific MSA exists.
                         </p>
 
@@ -1329,7 +1330,7 @@ export default function ProfilePage() {
       </section>
 
       {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--border-subtle)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[color:var(--color-soft)] bg-white px-6 py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
         <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           {saveFeedback && (
             <div

@@ -9,7 +9,7 @@ export function AppSkeleton({ shape = "rect", className, ...props }: AppSkeleton
   return (
     <div
       className={cn(
-        "animate-pulse bg-[color:var(--bg-surface-muted)]",
+        "animate-pulse bg-[color:var(--color-paper-2)]",
         shape === "rect" && "rounded-none",
         shape === "pill" && "rounded-[var(--app-radius-pill)]",
         shape === "circle" && "rounded-[var(--app-radius-circular)]",

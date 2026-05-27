@@ -280,7 +280,7 @@ function EditableRow({
                 ? "text-amber-500"
                 : isMandatory
                   ? "text-cyan-500"
-                  : "text-[color:var(--text-muted)]",
+                  : "text-[color:var(--color-ink-2)]",
           )}
         >
           {label} {isMandatory && <span className="text-[#FF5C00]">*</span>}
@@ -301,7 +301,7 @@ function EditableRow({
                 "flex h-9 w-full items-center justify-between border px-3 transition-all text-sm",
                 editValue === "true"
                   ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-900)]/20 text-[color:var(--color-lime-400)]"
-                  : "border-white/[0.1] bg-white/[0.03] text-[color:var(--text-muted)]",
+                  : "border-white/[0.1] bg-white/[0.03] text-[color:var(--color-ink-2)]",
               )}
             >
               <span className="font-bold">
@@ -363,7 +363,7 @@ function EditableRow({
               "flex h-9 w-9 shrink-0 items-center justify-center border transition-all",
               isApproved
                 ? "border-transparent bg-[color:var(--color-lime-500)] text-black"
-                : "border-white/[0.1] bg-white/[0.03] text-[color:var(--text-muted)] hover:border-cyan-500 hover:text-cyan-400 disabled:opacity-20",
+                : "border-white/[0.1] bg-white/[0.03] text-[color:var(--color-ink-2)] hover:border-cyan-500 hover:text-cyan-400 disabled:opacity-20",
             )}
           >
             <CheckIcon className="h-5 w-5" />
@@ -454,14 +454,14 @@ export default function BriefSummaryModal({
                 <h2 className="text-xl font-black text-white tracking-tight leading-none">
                   Extraction Summary
                 </h2>
-                <p className="text-sm text-[color:var(--text-muted)] mt-1.5 font-normal">
+                <p className="text-sm text-[color:var(--color-ink-2)] mt-1.5 font-normal">
                   Please validate the details before generating the invoice.
                 </p>
               </div>
             </div>
             <button
               onClick={() => onContinueManually(localData)}
-              className="p-2 text-[color:var(--text-secondary)] hover:text-white transition-all hover:rotate-90 duration-300"
+              className="p-2 text-[color:var(--color-ink)] hover:text-white transition-all hover:rotate-90 duration-300"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -505,7 +505,7 @@ export default function BriefSummaryModal({
                       const val = getExtractedValueForLabel(f.label, localData);
                       return (
                         <div key={f.label} className="flex items-center justify-between px-4 py-2.5">
-                          <span className="text-[12px] text-[color:var(--text-muted)] font-bold">{f.label}</span>
+                          <span className="text-[12px] text-[color:var(--color-ink-2)] font-bold">{f.label}</span>
                           <div className="flex items-center gap-2.5">
                             <span className="text-[13px] text-white font-bold max-w-[220px] truncate">{val}</span>
                             <CheckIcon className="h-3.5 w-3.5 text-indigo-brand shrink-0" />
@@ -557,7 +557,7 @@ export default function BriefSummaryModal({
           <div className="border-t border-white/[0.08] bg-black/40 p-6 flex items-center justify-between gap-4">
             <button
               onClick={onParseAgain}
-              className="px-5 py-2.5 text-sm font-bold text-[color:var(--text-muted)] hover:text-white transition-colors"
+              className="px-5 py-2.5 text-sm font-bold text-[color:var(--color-ink-2)] hover:text-white transition-colors"
             >
               Parse Again
             </button>

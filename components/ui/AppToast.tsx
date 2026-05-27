@@ -17,7 +17,7 @@ export function AppToast({ message, tone = "default", isOpen, className, ...prop
         tone === "success" && "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]",
         tone === "warning" && "bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]",
         tone === "danger" && "bg-[color:var(--color-coral-100)] text-[color:var(--color-coral-900)]",
-        tone === "default" && "bg-white text-[color:var(--text-primary)]",
+        tone === "default" && "bg-white text-[color:var(--color-ink)]",
         className
       )}
       {...props}

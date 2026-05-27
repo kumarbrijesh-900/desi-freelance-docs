@@ -51,10 +51,10 @@ function SignupCard() {
 
   return (
     <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
-      <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+      <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
         Create account
       </h2>
-      <p className="mt-1.5 text-[13px] text-[color:var(--text-muted)]">
+      <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
         Join Lance to create and manage professional GST invoices.
       </p>
 
@@ -67,14 +67,14 @@ function SignupCard() {
         Sign up with Google
       </button>
 
-      <p className="mt-6 text-center text-[13px] text-[color:var(--text-secondary)]">
+      <p className="mt-6 text-center text-[13px] text-[color:var(--color-ink)]">
         Already have an account?{" "}
         <Link href={`/login${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-[color:var(--brand-indigo)] hover:underline">
           Log in
         </Link>
       </p>
 
-      <p className="mt-6 text-[11px] leading-4 text-[color:var(--text-soft)]">
+      <p className="mt-6 text-[11px] leading-4 text-[color:var(--color-ink-3)]">
         By signing up, you agree to our{" "}
         <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
           Terms of Service
@@ -111,7 +111,7 @@ export default function SignupPage() {
 
         <MotionReveal preset="fade-up" delay={0}>
           <div className="max-w-lg">
-            <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--text-primary)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
+            <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--color-ink)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
               Professional invoicing,
               <br />
               <span className="text-[color:var(--color-lime-500)]">
@@ -119,7 +119,7 @@ export default function SignupPage() {
               </span>
             </h1>
 
-            <p className="mt-5 text-[15px] leading-7 text-[color:var(--text-muted)]">
+            <p className="mt-5 text-[15px] leading-7 text-[color:var(--color-ink-2)]">
               The fastest way for Indian freelancers to bill clients.
               <br className="hidden sm:block" />
               Join thousands of creatives getting paid on time.
@@ -131,10 +131,10 @@ export default function SignupPage() {
           <Suspense
             fallback={
               <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
-                <h2 className="text-lg font-bold text-[color:var(--text-primary)]">
+                <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                   Creating account...
                 </h2>
-                <div className="mt-6 h-11 border border-[color:var(--border-default)] bg-[color:var(--bg-surface-soft)] animate-pulse" />
+                <div className="mt-6 h-11 border border-[color:var(--color-ink)] bg-[color:var(--color-paper)] animate-pulse" />
               </div>
             }
           >

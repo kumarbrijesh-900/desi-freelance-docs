@@ -161,14 +161,14 @@ function MsaCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+            <h3 className="text-[14px] font-bold text-[color:var(--color-ink)]">
               {msa.title}
             </h3>
             <span className={getAppStatusPillClass(statusColor(msa.status))}>
               {msa.status}
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">
+          <p className="mt-1 text-[11px] text-[color:var(--color-ink-2)]">
             Updated{" "}
             {new Date(msa.updated_at).toLocaleDateString("en-IN", {
               day: "2-digit",
@@ -180,8 +180,8 @@ function MsaCard({
       </div>
 
       {msa.content && (
-        <div className="mt-3 max-h-32 overflow-hidden border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-3 py-2">
-          <p className="line-clamp-4 whitespace-pre-wrap text-[12px] leading-5 text-[color:var(--text-secondary)]">
+        <div className="mt-3 max-h-32 overflow-hidden border border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-3 py-2">
+          <p className="line-clamp-4 whitespace-pre-wrap text-[12px] leading-5 text-[color:var(--color-ink)]">
             {msa.content}
           </p>
         </div>
@@ -365,7 +365,7 @@ export default function ClientDetailPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="text-[color:var(--text-muted)]">Loading…</p>
+          <p className="text-[color:var(--color-ink-2)]">Loading…</p>
         </div>
       </main>
     );
@@ -376,7 +376,7 @@ export default function ClientDetailPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-          <p className="text-[color:var(--text-muted)]">Client not found.</p>
+          <p className="text-[color:var(--color-ink-2)]">Client not found.</p>
           <Link
             href="/clients"
             className={getAppButtonClass({ variant: "secondary" })}
@@ -418,12 +418,12 @@ export default function ClientDetailPage() {
             <MotionReveal preset="fade-up">
               <Link
                 href="/clients"
-                className="mb-3 inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                className="mb-3 inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
               >
                 <ChevronLeftIcon className="h-3.5 w-3.5" />
                 All Clients
               </Link>
-              <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+              <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
                 {clientName || "Client"}
               </h1>
             </MotionReveal>
@@ -512,12 +512,12 @@ export default function ClientDetailPage() {
                 </div>
 
                 {/* Master Services Agreement (MSA) Defaults Section */}
-                <div className="mt-8 border-t border-[color:var(--border-subtle)] pt-6">
+                <div className="mt-8 border-t border-[color:var(--color-soft)] pt-6">
                   <div className="mb-4">
-                    <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
+                    <h3 className="text-[14px] font-bold text-[color:var(--color-ink)]">
                       Master Services Agreement (MSA) Defaults
                     </h3>
-                    <p className="text-[11px] text-[color:var(--text-muted)] mt-1">
+                    <p className="text-[11px] text-[color:var(--color-ink-2)] mt-1">
                       Note: Invoice-specific briefs will override these defaults
                       during AI extraction.
                     </p>
@@ -654,7 +654,7 @@ export default function ClientDetailPage() {
                        <label className={appFieldLabelClass}>
                          EXTRA FEE PER ROUND (% OF LINE ITEM)
                        </label>
-                       <p className="text-[10px] text-[color:var(--text-muted)] mb-1">
+                       <p className="text-[10px] text-[color:var(--color-ink-2)] mb-1">
                          Example: With 2 free rounds and 15% fee, a ₹10,000 line item would cost ₹1,500 per extra revision round. Other line items are unaffected.
                        </p>
                       <input
@@ -817,7 +817,7 @@ export default function ClientDetailPage() {
                   ))}
                   {msas.length === 0 && !isAddingMsa && (
                     <div className={`${getAppPanelClass("muted")} text-center`}>
-                      <p className="text-[13px] text-[color:var(--text-muted)]">
+                      <p className="text-[13px] text-[color:var(--color-ink-2)]">
                         No agreements yet. Add an MSA to gate invoice access for
                         this client.
                       </p>

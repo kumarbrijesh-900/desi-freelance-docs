@@ -784,14 +784,14 @@ function PreviewContent() {
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-secondary)]">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-soft)] bg-[color:var(--color-paper)] text-[color:var(--color-ink)]">
                     <DocumentSparkIcon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-bold text-[color:var(--text-primary)]">
+                    <p className="text-sm font-bold text-[color:var(--color-ink)]">
                       Preparing preview
                     </p>
-                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                    <p className="mt-1 text-sm text-[color:var(--color-ink-2)]">
                       Loading the invoice sheet and export actions.
                     </p>
                   </div>
@@ -811,10 +811,10 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
                   Invoice Preview
                 </h1>
-                <p className="mt-3 text-sm text-[color:var(--text-secondary)]">
+                <p className="mt-3 text-sm text-[color:var(--color-ink)]">
                   No invoice data found. Go back to the editor and click Preview
                   Invoice again.
                 </p>
@@ -845,10 +845,10 @@ function PreviewContent() {
           <div className={appGridClass}>
             <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
               <MotionReveal className={`${appCardClass} p-8`} preset="fade-up">
-                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
+                <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
                   Invoice Preview
                 </h1>
-                <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
+                <p className="mt-3 text-sm leading-6 text-[color:var(--color-ink)]">
                   This international invoice still needs an explicit export tax
                   choice in Totals &amp; Taxes before preview or PDF export.
                 </p>
@@ -949,7 +949,7 @@ function PreviewContent() {
                     setCopiedField('invoiceNumber');
                     setTimeout(() => setCopiedField(null), 1500);
                   }}
-                  className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
+                  className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-[color:var(--color-ink)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
                   title="Click to copy"
                 >
                   <span>{invoiceNumber?.trim() || "New Invoice"}</span>
@@ -971,10 +971,10 @@ function PreviewContent() {
                       ✨
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[color:var(--text-primary)]">
+                      <h3 className="text-sm font-bold text-[color:var(--color-ink)]">
                         Complete your professional profile
                       </h3>
-                      <p className="text-[13px] text-[color:var(--text-secondary)]">
+                      <p className="text-[13px] text-[color:var(--color-ink)]">
                         Upload your agency logo, signature, and payment QR for
                         faster, more compliant invoices.
                       </p>
@@ -983,7 +983,7 @@ function PreviewContent() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowProfilePrompt(false)}
-                      className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
+                      className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] px-3 py-2"
                     >
                       Later
                     </button>
@@ -1037,14 +1037,14 @@ function PreviewContent() {
               {/* Left: Invoice area (Hero) */}
               <div className="flex-1 relative flex flex-col min-w-0 print:block print:w-full print:max-w-none print:overflow-visible">
                 {/* Zoom Toolbar - Truly Sticky */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 hidden sm:flex items-center gap-1 bg-white border border-[color:var(--border-subtle)] shadow-md px-2 py-1 print:hidden">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 hidden sm:flex items-center gap-1 bg-white border border-[color:var(--color-soft)] shadow-md px-2 py-1 print:hidden">
                   <button
                     onClick={() => {
                       const newZoom = Math.max(zoom - 0.1, 0.2);
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-muted)] text-sm font-bold"
+                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-2)] text-sm font-bold"
                     title="Zoom out"
                   >
                     −
@@ -1054,7 +1054,7 @@ function PreviewContent() {
                       setZoom(1);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-normal text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)]"
+                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-normal text-[color:var(--color-ink-2)] hover:bg-[color:var(--color-paper-2)]"
                     title="Reset to 100%"
                   >
                     {Math.round(effectiveZoom * 100)}%
@@ -1065,7 +1065,7 @@ function PreviewContent() {
                       setZoom(newZoom);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--text-secondary)] hover:bg-[color:var(--bg-surface-muted)] text-sm font-bold"
+                    className="h-7 w-7 flex items-center justify-center rounded text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-2)] text-sm font-bold"
                     title="Zoom in"
                   >
                     +
@@ -1098,7 +1098,7 @@ function PreviewContent() {
                   onMouseUp={() => setIsPanning(false)}
                   onMouseLeave={() => setIsPanning(false)}
                   className={cn(
-                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--bg-surface-soft)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--border-subtle)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
+                    "flex-1 flex items-center justify-center py-10 px-6 bg-[color:var(--color-paper)]/30 rounded-t-2xl xl:rounded-l-2xl xl:rounded-tr-none border border-[color:var(--color-soft)] border-b-0 xl:border-r-0 xl:border-b transition-all print:block print:w-full print:max-w-none print:overflow-visible print:p-0 print:border-0 relative",
                     "overflow-auto cursor-grab active:cursor-grabbing scrollbar-hide"
                   )}
                   style={{ cursor: effectiveZoom > scaleToFit ? (isPanning ? 'grabbing' : 'grab') : 'default' }}
@@ -1112,7 +1112,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-none border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-none border border-[color:var(--color-ink)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",
@@ -1130,9 +1130,9 @@ function PreviewContent() {
               </div>
 
               {/* Right: Slim Template Picker Bar */}
-              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--border-subtle)] bg-white overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
+              <aside className="w-full xl:w-[220px] shrink-0 border border-[color:var(--color-soft)] bg-white overflow-y-auto rounded-b-2xl xl:rounded-r-2xl xl:rounded-bl-none print:hidden scrollbar-hide">
                 <div className="p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] mb-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] mb-4">
                     Choose Template
                   </p>
                   <div className="space-y-3">
@@ -1144,7 +1144,7 @@ function PreviewContent() {
                           "w-full border p-2.5 text-left transition-all",
                           selectedTemplate === template.id
                             ? "border-[color:var(--brand-indigo-deep)] bg-[color:var(--brand-indigo-deep)]/5 shadow-sm ring-1 ring-[color:var(--brand-indigo-deep)]/20"
-                            : "border-transparent hover:border-[color:var(--border-default)] hover:bg-[color:var(--bg-surface-soft)]"
+                            : "border-transparent hover:border-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                         )}
                       >
                         {/* Color swatches */}
@@ -1154,7 +1154,7 @@ function PreviewContent() {
                             style={{ backgroundColor: template.palette.primary }}
                           />
                           <div
-                            className="h-5 flex-1 border border-[color:var(--border-subtle)]"
+                            className="h-5 flex-1 border border-[color:var(--color-soft)]"
                             style={{ backgroundColor: template.palette.secondary }}
                           />
                           <div
@@ -1164,7 +1164,7 @@ function PreviewContent() {
                         </div>
                         {/* Template metadata */}
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-[color:var(--text-primary)]">
+                          <span className="text-[11px] font-bold text-[color:var(--color-ink)]">
                             {template.name}
                           </span>
                           {selectedTemplate === template.id && (
@@ -1181,7 +1181,7 @@ function PreviewContent() {
         </section>
 
         {/* ─── Sticky Bottom Action Bar ─── */}
-        <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--border-subtle)] bg-white/80 px-4 py-4 backdrop-blur-xl print:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-white/80 px-4 py-4 backdrop-blur-xl print:hidden">
           <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
@@ -1192,9 +1192,9 @@ function PreviewContent() {
                 <ChevronLeftIcon className="h-4 w-4" />
                 Edit Invoice
               </Link>
-              <div className="h-4 w-px bg-[color:var(--border-subtle)]" />
+              <div className="h-4 w-px bg-[color:var(--color-soft)]" />
               {saveState === "saving" ? (
-                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                   Saving…
                 </span>
               ) : saveState === "cloud-saved" || saveState === "saved" ? (
@@ -1224,7 +1224,7 @@ function PreviewContent() {
                 Print
               </MotionButton>
 
-              <span className="hidden sm:inline text-[10px] text-[color:var(--text-muted)] mr-2">
+              <span className="hidden sm:inline text-[10px] text-[color:var(--color-ink-2)] mr-2">
                 Tip: Uncheck "Headers and footers" in print dialog
               </span>
 
@@ -1247,7 +1247,7 @@ function PreviewContent() {
                 className={cn(
                   "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-100 active:scale-[0.97]",
                   isSavingAndSharing || !lockState.canShare
-                    ? "bg-[color:var(--bg-surface-muted)] text-[color:var(--text-muted)] cursor-not-allowed opacity-80 border border-[color:var(--border-subtle)]"
+                    ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] cursor-not-allowed opacity-80 border border-[color:var(--color-soft)]"
                     : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00] active:bg-[#9acc00]"
                 )}
                 title={!lockState.canShare ? lockState.reason : undefined}
