@@ -52,40 +52,53 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Column: Text & CTA */}
             <div className="text-left">
-              <Pill tone="ghost" className="bg-paper shadow-chunk-sm mb-10 inline-flex">
-                Free invoicing tool for Indian freelancers
-              </Pill>
+              <div className="flex flex-wrap items-center gap-4 mb-10">
+                <Sticker tone="coral">✦ FREE · INDIAN FREELANCERS</Sticker>
+                <Sticker tone="sky" rotate={-3}>v 2.0</Sticker>
+              </div>
               
               <h1 className="font-display text-6xl md:text-[80px] lg:text-[108px] font-black uppercase leading-[0.9] tracking-[-0.04em] text-ink mb-10">
                 Invoicing,<br />stripped to<br />the <Marker tone="rose">essentials</Marker>.
               </h1>
               
-              <p className="text-lg md:text-xl text-ink-2 max-w-lg leading-relaxed font-sans mb-12">
-                Create GST-compliant, milestone-driven invoices in under 2 minutes. Built for Indian freelancers and agencies.
+              <p className="text-lg md:text-xl text-ink-2 max-w-lg leading-relaxed font-sans mb-10">
+                GST-compliant, milestone-driven invoices in under two minutes. Built for independent designers, devs and studios across India — <Marker tone="sky">built to feel like you, not your CA</Marker>.
               </p>
               
-              <Button
-                variant="primary"
-                onClick={() => router.push(isLoggedIn ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1")}
-                className="px-10 py-5 text-[18px]"
-              >
-                Create Invoice
-                <svg className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Button>
+              <div className="flex flex-wrap items-center gap-4 mb-12">
+                <Button
+                  variant="primary"
+                  onClick={() => router.push(isLoggedIn ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1")}
+                  className="px-6 py-4 text-[13px] font-bold shadow-chunk-sm"
+                >
+                  Create first invoice →
+                </Button>
+                <Button
+                  variant="paper"
+                  className="px-6 py-4 text-[13px] font-bold bg-white"
+                >
+                  ▶ Watch demo · 90s
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-2">
+                <div>✶ no signup to start</div>
+                <div>✶ no credit card</div>
+                <div>✶ exports as pdf</div>
+              </div>
+              
+              <div className="absolute top-0 right-10 hidden xl:block z-30">
+                <Sticker tone="lav" rotate={-8}>✦ 12,400 invoices shipped</Sticker>
+              </div>
             </div>
 
             {/* Right Column: Invoice Preview Card */}
             <div className="relative hidden lg:block">
-              <div className="absolute -top-12 -left-12 z-30">
-                <Sticker rotate={-12} tone="sky">No accounting jargon</Sticker>
+              <div className="absolute -right-4 top-8 z-30">
+                <Sticker rotate={8} tone="acid">✦ 8 templates</Sticker>
               </div>
-              <div className="absolute top-1/2 -right-8 z-30">
-                <Sticker rotate={8} tone="lav">Gen-Z approved ✦</Sticker>
-              </div>
-              <div className="absolute -bottom-6 left-12 z-30">
-                <Sticker rotate={-6} tone="acid">Takes 10s</Sticker>
+              <div className="absolute -left-6 bottom-9 z-30">
+                <Sticker rotate={-6} tone="rose">⌁ paid in 11 days avg</Sticker>
               </div>
 
               <Box shadow="coral" className="bg-paper p-8 relative z-20">
@@ -128,22 +141,26 @@ export default function Home() {
       {/* ── Trust Strip ── */}
       <section className="bg-paper py-8">
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-center font-mono text-[12px] md:text-[14px] font-bold uppercase tracking-[0.14em] text-ink-3">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-6 sm:gap-12 text-center font-mono text-[12px] md:text-[14px] font-bold uppercase tracking-[0.14em] text-ink">
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full border-2 border-ink bg-acid"></span>
-              <span>GST Compliant</span>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-grass"></span>
+              <span>GST compliant</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full border-2 border-ink bg-coral"></span>
-              <span>Milestone Billing</span>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-sky"></span>
+              <span>Milestone billing</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full border-2 border-ink bg-sky"></span>
-              <span>Contract Enforcement</span>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-lav"></span>
+              <span>MSA enforced</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full border-2 border-ink bg-lav"></span>
-              <span>Private by Default</span>
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-coral"></span>
+              <span>Private by default</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-butter"></span>
+              <span>RCM / LUT aware</span>
             </div>
           </div>
         </div>
@@ -155,20 +172,25 @@ export default function Home() {
       <section className="bg-paper-butter py-24">
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-20">
-            <p className="font-mono text-[12px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
-              How it works
-            </p>
-            <h2 className="font-display text-4xl md:text-6xl font-black uppercase text-ink tracking-[-0.03em] leading-tight">
-              Built for freelancers,<br />not accountants.
-            </h2>
+          <div className="flex justify-between items-end mb-20">
+            <div className="text-left max-w-2xl">
+              <p className="font-mono text-[12px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
+                How it works · 4 Steps
+              </p>
+              <h2 className="font-display text-4xl md:text-6xl font-black uppercase text-ink tracking-[-0.03em] leading-tight">
+                Built for <Marker tone="butter">freelancers</Marker>,<br />not accountants.
+              </h2>
+            </div>
+            <div className="hidden lg:block">
+              <Sticker tone="butter" rotate={-4}>✦ avg setup · 2 min</Sticker>
+            </div>
           </div>
 
           <div className="flex flex-col gap-6 max-w-4xl mx-auto">
             {/* Step 1 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center border-2 border-ink bg-acid text-ink font-display font-black text-3xl rounded-xl shadow-[2px_2px_0_var(--color-ink)]">
-                1
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-hi text-ink font-display font-black text-2xl rounded-xl">
+                01
               </div>
               <div className="flex-1">
                 <h3 className="font-mono text-xl font-bold uppercase tracking-[0.1em] text-ink mb-2">
@@ -185,8 +207,8 @@ export default function Home() {
 
             {/* Step 2 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center border-2 border-ink bg-rose text-ink font-display font-black text-3xl rounded-xl shadow-[2px_2px_0_var(--color-ink)]">
-                2
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-rose text-ink font-display font-black text-2xl rounded-xl">
+                02
               </div>
               <div className="flex-1">
                 <h3 className="font-mono text-xl font-bold uppercase tracking-[0.1em] text-ink mb-2">
@@ -203,8 +225,8 @@ export default function Home() {
 
             {/* Step 3 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center border-2 border-ink bg-sky text-ink font-display font-black text-3xl rounded-xl shadow-[2px_2px_0_var(--color-ink)]">
-                3
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-sky text-white font-display font-black text-2xl rounded-xl">
+                03
               </div>
               <div className="flex-1">
                 <h3 className="font-mono text-xl font-bold uppercase tracking-[0.1em] text-ink mb-2">
@@ -221,8 +243,8 @@ export default function Home() {
 
             {/* Step 4 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center border-2 border-ink bg-lav text-ink font-display font-black text-3xl rounded-xl shadow-[2px_2px_0_var(--color-ink)]">
-                4
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-lav text-white font-display font-black text-2xl rounded-xl">
+                04
               </div>
               <div className="flex-1">
                 <h3 className="font-mono text-xl font-bold uppercase tracking-[0.1em] text-ink mb-2">
@@ -248,7 +270,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-start justify-between gap-12">
             
             <div className="max-w-xs">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <span className="flex h-10 w-10 items-center justify-center border-2 border-ink bg-acid text-[18px] font-black text-ink shadow-[2px_2px_0_var(--color-ink)]">
                   L
                 </span>
@@ -256,9 +278,13 @@ export default function Home() {
                   Lance
                 </span>
               </div>
-              <p className="font-mono text-xs uppercase tracking-widest text-ink-3 leading-relaxed">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-ink-3 leading-relaxed mb-4">
                 GST-compliant invoicing for Indian freelancers and agencies.
               </p>
+              <div className="flex items-center gap-2">
+                <Pill tone="rose" className="text-[10px]">made in india</Pill>
+                <Pill tone="sky" className="text-[10px]">v 2.0</Pill>
+              </div>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-12 md:gap-24">
