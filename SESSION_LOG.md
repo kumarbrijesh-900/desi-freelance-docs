@@ -2027,3 +2027,6 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
   - Added a comprehensive `@media print` query in `globals.css` that completely flattens brutalist shadows into 1px borders, disables navigation/UI elements (`nav`, `.sidebar`, etc.), and converts the lime green to transparent to save ink and maximize data visibility.
   - Scaled down the heavy brutalist properties (reduced 2px borders to 1px, and 4px shadows to 2px) on viewports under `768px` to prevent the UI from feeling bulky on mobile devices.
   - Passed `npm run build` and pushed successfully to `main`.
+
+- **Sprint 6 (InvoiceEditorPage Decomposition)**:
+  - Extracted utility functions, sub-components, and custom React hooks (`useInvoiceAutofill.ts`, `useInvoicePersistence.ts`) into `components/invoice/editor/` to dramatically reduce and decouple the massive `InvoiceEditorPage.tsx` monolith.
