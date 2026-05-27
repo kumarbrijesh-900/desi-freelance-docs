@@ -46,7 +46,7 @@ export default function ConversionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="conversion-modal-title">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70"

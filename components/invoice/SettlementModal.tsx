@@ -46,7 +46,7 @@ export default function SettlementModal({
   const isBusy = state === "submitting" || isSubmitting;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="settlement-modal-title">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
         <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           {isSuccess ? (
