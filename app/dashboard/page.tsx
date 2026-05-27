@@ -256,11 +256,6 @@ function DashboardContent() {
             </div>
           ) : selectedProject ? (
             <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
-              {/* Floating sticker */}
-              <div className="absolute top-6 right-10 z-10">
-                <Sticker rotate={6} tone="rose">✦ 11-day avg payment</Sticker>
-              </div>
-
               {/* Title Section */}
               <div className="flex justify-between items-start mb-6">
                 <div>
