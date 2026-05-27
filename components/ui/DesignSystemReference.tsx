@@ -55,9 +55,44 @@ export default function DesignSystemReference() {
     "forex",
   );
   const [licensingExpanded, setLicensingExpanded] = useState(false);
+  const [activeTheme, setActiveTheme] = useState<string>("default");
+
+  const themes = [
+    { id: "default", label: "Neo-Brutal (Default)", color: "bg-[#BEFF00]" },
+    { id: "editorial", label: "Editorial Magazine", color: "bg-[#7A1F1F]" },
+    { id: "pastel", label: "Pastel Organic", color: "bg-[#8FA68C]" },
+    { id: "riso", label: "Riso Zine", color: "bg-[#FF2D7A]" },
+    { id: "bauhaus", label: "Bauhaus Geometric", color: "bg-[#D72638]" },
+    { id: "minimal", label: "Japanese Minimal", color: "bg-[#26478D]" },
+    { id: "midcentury", label: "Mid-Century Modern", color: "bg-[#E8552E]" },
+  ];
 
   return (
-    <div className="space-y-8 pb-24">
+    <div data-theme={activeTheme} className="transition-all duration-300">
+      {/* ─── Design System Variant Review Switcher ─── */}
+      <div className="mb-8 border-2 border-[#111118] bg-white p-4 shadow-[4px_4px_0_#111118] rounded-none">
+        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#111118] mb-3">
+          Design System Variant Review Switcher — Cycle Options
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {themes.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTheme(t.id)}
+              className={cn(
+                "inline-flex items-center gap-2 border-2 border-[#111118] px-3.5 py-2.5 text-[11px] font-black uppercase tracking-[0.04em] transition-all shadow-[2px_2px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111118] active:translate-y-[1px] active:shadow-[1px_1px_0_#111118]",
+                activeTheme === t.id ? "bg-[#111118] text-white" : "bg-white text-[#111118]"
+              )}
+            >
+              <span className={cn("h-3 w-3 border border-black/10 shrink-0", t.color)} />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-8 pb-24">
       <section className={cn(appSectionShellClass, "overflow-hidden")}>
         <div className={appSectionHeaderClass}>
           <div className="space-y-2">
@@ -586,6 +621,7 @@ export default function DesignSystemReference() {
             Preview &amp; download
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
