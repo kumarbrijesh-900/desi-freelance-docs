@@ -2017,3 +2017,13 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - **Print Layout**: Added a comprehensive `@media print` query in `globals.css` that completely flattens brutalist shadows into 1px borders, disables navigation/UI elements (`nav`, `.sidebar`, etc.), and converts the lime green to transparent to save ink and maximize data visibility.
 - **Mobile Layout**: Scaled down the heavy brutalist properties (reduced `2px` borders to `1px`, and `4px` shadows to `2px`) on viewports under `768px` to prevent the UI from feeling bulky on mobile devices.
 - Passed `npm run build` and pushed successfully to `main`.
+
+- **Sprint 10 (Accessibility Audit)**: 
+  - Swept critical modals (`BriefSummaryModal.tsx`, `SettlementModal.tsx`, `ConversionModal.tsx`, `ShareLinkModal.tsx`, `DownloadDecisionModal.tsx`, `InvoiceEditorPage.tsx`) and appended `role="dialog"`, `aria-modal="true"`, and appropriate `aria-labelledby` tags.
+  - Verified `.app-focus-ring` is applied universally to buttons and input fields to support keyboard-only navigation.
+  - Verified `prefers-reduced-motion` is accurately overriding animations for accessibility.
+
+- **Sprint 11 (Responsive Breakpoint & Print CSS Audit)**:
+  - Added a comprehensive `@media print` query in `globals.css` that completely flattens brutalist shadows into 1px borders, disables navigation/UI elements (`nav`, `.sidebar`, etc.), and converts the lime green to transparent to save ink and maximize data visibility.
+  - Scaled down the heavy brutalist properties (reduced 2px borders to 1px, and 4px shadows to 2px) on viewports under `768px` to prevent the UI from feeling bulky on mobile devices.
+  - Passed `npm run build` and pushed successfully to `main`.
