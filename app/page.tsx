@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { supabase } from "@/lib/supabase/client";
-import InteractiveHeroGraphic from "@/components/InteractiveHeroGraphic";
 
 import { Button } from "@/components/ui/Button";
 import { Box } from "@/components/ui/Box";
@@ -46,186 +45,195 @@ export default function Home() {
       <AppHeader />
 
       {/* ── Hero ── */}
-      <section className="border-b-2 border-ink bg-paper-butter relative overflow-hidden">
-        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32 relative">
+      <section className="relative overflow-hidden pt-24 pb-32 px-4 sm:px-6 lg:px-8 border-b-4 border-coral bg-paper-butter">
+        <div className="mx-auto w-full max-w-[1440px] relative z-20 text-center">
           
-          <div className="absolute top-12 right-[45%] z-10 hidden lg:block">
-            <Sticker rotate={-8} tone="lav">Gen-Z approved ✌️</Sticker>
+          <div className="absolute top-0 left-[15%] hidden lg:block z-30">
+            <Sticker rotate={-12} tone="sky">No accounting jargon</Sticker>
+          </div>
+          <div className="absolute top-24 right-[10%] hidden lg:block z-30">
+            <Sticker rotate={8} tone="lav">Gen-Z approved ✌️</Sticker>
+          </div>
+          <div className="absolute bottom-10 left-[20%] hidden lg:block z-30">
+            <Sticker rotate={-6} tone="acid">Takes 10s</Sticker>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: Text */}
-            <div className="relative z-20">
-              <Pill tone="ghost" className="mb-8 bg-paper">
-                Free invoicing tool for Indian freelancers
-              </Pill>
-              
-              <h1 className="font-display text-5xl sm:text-6xl lg:text-[4.5rem] font-bold uppercase leading-[1.05] tracking-[-0.035em] text-ink mb-6">
-                Invoicing,<br />stripped to<br />the <Marker tone="rose">essentials</Marker>.
-              </h1>
-              
-              <p className="text-base sm:text-lg text-ink-2 max-w-md mb-10 leading-relaxed font-sans">
-                Create GST-compliant, milestone-driven invoices in under 2 minutes. Built for Indian freelancers and agencies.
-              </p>
-              
-              <Button
-                variant="primary"
-                onClick={() => router.push(isLoggedIn ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1")}
-                className="px-8 py-4 text-[15px]"
-              >
-                Create Invoice
-                <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Button>
-            </div>
-            
-            {/* Right: Hero Graphic */}
-            <div className="hidden lg:block relative z-20">
-              <InteractiveHeroGraphic />
-            </div>
+          <div className="flex justify-center mb-12">
+            <Pill tone="ghost" className="bg-paper shadow-chunk-sm">
+              Free invoicing tool for Indian freelancers
+            </Pill>
           </div>
+          
+          <h1 className="font-display text-5xl md:text-[80px] lg:text-[108px] font-black uppercase leading-[0.9] tracking-[-0.04em] text-ink mb-12">
+            Invoicing,<br />stripped to<br />the <Marker tone="rose">essentials</Marker>.
+          </h1>
+          
+          <div className="flex justify-center">
+            <p className="text-lg md:text-xl text-ink-2 max-w-2xl leading-relaxed font-sans mb-12">
+              Create GST-compliant, milestone-driven invoices in under 2 minutes. Built for Indian freelancers and agencies.
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <Button
+              variant="primary"
+              onClick={() => router.push(isLoggedIn ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1")}
+              className="px-10 py-5 text-[18px]"
+            >
+              Create Invoice
+              <svg className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Button>
+          </div>
+
         </div>
       </section>
 
       {/* ── Trust Strip ── */}
-      <section className="border-b-2 border-ink bg-paper py-5">
+      <section className="bg-paper py-8 border-b-4 border-sky">
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 text-center font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 text-center font-mono text-[12px] md:text-[14px] font-bold uppercase tracking-[0.14em] text-ink-3">
             <span>GST Compliant</span>
-            <span className="hidden sm:block w-1.5 h-1.5 bg-ink rotate-45"></span>
+            <span className="hidden sm:block w-2 h-2 bg-ink rotate-45"></span>
             <span>Milestone Billing</span>
-            <span className="hidden sm:block w-1.5 h-1.5 bg-ink rotate-45"></span>
+            <span className="hidden sm:block w-2 h-2 bg-ink rotate-45"></span>
             <span>Contract Enforcement</span>
-            <span className="hidden sm:block w-1.5 h-1.5 bg-ink rotate-45"></span>
+            <span className="hidden sm:block w-2 h-2 bg-ink rotate-45"></span>
             <span>Private by Default</span>
           </div>
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section className="bg-paper-butter flex-1">
-        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-3">
-            How it works
-          </p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold uppercase text-ink mb-12 tracking-[-0.03em]">
-            Built for freelancers,<br />not accountants.
-          </h2>
+      <section className="bg-paper-butter py-24 border-b-4 border-acid">
+        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center mb-20">
+            <p className="font-mono text-[12px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
+              How it works
+            </p>
+            <h2 className="font-display text-4xl md:text-6xl font-black uppercase text-ink tracking-[-0.03em] leading-tight">
+              Built for freelancers,<br />not accountants.
+            </h2>
+          </div>
 
-          <div className="space-y-6">
-            <Box shadow="ink" className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-acid text-ink font-display font-bold text-xl rounded-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Step 1 */}
+            <Box shadow="ink" className="p-8 bg-paper">
+              <div className="flex h-14 w-14 items-center justify-center border-2 border-ink bg-acid text-ink font-display font-black text-2xl rounded-full mb-6 shadow-chunk-sm">
                 1
               </div>
-              <div>
-                <h3 className="font-mono text-sm sm:text-base font-bold uppercase tracking-[0.1em] text-ink mb-2">
-                  Create invoice, set milestones
-                </h3>
-                <p className="text-sm text-ink-2 leading-relaxed max-w-xl font-sans">
-                  A clean, zero-bloat editor. Add your client, define milestones, set line items with quantities and rates. GST tax codes auto-assigned. No accounting jargon.
-                </p>
-              </div>
+              <h3 className="font-mono text-lg font-bold uppercase tracking-[0.1em] text-ink mb-4">
+                Create invoice, set milestones
+              </h3>
+              <p className="text-base text-ink-2 leading-relaxed font-sans">
+                A clean, zero-bloat editor. Add your client, define milestones, set line items with quantities and rates. GST tax codes auto-assigned. No accounting jargon.
+              </p>
             </Box>
 
-            <Box shadow="sky" tone="sky" className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-paper text-ink font-display font-bold text-xl rounded-full">
+            {/* Step 2 */}
+            <Box shadow="ink" className="p-8 bg-paper">
+              <div className="flex h-14 w-14 items-center justify-center border-2 border-ink bg-rose text-ink font-display font-black text-2xl rounded-full mb-6 shadow-chunk-sm">
                 2
               </div>
-              <div>
-                <h3 className="font-mono text-sm sm:text-base font-bold uppercase tracking-[0.1em] text-white mb-2">
-                  Tax math, handled
-                </h3>
-                <p className="text-sm text-white/90 leading-relaxed max-w-xl font-sans">
-                  IGST, CGST, SGST — computed from your GSTIN and client location. LUT validated for exports. You just fill in the amount.
-                </p>
-              </div>
+              <h3 className="font-mono text-lg font-bold uppercase tracking-[0.1em] text-ink mb-4">
+                Tax math, handled
+              </h3>
+              <p className="text-base text-ink-2 leading-relaxed font-sans">
+                IGST, CGST, SGST — computed from your GSTIN and client location. LUT validated for exports. You just fill in the amount.
+              </p>
             </Box>
 
-            <Box shadow="lav" className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start bg-paper">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-lav text-white font-display font-bold text-xl rounded-full">
+            {/* Step 3 */}
+            <Box shadow="ink" className="p-8 bg-paper">
+              <div className="flex h-14 w-14 items-center justify-center border-2 border-ink bg-sky text-ink font-display font-black text-2xl rounded-full mb-6 shadow-chunk-sm">
                 3
               </div>
-              <div>
-                <h3 className="font-mono text-sm sm:text-base font-bold uppercase tracking-[0.1em] text-ink mb-2">
-                  Share link, get paid
-                </h3>
-                <p className="text-sm text-ink-2 leading-relaxed max-w-xl font-sans">
-                  Generate a secure link. Your client sees the invoice, accepts terms, and pays. You get notified the moment they open it.
-                </p>
-              </div>
+              <h3 className="font-mono text-lg font-bold uppercase tracking-[0.1em] text-ink mb-4">
+                Share link, get paid
+              </h3>
+              <p className="text-base text-ink-2 leading-relaxed font-sans">
+                Generate a secure link. Your client sees the invoice, accepts terms, and pays. You get notified the moment they open it.
+              </p>
             </Box>
 
-            <Box shadow="coral" className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start bg-paper">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-coral text-white font-display font-bold text-xl rounded-full">
+            {/* Step 4 */}
+            <Box shadow="ink" className="p-8 bg-paper">
+              <div className="flex h-14 w-14 items-center justify-center border-2 border-ink bg-lav text-ink font-display font-black text-2xl rounded-full mb-6 shadow-chunk-sm">
                 4
               </div>
-              <div>
-                <h3 className="font-mono text-sm sm:text-base font-bold uppercase tracking-[0.1em] text-ink mb-2">
-                  Contracts, enforced
-                </h3>
-                <p className="text-sm text-ink-2 leading-relaxed max-w-xl font-sans">
-                  Every invoice ships with a Master Service Agreement. Your client must accept terms before they can view the invoice. Payment terms, late fees, IP rights — all locked in upfront.
-                </p>
-              </div>
+              <h3 className="font-mono text-lg font-bold uppercase tracking-[0.1em] text-ink mb-4">
+                Contracts, enforced
+              </h3>
+              <p className="text-base text-ink-2 leading-relaxed font-sans">
+                Every invoice ships with a Master Service Agreement. Your client must accept terms before they can view the invoice. Payment terms, late fees, IP rights — all locked in upfront.
+              </p>
             </Box>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t-2 border-ink bg-paper">
-        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="flex h-8 w-8 items-center justify-center border-2 border-ink bg-acid text-[14px] font-black text-ink shadow-[2px_2px_0_var(--color-ink)]">
+      <footer className="bg-paper py-16">
+        <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-12">
+            
+            <div className="max-w-xs">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="flex h-10 w-10 items-center justify-center border-2 border-ink bg-acid text-[18px] font-black text-ink shadow-[2px_2px_0_var(--color-ink)]">
                   L
                 </span>
-                <span className="font-display text-xl font-bold uppercase tracking-tight text-ink">
+                <span className="font-display text-3xl font-black uppercase tracking-tight text-ink">
                   Lance
                 </span>
               </div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-ink-3">
+              <p className="font-mono text-xs uppercase tracking-widest text-ink-3 leading-relaxed">
                 GST-compliant invoicing for Indian freelancers and agencies.
               </p>
             </div>
             
-            <div className="flex gap-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-12 md:gap-24">
               <div>
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-3">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
                   Product
                 </p>
-                <a href="/invoice/new" className="block text-[13px] font-medium text-ink hover:text-lav transition-colors mb-2">
-                  Create Invoice
-                </a>
-                <a href="/support" className="block text-[13px] font-medium text-ink hover:text-lav transition-colors">
-                  FAQ
-                </a>
+                <div className="space-y-3">
+                  <a href="/invoice/new" className="block text-sm font-semibold text-ink hover:text-lav transition-colors">
+                    Create Invoice
+                  </a>
+                  <a href="/support" className="block text-sm font-semibold text-ink hover:text-lav transition-colors">
+                    FAQ
+                  </a>
+                </div>
               </div>
               <div>
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-3">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
                   Legal
                 </p>
-                <a href="/terms" className="block text-[13px] font-medium text-ink hover:text-lav transition-colors mb-2">
-                  Terms
-                </a>
-                <a href="/privacy" className="block text-[13px] font-medium text-ink hover:text-lav transition-colors">
-                  Privacy
-                </a>
+                <div className="space-y-3">
+                  <a href="/terms" className="block text-sm font-semibold text-ink hover:text-lav transition-colors">
+                    Terms
+                  </a>
+                  <a href="/privacy" className="block text-sm font-semibold text-ink hover:text-lav transition-colors">
+                    Privacy
+                  </a>
+                </div>
               </div>
-              <div>
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-3">
+              <div className="col-span-2 md:col-span-1">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-ink-2 mb-4">
                   Contact
                 </p>
-                <a href="mailto:hello@lanceinvoice.xyz" className="block text-[13px] font-medium text-ink hover:text-lav transition-colors">
+                <a href="mailto:hello@lanceinvoice.xyz" className="block text-sm font-semibold text-ink hover:text-lav transition-colors">
                   hello@lanceinvoice.xyz
                 </a>
               </div>
             </div>
+
           </div>
-          <div className="border-t-2 border-ink/10 mt-10 pt-6">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-ink-3">
+          
+          <div className="border-t-2 border-ink/10 mt-16 pt-8 text-center md:text-left">
+            <p className="font-mono text-xs uppercase tracking-widest text-ink-3">
               © 2026 Lance. Made in India.
             </p>
           </div>
