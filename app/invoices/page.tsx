@@ -17,7 +17,7 @@ export default function InvoicesPage() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete"];
 
@@ -110,10 +110,7 @@ export default function InvoicesPage() {
       <AppHeader />
       <main className={`${appPageContainerClass} max-w-[1200px] mx-auto py-8 relative overflow-x-hidden`}>
         
-        {/* Floating sticker */}
-        <div className="absolute top-[80px] right-0 z-10 hidden lg:block">
-          <Sticker rotate={-6} tone="coral">✦ {formatInr(outstandingSum)} outstanding</Sticker>
-        </div>
+
 
         <div className="flex justify-between items-end mb-8">
           <div>
@@ -236,11 +233,27 @@ export default function InvoicesPage() {
                 masterInvoice={item.masterInvoice}
               />
             ))}
-            <AppPagination 
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+                <span>Rows per page:</span>
+                <select 
+                  value={itemsPerPage} 
+                  onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                  className="bg-transparent border-none outline-none font-extrabold text-ink cursor-pointer"
+                >
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+              <AppPagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         )}
       </main>
