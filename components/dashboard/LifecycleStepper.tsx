@@ -43,16 +43,16 @@ export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
             if (isCancelled) nodeClass = "bg-neutral-300 border-2 border-white";
             else if (isCompleted) nodeClass = "bg-[#00DCB4] border-2 border-white";
             else if (isActive) {
-              if (isScheduled) nodeClass = "bg-[#D4FF00] border-2 border-black flex items-center justify-center";
+              if (isScheduled) nodeClass = "bg-[color:var(--color-lime-warm)] border-2 border-black flex items-center justify-center";
               else if (isRevision) nodeClass = "bg-[#D85A30] border-2 border-black";
-              else nodeClass = "bg-[#D4FF00] border-2 border-black";
+              else nodeClass = "bg-[color:var(--color-lime-warm)] border-2 border-black";
             }
             else if (isPending) nodeClass = "bg-white border-2 border-neutral-400";
 
             // If active, wrap in a highlighted container, overriding standard padding
             const wrapperClass = isActive
               ? `flex justify-between items-start -ml-3 px-3 py-2 border-l-[3px] z-10 relative ${
-                  isRevision ? "bg-red-50 border-[#D85A30]" : "bg-[#FBFBEA] border-[#D4FF00]"
+                  isRevision ? "bg-red-50 border-[#D85A30]" : "bg-[#FBFBEA] border-[color:var(--color-lime-warm)]"
                 }`
               : "flex justify-between items-start z-10 relative";
 
@@ -77,7 +77,7 @@ export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
                       <div className="flex items-center gap-2">
                         {step.meta?.timing && (
                           <span className={`text-[10px] font-bold px-2 py-0.5 whitespace-nowrap ${
-                            step.meta.timing === 'early' ? 'bg-[#D4FF00] text-black' :
+                            step.meta.timing === 'early' ? 'bg-[color:var(--color-lime-warm)] text-black' :
                             step.meta.timing === 'on_time' ? 'bg-[#00DCB4] text-black' :
                             'bg-[#BA7517] text-white'
                           }`}>
@@ -92,7 +92,7 @@ export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
                         )}
                         {isActive && !isCancelled && (
                           <span className={`text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 ${
-                            isRevision ? "bg-black text-[#D85A30]" : "bg-black text-[#D4FF00]"
+                            isRevision ? "bg-black text-[#D85A30]" : "bg-black text-[color:var(--color-lime-warm)]"
                           }`}>
                             NOW
                           </span>
@@ -106,7 +106,7 @@ export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
                       </div>
                     )}
                     {step.meta?.note && isRevision && (
-                      <div className="text-xs text-black italic bg-white p-2 border border-black mt-2 shadow-[2px_2px_0_#000]">
+                      <div className="text-xs text-black italic bg-white p-2 border border-black mt-2 shadow-[2px_2px_0_#111118]">
                         "client note: {step.meta.note}"
                       </div>
                     )}

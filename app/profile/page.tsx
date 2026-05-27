@@ -383,7 +383,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="min-w-0 overflow-hidden">
-                    <p className="truncate text-[13px] font-medium text-[color:var(--text-primary)]">
+                    <p className="truncate text-[13px] font-normal text-[color:var(--text-primary)]">
                       {label} Attached
                     </p>
                     <p className="truncate text-[11px] text-[color:var(--text-muted)]">
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                 {isUploading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--interactive-primary)] border-t-transparent"></div>
-                    <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
                       Processing...
                     </span>
                   </div>
@@ -470,7 +470,7 @@ export default function ProfilePage() {
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--text-secondary)] group-hover:text-[color:var(--text-primary)]">
                       Upload {label}
                     </span>
                   </>
@@ -530,7 +530,7 @@ export default function ProfilePage() {
               <div className="border-t border-[color:var(--border-subtle)] p-4 bg-[color:var(--bg-surface-soft)] flex justify-end gap-3">
                 <button
                   onClick={() => setCropModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                  className="px-4 py-2 text-sm font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
                 >
                   Cancel
                 </button>
@@ -659,7 +659,7 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
             Could not load your profile
           </p>
           <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
@@ -682,7 +682,7 @@ export default function ProfilePage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
             Sign in to manage your profile
           </p>
           <p className="text-[13px] text-[color:var(--text-muted)]">
@@ -749,7 +749,7 @@ export default function ProfilePage() {
                     className={cn(
                       "transition-all relative whitespace-nowrap pt-4",
                       activeTab === tab.id
-                        ? "border-b-3 border-[#BEFF00] text-[#111118] font-bold text-[13px] uppercase tracking-[0.04em] pb-2"
+                        ? "border-b-3 border-[color:var(--color-lime-warm)] text-[#111118] font-bold text-[13px] uppercase tracking-[0.04em] pb-2"
                         : "text-[color:var(--text-muted)] font-bold text-[13px] uppercase tracking-[0.04em] pb-2 hover:text-[#111118]"
                     )}
                   >
@@ -764,7 +764,7 @@ export default function ProfilePage() {
                 <div className="flex gap-3">
                   <span className="text-amber-600 text-lg">⚠️</span>
                   <div>
-                    <h3 className="text-sm font-semibold text-amber-800">Complete your profile</h3>
+                    <h3 className="text-sm font-bold text-amber-800">Complete your profile</h3>
                     <p className="mt-1 text-sm text-amber-700">
                       Please fill in your agency name, address, state, and account number to ensure your invoices are compliant.
                     </p>
@@ -1201,8 +1201,8 @@ export default function ProfilePage() {
                       </FieldRow>
                     </div>
 
-                    <div className="mt-6 border-l-4 border-[#BEFF00] bg-[color:var(--bg-surface-soft)] p-4">
-                      <p className="text-[12px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)] mb-1">
+                    <div className="mt-6 border-l-4 border-[color:var(--color-lime-warm)] bg-[color:var(--bg-surface-soft)] p-4">
+                      <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)] mb-1">
                         Preview Clause
                       </p>
                       <p className="text-[13px] italic text-[color:var(--text-primary)]">
@@ -1335,7 +1335,7 @@ export default function ProfilePage() {
           {saveFeedback && (
             <div
               className={cn(
-                "w-full border-2 border-[#111118] px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#000] sm:flex-1",
+                "w-full border-2 border-[#111118] px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#111118] sm:flex-1",
                 saveState === "partial"
                   ? "bg-[#FFFBE6] text-[#111118]"
                   : saveState === "error"
@@ -1358,7 +1358,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

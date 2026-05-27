@@ -161,7 +161,7 @@ function MsaCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-[14px] font-semibold text-[color:var(--text-primary)]">
+            <h3 className="text-[14px] font-bold text-[color:var(--text-primary)]">
               {msa.title}
             </h3>
             <span className={getAppStatusPillClass(statusColor(msa.status))}>
@@ -418,7 +418,7 @@ export default function ClientDetailPage() {
             <MotionReveal preset="fade-up">
               <Link
                 href="/clients"
-                className="mb-3 inline-flex items-center gap-1 text-[12px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
+                className="mb-3 inline-flex items-center gap-1 text-[12px] font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
               >
                 <ChevronLeftIcon className="h-3.5 w-3.5" />
                 All Clients

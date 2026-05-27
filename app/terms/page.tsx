@@ -23,7 +23,7 @@ export default function TermsPage() {
         className={`${appPageContainerClass} mx-auto max-w-2xl pb-24 pt-12 sm:pt-16`}
       >
         <header className="mb-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
             Legal
           </p>
           <h1 className="mt-2 text-[28px] font-bold tracking-tight text-[color:var(--text-primary)] sm:text-[32px]">
@@ -91,7 +91,7 @@ export default function TermsPage() {
               Your use of the Service is also governed by our{" "}
               <Link
                 href="/privacy"
-                className="font-medium text-[color:var(--color-lime-700)] underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
+                className="font-normal text-[color:var(--color-lime-700)] underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
               >
                 Privacy Policy
               </Link>
@@ -148,7 +148,7 @@ export default function TermsPage() {
         <footer className="mt-16 border-t border-[color:var(--border-subtle)] pt-6">
           <Link
             href="/invoices"
-            className="text-sm font-medium text-[color:var(--color-lime-700)] hover:text-[color:var(--text-primary)] transition-colors"
+            className="text-sm font-normal text-[color:var(--color-lime-700)] hover:text-[color:var(--text-primary)] transition-colors"
           >
             ← Back to Invoices
           </Link>

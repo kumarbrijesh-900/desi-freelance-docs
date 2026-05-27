@@ -16,7 +16,7 @@ function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClien
   if (msa === 'accepted' && status !== 'settled') return { bg: '#5DCAA5', fg: '#04342C', label: 'locked' };
   if (msa === 'proposed') return { bg: '#BA7517', fg: '#FFFFFF', label: 'awaiting client' };
   if (msa === 'pending' && status === 'finalized') return { bg: '#BA7517', fg: '#FFFFFF', label: 'awaiting client' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: '#D4FF00', fg: '#173404', label: 'live' };
+  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-lime-warm)', fg: '#173404', label: 'live' };
   if (status === 'complete') return { bg: '#00DCB4', fg: '#04342C', label: 'complete' };
   if (status === 'draft') return { bg: 'transparent', fg: '#000000', label: 'draft', border: true };
   return { bg: '#E5E5E5', fg: '#737373', label: status };
@@ -43,7 +43,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         INVOICES ({allInvoices.length})
       </div>
 
-      <div className="border-2 border-black bg-white shadow-[4px_4px_0_#000]">
+      <div className="border-2 border-black bg-white shadow-[4px_4px_0_#111118]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b-2 border-black bg-[#FAFAF5]">

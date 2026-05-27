@@ -77,9 +77,9 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
       statusLower === "partial" ||
       statusLower === "invoice-partial"
     ) {
-      // live or shared+msa-accepted -> filled lime (#D4FF00) circle, 16px
+      // live or shared+msa-accepted -> filled lime (var(--color-lime-warm)) circle, 16px
       return {
-        bg: "bg-[#D4FF00]",
+        bg: "bg-[color:var(--color-lime-warm)]",
         border: "border-2 border-[#111118]",
       };
     }
@@ -148,7 +148,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
                 <div
                   title={isScheduled ? `Scheduled for ${formatDate(m.trigger_date || "")}` : undefined}
                   className={cn(
-                    "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[1px_1px_0_#111118]",
+                    "relative flex w-[16px] h-[16px] items-center justify-center rounded-full transition-transform group-hover:scale-125 z-10 shadow-[var(--brutal-shadow-pressed)]",
                     style.bg,
                     style.border
                   )}
@@ -169,7 +169,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
                       {formatCurrency(m.amount)}
                     </span>
                   </p>
-                  <p className="text-[8px] font-medium text-gray-400 font-mono tracking-widest uppercase">
+                  <p className="text-[8px] font-normal text-gray-400 font-mono tracking-widest uppercase">
                     {m.invoice_number}
                   </p>
                 </div>

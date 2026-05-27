@@ -105,7 +105,7 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
       >
         <div className="flex items-center gap-1">
           <div
-            className="h-1.5 w-1.5 rounded-[1px]"
+            className="h-1.5 w-1.5 rounded-none"
             style={{ backgroundColor: barText, opacity: 0.5 }}
           />
           <div
@@ -194,7 +194,7 @@ function ThumbnailCard({
         transition-all duration-200
         ${
           isSelected
-            ? "border-[#BEFF00] shadow-[var(--brutal-shadow-md)]"
+            ? "border-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)]"
             : "border-[color:var(--border-subtle)] hover:border-[#111118]"
         }
         cursor-pointer
@@ -229,7 +229,7 @@ function ThumbnailCard({
 
         {/* Selected check */}
         {isSelected && (
-          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] shadow-sm">
+          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] shadow-sm">
             <CheckIcon className="h-2.5 w-2.5 text-[#111118]" />
           </div>
         )}
@@ -286,7 +286,7 @@ export default function TemplatePicker({
       {/* Header */}
       <div className="flex items-center gap-1.5 px-1">
         <PanelIcon className="h-3.5 w-3.5 text-[color:var(--text-muted)]" />
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
           Templates
         </span>
       </div>

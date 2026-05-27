@@ -52,7 +52,7 @@ export default function SettlementModal({
           {isSuccess ? (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#111118] bg-[#BEFF00] text-2xl font-black text-[#111118] shadow-[3px_3px_0_#111118]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-2xl font-black text-[#111118] shadow-[var(--brutal-shadow-md)]">
                   ✓
                 </div>
                 <h2 className="text-xl font-bold text-[color:var(--text-primary)]">
@@ -86,7 +86,7 @@ export default function SettlementModal({
                 {/* Amount Summary */}
                 <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[color:var(--text-muted)] font-medium">Milestone Subtotal</span>
+                    <span className="text-[color:var(--text-muted)] font-bold">Milestone Subtotal</span>
                     <span className="font-bold text-[color:var(--text-primary)] tabular-nums">
                       {currencySymbol}{subtotal.toLocaleString("en-IN")}
                     </span>
@@ -105,7 +105,7 @@ export default function SettlementModal({
                       onChange={(e) => setTdsPercent(Number(e.target.value))}
                       placeholder="0"
                       disabled={isBusy}
-                      className="w-full h-11 border-2 border-[#111118] bg-white px-4 text-sm outline-none transition-colors focus:bg-[color:var(--bg-surface-soft)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full h-11 border-2 border-[#111118] bg-white px-4 text-sm outline-none transition-colors )] disabled:cursor-not-allowed disabled:opacity-60 app-focus-ring"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[color:var(--text-muted)]">
                       %
@@ -128,7 +128,7 @@ export default function SettlementModal({
                 </div>
 
                 {errorMessage && (
-                  <div className="border-2 border-[#111118] bg-[#FFEBA4] px-4 py-3 text-xs font-semibold leading-5 text-[#111118]">
+                  <div className="border-2 border-[#111118] bg-[#FFEBA4] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[#111118]">
                     {errorMessage}
                   </div>
                 )}
@@ -147,7 +147,7 @@ export default function SettlementModal({
                   type="button"
                   onClick={() => onConfirm(tdsAmount)}
                   disabled={isBusy}
-                  className="flex-[2] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                  className="flex-[2] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isBusy ? "Settling..." : isError ? "Try Again" : "Confirm Settlement"}
                 </button>

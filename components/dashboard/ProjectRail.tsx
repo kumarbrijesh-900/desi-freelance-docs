@@ -129,7 +129,7 @@ export function ProjectRail({
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-[#D4FF00] border-2 border-black shadow-[3px_3px_0_#000] text-black font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-[color:var(--color-lime-warm)] border-2 border-black shadow-[3px_3px_0_#111118] text-black font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
         >
           + NEW INVOICE
         </button>
@@ -157,7 +157,7 @@ export function ProjectRail({
             placeholder="Search projects..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-black focus:outline-none focus:ring-1 focus:ring-black"
+            className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-black app-focus-ring"
           />
         </div>
       </div>
@@ -178,7 +178,7 @@ export function ProjectRail({
                   ${isSelected ? "bg-[#FAFAF5]" : "bg-white hover:bg-neutral-50"}
                 `}
               >
-                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#D4FF00]" />}
+                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[color:var(--color-lime-warm)]" />}
 
                 {dot && (
                   <div className="absolute top-4 right-4 w-[6px] h-[6px] rounded-full" style={{ backgroundColor: dot }} />

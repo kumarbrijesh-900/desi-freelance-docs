@@ -7,7 +7,7 @@ function iconProps(props: IconProps) {
     fill: "none",
     viewBox: "0 0 24 24",
     stroke: "currentColor",
-    strokeWidth: 1.8,
+    strokeWidth: 2.0,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
     "aria-hidden": true,

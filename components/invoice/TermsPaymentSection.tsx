@@ -276,7 +276,7 @@ export default function TermsPaymentSection({
           <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                   Payment & Contract Terms
                 </h3>
                 <div className="mt-1.5 flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function TermsPaymentSection({
                     "inline-flex items-center gap-1.5 border-2 px-2.5 py-0.5 text-[10px] font-bold",
                     isReadOnly
                       ? "border-[#111118] bg-[color:var(--bg-surface-soft)] text-[color:var(--text-soft)]"
-                      : "border-[#4F46E5] bg-[#EEF2FF] text-[#4F46E5]"
+                      : "border-[color:var(--brand-indigo-deep)] bg-[#EEF2FF] text-[color:var(--brand-indigo-deep)]"
                   )}>
                     {isReadOnly ? (
                       <>
@@ -293,7 +293,7 @@ export default function TermsPaymentSection({
                       </>
                     ) : (
                       <>
-                        <div className="h-1 w-1 rounded-full bg-[#4F46E5] animate-pulse"  />
+                        <div className="h-1 w-1 rounded-full bg-[color:var(--brand-indigo-deep)] animate-pulse"  />
                         Project Specific Terms
                       </>
                     )}
@@ -306,17 +306,17 @@ export default function TermsPaymentSection({
                 <button
                   type="button"
                   onClick={() => updateMetaField("hasAddendum", !isAddendumMode)}
-                  className="flex items-center gap-2.5 group focus:outline-none"
+                  className="flex items-center gap-2.5 group app-focus-ring"
                 >
                   <span className={cn(
                     "text-[10px] font-bold uppercase tracking-widest transition-colors",
-                    isAddendumMode ? "text-[#4F46E5]" : "text-[color:var(--text-soft)]"
+                    isAddendumMode ? "text-[color:var(--brand-indigo-deep)]" : "text-[color:var(--text-soft)]"
                   )}>
                     {isAddendumMode ? "Override Active" : "Override Terms"}
                   </span>
                   <div className={cn(
                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-                    isAddendumMode ? "bg-[#4F46E5]" : "bg-gray-200 group-hover:bg-gray-300"
+                    isAddendumMode ? "bg-[color:var(--brand-indigo-deep)]" : "bg-gray-200 group-hover:bg-gray-300"
                   )}>
                     <span
                       className={cn(
@@ -344,7 +344,7 @@ export default function TermsPaymentSection({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Payment Schedule</p>
-                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                        <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
                           {meta.paymentTerms === 0 ? "Due on Receipt" : `Net ${meta.paymentTerms} Days`}
                         </p>
                         <p className="text-[11px] text-[color:var(--text-muted)]">
@@ -354,7 +354,7 @@ export default function TermsPaymentSection({
 
                       <div className="space-y-1">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Intellectual Property</p>
-                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                        <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
                           {value.license.isLicenseIncluded ? "License Included ✓" : "No License"}
                         </p>
                         <p className="text-[11px] text-[color:var(--text-muted)]">
@@ -373,7 +373,7 @@ export default function TermsPaymentSection({
 
                       <div className="space-y-1 sm:border-l sm:border-[color:var(--border-subtle)] sm:pl-4">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-soft)]">Revision Policy</p>
-                        <p className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                        <p className="text-[13px] font-bold text-[color:var(--text-primary)]">
                           {client.freeRevisionRounds || 2} rounds included per deliverable
                         </p>
                         <p className="text-[11px] text-[color:var(--text-muted)]">
@@ -401,7 +401,7 @@ export default function TermsPaymentSection({
                           <div className="space-y-1.5">
                             <label className={appFieldLabelClass}>Settlement Type</label>
                             <div className={cn(
-                              "inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1",
+                              "inline-flex max-w-full flex-wrap gap-1 rounded-none border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] p-1",
                               isReadOnly && "opacity-60 cursor-not-allowed pointer-events-none"
                             )}>
                               {[
@@ -421,7 +421,7 @@ export default function TermsPaymentSection({
                                       disabled={isReadOnly}
                                       className="sr-only"
                                      />
-                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-[9px] border px-3 py-1 text-[12px] font-semibold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
+                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-none border px-3 py-1 text-[12px] font-bold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--text-primary)]" : "app-soft-choice-option text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]")}>
                                       {option.label}
                                     </span>
                                   </label>
@@ -488,7 +488,7 @@ export default function TermsPaymentSection({
                             )}
                            />
                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <span className="text-[12px] font-medium text-[color:var(--text-soft)]">Days</span>
+                            <span className="text-[12px] font-bold text-[color:var(--text-soft)]">Days</span>
                           </div>
                         </div>
                       </div>
@@ -502,7 +502,7 @@ export default function TermsPaymentSection({
                           <button
                             type="button"
                             onClick={() => updateMetaField("hasAddendum", true)}
-                            className="text-[10px] font-bold text-[#4F46E5] hover:underline"
+                            className="text-[10px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
                           >
                             Override to edit →
                           </button>
@@ -757,7 +757,7 @@ export default function TermsPaymentSection({
           {/* Section D: Bank Details */}
           <div className="mt-10">
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-muted)]">
                 Bank Details
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]"  />
@@ -1063,7 +1063,7 @@ export default function TermsPaymentSection({
                           </div>
                         </div>
 
-                        <div className="rounded-xl bg-[color:var(--bg-surface-muted)]/50 p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
+                        <div className="rounded-none bg-[color:var(--bg-surface-muted)]/50 p-5 ring-1 ring-inset ring-[color:var(--border-subtle)]">
                           <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-soft)] mb-4">Address Preview</p>
                           <pre className="whitespace-pre-wrap font-mono text-[11px] text-[color:var(--text-primary)] leading-relaxed">{value.bankAddress || "No address provided"}</pre>
                         </div>

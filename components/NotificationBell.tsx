@@ -143,7 +143,7 @@ export default function NotificationBell() {
             {hasUnread && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-[11px] font-semibold text-[#4F46E5] hover:underline"
+                className="text-[11px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
               >
                 Mark all as read
               </button>
@@ -156,7 +156,7 @@ export default function NotificationBell() {
                 <div className="mb-3  bg-[color:var(--bg-surface-muted)] p-3">
                   <BellIcon className="h-6 w-6 text-gray-300" />
                 </div>
-                <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                <p className="text-[13px] font-normal text-[color:var(--text-primary)]">
                   No active notifications
                 </p>
                 <p className="mt-1 text-[11px] text-[color:var(--text-muted)]">
@@ -200,7 +200,7 @@ export default function NotificationBell() {
                               setIsOpen(false);
                               handleMarkRead(n.id);
                             }}
-                            className="text-[11px] font-semibold text-[#4F46E5] hover:underline"
+                            className="text-[11px] font-bold text-[color:var(--brand-indigo-deep)] hover:underline"
                           >
                             View Invoice
                           </Link>
@@ -208,7 +208,7 @@ export default function NotificationBell() {
                         {!n.is_read && (
                           <button
                             onClick={() => handleMarkRead(n.id)}
-                            className="text-[11px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                            className="text-[11px] font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
                           >
                             Mark as read
                           </button>

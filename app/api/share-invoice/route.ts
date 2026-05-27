@@ -291,7 +291,7 @@ export async function POST(req: NextRequest) {
                     </p>
                     
                     <a href="${shareUrl}"
-                      style="display:inline-block;background:#111118;color:#d4ff00;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                      style="display:inline-block;background:#111118;color:var(--color-lime-warm);font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
                       ${content.cta}
                     </a>
                     

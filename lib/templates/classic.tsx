@@ -62,7 +62,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                   </span>
                 )}
                 {data.showAgencyGstin && (
-                  <span className="font-medium text-[#555]">
+                  <span className="font-bold text-[#555]">
                     GSTIN {data.agencyGstin}
                   </span>
                 )}
@@ -94,13 +94,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">
                   Date
                 </p>
-                <p className="text-[13px] font-medium">{data.invoiceDate}</p>
+                <p className="text-[13px] font-normal">{data.invoiceDate}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">
                   Due
                 </p>
-                <p className="text-[13px] font-medium text-[#E63946]">
+                <p className="text-[13px] font-normal text-[#E63946]">
                   {data.dueDate}
                 </p>
               </div>
@@ -139,7 +139,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A08E] mb-1">
               Payment Terms
             </p>
-            <p className="text-[13px] font-medium">{data.paymentTerms}</p>
+            <p className="text-[13px] font-normal">{data.paymentTerms}</p>
             {data.isInternational && (
               <p className="mt-2 text-[11px] font-bold text-[#111118]">
                 CURRENCY: {data.displayCurrency}
@@ -207,12 +207,12 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                     </div>
                     <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#444]">
                       {item.type && (
-                        <span className="font-medium">{item.type}</span>
+                        <span className="font-bold">{item.type}</span>
                       )}
                       {item.sacCode && (
                         <span>
                           <span className="text-[#888]">HSN/SAC:</span>{" "}
-                          <span className="font-semibold text-[#222]">
+                          <span className="font-bold text-[#222]">
                             {item.sacCode}
                           </span>
                         </span>
@@ -220,15 +220,15 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                       {item.unit && (
                         <span>
                           <span className="text-[#888]">Unit:</span>{" "}
-                          <span className="font-medium">{item.unit}</span>
+                          <span className="font-bold">{item.unit}</span>
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="py-6 text-center text-[14px] font-medium">
+                  <td className="py-6 text-center text-[14px] font-normal">
                     {item.qty}
                   </td>
-                  <td className="py-6 text-right text-[14px] font-medium">
+                  <td className="py-6 text-right text-[14px] font-normal">
                     {item.rateFormatted}
                   </td>
                   <td className="py-6 text-right text-[15px] font-bold">
@@ -255,13 +255,13 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
           <MilestoneSummaryBlock data={data} />
           <div className="flex justify-between text-[13px] text-[#555]">
             <span>Subtotal</span>
-            <span className="font-medium text-[#111118]">
+            <span className="font-bold text-[#111118]">
               {data.subtotalFormatted}
             </span>
           </div>
           <div className="flex justify-between text-[13px] text-[#555]">
             <span>{data.taxLabel}</span>
-            <span className="font-medium text-[#111118]">
+            <span className="font-bold text-[#111118]">
               {data.taxFormatted}
             </span>
           </div>
@@ -274,7 +274,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
             </span>
           </div>
           {data.amountInWords && (
-            <p className="text-right text-[11px] font-medium text-[#555] italic pt-1">
+            <p className="text-right text-[11px] font-normal text-[#555] italic pt-1">
               {data.amountInWords}
             </p>
           )}
@@ -357,7 +357,7 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
                 </div>
               )}
               <div className="h-px w-48 bg-[#111118] mb-2" />
-              <p className="text-[9px] text-[#A8A08E] uppercase tracking-widest font-medium">
+              <p className="text-[9px] text-[#A8A08E] uppercase tracking-widest font-normal">
                 Digital Signature
               </p>
             </div>

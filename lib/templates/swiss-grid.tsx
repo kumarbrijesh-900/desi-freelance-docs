@@ -130,7 +130,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                 <span className="w-12 shrink-0 font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
                   {label}
                 </span>
-                <span className="font-medium text-[#1D3557]">{value}</span>
+                <span className="font-bold text-[#1D3557]">{value}</span>
               </div>
             ))}
           </div>
@@ -244,7 +244,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                     }`}
                   >
                     <td className="px-2 py-2 align-top">
-                      <span className="font-semibold text-[#1D3557]">
+                      <span className="font-bold text-[#1D3557]">
                         {item.description}
                       </span>
                       <span className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-[#457B9D]">
@@ -353,7 +353,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               <span className="font-bold uppercase tracking-[0.15em] text-[#A8DADC]">
                 Subtotal
               </span>
-              <span className="font-mono tabular-nums font-medium text-[#1D3557]">
+              <span className="font-mono tabular-nums font-bold text-[#1D3557]">
                 {data.subtotalFormatted}
               </span>
             </div>
@@ -361,7 +361,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               <span className="font-bold uppercase tracking-[0.15em] text-[#A8DADC]">
                 {data.taxLabel}
               </span>
-              <span className="font-mono tabular-nums font-medium text-[#1D3557]">
+              <span className="font-mono tabular-nums font-bold text-[#1D3557]">
                 {data.taxFormatted}
               </span>
             </div>
@@ -396,7 +396,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
             <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-[#E63946] print:text-[#666]">
               Amount in Words
             </p>
-            <p className="mt-1.5 text-[11px] font-semibold text-[#1D3557]">
+            <p className="mt-1.5 text-[11px] font-bold text-[#1D3557]">
               {data.amountInWords}
             </p>
             {data.reverseCharge && (
@@ -424,7 +424,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               </div>
             ) : (
               <div className="mt-2 w-full border-b-2 border-[#1D3557] pb-1">
-                <p className="text-[11px] font-medium text-[#457B9D]">
+                <p className="text-[11px] font-normal text-[#457B9D]">
                   {data.authorizedSignatory || data.agencyName}
                 </p>
               </div>

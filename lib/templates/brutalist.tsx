@@ -101,14 +101,14 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
               return (
                 <tr key={item.id} className="border-b border-black/20">
                   <td className="py-4 px-4">
-                    <p className="font-medium text-[12px]">{item.description}</p>
+                    <p className="font-normal text-[12px]">{item.description}</p>
                     <div className="mt-0.5 text-[9px] text-black/40 flex gap-3">
                       {item.type && <span>{item.type}</span>}
                       {item.sacCode && <span>SAC:{item.sacCode}</span>}
                       {item.unit && <span>{item.unit}</span>}
                     </div>
                   </td>
-                  <td className="py-4 px-2 text-center text-[12px] font-medium">{item.qty}</td>
+                  <td className="py-4 px-2 text-center text-[12px] font-normal">{item.qty}</td>
                   <td className="py-4 px-2 text-right text-[12px]">{item.rateFormatted}</td>
                   <td className="py-4 px-4 text-right text-[13px] font-bold">{item.amountFormatted}</td>
                 </tr>

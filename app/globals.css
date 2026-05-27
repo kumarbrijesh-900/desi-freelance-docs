@@ -16,10 +16,16 @@
   --color-text-soft: #76767F;
   --color-text-on-dark: #ffffff;
 
+  --app-radius-pill: 9999px;
+  --app-radius-circular: 50%;
+  --app-radius-card: 0px;
+  --app-radius-button: 0px;
+  --app-radius-control: 0px;
+
   --color-lime-50: #F4FFE0;
   --color-lime-100: #E8FFC2;
   --color-lime-200: #D4FF8A;
-  --color-lime-300: #BEFF00;
+  --color-lime-300: var(--color-lime-warm);
   --color-lime-400: #A8E600;
   --color-lime-500: #8FCC00;
   --color-lime-600: #6B9900;
@@ -87,6 +93,38 @@
   --interactive-secondary-hover: var(--color-coral-500);
   --interactive-secondary-pressed: var(--color-coral-600);
 
+  /* Semantic Brand Colors */
+  --color-lime-warm: var(--color-lime-warm);
+  --brand-indigo-deep: var(--brand-indigo-deep);
+
+  /* Neo-Brutalist Shadows */
+  --brutal-shadow-sm: 2px 2px 0 #111118;
+  --brutal-shadow-md: 4px 4px 0 #111118;
+  --brutal-shadow-lg: 6px 6px 0 #111118;
+  --brutal-shadow-pressed: 1px 1px 0 #111118;
+
+  /* Neo-Brutalist Borders */
+  --brutal-border-width: 2px;
+  --brutal-border-color: #111118;
+
+  /* Z-Index Hierarchy */
+  --z-index-base: 10;
+  --z-index-elevated: 20;
+  --z-index-dropdown: 50;
+  --z-index-modal: 100;
+  --z-index-toast: 9999;
+
+  /* Typography Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
   --state-success-bg: var(--color-cyan-50);
   --state-success-border: var(--color-cyan-600);
   --state-success-text: var(--color-cyan-700);
@@ -696,14 +734,61 @@ input:focus, select:focus, textarea:focus {
 /* --- Reduced motion --- */
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .app-interactive-button,
-  .app-interactive-surface,
-  .app-interactive-field,
-  .app-dropzone-surface { transition: none !important; }
-  .app-soft-button:hover,
-  .app-soft-button:active { transform: none; }
-  .app-soft-field-error { animation: none; box-shadow: 3px 3px 0 var(--color-coral-400); }
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Strip physical translation/motion for Neo-Brutalist elements */
+  *:active, *:hover, .app-soft-button:hover, .app-soft-button:active {
+    transform: none !important;
+  }
+  
+  .app-soft-field-error { 
+    animation: none !important; 
+  }
+}
+
+/* --- Print Styles --- */
+
+@media print {
+  /* Hide all non-essential UI */
+  nav, header, .sidebar, .print\:hidden, button, [role="button"], .invoice-action-dock, .app-dropzone-surface {
+    display: none !important;
+  }
+
+  /* Full width for printing */
+  main, .invoice-editor-container, .max-w-7xl, .max-w-4xl {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Flatten Neo-Brutalist Shadows to save ink */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Prevent page breaks inside critical elements */
+  .invoice-line-item-row, .invoice-line-item-workspace, .invoice-total-summary-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Ensure backgrounds print correctly if user enables background printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 
 /* --- Scrollbar hide --- */

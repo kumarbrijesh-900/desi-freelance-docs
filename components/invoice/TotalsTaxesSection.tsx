@@ -171,7 +171,7 @@ export default function TotalsTaxesSection({
         >
           <div className="overflow-hidden">
             <div className="mt-4 rounded-[var(--app-radius-card)] bg-[color:var(--state-warning-bg)] p-4 ring-1 ring-inset ring-[color:var(--state-warning-border)]">
-              <p className="text-sm font-medium leading-6 text-[color:var(--state-warning-text)]">
+              <p className="text-sm font-normal leading-6 text-[color:var(--state-warning-text)]">
                 No valid LUT has been provided for this international invoice.
                 Export of services may require 18% IGST. Choose how you want to
                 handle this invoice.
@@ -202,7 +202,7 @@ export default function TotalsTaxesSection({
                 </p>
               ) : null}
               {typeof estimatedIgstLiability === "number" ? (
-                <p className="mt-2 text-sm font-medium leading-6 text-[color:var(--state-warning-text)]">
+                <p className="mt-2 text-sm font-normal leading-6 text-[color:var(--state-warning-text)]">
                   Estimated IGST liability:{" "}
                   {formatCurrency(estimatedIgstLiability, "INR")}
                 </p>
@@ -217,7 +217,7 @@ export default function TotalsTaxesSection({
           <div className="space-y-4">
             <div className="flex items-center justify-between text-[14px]">
               <dt className="text-[color:var(--text-muted)]">Subtotal</dt>
-              <dd className="font-medium text-[color:var(--text-primary)]">
+              <dd className="font-normal text-[color:var(--text-primary)]">
                 {formatCurrency(subtotal, currency)}
               </dd>
             </div>
@@ -228,7 +228,7 @@ export default function TotalsTaxesSection({
                   ? `Tax (${effectiveRate}% ${taxModeSummaryLabel})` 
                   : "Tax (0%)"}
               </dt>
-              <dd className="text-right font-medium text-[color:var(--text-primary)]">
+              <dd className="text-right font-normal text-[color:var(--text-primary)]">
                 {formatCurrency(taxAmount, currency)}
                 {isRcmEnabled ? (
                   <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#4A7A00]">
@@ -247,7 +247,7 @@ export default function TotalsTaxesSection({
                 <span
                   className={cn(
                     "tracking-tight [font-variant-numeric:tabular-nums] text-[28px] font-bold transition-colors",
-                    grandTotal > 0 ? "text-[#4F46E5]" : "text-gray-300"
+                    grandTotal > 0 ? "text-[color:var(--brand-indigo-deep)]" : "text-gray-300"
                   )}
                 >
                   {formatCurrency(displayTotal, currency)}
@@ -293,11 +293,11 @@ export default function TotalsTaxesSection({
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] font-medium text-[color:var(--text-muted)]">Advanced Options</span>
+                  <span className="text-[12px] font-bold text-[color:var(--text-muted)]">Advanced Options</span>
                   <button
                     type="button"
                     onClick={() => setShowAdvanced(false)}
-                    className="text-[11px] font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
+                    className="text-[11px] font-normal text-[color:var(--text-muted)] hover:text-[color:var(--text-secondary)]"
                   >
                     Hide
                   </button>
@@ -311,7 +311,7 @@ export default function TotalsTaxesSection({
                 >
                   <div className="flex min-h-[44px] flex-wrap items-center justify-between gap-2 py-2 sm:py-0 sm:h-[44px]">
                     <div className="flex min-w-0 flex-wrap items-center gap-1.5 group">
-                      <span className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                      <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
                         Reverse Charge (RCM)
                       </span>
                       <AppTooltip content={<>
@@ -324,7 +324,7 @@ export default function TotalsTaxesSection({
                     />
                   </div>
                   {isRcmEnabled ? (
-                    <div className="mb-3 border-2 border-[#111118] bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-semibold leading-relaxed text-[#111118] shadow-[1px_1px_0_#111118] break-normal">
+                    <div className="mb-3 border-2 border-[#111118] bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[#111118] shadow-[var(--brutal-shadow-pressed)] break-normal">
                       Reverse Charge is active. The client is responsible for paying GST directly to the government instead of the freelancer/agency collecting it.
                     </div>
                   ) : null}
@@ -336,7 +336,7 @@ export default function TotalsTaxesSection({
           {/* Payment Footer */}
           {(paymentTerms || bankName) && (
             <div className="mt-4 pt-4 border-t border-[color:var(--border-subtle)]">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
                 Settlement
               </p>
               <div className="flex flex-wrap items-center gap-2">
@@ -357,7 +357,7 @@ export default function TotalsTaxesSection({
 
         {grandTotalReferenceLabel && typeof grandTotalReferenceAmount === "number" && (
           <p className="mt-4 px-2 text-[11px] text-[color:var(--text-secondary)]">
-            {grandTotalReferenceLabel}: <span className="font-semibold text-[color:var(--text-primary)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
+            {grandTotalReferenceLabel}: <span className="font-bold text-[color:var(--text-primary)]">{formatCurrency(grandTotalReferenceAmount, "USD")}</span>
           </p>
         )}
       </div>

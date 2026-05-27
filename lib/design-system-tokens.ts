@@ -16,12 +16,12 @@ export const appColorTokens = {
 } as const;
 
 export const appTypographyTokens = {
-  display: "text-[28px] font-semibold tracking-tight",
-  sectionTitle: "text-xl font-semibold tracking-tight",
-  label: "text-sm font-medium tracking-tight",
-  body: "text-sm leading-6",
-  helper: "text-[11px] leading-5",
-  micro: "text-[11px] font-semibold uppercase tracking-[0.16em]",
+  display: "text-[28px] font-black tracking-tight",
+  sectionTitle: "text-xl font-bold tracking-tight",
+  label: "text-sm font-bold tracking-tight",
+  body: "text-sm leading-6 font-normal",
+  helper: "text-[11px] leading-5 font-normal",
+  micro: "text-[10px] font-bold uppercase tracking-[0.16em]",
 } as const;
 
 export const appSpacingTokens = {

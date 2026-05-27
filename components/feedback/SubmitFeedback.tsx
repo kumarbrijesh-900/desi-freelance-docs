@@ -72,7 +72,7 @@ export default function SubmitFeedback() {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-[color:var(--text-primary)] mb-2">
+        <h3 className="text-lg font-black tracking-tight text-[color:var(--text-primary)] mb-2">
           Feedback Received!
         </h3>
         <p className="text-[color:var(--text-secondary)] mb-6">
@@ -81,7 +81,7 @@ export default function SubmitFeedback() {
         </p>
         <button
           onClick={() => setIsSuccess(false)}
-          className="text-sm font-medium text-[#4F46E5] hover:underline"
+          className="text-sm font-normal text-[color:var(--brand-indigo-deep)] hover:underline"
         >
           Submit another feedback
         </button>

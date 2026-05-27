@@ -41,11 +41,11 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           <div className="mt-4 space-y-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.2em] text-[#B09098]">Date</p>
-              <p className="text-[12px] font-medium">{data.invoiceDate}</p>
+              <p className="text-[12px] font-normal">{data.invoiceDate}</p>
             </div>
             <div>
               <p className="text-[9px] uppercase tracking-[0.2em] text-[#B09098]">Due</p>
-              <p className="text-[12px] font-medium text-[#E11D48]">{data.dueDate}</p>
+              <p className="text-[12px] font-normal text-[#E11D48]">{data.dueDate}</p>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           </div>
           <div className="text-right self-end">
             <p className="text-[9px] uppercase tracking-[0.25em] text-[#B09098] mb-1">Terms</p>
-            <p className="text-[12px] font-medium">{data.paymentTerms}</p>
+            <p className="text-[12px] font-normal">{data.paymentTerms}</p>
             {data.isInternational && <p className="mt-1 text-[10px] font-bold">Currency: {data.displayCurrency}</p>}
           </div>
         </div>
@@ -128,10 +128,10 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
         <div className="w-[280px] space-y-2">
           <MilestoneSummaryBlock data={data} />
           <div className="flex justify-between text-[11px] text-[#8B7078]">
-            <span>Subtotal</span><span className="font-medium text-[#2D2024]">{data.subtotalFormatted}</span>
+            <span>Subtotal</span><span className="font-bold text-[#2D2024]">{data.subtotalFormatted}</span>
           </div>
           <div className="flex justify-between text-[11px] text-[#8B7078]">
-            <span>{data.taxLabel}</span><span className="font-medium text-[#2D2024]">{data.taxFormatted}</span>
+            <span>{data.taxLabel}</span><span className="font-bold text-[#2D2024]">{data.taxFormatted}</span>
           </div>
           <div className="pt-3 border-t border-[#E11D48]/30 flex justify-between items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Total due</span>

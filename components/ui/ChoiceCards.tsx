@@ -31,7 +31,7 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-[8px] p-1 ${columns === 2 ? "grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-none p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "minimal-segmented"
         ? cn(
             "flex items-center gap-1 border border-[color:var(--border-default)] rounded-[var(--app-radius-control)] p-1 h-11 bg-transparent",
@@ -43,7 +43,7 @@ export default function ChoiceCards<T extends string>({
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-[6px] border px-3 py-2 text-left text-[13px] font-medium transition-all duration-150 ${
+      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-none border px-3 py-2 text-left text-[13px] font-normal transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
           : "app-soft-choice-option text-[color:var(--text-primary)] opacity-65 hover:opacity-100"
@@ -51,7 +51,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "minimal-segmented") {
-      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-[4px] px-3 py-1 text-center text-[13px] font-medium transition-all duration-200 ${
+      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-none px-3 py-1 text-center text-[13px] font-normal transition-all duration-200 ${
         isSelected
           ? "bg-white text-[color:var(--text-primary)] shadow-sm ring-1 ring-black/5"
           : "bg-transparent text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)]"
@@ -59,7 +59,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "inline") {
-      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-full border px-3 py-1.5 text-left text-[13px] font-medium whitespace-nowrap transition-all duration-150 ${
+      return `inline-flex min-h-9 min-w-fit items-center justify-center rounded-[var(--app-radius-pill)] border px-3 py-1.5 text-left text-[13px] font-normal whitespace-nowrap transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--text-primary)]"
           : "app-soft-choice-option text-[color:var(--text-primary)] opacity-65 hover:opacity-100"
@@ -143,7 +143,7 @@ export default function ChoiceCards<T extends string>({
               >
                 <span
                   className={cn(
-                    "block text-[13px] font-medium",
+                    "block text-[13px] font-normal",
                     variant === "segmented" || variant === "minimal-segmented"
                       ? "break-words leading-[1.35]"
                       : "leading-5",
@@ -172,7 +172,7 @@ export default function ChoiceCards<T extends string>({
                     variant === "minimal-segmented" ? undefined : `${name}-dot`
                   }
                   aria-hidden="true"
-                  className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-full ${
+                  className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-[var(--app-radius-circular)] ${
                     isSelected
                       ? "bg-[color:var(--text-primary)]"
                       : "bg-[color:var(--border-strong)]"

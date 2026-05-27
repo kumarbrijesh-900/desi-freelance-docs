@@ -111,7 +111,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         <p className="text-[10px] uppercase tracking-[0.3em] text-[#6C63FF] print:text-[#666]">
           Bill To
         </p>
-        <p className="mt-1.5 text-[16px] font-semibold">{data.clientName}</p>
+        <p className="mt-1.5 text-[16px] font-bold">{data.clientName}</p>
         {data.clientAddress && data.clientAddress !== "—" && (
           <p className="mt-1 whitespace-pre-line text-[12px] text-[#666]">
             {data.clientAddress}
@@ -148,11 +148,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         <div className="mt-6">
           {/* Table Header - Desktop Only */}
           <div className="hidden md:grid md:grid-cols-[1fr_80px_120px_80px_110px] gap-4 border-b border-[#6C63FF]/20 pb-3 text-[9px] uppercase tracking-[0.16em] text-[#999] px-2">
-            <div className="font-semibold">Description</div>
-            <div className="font-semibold text-center">Qty</div>
-            <div className="font-semibold">Rate</div>
-            <div className="font-semibold">Unit</div>
-            <div className="font-semibold text-right">Amount</div>
+            <div className="font-bold">Description</div>
+            <div className="font-bold text-center">Qty</div>
+            <div className="font-bold">Rate</div>
+            <div className="font-bold">Unit</div>
+            <div className="font-bold text-right">Amount</div>
           </div>
 
           {/* Line Items */}
@@ -195,17 +195,17 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                   {/* Mobile: Description + Total row */}
                   <div className="flex justify-between items-start md:block">
                     <div className="min-w-0">
-                      <p className="text-[14px] font-bold text-[#1A1A2E] leading-tight md:font-semibold md:text-[13px]">
+                      <p className="text-[14px] font-bold text-[#1A1A2E] leading-tight md:font-bold md:text-[13px]">
                         {item.description}
                       </p>
                       {/* Desktop Subtext */}
                       <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#888]">
                         {item.type && (
-                          <span className="font-medium text-[#aaa]">{item.type}</span>
+                          <span className="font-bold text-[#aaa]">{item.type}</span>
                         )}
                         {item.sacCode && (
                           <span>
-                            HSN/SAC: <span className="font-semibold text-[#ccc]">{item.sacCode}</span>
+                            HSN/SAC: <span className="font-bold text-[#ccc]">{item.sacCode}</span>
                           </span>
                         )}
                       </div>
@@ -228,17 +228,17 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-[11px] text-[#888] font-medium">
+                      <p className="text-[11px] text-[#888] font-normal">
                         {item.qty} {item.unit} × {item.rateFormatted}
                       </p>
                     </div>
                   </div>
 
                   {/* Desktop-only Columns */}
-                  <div className="hidden md:flex items-center justify-center tabular-nums text-[13px] font-medium">
+                  <div className="hidden md:flex items-center justify-center tabular-nums text-[13px] font-normal">
                     {item.qty}
                   </div>
-                  <div className="hidden md:flex items-center tabular-nums text-[13px] font-medium">
+                  <div className="hidden md:flex items-center tabular-nums text-[13px] font-normal">
                     {item.rateFormatted}
                   </div>
                   <div className="hidden md:flex items-center text-[12px] text-[#666]">
@@ -320,13 +320,13 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             <MilestoneSummaryBlock data={data} textColor="#aaa" borderColor="#333" accentColor="#fff" />
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="tabular-nums font-medium text-[#1A1A2E]">
+              <span className="tabular-nums font-bold text-[#1A1A2E]">
                 {data.subtotalFormatted}
               </span>
             </div>
             <div className="flex justify-between">
               <span>{data.taxLabel}</span>
-              <span className="tabular-nums font-medium text-[#1A1A2E]">
+              <span className="tabular-nums font-bold text-[#1A1A2E]">
                 {data.taxFormatted}
               </span>
             </div>
@@ -359,7 +359,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">
               Amount in Words
             </p>
-            <p className="mt-1.5 text-[12px] font-semibold text-[#1A1A2E]">
+            <p className="mt-1.5 text-[12px] font-bold text-[#1A1A2E]">
               {data.amountInWords}
             </p>
             {data.reverseCharge && (
@@ -387,7 +387,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
               </div>
             ) : (
               <div className="mt-2 w-full border-b border-[#1A1A2E] pb-1">
-                <p className="text-[12px] font-medium text-[#666]">
+                <p className="text-[12px] font-normal text-[#666]">
                   {data.authorizedSignatory || data.agencyName}
                 </p>
               </div>

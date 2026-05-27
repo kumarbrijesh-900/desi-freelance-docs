@@ -200,7 +200,7 @@ export default function PublicInvoiceSharePage({
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)]">
               <DocumentSparkIcon className="h-5 w-5 text-[color:var(--text-secondary)]" />
             </span>
-            <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+            <p className="text-sm font-bold text-[color:var(--text-primary)]">
               Loading invoice…
             </p>
           </div>
@@ -254,7 +254,7 @@ export default function PublicInvoiceSharePage({
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex items-center gap-2.5 border border-green-200 bg-green-50 px-5 py-3 shadow-lg">
             <span className="text-green-600 text-base">✓</span>
-            <p className="text-sm font-semibold text-green-800">
+            <p className="text-sm font-bold text-green-800">
               Terms accepted — invoice is now active
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function PublicInvoiceSharePage({
 
       {showProposedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 border-2 border-[#111118] bg-[#FFD700] px-5 py-3 shadow-[4px_4px_0_#111118]">
+          <div className="flex items-center gap-2.5 border-2 border-[#111118] bg-[#FFD700] px-5 py-3 shadow-[var(--brutal-shadow-md)]">
             <span className="text-[#111118] font-bold text-base">✓</span>
             <p className="text-sm font-bold text-[#111118]">
               Proposal sent — waiting for the freelancer to review your changes.

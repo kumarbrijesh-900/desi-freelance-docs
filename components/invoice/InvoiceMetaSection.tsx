@@ -131,7 +131,7 @@ export default function InvoiceMetaSection({
         {/* Section A: Identity */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
               Identity
             </h3>
             <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -154,11 +154,11 @@ export default function InvoiceMetaSection({
                     setCopiedField('invoiceNumber');
                     setTimeout(() => setCopiedField(null), 1500);
                   }}
-                  className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
+                  className="inline-flex items-center gap-1.5 text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
                   title="Click to copy"
                 >
-                  <span className="text-[11px] font-medium">Copy</span>
-                  <span className="text-[12px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
+                  <span className="text-[11px] font-bold">Copy</span>
+                  <span className="text-[12px] text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
                     {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
                   </span>
                 </button>
@@ -214,7 +214,7 @@ export default function InvoiceMetaSection({
         {/* Section B: Timelines */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
               Timelines
             </h3>
             <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -272,7 +272,7 @@ export default function InvoiceMetaSection({
                 <p className={appFieldErrorTextClass}>{dueDateError}</p>
               ) : (
                 value.invoiceDate && value.dueDate && (
-                  <p className="mt-1 text-[10px] font-medium text-[color:var(--text-soft)]">
+                  <p className="mt-1 text-[10px] font-normal text-[color:var(--text-soft)]">
                     {(() => {
                       const days = getDaysDifference(value.invoiceDate, value.dueDate);
                       const sourceLabel = {

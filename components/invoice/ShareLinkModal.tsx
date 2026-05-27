@@ -68,7 +68,7 @@ function MsaStatusBadge({ response }: { response: MsaResponse }) {
   const { label, classes } = map[response] ?? map.pending;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${classes}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${classes}`}
     >
       {response === "accepted" && <CheckCircleIcon className="h-3 w-3" />}
       {label}
@@ -226,7 +226,7 @@ export default function ShareLinkModal({
       <div className="flex gap-3 justify-center">
         <a
           href="/dashboard"
-          className="border-2 border-[#111118] bg-[#BEFF00] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
+          className="border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
         >
           Go to Dashboard
         </a>
@@ -269,20 +269,20 @@ export default function ShareLinkModal({
 
             {/* ── Recipient (read-only) ── */}
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                 Sending to
               </label>
               <div className="mt-1.5 flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" />
                 <span
-                  className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-medium" : "text-[color:var(--text-muted)] italic"}`}
+                  className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--text-primary)] font-normal" : "text-[color:var(--text-muted)] italic"}`}
                 >
                   {clientEmail?.trim() ||
                     "No client email — add it in the editor first"}
                 </span>
               </div>
               {!clientEmail?.trim() && (
-                <p className="mt-1.5 text-xs text-[#FF5C00] font-medium">
+                <p className="mt-1.5 text-[#FF5C00] text-[10px] font-bold uppercase tracking-[0.16em]">
                   ← Go back to Step 2 and add the client email to continue.
                 </p>
               )}
@@ -295,7 +295,7 @@ export default function ShareLinkModal({
               return (
                 <div className="border-2 border-[#111118] bg-[color:var(--bg-surface-soft)] p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                       Milestone Billing
                     </span>
                     <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">
@@ -311,12 +311,12 @@ export default function ShareLinkModal({
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-[color:var(--text-secondary)]">Remaining milestones</span>
-                      <span className="font-medium text-[color:var(--text-muted)]">
+                      <span className="font-bold text-[color:var(--text-muted)]">
                         {framing.symbol}{framing.remainingAmount.toLocaleString("en-IN")}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm border-t border-[color:var(--border-subtle)] pt-2 mt-1">
-                      <span className="font-semibold text-[color:var(--text-primary)]">Total project</span>
+                      <span className="font-bold text-[color:var(--text-primary)]">Total project</span>
                       <span className="font-bold text-[color:var(--text-primary)]">
                         {framing.symbol}{framing.totalProject.toLocaleString("en-IN")}
                       </span>
@@ -334,7 +334,7 @@ export default function ShareLinkModal({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DocumentSparkIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
                     MSA Gating
                   </span>
                   {currentMsaId && <MsaStatusBadge response={msaResponse} />}
@@ -367,27 +367,27 @@ export default function ShareLinkModal({
                 <ul className="space-y-2.5">
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Payment terms:</span> {effectivePaymentTerms}
+                    <span className="font-bold">Payment terms:</span> {effectivePaymentTerms}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {lateFeeUnit}
+                    <span className="font-bold">Late fee:</span> {invoiceData?.client?.msaLateFeeRate || "1.5"}% {lateFeeUnit}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">IP Rights:</span> {invoiceData?.client?.msaIpTriggerType?.replace(/_/g, " ") || "Full Transfer"}
+                    <span className="font-bold">IP Rights:</span> {invoiceData?.client?.msaIpTriggerType?.replace(/_/g, " ") || "Full Transfer"}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Jurisdiction:</span> {invoiceData?.client?.msaJurisdictionCity || "Agency City"}
+                    <span className="font-bold">Jurisdiction:</span> {invoiceData?.client?.msaJurisdictionCity || "Agency City"}
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Revision rounds:</span> {invoiceData?.client?.freeRevisionRounds ?? 2} free per deliverable
+                    <span className="font-bold">Revision rounds:</span> {invoiceData?.client?.freeRevisionRounds ?? 2} free per deliverable
                   </li>
                   <li className="flex items-center gap-2 text-[13px] text-[color:var(--text-primary)]">
                     <span className="h-1 w-1 rounded-full bg-[color:var(--color-lime-600)]" />
-                    <span className="font-semibold">Extra revision fee:</span> {invoiceData?.client?.extraRevisionFeePercent ?? 15}% of line item per round
+                    <span className="font-bold">Extra revision fee:</span> {invoiceData?.client?.extraRevisionFeePercent ?? 15}% of line item per round
                   </li>
                 </ul>
                 <p className="mt-4 border-t border-[color:var(--border-subtle)] pt-3 text-[11px] text-[color:var(--text-muted)] leading-relaxed italic">
@@ -417,7 +417,7 @@ export default function ShareLinkModal({
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !clientEmail?.trim()}
-                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">
                   <SendIcon className="h-4 w-4" />

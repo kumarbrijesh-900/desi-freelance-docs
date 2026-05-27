@@ -431,7 +431,7 @@ function ClientForm({
                   <button
                     type="button"
                     onClick={() => setShowEffectiveDate(true)}
-                    className="text-[12px] font-medium text-[color:var(--brand-indigo)] hover:underline"
+                    className="text-[12px] font-normal text-[color:var(--brand-indigo)] hover:underline"
                   >
                     Set effective date →
                   </button>
@@ -779,7 +779,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
             Could not load your clients
           </p>
           <p className="max-w-md text-[13px] leading-6 text-[color:var(--text-muted)]">
@@ -802,7 +802,7 @@ export default function ClientsPage() {
       <main className={appPageShellClass}>
         <AppHeader />
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-          <p className="text-lg font-semibold text-[color:var(--text-primary)]">
+          <p className="text-lg font-black tracking-tight text-[color:var(--text-primary)]">
             Sign in to manage your clients
           </p>
           <Link
@@ -865,8 +865,8 @@ export default function ClientsPage() {
               {clients.length === 0 ? (
                 /* Empty state */
                 <div className="flex flex-col items-center justify-center gap-5 py-16 text-center border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-                  <div className="flex h-14 w-14 items-center justify-center bg-[#BEFF00] border-2 border-[#111118]">
-                    <svg className="h-7 w-7 text-[#4F46E5]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <div className="flex h-14 w-14 items-center justify-center bg-[color:var(--color-lime-warm)] border-2 border-[#111118]">
+                    <svg className="h-7 w-7 text-[color:var(--brand-indigo-deep)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                     </svg>
                   </div>
@@ -910,25 +910,25 @@ export default function ClientsPage() {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-muted)]">
-                          <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                          <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
                             Client Name
                           </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] sm:table-cell">
+                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] sm:table-cell">
                             Email
                           </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
+                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
                             City
                           </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
+                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
                             GSTIN
                           </th>
-                          <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                          <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
                             Type
                           </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] lg:table-cell">
+                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] lg:table-cell">
                             Invoices
                           </th>
-                          <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
+                          <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
                             Actions
                           </th>
                         </tr>
@@ -947,7 +947,7 @@ export default function ClientsPage() {
                             <td className="px-4 py-3">
                               <Link
                                 href={`/clients/${client.id}`}
-                                className="text-[13px] font-semibold text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo)] transition-colors"
+                                className="text-[13px] font-bold text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo)] transition-colors"
                               >
                                 {client.client_name || "Unnamed"}
                               </Link>
@@ -1006,7 +1006,7 @@ export default function ClientsPage() {
                             <td className="px-4 py-3 text-right">
                               {deletingClientId === client.id ? (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  <span className="text-[11px] text-[#FF5C00] font-medium mr-1">
+                                  <span className="text-[11px] text-[#FF5C00] font-bold mr-1">
                                     Delete?
                                   </span>
                                   <button

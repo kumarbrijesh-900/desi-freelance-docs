@@ -292,7 +292,7 @@ export default function ClientDetailsSection({
     ].filter(Boolean).join(" · ") || "No terms configured — expand to set up";
 
   const generateClauseButtonClass =
-    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
+    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
 
   return (
     <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
@@ -307,7 +307,7 @@ export default function ClientDetailsSection({
         {/* Section A: Client Info */}
         <div>
           <div className="mb-4">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
               Client Info
             </h3>
             <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -385,14 +385,14 @@ export default function ClientDetailsSection({
                               onClick={() => handleSelectClient(client)}
                               className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
                             >
-                              <span className="text-[13px] font-semibold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
+                              <span className="text-[13px] font-bold text-[color:var(--text-primary)] group-hover:text-[color:var(--color-lime-700)]">{client.client_name}</span>
                               <div className="flex items-center gap-2 text-[10px] text-[color:var(--text-muted)]">
                                 <span>{client.city || client.client_type || "Saved client"}</span>
                               </div>
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-3 text-[12px] font-semibold text-[color:var(--text-muted)]">
+                          <div className="px-3 py-3 text-[12px] font-bold text-[color:var(--text-muted)]">
                             No saved clients match. Press Tab or Enter to add as new.
                           </div>
                         )}
@@ -413,7 +413,7 @@ export default function ClientDetailsSection({
 </>} />
                 </div>
                 {isReadOnly ? (
-                  <div className="flex h-11 items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 text-[13px] font-semibold text-[#6B6660]">
+                  <div className="flex h-11 items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-3 text-[13px] font-bold text-[#6B6660]">
                     {value.clientLocation === "international" ? "International" : "Domestic"}
                   </div>
                 ) : (
@@ -471,7 +471,7 @@ export default function ClientDetailsSection({
                 {/* Section B: Tax Details (Domestic) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                       Tax Details
                     </h3>
                     <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -514,13 +514,13 @@ export default function ClientDetailsSection({
                           <AppSwitch checked={value.isClientSezUnit === "yes"} onChange={(checked) => updateField("isClientSezUnit", checked ? "yes" : "no")} />
                         )}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">SEZ Unit</span>
+                          <span className="text-[13px] font-bold text-[color:var(--text-primary)]">SEZ Unit</span>
                           <AppTooltip content={<>
                             Special Economic Zone. Supplies to SEZ units are treated as exports (Zero-rated supply under GST). IGST is applicable unless you provide a Letter of Undertaking (LUT).
                           </>} />
                         </div>
                         {isReadOnly && (
-                          <span className="text-[13px] font-medium text-[color:var(--text-muted)]">
+                          <span className="text-[13px] font-bold text-[color:var(--text-muted)]">
                             {value.isClientSezUnit === "yes" ? "Yes" : "No"}
                           </span>
                         )}
@@ -532,7 +532,7 @@ export default function ClientDetailsSection({
                 {/* Section C: Client Address (Domestic) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                       Client Address
                     </h3>
                     <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -661,7 +661,7 @@ export default function ClientDetailsSection({
                   </div>
                   {clientAddressError && <p className={appFieldErrorTextClass}>{clientAddressError}</p>}
                   {stateSignals.warning && (
-                    <p className="mt-3 bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                    <p className="mt-3 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                       {stateSignals.warning}
                     </p>
                   )}
@@ -680,7 +680,7 @@ export default function ClientDetailsSection({
                 {/* Section B: Tax Details (International) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                       Tax Details
                     </h3>
                     <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -746,7 +746,7 @@ export default function ClientDetailsSection({
                 {/* Section C: Client Address (International) */}
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                       Client Address
                     </h3>
                     <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -851,16 +851,16 @@ export default function ClientDetailsSection({
           <div className="flex min-w-0 w-full flex-1 flex-col gap-1.5 sm:pr-4">
             <div className="flex items-start justify-between gap-2 min-w-0">
               <div className="flex min-w-0 flex-1 items-start gap-1.5">
-                <span className="text-[color:var(--text-primary)] font-semibold text-[15px] leading-snug text-pretty break-normal">
+                <span className="text-[color:var(--text-primary)] font-bold text-[15px] leading-snug text-pretty break-normal">
                   Client Specific Payment &amp; Legal Terms
                 </span>
                 <AppTooltip content={
                   <div className="space-y-2">
                     <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
-                    <p className="font-semibold text-[10px] text-[#FF5C00]">These defaults can be overridden per-project via a Project Addendum attached to the invoice.</p>
+                    <p className="font-bold text-[10px] text-[#FF5C00]">These defaults can be overridden per-project via a Project Addendum attached to the invoice.</p>
                     <div className="flex flex-col gap-1.5 mt-2 border-t border-[#111118]/20 pt-2">
-                      <a href="/profile" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Global Defaults (Profile)</a>
-                      <a href="/clients" className="text-[#4F46E5] font-semibold hover:underline flex items-center gap-1">→ Edit Client-Specific Terms</a>
+                      <a href="/profile" className="text-[color:var(--brand-indigo-deep)] font-bold hover:underline flex items-center gap-1">→ Edit Global Defaults (Profile)</a>
+                      <a href="/clients" className="text-[color:var(--brand-indigo-deep)] font-bold hover:underline flex items-center gap-1">→ Edit Client-Specific Terms</a>
                     </div>
                   </div>
                 } />
@@ -923,7 +923,7 @@ export default function ClientDetailsSection({
                     {/* Payment Terms */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Payment terms</label>
+                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Payment terms</label>
                         <AppTooltip content={<>
                           <strong>Net payment days.</strong> The number of calendar days the client has to pay after the invoice issue date. Common values: Net 15, Net 30, Net 45. If the client doesn&apos;t pay within this window, the late fee kicks in.
                         </>} />
@@ -944,7 +944,7 @@ export default function ClientDetailsSection({
                     {/* Late Fee */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Late fee</label>
+                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Late fee</label>
                         <AppTooltip content={<>
                           <strong>Overdue penalty rate.</strong> Interest charged on unpaid invoices past the payment deadline. Industry standard is 1.5% monthly. This clause discourages late payments and protects your cash flow.
                         </>} />
@@ -984,7 +984,7 @@ export default function ClientDetailsSection({
                     {/* IP Transfer */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-medium text-[color:var(--text-primary)]">IP Transfer</label>
+                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">IP Transfer</label>
                         <AppTooltip content={<>
                           <strong>Intellectual Property transfer trigger.</strong> Determines when ownership of the work (designs, code, content) passes to the client. &quot;Upon Full Payment&quot; is the safest option — it protects you if the client doesn&apos;t pay.
                         </>} />
@@ -1006,7 +1006,7 @@ export default function ClientDetailsSection({
                     {/* Jurisdiction */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-medium text-[color:var(--text-primary)]">Jurisdiction</label>
+                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">Jurisdiction</label>
                         <AppTooltip content={<>
                           <strong>Dispute resolution city.</strong> If a legal dispute arises, this is the city whose courts will have authority. Usually set to your own city for convenience.
                         </>} />
@@ -1023,7 +1023,7 @@ export default function ClientDetailsSection({
                     {/* License Type */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <label className="text-[13px] font-medium text-[color:var(--text-primary)]">License Type</label>
+                        <label className="text-[13px] font-bold text-[color:var(--text-primary)]">License Type</label>
                         <AppTooltip content={<>
                           <strong>Client rights model.</strong> &quot;Full Assignment&quot; = client owns everything outright. &quot;Exclusive License&quot; = client gets sole usage rights but you retain ownership. &quot;Non-Exclusive&quot; = you can reuse/resell the work.
                         </>} />
@@ -1074,7 +1074,7 @@ export default function ClientDetailsSection({
                   </div>
 
                   {hasGeneratedMsa ? (
-                    <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[2px_2px_0_#111118] min-w-0">
+                    <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[var(--brutal-shadow-sm)] min-w-0">
                       <textarea
                         suppressHydrationWarning
                         value={value.msaNotesBoilerplate || ""}
@@ -1091,7 +1091,7 @@ export default function ClientDetailsSection({
                               e.stopPropagation();
                               updateField("msaNotesBoilerplate", "");
                             }}
-                            className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[1px_1px_0_#111118] hover:bg-[#FFF5F2] transition-colors"
+                            className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] hover:bg-[#FFF5F2] transition-colors"
                           >
                             Clear
                           </button>

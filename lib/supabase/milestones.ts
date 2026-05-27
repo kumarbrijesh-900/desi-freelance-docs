@@ -210,7 +210,7 @@ export async function fireMilestoneInvoice(
                   <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
                     Your previous milestone has been completed. The next milestone invoice is now ready for your review.
                   </p>
-                  <a href="${shareUrl}" style="display:inline-block;background:#111118;color:#d4ff00;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                  <a href="${shareUrl}" style="display:inline-block;background:#111118;color:var(--color-lime-warm);font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
                     View Milestone ${nextMilestoneIndex + 1} Invoice →
                   </a>
                   <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">

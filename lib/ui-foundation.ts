@@ -21,7 +21,7 @@ export function getAppSubtlePanelClass(
   tone: "default" | "muted" | "warning" = "default",
 ) {
   return cn(
-    "rounded-[var(--app-radius-card)] border-2 border-[#111118] p-4",
+    "rounded-[var(--app-radius-card)] border-2 border-[color:var(--brutal-border-color)] p-4",
     tone === "warning"
       ? "bg-[color:var(--state-warning-bg)]"
       : tone === "muted"
@@ -52,7 +52,7 @@ export function getAppButtonClass(params?: {
   } = params ?? {};
 
   return cn(
-    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[#111118] font-bold tracking-[-0.01em] text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
+    "app-interactive-button app-focus-ring app-soft-button inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] border-2 border-[color:var(--brutal-border-color)] font-bold tracking-widest uppercase text-sm transition-all duration-100 ease-[var(--app-ease-standard)] disabled:pointer-events-none disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed",
     size === "sm"
       ? "h-9 px-3 text-[13px]"
       : size === "lg"
@@ -60,7 +60,7 @@ export function getAppButtonClass(params?: {
         : "h-10 px-4 text-[13px]",
     fullWidth ? "w-full" : "",
     variant === "primary"
-      ? "app-soft-button-primary text-[#111118] font-extrabold uppercase"
+      ? "app-soft-button-primary text-[color:var(--text-primary)] font-black"
       : variant === "ghost"
         ? "app-soft-button-ghost text-[color:var(--app-color-text-muted)] hover:text-[color:var(--app-color-text-primary)]"
         : variant === "tertiary"
@@ -82,7 +82,7 @@ export function getAppFieldClass(params?: {
   const { hasError, hasValue, multiline, isSelect } = params ?? {};
 
   return cn(
-    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[#111118] text-[14px] font-normal leading-6 text-[color:var(--text-primary)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
+    "app-interactive-field app-focus-ring app-soft-field min-w-0 w-full rounded-[var(--app-radius-control)] border-2 border-[color:var(--brutal-border-color)] text-[14px] font-normal leading-6 text-[color:var(--text-primary)] outline-none transition-all duration-100 ease-[var(--app-ease-standard)]",
     multiline ? "min-h-[112px] px-3 py-3" : "h-11 px-3",
     isSelect
       ? "appearance-none overflow-hidden pr-[2.875rem] text-ellipsis whitespace-nowrap text-left"
@@ -101,7 +101,7 @@ export function getAppPanelClass(
   tone: "default" | "success" | "warning" | "muted" = "default",
 ) {
   return cn(
-    "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[#111118] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
+    "app-interactive-surface rounded-[var(--app-radius-card)] border-2 border-[color:var(--brutal-border-color)] p-5 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
     tone === "success"
       ? "app-soft-panel-success"
       : tone === "warning"
@@ -117,7 +117,7 @@ export function appContainerCenteredClass() {
 }
 
 export function appBottomBarClass() {
-  return "bg-white border-t-2 border-[#111118] p-4";
+  return "bg-white border-t-2 border-[color:var(--brutal-border-color)] p-4";
 }
 
 export function appMobileStepPillClass() {
@@ -128,7 +128,7 @@ export function getAppStatusPillClass(
   tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
   return cn(
-    "shrink-0 border-2 border-[#111118] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
+    "shrink-0 border-2 border-[color:var(--brutal-border-color)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
     tone === "success"
       ? "bg-[#E0FFF7] text-[#006B52]"
       : tone === "muted"

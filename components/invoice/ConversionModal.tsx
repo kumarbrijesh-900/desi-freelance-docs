@@ -61,7 +61,7 @@ export default function ConversionModal({
           <div className="mx-auto h-14 w-14 bg-[color:var(--color-lime-100)] flex items-center justify-center mb-4 text-2xl">
             ✓
           </div>
-          <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-green-600">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-green-600">
             Your invoice is safe — sign up to download it
           </p>
 
@@ -73,7 +73,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onLoginClick}
-            className="flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-[#BEFF00] py-3 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-[color:var(--color-lime-warm)] py-3 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google

@@ -56,7 +56,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         </div>
         <div className="text-right">
           <p className="text-[10px] text-[color:var(--text-muted)] uppercase tracking-widest mb-1">// terms</p>
-          <p className="text-[12px] font-medium">{data.paymentTerms}</p>
+          <p className="text-[12px] font-normal">{data.paymentTerms}</p>
           {data.isInternational && <p className="mt-1 text-[10px] font-bold">currency: {data.displayCurrency}</p>}
         </div>
       </section>
@@ -67,10 +67,10 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr className="border-b-2 border-[#111]">
-              <th className="py-2 text-left font-medium text-[color:var(--text-muted)] text-[10px] uppercase tracking-wider">description</th>
-              <th className="py-2 text-center w-[50px] font-medium text-[color:var(--text-muted)] text-[10px]">qty</th>
-              <th className="py-2 text-right w-[100px] font-medium text-[color:var(--text-muted)] text-[10px]">rate</th>
-              <th className="py-2 text-right w-[120px] font-medium text-[color:var(--text-muted)] text-[10px]">amount</th>
+              <th className="py-2 text-left font-normal text-[color:var(--text-muted)] text-[10px] uppercase tracking-wider">description</th>
+              <th className="py-2 text-center w-[50px] font-normal text-[color:var(--text-muted)] text-[10px]">qty</th>
+              <th className="py-2 text-right w-[100px] font-normal text-[color:var(--text-muted)] text-[10px]">rate</th>
+              <th className="py-2 text-right w-[120px] font-normal text-[color:var(--text-muted)] text-[10px]">amount</th>
             </tr>
           </thead>
           <tbody>
@@ -92,7 +92,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
               return (
                 <tr key={item.id} className="border-b border-[color:var(--border-subtle)]">
                   <td className="py-3 pr-4">
-                    <p className="font-medium text-[12px]">{item.description}</p>
+                    <p className="font-normal text-[12px]">{item.description}</p>
                     <div className="mt-0.5 text-[10px] text-[color:var(--text-muted)] flex gap-3">
                       {item.sacCode && <span>SAC:{item.sacCode}</span>}
                       {item.unit && <span>unit:{item.unit}</span>}
@@ -100,7 +100,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
                   </td>
                   <td className="py-3 text-center text-[12px]">{item.qty}</td>
                   <td className="py-3 text-right text-[12px]">{item.rateFormatted}</td>
-                  <td className="py-3 text-right text-[12px] font-medium">{item.amountFormatted}</td>
+                  <td className="py-3 text-right text-[12px] font-normal">{item.amountFormatted}</td>
                 </tr>
               );
             })}
@@ -113,10 +113,10 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <div className="w-[280px] space-y-2">
           <MilestoneSummaryBlock data={data} />
           <div className="flex justify-between text-[11px] text-[color:var(--text-muted)]">
-            <span>subtotal</span><span className="font-medium text-[#111]">{data.subtotalFormatted}</span>
+            <span>subtotal</span><span className="font-bold text-[#111]">{data.subtotalFormatted}</span>
           </div>
           <div className="flex justify-between text-[11px] text-[color:var(--text-muted)]">
-            <span>{data.taxLabel}</span><span className="font-medium text-[#111]">{data.taxFormatted}</span>
+            <span>{data.taxLabel}</span><span className="font-bold text-[#111]">{data.taxFormatted}</span>
           </div>
           <div className="pt-3 mt-2 border-t-2 border-[#111] flex justify-between items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-widest">total_due</span>

@@ -138,28 +138,28 @@ export default function MSAAcceptanceModal({
                 <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--text-muted)] mb-2">
                   Client Note
                 </p>
-                <p className="text-[13px] font-medium text-[#111118] italic whitespace-pre-wrap">
+                <p className="text-[13px] font-normal text-[#111118] italic whitespace-pre-wrap">
                   &quot;{msaResponseText}&quot;
                 </p>
               </div>
             )}
-            <p className="mt-4 text-xs font-medium text-[color:var(--text-muted)] italic">
+            <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] italic">
               This invoice will remain locked until terms are finalized.
             </p>
             {previewMode && onClosePreview && (
               <div className="mt-6 border-t-2 border-[#111118] pt-6">
-                <div className="border-2 border-[#111118] bg-[#FFD700] px-4 py-3 shadow-[4px_4px_0_#111118] mb-4 text-left">
+                <div className="border-2 border-[#111118] bg-[#FFD700] px-4 py-3 shadow-[var(--brutal-shadow-md)] mb-4 text-left">
                   <h3 className="text-sm font-black uppercase tracking-wider text-[#111118] mb-1">
                     PREVIEW MODE
                   </h3>
-                  <p className="text-xs font-medium text-[#111118]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#111118]">
                     This is the &quot;Proposal Submitted&quot; screen your client sees.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={onClosePreview}
-                  className="w-full border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[4px_4px_0_#111118] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  className="w-full border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
                 >
                   Close Preview
                 </button>
@@ -179,7 +179,7 @@ export default function MSAAcceptanceModal({
             <button
               type="button"
               onClick={onClosePreview}
-              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-white hover:brightness-110 shadow-[4px_4px_0_#111118] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-white hover:brightness-110 shadow-[var(--brutal-shadow-md)] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
               aria-label="Close Preview"
             >
               <span className="text-2xl font-bold leading-none mb-1">×</span>
@@ -188,7 +188,7 @@ export default function MSAAcceptanceModal({
           {/* Header */}
           <div className="border-b-2 border-[#111118] bg-[#FFFBE6] px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118]">
+              <span className="flex h-12 w-12 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[#111118]">
                 <DocumentSparkIcon className="h-6 w-6" />
               </span>
               <div>
@@ -273,13 +273,13 @@ export default function MSAAcceptanceModal({
                         </p>
                         <ul className="mt-3 space-y-2">
                           {paymentTerms && (
-                            <li className="flex items-center gap-2 text-[12px] font-medium text-amber-900">
+                            <li className="flex items-center gap-2 text-[12px] font-normal text-amber-900">
                               <span className="h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
                               Payment Terms: <span className="font-bold underline decoration-amber-300 underline-offset-2">{paymentTerms}</span>
                             </li>
                           )}
                           {addendumNotes && (
-                            <li className="flex items-start gap-2 text-[12px] font-medium text-amber-900">
+                            <li className="flex items-start gap-2 text-[12px] font-normal text-amber-900">
                               <span className="mt-1.5 h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
                               <span>Additional Notes: <span className="font-bold">{addendumNotes}</span></span>
                             </li>
@@ -301,7 +301,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 border-2 border-[#111118] bg-white p-4 text-sm outline-none transition-colors focus:bg-[color:var(--bg-surface-soft)] resize-none"
+                    className="w-full h-40 border-2 border-[#111118] bg-white p-4 text-sm outline-none transition-colors )] resize-none app-focus-ring"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--text-muted)] italic">
@@ -324,11 +324,11 @@ export default function MSAAcceptanceModal({
           <div className="border-t border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-soft)] px-6 py-6 sm:px-8">
             {previewMode ? (
               <div className="flex flex-col gap-5">
-                <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[8px_8px_0_#111118]">
+                <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[var(--brutal-shadow-lg)]">
                   <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
                     PREVIEW MODE
                   </h3>
-                  <p className="text-sm font-medium text-[#111118]">
+                  <p className="text-sm font-normal text-[#111118]">
                     This is what your client sees when they open the link from their email. You cannot accept on their behalf.
                   </p>
                 </div>
@@ -336,7 +336,7 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     onClick={onClosePreview}
-                    className="self-center border-2 border-[#111118] bg-white px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[4px_4px_0_#111118] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    className="self-center border-2 border-[#111118] bg-white px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
                   >
                     Close Preview
                   </button>
@@ -352,7 +352,7 @@ export default function MSAAcceptanceModal({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleAcceptTerms}
-                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
                     {!isSubmitting && <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />}
                     {isSubmitting ? "Processing…" : "Accept Terms"}
@@ -376,7 +376,7 @@ export default function MSAAcceptanceModal({
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}
                   onClick={handleSubmitProposal}
-                  className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[#BEFF00] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                  className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isSubmittingProposal ? "Submitting…" : "Submit Proposal"}
                 </button>

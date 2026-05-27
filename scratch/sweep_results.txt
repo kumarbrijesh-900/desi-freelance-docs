@@ -1,0 +1,280 @@
+=== 1. TypeScript 'as any' casts in wizard files (type safety holes) ===
+components/invoice/InvoiceEditorPage.tsx:1246:      const hydratedData = mergeInvoiceFormData(data.form_data as any);
+components/invoice/InvoiceEditorPage.tsx:1258:          (data.form_data as any)?.projectName ??
+components/invoice/InvoiceEditorPage.tsx:1259:          (data.form_data as any)?.meta?.projectName ??
+components/invoice/InvoiceEditorPage.tsx:2452:        (result as any).data?.created_client ?? (result as any).createdClient;
+components/invoice/InvoiceEditorPage.tsx:2454:        (result as any).data?.client_persistence_error ??
+components/invoice/InvoiceEditorPage.tsx:2455:        (result as any).clientPersistenceError;
+components/invoice/InvoiceEditorPage.tsx:2457:        (result as any).data?.project_persistence_error ??
+components/invoice/InvoiceEditorPage.tsx:2458:        (result as any).projectPersistenceError;
+components/invoice/InvoiceEditorPage.tsx:2491:        invoiceId: (result as any).data?.id ?? parserDocumentId ?? undefined,
+components/invoice/InvoiceEditorPage.tsx:3023:          msaSource={msaSource as any}
+components/invoice/DeliverablesSection.tsx:108:    } as any;
+components/invoice/DeliverablesSection.tsx:415:  const hasSubTypes = (catalogEntry as any)?.hasSubTypes;
+components/invoice/DeliverablesSection.tsx:416:  const subTypeOptions = (catalogEntry as any)?.subTypes || [];
+components/invoice/DeliverablesSection.tsx:417:  const selectedSubType = subTypeOptions.find((st: any) => st.key === (item as any).subType);
+components/invoice/DeliverablesSection.tsx:445:    if ((newEntry as any)?.hasSubTypes) {
+components/invoice/DeliverablesSection.tsx:448:      patch.sacCode = (newEntry as any).defaultSacCode;
+components/invoice/DeliverablesSection.tsx:464:      rateUnit: (st.units.includes(item.rateUnit) ? item.rateUnit : st.units[0]) as any,
+components/invoice/DeliverablesSection.tsx:466:    } as any);
+components/invoice/DeliverablesSection.tsx:512:                value={(item as any).subType || ""}
+components/invoice/DeliverablesSection.tsx:516:                className={getInputStateClass(`deliverables.${itemIndex}.subType`, (item as any).subType || "")}
+components/invoice/TermsPaymentSection.tsx:420:                                      onChange={() => updateField("paymentSettlementType", option.value as any)}
+components/invoice/TermsPaymentSection.tsx:695:                                        onClick={() => updateLicenseField("licenseType", opt.value as any)}
+=== 2. Console.log/warn/error left in wizard (should be cleaned for prod) ===
+components/invoice/InvoiceEditorPage.tsx:1240:        console.error("Failed to load cloud invoice:", error);
+components/invoice/InvoiceEditorPage.tsx:1315:          console.error("Failed to restore draft:", error);
+components/invoice/InvoiceEditorPage.tsx:1327:          console.error("Failed to parse anonymous draft", e);
+components/invoice/InvoiceEditorPage.tsx:1353:      console.error("Failed to initialize invoice editor:", error);
+components/invoice/InvoiceEditorPage.tsx:2266:    console.error("Failed to save preview data:", error);
+components/invoice/InvoiceEditorPage.tsx:2310:        console.error("LOCKED_RESEND_FAILED:", error);
+components/invoice/InvoiceEditorPage.tsx:2329:        console.error("LOCKED_REACTIVATE_FAILED:", error);
+components/invoice/InvoiceEditorPage.tsx:2389:    console.error("Failed to save draft:", error);
+components/invoice/InvoiceEditorPage.tsx:2583:    console.error("Failed to clear local invoice state:", error);
+components/invoice/InvoiceEditorPage.tsx:2626:          console.error(`Failed OCR for ${file.name}:`, error);
+components/invoice/InvoiceEditorPage.tsx:2701:        console.error("AI brief extraction request failed:", error);
+components/invoice/InvoiceEditorPage.tsx:2864:    console.error("Could not clear specific draft keys:", e);
+=== 3. TODO/FIXME/HACK still in wizard files ===
+=== 4. Unreachable code or empty blocks ===
+components/invoice/DeliverablesSection.tsx:93:  onFieldManualEdit = () => {},
+components/invoice/AgencyDetailsSection.tsx:62:  onFieldManualEdit = () => {},
+components/invoice/TermsPaymentSection.tsx:110:  onFieldManualEdit = () => {},
+=== 5. Check for duplicate imports or unused imports ===
+"use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
+
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+  Suspense,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Building2,
+  Users,
+  Settings2,
+  ListChecks,
+  ShieldCheck,
+  CreditCard,
+  ArrowLeft,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import AppHeader from "@/components/AppHeader";
+import LogoutButton from "@/components/LogoutButton";
+import UploadToast from "@/components/ui/UploadToast";
+import {
+  AnimatePresence,
+  MotionReveal,
+  motion,
+} from "@/components/ui/motion-primitives";
+import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
+import { addDays } from "@/lib/date-math";
+import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
+import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
+import ClientDetailsSection from "@/components/invoice/ClientDetailsSection";
+import InvoiceMetaSection from "@/components/invoice/InvoiceMetaSection";
+import DeliverablesSection from "@/components/invoice/DeliverablesSection";
+import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
+import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
+import BriefSummaryModal from "@/components/invoice/BriefSummaryModal";
+import AppSwitch from "@/components/ui/AppSwitch";
+import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import {
+  getEffectiveExportTaxHandling,
+  getLutDeclarationText,
+  getSettlementComplianceWarning,
+--- DeliverablesSection ---
+"use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import type {
+  Milestone,
+  InvoiceLineItem,
+  InvoiceLineItemType,
+  InvoiceRateUnit,
+  MilestoneStatus,
+} from "@/types/invoice";
+import {
+  getInvoiceDescriptionSuggestions,
+  invoiceAllowedUnitsByType,
+  invoiceDescriptionPlaceholderByType,
+  invoiceLineItemTypeOptions,
+  invoiceDefaultUnitByType,
+  invoiceRateUnitLabels as baseRateUnitLabels,
+} from "@/lib/invoice-deliverables";
+import { getInvoiceLineItemCatalogEntry } from "@/lib/invoice-line-item-catalog";
+
+const invoiceRateUnitLabels: Record<string, string> = {
+  ...baseRateUnitLabels,
+  "per-sqft": "Per sq.ft",
+  "per-room": "Per room",
+  "per-floor": "Per floor",
+  "per-drawing": "Per drawing",
+  "per-site": "Per site",
+  "per-visit": "Per visit",
+--- AgencyDetailsSection ---
+"use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
+
+import { useEffect, useState } from "react";
+import type { AgencyDetails } from "@/types/invoice";
+import UploadToast from "@/components/ui/UploadToast";
+import ChoiceCards from "@/components/ui/ChoiceCards";
+import AppSelectField from "@/components/ui/AppSelectField";
+import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import {
+  composeIndianAddress,
+  evaluateStateSignals,
+} from "@/lib/invoice-address";
+import { parseGstin } from "@/lib/gstin-parser";
+import { inferIndianLocationFromPinCode } from "@/lib/pin-code-inference";
+import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+  appFieldTripleCompactGridClass,
+} from "@/lib/form-foundation";
+import AppSwitch from "@/components/ui/AppSwitch";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  appFieldErrorTextClass,
+  appFieldHelperTextClass,
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
+  cn,
+  getAppButtonClass,
+--- TermsPaymentSection ---
+"use client";
+import { AppTooltip } from "@/components/ui/AppTooltip";
+
+import { useEffect, useState } from "react";
+import type { PaymentDetails, InvoiceMeta, LicenseType } from "@/types/invoice";
+import UploadToast from "@/components/ui/UploadToast";
+import ChoiceCards from "@/components/ui/ChoiceCards";
+
+import {
+  appFieldErrorTextClass,
+  appFieldHelperTextClass,
+  appFieldLabelClass,
+  appSectionDescriptionClass,
+  appSectionTitleClass,
+  cn,
+  getAppFieldClass,
+  getAppPanelClass,
+} from "@/lib/ui-foundation";
+import {
+  appFieldFullWidthStackClass,
+  appFieldPairGridClass,
+} from "@/lib/form-foundation";
+import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit, Lock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { addDays, getDaysDifference } from "@/lib/date-math";
+
+interface TermsPaymentSectionProps {
+  value: PaymentDetails;
+  meta: InvoiceMeta;
+  clientLocation: "domestic" | "international";
+=== 6. Check EditorContent references still exist after file deletion ===
+components/invoice/InvoiceEditorPage.tsx:1015:      <EditorContent />
+components/invoice/InvoiceEditorPage.tsx:1020:function EditorContent() {
+=== 7. Check project name flows through to save ===
+components/invoice/DeliverablesSection.tsx:56:  projectName: string;
+components/invoice/DeliverablesSection.tsx:57:  onProjectNameChange: (name: string) => void;
+components/invoice/DeliverablesSection.tsx:87:  projectName = "",
+components/invoice/DeliverablesSection.tsx:88:  onProjectNameChange,
+components/invoice/DeliverablesSection.tsx:209:              {projectName.trim() || "No project named"}
+components/invoice/DeliverablesSection.tsx:215:                value={projectName}
+components/invoice/DeliverablesSection.tsx:217:                  onProjectNameChange(event.target.value);
+components/invoice/DeliverablesSection.tsx:222:              {showAllErrors && !projectName.trim() && (
+components/invoice/InvoiceEditorPage.tsx:187:  projectName?: string;
+components/invoice/InvoiceEditorPage.tsx:1061:  const [projectName, setProjectName] = useState("");
+components/invoice/InvoiceEditorPage.tsx:1258:          (data.form_data as any)?.projectName ??
+components/invoice/InvoiceEditorPage.tsx:1259:          (data.form_data as any)?.meta?.projectName ??
+components/invoice/InvoiceEditorPage.tsx:1308:            setProjectName(parsedDraft?.projectName ?? "");
+components/invoice/InvoiceEditorPage.tsx:1410:        projectName: projectName.trim() || undefined,
+components/invoice/InvoiceEditorPage.tsx:1921:  const hasNamedProject = Boolean(projectName.trim());
+components/invoice/InvoiceEditorPage.tsx:2240:        projectName,
+components/invoice/InvoiceEditorPage.tsx:2255:          projectName,
+components/invoice/InvoiceEditorPage.tsx:2366:      projectName,
+components/invoice/InvoiceEditorPage.tsx:2417:        projectName: projectName.trim() || undefined,
+components/invoice/InvoiceEditorPage.tsx:2441:        projectName: projectName.trim() || undefined,
+=== 8. Verify fresh=1 param usage is consistent ===
+components/AppHeader.tsx:78:    router.refresh();
+components/AppHeader.tsx:160:    const targetPath = user ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1";
+components/invoice/InvoiceEditorPage.tsx:176:    // Ignore unavailable storage; a fresh in-memory form is still initialized.
+components/invoice/InvoiceEditorPage.tsx:319:  const fresh = mergeInvoiceFormData();
+components/invoice/InvoiceEditorPage.tsx:322:    ...fresh,
+components/invoice/InvoiceEditorPage.tsx:324:      ...fresh.meta,
+components/invoice/InvoiceEditorPage.tsx:1199:    const isFresh = searchParams.get("fresh") === "1";
+components/invoice/InvoiceEditorPage.tsx:1241:        triggerToast("Could not load invoice from cloud. Starting fresh.");
+components/invoice/InvoiceEditorPage.tsx:1384:            : "Could not restore saved invoice state. Starting fresh.",
+components/invoice/InvoiceEditorPage.tsx:1544:      const isFresh = searchParams.get("fresh") === "1";
+app/invoices/page.tsx:78:            href="/invoice/new?fresh=1"
+app/dashboard/page.tsx:246:          onNewInvoice={() => router.push('/invoice/new?fresh=1')}
+app/invoice/new/page.tsx:50:    : searchParams.get("fresh") === "1"
+app/invoice/new/page.tsx:51:      ? "fresh"
+=== 9. Check delete handlers exist for milestone and line items ===
+4:import { Trash2 } from "lucide-react";
+147:  const removeMilestone = useCallback((milestoneId: string) => {
+167:  const removeLineItem = useCallback((milestoneId: string, itemId: string) => {
+288:                          onClick={() => removeMilestone(milestone.id)}
+292:                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+321:                            onRemove={() => removeLineItem(milestone.id, item.id)}
+484:          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+=== 10. Check profile retry pattern is complete ===
+
+    async function applyProfile() {
+      // Wait for auth session — retry up to 3 times with 500ms delay
+      let session = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          session = data.session;
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+
+--
+    let cancelled = false;
+    async function fetchClients() {
+      // Wait for auth session — retry up to 3 times with 500ms delay
+      let session = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user) {
+          session = data.session;
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+=== 11. Verify step validation includes project name ===
+  projectId?: string | null;
+  projectName?: string;
+        "invoice-step-card relative scroll-mt-32 overflow-visible rounded-[18px] px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+  const [projectMsaAcceptedAt, setProjectMsaAcceptedAt] = useState<string | null>(null);
+  const [projectStatus, setProjectStatus] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
+      const loadedProject = data.project as { name?: string } | null | undefined;
+      setProjectName(
+        loadedProject?.name ??
+          (data.form_data as any)?.projectName ??
+          (data.form_data as any)?.meta?.projectName ??
+            nextProjectId = parsedDraft?.projectId ?? null;
+            setProjectName(parsedDraft?.projectName ?? "");
+        projectId,
+=== 12. Check no stale references to removed EditorContent.tsx ===

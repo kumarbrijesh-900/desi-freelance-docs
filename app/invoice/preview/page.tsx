@@ -788,7 +788,7 @@ function PreviewContent() {
                     <DocumentSparkIcon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                    <p className="text-sm font-bold text-[color:var(--text-primary)]">
                       Preparing preview
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--text-muted)]">
@@ -949,12 +949,12 @@ function PreviewContent() {
                     setCopiedField('invoiceNumber');
                     setTimeout(() => setCopiedField(null), 1500);
                   }}
-                  className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] hover:text-[#4F46E5] transition-colors cursor-pointer group"
+                  className="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo-deep)] transition-colors cursor-pointer group"
                   title="Click to copy"
                 >
                   <span>{invoiceNumber?.trim() || "New Invoice"}</span>
                   {invoiceNumber && (
-                    <span className="text-[14px] text-gray-300 group-hover:text-[#4F46E5] transition-colors">
+                    <span className="text-[14px] text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)] transition-colors">
                       {copiedField === 'invoiceNumber' ? '✓' : '⎘'}
                     </span>
                   )}
@@ -983,7 +983,7 @@ function PreviewContent() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowProfilePrompt(false)}
-                      className="text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
+                      className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] px-3 py-2"
                     >
                       Later
                     </button>
@@ -1004,14 +1004,14 @@ function PreviewContent() {
             {/* Neo-Brutalist Locked Invoice Status Banner */}
             {lockState.isReadOnly && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-start justify-between gap-5 border-[3px] border-black bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#000] sm:flex-row sm:items-center sm:p-6">
+                <div className="flex flex-col items-start justify-between gap-5 border-[3px] border-black bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#111118] sm:flex-row sm:items-center sm:p-6">
                   <div className="flex items-start gap-4 text-left">
                     <Lock className="h-8 w-8 shrink-0 text-black" strokeWidth={2.8} />
                     <div>
                       <h3 className="text-[24px] font-extrabold uppercase leading-none tracking-[0.02em] text-black">
                         INVOICE LOCKED
                       </h3>
-                      <p className="mt-2 text-[14px] font-medium leading-5 text-[#6B6660]">
+                      <p className="mt-2 text-[14px] font-normal leading-5 text-[#6B6660]">
                         {lockState.reason}
                       </p>
                     </div>
@@ -1020,7 +1020,7 @@ function PreviewContent() {
                     <button
                       type="button"
                       onClick={handleLockedAlternativeAction}
-                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[#D4FF00] shadow-[4px_4px_0_#000] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_#000]"
+                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[4px_4px_0_#111118] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_#111118]"
                     >
                       {lockState.alternativeAction.label}
                     </button>
@@ -1054,7 +1054,7 @@ function PreviewContent() {
                       setZoom(1);
                       setPanOffset({ x: 0, y: 0 });
                     }}
-                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)]"
+                    className="h-7 px-2 flex items-center justify-center rounded text-[11px] font-normal text-[color:var(--text-muted)] hover:bg-[color:var(--bg-surface-muted)]"
                     title="Reset to 100%"
                   >
                     {Math.round(effectiveZoom * 100)}%
@@ -1112,7 +1112,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-sm border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-none border border-[color:var(--border-default)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",
@@ -1143,7 +1143,7 @@ function PreviewContent() {
                         className={cn(
                           "w-full border p-2.5 text-left transition-all",
                           selectedTemplate === template.id
-                            ? "border-[#4F46E5] bg-[#4F46E5]/5 shadow-sm ring-1 ring-[#4F46E5]/20"
+                            ? "border-[color:var(--brand-indigo-deep)] bg-[color:var(--brand-indigo-deep)]/5 shadow-sm ring-1 ring-[color:var(--brand-indigo-deep)]/20"
                             : "border-transparent hover:border-[color:var(--border-default)] hover:bg-[color:var(--bg-surface-soft)]"
                         )}
                       >
@@ -1168,7 +1168,7 @@ function PreviewContent() {
                             {template.name}
                           </span>
                           {selectedTemplate === template.id && (
-                            <div className="h-1.5 w-1.5 rounded-full bg-[#4F46E5]" />
+                            <div className="h-1.5 w-1.5 rounded-full bg-[color:var(--brand-indigo-deep)]" />
                           )}
                         </div>
                       </button>
@@ -1194,16 +1194,16 @@ function PreviewContent() {
               </Link>
               <div className="h-4 w-px bg-[color:var(--border-subtle)]" />
               {saveState === "saving" ? (
-                <span className="text-xs font-medium text-[color:var(--text-muted)]">
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
                   Saving…
                 </span>
               ) : saveState === "cloud-saved" || saveState === "saved" ? (
-                <span className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--state-success-text)]">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--state-success-text)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--state-success-text)]" />
                   All changes saved
                 </span>
               ) : saveState === "error" ? (
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-[#FF5C00]">
+                <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5C00]">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                   Cloud Save Failed (Saved Locally)
                 </span>

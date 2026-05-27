@@ -72,7 +72,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               )}
             </div>
             <div className="text-[11px] text-[#666] leading-relaxed space-y-1">
-              <p className="font-semibold text-[#111118]">{data.agencyName}</p>
+              <p className="font-bold text-[#111118]">{data.agencyName}</p>
               {data.agencyAddress && data.agencyAddress !== "—" && (
                 <p className="whitespace-pre-line">{data.agencyAddress}</p>
               )}
@@ -170,7 +170,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 CURRENCY: {data.displayCurrency}
               </p>
             )}
-            <p className="mt-2 text-[11px] text-[#999] font-medium uppercase tracking-tight">
+            <p className="mt-2 text-[11px] text-[#999] font-normal uppercase tracking-tight">
               Terms: {data.paymentTerms}
             </p>
           </div>
@@ -230,7 +230,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                       </div>
                       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-[#555]">
                         {item.type && (
-                          <span className="font-semibold">{item.type}</span>
+                          <span className="font-bold">{item.type}</span>
                         )}
                         {item.sacCode && (
                           <span>
@@ -243,12 +243,12 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                         {item.unit && (
                           <span>
                             <span className="text-[#999]">Unit:</span>{" "}
-                            <span className="font-medium">{item.unit}</span>
+                            <span className="font-bold">{item.unit}</span>
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="p-4 align-top text-center font-semibold text-[#111118]">
+                    <td className="p-4 align-top text-center font-bold text-[#111118]">
                       {item.qty}
                     </td>
                     <td className="p-4 align-top text-right font-outfit font-extrabold text-[16px] text-[#111118]">

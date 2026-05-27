@@ -83,7 +83,7 @@ export default function InteractiveHeroGraphic() {
         style={{ x: blobX, y: blobY }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <div className="absolute top-10 left-10 w-[60%] h-[60%] bg-gradient-to-tr from-[#BEFF00]/15 to-transparent blur-3xl rounded-full" />
+        <div className="absolute top-10 left-10 w-[60%] h-[60%] bg-gradient-to-tr from-[color:var(--color-lime-warm)]/15 to-transparent blur-3xl rounded-full" />
         <div className="absolute bottom-10 right-10 w-[50%] h-[50%] bg-gradient-to-bl from-[#00D4A0]/10 to-transparent blur-3xl rounded-full" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-gradient-to-r from-[#FF4D2A]/5 to-transparent blur-3xl rounded-full" />
       </motion.div>
@@ -110,7 +110,7 @@ export default function InteractiveHeroGraphic() {
         className="absolute inset-0 pointer-events-none"
       >
         <div className="absolute top-[15%] left-[20%] w-10 h-10 border border-[#FF4D2A]/20 rotate-12" />
-        <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[#BEFF00]/10 rounded-full" />
+        <div className="absolute bottom-[20%] right-[15%] w-14 h-14 bg-[color:var(--color-lime-warm)]/10 rounded-full" />
         <div className="absolute top-[40%] left-[10%] w-6 h-6 border-2 border-[#00D4A0]/20 rounded-sm -rotate-12" />
       </motion.div>
 
@@ -135,7 +135,7 @@ export default function InteractiveHeroGraphic() {
               <div className="h-3 w-20 bg-gray-900 rounded-full" />
             </div>
             {/* Required Lime Square */}
-            <div className="h-8 w-8 bg-[#BEFF00] shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
+            <div className="h-8 w-8 bg-[color:var(--color-lime-warm)] shadow-[0_4px_12px_rgba(190,255,0,0.3)]" />
           </div>
         </div>
       </motion.div>
@@ -164,7 +164,7 @@ export default function InteractiveHeroGraphic() {
           {/* Traveling Dot */}
           <motion.circle
             r="6"
-            fill={phase < 2 ? "#BEFF00" : "#10B981"}
+            fill={phase < 2 ? "var(--color-lime-warm)" : "#10B981"}
             style={{ 
               offsetPath: "path('M150,500 C300,500 400,350 500,500 C600,650 700,500 850,500')",
               filter: "drop-shadow(0 0 8px currentColor)"
@@ -187,7 +187,7 @@ export default function InteractiveHeroGraphic() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="text-[10px] font-bold uppercase tracking-widest text-[#BEFF00] text-center"
+                  className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-lime-warm)] text-center"
                 >
                   Invoice sent →
                 </motion.div>
@@ -287,7 +287,7 @@ export default function InteractiveHeroGraphic() {
             ) : (
               <div className="h-2 w-2 rounded-full bg-gray-300" />
             )}
-            <span className={isGreenText ? "text-xs font-bold text-[#10B981]" : "text-xs font-medium text-[color:var(--text-muted)]"}>
+            <span className={isGreenText ? "text-xs font-bold text-[#10B981]" : "text-xs font-normal text-[color:var(--text-muted)]"}>
               {getStatusText()}
             </span>
           </motion.div>

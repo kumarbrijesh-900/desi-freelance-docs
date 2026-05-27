@@ -69,18 +69,18 @@ function SignupCard() {
 
       <p className="mt-6 text-center text-[13px] text-[color:var(--text-secondary)]">
         Already have an account?{" "}
-        <Link href={`/login${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-semibold text-[color:var(--brand-indigo)] hover:underline">
+        <Link href={`/login${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-[color:var(--brand-indigo)] hover:underline">
           Log in
         </Link>
       </p>
 
       <p className="mt-6 text-[11px] leading-4 text-[color:var(--text-soft)]">
         By signing up, you agree to our{" "}
-        <Link href="/terms" className="font-semibold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+        <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="font-semibold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+        <Link href="/privacy" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
           Privacy Policy
         </Link>.
       </p>
@@ -99,7 +99,7 @@ export default function SignupPage() {
         <MotionReveal preset="fade-up" delay={0}>
           <div className="mb-8">
             <Link href="/" className="group flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[18px] font-black text-[#111118]">
+              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[18px] font-black text-[#111118]">
                 L
               </span>
               <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[#111118] font-syne antialiased">

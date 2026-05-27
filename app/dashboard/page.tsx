@@ -270,7 +270,7 @@ function DashboardContent() {
               <ProjectInvoicesLedger project={selectedProject} />
             </div>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center bg-white border-2 border-black m-8 shadow-[8px_8px_0_#000]">
+            <div className="flex h-full flex-col items-center justify-center bg-white border-2 border-black m-8 shadow-[8px_8px_0_#111118]">
               <div className="text-4xl font-black mb-4 tracking-tighter">Select a project</div>
               <p className="text-neutral-500 font-bold tracking-wide">
                 Or click + New invoice to start
@@ -281,7 +281,7 @@ function DashboardContent() {
       </main>
 
       {actionMessage && (
-        <div className="fixed bottom-5 right-5 z-50 border-2 border-black bg-white px-4 py-3 text-sm font-bold shadow-[4px_4px_0_#000]">
+        <div className="fixed bottom-5 right-5 z-50 border-2 border-black bg-white px-4 py-3 text-sm font-bold shadow-[4px_4px_0_#111118]">
           <button
             type="button"
             onClick={() => setActionMessage(null)}
@@ -335,7 +335,7 @@ function DashboardContent() {
             onClick={() => setSettlementChoice(null)}
           >
             <aside
-              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-black bg-white shadow-[-4px_0_0_#000]"
+              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-black bg-white shadow-[-4px_0_0_#111118]"
               onClick={event => event.stopPropagation()}
             >
               <div className="flex items-start justify-between border-b-[3px] border-black bg-[#FAF7F2] px-5 py-4">
@@ -353,7 +353,7 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="border-2 border-black bg-[#FF6B35] px-3 py-1 text-xl font-black leading-none text-white shadow-[3px_3px_0_#000]"
+                  className="border-2 border-black bg-[#FF6B35] px-3 py-1 text-xl font-black leading-none text-white shadow-[3px_3px_0_#111118]"
                   aria-label="Close settlement drawer"
                 >
                   ×
@@ -361,7 +361,7 @@ function DashboardContent() {
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 py-5">
-                <section className="border-[3px] border-black bg-white shadow-[4px_4px_0_#000]">
+                <section className="border-[3px] border-black bg-white shadow-[4px_4px_0_#111118]">
                   <div className="border-b-2 border-black px-4 py-3">
                     <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                       Settlement checkpoint
@@ -398,7 +398,7 @@ function DashboardContent() {
                   </div>
                 </section>
 
-                <section className="mt-5 border-[3px] border-black bg-[#FFFBE6] p-4 shadow-[4px_4px_0_#000]">
+                <section className="mt-5 border-[3px] border-black bg-[#FFFBE6] p-4 shadow-[4px_4px_0_#111118]">
                   <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                     Contract authority
                   </div>
@@ -410,7 +410,7 @@ function DashboardContent() {
                       {contractTitle}
                     </div>
                   </div>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-neutral-700">
+                  <p className="mt-2 text-sm font-normal leading-relaxed text-neutral-700">
                     {contractCopy}
                   </p>
                   <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-black/40 pt-3 text-sm sm:grid-cols-2">
@@ -425,7 +425,7 @@ function DashboardContent() {
                   </div>
                 </section>
 
-                <section className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000]">
+                <section className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#111118]">
                   <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                     Milestone progress checklist
                   </div>
@@ -447,7 +447,7 @@ function DashboardContent() {
                         const markerClass = isSettled
                           ? "bg-[#00DCB4]"
                           : isCurrent
-                            ? "bg-[#D4FF00]"
+                            ? "bg-[color:var(--color-lime-warm)]"
                             : isCancelled
                               ? "bg-[#D4D2CC]"
                               : "bg-white border-dashed";
@@ -481,7 +481,7 @@ function DashboardContent() {
                   )}
                 </section>
 
-                <fieldset className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000]">
+                <fieldset className="mt-5 border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#111118]">
                   <legend className="px-2 text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                     What happens next?
                   </legend>
@@ -518,14 +518,14 @@ function DashboardContent() {
                         />
                         <span className="flex-1">
                           <span className="block text-sm font-extrabold uppercase tracking-wide">{option.title}</span>
-                          <span className="block text-xs font-medium text-neutral-600">{option.copy}</span>
+                          <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-600">{option.copy}</span>
                           {option.value === "scheduled" && settlementChoice.triggerMode === "scheduled" && (
                             <input
                               type="date"
                               min={formatDateInputValue(0)}
                               value={settlementChoice.triggerDate}
                               onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
-                              className="mt-3 w-full border-2 border-black bg-white px-3 py-2 text-sm font-bold outline-none focus:bg-[#FAF7F2]"
+                              className="mt-3 w-full border-2 border-black bg-white px-3 py-2 text-sm font-bold outline-none ] app-focus-ring"
                             />
                           )}
                         </span>
@@ -539,7 +539,7 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#000] hover:bg-[#FAF7F2]"
+                  className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]"
                 >
                   Cancel
                 </button>
@@ -547,7 +547,7 @@ function DashboardContent() {
                   type="button"
                   onClick={confirmSettlement}
                   disabled={scheduleDateInvalid}
-                  className="border-[3px] border-black bg-[#D4FF00] px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:bg-[#D4D2CC] disabled:text-neutral-600 disabled:shadow-none"
+                  className="border-[3px] border-black bg-[color:var(--color-lime-warm)] px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#111118] disabled:cursor-not-allowed disabled:bg-[#D4D2CC] disabled:text-neutral-600 disabled:shadow-none"
                 >
                   Confirm settlement
                 </button>

@@ -227,8 +227,8 @@ export function MotionButton({
   return (
     <motion.button
       className={className}
-      whileHover={reducedMotion ? undefined : { scale: hoverScale, y: -1 }}
-      whileTap={reducedMotion ? undefined : { scale: tapScale, y: 0 }}
+      whileHover={reducedMotion ? undefined : { x: -2, y: -2, boxShadow: "var(--brutal-shadow-md)" }}
+      whileTap={reducedMotion ? undefined : { x: 2, y: 2, boxShadow: "none" }}
       transition={reducedMotion ? undefined : appSpringTransition}
       {...props}
     >
@@ -253,7 +253,7 @@ export function HoverLift({
   return (
     <motion.div
       className={className}
-      whileHover={reducedMotion ? undefined : { y: hoverY, scale: hoverScale }}
+      whileHover={reducedMotion ? undefined : { x: -2, y: -2, boxShadow: "var(--brutal-shadow-md)" }}
       transition={
         reducedMotion ? undefined : { duration: 0.2, ease: appEaseStandard }
       }
@@ -278,7 +278,7 @@ export function PressDown({
   return (
     <motion.div
       className={className}
-      whileTap={reducedMotion ? undefined : { scale: tapScale }}
+      whileTap={reducedMotion ? undefined : { x: 2, y: 2, boxShadow: "none" }}
       transition={
         reducedMotion ? undefined : { duration: 0.18, ease: appEaseStandard }
       }

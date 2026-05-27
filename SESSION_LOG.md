@@ -1994,3 +1994,11 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 ### Files Touched
 - `PLAN_2026-05-27_FINAL_DESIGN_SYSTEM.md` (Created)
 - `SESSION_LOG.md`
+- Completed Sprints 1-5, 7-8: Core Neo-Brutalist tokens, UI components, motion refactor, and rounded corner purging.
+
+
+## 2026-05-27: Completed Sprints 9, 10, and 11 (Typography, Accessibility, Print CSS)
+- **Sprint 9**: Ran a context-aware python script to eliminate middle-weights (`font-medium`, `font-semibold`) and upgrade them to `font-bold` or `font-black`, establishing a true Neo-Brutalist typographic hierarchy.
+- **Sprint 10**: Replaced inline tailwind focus rings with a centralized `.app-focus-ring` for accessibility, and added `prefers-reduced-motion` to disable animations for users with vestibular disorders.
+- **Sprint 11**: Added comprehensive `@media print` overrides in `globals.css` to hide UI chrome and flatten brutalist shadows for ink-saving physical/PDF printing.
+- Build checked (`tsc --noEmit` and `npm run build`) and passed successfully.

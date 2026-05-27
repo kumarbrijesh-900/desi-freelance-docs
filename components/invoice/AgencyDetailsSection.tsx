@@ -231,7 +231,7 @@ export default function AgencyDetailsSection({
           {/* Section A: Tax & Identity */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                 Tax & Identity
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -241,7 +241,7 @@ export default function AgencyDetailsSection({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-wrap items-center gap-1.5 group">
-                    <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                    <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
                       GST Registration Status
                     </span>
                     <AppTooltip content={<>
@@ -259,7 +259,7 @@ export default function AgencyDetailsSection({
                       }
                     />
                   )}
-                  <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                  <span className="text-[13px] font-bold text-[color:var(--text-muted)] transition-opacity duration-200">
                     {value.gstRegistrationStatus === "registered"
                       ? "Registered"
                       : "Not registered"}
@@ -313,7 +313,7 @@ export default function AgencyDetailsSection({
                             )}
                           />
                           {!isGuestMode && !!value.gstin && (
-                            <p className="mt-1 text-[10px] font-medium text-indigo-600">
+                            <p className="mt-1 text-[10px] font-normal text-indigo-600">
                               Locked to your verified profile GSTIN.
                             </p>
                           )}
@@ -362,7 +362,7 @@ export default function AgencyDetailsSection({
                           {panError ? (
                             <p className={appFieldErrorTextClass}>{panError}</p>
                           ) : panConflictWarning ? (
-                            <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                            <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                               {panConflictWarning}
                             </p>
                           ) : null}
@@ -373,7 +373,7 @@ export default function AgencyDetailsSection({
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-3">
                             <div className="flex flex-wrap items-center gap-1.5 group">
-                              <span className="text-[13px] font-semibold text-[color:var(--text-primary)]">
+                              <span className="text-[13px] font-bold text-[color:var(--text-primary)]">
                                 Valid LUT for current financial year?
                               </span>
                               <AppTooltip content={<>
@@ -388,7 +388,7 @@ export default function AgencyDetailsSection({
                                 }
                               />
                             )}
-                            <span className="text-[13px] font-medium text-[color:var(--text-muted)] transition-opacity duration-200">
+                            <span className="text-[13px] font-bold text-[color:var(--text-muted)] transition-opacity duration-200">
                               {value.lutAvailability === "yes" ? "Yes" : "No"}
                             </span>
                           </div>
@@ -432,7 +432,7 @@ export default function AgencyDetailsSection({
                         </AnimatePresence>
 
                         {showNoLutTotalsNote && (
-                          <div className="rounded-lg bg-[color:var(--bg-surface-muted)] px-3 py-2">
+                          <div className="rounded-none bg-[color:var(--bg-surface-muted)] px-3 py-2">
                             <p className="text-[11px] leading-relaxed text-[color:var(--text-muted)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>
@@ -475,7 +475,7 @@ export default function AgencyDetailsSection({
                       {panError ? (
                         <p className={appFieldErrorTextClass}>{panError}</p>
                       ) : panConflictWarning ? (
-                        <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-medium leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                        <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[11px] font-normal leading-relaxed text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                           {panConflictWarning}
                         </p>
                       ) : null}
@@ -489,7 +489,7 @@ export default function AgencyDetailsSection({
           {/* Section B: Business Details */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                 Business Details
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -521,7 +521,7 @@ export default function AgencyDetailsSection({
                   )}
                 />
                 {!isGuestMode && !!value.agencyName && (
-                  <p className="mt-1 text-[10px] font-medium text-indigo-600">
+                  <p className="mt-1 text-[10px] font-normal text-indigo-600">
                     Locked to your registered Agency Name.
                   </p>
                 )}
@@ -543,7 +543,7 @@ export default function AgencyDetailsSection({
                         />
                       </div>
                       <div>
-                        <p className="text-[13px] font-medium text-[color:var(--text-primary)]">
+                        <p className="text-[13px] font-normal text-[color:var(--text-primary)]">
                           Agency Logo Attached
                           {value.logoUrl === value.profileLogoUrl &&
                             value.logoUrl !== "" && (
@@ -582,7 +582,7 @@ export default function AgencyDetailsSection({
                     )}
                   </div>
                 ) : !isReadOnly ? (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white px-4 transition-all hover:border-[#4F46E5] hover:bg-[#4F46E5]/5">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white px-4 transition-all hover:border-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5">
                     <input
                       type="file"
                       accept="image/*"
@@ -591,7 +591,7 @@ export default function AgencyDetailsSection({
                     />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[#4F46E5]"
+                      className="h-4 w-4 text-[color:var(--text-muted)] group-hover:text-[color:var(--brand-indigo-deep)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -603,12 +603,12 @@ export default function AgencyDetailsSection({
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                       />
                     </svg>
-                    <span className="text-[13px] font-medium text-[color:var(--text-secondary)] group-hover:text-[#4F46E5]">
+                    <span className="text-[13px] font-bold text-[color:var(--text-secondary)] group-hover:text-[color:var(--brand-indigo-deep)]">
                       Upload Agency Logo
                     </span>
                   </label>
                 ) : (
-                  <div className="flex h-[46px] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-4 text-[13px] font-medium text-[#6B6660]">
+                  <div className="flex h-[46px] items-center border-2 border-[#D4D2CC] bg-[#F5F4F0] px-4 text-[13px] font-normal text-[#6B6660]">
                     No logo attached
                   </div>
                 )}
@@ -619,7 +619,7 @@ export default function AgencyDetailsSection({
           {/* Section C: Registered Address */}
           <div>
             <div className="mb-4">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] text-[color:var(--text-secondary)]">
                 Registered Address
               </h3>
               <div className="mt-1.5 h-[1px] w-full bg-[color:var(--border-subtle)]" />
@@ -774,7 +774,7 @@ export default function AgencyDetailsSection({
                 <p className={appFieldErrorTextClass}>{agencyStateError}</p>
               ) : null}
               {stateSignals.warning ? (
-                <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-xs font-medium leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
+                <p className="mt-2 bg-[color:var(--state-warning-bg)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[color:var(--state-warning-text)] ring-1 ring-inset ring-[color:var(--state-warning-border)]">
                   {stateSignals.warning}
                 </p>
               ) : null}

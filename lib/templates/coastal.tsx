@@ -31,7 +31,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
             {(data.agencyState || data.showAgencyGstin || data.agencyPan) && (
               <div className="mt-2 text-[10px] text-[#94A3B8] space-y-0.5">
                 {data.agencyState && <p>{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
-                {data.showAgencyGstin && <p className="font-medium text-[#0369A1]">GSTIN {data.agencyGstin}</p>}
+                {data.showAgencyGstin && <p className="font-normal text-[#0369A1]">GSTIN {data.agencyGstin}</p>}
                 {data.agencyPan && <p>PAN {data.agencyPan}</p>}
               </div>
             )}
@@ -46,11 +46,11 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
               <div className="flex justify-end gap-8 text-[11px]">
                 <div>
                   <p className="text-[9px] uppercase tracking-wider text-[#94A3B8]">Issued</p>
-                  <p className="font-medium">{data.invoiceDate}</p>
+                  <p className="font-normal">{data.invoiceDate}</p>
                 </div>
                 <div>
                   <p className="text-[9px] uppercase tracking-wider text-[#94A3B8]">Due</p>
-                  <p className="font-medium text-[#DC2626]">{data.dueDate}</p>
+                  <p className="font-normal text-[#DC2626]">{data.dueDate}</p>
                 </div>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
             </div>
             <div className="text-right self-end">
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#94A3B8] mb-1">Terms</p>
-              <p className="text-[12px] font-medium">{data.paymentTerms}</p>
+              <p className="text-[12px] font-normal">{data.paymentTerms}</p>
               {data.isInternational && <p className="mt-1 text-[10px] font-bold text-[#0369A1]">Currency: {data.displayCurrency}</p>}
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
                         {item.unit && <span>{item.unit}</span>}
                       </div>
                     </td>
-                    <td className="py-5 text-center text-[12px] font-medium">{item.qty}</td>
+                    <td className="py-5 text-center text-[12px] font-normal">{item.qty}</td>
                     <td className="py-5 text-right text-[12px]">{item.rateFormatted}</td>
                     <td className="py-5 text-right text-[13px] font-bold">{item.amountFormatted}</td>
                   </tr>
@@ -134,10 +134,10 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
           <div className="w-[280px] space-y-2">
             <MilestoneSummaryBlock data={data} />
             <div className="flex justify-between text-[11px] text-[#64748B]">
-              <span>Subtotal</span><span className="font-medium text-[#1E293B]">{data.subtotalFormatted}</span>
+              <span>Subtotal</span><span className="font-bold text-[#1E293B]">{data.subtotalFormatted}</span>
             </div>
             <div className="flex justify-between text-[11px] text-[#64748B]">
-              <span>{data.taxLabel}</span><span className="font-medium text-[#1E293B]">{data.taxFormatted}</span>
+              <span>{data.taxLabel}</span><span className="font-bold text-[#1E293B]">{data.taxFormatted}</span>
             </div>
             <div className="pt-3 border-t-2 border-[#0369A1] flex justify-between items-baseline">
               <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Total due</span>

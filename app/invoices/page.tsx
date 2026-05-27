@@ -76,7 +76,7 @@ export default function InvoicesPage() {
           <h1 className="text-4xl font-black tracking-tighter">Invoices · {filteredInvoices.length}</h1>
           <a
             href="/invoice/new?fresh=1"
-            className="border-2 border-black bg-[#D4FF00] px-6 py-3 text-sm font-extrabold uppercase tracking-widest text-black shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#000] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+            className="border-2 border-black bg-[color:var(--color-lime-warm)] px-6 py-3 text-sm font-extrabold uppercase tracking-widest text-black shadow-[4px_4px_0_#111118] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_#111118] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
           >
             + NEW INVOICE
           </a>
@@ -104,7 +104,7 @@ export default function InvoicesPage() {
               placeholder="Search by invoice number, client, or project…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-black focus:outline-none focus:ring-2 focus:ring-[#D4FF00] focus:border-black font-medium"
+              className="w-full px-4 py-2 border-2 border-black )] font-normal app-focus-ring"
             />
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function InvoicesPage() {
             Loading invoices…
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border-2 border-black shadow-[8px_8px_0_#000]">
+          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border-2 border-black shadow-[8px_8px_0_#111118]">
             <div className="text-3xl font-black tracking-tighter mb-2">No invoices yet</div>
             <p className="text-neutral-500 font-bold tracking-wide">
               Create your first invoice to get started

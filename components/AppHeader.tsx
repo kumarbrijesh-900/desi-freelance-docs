@@ -34,7 +34,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
       className={cn(
         "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased",
         isActive
-          ? "text-[#BEFF00]"
+          ? "text-[color:var(--color-lime-warm)]"
           : "text-[#9999A8] hover:text-white",
       )}
     >
@@ -83,7 +83,7 @@ function UserMenu({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-8 w-8 items-center justify-center border-2 border-[#BEFF00] bg-[#1A1A24] overflow-hidden transition-all hover:bg-[#2A2A34]"
+        className="flex h-8 w-8 items-center justify-center border-2 border-[color:var(--color-lime-warm)] bg-[#1A1A24] overflow-hidden transition-all hover:bg-[#2A2A34]"
       >
         {avatar ? (
           <img
@@ -92,14 +92,14 @@ function UserMenu({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-[10px] font-bold text-[#BEFF00]">
+          <span className="text-[10px] font-bold text-[color:var(--color-lime-warm)]">
             {initials}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 origin-top-right border-2 border-[#111118] bg-white p-1 shadow-[4px_4px_0_#111118] z-50">
+        <div className="absolute right-0 mt-2 w-48 origin-top-right border-2 border-[#111118] bg-white p-1 shadow-[var(--brutal-shadow-md)] z-50">
           <div className="px-3 py-2 border-b-2 border-[#111118] mb-1">
             <p className="text-[10px] font-bold text-[#6E6E7A] uppercase tracking-[0.08em]">
               Account
@@ -118,7 +118,7 @@ function UserMenu({
                 router.push("/profile");
               }
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#111118] hover:bg-[#BEFF00] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#111118] hover:bg-[color:var(--color-lime-warm)] transition-colors"
           >
             Profile Settings
           </button>
@@ -128,7 +128,7 @@ function UserMenu({
               setIsOpen(false);
               onFeedbackClick();
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#111118] hover:bg-[#BEFF00] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#111118] hover:bg-[color:var(--color-lime-warm)] transition-colors"
           >
             Provide Feedback
           </button>
@@ -204,14 +204,14 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-2 border-[#BEFF00] bg-[#111118] print:hidden">
+      <header className="sticky top-0 z-50 border-b-2 border-[color:var(--color-lime-warm)] bg-[#111118] print:hidden">
         <div
           className={`${appPageContainerClass} flex items-center justify-between py-3`}
         >
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
-              <span className="flex h-7 w-7 items-center justify-center border-2 border-[#BEFF00] bg-[#BEFF00] text-[12px] font-black text-[#111118]">
+              <span className="flex h-7 w-7 items-center justify-center border-2 border-[color:var(--color-lime-warm)] bg-[color:var(--color-lime-warm)] text-[12px] font-black text-[#111118]">
                 L
               </span>
               <span className="text-[16px] font-black tracking-[0.1em] uppercase text-white font-syne antialiased">
@@ -222,7 +222,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="sm:hidden flex h-8 w-8 items-center justify-center border-2 border-[#333] hover:border-[#BEFF00] transition-colors"
+              className="sm:hidden flex h-8 w-8 items-center justify-center border-2 border-[#333] hover:border-[color:var(--color-lime-warm)] transition-colors"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -253,7 +253,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-[#BEFF00] bg-[#BEFF00] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[2px_2px_0_#111118] hover:shadow-[3px_3px_0_#111118] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-[color:var(--color-lime-warm)] bg-[color:var(--color-lime-warm)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
             </button>
@@ -270,7 +270,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             ) : (
               <Link
                 href="/login"
-                className="text-[12px] font-bold uppercase tracking-[0.06em] text-[#BEFF00] hover:text-white transition-colors border-2 border-[#BEFF00] px-3 py-1.5 hover:bg-[#BEFF00] hover:text-[#111118]"
+                className="text-[12px] font-bold uppercase tracking-[0.06em] text-[color:var(--color-lime-warm)] hover:text-white transition-colors border-2 border-[color:var(--color-lime-warm)] px-3 py-1.5 hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118]"
               >
                 Sign In
               </Link>
@@ -285,7 +285,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 <button
                   type="button"
                   onClick={handleNewInvoice}
-                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-[#BEFF00] text-[#111118] border-b-2 border-[#333] mb-1"
+                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-[color:var(--color-lime-warm)] text-[#111118] border-b-2 border-[#333] mb-1"
                 >
                   + New Invoice
                 </button>
@@ -295,7 +295,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     className={cn(
                       "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
                       pathname === "/dashboard"
-                        ? "bg-[#BEFF00] text-[#111118]"
+                        ? "bg-[color:var(--color-lime-warm)] text-[#111118]"
                         : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -310,7 +310,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                       className={cn(
                         "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
                         pathname === "/invoices"
-                          ? "bg-[#BEFF00] text-[#111118]"
+                          ? "bg-[color:var(--color-lime-warm)] text-[#111118]"
                           : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -322,7 +322,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                       className={cn(
                         "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
                         pathname === "/clients"
-                          ? "bg-[#BEFF00] text-[#111118]"
+                          ? "bg-[color:var(--color-lime-warm)] text-[#111118]"
                           : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -334,7 +334,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                       className={cn(
                         "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
                         pathname === "/profile"
-                          ? "bg-[#BEFF00] text-[#111118]"
+                          ? "bg-[color:var(--color-lime-warm)] text-[#111118]"
                           : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -348,7 +348,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                   className={cn(
                     "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
                     pathname === "/support"
-                      ? "bg-[#BEFF00] text-[#111118]"
+                      ? "bg-[color:var(--color-lime-warm)] text-[#111118]"
                       : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}

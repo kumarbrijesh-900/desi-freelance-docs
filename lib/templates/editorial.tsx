@@ -100,15 +100,15 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <div className="grid grid-cols-3 gap-4 py-4 text-[11px]">
         <div>
           <p className="uppercase tracking-[0.2em] text-[#999]">Due Date</p>
-          <p className="mt-1 font-medium text-[#27272F]">{data.dueDate}</p>
+          <p className="mt-1 font-normal text-[#27272F]">{data.dueDate}</p>
         </div>
         <div>
           <p className="uppercase tracking-[0.2em] text-[#999]">Terms</p>
-          <p className="mt-1 font-medium text-[#27272F]">{data.paymentTerms}</p>
+          <p className="mt-1 font-normal text-[#27272F]">{data.paymentTerms}</p>
         </div>
         <div>
           <p className="uppercase tracking-[0.2em] text-[#999]">Currency</p>
-          <p className="mt-1 font-medium text-[#27272F]">
+          <p className="mt-1 font-normal text-[#27272F]">
             {data.displayCurrency}
           </p>
         </div>
@@ -137,7 +137,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                   {data.agencyState?.replace(/\s*\(\d+\)/, '')}
                 </span>
               )}
-              <span className="font-medium text-[#777]">
+              <span className="font-bold text-[#777]">
                 GSTIN {data.agencyGstin}
               </span>
             </div>
@@ -203,7 +203,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                       <p className="text-[9px] uppercase tracking-[0.2em] text-[#999]">
                         Subtotal
                       </p>
-                      <p className="text-[16px] font-medium tabular-nums text-[#27272F]">
+                      <p className="text-[16px] font-normal tabular-nums text-[#27272F]">
                         {item.groupSubtotalFormatted}
                       </p>
                     </div>
@@ -230,14 +230,14 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                   {item.sacCode && (
                     <p className="mt-0.5 text-[10px] text-[#555]">
                       <span className="text-[#999]">HSN/SAC:</span>{" "}
-                      <span className="font-semibold text-[#27272F]">
+                      <span className="font-bold text-[#27272F]">
                         {item.sacCode}
                       </span>
                       {item.unit && (
                         <span className="text-[#999]">
                           {" "}
                           · Unit:{" "}
-                          <span className="font-medium text-[#555]">
+                          <span className="font-bold text-[#555]">
                             {item.unit}
                           </span>
                         </span>
@@ -245,7 +245,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                     </p>
                   )}
                 </div>
-                <p className="shrink-0 text-[15px] font-medium tabular-nums text-[#27272F]">
+                <p className="shrink-0 text-[15px] font-normal tabular-nums text-[#27272F]">
                   {item.amountFormatted}
                 </p>
               </div>
@@ -375,7 +375,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
             <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">
               Total Amount in Words
             </p>
-            <p className="mt-1 text-[12px] font-medium text-[#27272F]">
+            <p className="mt-1 text-[12px] font-normal text-[#27272F]">
               {data.amountInWords}
             </p>
             {data.reverseCharge && (
@@ -403,7 +403,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
               </div>
             ) : (
               <div className="mt-2 w-full border-b border-[#27272F] pb-1">
-                <p className="text-[12px] font-medium text-[#555]">
+                <p className="text-[12px] font-normal text-[#555]">
                   {data.authorizedSignatory || data.agencyName}
                 </p>
               </div>

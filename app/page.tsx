@@ -61,7 +61,7 @@ export default function Home() {
               </p>
               <a
                 href={isLoggedIn ? "/invoice/new?fresh=1" : "/invoice/new?guest=1&fresh=1"}
-                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#BEFF00] px-8 py-4 text-[15px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-lg)] hover:shadow-[6px_6px_0_#111118] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-8 py-4 text-[15px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-lg)] hover:shadow-[var(--brutal-shadow-lg)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
               >
                 Create Invoice
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -105,7 +105,7 @@ export default function Home() {
           <div className="space-y-4">
             {/* Feature 1 */}
             <div className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] p-6 sm:p-8 flex flex-col sm:flex-row gap-5 items-start">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[#111118] font-black text-xl">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[#111118] font-black text-xl">
                 1
               </div>
               <div>
@@ -172,7 +172,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="flex h-7 w-7 items-center justify-center border-2 border-[#111118] bg-[#BEFF00] text-[12px] font-black text-[#111118]">
+                <span className="flex h-7 w-7 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[12px] font-black text-[#111118]">
                   L
                 </span>
                 <span className="text-[15px] font-black uppercase text-[#111118]">
@@ -188,10 +188,10 @@ export default function Home() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)] mb-2">
                   Product
                 </p>
-                <a href="/invoice/new" className="block text-[13px] font-medium text-[#111118] hover:text-[#8B5CF6] mb-1">
+                <a href="/invoice/new" className="block text-[13px] font-normal text-[#111118] hover:text-[#8B5CF6] mb-1">
                   Create Invoice
                 </a>
-                <a href="/support" className="block text-[13px] font-medium text-[#111118] hover:text-[#8B5CF6]">
+                <a href="/support" className="block text-[13px] font-normal text-[#111118] hover:text-[#8B5CF6]">
                   FAQ
                 </a>
               </div>
@@ -199,10 +199,10 @@ export default function Home() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)] mb-2">
                   Legal
                 </p>
-                <a href="/terms" className="block text-[13px] font-medium text-[#111118] hover:text-[#8B5CF6] mb-1">
+                <a href="/terms" className="block text-[13px] font-normal text-[#111118] hover:text-[#8B5CF6] mb-1">
                   Terms
                 </a>
-                <a href="/privacy" className="block text-[13px] font-medium text-[#111118] hover:text-[#8B5CF6]">
+                <a href="/privacy" className="block text-[13px] font-normal text-[#111118] hover:text-[#8B5CF6]">
                   Privacy
                 </a>
               </div>
@@ -210,7 +210,7 @@ export default function Home() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)] mb-2">
                   Contact
                 </p>
-                <a href="mailto:hello@lanceinvoice.xyz" className="block text-[13px] font-medium text-[#111118] hover:text-[#8B5CF6]">
+                <a href="mailto:hello@lanceinvoice.xyz" className="block text-[13px] font-normal text-[#111118] hover:text-[#8B5CF6]">
                   hello@lanceinvoice.xyz
                 </a>
               </div>

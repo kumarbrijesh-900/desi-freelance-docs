@@ -12,7 +12,7 @@ export interface DownloadDecisionModalProps {
 }
 
 const INK = '#111118'
-const LIME = '#BEFF00'
+const LIME = 'var(--color-lime-warm)'
 const CREAM = '#FFFBE6'
 const CORAL = '#FF5C00'
 

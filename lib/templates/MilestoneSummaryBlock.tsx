@@ -77,7 +77,7 @@ export function MilestoneSummaryBlock({
         <span style={{ fontWeight: 700, color: accentColor }}>Total project</span>
         <span style={{ fontWeight: 700, color: accentColor }}>{data.totalProjectFormatted}</span>
       </div>
-      <p className="mt-2 pt-2 border-t border-[color:var(--border-subtle)] text-[10px] font-medium italic text-[#A8A08E]">
+      <p className="mt-2 pt-2 border-t border-[color:var(--border-subtle)] text-[10px] font-normal italic text-[#A8A08E]">
         Note: Please transfer the relevant Milestone Subtotal as outlined above.
       </p>
     </div>

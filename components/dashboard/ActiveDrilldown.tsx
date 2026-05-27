@@ -62,13 +62,13 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border-2 border-black font-extrabold uppercase px-4 py-2 text-sm shadow-[3px_3px_0_#000] transition-all";
+  let btnClass = "border-2 border-black font-extrabold uppercase px-4 py-2 text-sm shadow-[3px_3px_0_#111118] transition-all";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
     case "send_now":
       btnLabel = "SEND NOW";
-      btnClass += " bg-[#D4FF00] text-black active:translate-y-[3px] active:translate-x-[3px] active:shadow-none";
+      btnClass += " bg-[color:var(--color-lime-warm)] text-black active:translate-y-[3px] active:translate-x-[3px] active:shadow-none";
       handler = onSendNow;
       break;
     case "mark_settled":
@@ -83,7 +83,7 @@ export function ActiveDrilldown({
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " bg-[#D4FF00] text-black active:translate-y-[3px] active:translate-x-[3px] active:shadow-none";
+      btnClass += " bg-[color:var(--color-lime-warm)] text-black active:translate-y-[3px] active:translate-x-[3px] active:shadow-none";
       handler = onFinalize;
       break;
     case "review_revision":
@@ -140,7 +140,7 @@ export function ActiveDrilldown({
             {items.map((item, idx) => (
               <div key={idx} className="flex justify-between items-start text-sm border-b border-neutral-200 pb-2">
                 <div className="font-bold flex-1">{item.description || item.name || "Item"}</div>
-                <div className="w-[80px] text-right font-medium">
+                <div className="w-[80px] text-right font-normal">
                   {item.qty} {item.rateUnit === 'flat' ? '' : '×'} {item.rateUnit === 'flat' ? '' : formatInr(item.rate || 0)}
                 </div>
                 <div className="w-[100px] text-right font-extrabold">

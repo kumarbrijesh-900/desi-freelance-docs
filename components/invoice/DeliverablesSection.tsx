@@ -217,7 +217,7 @@ export default function DeliverablesSection({
                   onProjectNameChange(event.target.value);
                 }}
                 placeholder="e.g. Villa Renovation Phase 2"
-                className="w-full rounded-none border-[2px] border-[#111118] px-3 py-2 text-sm font-bold text-[#111118] outline-none focus:ring-2 focus:ring-[#BEFF00] focus:ring-offset-0"
+                className="w-full rounded-none border-[2px] border-[#111118] px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
               />
               {showAllErrors && !projectName.trim() && (
                 <p className="mt-2 text-xs font-bold text-[#FF5C00]">
@@ -231,7 +231,7 @@ export default function DeliverablesSection({
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
           <div className="flex items-center gap-2 border-2 border-[color:var(--border-subtle)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
             <span className="text-[12px]">📎</span>
-            <p className="text-[11px] font-medium text-[color:var(--text-secondary)]">
+            <p className="text-[11px] font-normal text-[color:var(--text-secondary)]">
               Revision policy: <strong>{freeRevisionRounds}</strong> free rounds per deliverable. Extra rounds at <strong>{extraRevisionFeePercent}%</strong> of item total.
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function DeliverablesSection({
                           value={milestone.title}
                           placeholder="e.g. Phase 1: Research"
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
-                          className="w-full border border-transparent bg-transparent px-1 -ml-1 text-xl font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--border-subtle)] focus:border-gray-900"
+                          className="w-full border border-transparent bg-transparent px-1 -ml-1 text-xl font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--border-subtle)] app-focus-ring"
                         />
                         {!isReadOnly && <PencilIcon className="h-4 w-4 cursor-pointer text-gray-400 transition-colors hover:text-[#111118]" />}
                       </div>
@@ -359,10 +359,10 @@ export default function DeliverablesSection({
                 "w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white py-6 text-[13px] font-bold text-[color:var(--text-muted)] transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-[#4F46E5] hover:text-[#4F46E5] hover:bg-[#4F46E5]/5"
+                  : "hover:border-[color:var(--brand-indigo-deep)] hover:text-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5"
               )}
             >
-              <span className="text-2xl text-gray-300 group-hover:text-[#4F46E5]">+</span>
+              <span className="text-2xl text-gray-300 group-hover:text-[color:var(--brand-indigo-deep)]">+</span>
               Add Project Milestone · {MAX_MILESTONES - effectiveMilestones.length} of {MAX_MILESTONES} left
             </button>
           </div>
@@ -520,7 +520,7 @@ function LineItemCard({
           )}
           {sacCode && (
             <div className="flex items-center gap-1.5 pl-1">
-              <p className="text-[11px] font-medium text-[color:var(--text-muted)]">
+              <p className="text-[11px] font-normal text-[color:var(--text-muted)]">
                 SAC: {sacCode}
               </p>
               <AppTooltip content={<>
@@ -575,7 +575,7 @@ function LineItemCard({
                     onUpdate({ description: s });
                     setActiveDescriptionId(null);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-[#BEFF00] hover:text-[#111118] transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118] transition-colors"
                 >
                   {s}
                 </button>
@@ -621,7 +621,7 @@ function LineItemCard({
               )}
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[color:var(--text-muted)] font-medium pointer-events-none z-10">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[color:var(--text-muted)] font-bold pointer-events-none z-10">
                 {getCurrencySymbol(currency)}
               </span>
               <AppTextField
@@ -791,7 +791,7 @@ function BrutalSelect({
                   "w-full text-left px-3 py-2.5 text-[14px] transition-colors border-b border-[color:var(--border-subtle)] last:border-b-0",
                   isSelected
                     ? "font-bold text-[#111118] bg-[#F4FFE0]"
-                    : "text-[color:var(--text-primary)] hover:bg-[#BEFF00] hover:text-[#111118]"
+                    : "text-[color:var(--text-primary)] hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118]"
                 )}
               >
                 {opt.label}

@@ -25,7 +25,7 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
         )}
         <div className="mt-2 text-[10px] text-[#A89070] flex justify-center gap-4">
           {data.agencyState && <span>{data.agencyState?.replace(/\s*\(\d+\)/, '')}</span>}
-          {data.showAgencyGstin && <span className="font-semibold text-[#6B5B3E]">GSTIN: {data.agencyGstin}</span>}
+          {data.showAgencyGstin && <span className="font-bold text-[#6B5B3E]">GSTIN: {data.agencyGstin}</span>}
           {data.agencyPan && <span>PAN: {data.agencyPan}</span>}
         </div>
       </header>
@@ -40,21 +40,21 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
       <div className="grid grid-cols-3 gap-0 mb-10 border border-[#D4C5A9] text-[11px]">
         <div className="p-3 border-r border-[#D4C5A9] text-center">
           <p className="text-[9px] uppercase tracking-widest text-[#A89070]">Invoice date</p>
-          <p className="font-semibold mt-1">{data.invoiceDate}</p>
+          <p className="font-bold mt-1">{data.invoiceDate}</p>
         </div>
         <div className="p-3 border-r border-[#D4C5A9] text-center">
           <p className="text-[9px] uppercase tracking-widest text-[#A89070]">Due date</p>
-          <p className="font-semibold mt-1 text-[#8B3A3A]">{data.dueDate}</p>
+          <p className="font-bold mt-1 text-[#8B3A3A]">{data.dueDate}</p>
         </div>
         <div className="p-3 text-center">
           <p className="text-[9px] uppercase tracking-widest text-[#A89070]">Payment terms</p>
-          <p className="font-semibold mt-1">{data.paymentTerms}</p>
+          <p className="font-bold mt-1">{data.paymentTerms}</p>
         </div>
       </div>
 
       {/* ── Billed To ─────────────────────────── */}
       <section className="mb-10">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A89070] mb-2 font-semibold">Billed to</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A89070] mb-2 font-bold">Billed to</p>
         <div className="border-l-2 border-[#8B7355] pl-4">
           <p className="text-[15px] font-bold">{data.clientName}</p>
           {data.clientAddress && data.clientAddress !== "—" && (
@@ -64,7 +64,7 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
             {data.clientState && <span>{data.clientState?.replace(/\s*\(\d+\)/, '')}</span>}
             {data.clientTaxId && <span>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</span>}
           </div>
-          {data.isInternational && <p className="mt-1 text-[10px] font-semibold">Currency: {data.displayCurrency}</p>}
+          {data.isInternational && <p className="mt-1 text-[10px] font-bold">Currency: {data.displayCurrency}</p>}
         </div>
       </section>
 
@@ -97,14 +97,14 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
               return (
                 <tr key={item.id} className={`border-b border-[#E8DFC9] ${idx % 2 === 0 ? 'bg-white' : 'bg-[#FDFBF7]'}`}>
                   <td className="py-4 px-4">
-                    <p className="font-semibold text-[12px]">{item.description}</p>
+                    <p className="font-bold text-[12px]">{item.description}</p>
                     <div className="mt-0.5 font-['DM_Sans',sans-serif] text-[9px] text-[#A89070] flex gap-3">
                       {item.type && <span>{item.type}</span>}
                       {item.sacCode && <span>HSN/SAC: {item.sacCode}</span>}
                       {item.unit && <span>{item.unit}</span>}
                     </div>
                   </td>
-                  <td className="py-4 px-2 text-center text-[12px] font-medium">{item.qty}</td>
+                  <td className="py-4 px-2 text-center text-[12px] font-normal">{item.qty}</td>
                   <td className="py-4 px-2 text-right text-[12px]">{item.rateFormatted}</td>
                   <td className="py-4 px-4 text-right text-[12px] font-bold">{item.amountFormatted}</td>
                 </tr>
@@ -119,10 +119,10 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
         <div className="w-[300px] border border-[#D4C5A9]">
           <div className="p-3"><MilestoneSummaryBlock data={data} /></div>
           <div className="flex justify-between px-4 py-2 text-[11px] border-t border-[#E8DFC9]">
-            <span className="text-[#A89070]">Subtotal</span><span className="font-semibold">{data.subtotalFormatted}</span>
+            <span className="text-[#A89070]">Subtotal</span><span className="font-bold">{data.subtotalFormatted}</span>
           </div>
           <div className="flex justify-between px-4 py-2 text-[11px] border-t border-[#E8DFC9]">
-            <span className="text-[#A89070]">{data.taxLabel}</span><span className="font-semibold">{data.taxFormatted}</span>
+            <span className="text-[#A89070]">{data.taxLabel}</span><span className="font-bold">{data.taxFormatted}</span>
           </div>
           <div className="flex justify-between px-4 py-3 bg-[#F0EADB] border-t-2 border-[#8B7355] items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-widest">Grand total</span>

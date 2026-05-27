@@ -328,7 +328,7 @@ function EditableRow({
                   setEditValue(e.target.value);
                   if (isApproved) onApprove(label, e.target.value);
                 }}
-                className="h-9 w-full border border-white/[0.1] bg-black pl-3 pr-10 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 appearance-none cursor-pointer"
+                className="h-9 w-full border border-white/[0.1] bg-black pl-3 pr-10 text-sm text-white outline-none appearance-none cursor-pointer app-focus-ring"
               >
                 <option value="">Select {label}...</option>
                 {options.map((opt) => (
@@ -350,7 +350,7 @@ function EditableRow({
                 if (isApproved) onApprove(label, e.target.value);
               }}
               placeholder={`Enter ${label.toLowerCase()}...`}
-              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30"
+              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none app-focus-ring"
             />
           )}
         </div>
@@ -443,7 +443,7 @@ export default function BriefSummaryModal({
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
+          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-none bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
         >
           <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5 bg-gradient-to-r from-transparent to-white/[0.02]">
             <div className="flex items-center gap-4">
@@ -454,7 +454,7 @@ export default function BriefSummaryModal({
                 <h2 className="text-xl font-black text-white tracking-tight leading-none">
                   Extraction Summary
                 </h2>
-                <p className="text-sm text-[color:var(--text-muted)] mt-1.5 font-medium">
+                <p className="text-sm text-[color:var(--text-muted)] mt-1.5 font-normal">
                   Please validate the details before generating the invoice.
                 </p>
               </div>
@@ -474,13 +474,13 @@ export default function BriefSummaryModal({
                   type="checkbox"
                   checked={shouldSaveClient}
                   onChange={(e) => setShouldSaveClient(e.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-gray-700 bg-gray-900 text-cyan-500 focus:ring-cyan-500 transition-all cursor-pointer"
+                  className="mt-1 h-5 w-5 rounded border-gray-700 bg-gray-900 text-cyan-500 transition-all cursor-pointer app-focus-ring"
                 />
                 <div>
                   <p className="font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors">
                     New Client Detected: {localData.client.clientName}
                   </p>
-                  <p className="text-xs text-cyan-500/60 mt-1 leading-relaxed font-medium">
+                  <p className="text-cyan-500/60 mt-1 leading-relaxed text-[10px] font-bold uppercase tracking-[0.16em]">
                     Would you like to save this client to your Master Directory?
                     This happens automatically once you save the invoice.
                   </p>
@@ -500,14 +500,14 @@ export default function BriefSummaryModal({
                   <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-brand px-1">
                     Extracted Successfully
                   </h3>
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
+                  <div className="rounded-none border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
                     {successFields.map((f) => {
                       const val = getExtractedValueForLabel(f.label, localData);
                       return (
                         <div key={f.label} className="flex items-center justify-between px-4 py-2.5">
-                          <span className="text-[12px] text-[color:var(--text-muted)] font-medium">{f.label}</span>
+                          <span className="text-[12px] text-[color:var(--text-muted)] font-bold">{f.label}</span>
                           <div className="flex items-center gap-2.5">
-                            <span className="text-[13px] text-white font-medium max-w-[220px] truncate">{val}</span>
+                            <span className="text-[13px] text-white font-bold max-w-[220px] truncate">{val}</span>
                             <CheckIcon className="h-3.5 w-3.5 text-indigo-brand shrink-0" />
                           </div>
                         </div>
