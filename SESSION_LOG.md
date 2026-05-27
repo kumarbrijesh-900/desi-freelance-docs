@@ -2002,3 +2002,18 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - **Sprint 10**: Replaced inline tailwind focus rings with a centralized `.app-focus-ring` for accessibility, and added `prefers-reduced-motion` to disable animations for users with vestibular disorders.
 - **Sprint 11**: Added comprehensive `@media print` overrides in `globals.css` to hide UI chrome and flatten brutalist shadows for ink-saving physical/PDF printing.
 - Build checked (`tsc --noEmit` and `npm run build`) and passed successfully.
+
+
+## Update: May 27, 2026 - Phase 4: Sprints 10 & 11
+
+### Accessibility & Print CSS Audits Completed
+
+**Sprint 10: Accessibility Audit**
+- Swept all critical modals (BriefSummaryModal.tsx, SettlementModal.tsx, ConversionModal.tsx, ShareLinkModal.tsx, DownloadDecisionModal.tsx, and InvoiceEditorPage's exit confirmation modal) and appended `role="dialog"`, `aria-modal="true"`, and appropriate `aria-labelledby` tags.
+- Verified that `.app-focus-ring` is applied universally to buttons and input fields to support keyboard-only navigation.
+- Ensured `prefers-reduced-motion` is accurately overriding animations to protect users with vestibular conditions.
+
+**Sprint 11: Responsive Breakpoint & Print CSS Audit**
+- **Print Layout**: Added a comprehensive `@media print` query in `globals.css` that completely flattens brutalist shadows into 1px borders, disables navigation/UI elements (`nav`, `.sidebar`, etc.), and converts the lime green to transparent to save ink and maximize data visibility.
+- **Mobile Layout**: Scaled down the heavy brutalist properties (reduced `2px` borders to `1px`, and `4px` shadows to `2px`) on viewports under `768px` to prevent the UI from feeling bulky on mobile devices.
+- Passed `npm run build` and pushed successfully to `main`.
