@@ -5,12 +5,15 @@ import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
 import { InvoiceEventRow } from "@/components/invoices/InvoiceEventRow";
+import { AppPagination } from "@/components/ui/AppPagination";
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete"];
 
@@ -26,6 +29,10 @@ export default function InvoicesPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, search]);
+
   // Flatten all invoices and attach project/client metadata
   const flattenedInvoices = projects.flatMap(p => {
     const master = p.invoices.find(i => !(i as any).parent_invoice_id);
@@ -36,7 +43,8 @@ export default function InvoicesPage() {
       isMaster: !(inv as any).parent_invoice_id,
       projectId: p.project.id,
       masterMsaStatus: master?.msa_status,
-      masterHasClientMsaNote: !!master?.client_msa_note
+      masterHasClientMsaNote: !!master?.client_msa_note,
+      masterInvoice: master
     }));
   }).sort((a, b) => new Date(b.invoice.created_at).getTime() - new Date(a.invoice.created_at).getTime());
 
@@ -66,6 +74,12 @@ export default function InvoicesPage() {
       default: return true;
     }
   });
+
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+  const paginatedInvoices = filteredInvoices.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className={appPageShellClass}>
@@ -104,7 +118,7 @@ export default function InvoicesPage() {
               placeholder="Search by invoice number, client, or project…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-black )] font-normal app-focus-ring"
+              className="w-full px-4 py-2 border-2 border-black font-normal app-focus-ring"
             />
           </div>
         </div>
@@ -122,7 +136,7 @@ export default function InvoicesPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {filteredInvoices.map(item => (
+            {paginatedInvoices.map(item => (
               <InvoiceEventRow
                 key={item.invoice.id}
                 invoice={item.invoice}
@@ -132,8 +146,14 @@ export default function InvoicesPage() {
                 projectId={item.projectId}
                 masterMsaStatus={item.masterMsaStatus}
                 masterHasClientMsaNote={item.masterHasClientMsaNote}
+                masterInvoice={item.masterInvoice}
               />
             ))}
+            <AppPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </main>

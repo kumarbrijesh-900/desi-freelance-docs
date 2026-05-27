@@ -11,6 +11,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
+import { AppPagination } from "@/components/ui/AppPagination";
 import {
   MotionReveal,
   MotionButton,
@@ -667,6 +668,12 @@ export default function ClientsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   useEffect(() => {
     let isActive = true;
@@ -714,6 +721,12 @@ export default function ClientsPage() {
         c.gstin.toLowerCase().includes(q),
     );
   }, [clients, searchQuery]);
+
+  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const paginatedClients = filteredClients.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleSave = (saved: SavedClient) => {
     setClients((prev) => {
@@ -906,159 +919,68 @@ export default function ClientsPage() {
                       </div>
                     </div>
                   )}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="border-b-2 border-[#111118] bg-[color:var(--bg-surface-muted)]">
-                          <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
-                            Client Name
-                          </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] sm:table-cell">
-                            Email
-                          </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
-                            City
-                          </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] md:table-cell">
-                            GSTIN
-                          </th>
-                          <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
-                            Type
-                          </th>
-                          <th className="hidden px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)] lg:table-cell">
-                            Invoices
-                          </th>
-                          <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-muted)]">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredClients.map((client, idx) => (
-                          <tr
-                            key={client.id}
-                            className={cn(
-                              "group transition-colors hover:bg-[color:var(--bg-surface-muted)]",
-                              idx < filteredClients.length - 1 &&
-                                "border-b-2 border-[#111118]",
-                            )}
-                          >
-                            {/* Name */}
-                            <td className="px-4 py-3">
-                              <Link
-                                href={`/clients/${client.id}`}
-                                className="text-[13px] font-bold text-[color:var(--text-primary)] hover:text-[color:var(--brand-indigo)] transition-colors"
-                              >
-                                {client.client_name || "Unnamed"}
-                              </Link>
-                              {/* Mobile: show email below name */}
-                              {client.client_email && (
-                                <p className="mt-0.5 text-[11px] text-[color:var(--text-muted)] sm:hidden">
-                                  {client.client_email}
-                                </p>
-                              )}
-                            </td>
+                  <div className="flex flex-col gap-4 p-4 bg-[color:var(--bg-surface-muted)]">
+                    {paginatedClients.map((client) => (
+                      <div key={client.id} className="flex flex-col sm:flex-row items-center justify-between border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] p-4 gap-4 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#111118]">
+                        <div className="flex flex-col sm:w-[200px] shrink-0">
+                          <Link href={`/clients/${client.id}`} className="text-lg font-black uppercase tracking-tight hover:underline">
+                            {client.client_name || "Unnamed"}
+                          </Link>
+                          {client.client_email && (
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] mt-1">
+                              {client.client_email}
+                            </span>
+                          )}
+                        </div>
 
-                            {/* Email */}
-                            <td className="hidden px-4 py-3 text-[12px] text-[color:var(--text-secondary)] sm:table-cell">
-                              {client.client_email || "—"}
-                            </td>
+                        <div className="flex flex-col flex-1 min-w-[200px]">
+                          <span className="text-sm font-extrabold uppercase tracking-wide truncate">
+                            {client.city || client.state || "No Location"}
+                          </span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)] truncate mt-1">
+                            {client.client_type === "international" ? "Intl" : "India"}
+                            {client.gstin && ` · GST: ${client.gstin}`}
+                          </span>
+                        </div>
 
-                            {/* City */}
-                            <td className="hidden px-4 py-3 text-[12px] text-[color:var(--text-secondary)] md:table-cell">
-                              {client.city || client.state || "—"}
-                            </td>
+                        <div className="flex flex-col sm:w-[120px] shrink-0 text-left sm:text-center">
+                          <span className="text-lg font-black tracking-tighter">{client.invoice_count || 0}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--text-muted)]">Invoices</span>
+                        </div>
 
-                            {/* GSTIN */}
-                            <td className="hidden px-4 py-3 md:table-cell">
-                              {client.gstin ? (
-                                <span className="border-2 border-[#111118] bg-[color:var(--bg-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] font-bold text-[color:var(--text-primary)]">
-                                  {client.gstin}
-                                </span>
-                              ) : (
-                                <span className="text-[12px] text-[color:var(--text-muted)]">
-                                  —
-                                </span>
-                              )}
-                            </td>
-
-                            {/* Location badge */}
-                            <td className="px-4 py-3">
-                              <span
-                                className={getAppStatusPillClass(
-                                  client.client_type === "international"
-                                    ? "muted"
-                                    : "default",
-                                )}
-                              >
-                                {client.client_type === "international"
-                                  ? "Intl"
-                                  : "India"}
-                              </span>
-                            </td>
-
-                            {/* Invoice count */}
-                            <td className="hidden px-4 py-3 text-center text-[12px] text-[color:var(--text-secondary)] lg:table-cell">
-                              {client.invoice_count || 0}
-                            </td>
-
-                            {/* Actions */}
-                            <td className="px-4 py-3 text-right">
-                              {deletingClientId === client.id ? (
-                                <div className="flex items-center justify-end gap-1.5">
-                                  <span className="text-[11px] text-[#FF5C00] font-bold mr-1">
-                                    Delete?
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={handleDeleteConfirm}
-                                    className="inline-flex h-7 items-center justify-center border-2 border-[#111118] bg-red-500 px-2.5 text-[11px] font-bold text-white transition-colors hover:bg-red-600"
-                                  >
-                                    Yes
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={handleDeleteCancel}
-                                    className="inline-flex h-7 items-center justify-center border-2 border-[#111118] px-2.5 text-[11px] font-bold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
-                                  >
-                                    No
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleEdit(client)}
-                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--bg-surface-muted)] hover:text-[color:var(--text-primary)]"
-                                    title="Edit"
-                                  >
-                                    <EditIcon />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleDeleteRequest(client.id)
-                                    }
-                                    className="inline-flex h-7 w-7 items-center justify-center border border-[#111118] text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--state-danger-bg)] hover:text-[#FF5C00]"
-                                    title="Delete"
-                                  >
-                                    <TrashIcon />
-                                  </button>
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        <div className="flex flex-col sm:flex-row sm:w-[320px] shrink-0 justify-end gap-2">
+                          {deletingClientId === client.id ? (
+                             <div className="flex items-center justify-end gap-1.5 w-full">
+                               <span className="text-[11px] text-[#FF5C00] font-bold mr-1">Delete?</span>
+                               <button onClick={handleDeleteConfirm} className="border-2 border-[#111118] bg-red-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:bg-red-600 transition-colors">Yes</button>
+                               <button onClick={handleDeleteCancel} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] hover:bg-[color:var(--bg-surface-muted)] transition-colors">No</button>
+                             </div>
+                          ) : (
+                            <>
+                              <button onClick={() => handleEdit(client)} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-[#111118] hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Edit</button>
+                              <button onClick={() => handleDeleteRequest(client.id)} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-red-500 hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Delete</button>
+                              <Link href={`/invoice/new?client_id=${client.id}#items`} className="border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-[#111118] hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all whitespace-nowrap">+ New Invoice</Link>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* No search results */}
                   {filteredClients.length === 0 && searchQuery && (
-                    <div className="border-t border-[color:var(--border-subtle)] px-4 py-8 text-center text-[13px] text-[color:var(--text-muted)]">
+                    <div className="border-t border-[color:var(--border-subtle)] px-4 py-8 text-center text-[13px] font-bold text-[color:var(--text-muted)]">
                       No clients matching &ldquo;{searchQuery}&rdquo;
                     </div>
                   )}
+
+                  <div className="px-4 pb-4 bg-[color:var(--bg-surface-muted)]">
+                    <AppPagination 
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
+                    />
+                  </div>
                 </div>
               )}
             </MotionReveal>

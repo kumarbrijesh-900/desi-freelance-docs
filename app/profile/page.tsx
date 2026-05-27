@@ -740,18 +740,17 @@ export default function ProfilePage() {
             </MotionReveal>
 
             {/* Tabs */}
-            <div className="sticky top-[64px] z-20 bg-white border-b border-[color:var(--border-subtle)] mb-8 -mx-4 px-4 sm:-mx-8 sm:px-8">
-              <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+            <div className="sticky top-[64px] z-20 bg-white mb-8">
+              <div className="flex flex-wrap items-center gap-2 py-4 border-b border-black">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      "transition-all relative whitespace-nowrap pt-4",
+                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
                       activeTab === tab.id
-                        ? "border-b-3 border-[color:var(--color-lime-warm)] text-[#111118] font-bold text-[13px] uppercase tracking-[0.04em] pb-2"
-                        : "text-[color:var(--text-muted)] font-bold text-[13px] uppercase tracking-[0.04em] pb-2 hover:text-[#111118]"
-                    )}
+                        ? "bg-black text-white border-2 border-black"
+                        : "bg-transparent text-neutral-600 border-2 border-transparent hover:border-black hover:bg-neutral-100"
+                    }`}
                   >
                     {tab.label}
                   </button>
