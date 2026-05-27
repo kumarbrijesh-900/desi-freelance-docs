@@ -1973,3 +1973,24 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - Orphan backfill migration has been created but not applied by Codex. Preflight SQL should confirm the orphan master count before apply and `0` remaining after apply.
 - Untracked Vim swap file exists at `supabase/migrations/.20260526000500_backfill_orphan_invoice_projects.sql.swp`; it was not staged.
 - Passive scheduled milestone cron validation from the earlier v2.9 workstream should still be checked against production DB state after the relevant scheduled date.
+
+---
+
+## 2026-05-27 — Deep UX/UI Design System Assessment & Plan Update
+
+### Phase XLVIII: Neo-Brutalist Architecture & Visual Parity Scan
+- ✅ **Thorough Visual Scan**: 
+  - Reviewed the visual screenshots provided by the user against the existing codebase to ensure the application reaches an uncompromising, professionally designed neo-brutal finish.
+  - Identified inconsistencies in border weight hierarchy (1px vs 2px), banner alerts, and button typographies (casing/tracking).
+- ✅ **Deep Code-Level Engineering Scan**:
+  - Audited `app/globals.css`, `lib/ui-foundation.ts`, `components/ui/motion-primitives.tsx`, and `components/ui/app-icons.tsx`.
+  - Discovered a major **Motion Philosophy Conflict**: The CSS layer used a correct physical neo-brutal translation (`translate(2px, 2px)`) on click, whereas the React layer (`motion-primitives.tsx` using Framer Motion) was using generic scale compression (`scale: 0.985`), which contradicts the brutalist physical-compression aesthetics.
+  - Identified **Icon Visual Weight Discrepancy**: The SVGs in `app-icons.tsx` hardcoded `strokeWidth: 1.8`, which looked frail inside the heavy 2px standard neo-brutal UI borders.
+- ✅ **Plan Finalization**:
+  - Reconstructed the `implementation_plan.md` to directly target these code-level gaps.
+  - Added specific tasks to sprint 4 & sprint 9 for `AppIconButton`, `AppIcon` scaling, and explicit tokenizing of typography and borders.
+  - Extracted the final fully-loaded plan to `PLAN_2026-05-27_FINAL_DESIGN_SYSTEM.md` in the project root.
+
+### Files Touched
+- `PLAN_2026-05-27_FINAL_DESIGN_SYSTEM.md` (Created)
+- `SESSION_LOG.md`
