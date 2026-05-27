@@ -25,6 +25,7 @@ import {
 } from "@/lib/layout-foundation";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
+import { Sticker } from "@/components/ui/Sticker";
 import {
   getAppButtonClass,
   getAppFieldClass,
@@ -671,7 +672,7 @@ export default function ClientsPage() {
   const [editingClient, setEditingClient] = useState<SavedClient | null>(null);
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -835,156 +836,204 @@ export default function ClientsPage() {
     <main className={appPageShellClass}>
       <AppHeader />
 
-      <section className={`${appPageContainerClass} pt-8 sm:pt-12 pb-24`}>
-        <div className={appGridClass}>
-          <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-            {/* Header */}
-            <MotionReveal preset="fade-up">
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
-                  <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
-                    Your <Marker tone="rose">roster</Marker>
-                  </h1>
-                  {clients.length > 0 && (
-                    <Pill tone="rose">{clients.length}</Pill>
-                  )}
-                </div>
+      <section className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-24 relative overflow-x-hidden`}>
+        {/* Floating sticker */}
+        <div className="absolute top-[80px] right-0 z-10 hidden lg:block">
+          <Sticker rotate={-6} tone="butter">✦ {clients.length} active</Sticker>
+        </div>
 
-                <MotionButton
-                  onClick={handleAddNew}
-                  className={getAppButtonClass({ variant: "primary", size: "sm" })}
-                >
-                  <PlusIcon className="h-4 w-4" />
-                  Add Client
-                </MotionButton>
-              </div>
-            </MotionReveal>
-
-            {/* Add / Edit Drawer */}
-            <AnimatePresence>
-              {showForm && (
-                <ClientForm
-                  key={editingClient?.id ?? "new"}
-                  initial={editingClient}
-                  onSave={handleSave}
-                  onCancel={handleCancel}
-                />
-              )}
-            </AnimatePresence>
-
-            {/* Table */}
-            <MotionReveal preset="fade-up" delay={10}>
-              {clients.length === 0 ? (
-                /* Empty state */
-                <div className="flex flex-col items-center justify-center gap-5 py-16 text-center border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-                  <div className="flex h-14 w-14 items-center justify-center bg-[color:var(--color-lime-warm)] border-2 border-[#111118]">
-                    <svg className="h-7 w-7 text-[color:var(--brand-indigo-deep)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                    </svg>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
-                      Add your first client
-                    </h2>
-                    <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-[color:var(--color-ink-2)]">
-                      Save client details here so they auto-fill when you create invoices. No more retyping names, addresses, or GSTINs.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(true)}
-                    className={getAppButtonClass({
-                      variant: "primary",
-                      size: "md",
-                    })}
-                  >
-                    + Add Client
-                  </button>
-                </div>
-              ) : (
-                <div className="overflow-visible border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]">
-                  {/* Search Bar */}
-                  {clients.length > 0 && (
-                    <div className="border-b-2 border-[#111118] bg-[color:var(--color-paper)] px-4 py-3">
-                      <div className="relative max-w-sm">
-                        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-ink-2)]" />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search clients..."
-                          className={`${getAppFieldClass()} !pl-9 border-2 border-[#111118] bg-white`}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-4 p-4 bg-[color:var(--color-paper-2)]">
-                    {paginatedClients.map((client) => (
-                      <div key={client.id} className="flex flex-col sm:flex-row items-center justify-between border-2 border-[#111118] bg-white shadow-[4px_4px_0_#111118] p-4 gap-4 transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#111118]">
-                        <div className="flex flex-col sm:w-[200px] shrink-0">
-                          <Link href={`/clients/${client.id}`} className="text-lg font-black uppercase tracking-tight hover:underline">
-                            {client.client_name || "Unnamed"}
-                          </Link>
-                          {client.client_email && (
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mt-1">
-                              {client.client_email}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col flex-1 min-w-[200px]">
-                          <span className="text-sm font-extrabold uppercase tracking-wide truncate">
-                            {client.city || client.state || "No Location"}
-                          </span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] truncate mt-1">
-                            {client.client_type === "international" ? "Intl" : "India"}
-                            {client.gstin && ` · GST: ${client.gstin}`}
-                          </span>
-                        </div>
-
-                        <div className="flex flex-col sm:w-[120px] shrink-0 text-left sm:text-center">
-                          <span className="text-lg font-black tracking-tighter">{client.invoice_count || 0}</span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)]">Invoices</span>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:w-[320px] shrink-0 justify-end gap-2">
-                          {deletingClientId === client.id ? (
-                             <div className="flex items-center justify-end gap-1.5 w-full">
-                               <span className="text-[11px] text-[#FF5C00] font-bold mr-1">Delete?</span>
-                               <button onClick={handleDeleteConfirm} className="border-2 border-[#111118] bg-red-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:bg-red-600 transition-colors">Yes</button>
-                               <button onClick={handleDeleteCancel} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] hover:bg-[color:var(--color-paper-2)] transition-colors">No</button>
-                             </div>
-                          ) : (
-                            <>
-                              <button onClick={() => handleEdit(client)} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-[#111118] hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Edit</button>
-                              <button onClick={() => handleDeleteRequest(client.id)} className="border-2 border-[#111118] bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-red-500 hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">Delete</button>
-                              <Link href={`/invoice/new?client_id=${client.id}#items`} className="border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#111118] shadow-[2px_2px_0_#111118] hover:bg-[#111118] hover:text-white active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all whitespace-nowrap">+ New Invoice</Link>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* No search results */}
-                  {filteredClients.length === 0 && searchQuery && (
-                    <div className="border-t border-[color:var(--color-soft)] px-4 py-8 text-center text-[13px] font-bold text-[color:var(--color-ink-2)]">
-                      No clients matching &ldquo;{searchQuery}&rdquo;
-                    </div>
-                  )}
-
-                  <div className="px-4 pb-4 bg-[color:var(--color-paper-2)]">
-                    <AppPagination 
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={setCurrentPage}
-                    />
-                  </div>
-                </div>
-              )}
-            </MotionReveal>
+        {/* Header */}
+        <div className="flex justify-between items-end mb-7">
+          <div>
+            <div className="flex gap-2 mb-3 items-center">
+              <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
+              <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
+              <div className="px-3 py-1 bg-butter text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
+            </div>
+            <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
+              Your <Marker tone="rose">roster</Marker>
+            </h1>
+            <div className="text-[13px] font-extrabold uppercase tracking-widest text-ink/70">
+              Every client, their MSA, their tax setup. One place.
+            </div>
+          </div>
+          <div className="flex gap-3 items-center">
+            <button
+              className="border-2 border-ink bg-white px-6 py-3.5 text-sm font-black uppercase tracking-widest text-ink transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] shadow-[4px_4px_0_var(--color-rule)] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+            >
+              ↑ IMPORT CSV
+            </button>
+            <button
+              onClick={handleAddNew}
+              className="border-2 border-ink bg-ink px-6 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+            >
+              + ADD CLIENT
+            </button>
           </div>
         </div>
+
+        {/* Add / Edit Drawer */}
+        <AnimatePresence>
+          {showForm && (
+            <ClientForm
+              key={editingClient?.id ?? "new"}
+              initial={editingClient}
+              onSave={handleSave}
+              onCancel={handleCancel}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Stat strip — full color */}
+        <div className="flex gap-3 mb-6">
+          {[
+            { l: "Lifetime billed", v: "₹38.4L", s: `across ${clients.length} clients`, bg: "bg-grass", fg: "text-white" },
+            { l: "Avg invoice", v: "₹1.84L", s: "↑12% QoQ", bg: "bg-acid", fg: "text-ink" },
+            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "2 pending", bg: "bg-lav", fg: "text-white" },
+            { l: "Repeat clients", v: "75%", s: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length} of ${clients.length} active`, bg: "bg-rose", fg: "text-ink" },
+          ].map((s, i) => (
+            <div key={i} className={`flex-1 p-4 ${s.bg} ${s.fg} border-2 border-ink shadow-[4px_4px_0_var(--color-rule)]`}>
+              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-85 mb-1.5">{s.l}</div>
+              <div className="text-[26px] font-black leading-none mb-1.5">{s.v}</div>
+              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-75">{s.s}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter / Search strip */}
+        <div className="flex gap-3 mb-4">
+          <div className="relative grow border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] bg-white">
+            <SearchIcon className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="⌕ Search clients by name, email or GSTIN…"
+              className="w-full h-full pl-10 pr-4 py-3 bg-transparent font-bold text-sm focus:outline-none placeholder:text-ink/50"
+            />
+          </div>
+          <div className="relative w-[180px] border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] bg-white">
+            <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
+              <option>Location · All ▼</option>
+              <option>Domestic</option>
+              <option>International</option>
+            </select>
+          </div>
+          <div className="relative w-[180px] border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] bg-white">
+            <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
+              <option>Type · All ▼</option>
+              <option>Agency</option>
+              <option>Individual</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="border-2 border-ink shadow-[4px_4px_0_var(--color-rule)] bg-white overflow-hidden mb-6">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-paper-2 border-b-2 border-ink text-[10px] font-extrabold uppercase tracking-widest text-ink">
+                <th className="py-3 px-6 w-[240px] border-r-2 border-ink">Client</th>
+                <th className="py-3 px-6 border-r-2 border-ink">Email</th>
+                <th className="py-3 px-6 border-r-2 border-ink">City</th>
+                <th className="py-3 px-6 border-r-2 border-ink">GSTIN</th>
+                <th className="py-3 px-6 border-r-2 border-ink">Type</th>
+                <th className="py-3 px-6 w-[80px] text-right border-r-2 border-ink">Invoices</th>
+                <th className="py-3 px-6 w-[120px] text-right border-r-2 border-ink">MSA</th>
+                <th className="py-3 px-6 w-[80px]"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {clients.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center">
+                    <div className="text-[14px] font-bold text-ink/60 uppercase tracking-widest">No clients found. Add one above!</div>
+                  </td>
+                </tr>
+              ) : (
+                paginatedClients.map((client, i) => {
+                  const initial = (client.client_name || "U").slice(0, 2).toUpperCase();
+                  const bgColors = ["bg-rose", "bg-grass", "bg-sky", "bg-lav", "bg-butter", "bg-coral"];
+                  const avatarBg = bgColors[i % bgColors.length];
+                  const msaOk = client.msa_effective_date;
+
+                  return (
+                    <tr key={client.id} className="border-b-2 border-ink last:border-b-0 hover:bg-paper-2 transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
+                      <td className="py-4 px-6 border-r-2 border-ink">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarBg} text-ink shadow-[2px_2px_0_var(--color-rule)]`}>
+                            {initial}
+                          </div>
+                          <div className="font-bold text-[13px] uppercase tracking-wide group-hover:underline">{client.client_name}</div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink">
+                        <span className="text-[12px] font-bold uppercase tracking-widest text-ink/70">{client.client_email || "—"}</span>
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink">
+                        <span className="text-[12px] font-bold uppercase tracking-widest text-ink/70">{client.city || client.state || "—"}</span>
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink">
+                        {client.gstin ? (
+                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-transparent text-ink">{client.gstin}</span>
+                        ) : (
+                          <span className="text-[12px] font-bold uppercase tracking-widest text-ink/40">—</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink">
+                        <span className={`px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border-2 border-ink ${client.client_type === "international" ? "bg-sky text-white" : "bg-transparent text-ink"}`}>
+                          {client.client_type === "international" ? "INTL" : "INDIA"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink text-right">
+                        <span className="font-black text-[14px] text-ink">{client.invoice_count || 0}</span>
+                      </td>
+                      <td className="py-4 px-6 border-r-2 border-ink text-right">
+                        {msaOk ? (
+                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border-2 border-ink bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]">✓ SIGNED</span>
+                        ) : (
+                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-butter text-ink">PENDING</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
+                          className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all"
+                        >
+                          EDIT
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination below table */}
+        {filteredClients.length > 0 && (
+          <div className="flex justify-between items-center mb-12">
+            <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+              <span>Rows per page:</span>
+              <select 
+                value={itemsPerPage} 
+                onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                className="bg-transparent border-none outline-none font-extrabold text-ink cursor-pointer"
+              >
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <AppPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </section>
     </main>
   );
