@@ -12,24 +12,24 @@ interface PillProps {
 }
 
 const tones: Record<PillTone, string> = {
-  draft:   "bg-butter text-ink",
-  sent:    "bg-sky text-ink",
-  viewed:  "bg-lav text-ink",
-  paid:    "bg-grass text-ink",
-  revision:"bg-coral text-ink",
-  locked:  "bg-grass text-ink",
+  draft:   "bg-[#e8e2d3] text-ink-2",
+  sent:    "bg-sky text-white",
+  viewed:  "bg-lav text-white",
+  paid:    "bg-grass text-white",
+  revision:"bg-coral text-white",
+  locked:  "bg-grass text-white",
   warning: "bg-butter text-ink",
   ghost:   "bg-transparent text-ink-2 border-dashed",
-  awaiting:"bg-lav text-ink",
+  awaiting:"bg-butter text-ink",
   live:    "bg-acid text-ink",
-  complete:"bg-grass text-ink",
+  complete:"bg-grass text-white",
   acid:    "bg-acid text-ink",
-  sky:     "bg-sky text-ink",
-  lav:     "bg-lav text-ink",
+  sky:     "bg-sky text-white",
+  lav:     "bg-lav text-white",
   rose:    "bg-rose text-ink",
   butter:  "bg-butter text-ink",
-  grass:   "bg-grass text-ink",
-  coral:   "bg-coral text-ink",
+  grass:   "bg-grass text-white",
+  coral:   "bg-coral text-white",
 };
 
 export function Pill({ tone = "ghost", children, className }: PillProps) {
@@ -41,6 +41,9 @@ export function Pill({ tone = "ghost", children, className }: PillProps) {
       tones[tone],
       className
     )}>
+      {tone === "live" && (
+        <span className="w-2 h-2 rounded-full bg-current animate-pulse shadow-none" style={{ animation: "dot-pulse 1.6s ease-out infinite" }} />
+      )}
       {children}
     </span>
   );

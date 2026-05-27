@@ -13,7 +13,7 @@ interface AppTooltipProps {
   icon?: ReactNode;
 }
 
-const TOOLTIP_GAP = 8;
+const TOOLTIP_GAP = 10;
 const VIEWPORT_PADDING = 12;
 
 export function AppTooltip({
@@ -21,7 +21,7 @@ export function AppTooltip({
   content,
   className,
   contentClassName,
-  position = "bottom",
+  position = "top",
   icon,
 }: AppTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +29,7 @@ export function AppTooltip({
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -38,8 +39,9 @@ export function AppTooltip({
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
     const tooltipEl = tooltipRef.current;
-    const tooltipWidth = tooltipEl?.offsetWidth || 256;
-    const tooltipHeight = tooltipEl?.offsetHeight || 80;
+    // Default to ~190px if not mounted to prevent large jumps
+    const tooltipWidth = tooltipEl?.offsetWidth || 190;
+    const tooltipHeight = tooltipEl?.offsetHeight || 40;
 
     let top = 0;
     let left = 0;
@@ -125,29 +127,47 @@ export function AppTooltip({
     return () => window.removeEventListener("scroll", handleScroll, { capture: true });
   }, [isOpen]);
 
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setIsOpen(true), 350);
+  };
+
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setIsOpen(false);
+  };
+
   const tooltipContent = mounted && isOpen
     ? createPortal(
         <div
           ref={tooltipRef}
           className={cn(
-            "fixed z-[99999] w-64 transition-all duration-150",
-            isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"
+            "fixed z-[99999] w-[190px]",
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
           style={{
             top: coords.top,
             left: coords.left,
             pointerEvents: "auto",
+            transition: "opacity 0.18s, transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            transform: isOpen ? "translateY(0)" : "translateY(6px)",
           }}
-          onMouseEnter={() => setIsOpen(true)}
-          onMouseLeave={() => setIsOpen(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           <div
             className={cn(
-              "bg-white border-2 border-[#111118] p-3 shadow-[3px_3px_0px_#111118] text-[#111118] text-[11px] leading-relaxed font-normal text-left whitespace-normal",
+              "relative bg-ink text-paper rounded-[8px] p-[8px_12px] text-[11px] font-medium leading-[1.4] whitespace-normal text-left shadow-[3px_3px_0_var(--color-ink)]",
               contentClassName
             )}
           >
             {content}
+            {position === "top" && (
+              <div className="absolute top-[100%] left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-ink" />
+            )}
+            {position === "bottom" && (
+              <div className="absolute bottom-[100%] left-1/2 -translate-x-1/2 border-[6px] border-transparent border-b-ink" />
+            )}
           </div>
         </div>,
         document.body
@@ -159,8 +179,8 @@ export function AppTooltip({
       <div
         ref={triggerRef}
         className={cn("relative inline-flex items-center", className)}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div
           onClick={(e) => {
@@ -173,7 +193,7 @@ export function AppTooltip({
           {children || (
             <button
               type="button"
-              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-[#111118]/20 bg-[#111118]/5 text-[9px] font-bold text-[#111118]/50 hover:bg-[#111118]/10 hover:text-[#111118] transition-colors ring-1 ring-transparent )] app-focus-ring"
+              className="inline-flex h-[20px] w-[20px] items-center justify-center rounded-full border-[1.75px] border-ink bg-white text-[11px] font-bold hover:bg-paper-2 transition-colors app-focus-ring"
             >
               {icon || "?"}
             </button>

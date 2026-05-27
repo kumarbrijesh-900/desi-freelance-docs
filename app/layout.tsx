@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Fraunces, JetBrains_Mono, Caveat } from "next/font/google";
+import { ToastProvider } from "@/components/ui/AppToast";
 
 const fraunces = Fraunces({ 
   subsets: ["latin"], 
@@ -54,10 +55,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#F8F8FA" />
       </head>
       <body className="min-h-full flex flex-col relative">
-        {/* Global Aesthetic Background */}
-        <div className="relative z-10 flex min-h-screen flex-col">
-          {children}
-        </div>
+        <ToastProvider>
+          {/* Global Aesthetic Background */}
+          <div className="relative z-10 flex min-h-screen flex-col">
+            {children}
+          </div>
+        </ToastProvider>
       </body>
     </html>
   );

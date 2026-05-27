@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Invoice.co · Low-fi prototype</title>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="#f5f0e6"/>
+    <rect x="40" y="30" width="120" height="140" fill="#fff" stroke="#14110d" stroke-width="3" rx="4"/>
+    <line x1="50" y1="55" x2="120" y2="55" stroke="#14110d" stroke-width="4"/>
+    <line x1="50" y1="70" x2="100" y2="70" stroke="#9a9080" stroke-width="3"/>
+    <rect x="50" y="90" width="100" height="6" fill="#dbf26b" stroke="#14110d" stroke-width="1"/>
+    <line x1="50" y1="110" x2="150" y2="110" stroke="#9a9080" stroke-width="2"/>
+    <line x1="50" y1="125" x2="150" y2="125" stroke="#9a9080" stroke-width="2"/>
+    <line x1="50" y1="140" x2="130" y2="140" stroke="#9a9080" stroke-width="2"/>
+    <rect x="100" y="150" width="50" height="14" fill="#dbf26b" stroke="#14110d" stroke-width="2"/>
+  </svg>
+</template>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="wireframe.css">
+
+<style>
+  html, body{ margin:0; padding:0; background:#f0eee9; }
+  body{ font-family: "JetBrains Mono", ui-monospace, monospace; color:#14110d; }
+</style>
+
+<!-- React -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Components -->
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="screen-landing.jsx"></script>
+<script type="text/babel" src="screen-dashboard.jsx"></script>
+<script type="text/babel" src="screen-list.jsx"></script>
+<script type="text/babel" src="screen-editor.jsx"></script>
+<script type="text/babel" src="screen-preview.jsx"></script>
+<script type="text/babel" src="screen-micro.jsx"></script>
+
+<script type="text/babel">
+  const { DesignCanvas, DCSection, DCArtboard, DCPostIt } = window;
+  const { Landing, Dashboard, InvoicesList, Clients, NewInvoice, InvoicePreview } = window;
+  const { MIToasts, MITooltips, MIStatusMorph, MISubmit, MIPaid, MIDrag } = window;
+
+  const App = () => (
+    <DesignCanvas
+      title="INVOICE.CO · Low-fi prototype · v2"
+      subtitle="Gen-Z color pass · paper-tinted screens, sticker accents, 6 working micro-interaction demos"
+    >
+      <DCSection
+        id="marketing"
+        title="01 · Marketing"
+        subtitle="Public surface · sets the promise."
+      >
+        <DCArtboard id="landing" label="Landing page" width={1280} height={1480}>
+          <Landing />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="app-overview"
+        title="02 · App · Overview"
+        subtitle="The post-auth surfaces. Project workspace and list views."
+      >
+        <DCArtboard id="dashboard" label="Dashboard · project detail" width={1480} height={1080}>
+          <Dashboard />
+        </DCArtboard>
+        <DCArtboard id="invoices" label="Invoices · list" width={1480} height={1080}>
+          <InvoicesList />
+        </DCArtboard>
+        <DCArtboard id="clients" label="Clients · roster" width={1480} height={1080}>
+          <Clients />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="app-flows"
+        title="03 · App · Flows"
+        subtitle="Create + share. The core jobs-to-be-done."
+      >
+        <DCArtboard id="editor" label="New invoice · step 3 (Items)" width={1480} height={1280}>
+          <NewInvoice />
+        </DCArtboard>
+        <DCArtboard id="preview" label="Invoice preview & share · locked" width={1480} height={1280}>
+          <InvoicePreview />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="micro"
+        title="04 · Micro-interactions"
+        subtitle="Working prototypes — hover, click, drag. The texture that makes the product feel alive."
+      >
+        <DCArtboard id="mi-toasts" label="Toast stack" width={440} height={460}>
+          <MIToasts/>
+        </DCArtboard>
+        <DCArtboard id="mi-tooltips" label="Smart tooltips" width={440} height={460}>
+          <MITooltips/>
+        </DCArtboard>
+        <DCArtboard id="mi-status" label="Status morph" width={440} height={460}>
+          <MIStatusMorph/>
+        </DCArtboard>
+        <DCArtboard id="mi-submit" label="Submit button morph" width={440} height={460}>
+          <MISubmit/>
+        </DCArtboard>
+        <DCArtboard id="mi-paid" label="Paid! celebration" width={440} height={460}>
+          <MIPaid/>
+        </DCArtboard>
+        <DCArtboard id="mi-drag" label="Drag-to-reorder" width={440} height={460}>
+          <MIDrag/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCPostIt x={40} y={40} rotate={-2}>
+        v2 · Gen-Z color pass.<br/>
+        Paper-tinted screens, sticker accents,<br/>
+        chunky display, working motion.
+      </DCPostIt>
+      <DCPostIt x={40} y={210} rotate={3}>
+        Hover, click & drag the cards in §04 —<br/>
+        every micro-interaction is real, not a video.
+      </DCPostIt>
+    </DesignCanvas>
+  );
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+/* ----------  WIREFRAME PRIMITIVES  ---------- */
+:root{
+  --paper:#fffaf0;
+  --paper-2:#f5edda;
+  --ink:#14110d;
+  --ink-2:#5b554a;
+  --ink-3:#9a9080;
+  --rule:#14110d;
+  --soft:#e6dcc4;
+
+  /* Gen-Z palette — saturated, but seated on a warm paper */
+  --hi:#cbff3f;        /* acid lime · primary accent */
+  --hi-2:#b6e83a;
+  --coral:#ff5a4d;     /* hot coral · alerts / energy */
+  --rose:#ff9ec7;      /* candy pink · soft delight */
+  --sky:#4cb4ff;       /* electric blue · info / live */
+  --lav:#b29bff;       /* lavender · premium / pro */
+  --butter:#ffd84d;    /* butter yellow · warnings */
+  --grass:#3acc7a;     /* fresh green · success */
+  --plum:#7c2dd6;      /* deep purple · accents */
+
+  --alert:#ff5a4d;
+  --ok:#1f8a5b;
+
+  --paper-shadow: 0 1px 0 #d8cdb2, 0 18px 36px -10px rgba(20,17,13,.18);
+}
+
+/* Box-sizing reset within wireframes */
+.wf, .wf *{ box-sizing:border-box; }
+
+.wf{
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle paper grain via repeating gradient */
+.wf::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 28px, rgba(20,17,13,.025) 28px 29px),
+    repeating-linear-gradient(90deg, transparent 0 28px, rgba(20,17,13,.025) 28px 29px);
+  pointer-events:none; z-index:0;
+}
+.wf > *{ position:relative; z-index:1; }
+
+/* Display font for big titles */
+.wf .display{
+  font-family: "Fraunces", "Instrument Serif", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+/* ---- Sketch box: 2px ink border, subtle drop ---- */
+.wf .box{
+  border: 1.75px solid var(--rule);
+  background: var(--paper);
+  border-radius: 4px;
+  position: relative;
+}
+.wf .box.shadow{ box-shadow: 4px 4px 0 var(--rule); }
+.wf .box.dashed{ border-style: dashed; border-color: var(--ink-3); }
+.wf .box.fill-paper2{ background: var(--paper-2); }
+.wf .box.fill-soft{ background: var(--soft); }
+.wf .box.fill-hi{ background: var(--hi); border-color: var(--rule); }
+
+/* Hairline rules */
+.wf .hr{
+  height:1.5px;
+  background: var(--rule);
+  border: 0;
+  margin: 0;
+}
+.wf .hr.soft{ background: var(--soft); height: 1px; }
+.wf .hr.dashed{
+  background: transparent;
+  border-top: 1.5px dashed var(--ink-3);
+  height: 0;
+}
+
+/* Pill / chip */
+.wf .pill{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1.5px solid var(--rule);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  background: var(--paper);
+  white-space: nowrap;
+}
+.wf .pill.hi{ background: var(--hi); }
+.wf .pill.alert{ background: var(--coral); border-color: var(--rule); color: #fff; }
+.wf .pill.ok{ background: var(--grass); border-color: var(--rule); color: #fff; }
+.wf .pill.ghost{ border-style: dashed; color: var(--ink-2); }
+.wf .pill.sky{ background: var(--sky); color: #fff; }
+.wf .pill.lav{ background: var(--lav); color: #fff; }
+.wf .pill.butter{ background: var(--butter); }
+.wf .pill.rose{ background: var(--rose); }
+.wf .pill.plum{ background: var(--plum); color:#fff; }
+
+/* Button */
+.wf .btn{
+  display:inline-flex; align-items:center; gap:8px;
+  border: 1.75px solid var(--rule);
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: var(--paper);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--rule);
+  cursor: pointer;
+}
+.wf .btn.primary{ background: var(--hi); }
+.wf .btn.ghost{ box-shadow: none; }
+.wf .btn.sm{ padding: 6px 10px; font-size: 10px; box-shadow: 2px 2px 0 var(--rule); }
+
+/* Placeholder image */
+.wf .ph{
+  background:
+    repeating-linear-gradient(45deg, var(--soft) 0 6px, var(--paper-2) 6px 12px);
+  border: 1.5px dashed var(--ink-3);
+  border-radius: 3px;
+  display:flex; align-items:center; justify-content:center;
+  color: var(--ink-2);
+  font-size: 10px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+/* Field */
+.wf .field{
+  border: 1.5px solid var(--rule);
+  background: var(--paper);
+  border-radius: 3px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--ink-2);
+  letter-spacing: .04em;
+  display:flex; align-items:center;
+}
+.wf .field .lbl{ color: var(--ink-3); }
+
+/* Label caps */
+.wf .cap{
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.wf .cap-strong{ color: var(--ink); font-weight: 700; }
+
+/* Notes — handwritten margin annotations */
+.wf .note{
+  font-family: "Caveat", "Comic Sans MS", cursive;
+  color: var(--alert);
+  font-size: 15px;
+  line-height: 1.1;
+}
+.wf .note-arrow{ color: var(--alert); font-size: 18px; }
+
+/* Top nav block shared */
+.wf .topnav{
+  display:flex; align-items:center;
+  border-bottom: 2px solid var(--rule);
+  padding: 14px 28px;
+  background: var(--paper);
+  gap: 28px;
+}
+.wf .logo{
+  display:flex; align-items:center; gap: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  font-size: 14px;
+}
+.wf .logo .mark{
+  width: 24px; height: 24px;
+  border: 1.75px solid var(--rule);
+  background: var(--hi);
+  border-radius: 4px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight: 800;
+  font-size: 13px;
+}
+.wf .navlink{
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.wf .navlink.active{
+  color: var(--ink);
+  font-weight: 700;
+  position: relative;
+}
+.wf .navlink.active::after{
+  content:""; position:absolute; left:0; right:0; bottom:-18px;
+  height:2px; background: var(--ink);
+}
+
+/* Avatar / icon dot */
+.wf .avatar{
+  width:28px; height:28px; border-radius:50%;
+  border: 1.5px solid var(--rule);
+  background: var(--paper-2);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 10px; font-weight: 700;
+}
+
+/* table */
+.wf table.t{ width:100%; border-collapse: collapse; font-size: 11px; }
+.wf table.t th{
+  text-align:left; padding: 12px 14px;
+  font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-2);
+  border-bottom: 1.5px solid var(--rule);
+  font-weight: 600;
+}
+.wf table.t td{
+  padding: 14px;
+  border-bottom: 1px solid var(--soft);
+  vertical-align: middle;
+}
+
+/* Money */
+.wf .money{ font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* Scribble — diagonal hatched fills for "TBD" or "image" */
+.wf .scribble{
+  background:
+    repeating-linear-gradient(135deg, var(--ink-3) 0 1px, transparent 1px 7px);
+  border: 1.5px dashed var(--ink-3);
+}
+
+/* Smaller helpers */
+.wf .row{ display:flex; }
+.wf .col{ display:flex; flex-direction: column; }
+.wf .gap-4{ gap:4px } .wf .gap-6{ gap:6px } .wf .gap-8{ gap:8px }
+.wf .gap-12{ gap:12px } .wf .gap-16{ gap:16px } .wf .gap-20{ gap:20px }
+.wf .gap-24{ gap:24px } .wf .gap-32{ gap:32px }
+.wf .grow{ flex: 1 1 auto; }
+.wf .center{ display:flex; align-items:center; justify-content:center; }
+.wf .between{ justify-content: space-between; }
+
+/* ────────  GEN-Z LAYER  ──────── */
+
+/* Tonal paper backgrounds for whole-screen zoning */
+.wf.paper-rose{ background:#ffeef5; }
+.wf.paper-sky{  background:#e3f3ff; }
+.wf.paper-lav{  background:#efeaff; }
+.wf.paper-butter{ background:#fff7d6; }
+.wf.paper-mint{ background:#e6faec; }
+
+.wf.paper-rose::before,
+.wf.paper-sky::before,
+.wf.paper-lav::before,
+.wf.paper-butter::before,
+.wf.paper-mint::before{ opacity:.5; }
+
+/* Color-fill boxes */
+.wf .fill-coral{ background: var(--coral); color:#fff; border-color: var(--rule); }
+.wf .fill-rose{  background: var(--rose);  border-color: var(--rule); }
+.wf .fill-sky{   background: var(--sky);   color:#fff; border-color: var(--rule); }
+.wf .fill-lav{   background: var(--lav);   color:#fff; border-color: var(--rule); }
+.wf .fill-butter{background: var(--butter); border-color: var(--rule); }
+.wf .fill-grass{ background: var(--grass); color:#fff; border-color: var(--rule); }
+.wf .fill-plum{  background: var(--plum);  color:#fff; border-color: var(--rule); }
+.wf .fill-ink{   background: var(--ink);   color: var(--paper); border-color: var(--rule); }
+
+/* Chunky drop shadow */
+.wf .shadow-coral{ box-shadow: 5px 5px 0 var(--coral), 5px 5px 0 .5px var(--rule); }
+.wf .shadow-sky{   box-shadow: 5px 5px 0 var(--sky), 5px 5px 0 .5px var(--rule); }
+.wf .shadow-lav{   box-shadow: 5px 5px 0 var(--lav), 5px 5px 0 .5px var(--rule); }
+.wf .shadow-hi{    box-shadow: 5px 5px 0 var(--hi), 5px 5px 0 .5px var(--rule); }
+
+/* Sticker — slight rotation, hard shadow, chunky border */
+.wf .sticker{
+  display:inline-flex; align-items:center; gap:6px;
+  border: 2px solid var(--rule);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 13px;
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--rule);
+  letter-spacing: -.01em;
+}
+
+/* Sparkle — drawn with pure CSS, no SVG */
+.wf .spark{
+  display:inline-block;
+  width: 1em; height: 1em;
+  position: relative;
+  vertical-align: middle;
+}
+.wf .spark::before, .wf .spark::after{
+  content:""; position:absolute; left:50%; top:50%;
+  width: 100%; height: 25%;
+  background: currentColor;
+  transform: translate(-50%,-50%);
+  border-radius: 50%;
+}
+.wf .spark::after{ transform: translate(-50%,-50%) rotate(90deg); }
+
+/* Asterisk badge */
+.wf .ast{
+  display:inline-flex; align-items:center; justify-content:center;
+  width: 28px; height: 28px;
+  background: var(--coral);
+  color: #fff;
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 22px;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+}
+
+/* Squiggle separator (CSS-only) */
+.wf .squiggle{
+  height: 14px;
+  background:
+    radial-gradient(circle at 7px 7px, transparent 6px, var(--rule) 6px 7px, transparent 7.5px) 0 0/14px 14px;
+  opacity:.7;
+}
+
+/* Marker highlight on text */
+.wf .marker{
+  background: linear-gradient(180deg, transparent 55%, var(--hi) 55% 92%, transparent 92%);
+  padding: 0 4px;
+}
+.wf .marker.rose{ background: linear-gradient(180deg, transparent 55%, var(--rose) 55% 92%, transparent 92%); }
+.wf .marker.sky{  background: linear-gradient(180deg, transparent 55%, var(--sky) 55% 92%, transparent 92%); }
+.wf .marker.coral{background: linear-gradient(180deg, transparent 55%, var(--coral) 55% 92%, transparent 92%); color:#fff; }
+
+/* Striped stripe — playful section dividers */
+.wf .stripes{
+  height: 12px;
+  background: repeating-linear-gradient(45deg,
+    var(--rule) 0 6px, var(--paper) 6px 12px);
+  border-top: 1.5px solid var(--rule);
+  border-bottom: 1.5px solid var(--rule);
+}
+.wf .stripes.coral{ background: repeating-linear-gradient(45deg, var(--coral) 0 6px, var(--paper) 6px 12px); }
+.wf .stripes.sky{ background: repeating-linear-gradient(45deg, var(--sky) 0 6px, var(--paper) 6px 12px); }
+.wf .stripes.hi{ background: repeating-linear-gradient(45deg, var(--hi) 0 6px, var(--paper) 6px 12px); }
+
+/* Avatar accent variants */
+.wf .avatar.coral{ background: var(--coral); color:#fff; }
+.wf .avatar.sky{   background: var(--sky); color:#fff; }
+.wf .avatar.lav{   background: var(--lav); color:#fff; }
+.wf .avatar.rose{  background: var(--rose); }
+.wf .avatar.butter{background: var(--butter); }
+.wf .avatar.hi{    background: var(--hi); }
+
+/* Chunky display headline mod */
+.wf .display.chunky{
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
