@@ -7,6 +7,7 @@ import { getAppButtonClass } from "@/lib/ui-foundation";
 import type { MsaResponse } from "@/lib/supabase/invoices";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from "@/lib/default-msa";
+import { useToast } from "@/components/ui/AppToast";
 
 /* ─── Icons ─────────────────────────────────────────── */
 
@@ -171,18 +172,17 @@ export default function ShareLinkModal({
     invoiceData?.client?.msaPaymentTermsDays,
   );
   const lateFeeUnit = formatLateFeeUnit(invoiceData?.client?.msaLateFeeUnit);
-  const [error, setError] = useState<string | null>(null);
+  const { push } = useToast();
 
 
 
   /* ── Send invoice email via secure API route ── */
   const handleSend = async () => {
     if (!clientEmail?.trim()) {
-      setError("Client email is required. Add it in the invoice editor.");
+      push({ kind: "error", ttl: "Client email is required. Add it in the invoice editor." });
       return;
     }
     setSending(true);
-    setError(null);
 
     try {
       const res = await fetch("/api/share-invoice", {
@@ -197,7 +197,7 @@ export default function ShareLinkModal({
       const json = await res.json();
 
       if (!res.ok || json.error) {
-        setError(json.error || "Failed to send. Please try again.");
+        push({ kind: "error", ttl: json.error || "Failed to send. Please try again." });
         return;
       }
 
@@ -205,7 +205,7 @@ export default function ShareLinkModal({
       setSent(true);
       playInteractionCue("saveSuccess");
     } catch {
-      setError("Network error. Please check your connection and try again.");
+      push({ kind: "error", ttl: "Network error. Please check your connection and try again." });
     } finally {
       setSending(false);
     }
@@ -263,12 +263,7 @@ export default function ShareLinkModal({
           </div>
 
           <div className="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
-            {/* ── Error ── */}
-            {error && (
-              <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] px-3 py-2 text-sm font-bold text-[#FF5C00] mb-4">
-                {error}
-              </div>
-            )}
+            {/* Error is now handled via toast */}
 
             {/* ── Recipient (read-only) ── */}
             <div>

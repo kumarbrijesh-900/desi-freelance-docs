@@ -3,7 +3,6 @@ import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useEffect, useState } from "react";
 import type { PaymentDetails, InvoiceMeta, LicenseType } from "@/types/invoice";
-import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 
 import {
@@ -23,6 +22,7 @@ import {
 import { Link, Sparkles, AlertTriangle, ShieldCheck, FileEdit, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { addDays, getDaysDifference } from "@/lib/date-math";
+import { useToast } from "@/components/ui/AppToast";
 
 interface TermsPaymentSectionProps {
   value: PaymentDetails;
@@ -117,16 +117,12 @@ export default function TermsPaymentSection({
     return "input-manual";
   };
   const [isQrDragOver, setIsQrDragOver] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { push } = useToast();
+  
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [bankAddressFields, setBankAddressFields] = useState<StructuredBankAddressFields>(() => parseStructuredBankAddress(value.bankAddress));
 
-  useEffect(() => {
-    if (!showToast) return;
-    const timer = window.setTimeout(() => setShowToast(false), 2200);
-    return () => window.clearTimeout(timer);
-  }, [showToast]);
+  
 
   useEffect(() => { setBankAddressFields(parseStructuredBankAddress(value.bankAddress)); }, [value.bankAddress]);
 
@@ -142,16 +138,12 @@ export default function TermsPaymentSection({
     onChange({ ...value, license: { ...value.license, [key]: fieldValue } });
   };
 
-  const triggerToast = (message: string) => {
-    setToastMessage(message);
-    setShowToast(false);
-    requestAnimationFrame(() => setShowToast(true));
-  };
+  
 
   const readQrFile = (file?: File) => {
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
-    reader.onload = () => { updateField("qrCodeUrl", String(reader.result)); triggerToast("QR uploaded"); };
+    reader.onload = () => { updateField("qrCodeUrl", String(reader.result)); push({ kind: "info", ttl: "QR uploaded" }); };
     reader.readAsDataURL(file);
   };
 
@@ -261,7 +253,7 @@ export default function TermsPaymentSection({
 
   return (
     <>
-      <UploadToast message={toastMessage} visible={showToast}  />
+      
 
       <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
         {!embedded && (

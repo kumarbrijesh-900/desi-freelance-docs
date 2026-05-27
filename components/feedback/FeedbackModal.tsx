@@ -12,6 +12,8 @@ import {
 import { MotionReveal, MotionButton } from "@/components/ui/motion-primitives";
 import AppSelectField from "@/components/ui/AppSelectField";
 
+import { useToast } from "@/components/ui/AppToast";
+
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,14 +24,13 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { push } = useToast();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError(null);
 
     try {
       const {
@@ -58,7 +59,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         onClose();
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Failed to submit feedback.");
+      push({ kind: "error", ttl: err.message || "Failed to submit feedback." });
     } finally {
       setIsSubmitting(false);
     }
@@ -161,11 +162,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 />
               </div>
 
-              {error && (
-                <p className="text-xs text-[#FF5C00] bg-red-50 p-3 border border-red-100">
-                  {error}
-                </p>
-              )}
+              {/* Error is handled via toast */}
 
               <div className="flex gap-3 pt-2">
                 <button

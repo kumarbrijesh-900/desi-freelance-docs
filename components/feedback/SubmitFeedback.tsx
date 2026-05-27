@@ -11,17 +11,18 @@ import {
 } from "@/lib/ui-foundation";
 import AppSelectField from "@/components/ui/AppSelectField";
 
+import { useToast } from "@/components/ui/AppToast";
+
 export default function SubmitFeedback() {
   const [type, setType] = useState<FeedbackType>("general");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { push } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError(null);
 
     try {
       const {
@@ -46,7 +47,7 @@ export default function SubmitFeedback() {
       setIsSuccess(true);
       setMessage("");
     } catch (err: any) {
-      setError(err.message || "Failed to submit feedback. Please try again.");
+      push({ kind: "error", ttl: err.message || "Failed to submit feedback. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -136,11 +137,7 @@ export default function SubmitFeedback() {
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-[#FF5C00] bg-red-50 p-3 border border-red-100">
-            {error}
-          </p>
-        )}
+        {/* Error is now handled via toast */}
 
         <button
           type="submit"

@@ -7,6 +7,7 @@ import { syncProfileFromInvoice } from "@/lib/supabase/profiles";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import { ReadonlyURLSearchParams } from "next/navigation";
+import { useToast } from "@/components/ui/AppToast";
 
 interface UseInvoicePersistenceProps {
   formData: InvoiceFormData;
@@ -15,7 +16,6 @@ interface UseInvoicePersistenceProps {
   searchParams: ReadonlyURLSearchParams;
   projectId: string | null;
   projectName: string;
-  triggerToast: (message: string) => void;
 }
 
 export function useInvoicePersistence({
@@ -25,8 +25,8 @@ export function useInvoicePersistence({
   searchParams,
   projectId,
   projectName,
-  triggerToast,
 }: UseInvoicePersistenceProps) {
+  const { push } = useToast();
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
     if (isReadOnlyMode) return;
@@ -77,7 +77,7 @@ export function useInvoicePersistence({
 
       if (!error) {
         await syncProfileFromInvoice(formData);
-        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        push({ kind: "info", ttl: "Draft saved to cloud ☁ Welcome back!" });
         playInteractionCue("saveSuccess");
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");

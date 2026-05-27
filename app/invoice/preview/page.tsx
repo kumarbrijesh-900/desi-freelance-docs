@@ -39,7 +39,6 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import { supabase } from "@/lib/supabase/client";
 import { saveInvoice, getCurrentUserId, loadInvoice } from "@/lib/supabase/invoices";
 import { syncProfileFromInvoice, loadProfile } from "@/lib/supabase/profiles";
-import UploadToast from "@/components/ui/UploadToast";
 import type { InvoiceStatus, MsaResponse } from "@/lib/supabase/invoices";
 import ShareLinkModal from "@/components/invoice/ShareLinkModal";
 import ConversionModal from "@/components/invoice/ConversionModal";
@@ -47,6 +46,7 @@ import DownloadDecisionModal from "@/components/invoice/DownloadDecisionModal";
 import { markInvoiceAsOffline } from "@/lib/supabase/invoices";
 import { getInvoiceLockState, type LockState } from "@/lib/invoice-lock-state";
 import { announceInvoiceDataChanged } from "@/lib/invoice-events";
+import { useToast } from "@/components/ui/AppToast";
 
 const STORAGE_KEY = "invoice-preview-data";
 const DRAFT_STORAGE_KEY = "invoice-editor-draft";
@@ -142,8 +142,8 @@ function PreviewContent() {
   const [currentMsaId, setCurrentMsaId] = useState<string | null>(null);
   const [msaResponse, setMsaResponse] = useState<MsaResponse>("pending");
   const [isSavingAndSharing, setIsSavingAndSharing] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { push } = useToast();
+  
   const defaultTitleRef = useRef<string>("");
   const exportTitleRef = useRef<string | null>(null);
   const [showProfilePrompt, setShowProfilePrompt] = useState(false);
@@ -221,18 +221,10 @@ function PreviewContent() {
   }, []);
 
   const triggerToast = (message: string) => {
-    setToastMessage(message);
-    setShowToast(false);
-    requestAnimationFrame(() => {
-      setShowToast(true);
-    });
+    push({ kind: "info", ttl: message });
   };
 
-  useEffect(() => {
-    if (!showToast) return;
-    const timer = setTimeout(() => setShowToast(false), 3000);
-    return () => clearTimeout(timer);
-  }, [showToast]);
+  
 
   useEffect(() => {
     try {
@@ -412,7 +404,7 @@ function PreviewContent() {
 
       if (error) {
         console.error("Restoration Save Failed:", error);
-        triggerToast("Failed to save draft to cloud. Please try manual save.");
+        push({ kind: "info", ttl: "Failed to save draft to cloud. Please try manual save." });
         return;
       }
 
@@ -430,7 +422,7 @@ function PreviewContent() {
           setShowProfilePrompt(!hasAssets);
         }
 
-        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        push({ kind: "info", ttl: "Draft saved to cloud ☁ Welcome back!" });
         playInteractionCue("saveSuccess");
 
         // Clean up URL without reloading
@@ -544,9 +536,9 @@ function PreviewContent() {
         // Fall through to local-only save on error
         console.warn("handleSaveDraft: cloud save failed:", error);
         setSaveState("error");
-        triggerToast(
+        push({ kind: "info", ttl: 
           `Sync Error: ${error || "Database connection failed"}. Invoice saved locally only.`,
-        );
+         });
         return;
       } else {
         console.log("handleSaveDraft: No authenticated user found, performing local save only.");
@@ -558,7 +550,7 @@ function PreviewContent() {
     } catch (err) {
       console.error("handleSaveDraft: unexpected exception:", err);
       setSaveState("error");
-      triggerToast("An unexpected error occurred while saving. Please try again.");
+      push({ kind: "info", ttl: "An unexpected error occurred while saving. Please try again." });
     }
   };
 
@@ -587,7 +579,7 @@ function PreviewContent() {
 
       if (error || !saved) {
         setSaveState("error");
-        triggerToast("Save failed. Cannot share.");
+        push({ kind: "info", ttl: "Save failed. Cannot share." });
         return;
       }
 
@@ -611,7 +603,7 @@ function PreviewContent() {
     } catch (err) {
       console.error("SHARE_AUTOFLOW_ERROR:", err);
       setSaveState("error");
-      triggerToast("An error occurred during save & share.");
+      push({ kind: "info", ttl: "An error occurred during save & share." });
     } finally {
       setIsSavingAndSharing(false);
     }
@@ -703,7 +695,7 @@ function PreviewContent() {
       case "resend": {
         const clientEmail = sharedToEmail || data?.client?.clientEmail;
         if (!cloudInvoiceId || !clientEmail) {
-          triggerToast("Missing saved invoice email for resend.");
+          push({ kind: "info", ttl: "Missing saved invoice email for resend." });
           return;
         }
         try {
@@ -718,18 +710,18 @@ function PreviewContent() {
           });
           if (!response.ok) {
             const error = await response.json().catch(() => null);
-            triggerToast(error?.error || "Could not resend invoice email.");
+            push({ kind: "info", ttl: error?.error || "Could not resend invoice email." });
             return;
           }
-          triggerToast(`Resent invoice to ${clientEmail}.`);
+          push({ kind: "info", ttl: `Resent invoice to ${clientEmail}.` });
         } catch (error) {
           console.error("PREVIEW_LOCKED_RESEND_FAILED:", error);
-          triggerToast("Could not resend invoice email.");
+          push({ kind: "info", ttl: "Could not resend invoice email." });
         }
         return;
       }
       case "duplicate":
-        triggerToast("Duplicate flow is not available yet. Staying on preview.");
+        push({ kind: "info", ttl: "Duplicate flow is not available yet. Staying on preview." });
         router.push(previewUrl);
         return;
       case "reactivate": {
@@ -743,11 +735,11 @@ function PreviewContent() {
           .eq("id", cloudInvoiceId);
         if (error) {
           console.error("PREVIEW_LOCKED_REACTIVATE_FAILED:", error);
-          triggerToast("Could not reactivate invoice.");
+          push({ kind: "info", ttl: "Could not reactivate invoice." });
           return;
         }
         setInvoiceStatusState("DRAFT");
-        triggerToast("Invoice reactivated as draft.");
+        push({ kind: "info", ttl: "Invoice reactivated as draft." });
         router.push(`/invoice/new?id=${cloudInvoiceId}&restore=1`);
         return;
       }
@@ -1293,7 +1285,7 @@ function PreviewContent() {
         onLoginClick={handleLoginClick}
       />
 
-      <UploadToast message={toastMessage} visible={showToast} />
+      
     </>
   );
 }

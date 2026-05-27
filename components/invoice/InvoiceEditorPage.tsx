@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import LogoutButton from "@/components/LogoutButton";
-import UploadToast from "@/components/ui/UploadToast";
 import {
   AnimatePresence,
   MotionReveal,
@@ -158,6 +157,7 @@ import { useInvoiceAutofill } from "@/components/invoice/editor/useInvoiceAutofi
 import { useInvoicePersistence } from "@/components/invoice/editor/useInvoicePersistence";
 import { InlineStepSection } from "@/components/invoice/editor/InlineStepSection";
 import { WorkbenchReadinessPanel } from "@/components/invoice/editor/WorkbenchReadinessPanel";
+import { useToast } from "@/components/ui/AppToast";
 
 export default function InvoiceEditorPage() {
   return (
@@ -193,8 +193,8 @@ function EditorContent() {
   }, []);
 
   const [showExitModal, setShowExitModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { push } = useToast();
+  
   const [briefIntakeResetKey, setBriefIntakeResetKey] = useState(0);
   const [showAdvancedTax, setShowAdvancedTax] = useState(false);
   const [isBriefIntakeCollapsed, setIsBriefIntakeCollapsed] = useState(true);
@@ -246,23 +246,10 @@ function EditorContent() {
     totals: null,
   });
 
-  useEffect(() => {
-    if (!showToast) return;
-
-    const timer = window.setTimeout(() => {
-      setShowToast(false);
-    }, 2200);
-
-    return () => window.clearTimeout(timer);
-  }, [showToast]);
+  
 
   const triggerToast = (message: string) => {
-    setToastMessage(message);
-    setShowToast(false);
-
-    requestAnimationFrame(() => {
-      setShowToast(true);
-    });
+    push({ kind: "info", ttl: message });
   };
 
   const lockState = useMemo(() => {
@@ -370,7 +357,7 @@ function EditorContent() {
 
       if (error || !data) {
         console.error("Failed to load cloud invoice:", error);
-        triggerToast("Could not load invoice from cloud. Starting fresh.");
+        push({ kind: "info", ttl: "Could not load invoice from cloud. Starting fresh." });
         initializeFresh();
         return;
       }
@@ -398,7 +385,7 @@ function EditorContent() {
 
       setIsBootstrapped(true);
       hasInitializedRef.current = true;
-      triggerToast("Invoice hydrated from cloud ☁");
+      push({ kind: "info", ttl: "Invoice hydrated from cloud ☁" });
     }
 
     function initializeFresh() {
@@ -510,11 +497,11 @@ function EditorContent() {
 
     if (shouldShowRestoreToast || shouldShowFallbackToast) {
       frameId = window.requestAnimationFrame(() => {
-        triggerToast(
+        push({ kind: "info", ttl: 
           shouldShowRestoreToast
             ? "Draft restored"
             : "Could not restore saved invoice state. Starting fresh.",
-        );
+         });
       });
     }
 
@@ -544,7 +531,7 @@ function EditorContent() {
 
       if (!error) {
         await syncProfileFromInvoice(formData);
-        triggerToast("Draft saved to cloud ☁ Welcome back!");
+        push({ kind: "info", ttl: "Draft saved to cloud ☁ Welcome back!" });
         playInteractionCue("saveSuccess");
         const url = new URL(window.location.href);
         url.searchParams.delete("restore");
@@ -1336,7 +1323,7 @@ const handlePreviewInvoice = async () => {
     setShowAllValidationErrors(true);
     if (firstInvalidStep) {
       scrollToStep(firstInvalidStep, { focus: true });
-      triggerToast("Complete the highlighted section before previewing.");
+      push({ kind: "info", ttl: "Complete the highlighted section before previewing." });
     }
     return;
   }
@@ -1388,7 +1375,7 @@ const handlePreviewInvoice = async () => {
         } satisfies StoredDraft),
       );
     }
-    triggerToast("Preview ready");
+    push({ kind: "info", ttl: "Preview ready" });
     playInteractionCue("previewReady");
     const previewUrl = parserDocumentId 
       ? `/invoice/preview?id=${parserDocumentId}`
@@ -1396,7 +1383,7 @@ const handlePreviewInvoice = async () => {
     router.push(previewUrl);
   } catch (error) {
     console.error("Failed to save preview data:", error);
-    triggerToast("Could not open preview. Please try again.");
+    push({ kind: "info", ttl: "Could not open preview. Please try again." });
   }
 };
 
@@ -1419,7 +1406,7 @@ const handleLockedAlternativeAction = async () => {
       return;
     case "resend": {
       if (!parserDocumentId || !sharedToEmail) {
-        triggerToast("Missing saved invoice email for resend.");
+        push({ kind: "info", ttl: "Missing saved invoice email for resend." });
         return;
       }
       try {
@@ -1434,18 +1421,18 @@ const handleLockedAlternativeAction = async () => {
         });
         if (!response.ok) {
           const error = await response.json().catch(() => null);
-          triggerToast(error?.error || "Could not resend invoice email.");
+          push({ kind: "info", ttl: error?.error || "Could not resend invoice email." });
           return;
         }
-        triggerToast(`Resent invoice to ${sharedToEmail}.`);
+        push({ kind: "info", ttl: `Resent invoice to ${sharedToEmail}.` });
       } catch (error) {
         console.error("LOCKED_RESEND_FAILED:", error);
-        triggerToast("Could not resend invoice email.");
+        push({ kind: "info", ttl: "Could not resend invoice email." });
       }
       return;
     }
     case "duplicate":
-      triggerToast("Duplicate flow is not available yet. Opening preview.");
+      push({ kind: "info", ttl: "Duplicate flow is not available yet. Opening preview." });
       handleLockedPreviewRoute();
       return;
     case "reactivate": {
@@ -1459,11 +1446,11 @@ const handleLockedAlternativeAction = async () => {
         .eq("id", parserDocumentId);
       if (error) {
         console.error("LOCKED_REACTIVATE_FAILED:", error);
-        triggerToast("Could not reactivate invoice.");
+        push({ kind: "info", ttl: "Could not reactivate invoice." });
         return;
       }
       setInvoiceStatus("DRAFT");
-      triggerToast("Invoice reactivated as draft.");
+      push({ kind: "info", ttl: "Invoice reactivated as draft." });
       router.push(`/invoice/new?id=${parserDocumentId}&restore=1`);
       return;
     }
@@ -1481,7 +1468,7 @@ const handleReviewBlockingStep = () => {
 
   setShowAllValidationErrors(true);
   scrollToStep(nextBlockingGroup.step, { focus: true });
-  triggerToast(`Review ${getStepShortLabel(nextBlockingGroup.step)} details.`);
+  push({ kind: "info", ttl: `Review ${getStepShortLabel(nextBlockingGroup.step)} details.` });
 };
 
 const persistDraft = () => {
@@ -1502,14 +1489,14 @@ const persistDraft = () => {
 
 const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
   try {
     persistDraft();
     setShowExitModal(false);
-    triggerToast("Draft saved");
+    push({ kind: "info", ttl: "Draft saved" });
     playInteractionCue("saveSuccess");
 
     if (!options?.stayOnPage) {
@@ -1519,13 +1506,13 @@ const performSaveDraft = (options?: { stayOnPage?: boolean }) => {
     }
   } catch (error) {
     console.error("Failed to save draft:", error);
-    triggerToast("Could not save draft. Please try again.");
+    push({ kind: "info", ttl: "Could not save draft. Please try again." });
   }
 };
 
 const handleSaveDraft = async () => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
@@ -1604,19 +1591,19 @@ const handleSaveDraft = async () => {
       }
 
       if (projectPersistenceError) {
-        triggerToast(
-          `Invoice saved, but project '${projectName.trim()}' could not be linked. ${projectPersistenceError}`,
-        );
+        push({ kind: "info", ttl: 
+          `Invoice saved, but project '${projectName.trim()}' could not be linked. ${projectPersistenceError}`
+        });
       } else if (createdClient) {
-        triggerToast(`New client '${createdClient.client_name}' added to your client list.`);
+        push({ kind: "info", ttl: `New client '${createdClient.client_name}' added to your client list.` });
       } else if (clientPersistenceError) {
-        triggerToast(`Invoice saved, but client was not added: ${clientPersistenceError}`);
+        push({ kind: "info", ttl: `Invoice saved, but client was not added: ${clientPersistenceError}` });
       } else {
-        triggerToast(
+        push({ kind: "info", ttl: 
           clientMsaNote
             ? "Reissued & saved to cloud ☁"
             : "Draft saved to cloud ☁",
-        );
+         });
       }
       playInteractionCue("saveSuccess");
       announceInvoiceDataChanged({
@@ -1624,11 +1611,11 @@ const handleSaveDraft = async () => {
         action: clientMsaNote ? "invoice_reissued" : "invoice_saved",
       });
     } else {
-      triggerToast("Saved locally (cloud save failed)");
+      push({ kind: "info", ttl: "Saved locally (cloud save failed)" });
       playInteractionCue("saveSuccess");
     }
   } catch {
-    triggerToast("Saved locally");
+    push({ kind: "info", ttl: "Saved locally" });
   }
 };
 
@@ -1666,7 +1653,7 @@ useEffect(() => {
 
 const handleLoadDemoData = () => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
@@ -1688,12 +1675,12 @@ const handleLoadDemoData = () => {
   guideToSection("totals", { focus: true });
   setIsBriefIntakeCollapsed(true);
 
-  triggerToast("Demo data loaded");
+  push({ kind: "info", ttl: "Demo data loaded" });
 };
 
 const handleClearDemoData = () => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
@@ -1722,12 +1709,12 @@ const handleClearDemoData = () => {
   setShowExitModal(false);
   setIsBriefIntakeCollapsed(false);
   setBriefIntakeResetKey((prev) => prev + 1);
-  triggerToast("Demo data cleared");
+  push({ kind: "info", ttl: "Demo data cleared" });
 };
 
 const handleBriefAutofill = async (input: BriefIntakeInput) => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return false;
   }
 
@@ -1841,11 +1828,11 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
     });
 
     if (!result.normalizedText.trim()) {
-      triggerToast(
+      push({ kind: "info", ttl: 
         input.imageFiles?.length
           ? "Could not extract text clearly. Try uploading a clearer image or paste text."
           : "Add a text brief first to extract invoice details.",
-      );
+       });
       return false;
     }
 
@@ -1898,7 +1885,7 @@ const handleModalSubmit = (
   saveClient: boolean,
 ) => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
@@ -1961,15 +1948,15 @@ const handleModalSubmit = (
 const handleParseAgain = () => {
   setBriefSummaryData(null);
   setIsBriefRetry(true);
-  triggerToast(
+  push({ kind: "info", ttl: 
     "Let's try that again. You can edit the brief or add more details.",
-  );
+   });
   setIsBriefIntakeCollapsed(false);
 };
 
 const handleContinueManually = (finalData: InvoiceFormData) => {
   if (isReadOnlyMode) {
-    triggerToast("This invoice is in read-only mode.");
+    push({ kind: "info", ttl: "This invoice is in read-only mode." });
     return;
   }
 
@@ -2298,7 +2285,7 @@ return (
         </motion.div>
       )}
     </AnimatePresence>
-    <UploadToast message={toastMessage} visible={showToast} />
+    
 
     {/* Editor Background Aesthetic Elements (Aura) */}
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">

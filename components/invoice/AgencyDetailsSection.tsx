@@ -3,7 +3,6 @@ import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
-import UploadToast from "@/components/ui/UploadToast";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
@@ -20,6 +19,7 @@ import {
 } from "@/lib/form-foundation";
 import AppSwitch from "@/components/ui/AppSwitch";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/components/ui/AppToast";
 import {
   appFieldErrorTextClass,
   appFieldHelperTextClass,
@@ -70,21 +70,13 @@ export default function AgencyDetailsSection({
     return "input-manual";
   };
   const [isDragOver, setIsDragOver] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { push } = useToast();
+  
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
 
-  useEffect(() => {
-    if (!showToast) return;
-
-    const timer = window.setTimeout(() => {
-      setShowToast(false);
-    }, 2200);
-
-    return () => window.clearTimeout(timer);
-  }, [showToast]);
+  
 
   const syncAgencyDetails = (nextValue: AgencyDetails) => {
     const gstinInfo = parseGstin(nextValue.gstin);
@@ -128,14 +120,7 @@ export default function AgencyDetailsSection({
     });
   };
 
-  const triggerToast = (message: string) => {
-    setToastMessage(message);
-    setShowToast(false);
 
-    requestAnimationFrame(() => {
-      setShowToast(true);
-    });
-  };
 
   const readImageFile = (file?: File) => {
     if (!file) return;
@@ -144,7 +129,7 @@ export default function AgencyDetailsSection({
     const reader = new FileReader();
     reader.onload = () => {
       updateField("logoUrl", String(reader.result));
-      triggerToast("Logo uploaded");
+      push({ kind: "info", ttl: "Logo uploaded" });
     };
     reader.readAsDataURL(file);
   };
@@ -209,7 +194,7 @@ export default function AgencyDetailsSection({
   const pinCodeError = getVisibleError("pinCode", errors?.pinCode);
   return (
     <>
-      <UploadToast message={toastMessage} visible={showToast} />
+      
 
       <section
         className={cn(
