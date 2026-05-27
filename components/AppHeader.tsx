@@ -204,17 +204,17 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-2 border-[color:var(--color-lime-warm)] bg-[#111118] print:hidden">
+      <header className="sticky top-0 z-50 border-b-2 border-ink bg-paper print:hidden">
         <div
           className={`${appPageContainerClass} flex items-center justify-between py-3`}
         >
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
-              <span className="flex h-7 w-7 items-center justify-center border-2 border-[color:var(--color-lime-warm)] bg-[color:var(--color-lime-warm)] text-[12px] font-black text-[#111118]">
+              <span className="flex h-7 w-7 items-center justify-center border-2 border-ink bg-acid text-[12px] font-black text-ink">
                 L
               </span>
-              <span className="text-[16px] font-black tracking-[0.1em] uppercase text-white font-syne antialiased">
+              <span className="text-[16px] font-black tracking-[0.1em] uppercase text-ink font-syne antialiased">
                 Lance
               </span>
             </Link>
@@ -222,21 +222,21 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="sm:hidden flex h-8 w-8 items-center justify-center border-2 border-[#333] hover:border-[color:var(--color-lime-warm)] transition-colors"
+              className="sm:hidden flex h-8 w-8 items-center justify-center border-2 border-ink hover:border-acid transition-colors"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="h-5 w-5 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="h-5 w-5 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
             </button>
 
-            <nav className="ml-4 hidden items-center gap-5 border-l-2 border-[#333] pl-5 sm:flex">
+            <nav className="ml-4 hidden items-center gap-5 border-l-2 border-ink pl-5 sm:flex">
               {user && <NavLink href="/dashboard" label="Dashboard" />}
               {user && (
                 <>
@@ -253,7 +253,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-[color:var(--color-lime-warm)] bg-[color:var(--color-lime-warm)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-[#111118] shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-ink bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
             </button>
@@ -270,7 +270,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             ) : (
               <Link
                 href="/login"
-                className="text-[12px] font-bold uppercase tracking-[0.06em] text-[color:var(--color-lime-warm)] hover:text-white transition-colors border-2 border-[color:var(--color-lime-warm)] px-3 py-1.5 hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118]"
+                className="text-[12px] font-bold uppercase tracking-[0.06em] text-ink hover:text-ink transition-colors border-2 border-ink px-3 py-1.5 hover:bg-acid"
               >
                 Sign In
               </Link>
