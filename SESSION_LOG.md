@@ -2030,3 +2030,8 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 
 - **Sprint 6 (InvoiceEditorPage Decomposition)**:
   - Extracted utility functions, sub-components, and custom React hooks (`useInvoiceAutofill.ts`, `useInvoicePersistence.ts`) into `components/invoice/editor/` to dramatically reduce and decouple the massive `InvoiceEditorPage.tsx` monolith.
+
+- **Paper + Ink Migration (Step 4)**:
+  - Ported the Landing Page (`app/page.tsx`) end-to-end to the new Paper + Ink design system.
+  - Implemented the `bg-paper-butter` canvas.
+  - Used the `<Button>`, `<Box>`, `<Pill>`, `<Marker>` (rose), and `<Sticker>` (lav) primitives for a bold Gen-Z aesthetic.
