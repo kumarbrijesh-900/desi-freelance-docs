@@ -81,6 +81,7 @@ import {
   profileToAgencyDetails,
   profileToPaymentDefaults,
   syncProfileFromInvoice,
+  type UserProfile,
 } from "@/lib/supabase/profiles";
 import {
   listClients,
@@ -211,6 +212,7 @@ function EditorContent() {
   const [projectName, setProjectName] = useState("");
   const [profileLogoUrl, setProfileLogoUrl] = useState<string>("");
   const [profileQrUrl, setProfileQrUrl] = useState<string>("");
+  const [savedProfile, setSavedProfile] = useState<UserProfile | null>(null);
   const [focusRequestNonce, setFocusRequestNonce] = useState(0);
   const [showAllValidationErrors, setShowAllValidationErrors] = useState(false);
   const [isProcessingAutofill, setIsProcessingAutofill] = useState(false);
@@ -577,47 +579,7 @@ function EditorContent() {
       const { data: profile } = await loadProfile();
       if (cancelled || !profile) return;
 
-      if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
-      if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
-
-      if (!profile.agency_name.trim()) return;
-
-      setFormData((prev) => {
-        if (prev.agency.agencyName.trim()) return prev;
-
-        const agencyFromProfile = profileToAgencyDetails(profile);
-        const paymentFromProfile = profileToPaymentDefaults(profile);
-
-        markFieldsAutoFilled([
-          "agency.agencyName",
-          "agency.address",
-          "agency.addressLine1",
-          "agency.addressLine2",
-          "agency.city",
-          "agency.pinCode",
-          "agency.agencyState",
-          "agency.gstin",
-          "agency.pan",
-          "agency.gstRegistrationStatus",
-          "agency.lutAvailability",
-          "agency.lutNumber",
-          "agency.lutValidity",
-          "agency.noLutTaxHandling",
-          "payment.bankName",
-          "payment.accountName",
-          "payment.accountNumber",
-          "payment.ifscCode",
-          "payment.bankAddress",
-          "payment.swiftBicCode",
-          "payment.ibanRoutingCode",
-        ]);
-
-        return {
-          ...prev,
-          agency: { ...prev.agency, ...agencyFromProfile },
-          payment: { ...prev.payment, ...paymentFromProfile },
-        };
-      });
+      setSavedProfile(profile);
     }
 
     applyProfile();
@@ -2033,6 +1995,45 @@ const updateFormSection = <K extends keyof InvoiceFormData>(
   });
 };
 
+const handleSelectProfile = (profile: UserProfile) => {
+  if (isReadOnlyMode) return;
+  const agencyFromProfile = profileToAgencyDetails(profile);
+  const paymentFromProfile = profileToPaymentDefaults(profile);
+
+  markFieldsAutoFilled([
+    "agency.agencyName",
+    "agency.address",
+    "agency.addressLine1",
+    "agency.addressLine2",
+    "agency.city",
+    "agency.pinCode",
+    "agency.agencyState",
+    "agency.gstin",
+    "agency.pan",
+    "agency.gstRegistrationStatus",
+    "agency.lutAvailability",
+    "agency.lutNumber",
+    "agency.lutValidity",
+    "agency.noLutTaxHandling",
+    "payment.bankName",
+    "payment.accountName",
+    "payment.accountNumber",
+    "payment.ifscCode",
+    "payment.bankAddress",
+    "payment.swiftBicCode",
+    "payment.ibanRoutingCode",
+  ]);
+
+  if (profile.logo_url) setProfileLogoUrl(profile.logo_url);
+  if (profile.qr_code_url) setProfileQrUrl(profile.qr_code_url);
+
+  setFormData((prev) => ({
+    ...prev,
+    agency: { ...prev.agency, ...agencyFromProfile },
+    payment: { ...prev.payment, ...paymentFromProfile },
+  }));
+};
+
 const handleClientSelect = (client: SavedClient) => {
   if (isReadOnlyMode) return;
 
@@ -2075,6 +2076,8 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           showAllErrors={showAllValidationErrors}
           autoFilledFields={autoFilledFields}
           onFieldManualEdit={markFieldManual}
+          savedProfile={savedProfile}
+          onSelectProfile={handleSelectProfile}
         />
       );
     case "client":

@@ -3,6 +3,7 @@ import { AppTooltip } from "@/components/ui/AppTooltip";
 
 import { useEffect, useState } from "react";
 import type { AgencyDetails } from "@/types/invoice";
+import type { UserProfile } from "@/lib/supabase/profiles";
 import ChoiceCards from "@/components/ui/ChoiceCards";
 import AppSelectField from "@/components/ui/AppSelectField";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
@@ -50,6 +51,8 @@ interface AgencyDetailsSectionProps {
   onFieldManualEdit?: (fieldPath: string) => void;
   isGuestMode?: boolean;
   isReadOnly?: boolean;
+  savedProfile?: UserProfile | null;
+  onSelectProfile?: (profile: UserProfile) => void;
 }
 
 export default function AgencyDetailsSection({
@@ -62,6 +65,8 @@ export default function AgencyDetailsSection({
   onFieldManualEdit = () => {},
   isGuestMode = true,
   isReadOnly = false,
+  savedProfile = null,
+  onSelectProfile = () => {},
 }: AgencyDetailsSectionProps) {
   const getInputStateClass = (fieldPath: string, fieldValue: string) => {
     if (isReadOnly) return "";
@@ -75,6 +80,7 @@ export default function AgencyDetailsSection({
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
   );
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   
 
@@ -155,6 +161,13 @@ export default function AgencyDetailsSection({
   };
   const getVisibleError = (field: string, error?: string) =>
     showAllErrors || touchedFields[field] ? error : undefined;
+
+  const agencyNameQuery = value.agencyName.trim().toLowerCase();
+  const showProfileSuggestion = Boolean(
+    savedProfile &&
+    savedProfile.agency_name &&
+    savedProfile.agency_name.trim().toLowerCase().includes(agencyNameQuery)
+  );
 
   const inputClass = (
     hasError?: string,
@@ -475,7 +488,7 @@ export default function AgencyDetailsSection({
             </div>
 
             <div className="space-y-6">
-              <div>
+               <div className="relative">
                 <label className={appFieldLabelClass}>
                   Business / Trade Name{!isReadOnly && " *"}
                   {autoFilledFields.has("agency.agencyName") && (
@@ -486,11 +499,30 @@ export default function AgencyDetailsSection({
                   suppressHydrationWarning
                   type="text"
                   value={value.agencyName}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setShowSuggestions(false);
+                    }
+                    if (event.key === "Enter" && !showProfileSuggestion) {
+                      event.preventDefault();
+                      setShowSuggestions(false);
+                    }
+                    if (event.key === "Tab" && !showProfileSuggestion) {
+                      setShowSuggestions(false);
+                    }
+                  }}
                   onChange={(e) => {
                     onFieldManualEdit("agency.agencyName");
                     updateField("agencyName", e.target.value);
+                    setShowSuggestions(true);
                   }}
-                  onBlur={() => markTouched("agencyName")}
+                  onBlur={() => {
+                    markTouched("agencyName");
+                    setTimeout(() => setShowSuggestions(false), 200);
+                  }}
+                  onFocus={() => {
+                    setShowSuggestions(true);
+                  }}
                   placeholder="Your agency or freelance brand name"
                   readOnly={isReadOnly}
                   className={cn(
@@ -498,6 +530,29 @@ export default function AgencyDetailsSection({
                     getInputStateClass("agency.agencyName", value.agencyName),
                   )}
                 />
+                {showSuggestions && showProfileSuggestion && !isReadOnly && (
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
+                    </div>
+                    <button
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        if (savedProfile) {
+                          onSelectProfile(savedProfile);
+                        }
+                        setShowSuggestions(false);
+                      }}
+                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-[color:var(--color-lime-50)] transition-colors group"
+                    >
+                      <span className="text-[13px] font-bold text-[color:var(--color-ink)] group-hover:text-[color:var(--color-lime-700)]">{savedProfile?.agency_name}</span>
+                      <div className="flex items-center gap-2 text-[10px] text-[color:var(--color-ink-2)]">
+                        <span>{savedProfile?.city || "Saved profile"}</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
                 {agencyNameError ? (
                   <p className={appFieldErrorTextClass}>{agencyNameError}</p>
                 ) : null}
