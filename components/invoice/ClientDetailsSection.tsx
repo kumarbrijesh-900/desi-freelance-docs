@@ -321,6 +321,11 @@ export default function ClientDetailsSection({
                   {autoFilledFields.has("client.clientName") && (
                     <span className="autofill-indicator">auto-filled</span>
                   )}
+                  {showNewClientBadge && (
+                    <span className="ml-2 inline-flex items-center rounded-[2px] bg-[color:var(--color-paper-butter,#fff7d6)] border border-[color:var(--color-soft)] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-[color:var(--color-ink)]">
+                      New
+                    </span>
+                  )}
                 </label>
                 <input
                   suppressHydrationWarning
@@ -356,14 +361,8 @@ export default function ClientDetailsSection({
                   className={cn(
                     inputClass(clientNameError, Boolean(value.clientName)),
                     getInputStateClass("client.clientName", value.clientName),
-                    showNewClientBadge && "pr-14",
                   )}
                 />
-                {showNewClientBadge && (
-                  <span className="pointer-events-none absolute right-2 top-[32px] border border-[#111118] bg-[#F5F4F0] px-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#111118]">
-                    New
-                  </span>
-                )}
 
                 {showSuggestions && !isReadOnly && (
                   <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
