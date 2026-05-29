@@ -365,6 +365,13 @@ function EditorContent() {
       }
 
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
+      const loadedProject = data.project as { name?: string } | null | undefined;
+      const projName =
+        loadedProject?.name ??
+        (data.form_data as any)?.projectName ??
+        (data.form_data as any)?.meta?.projectName ??
+        "";
+      hydratedData.meta.projectName = projName;
       setFormData(hydratedData);
       setParserDocumentId(data.id);
       setInvoiceStatus(data.status ?? null);
@@ -373,13 +380,7 @@ function EditorContent() {
       setProjectMsaAcceptedAt(data.project?.msa_accepted_at ?? null);
       setProjectStatus(data.project?.status ?? null);
       setProjectId(data.project_id ?? null);
-      const loadedProject = data.project as { name?: string } | null | undefined;
-      setProjectName(
-        loadedProject?.name ??
-          (data.form_data as any)?.projectName ??
-          (data.form_data as any)?.meta?.projectName ??
-          "",
-      );
+      setProjectName(projName);
       
       if (data.client_msa_note) {
         setClientMsaNote(data.client_msa_note);
@@ -426,9 +427,11 @@ function EditorContent() {
               nextMsaNote = parsedDraft.clientMsaNote ?? null;
             }
             nextProjectId = parsedDraft?.projectId ?? null;
-            setProjectName(parsedDraft?.projectName ?? "");
+            const draftedProjName = parsedDraft?.projectName ?? "";
+            setProjectName(draftedProjName);
             if (!nextFormData && parsedDraft?.formData) {
               nextFormData = mergeInvoiceFormData(parsedDraft.formData);
+              nextFormData.meta.projectName = draftedProjName;
               shouldShowRestoreToast = true;
             }
           }
@@ -2144,6 +2147,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           onProjectNameChange={(nextProjectName) => {
             if (isReadOnlyMode) return;
             setProjectName(nextProjectName);
+            setFormData(prev => ({ ...prev, meta: { ...prev.meta, projectName: nextProjectName } }));
             setProjectId(null);
           }}
           onChange={(milestones) => {
@@ -2983,119 +2987,6 @@ return (
               </div>
             </div>
           )}
-
-          {/* Fixed Bottom Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[color:var(--color-soft)]">
-            <div className={`${appEditorGridClass} px-4 sm:px-6 lg:px-8`}>
-              {/* Spacer for left column on lg+ */}
-              <div className="hidden lg:block" />
-              <div className="flex h-16 items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={handleBackToHome}
-                  className="flex items-center gap-2 text-sm font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Close</span>
-                </button>
-
-                <div className="hidden min-w-0 flex-1 justify-center px-2 md:flex">
-                  <div
-                    className={cn(
-                      "flex min-w-0 max-w-[520px] items-center gap-2 border px-3 py-1.5 text-[11px] font-bold",
-                      isReadOnlyMode
-                        ? "border-[#D4D2CC] bg-[#F5F4F0] text-[#6B6660]"
-                        : invoiceReadyForPreview
-                        ? "border-[#00A884] bg-[#EBFDF9] text-[#007A63]"
-                        : "border-[#F59E0B] bg-[#FFFBE6] text-[#8A4B00]",
-                    )}
-                    role="status"
-                  >
-                    {isReadOnlyMode ? (
-                      <ShieldCheck className="h-4 w-4 shrink-0" strokeWidth={2.3} />
-                    ) : invoiceReadyForPreview ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} />
-                    ) : (
-                      <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} />
-                    )}
-                    <span className="truncate">
-                      {isReadOnlyMode
-                        ? `This invoice is locked — ${readOnlyReason}`
-                        : invoiceReadyForPreview
-                        ? "Ready for preview. Confirm totals before sending."
-                        : nextBlockingGroup
-                          ? nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
-                            ? "Name your project to continue."
-                            : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 2).join(", ")}${nextBlockingFields.length > 2 ? ` +${nextBlockingFields.length - 2} more` : ""}.`
-                          : "Complete the highlighted fields before preview."}
-                    </span>
-                  </div>
-                </div>
-    
-                <div className="flex items-center gap-2">
-                  {/* Auto-save status removed */}
-                  {!isReadOnlyMode && (
-                    <button
-                      type="button"
-                      onClick={handleSaveDraft}
-                      className={cn(
-                        getAppButtonClass({ variant: "ghost", size: "sm" }),
-                        "h-9 px-4 border border-[color:var(--color-soft)] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
-                      )}
-                    >
-                      <SaveIcon className="mr-2 h-4 w-4" />
-                      Save Draft
-                    </button>
-                  )}
-                  {isReadOnlyMode ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleLockedAlternativeAction}
-                        className="inline-flex items-center justify-center gap-2 border-0 bg-[#111118] p-4 text-[11px] font-black uppercase text-[color:var(--color-lime-warm)] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:text-[12px]"
-                      >
-                        {lockState.alternativeAction?.label ?? "View preview"}
-                      </button>
-                      {lockState.alternativeAction && (
-                        <button
-                          type="button"
-                          onClick={handleLockedPreviewRoute}
-                          className="inline-flex items-center justify-center gap-2 border-2 border-[#111118] bg-transparent p-4 text-[11px] font-bold text-[#111118] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:text-[12px]"
-                        >
-                          View preview
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
-                      className={cn(
-                        "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
-                        invoiceReadyForPreview
-                          ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                          : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
-                      )}
-                    >
-                      <span className="hidden sm:inline">
-                        {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
-                      </span>
-                      <span className="sm:hidden">
-                        {invoiceReadyForPreview ? "Preview" : "Review"}
-                      </span>
-                      {invoiceReadyForPreview ? (
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      ) : (
-                        <AlertCircle className="ml-2 h-4 w-4" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {/* Spacer for right column on xl+ */}
-              <div className="hidden xl:block" />
-            </div>
-          </div>
         </div>
 
         {/* ── COL 3: Right Sidebar – Meta + Totals (xl+) ── */}
@@ -3288,6 +3179,92 @@ return (
         </motion.div>
       </AnimatePresence>
     )}
+
+    {/* Fixed Bottom Action Bar */}
+    <div className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[color:var(--color-soft)] bg-white/80 px-4 py-4 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1328px] flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBackToHome}
+            className="flex items-center gap-2 text-[13px] font-bold text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Close</span>
+          </button>
+          <div className="h-4 w-px bg-[color:var(--color-soft)]" />
+          
+          <div className="hidden sm:flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
+            {isReadOnlyMode ? (
+              <span className="text-[#6B6660]">This invoice is locked — {readOnlyReason}</span>
+            ) : invoiceReadyForPreview ? (
+              <span className="text-[#007A63] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /> Ready for preview</span>
+            ) : (
+              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /> Missing details</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {!isReadOnlyMode && (
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className={cn(
+                getAppButtonClass({ variant: "ghost", size: "sm" }),
+                "h-9 px-4 border border-[color:var(--color-soft)] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+              )}
+            >
+              <SaveIcon className="mr-2 h-4 w-4" />
+              Save Draft
+            </button>
+          )}
+          {isReadOnlyMode ? (
+            <>
+              <button
+                type="button"
+                onClick={handleLockedAlternativeAction}
+                className="inline-flex items-center justify-center gap-2 border-0 bg-[#111118] p-3 text-[11px] font-black uppercase text-[color:var(--color-lime-warm)] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:p-4 sm:text-[12px]"
+              >
+                {lockState.alternativeAction?.label ?? "View preview"}
+              </button>
+              {lockState.alternativeAction && (
+                <button
+                  type="button"
+                  onClick={handleLockedPreviewRoute}
+                  className="inline-flex items-center justify-center gap-2 border-2 border-[#111118] bg-transparent p-3 text-[11px] font-bold text-[#111118] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:p-4 sm:text-[12px]"
+                >
+                  View preview
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep}
+              className={cn(
+                "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
+                invoiceReadyForPreview
+                  ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
+                  : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
+              )}
+            >
+              <span className="hidden sm:inline">
+                {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
+              </span>
+              <span className="sm:hidden">
+                {invoiceReadyForPreview ? "Preview" : "Review"}
+              </span>
+              {invoiceReadyForPreview ? (
+                <ArrowRight className="ml-2 h-4 w-4" />
+              ) : (
+                <AlertCircle className="ml-2 h-4 w-4" />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   </main>
 );
 }

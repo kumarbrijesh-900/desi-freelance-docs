@@ -999,7 +999,7 @@ export default function ClientsPage() {
                         <div className="flex items-center justify-center gap-2">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
-                            className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all opacity-0 group-hover:opacity-100"
+                            className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all"
                             title="Delete Client"
                           >
                             🗑

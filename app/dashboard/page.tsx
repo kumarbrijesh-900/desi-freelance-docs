@@ -108,6 +108,7 @@ function DashboardContent() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [projectClosureData, setProjectClosureData] = useState<{ projectName: string; cost: string } | null>(null);
   const [settlementChoice, setSettlementChoice] = useState<SettlementChoice | null>(null);
 
   const loadProjects = useCallback(async () => {
@@ -178,6 +179,16 @@ function DashboardContent() {
       trigger_mode: settlementChoice.triggerMode,
     };
 
+    const masterInvoice = getMasterInvoice();
+    const settlementMilestones = selectedProject?.milestones
+      .filter(milestone => milestone.invoice_id === masterInvoice?.id)
+      .slice()
+      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)) ?? [];
+    const nextMilestone = settlementMilestones.find(
+      milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber + 1,
+    ) ?? null;
+    const isProjectClosing = settlementChoice.triggerMode === "cancelled" || !nextMilestone;
+
     if (settlementChoice.triggerMode === "scheduled") {
       if (!settlementChoice.triggerDate) return;
       body.trigger_date = dateInputToMilestoneTriggerIso(settlementChoice.triggerDate);
@@ -195,7 +206,15 @@ function DashboardContent() {
       return;
     }
 
-    setActionMessage(`M${settlementChoice.milestoneNumber} marked settled.`);
+    if (isProjectClosing) {
+      setProjectClosureData({
+        projectName: selectedProject?.project.name || "Project",
+        cost: formatInr(selectedProject?.metrics.billed || 0),
+      });
+    } else {
+      setActionMessage(`M${settlementChoice.milestoneNumber} marked settled.`);
+    }
+
     setSettlementChoice(null);
     await loadProjects();
   };
@@ -607,6 +626,57 @@ function DashboardContent() {
           </div>
         );
       })()}
+
+      {/* ── Project Closure Delight Modal ── */}
+      {projectClosureData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-[480px] border-[3px] border-black bg-white shadow-[8px_8px_0_#111118]">
+            {/* Header Area */}
+            <div className="relative overflow-hidden bg-grass px-8 py-10 text-center">
+              {/* Confetti / Delight elements (static CSS representation) */}
+              <div className="absolute left-4 top-4 text-4xl">✨</div>
+              <div className="absolute bottom-4 right-4 text-4xl">🎉</div>
+              <div className="absolute left-1/2 top-0 h-full w-full -translate-x-1/2 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.1)_100%)] mix-blend-overlay"></div>
+              
+              <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-black bg-white shadow-[4px_4px_0_#111118]">
+                <span className="text-4xl text-grass">✓</span>
+              </div>
+              <h2 className="relative z-10 text-3xl font-black uppercase tracking-tight text-white drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">
+                Project Complete!
+              </h2>
+            </div>
+            
+            {/* Body Area */}
+            <div className="px-8 py-6">
+              <div className="text-center text-sm font-bold text-neutral-700">
+                You successfully closed all milestones for
+              </div>
+              <div className="mt-2 text-center text-xl font-black uppercase text-[#111118]">
+                {projectClosureData.projectName}
+              </div>
+              
+              <div className="my-6 border-y-2 border-dashed border-neutral-300 py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-neutral-500">
+                    Total Billed
+                  </span>
+                  <span className="text-2xl font-black text-grass drop-shadow-[1px_1px_0_rgba(0,0,0,0.2)]">
+                    {projectClosureData.cost}
+                  </span>
+                </div>
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => setProjectClosureData(null)}
+                className="w-full border-[3px] border-black bg-[#111118] py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0_#FF6B35] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_#FF6B35] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+              >
+                Awesome
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

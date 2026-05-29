@@ -155,6 +155,7 @@ export interface InvoiceMeta {
   paymentTerms: number;
   hasAddendum: boolean;
   poNumber?: string;
+  projectName?: string;
 }
 
 export interface TaxConfig {
@@ -278,6 +279,7 @@ export const defaultInvoiceFormData: InvoiceFormData = {
     paymentTerms: 15,
     hasAddendum: false,
     poNumber: "",
+    projectName: "",
   },
   lineItems: [
     {

@@ -77,7 +77,7 @@ export function ActiveDrilldown({
       handler = onMarkSettled;
       break;
     case "resend":
-      btnLabel = "RESEND INVOICE";
+      btnLabel = "NUDGE CLIENT";
       btnClass += " bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onResend;
       break;
@@ -113,6 +113,16 @@ export function ActiveDrilldown({
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
           </div>
           <div className="flex items-center gap-2">
+            {primary_action === 'mark_settled' && (
+              <button
+                type="button"
+                onClick={onResend}
+                title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
+                className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[3px_3px_0_var(--color-ink)] hover:bg-paper-2 transition-all group relative"
+              >
+                NUDGE CLIENT
+              </button>
+            )}
             <button
               className={btnClass + (!handler ? " opacity-50 cursor-not-allowed" : "")}
               onClick={handler}
@@ -123,7 +133,7 @@ export function ActiveDrilldown({
             <button
               type="button"
               onClick={onFinalize}
-              className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest hover:bg-paper-2 transition-all"
+              className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[3px_3px_0_var(--color-ink)] hover:bg-paper-2 transition-all"
             >
               EDIT
             </button>

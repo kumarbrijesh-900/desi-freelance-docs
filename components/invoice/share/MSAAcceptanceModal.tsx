@@ -201,6 +201,24 @@ export default function MSAAcceptanceModal({
               </div>
             </div>
           </div>
+          
+          {msaStatus === "pending" && msaResponseText && mode === "view" && (
+            <div className="border-b-2 border-[#111118] bg-[#EBFDF9] px-6 py-4 sm:px-8 flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-white text-[#007A63]">
+                <DocumentSparkIcon className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#007A63]">Revised Terms</p>
+                <p className="mt-1 text-sm font-bold text-[#111118]">
+                  The freelancer has updated the terms in response to your feedback:
+                </p>
+                <div className="mt-2 border-l-2 border-[#007A63] pl-3 py-1">
+                  <p className="text-[13px] italic text-[#111118] opacity-80">&quot;{msaResponseText}&quot;</p>
+                </div>
+              </div>
+            </div>
+          )}
+
 
           <div className="grid border-b-2 border-[#111118] bg-white sm:grid-cols-3">
             <div className="border-b-2 border-[#111118] p-4 sm:border-b-0 sm:border-r-2">

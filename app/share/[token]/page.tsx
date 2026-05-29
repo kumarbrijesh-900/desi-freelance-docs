@@ -105,6 +105,7 @@ export default function PublicInvoiceSharePage({
         .update({ 
           msa_response: 'accepted',
           msa_status: 'accepted',
+          client_msa_note: null,
           msa_responded_at: new Date().toISOString(),
           msa_accepted_at: new Date().toISOString(),
         })
