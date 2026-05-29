@@ -260,7 +260,7 @@ function DashboardContent() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex gap-2 mb-3 items-center">
-                    <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"/> LIVE</div>
+                    <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> LIVE</div>
                     <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
                       {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
                     </div>
@@ -294,7 +294,7 @@ function DashboardContent() {
               <div className="flex gap-4 mb-7">
                 {[
                   { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, bg: "bg-paper", fg: "text-ink", shadow: "none" },
-                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => m.status==='settled').length} settled`, bg: "bg-grass", fg: "text-white", shadow: "shadow-[4px_4px_0_var(--color-rule)]" },
+                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => m.status === 'settled').length} settled`, bg: "bg-grass", fg: "text-white", shadow: "shadow-[4px_4px_0_var(--color-rule)]" },
                   { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", bg: "bg-acid", fg: "text-ink", shadow: "shadow-[4px_4px_0_var(--color-rule)]" },
                   { label: "At risk", val: "₹0", sub: "—", bg: "bg-paper", fg: "text-ink", shadow: "none" }
                 ].map((s, i) => (
@@ -377,8 +377,7 @@ function DashboardContent() {
               : "Remaining milestones are soft-cancelled.";
         const scheduleDateInvalid = settlementChoice.triggerMode === "scheduled" && !settlementChoice.triggerDate;
         const optionRowClass = (mode: TriggerMode) =>
-          `flex cursor-pointer items-start gap-3 border-2 border-black p-3 hover:bg-[#FAF7F2] ${
-            settlementChoice.triggerMode === mode ? "bg-[#FAF7F2]" : "bg-white"
+          `flex cursor-pointer items-start gap-3 border-2 border-black p-3 hover:bg-[#FAF7F2] ${settlementChoice.triggerMode === mode ? "bg-[#FAF7F2]" : "bg-white"
           }`;
 
         return (

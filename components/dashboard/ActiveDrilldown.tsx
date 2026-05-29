@@ -97,7 +97,7 @@ export function ActiveDrilldown({
       handler = onPreview;
       break;
   }
-  
+
   const dotColors = ["bg-sky", "bg-lav", "bg-coral", "bg-grass", "bg-butter"];
   const subtotal = items.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.rate || 0)), 0);
 
@@ -107,7 +107,7 @@ export function ActiveDrilldown({
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
-              <div className="px-2 py-0.5 bg-acid text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-ink rounded-full animate-pulse"/> ACTIVE NOW</div>
+              <div className="px-2 py-0.5 bg-acid text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
             </div>
             <h2 className="text-[28px] font-display font-black tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
@@ -131,9 +131,9 @@ export function ActiveDrilldown({
         </div>
 
         <div className="h-px bg-ink/20 my-4" />
-        
+
         <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mb-3">LINE ITEMS · {items.length}</div>
-        
+
         <div className="flex flex-col gap-3">
           {items.map((item, idx) => {
             const dotBg = dotColors[idx % dotColors.length];
@@ -157,7 +157,7 @@ export function ActiveDrilldown({
         </div>
 
         <div className="h-px bg-ink/20 my-4" />
-        
+
         <div className="flex justify-between items-center mt-auto">
           <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
             {milestone ? `M${(milestone.order_index ?? 0) + 1} SUBTOTAL` : 'SUBTOTAL'} · GST 18%
@@ -178,24 +178,24 @@ export function ActiveDrilldown({
           { ic: "⚠", t: "Revision requested", when: "5 days", k: "coral" },
           { ic: "§", t: "MSA accepted by client", when: "12 days", k: "butter" },
         ].map((act, i) => {
-           let bgClass = "bg-paper text-ink";
-           if (act.k === "grass") bgClass = "bg-grass text-white";
-           else if (act.k === "coral") bgClass = "bg-coral text-white";
-           else if (act.k === "sky") bgClass = "bg-sky text-white";
-           else if (act.k === "lav") bgClass = "bg-lav text-white";
-           else if (act.k === "butter") bgClass = "bg-butter text-ink";
-           
-           return (
-             <div key={i} className="flex items-start gap-2.5">
-               <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] ${bgClass}`}>
-                 {act.ic}
-               </div>
-               <div className="flex-1">
-                 <div className="text-xs font-bold text-ink leading-tight mt-0.5">{act.t}</div>
-                 <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5">{act.when}</div>
-               </div>
-             </div>
-           );
+          let bgClass = "bg-paper text-ink";
+          if (act.k === "grass") bgClass = "bg-grass text-white";
+          else if (act.k === "coral") bgClass = "bg-coral text-white";
+          else if (act.k === "sky") bgClass = "bg-sky text-white";
+          else if (act.k === "lav") bgClass = "bg-lav text-white";
+          else if (act.k === "butter") bgClass = "bg-butter text-ink";
+
+          return (
+            <div key={i} className="flex items-start gap-2.5">
+              <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] ${bgClass}`}>
+                {act.ic}
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-bold text-ink leading-tight mt-0.5">{act.t}</div>
+                <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5">{act.when}</div>
+              </div>
+            </div>
+          );
         })}
       </div>
     </div>

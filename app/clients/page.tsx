@@ -996,12 +996,21 @@ export default function ClientsPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
-                          className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all"
-                        >
-                          EDIT
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
+                            className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all opacity-0 group-hover:opacity-100"
+                            title="Delete Client"
+                          >
+                            🗑
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
+                            className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all"
+                          >
+                            EDIT
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1035,6 +1044,34 @@ export default function ClientsPage() {
           </div>
         )}
       </section>
+
+      {/* ── Delete Confirmation Dialog ── */}
+      {deletingClientId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-sm border-[3px] border-black bg-white shadow-[6px_6px_0_#111118] p-6">
+            <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete client?</h3>
+            <p className="text-sm font-bold text-neutral-600 mb-5">
+              This will permanently delete this client. Invoices associated with this client will not be deleted but they will lose the client association.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleDeleteCancel}
+                className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className="border-[3px] border-black bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+              >
+                Delete permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

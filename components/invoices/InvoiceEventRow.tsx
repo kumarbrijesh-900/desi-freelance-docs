@@ -31,7 +31,8 @@ export function InvoiceEventRow({
   projectId,
   masterMsaStatus,
   masterHasClientMsaNote,
-  masterInvoice
+  masterInvoice,
+  onDelete
 }: {
   invoice: any;
   projectName?: string;
@@ -41,6 +42,7 @@ export function InvoiceEventRow({
   masterMsaStatus?: string | null;
   masterHasClientMsaNote?: boolean;
   masterInvoice?: any;
+  onDelete?: (id: string) => void;
 }) {
   const milestoneIndex = Number(invoice.milestone_index);
   const typeLabel = isMaster
@@ -116,7 +118,21 @@ export function InvoiceEventRow({
         </div>
 
         {/* Col 5 */}
-        <div className="ml-4 shrink-0">
+        <div className="ml-4 shrink-0 flex items-center gap-2">
+          {onDelete && (statusInfo.label === 'draft' || statusInfo.label === 'live') && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(invoice.id);
+              }}
+              className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all opacity-0 group-hover:opacity-100"
+              title="Delete Invoice"
+            >
+              🗑
+            </button>
+          )}
           <button className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-paper-2 text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all">
             VIEW →
           </button>

@@ -10,6 +10,7 @@ import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { deleteInvoice } from "@/lib/supabase/invoices";
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
@@ -18,6 +19,8 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ invoiceId: string; label: string } | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete"];
 
@@ -32,6 +35,28 @@ export default function InvoicesPage() {
     }
     load();
   }, []);
+
+  const loadProjects = async () => {
+    setLoading(true);
+    const { data, error } = await getAllProjectsWithInvoices();
+    if (!error && data) {
+      setProjects(data);
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteInvoice = async () => {
+    if (!deleteConfirm) return;
+    const { error } = await deleteInvoice(deleteConfirm.invoiceId);
+    if (error) {
+      setActionMessage(`Delete failed: ${error}`);
+    } else {
+      setActionMessage("Invoice deleted.");
+      await loadProjects();
+    }
+    setDeleteConfirm(null);
+    setTimeout(() => setActionMessage(null), 3000);
+  };
 
   useEffect(() => {
     setCurrentPage(1);
@@ -110,6 +135,11 @@ export default function InvoicesPage() {
       <AppHeader />
       <main className={`${appPageContainerClass} max-w-[1200px] mx-auto py-8 relative overflow-x-hidden`}>
         
+        {actionMessage && (
+          <div className="mb-6 px-4 py-3 bg-ink text-white text-sm font-bold shadow-[4px_4px_0_var(--color-rule)]">
+            {actionMessage}
+          </div>
+        )}
 
 
         <div className="flex justify-between items-end mb-8">
@@ -231,6 +261,7 @@ export default function InvoicesPage() {
                 masterMsaStatus={item.masterMsaStatus}
                 masterHasClientMsaNote={item.masterHasClientMsaNote}
                 masterInvoice={item.masterInvoice}
+                onDelete={(id) => setDeleteConfirm({ invoiceId: id, label: item.invoice.invoice_number || 'this draft' })}
               />
             ))}
             <div className="flex justify-between items-center mt-4">
@@ -257,6 +288,34 @@ export default function InvoicesPage() {
           </div>
         )}
       </main>
+
+      {/* ── Delete Confirmation Dialog ── */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-sm border-[3px] border-black bg-white shadow-[6px_6px_0_#111118] p-6">
+            <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete invoice?</h3>
+            <p className="text-sm font-bold text-neutral-600 mb-5">
+              This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteInvoice}
+                className="border-[3px] border-black bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+              >
+                Delete permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
