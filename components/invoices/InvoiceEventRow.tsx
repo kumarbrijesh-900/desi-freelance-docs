@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
+import { invoiceRowHref } from "@/lib/invoice-row-href";
 
 function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
   const status = (invoiceStatus || '').toLowerCase();
@@ -63,7 +64,11 @@ export function InvoiceEventRow({
     }
   }
 
-  const rowHref = `/invoice/${invoice.id}/client-preview`;
+  const status = (invoice.status || 'draft').toLowerCase();
+  const msa = (masterMsaStatus || '').toLowerCase();
+  const hasClientMsaNote = !!masterHasClientMsaNote;
+  const isEditable = (status === 'draft') || (msa === 'proposed' && hasClientMsaNote);
+  const rowHref = invoiceRowHref(invoice.id, isEditable);
   const clientInitial = (clientName || "U").slice(0, 2).toUpperCase();
   const cName = clientName || "Unknown Client";
   const pName = projectName || "Unlinked Project";

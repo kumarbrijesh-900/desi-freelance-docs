@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatInr } from "./ActiveDrilldown";
+import { invoiceRowHref } from "@/lib/invoice-row-href";
 
 function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
   const status = (invoiceStatus || '').toLowerCase();
@@ -91,12 +92,21 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                     </span>
                   </td>
                   <td className="p-3 text-center">
-                    <Link
-                      href={`/dashboard?project=${project.project.id}&invoice=${inv.id}`}
-                      className="inline-block text-[10px] uppercase font-extrabold tracking-wide border border-black px-3 py-1 bg-white hover:bg-black hover:text-white transition-colors"
-                    >
-                      VIEW
-                    </Link>
+                    {(() => {
+                      const status = (inv.status || '').toLowerCase();
+                      const msa = (master?.msa_status || '').toLowerCase();
+                      const hasClientMsaNote = !!master?.client_msa_note;
+                      const isEditable = (status === 'draft') || (msa === 'proposed' && hasClientMsaNote);
+                      const rowHref = invoiceRowHref(inv.id, isEditable);
+                      return (
+                        <Link
+                          href={rowHref}
+                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border border-black px-3 py-1 bg-white hover:bg-black hover:text-white transition-colors"
+                        >
+                          VIEW
+                        </Link>
+                      );
+                    })()}
                   </td>
                 </tr>
               );
