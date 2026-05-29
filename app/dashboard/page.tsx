@@ -124,6 +124,12 @@ function DashboardContent() {
     void loadProjects();
   }, [loadProjects]);
 
+  useEffect(() => {
+    if (projects.length > 0 && !projectId) {
+      router.replace(`/dashboard?project=${projects[0].project.id}`);
+    }
+  }, [projects, projectId, router]);
+
   const selectedProject = projectId ? projects.find(p => p.project.id === projectId) : null;
   const drilldownState = useMemo(
     () => selectedProject ? computeActiveDrilldown(selectedProject) : null,
