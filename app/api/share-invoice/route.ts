@@ -194,6 +194,7 @@ export async function POST(req: NextRequest) {
           shared_to_email: clientEmail,
           status: "finalized",
           msa_id: resolvedMsaId,
+          msa_status: 'pending',
           msa_response: 'pending',
         })
         .eq("id", invoiceId);
@@ -213,6 +214,7 @@ export async function POST(req: NextRequest) {
           shared_to_email: clientEmail,
           shared_at: new Date().toISOString(),
           msa_id: resolvedMsaId,
+          msa_status: 'pending',
           msa_response: 'pending',
         })
         .eq("id", invoiceId);

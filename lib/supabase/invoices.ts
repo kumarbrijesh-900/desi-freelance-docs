@@ -1246,6 +1246,7 @@ export async function reissueNegotiatedInvoice(
   const updateRow: Record<string, unknown> = {
     form_data: newFormData as unknown as Record<string, unknown>,
     msa_status: "pending" as MsaStatus,
+    msa_response: "pending",
     msa_accepted_at: null,
     ...computeAppliedMsaSnapshot(newFormData),
     applied_license_type: newFormData.payment?.license?.licenseType || null,
