@@ -28,7 +28,7 @@ export type StateSignalResult = {
 };
 
 function cleanValue(value?: string | null) {
-  return (value ?? "").replace(/\s+/g, " ").trim();
+  return (value ?? "").replace(/\s+/g, " ").trimStart();
 }
 
 function cleanPinCode(value?: string | null) {

@@ -290,18 +290,12 @@ export default function AgencyDetailsSection({
                             placeholder="GSTIN"
                             autoCapitalize="characters"
                             spellCheck={false}
-                            readOnly={!isGuestMode && !!value.gstin}
+                            readOnly={isReadOnly}
                             className={cn(
                               inputClass(gstinError, Boolean(value.gstin)),
                               getInputStateClass("agency.gstin", value.gstin),
-                              !isGuestMode && !!value.gstin && "bg-[color:var(--color-paper)] cursor-not-allowed opacity-80"
                             )}
                           />
-                          {!isGuestMode && !!value.gstin && (
-                            <p className="mt-1 text-[10px] font-normal text-indigo-600">
-                              Locked to your verified profile GSTIN.
-                            </p>
-                          )}
                           {gstinError ? (
                             <p className={appFieldErrorTextClass}>{gstinError}</p>
                           ) : gstinInfo.state ? (
@@ -498,18 +492,12 @@ export default function AgencyDetailsSection({
                   }}
                   onBlur={() => markTouched("agencyName")}
                   placeholder="Your agency or freelance brand name"
-                  readOnly={!isGuestMode && !!value.agencyName}
+                  readOnly={isReadOnly}
                   className={cn(
                     inputClass(agencyNameError, Boolean(value.agencyName)),
                     getInputStateClass("agency.agencyName", value.agencyName),
-                    !isGuestMode && !!value.agencyName && "bg-[color:var(--color-paper)] cursor-not-allowed opacity-80"
                   )}
                 />
-                {!isGuestMode && !!value.agencyName && (
-                  <p className="mt-1 text-[10px] font-normal text-indigo-600">
-                    Locked to your registered Agency Name.
-                  </p>
-                )}
                 {agencyNameError ? (
                   <p className={appFieldErrorTextClass}>{agencyNameError}</p>
                 ) : null}
