@@ -1,11 +1,14 @@
 import React from "react";
-import { LifecycleStep } from "@/lib/lifecycle/computeProjectLifecycle";
+import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatTimingPill, SettlementTiming } from "@/lib/lifecycle/timing";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
 
-export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
-  // Only extract milestone steps for the timeline to match the visual
-  const milestones = steps.filter(s => s.kind.startsWith("milestone_"));
+export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) {
+  const milestones = [...project.milestones].filter(m =>
+    project.invoices.find(inv => inv.id === m.invoice_id && !(inv as any).parent_invoice_id)
+  ).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+  
+  const master = project.invoices.find(inv => !(inv as any).parent_invoice_id);
 
   return (
     <div className="mb-6">
@@ -32,16 +35,20 @@ export function LifecycleStepper({ steps }: { steps: LifecycleStep[] }) {
       <div className="bg-white border-2 border-ink p-6 shadow-[4px_4px_0_var(--color-rule)] mb-6 overflow-x-auto no-scrollbar">
         <div className="flex items-start min-w-[600px]">
           {milestones.map((m, i) => {
-            const isSettled = m.status === "completed";
-            const isActive = m.status === "active";
-            const isPending = m.status === "pending";
+            const milestoneStatus = (m.status || "").toLowerCase();
+            const hasChildInvoice = master ? project.invoices.some(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1) : false;
+            const isSettled = milestoneStatus === "settled";
+            const isActive = (hasChildInvoice || m.trigger_status === "fired") && !isSettled;
+            const isPending = !isActive && !isSettled;
             
             const circleBg = isSettled ? "bg-ink text-white" : isActive ? "bg-acid text-ink shadow-[3px_3px_0_var(--color-rule)]" : "bg-paper text-ink border-dashed";
             const lineStyle = isSettled ? "border-t-[2.5px] border-solid border-ink" : "border-t-[2px] border-dashed border-ink/30";
             
-            // Generate label
-            const labelStr = m.label.split(" (")[0]; // Remove date if present
-            const amtStr = (m.meta as any)?.amount ? formatInr((m.meta as any).amount as number) : "—";
+            // Generate label: remove explicit M1 prefixes if present to reduce noise
+            let labelStr = m.title || `Milestone ${i + 1}`;
+            labelStr = labelStr.replace(/^m\d+[\s\-\·]+/i, '');
+            
+            const amtStr = m.amount ? formatInr(Number(m.amount)) : "—";
             const statusStr = isSettled ? "SETTLED" : isActive ? "LIVE" : "PENDING";
 
             return (

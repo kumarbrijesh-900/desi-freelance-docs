@@ -332,7 +332,7 @@ function DashboardContent() {
               </div>
 
               {/* Vertical layout per spec */}
-              <LifecycleStepper steps={computeProjectLifecycle(selectedProject)} />
+              <LifecycleStepper project={selectedProject} />
 
               <ActiveDrilldown
                 state={drilldownState}
