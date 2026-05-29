@@ -354,10 +354,16 @@ export async function saveInvoice(
         (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
       );
 
+  const finalFormData = { ...input.formData } as any;
+  if (!finalFormData.meta) finalFormData.meta = {};
+  if (requestedProjectName) {
+    finalFormData.meta.projectName = requestedProjectName;
+  }
+
   // Fix Bug 2: Map MSA fields correctly to database columns
   const row: any = {
     invoice_number: invoiceNumber,
-    form_data: input.formData as unknown as Record<string, unknown>,
+    form_data: finalFormData as Record<string, unknown>,
     ...computeAppliedMsaSnapshot(input.formData),
     applied_license_type: input.formData.payment?.license?.licenseType || null,
     status,

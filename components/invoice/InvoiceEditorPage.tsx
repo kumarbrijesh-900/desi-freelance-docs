@@ -365,7 +365,8 @@ function EditorContent() {
       }
 
       const hydratedData = mergeInvoiceFormData(data.form_data as any);
-      const loadedProject = data.project as { name?: string } | null | undefined;
+      const loadedProjectArray = Array.isArray(data.project) ? data.project[0] : data.project;
+      const loadedProject = loadedProjectArray as { name?: string; msa_accepted_at?: string; status?: string } | null | undefined;
       const projName =
         loadedProject?.name ??
         (data.form_data as any)?.projectName ??
@@ -377,8 +378,8 @@ function EditorContent() {
       setInvoiceStatus(data.status ?? null);
       setMsaStatus(data.msa_status ?? null);
       setSharedToEmail(data.shared_to_email ?? null);
-      setProjectMsaAcceptedAt(data.project?.msa_accepted_at ?? null);
-      setProjectStatus(data.project?.status ?? null);
+      setProjectMsaAcceptedAt(loadedProject?.msa_accepted_at ?? null);
+      setProjectStatus(loadedProject?.status ?? null);
       setProjectId(data.project_id ?? null);
       setProjectName(projName);
       
