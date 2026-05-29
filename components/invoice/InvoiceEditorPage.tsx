@@ -1313,13 +1313,48 @@ const handlePreviewInvoice = async () => {
       tax: derivedTaxConfig,
     };
 
+    const userId = await getCurrentUserId();
+    let currentId = parserDocumentId;
+
+    if (userId && !isReadOnlyMode) {
+      let result;
+      if (clientMsaNote && parserDocumentId) {
+        result = await reissueNegotiatedInvoice(parserDocumentId, previewFormData, {
+          projectId,
+          projectName: projectName.trim() || undefined,
+        });
+        if (!result.error) {
+          setClientMsaNote(null);
+        }
+      } else {
+        result = await saveInvoice({
+          formData: previewFormData,
+          status: "draft" as InvoiceStatus,
+          existingId: parserDocumentId ?? undefined,
+          projectId,
+          projectName: projectName.trim() || undefined,
+        });
+        if (!result.error && result.data) {
+          setParserDocumentId(result.data.id);
+          currentId = result.data.id;
+          // Sync profile details
+          await syncProfileFromInvoice(previewFormData);
+        }
+      }
+
+      if (result?.error) {
+        console.error("Failed to cloud-save invoice on preview:", result.error);
+        push({ kind: "info", ttl: "Cloud save failed. Previewing local changes only." });
+      }
+    }
+
     window.localStorage.setItem(
       PREVIEW_STORAGE_KEY,
       JSON.stringify({
         formData: previewFormData,
         projectId,
         projectName,
-        cloudInvoiceId: parserDocumentId,
+        cloudInvoiceId: currentId,
       }),
     );
 
@@ -1330,7 +1365,7 @@ const handlePreviewInvoice = async () => {
           formData,
           currentStep: "totals",
           savedAt: new Date().toISOString(),
-          documentId: parserDocumentId,
+          documentId: currentId,
           clientMsaNote,
           projectId,
           projectName,
@@ -1339,8 +1374,8 @@ const handlePreviewInvoice = async () => {
     }
     push({ kind: "info", ttl: "Preview ready" });
     playInteractionCue("previewReady");
-    const previewUrl = parserDocumentId 
-      ? `/invoice/preview?id=${parserDocumentId}`
+    const previewUrl = currentId 
+      ? `/invoice/preview?id=${currentId}`
       : "/invoice/preview";
     router.push(previewUrl);
   } catch (error) {
