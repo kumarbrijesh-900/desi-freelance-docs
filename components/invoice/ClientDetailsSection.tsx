@@ -322,7 +322,7 @@ export default function ClientDetailsSection({
                     <span className="autofill-indicator">auto-filled</span>
                   )}
                   {showNewClientBadge && (
-                    <span className="ml-2 inline-flex items-center rounded-[2px] bg-[color:var(--color-paper-butter,#fff7d6)] border border-[color:var(--color-soft)] px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-[color:var(--color-ink)]">
+                    <span className="ml-1.5 text-[10px] font-normal tracking-normal text-[color:var(--brand-indigo-deep)]">
                       New
                     </span>
                   )}
