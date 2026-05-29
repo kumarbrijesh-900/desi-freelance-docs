@@ -62,11 +62,19 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                   )}
                 </div>
                 <div className="pt-3 pr-4">
-                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-ink mb-1 truncate" title={labelStr}>
+                  <div className={`text-[11px] uppercase tracking-widest mb-1 truncate transition-all ${
+                    isActive ? "font-black text-ink" : 
+                    isSettled ? "font-extrabold text-ink" : 
+                    "font-bold text-ink/40"
+                  }`} title={labelStr}>
                     M{i+1} · {labelStr}
                   </div>
-                  <div className="text-base font-black text-ink mb-1">{amtStr}</div>
-                  <div className={`text-[10px] font-extrabold uppercase tracking-widest ${isActive ? 'text-grass' : 'text-ink/60'}`}>
+                  <div className={`transition-all mb-1 ${
+                    isActive ? "text-lg font-black text-ink" : 
+                    isSettled ? "text-base font-black text-ink" : 
+                    "text-base font-bold text-ink/40"
+                  }`}>{amtStr}</div>
+                  <div className={`text-[10px] font-extrabold uppercase tracking-widest ${isActive ? 'text-grass' : 'text-ink/40'}`}>
                     {statusStr}
                   </div>
                 </div>
