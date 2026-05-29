@@ -2326,13 +2326,7 @@ return (
             }
           </p>
         </div>
-        <div className="hidden lg:flex items-center gap-3">
-          <button onClick={handleBackToHome} className="btn ghost sm">⌫ CLOSE</button>
-          {!isReadOnlyMode && <button onClick={handleSaveDraft} className="btn ghost sm">⤓ SAVE DRAFT</button>}
-          <button onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep} className="btn primary sm">
-            {invoiceReadyForPreview ? "REVIEW & SEND →" : "REVIEW BLOCKER →"}
-          </button>
-        </div>
+
       </div>
       {showProfilePrompt && (
         <div className="border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50">
@@ -2956,7 +2950,7 @@ return (
           )}
 
           {/* Fixed Bottom Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[color:var(--color-soft)] lg:hidden">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[color:var(--color-soft)]">
             <div className={`${appEditorGridClass} px-4 sm:px-6 lg:px-8`}>
               {/* Spacer for left column on lg+ */}
               <div className="hidden lg:block" />
