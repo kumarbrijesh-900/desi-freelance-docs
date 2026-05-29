@@ -2253,7 +2253,7 @@ const allowReadOnlyKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
 
 return (
   <main
-    className="relative min-h-screen w-full bg-transparent font-sans antialiased"
+    className="relative min-h-screen w-full wf paper-rose font-sans antialiased"
     data-mode={isReadOnlyMode ? "locked" : "editing"}
     suppressHydrationWarning
   >
@@ -2298,30 +2298,37 @@ return (
 
 
     <section
-      className={`${appPageContainerClass} pt-8 sm:pt-12 relative z-10 pb-32`}
+      className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-[56px] pt-8 pb-32 relative z-10`}
     >
-      <div className={appGridClass}>
-        <div className="col-span-4 sm:col-span-8 lg:col-span-10 lg:col-start-2">
-          {/* Header */}
-          <MotionReveal className="mb-8" preset="fade-up">
-            <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
-              {isReadOnlyMode ? (
-                <>Locked <Marker tone="sky">invoice</Marker></>
-              ) : invoiceId ? (
-                <>Edit <Marker tone="sky">invoice</Marker></>
-              ) : (
-                <>New <Marker tone="sky">invoice</Marker></>
-              )}
-            </h1>
-            <p className="mt-1 text-sm text-[color:var(--color-ink)]">
-              {isReadOnlyMode
-                ? `${formData.meta?.invoiceNumber || '...'} · ${readOnlyStateLabel}`
-                : invoiceId
-                ? `Editing reference ${formData.meta?.invoiceNumber || '...'}` 
-                : "Create a professional GST-compliant invoice in minutes."
-              }
-            </p>
-          </MotionReveal>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-7">
+        <div className="mb-4 sm:mb-0">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--color-ink-2)] mb-2.5">
+            STEP {orderedSteps.indexOf(currentStep) + 1} OF 4 · {formData.client?.clientName ? formData.client.clientName.toUpperCase() : "UNTITLED PROJECT"}
+          </div>
+          <h1 className="font-display text-[64px] leading-none font-black tracking-[-0.035em] m-0">
+            {isReadOnlyMode ? (
+              <>Locked <Marker tone="sky">invoice</Marker></>
+            ) : invoiceId ? (
+              <>Edit <Marker tone="sky">invoice</Marker></>
+            ) : (
+              <>New <Marker tone="sky">invoice</Marker></>
+            )}
+          </h1>
+          <p className="mt-2 text-[14px] text-[color:var(--color-ink-2)] font-bold">
+            {isReadOnlyMode
+              ? `${formData.meta?.invoiceNumber || '...'} · ${readOnlyStateLabel}`
+              : invoiceId
+              ? `Editing reference ${formData.meta?.invoiceNumber || '...'}` 
+              : "Create a GST-compliant invoice in minutes."
+            }
+          </p>
+        </div>
+        <div className="hidden lg:flex items-center gap-3">
+          <button onClick={handleBackToHome} className="btn ghost sm">⌫ CLOSE</button>
+          {!isReadOnlyMode && <button onClick={handleSaveDraft} className="btn ghost sm">⤓ SAVE DRAFT</button>}
+          <button onClick={invoiceReadyForPreview ? handlePreviewInvoice : handleReviewBlockingStep} className="btn primary sm">
+            {invoiceReadyForPreview ? "REVIEW & SEND →" : "REVIEW BLOCKER →"}
+          </button>
         </div>
       </div>
       {showProfilePrompt && (
@@ -2359,126 +2366,84 @@ return (
         {/* ── COL 1: Desktop Stepper Rail ── */}
         <aside
           className={cn(
-            "hidden lg:block",
+            "hidden lg:flex flex-col gap-4",
             appStickyTopClass,
           )}
           data-testid="desktop-support-rail"
         >
-          <div className="space-y-3">
-            <MotionReveal
-              preset="fade-up"
-              delay={40}
-              className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] px-3 py-3 shadow-[var(--brutal-shadow-sm)]"
-            >
-              <div
-                className="space-y-3"
-                data-testid="support-rail-section-list"
-              >
-                <div className="border-b border-[color:var(--color-soft)] px-1 pb-2">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
-                    {isReadOnlyMode ? "Invoice state" : "Editor progress"}
-                  </p>
-                  <p className="mt-1 text-[13px] font-bold tracking-[-0.018em] text-[color:var(--color-ink)]">
-                    {isReadOnlyMode ? "LOCKED" : `${completedStepCount} of ${orderedSteps.length} ready`}
-                  </p>
+            <MotionReveal preset="fade-up" delay={40}>
+              <div className="box" style={{padding: "18px 20px"}}>
+                <div className="cap" style={{marginBottom: 4}}>{isReadOnlyMode ? "INVOICE STATE" : "EDITOR PROGRESS"}</div>
+                <div className="display" style={{fontSize: 22, marginBottom: 12}}>
+                   {isReadOnlyMode ? "LOCKED" : `${completedStepCount} of ${orderedSteps.length} ready`}
                 </div>
-
-                <div className="invoice-step-rail-track relative space-y-1 pl-3">
-                  {orderedSteps.map((step, index) => {
-                    const isActive = currentStep === step;
-                    const isCompleted =
-                      displayStepValidityByStep[step] && !isActive;
-                    const isIncomplete = !displayStepValidityByStep[step];
-                    const stepState = isActive
-                      ? "active"
-                      : isCompleted
-                        ? "completed"
-                        : "pending";
-                    const railStatus =
-                      isReadOnlyMode
-                        ? "view"
-                        : step === "totals" && !invoiceReadyForPreview
-                        ? "Pending"
-                        : isActive
-                          ? missingFieldCountByStep[step] > 0
-                            ? `${missingFieldCountByStep[step]} mandatory`
-                            : missingOptionalCountByStep[step] > 0
-                              ? "Ready"
-                              : "Complete ✓"
-                          : isCompleted
-                            ? missingOptionalCountByStep[step] > 0
-                              ? "Ready"
-                              : "Complete ✓"
-                            : isIncomplete &&
-                              missingFieldCountByStep[step] > 0
-                              ? `${missingFieldCountByStep[step]} mandatory`
-                              : firstInvalidStep === step
-                                ? "Up next"
-                                : "Pending";
-
-                    return (
-                      <button
-                        key={step}
-                        type="button"
-                        onClick={() => scrollToStep(step)}
-                        data-rail-state={isReadOnlyMode ? "locked" : stepState}
-                        style={isReadOnlyMode ? {
-                          background: "#F5F4F0",
-                          borderColor: "#D4D2CC",
-                          boxShadow: "none",
-                          opacity: 1,
-                        } : undefined}
-                        className="invoice-step-rail-item group flex w-full items-start gap-3 rounded-[14px] px-3 py-3 text-left text-[color:var(--color-ink)] transition duration-[var(--app-duration-fast)]"
-                      >
-                        <div className="flex min-w-0 items-start gap-2">
-                          <span className={cn(
-                            "invoice-step-rail-index mt-0.5 inline-flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                            isReadOnlyMode && "h-auto min-w-[32px] rounded-none border-0 bg-transparent text-[#6B6660] shadow-none",
-                            !isReadOnlyMode && isCompleted && "animate-[pulse-once_0.5s_ease-in-out]"
-                          )}>
-                            {isReadOnlyMode ? "view" : isCompleted ? "✓" : index + 1}
-                          </span>
-                          <div className="min-w-0 space-y-1">
-                            <p className="text-[12px] font-bold leading-4 tracking-[0.005em] text-[color:var(--color-ink)]">
-                              {getStepShortLabel(step)}
-                            </p>
-                            <p className={cn(
-                              "text-[10px] font-normal text-[color:var(--color-ink-2)]",
-                              isReadOnlyMode
-                                ? "normal-case tracking-normal text-[#6B6660]"
-                                : "uppercase tracking-[0.14em]",
-                            )}>
-                              {railStatus}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                {!isReadOnlyMode && (
+                  <div style={{height: 6, background: "var(--color-paper-2)", border:"1.5px solid var(--color-soft)"}}>
+                    <div style={{width: `${(completedStepCount / orderedSteps.length) * 100}%`, height:"100%", background: "var(--color-acid)"}}/>
+                  </div>
+                )}
               </div>
             </MotionReveal>
 
-            <MotionReveal preset="fade-up" delay={80}>
-              <WorkbenchReadinessPanel
-                rail
-                ready={invoiceReadyForPreview}
-                completedCount={completedValidationStepCount}
-                totalCount={VALIDATION_STEPS.length}
-                issueCount={totalRequiredIssueCount}
-                activeStepLabel={getStepShortLabel(currentStep)}
-                nextStepLabel={nextBlockingGroup ? getStepShortLabel(nextBlockingGroup.step) : undefined}
-                nextFields={nextBlockingFields}
-                total={computedTotals.grandTotal}
-                currency={displayCurrency}
-                dueDate={formData.meta.dueDate}
-                clientName={formData.client.clientName}
-                onReview={handleReviewBlockingStep}
-                isReadOnly={isReadOnlyMode}
-                readOnlyReason={readOnlyReason}
-              />
+            <MotionReveal preset="fade-up" delay={60}>
+              <div className="flex flex-col gap-2">
+                {orderedSteps.map((step, index) => {
+                  const isActive = currentStep === step;
+                  const isCompleted = displayStepValidityByStep[step] && !isActive;
+                  const isIncomplete = !displayStepValidityByStep[step];
+                  const stepState = isActive ? "active" : isCompleted ? "completed" : "pending";
+                  const railStatus = isReadOnlyMode ? "view" : step === "totals" && !invoiceReadyForPreview ? "Pending" : isActive ? missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} mandatory` : missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isCompleted ? missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isIncomplete && missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} mandatory` : firstInvalidStep === step ? "Up next" : "Pending";
+                  
+                  return (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => scrollToStep(step)}
+                      className="box flex gap-3 items-center"
+                      style={{
+                        padding: "14px 16px",
+                        textAlign: "left",
+                        background: isActive ? "var(--color-acid)" : "var(--color-paper)",
+                        borderColor: isActive ? "var(--color-ink)" : "var(--color-soft)",
+                        boxShadow: isActive ? "var(--shadow-chunk-sm)" : "none",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      <div className="box flex items-center justify-center shrink-0" style={{width:24, height:24, fontWeight:700, fontSize:11, background: isActive?"var(--color-ink)":"var(--color-paper)", color: isActive?"var(--color-paper)":"var(--color-ink)", borderRadius: "var(--app-radius-button)"}}>
+                         {isReadOnlyMode ? "👁" : isCompleted ? "✓" : index + 1}
+                      </div>
+                      <div style={{flex:1}}>
+                        <div className="cap cap-strong" style={{fontSize:12}}>{getStepShortLabel(step)}</div>
+                        <div className="cap" style={{color:"var(--color-ink-2)", marginTop:2}}>{railStatus}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </MotionReveal>
-          </div>
+            
+            <MotionReveal preset="fade-up" delay={80}>
+              {nextBlockingGroup && !isReadOnlyMode ? (
+                <div className="box" style={{padding:"14px 16px", background:"#f7d0bd", borderColor:"var(--color-coral)"}}>
+                  <div className="cap cap-strong" style={{color:"var(--color-coral)", marginBottom: 4}}>⚠ NEXT BLOCKER</div>
+                  <div style={{fontSize: 11, color:"#7a2a10", lineHeight:1.5}}>
+                    {nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
+                      ? "Name your project to continue."
+                      : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 3).join(", ")}${nextBlockingFields.length > 3 ? ` +${nextBlockingFields.length - 3} more` : ""}.`}
+                  </div>
+                </div>
+              ) : null}
+            </MotionReveal>
+            
+            {invoiceReadyForPreview && !isReadOnlyMode ? (
+               <MotionReveal preset="fade-up" delay={80}>
+                 <div className="box" style={{padding:"14px 16px"}}>
+                    <div className="cap" style={{marginBottom: 6}}>STATUS</div>
+                    <div className="display" style={{fontSize:22}}>Ready</div>
+                    <div className="cap" style={{color:"var(--color-ink-3)", marginTop:2}}>100% complete</div>
+                 </div>
+               </MotionReveal>
+            ) : null}
         </aside>
 
         {/* ── COL 2: Wizard Content ── */}
@@ -2988,7 +2953,7 @@ return (
           )}
 
           {/* Fixed Bottom Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[color:var(--color-soft)]">
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[color:var(--color-soft)] lg:hidden">
             <div className={`${appEditorGridClass} px-4 sm:px-6 lg:px-8`}>
               {/* Spacer for left column on lg+ */}
               <div className="hidden lg:block" />
@@ -3104,147 +3069,114 @@ return (
         {/* ── COL 3: Right Sidebar – Meta + Totals (xl+) ── */}
         <aside
           className={cn(
-            "hidden xl:block",
+            "hidden xl:flex flex-col gap-4",
             appStickyTopClass,
           )}
           data-testid="desktop-right-sidebar"
         >
-          <div className="space-y-4">
-            {/* ── Invoice Meta Card ── */}
-            <div
-              className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]"
-            >
-              <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3 flex items-center justify-between">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
-                  Invoice Details
-                </p>
+          {/* ── Invoice Meta Card ── */}
+          <MotionReveal preset="fade-up" delay={40}>
+            <div className="box" style={{padding: "18px 20px"}}>
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="cap cap-strong">INVOICE DETAILS</div>
                 {!isReadOnlyMode && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-[color:var(--color-ink-2)]">Edit</span>
-                    <AppSwitch
-                      className="rounded-none"
-                      checked={isEditingMeta}
-                      onChange={setIsEditingMeta}
-                    />
-                  </div>
+                  <button onClick={() => setIsEditingMeta(!isEditingMeta)} className="cap flex items-center gap-1 hover:text-[color:var(--color-ink)] transition-colors" style={{color:"var(--color-ink-3)"}}>
+                    EDIT <span className="text-[12px]">{isEditingMeta ? "☑" : "☐"}</span>
+                  </button>
                 )}
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
-                    INV #
-                    <AppTooltip content={<>
-  Unique invoice reference number. Toggle edit mode to modify.
-</>} />
-                  </span>
+              <div className="flex flex-col">
+                {/* INV # */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed border-[color:var(--color-soft)]">
+                  <div className="cap">INV #</div>
                   {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="text"
                       value={formData.meta.invoiceNumber}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceNumber: e.target.value } }))}
-                      className="w-32 border-[color:var(--color-soft)] bg-white px-2 py-1 text-[12px] font-bold text-[color:var(--color-ink)] ring-1 ring-inset ring-gray-200 )] app-focus-ring"
+                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[color:var(--color-ink)] border-b border-[color:var(--color-ink)] focus:outline-none"
                     />
                   ) : (
-                    <span className="text-[13px] font-bold text-[color:var(--color-ink)]">
-                      {formData.meta?.invoiceNumber || '—'}
-                    </span>
+                    <div style={{fontSize:11, fontWeight:600}}>{formData.meta?.invoiceNumber || '—'}</div>
                   )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
-                    Date
-                    <AppTooltip content={<>
-  Invoice issue date. This is when the invoice is formally raised.
-</>} />
-                  </span>
+                {/* DATE */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed border-[color:var(--color-soft)]">
+                  <div className="cap">DATE</div>
                   {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="date"
                       value={formData.meta.invoiceDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, invoiceDate: e.target.value } }))}
-                      className="w-32 border-[color:var(--color-soft)] bg-white px-2 py-1 text-[11px] font-normal text-[color:var(--color-ink)] ring-1 ring-inset ring-gray-200 )] app-focus-ring"
+                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[color:var(--color-ink)] border-b border-[color:var(--color-ink)] focus:outline-none"
                     />
                   ) : (
-                    <span className="text-[12px] font-bold text-[color:var(--color-ink)]">
-                      {formData.meta?.invoiceDate || '—'}
-                    </span>
+                    <div style={{fontSize:11, fontWeight:600}}>{formData.meta?.invoiceDate || '—'}</div>
                   )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
-                    Due
-                    <span
-                      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[color:var(--color-soft)] text-[8px] text-[color:var(--color-ink-2)] cursor-help shrink-0"
-                      title={formData.meta?.paymentTerms
-                        ? `Payment due ${formData.meta.paymentTerms} days after issue date (Net ${formData.meta.paymentTerms}).`
-                        : "Payment deadline. Toggle edit mode to override."
-                      }
-                    >?</span>
-                  </span>
+                {/* DUE */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed border-[color:var(--color-soft)]">
+                  <div className="cap">DUE</div>
                   {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="date"
                       value={formData.meta.dueDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                      className="w-32 border-[color:var(--color-soft)] bg-white px-2 py-1 text-[11px] font-normal text-[#FF5C00] ring-1 ring-inset ring-gray-200 app-focus-ring"
+                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[#FF5C00] border-b border-[color:var(--color-ink)] focus:outline-none"
                     />
                   ) : (
-                    <span className="text-[12px] font-bold text-[#FF5C00]">
-                      {formData.meta?.dueDate || '—'}
-                    </span>
+                    <div style={{fontSize:11, fontWeight:600, color: "#FF5C00"}}>{formData.meta?.dueDate || '—'}</div>
                   )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] flex items-center gap-1">
-                    PO #
-                    <AppTooltip content={<>
-                      Purchase Order Number. Required by some enterprise clients for accounts payable matching.
-                    </>} />
-                  </span>
+                {/* PO # */}
+                <div className="flex items-center justify-between py-2 border-b border-dashed border-[color:var(--color-soft)]">
+                  <div className="cap">PO #</div>
                   {isEditingMeta && !isReadOnlyMode ? (
                     <input
                       type="text"
                       value={formData.meta.poNumber || ''}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, poNumber: e.target.value } }))}
                       placeholder="Optional"
-                      className="w-32 border-[color:var(--color-soft)] bg-white px-2 py-1 text-[11px] font-normal text-[color:var(--color-ink)] ring-1 ring-inset ring-gray-200 )] app-focus-ring"
+                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[color:var(--color-ink)] border-b border-[color:var(--color-ink)] focus:outline-none"
                     />
                   ) : (
-                    <span className="text-[12px] font-bold text-[color:var(--color-ink)]">
-                      {formData.meta?.poNumber || '--'}
-                    </span>
+                    <div style={{fontSize:11, fontWeight:600}}>{formData.meta?.poNumber || '—'}</div>
                   )}
                 </div>
               </div>
             </div>
+          </MotionReveal>
 
-            {/* ── Totals & Tax Section ── */}
-            <div
-              className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]"
-            >
-              <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)] flex items-center gap-1">
-                  Totals
-                  <AppTooltip content={<>
-  Live totals calculated from your line items and tax configuration.
-</>} />
-                </p>
-              </div>
+          {/* Expanded Totals Card */}
+          <MotionReveal preset="fade-up" delay={60}>
+            <div className="box" style={{padding: "18px 20px"}}>
+              <div className="cap cap-strong" style={{marginBottom: 12}}>TOTALS</div>
               <TotalsTaxesSection
                 embedded
                 value={derivedTaxConfig}
                 computed={computedTotals}
                 currency={displayCurrency}
                 hasItems={hasItems}
+                defaultExpanded={true}
                 isLocked={true}
                 onChange={(tax) => {
                   if (isReadOnlyMode) return;
                   setFormData((prev) => ({ ...prev, tax }));
                 }}
-                onExportTaxDecisionChange={showInternationalExportDecision && !isReadOnlyMode ? (val) => setFormData((prev) => ({ ...prev, agency: { ...prev.agency, noLutTaxHandling: val } })) : undefined}
               />
             </div>
-          </div>
+          </MotionReveal>
+          
+          {showAdvancedTax && (
+            <MotionReveal preset="fade-up" delay={80}>
+              <div className="box dashed" style={{padding: "14px 16px"}}>
+                <div className="cap cap-strong" style={{marginBottom:6}}>↗ ADVANCED TAX</div>
+                <div style={{fontSize:11, color:"var(--color-ink-2)", lineHeight:1.5}}>
+                  Switch to IGST · enable LUT · toggle RCM for B2B reverse charge.
+                </div>
+              </div>
+            </MotionReveal>
+          )}
         </aside>
       </div>
     </section>

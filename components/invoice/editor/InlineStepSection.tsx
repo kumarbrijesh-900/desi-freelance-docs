@@ -72,74 +72,54 @@ export function InlineStepSection({
       }
       data-step-kind={stepKind}
       className={cn(
-        "invoice-step-card relative scroll-mt-32 overflow-visible rounded-none px-[18px] py-4 transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)] sm:px-5",
+        "box shadow relative scroll-mt-32 overflow-visible rounded-none px-[18px] sm:px-[32px] py-[28px] transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
       )}
     >
       <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
           <button
             type="button"
             onClick={onActivate}
             data-step-activator={step}
             className="min-w-0 flex-1 text-left"
           >
-            <div className="flex items-start gap-3">
-              <span
-                className={cn(
-                  "invoice-step-dot mt-[9px] inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
-                  isCompleted
-                    ? "bg-[color:var(--interactive-secondary)]"
-                    : isActive
-                      ? "bg-[color:var(--interactive-primary)]"
-                      : "bg-[color:var(--color-ink)]",
-                )}
-              />
+            <div className="flex items-center gap-3">
+              <div className="box flex items-center justify-center shrink-0 bg-[color:var(--color-acid)]" style={{width:38, height:38, fontSize:18}}>
+                {StepIcon && <StepIcon className="w-5 h-5" strokeWidth={1.5} />}
+              </div>
               <div className="min-w-0">
                 {!isReadOnly && (
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
-                    Step {stepNumber}
+                  <p className="cap mb-0.5">
+                    STEP {stepNumber} · {stepLabel.toUpperCase()}
                   </p>
                 )}
-                <h2 className="mt-1 text-[19px] font-bold tracking-[-0.024em] text-[color:var(--color-ink)]">
-                  <div className="flex items-center gap-2">
-                    {StepIcon && (
-                      <StepIcon
-                        className={cn(
-                          "w-5 h-5 shrink-0 transition-colors duration-200",
-                          isActive || isCompleted
-                            ? "text-inherit"
-                            : "text-slate-400",
-                        )}
-                        strokeWidth={1.5}
-                      />
-                    )}
-                    {stepLabel}
-                  </div>
+                <h2 className="display text-[26px] leading-none m-0">
+                  {stepLabel}
                 </h2>
-                <p className="mt-1 max-w-2xl text-[11px] leading-5 text-[color:var(--color-ink-2)]">
-                  {sectionDescription}
-                </p>
               </div>
             </div>
           </button>
 
           {!isReadOnly && (
-            <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <div className="flex shrink-0 items-center">
               <span
                 className={cn(
+                  "pill",
                   statusLabel.toLowerCase().includes("ready")
-                    ? "border-2 border-[#111118] bg-[#E0FFF7] text-[#006B52] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+                    ? "success"
                     : statusLabel.toLowerCase().includes("mandatory")
-                      ? "border-2 border-[#111118] bg-[#FF5C00] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
-                      : getAppStatusPillClass(
-                          isCompleted ? "success" : issueCount > 0 ? "warning" : isActive ? "default" : "muted",
-                        )
+                      ? "alert"
+                      : "ghost"
                 )}
               >
                 {statusLabel}
               </span>
             </div>
           )}
+        </div>
+        
+        <div className="cap" style={{color:"var(--color-ink-2)", marginBottom: 12}}>
+          {sectionDescription}
         </div>
 
         <motion.div

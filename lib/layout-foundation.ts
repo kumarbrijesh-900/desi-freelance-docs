@@ -84,7 +84,7 @@ export const appEditorGridClass = [
   // Mobile: single column
   "grid-cols-1 gap-4",
   // lg: left stepper + center wizard (no right sidebar yet)
-  "lg:grid-cols-[160px_minmax(0,1fr)] lg:gap-6 lg:items-start",
+  "lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6 lg:items-start",
   // xl: full 3-column with right sidebar
-  "xl:grid-cols-[160px_minmax(0,1fr)_280px] xl:gap-6",
+  "xl:grid-cols-[260px_minmax(0,1fr)_320px] xl:gap-6",
 ].join(" ");
