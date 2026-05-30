@@ -68,9 +68,7 @@ export function InvoiceEventRow({
 
   const status = (invoice.status || 'draft').toLowerCase();
   const msa = (masterMsaStatus || '').toLowerCase();
-  const hasClientMsaNote = !!masterHasClientMsaNote;
-  const isEditable = (status === 'draft') || (msa === 'proposed' && hasClientMsaNote);
-  const rowHref = invoiceRowHref(invoice.id, isEditable);
+  const rowHref = invoiceRowHref(invoice.id);
   const clientInitial = (clientName || "U").slice(0, 2).toUpperCase();
   const cName = clientName || "Unknown Client";
   const pName = projectName || "Unlinked Project";

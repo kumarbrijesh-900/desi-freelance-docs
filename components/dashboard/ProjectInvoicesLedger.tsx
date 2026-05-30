@@ -95,9 +95,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                     {(() => {
                       const status = (inv.status || '').toLowerCase();
                       const msa = (master?.msa_status || '').toLowerCase();
-                      const hasClientMsaNote = !!master?.client_msa_note;
-                      const isEditable = (status === 'draft') || (msa === 'proposed' && hasClientMsaNote);
-                      const rowHref = invoiceRowHref(inv.id, isEditable);
+                      const rowHref = invoiceRowHref(inv.id);
                       return (
                         <Link
                           href={rowHref}
