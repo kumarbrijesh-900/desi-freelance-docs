@@ -272,18 +272,21 @@ function getProjectMetrics(
         const amount = Number(milestone.amount || 0);
         if (milestoneStatus === "settled" || milestoneStatus === "paid") {
           collected += amount;
-        } else {
-          outstanding += amount;
         }
       });
-      return;
+    } else {
+      const amount = getInvoiceTotal(invoice, []);
+      if (status === "settled" || status === "paid") {
+        collected += amount;
+      }
     }
 
-    const amount = getInvoiceTotal(invoice, []);
-    if (status === "settled" || status === "paid") {
-      collected += amount;
-    } else {
-      outstanding += amount;
+    if ((invoice as any).shared_at && 
+        status !== "settled" && 
+        status !== "paid" && 
+        !status.includes("partial") && 
+        status !== "cancelled") {
+      outstanding += Number(invoice.grand_total || 0);
     }
   });
 
