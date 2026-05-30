@@ -286,13 +286,20 @@ function DashboardContent() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex gap-2 mb-3 items-center">
-                    <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> LIVE</div>
-                    <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
+                    <div className="px-3 py-1 bg-grass text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-ink rounded-full animate-pulse" /> LIVE</div>
+                    <div className="px-3 py-1 bg-sky text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
                       {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
                     </div>
-                    <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
-                      {selectedProject.project.id.slice(0, 13).toUpperCase()}
-                    </div>
+                    {(() => {
+                      const master = getMasterInvoice();
+                      const invNum = master?.invoice_number;
+                      if (!invNum) return null;
+                      return (
+                        <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">
+                          {invNum}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <h1 className="font-display font-black text-[56px] leading-[1.05] tracking-tight mb-2 text-ink max-w-[800px]">
                     <Marker tone="rose">{selectedProject.project.name}</Marker>

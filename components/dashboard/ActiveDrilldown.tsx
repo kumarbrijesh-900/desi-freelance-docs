@@ -246,14 +246,14 @@ export function ActiveDrilldown({
             else if (type === "invoice_settled") { ic = "✓"; k = "grass"; }
 
             let bgClass = "bg-paper text-ink";
-            if (k === "grass") bgClass = "bg-grass text-white";
-            else if (k === "coral") bgClass = "bg-coral text-white";
-            else if (k === "sky") bgClass = "bg-sky text-white";
-            else if (k === "lav") bgClass = "bg-lav text-white";
+            if (k === "grass") bgClass = "bg-grass text-ink";
+            else if (k === "coral") bgClass = "bg-coral text-ink";
+            else if (k === "sky") bgClass = "bg-sky text-ink";
+            else if (k === "lav") bgClass = "bg-lav text-ink";
             else if (k === "butter") bgClass = "bg-butter text-ink";
 
             return (
-              <div key={act.id} className="flex items-start gap-2.5">
+              <div key={act.id} className="flex items-start gap-2.5" title={act.message || ""}>
                 <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] shrink-0 ${bgClass}`}>
                   {ic}
                 </div>
@@ -261,8 +261,8 @@ export function ActiveDrilldown({
                   <div className="text-xs font-bold text-ink leading-tight mt-0.5 truncate" title={act.title}>
                     {act.title}
                   </div>
-                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5 truncate" title={act.message || ""}>
-                    {act.message || formatRelativeTime(act.created_at)}
+                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5 truncate">
+                    {formatRelativeTime(act.created_at)}
                   </div>
                 </div>
               </div>

@@ -135,7 +135,7 @@ export function ProjectRail({
         </button>
       </div>
 
-      <div className="px-4 flex gap-2 overflow-x-auto no-scrollbar pb-2 border-b-2 border-black">
+      <div className="px-4 flex flex-wrap gap-2 pb-2 border-b-2 border-black">
         {filters.map(f => (
           <button
             key={f}
@@ -208,11 +208,11 @@ export function ProjectRail({
                   <div className="flex items-center justify-between">
                     <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[2px_2px_0_#FFF]' : 'border-ink shadow-[2px_2px_0_var(--color-ink)]'} ${
                       summary.startsWith("DRAFT") ? "bg-butter text-ink" :
-                      summary === "COMPLETE" ? "bg-grass text-white" :
-                      summary.startsWith("REVISION") ? "bg-coral text-white" :
+                      summary === "COMPLETE" ? "bg-grass text-ink" :
+                      summary.startsWith("REVISION") ? "bg-coral text-ink" :
                       summary.startsWith("LIVE") ? "bg-acid text-ink" :
-                      summary.startsWith("ACTIVE") ? "bg-sky text-white" :
-                      "bg-lav text-white"
+                      summary.startsWith("ACTIVE") ? "bg-sky text-ink" :
+                      "bg-lav text-ink"
                     }`}>
                       {summary}
                     </div>

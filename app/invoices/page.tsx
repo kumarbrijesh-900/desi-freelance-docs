@@ -113,21 +113,21 @@ export default function InvoicesPage() {
   // Compute stats
   const outstandingInvoices = flattenedInvoices.filter(item => {
     const s = (item.invoice.status || '').toLowerCase();
-    return s === 'live' || s === 'finalized' || s === 'sent';
+    return item.invoice.shared_at && s !== 'settled' && s !== 'paid' && s !== 'cancelled' && !s.includes('partial');
   });
-  const outstandingSum = outstandingInvoices.reduce((sum, item) => {
-    let t = Number(item.invoice.grand_total || 0);
-    if (t === 0 && item.invoice.form_data?.totals?.total) t = Number(item.invoice.form_data.totals.total);
-    return sum + t;
-  }, 0);
+  const outstandingSum = outstandingInvoices.reduce((sum, item) => sum + Number(item.invoice.grand_total || 0), 0);
 
-  const settledInvoices = flattenedInvoices.filter(item => (item.invoice.status || '').toLowerCase() === 'settled');
-  const settledSum = settledInvoices.reduce((sum, item) => {
-    let t = Number(item.invoice.grand_total || 0);
-    if (t === 0 && item.invoice.form_data?.totals?.total) t = Number(item.invoice.form_data.totals.total);
-    return sum + t;
-  }, 0);
+  const settledInvoices = flattenedInvoices.filter(item => {
+    const s = (item.invoice.status || '').toLowerCase();
+    return s === 'settled' || s === 'paid';
+  });
+  const settledSum = settledInvoices.reduce((sum, item) => sum + Number(item.invoice.grand_total || 0), 0);
   
+  const settledWithDates = settledInvoices.filter(i => i.invoice.shared_at && i.invoice.settled_at);
+  const avgPaidDays = settledWithDates.length > 0 
+    ? Math.round(settledWithDates.reduce((sum, i) => sum + (new Date(i.invoice.settled_at!).getTime() - new Date(i.invoice.shared_at!).getTime()) / 86400000, 0) / settledWithDates.length)
+    : null;
+
   const gstCollected = settledSum * 0.18; // approximation for display
 
   return (
@@ -145,7 +145,7 @@ export default function InvoicesPage() {
         <div className="flex justify-between items-end mb-8">
           <div>
             <div className="flex gap-2 mb-3 items-center">
-              <div className="px-3 py-1 bg-lav text-white text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">ALL TIME</div>
+              <div className="px-3 py-1 bg-lav text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">ALL TIME</div>
               <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{filteredInvoices.length} RESULTS</div>
             </div>
             <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
@@ -168,7 +168,7 @@ export default function InvoicesPage() {
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="border-2 border-ink bg-grass px-6 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border-2 border-ink bg-grass px-6 py-3.5 text-sm font-black uppercase tracking-widest text-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               + NEW INVOICE
             </a>
@@ -178,10 +178,10 @@ export default function InvoicesPage() {
         {/* Stat strip — full color */}
         <div className="flex gap-3 mb-6">
           {[
-            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral", fg: "text-white" },
-            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass", fg: "text-white" },
-            { l: "Avg paid in", v: "11 days", s: "vs 18 industry", bg: "bg-acid", fg: "text-ink" },
-            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", bg: "bg-lav", fg: "text-white" },
+            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral", fg: "text-ink" },
+            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass", fg: "text-ink" },
+            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "Average turnaround" : "No settled invoices yet", bg: "bg-acid", fg: "text-ink" },
+            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", bg: "bg-lav", fg: "text-ink" },
           ].map((s, i) => (
             <div key={i} className={`flex-1 p-4 ${s.bg} ${s.fg} border-2 border-ink shadow-[4px_4px_0_var(--color-rule)]`}>
               <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-85 mb-1.5">{s.l}</div>
@@ -215,11 +215,11 @@ export default function InvoicesPage() {
             if (filter === f) {
                if (f === "All") toneClass = "bg-acid text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Draft") toneClass = "bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Sent") toneClass = "bg-sky text-white shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Sent") toneClass = "bg-sky text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Revision") toneClass = "bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Live") toneClass = "bg-lav text-white shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Settled") toneClass = "bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Revision") toneClass = "bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Live") toneClass = "bg-lav text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Settled") toneClass = "bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Complete") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
             }
 

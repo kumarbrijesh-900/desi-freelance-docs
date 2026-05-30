@@ -11,14 +11,14 @@ function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClien
 
   // Return side (left stripe color) and pill details
   if (status === 'cancelled') return { side: 'bg-rule', pill: 'bg-rule text-ink line-through', label: 'cancelled' };
-  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'settled' };
-  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'revision' };
-  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'locked' };
+  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'settled' };
+  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'revision' };
+  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-grass', pill: 'bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'locked' };
   if (msa === 'proposed') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (status === 'finalized' || status === 'sent' || status === 'live') return { side: 'bg-acid', pill: 'bg-acid text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'live' };
-  if (status === 'complete') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'complete' };
+  if (status === 'complete') return { side: 'bg-grass', pill: 'bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'complete' };
   if (status === 'draft') return { side: 'bg-butter', pill: 'bg-transparent text-ink border-2 border-rule border-dashed', label: 'draft' };
   return { side: 'bg-rule', pill: 'bg-rule text-ink', label: status };
 }
@@ -74,8 +74,7 @@ export function InvoiceEventRow({
   const pName = projectName || "Unlinked Project";
 
   // Determine avatar text color based on background
-  const isLight = statusInfo.side === "bg-butter" || statusInfo.side === "bg-acid" || statusInfo.side === "bg-white";
-  const avatarText = isLight ? "text-ink" : "text-white";
+  const avatarText = "text-ink";
 
   return (
     <Link
