@@ -46,9 +46,23 @@ export async function listLiveNotifications(): Promise<{
     `,
     )
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (error) return { data: [], error: error.message };
+
+  // Lazy Garbage Collection: delete read notifications older than 30 days
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  // Fire and forget (don't await so it doesn't block the request)
+  supabase
+    .from("notifications")
+    .delete()
+    .eq("user_id", userId)
+    .eq("is_read", true)
+    .lt("created_at", thirtyDaysAgo)
+    .then(({ error }) => {
+      if (error) console.error("Error auto-archiving notifications:", error);
+    });
 
   // Filter: Keep if no associated invoice OR if associated invoice is NOT settled
   // EXCEPTION: Always keep 'invoice_settled' type as it's the confirmation of completion.

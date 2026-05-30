@@ -160,12 +160,12 @@ export default function NotificationBell() {
                   No active notifications
                 </p>
                 <p className="mt-1 text-[11px] text-[color:var(--color-ink-2)]">
-                  Notifications for settled invoices are automatically archived.
+                  Notifications for settled invoices, and read notifications older than 30 days, are automatically deleted.
                 </p>
               </div>
             ) : (
               <div className="divide-y divide-[color:var(--color-soft)]">
-                {notifications.map((n) => (
+                {notifications.slice(0, 20).map((n) => (
                   <div
                     key={n.id}
                     className={cn(
