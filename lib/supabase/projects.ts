@@ -261,7 +261,7 @@ function getProjectMetrics(
 
   invoices.forEach((invoice) => {
     const status = (invoice.status || "").toLowerCase();
-    if (status === "cancelled" || status === "draft") return;
+    if (status === "cancelled" || (status === "draft" && !(invoice as any).shared_at)) return;
 
     const invoiceMilestones = milestonesByInvoice.get(invoice.id) ?? [];
     billed += getInvoiceTotal(invoice, invoiceMilestones);
