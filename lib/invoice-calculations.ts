@@ -46,7 +46,7 @@ export function calculateInvoiceTotals({
   // Use milestones if provided and non-empty, otherwise fall back to lineItems
   const effectiveItems =
     milestones && milestones.length > 0
-      ? flattenMilestonesToLineItems(milestones)
+      ? (milestones[0]?.lineItems ?? [])
       : lineItems;
 
   const subtotal = effectiveItems.reduce((sum, item) => {

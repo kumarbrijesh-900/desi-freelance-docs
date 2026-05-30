@@ -111,13 +111,13 @@ function computeGrandTotalFromFormData(formData?: any): number {
   if (!formData) return 0;
 
   const milestones = formData.milestones || [];
-  if (milestones.length > 0) {
-    return milestones.reduce((sum: number, milestone: any) =>
-      sum + (milestone.lineItems || []).reduce(
-        (lineSum: number, lineItem: any) =>
-          lineSum + Number(lineItem.qty || 0) * Number(lineItem.rate || 0),
-        0,
-      ), 0);
+  const billedMilestone = milestones[0];
+  if (billedMilestone) {
+    return (billedMilestone.lineItems || []).reduce(
+      (lineSum: number, lineItem: any) =>
+        lineSum + Number(lineItem.qty || 0) * Number(lineItem.rate || 0),
+      0,
+    );
   }
 
   return (formData.lineItems || []).reduce(
@@ -346,13 +346,10 @@ export async function saveInvoice(
 
   // Compute grand_total before building the row so it's persisted to DB
   const formMilestones = input.formData.milestones || [];
-  const computedGrandTotal = formMilestones.length > 0
-    ? formMilestones.reduce((s, m) => s + m.lineItems.reduce(
-        (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0
-      ), 0)
-    : (input.formData.lineItems || []).reduce(
-        (s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0
-      );
+  const billedMilestone = formMilestones[0];
+  const computedGrandTotal = billedMilestone
+    ? billedMilestone.lineItems.reduce((sum: any, li: any) => sum + Number(li.qty || 0) * Number(li.rate || 0), 0)
+    : (input.formData.lineItems || []).reduce((s: number, i: any) => s + Number(i.qty || 0) * Number(i.rate || 0), 0);
 
   const finalFormData = { ...input.formData } as any;
   if (!finalFormData.meta) finalFormData.meta = {};

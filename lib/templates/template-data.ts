@@ -176,7 +176,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
   const useMilestones = formData.milestones && formData.milestones.length > 0;
 
   if (useMilestones) {
-    for (const milestone of formData.milestones) {
+    for (const milestone of formData.milestones.slice(0, 1)) {
       const milestoneSubtotal = milestone.lineItems.reduce(
         (sum, li) => sum + Number(li.qty ?? 0) * Number(li.rate ?? 0),
         0
