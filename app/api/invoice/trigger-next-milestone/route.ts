@@ -215,6 +215,9 @@ export async function POST(req: NextRequest) {
           status: "PARTIAL",
           form_data: updatedFormData,
           ...computeAppliedMsaSnapshot(updatedFormData as any),
+          applied_payment_terms: (updatedFormData as any).meta?.paymentTerms
+            ? `Net ${(updatedFormData as any).meta.paymentTerms} days`
+            : computeAppliedMsaSnapshot(updatedFormData as any).applied_payment_terms,
         })
         .eq("id", invoiceId);
 
@@ -277,6 +280,9 @@ export async function POST(req: NextRequest) {
           settled_at: nowIso,
           form_data: updatedFormData,
           ...computeAppliedMsaSnapshot(updatedFormData as any),
+          applied_payment_terms: (updatedFormData as any).meta?.paymentTerms
+            ? `Net ${(updatedFormData as any).meta.paymentTerms} days`
+            : computeAppliedMsaSnapshot(updatedFormData as any).applied_payment_terms,
         })
         .eq("id", invoiceId);
 

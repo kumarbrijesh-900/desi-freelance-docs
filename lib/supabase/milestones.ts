@@ -93,6 +93,9 @@ export async function fireMilestoneInvoice(
       status: "PARTIAL",
       form_data: updatedParentFormData,
       ...computeAppliedMsaSnapshot(updatedParentFormData as any),
+      applied_payment_terms: (updatedParentFormData as any).meta?.paymentTerms
+        ? `Net ${(updatedParentFormData as any).meta.paymentTerms} days`
+        : computeAppliedMsaSnapshot(updatedParentFormData as any).applied_payment_terms,
     })
     .eq("id", invoiceId);
 
@@ -149,6 +152,9 @@ export async function fireMilestoneInvoice(
       due_date: calculatedDueDate,
       project_id: effectiveProjectId,
       ...appliedSnapshot,
+      applied_payment_terms: childFormData.meta?.paymentTerms
+        ? `Net ${childFormData.meta.paymentTerms} days`
+        : appliedSnapshot.applied_payment_terms,
     })
     .select()
     .single();

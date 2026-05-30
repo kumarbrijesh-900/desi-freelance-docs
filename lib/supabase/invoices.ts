@@ -362,6 +362,9 @@ export async function saveInvoice(
     invoice_number: invoiceNumber,
     form_data: finalFormData as Record<string, unknown>,
     ...computeAppliedMsaSnapshot(input.formData),
+    applied_payment_terms: input.formData.meta?.paymentTerms
+      ? `Net ${input.formData.meta.paymentTerms} days`
+      : computeAppliedMsaSnapshot(input.formData).applied_payment_terms,
     applied_license_type: input.formData.payment?.license?.licenseType || null,
     status,
     template_id: input.templateId ?? "classic",
@@ -1067,6 +1070,9 @@ export async function markMilestoneSettled(
     status: newStatus as InvoiceStatus,
     form_data: updatedFormData as any,
     ...computeAppliedMsaSnapshot(updatedFormData),
+    applied_payment_terms: updatedFormData.meta?.paymentTerms
+      ? `Net ${updatedFormData.meta.paymentTerms} days`
+      : computeAppliedMsaSnapshot(updatedFormData).applied_payment_terms,
   };
 
   if (settledAt) {
@@ -1278,6 +1284,9 @@ export async function reissueNegotiatedInvoice(
     msa_response: "pending",
     msa_accepted_at: null,
     ...computeAppliedMsaSnapshot(newFormData),
+    applied_payment_terms: newFormData.meta?.paymentTerms
+      ? `Net ${newFormData.meta.paymentTerms} days`
+      : computeAppliedMsaSnapshot(newFormData).applied_payment_terms,
     applied_license_type: newFormData.payment?.license?.licenseType || null,
   };
 
