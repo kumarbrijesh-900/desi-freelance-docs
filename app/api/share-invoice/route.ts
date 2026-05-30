@@ -196,6 +196,7 @@ export async function POST(req: NextRequest) {
           msa_id: resolvedMsaId,
           msa_status: 'pending',
           msa_response: 'pending',
+          client_msa_note: null,
         })
         .eq("id", invoiceId);
 
@@ -216,6 +217,7 @@ export async function POST(req: NextRequest) {
           msa_id: resolvedMsaId,
           msa_status: 'pending',
           msa_response: 'pending',
+          client_msa_note: null,
         })
         .eq("id", invoiceId);
 

@@ -93,7 +93,7 @@ export function getInvoiceLockState(input: InvoiceLockInput): InvoiceLockState {
   }
 
   // 5. Client proposed changes
-  if (msaStatus === 'proposed' && clientMsaNote.trim() !== '') {
+  if (msaStatus === 'proposed') {
     return {
       isReadOnly: false,
       canShare: true,

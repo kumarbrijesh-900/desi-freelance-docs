@@ -1322,28 +1322,18 @@ const handlePreviewInvoice = async () => {
 
     if (userId && !isReadOnlyMode) {
       let result;
-      if (clientMsaNote && parserDocumentId) {
-        result = await reissueNegotiatedInvoice(parserDocumentId, previewFormData, {
-          projectId,
-          projectName: projectName.trim() || undefined,
-        });
-        if (!result.error) {
-          setClientMsaNote(null);
-        }
-      } else {
-        result = await saveInvoice({
-          formData: previewFormData,
-          status: "draft" as InvoiceStatus,
-          existingId: parserDocumentId ?? undefined,
-          projectId,
-          projectName: projectName.trim() || undefined,
-        });
-        if (!result.error && result.data) {
-          setParserDocumentId(result.data.id);
-          currentId = result.data.id;
-          // Sync profile details
-          await syncProfileFromInvoice(previewFormData);
-        }
+      result = await saveInvoice({
+        formData: previewFormData,
+        status: "draft" as InvoiceStatus,
+        existingId: parserDocumentId ?? undefined,
+        projectId,
+        projectName: projectName.trim() || undefined,
+      });
+      if (!result.error && result.data) {
+        setParserDocumentId(result.data.id);
+        currentId = result.data.id;
+        // Sync profile details
+        await syncProfileFromInvoice(previewFormData);
       }
 
       if (result?.error) {
@@ -1531,40 +1521,30 @@ const handleSaveDraft = async () => {
 
   try {
     let result;
-    if (clientMsaNote && parserDocumentId) {
-      result = await reissueNegotiatedInvoice(parserDocumentId, formData, {
-        projectId,
-        projectName: projectName.trim() || undefined,
-      });
-      if (!result.error) {
-        setClientMsaNote(null);
+    let formDataForSave = formData;
+    if (formData.meta.invoiceNumber?.endsWith("-000")) {
+      const { generateNextInvoiceNumber } = await import("@/lib/supabase/invoices");
+      const realNumber = await generateNextInvoiceNumber();
+      if (realNumber) {
+        formDataForSave = {
+          ...formData,
+          meta: { ...formData.meta, invoiceNumber: realNumber },
+        };
+        setFormData(formDataForSave);
       }
-    } else {
-      let formDataForSave = formData;
-      if (formData.meta.invoiceNumber?.endsWith("-000")) {
-        const { generateNextInvoiceNumber } = await import("@/lib/supabase/invoices");
-        const realNumber = await generateNextInvoiceNumber();
-        if (realNumber) {
-          formDataForSave = {
-            ...formData,
-            meta: { ...formData.meta, invoiceNumber: realNumber },
-          };
-          setFormData(formDataForSave);
-        }
-      }
+    }
 
-      result = await saveInvoice({
-        formData: formDataForSave,
-        status: "draft" as InvoiceStatus,
-        existingId: parserDocumentId ?? undefined,
-        projectId,
-        projectName: projectName.trim() || undefined,
-      });
-      if (!result.error && result.data) {
-        setParserDocumentId(result.data.id);
-        const newUrl = `/invoice/new?id=${result.data.id}`;
-        window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, "", newUrl);
-      }
+    result = await saveInvoice({
+      formData: formDataForSave,
+      status: "draft" as InvoiceStatus,
+      existingId: parserDocumentId ?? undefined,
+      projectId,
+      projectName: projectName.trim() || undefined,
+    });
+    if (!result.error && result.data) {
+      setParserDocumentId(result.data.id);
+      const newUrl = `/invoice/new?id=${result.data.id}`;
+      window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, "", newUrl);
     }
 
     if (!result.error) {
