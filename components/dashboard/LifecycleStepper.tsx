@@ -38,7 +38,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
             const milestoneStatus = (m.status || "").toLowerCase();
             const hasChildInvoice = master ? project.invoices.some(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1) : false;
             const isSettled = milestoneStatus === "settled";
-            const isActive = (hasChildInvoice || m.trigger_status === "fired") && !isSettled;
+            const isActive = (milestoneStatus === "live" || hasChildInvoice || m.trigger_status === "fired") && !isSettled;
             const isPending = !isActive && !isSettled;
             
             const circleBg = isSettled ? "bg-ink text-white" : isActive ? "bg-acid text-ink shadow-[3px_3px_0_var(--color-rule)]" : "bg-paper text-ink border-dashed";
