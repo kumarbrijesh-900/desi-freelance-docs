@@ -61,9 +61,17 @@ export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownS
     activeMilestone = firstLive;
     primaryAction = 'mark_settled';
   } else {
-    // All settled (Complete)
-    activeMilestone = activeMilestones[activeMilestones.length - 1] || null;
-    primaryAction = 'review_only';
+    // Past negotiation (e.g. MSA accepted) but no milestone is LIVE yet.
+    // Active = the FIRST non-settled milestone, never the last.
+    const ordered = [...activeMilestones].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+    const firstUnsettled = ordered.find(m => (m.status || '').toLowerCase() !== 'settled');
+    if (firstUnsettled) {
+      activeMilestone = firstUnsettled;
+      primaryAction = 'mark_settled';
+    } else {
+      activeMilestone = ordered[ordered.length - 1] || null;
+      primaryAction = 'review_only';
+    }
   }
 
   // Determine which invoice to return
