@@ -455,60 +455,86 @@ export async function saveInvoice(
  * This ensures the 'JOIN explosion' logic has actual data to aggregate.
  */
 async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFormData) {
-  // 1. Clear existing milestones for this invoice
-  await supabase.from("invoice_milestones").delete().eq("invoice_id", invoiceId);
-
-  // 2. Use milestones array if available, otherwise skip (form_data JSON is the fallback)
   const milestones = formData.milestones;
-  if (!milestones || milestones.length === 0) return;
 
-  // 3. Insert milestones with correct column names
-  const milestonesToInsert = milestones.map((m, idx) => ({
-    invoice_id: invoiceId,
-    title: m.title || `Milestone ${idx + 1}`,
-    status: m.status || 'PENDING',
-    tds_amount: m.tdsAmount || 0,
-    amount: m.lineItems.reduce(
-      (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0),
-      0
-    ),
-    order_index: idx,
-  }));
-
-  const { data: insertedMilestones, error: mError } = await supabase
+  const { data: existingRows } = await supabase
     .from("invoice_milestones")
-    .insert(milestonesToInsert)
-    .select();
+    .select("id, order_index")
+    .eq("invoice_id", invoiceId);
 
-  if (mError || !insertedMilestones) {
-    console.error("Error inserting milestones:", mError);
+  const existingByOrder = new Map<number, string>();
+  (existingRows ?? []).forEach((r: any) => existingByOrder.set(r.order_index, r.id));
+
+  if (!milestones || milestones.length === 0) {
+    if ((existingRows ?? []).length > 0) {
+      await supabase.from("invoice_milestones").delete().eq("invoice_id", invoiceId);
+    }
     return;
   }
 
-  // 4. Insert line items with correct column names
-  const itemsToInsert: any[] = [];
-  insertedMilestones.forEach((insertedM, mIdx) => {
-    const milestone = milestones[mIdx];
-    if (!milestone) return;
-    milestone.lineItems.forEach((item, itemIdx) => {
-      itemsToInsert.push({
-        milestone_id: insertedM.id,
-        item_type: item.type,
-        description: item.description,
-        quantity: Number(item.qty || 0),
-        rate: Number(item.rate || 0),
-        unit: item.rateUnit,
-        total: Number(item.qty || 0) * Number(item.rate || 0),
-        order_index: itemIdx,
-      });
-    });
-  });
+  for (let idx = 0; idx < milestones.length; idx++) {
+    const m = milestones[idx];
+    const amount = m.lineItems.reduce(
+      (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0),
+      0,
+    );
+    const existingId = existingByOrder.get(idx);
+    let milestoneId: string;
 
-  if (itemsToInsert.length > 0) {
-    const { error: liError } = await supabase
-      .from("invoice_line_items")
-      .insert(itemsToInsert);
-    if (liError) console.error("Error inserting line items:", liError);
+    if (existingId) {
+      // UPDATE structural fields ONLY. Never touch status / trigger_* (lifecycle-owned).
+      const { error } = await supabase
+        .from("invoice_milestones")
+        .update({
+          title: m.title || `Milestone ${idx + 1}`,
+          tds_amount: m.tdsAmount || 0,
+          amount,
+        })
+        .eq("id", existingId);
+      if (error) console.error("milestone update failed:", error.message);
+      milestoneId = existingId;
+    } else {
+      const { data: inserted, error } = await supabase
+        .from("invoice_milestones")
+        .insert({
+          invoice_id: invoiceId,
+          title: m.title || `Milestone ${idx + 1}`,
+          status: m.status || "PENDING",
+          tds_amount: m.tdsAmount || 0,
+          amount,
+          order_index: idx,
+        })
+        .select("id")
+        .single();
+      if (error || !inserted) { console.error("milestone insert failed:", error?.message); continue; }
+      milestoneId = inserted.id;
+    }
+
+    // Line items carry no lifecycle state -> safe to delete + recreate.
+    await supabase.from("invoice_line_items").delete().eq("milestone_id", milestoneId);
+    const items = m.lineItems.map((item, itemIdx) => ({
+      milestone_id: milestoneId,
+      item_type: item.type,
+      description: item.description,
+      quantity: Number(item.qty || 0),
+      rate: Number(item.rate || 0),
+      unit: item.rateUnit,
+      total: Number(item.qty || 0) * Number(item.rate || 0),
+      order_index: itemIdx,
+    }));
+    if (items.length > 0) {
+      const { error: liErr } = await supabase.from("invoice_line_items").insert(items);
+      if (liErr) console.error("line item insert failed:", liErr.message);
+    }
+  }
+
+  // Remove milestones deleted from the form (order_index now out of range).
+  const keepMax = milestones.length - 1;
+  const toDelete = (existingRows ?? [])
+    .filter((r: any) => r.order_index > keepMax)
+    .map((r: any) => r.id);
+  if (toDelete.length > 0) {
+    await supabase.from("invoice_milestones").delete().in("id", toDelete);
   }
 }
 
