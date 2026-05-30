@@ -125,6 +125,7 @@ export default function DeliverablesSection({
   };
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [activeDescriptionId, setActiveDescriptionId] = useState<string | null>(null);
+  const milestoneTitleRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const effectiveMilestones = useMemo(() => {
     if (!milestones || milestones.length === 0) {
@@ -142,6 +143,17 @@ export default function DeliverablesSection({
     if (isReadOnly) return;
     const next = [...effectiveMilestones, createDefaultMilestone(effectiveMilestones.length)];
     onChange(next);
+
+    if (effectiveMilestones.length === 1) {
+      const firstMilestoneId = effectiveMilestones[0].id;
+      setTimeout(() => {
+        const inputEl = milestoneTitleRefs.current[firstMilestoneId];
+        if (inputEl) {
+          inputEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => inputEl.focus(), 100);
+        }
+      }, 50);
+    }
   }, [createDefaultMilestone, effectiveMilestones, isReadOnly, onChange]);
 
   const removeMilestone = useCallback((milestoneId: string) => {
@@ -268,6 +280,9 @@ export default function DeliverablesSection({
                       </p>
                       <div className="group flex max-w-md items-center gap-2">
                         <input
+                          ref={(el) => {
+                            if (el) milestoneTitleRefs.current[milestone.id] = el;
+                          }}
                           type="text"
                           value={milestone.title}
                           placeholder="e.g. Phase 1: Research"
