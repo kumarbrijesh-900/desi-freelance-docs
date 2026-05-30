@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
                     ${bodyHtml}
                     <br/>
                     <a href="${shareUrl}"
-                      style="display:inline-block;background:#111118;color:#D1F904;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                      style="display:inline-block;background-color:#D4FF00;color:#111118;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
                       ${cta}
                     </a>
                     <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">

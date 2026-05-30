@@ -202,7 +202,9 @@ export default function MSAAcceptanceModal({
             </div>
           </div>
           
-          {msaStatus === "pending" && msaResponseText && mode === "view" && (
+          {msaStatus === "pending" && msaResponseText && 
+           !['pending', 'accepted', 'rejected', 'proposed', 'negotiating'].includes(msaResponseText.toLowerCase()) && 
+           mode === "view" && (
             <div className="border-b-2 border-[#111118] bg-[#EBFDF9] px-6 py-4 sm:px-8 flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-white text-[#007A63]">
                 <DocumentSparkIcon className="h-4 w-4" />
