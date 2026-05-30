@@ -940,7 +940,7 @@ export default function ClientsPage() {
                 <th className="py-3 px-6 border-r-2 border-ink">Type</th>
                 <th className="py-3 px-6 w-[80px] text-right border-r-2 border-ink">Invoices</th>
                 <th className="py-3 px-6 w-[120px] text-right border-r-2 border-ink">MSA</th>
-                <th className="py-3 px-6 w-[80px]"></th>
+                <th className="py-3 px-4 w-[100px] text-center">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -995,7 +995,7 @@ export default function ClientsPage() {
                           <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-butter text-ink">PENDING</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center">
+                      <td className="py-4 px-4 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
