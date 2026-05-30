@@ -337,6 +337,7 @@ function DashboardContent() {
 
               <ActiveDrilldown
                 state={drilldownState}
+                invoiceIds={selectedProject?.invoices.map(i => i.id) || []}
                 onSendNow={() => handleSendNow(drilldownState)}
                 onMarkSettled={() => handleMarkSettled(drilldownState)}
                 onResend={() => handleResend(drilldownState)}

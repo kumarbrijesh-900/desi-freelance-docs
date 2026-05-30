@@ -3,6 +3,8 @@
 import React from "react";
 import { DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
+import { supabase } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
 export function formatInr(amount: number | string): string {
   return `₹${Number(amount || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -10,6 +12,7 @@ export function formatInr(amount: number | string): string {
 
 export function ActiveDrilldown({
   state,
+  invoiceIds,
   onSendNow,
   onMarkSettled,
   onResend,
@@ -18,6 +21,7 @@ export function ActiveDrilldown({
   onPreview
 }: {
   state: DrilldownState | null;
+  invoiceIds?: string[];
   onSendNow?: () => void;
   onMarkSettled?: () => void;
   onResend?: () => void;
@@ -58,8 +62,50 @@ export function ActiveDrilldown({
   } else if (invoice.due_date) {
     subtitle += ` · DUE ${new Date(invoice.due_date).toLocaleDateString('en-IN').replace(/\//g, ' / ')}`;
   } else {
-    subtitle += " · DRAFT";
+    subtitle += ` · DUE NOT SET`;
   }
+
+  // Fetch actual notifications for the selected project
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const fetchActivities = async () => {
+      if (!invoiceIds || invoiceIds.length === 0) {
+        if (active) {
+          setActivities([]);
+          setLoadingActivities(false);
+        }
+        return;
+      }
+      setLoadingActivities(true);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .in('invoice_id', invoiceIds)
+        .order('created_at', { ascending: false })
+        .limit(8);
+
+      if (active && !error && data) {
+        setActivities(data);
+      }
+      if (active) setLoadingActivities(false);
+    };
+    fetchActivities();
+    return () => { active = false; };
+  }, [invoiceIds]);
+
+  const formatRelativeTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return "";
+    const diffHours = (Date.now() - d.getTime()) / 3600000;
+    if (diffHours < 1) return "Just now";
+    if (diffHours < 24) return `${Math.floor(diffHours)}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "yesterday";
+    return `${diffDays} days`;
+  };
 
   // Determine Action Button
   let btnLabel = "";
@@ -184,32 +230,45 @@ export function ActiveDrilldown({
       {/* Right: activity */}
       <div className="w-full xl:w-[280px] flex flex-col gap-3">
         <div className="text-[11px] font-extrabold uppercase tracking-widest text-ink mb-1">ACTIVITY</div>
-        {[
-          { ic: "✎", t: "Line item edited", when: "2h ago", k: "sky" },
-          { ic: "✓", t: "M2 marked settled", when: "yesterday", k: "grass" },
-          { ic: "✉", t: "Client opened invoice", when: "2 days", k: "lav" },
-          { ic: "⚠", t: "Revision requested", when: "5 days", k: "coral" },
-          { ic: "§", t: "MSA accepted by client", when: "12 days", k: "butter" },
-        ].map((act, i) => {
-          let bgClass = "bg-paper text-ink";
-          if (act.k === "grass") bgClass = "bg-grass text-white";
-          else if (act.k === "coral") bgClass = "bg-coral text-white";
-          else if (act.k === "sky") bgClass = "bg-sky text-white";
-          else if (act.k === "lav") bgClass = "bg-lav text-white";
-          else if (act.k === "butter") bgClass = "bg-butter text-ink";
+        {loadingActivities ? (
+          <div className="text-xs font-bold text-ink/50 py-2">Loading...</div>
+        ) : activities.length === 0 ? (
+          <div className="text-xs font-bold text-ink/50 py-2">No activity yet</div>
+        ) : (
+          activities.map((act) => {
+            let ic = "·";
+            let k = "paper";
+            const type = act.type || "";
+            if (type === "invoice_sent") { ic = "✉"; k = "sky"; }
+            else if (type === "invoice_viewed") { ic = "👁"; k = "lav"; }
+            else if (type === "msa_accepted") { ic = "§"; k = "butter"; }
+            else if (type === "msa_negotiating" || type === "msa_rejected") { ic = "⚠"; k = "coral"; }
+            else if (type === "invoice_settled") { ic = "✓"; k = "grass"; }
 
-          return (
-            <div key={i} className="flex items-start gap-2.5">
-              <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] ${bgClass}`}>
-                {act.ic}
+            let bgClass = "bg-paper text-ink";
+            if (k === "grass") bgClass = "bg-grass text-white";
+            else if (k === "coral") bgClass = "bg-coral text-white";
+            else if (k === "sky") bgClass = "bg-sky text-white";
+            else if (k === "lav") bgClass = "bg-lav text-white";
+            else if (k === "butter") bgClass = "bg-butter text-ink";
+
+            return (
+              <div key={act.id} className="flex items-start gap-2.5">
+                <div className={`w-7 h-7 flex items-center justify-center border-[1.5px] border-ink font-bold text-[13px] shrink-0 ${bgClass}`}>
+                  {ic}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-ink leading-tight mt-0.5 truncate" title={act.title}>
+                    {act.title}
+                  </div>
+                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5 truncate" title={act.message || ""}>
+                    {act.message || formatRelativeTime(act.created_at)}
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="text-xs font-bold text-ink leading-tight mt-0.5">{act.t}</div>
-                <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 mt-0.5">{act.when}</div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );
