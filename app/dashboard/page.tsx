@@ -312,9 +312,7 @@ function DashboardContent() {
                   <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold text-[11px] uppercase tracking-widest transition-all">
                     ⤓ EXPORT
                   </button>
-                  <button className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold text-[11px] uppercase tracking-widest transition-all">
-                    ⋯
-                  </button>
+
                   {drilldownState?.milestone && (
                     <button className="px-4 py-2 bg-grass text-white border-2 border-ink font-extrabold text-[11px] uppercase tracking-widest shadow-[3px_3px_0_var(--color-ink)] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none transition-all" onClick={() => handleSendNow(drilldownState)}>
                       FINALIZE M{(drilldownState.milestone.order_index ?? 0) + 1} →
