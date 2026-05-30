@@ -961,7 +961,7 @@ export default function ClientsPage() {
                     <tr key={client.id} className="border-b-2 border-ink last:border-b-0 hover:bg-paper-2 transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
                       <td className="py-4 px-6 border-r-2 border-ink">
                         <div className="flex items-center gap-3">
-                          <div className={`w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarBg} text-ink shadow-[2px_2px_0_var(--color-rule)]`}>
+                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarBg} text-ink shadow-[2px_2px_0_var(--color-rule)]`}>
                             {initial}
                           </div>
                           <div className="font-bold text-[13px] uppercase tracking-wide group-hover:underline">{client.client_name}</div>
@@ -996,19 +996,20 @@ export default function ClientsPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteRequest(client.id); }} 
-                            className="px-2 py-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-[11px] font-extrabold uppercase tracking-widest text-coral transition-all"
+                            className="p-1.5 border-2 border-transparent hover:border-coral hover:bg-coral hover:text-white text-coral transition-all"
                             title="Delete Client"
                           >
-                            🗑
+                            <TrashIcon className="h-4 w-4" />
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleEdit(client); }} 
-                            className="px-3 py-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-[10px] font-extrabold uppercase tracking-widest text-ink transition-all"
+                            className="p-1.5 border-2 border-transparent group-hover:border-ink group-hover:bg-white text-ink transition-all"
+                            title="Edit Client"
                           >
-                            EDIT
+                            <EditIcon className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
