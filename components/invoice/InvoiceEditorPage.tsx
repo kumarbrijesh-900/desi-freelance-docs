@@ -859,13 +859,13 @@ function EditorContent() {
     const currentRate = formData.tax.taxRate ?? 18;
     const isRcmEnabled = formData.tax.isRcmEnabled ?? false;
     switch (computedTotals.taxType) {
-      case "CGST_SGST":
+      case "cgst_sgst":
         return {
           taxMode: "gst" as const,
           taxRate: currentRate,
           isRcmEnabled,
         };
-      case "IGST":
+      case "igst":
         return {
           taxMode: "igst" as const,
           taxRate: currentRate,
@@ -924,12 +924,12 @@ function EditorContent() {
         .join(" ");
     }
 
-    if (computedTotals.taxType === "CGST_SGST") {
+    if (computedTotals.taxType === "cgst_sgst") {
       const halfRate = (formData.tax.taxRate ?? 18) / 2;
       return `Domestic same-state billing: tax is split into CGST ${halfRate}% and SGST ${halfRate}%.`;
     }
 
-    if (computedTotals.taxType === "IGST") {
+    if (computedTotals.taxType === "igst") {
       return `Domestic interstate billing: IGST ${formData.tax.taxRate}% applies to this invoice.`;
     }
 

@@ -14,6 +14,7 @@ import { Marker } from "@/components/ui/Marker";
 import { computeProjectLifecycle } from "@/lib/lifecycle/computeProjectLifecycle";
 import { computeActiveDrilldown, DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { dateInputToMilestoneTriggerIso, formatDateInputValue } from "@/lib/milestone-trigger-date";
+import { computeInvoiceTax } from "@/lib/invoice-tax";
 
 type TriggerMode = "immediate" | "scheduled" | "cancelled";
 
@@ -383,7 +384,12 @@ function DashboardContent() {
           milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber + 1,
         ) ?? null;
         const nextMilestoneNumber = nextMilestone ? (nextMilestone.order_index ?? 0) + 1 : settlementChoice.milestoneNumber + 1;
-        const settlementAmount = Number(currentMilestone?.amount || 0);
+        const milestoneAmount = Number(currentMilestone?.amount || 0);
+        const taxBreakdown = masterInvoice?.form_data
+          ? computeInvoiceTax(masterInvoice.form_data as any, milestoneAmount)
+          : null;
+        const settlementAmount = taxBreakdown ? taxBreakdown.totalPayable : milestoneAmount;
+        const taxLabel = taxBreakdown ? taxBreakdown.label : "Tax";
         const timingSource = currentMilestone?.trigger_date || masterInvoice?.due_date;
         const hasProjectAddendum = Boolean(selectedProject?.project.project_addendum_text || masterInvoice?.has_addendum);
         const contractTitle = hasProjectAddendum ? "Project addendum" : "Global agency terms";
@@ -446,7 +452,7 @@ function DashboardContent() {
                   <div className="grid grid-cols-1 border-b-2 border-black sm:grid-cols-3">
                     <div className="border-b-2 border-black px-4 py-3 sm:border-b-0 sm:border-r-2">
                       <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
-                        Clear
+                        Clear ({taxLabel})
                       </div>
                       <div className="mt-1 text-xl font-black text-[#111118]">
                         {formatInr(settlementAmount)}

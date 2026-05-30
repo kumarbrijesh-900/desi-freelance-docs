@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
+import { computeInvoiceTax } from "@/lib/invoice-tax";
 
 export function formatInr(amount: number | string): string {
   return `₹${Number(amount || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -100,6 +101,8 @@ export function ActiveDrilldown({
 
   const dotColors = ["bg-sky", "bg-lav", "bg-coral", "bg-grass", "bg-butter"];
   const subtotal = items.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.rate || 0)), 0);
+  const taxBreakdown = computeInvoiceTax(invoice.form_data, subtotal);
+  const grandTotal = taxBreakdown.totalPayable;
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 min-h-0">
@@ -170,10 +173,10 @@ export function ActiveDrilldown({
 
         <div className="flex justify-between items-center mt-auto">
           <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
-            {milestone ? `M${(milestone.order_index ?? 0) + 1} SUBTOTAL` : 'SUBTOTAL'} · GST 18%
+            {milestone ? `M${(milestone.order_index ?? 0) + 1} TOTAL` : 'TOTAL'} · {taxBreakdown.label}
           </div>
           <div className="text-2xl font-black text-ink">
-            {formatInr(subtotal)}
+            {formatInr(grandTotal)}
           </div>
         </div>
       </div>

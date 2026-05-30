@@ -128,7 +128,7 @@ export function getClientFacingTaxComplianceNote(params: {
         : "Supply to SEZ under LUT without payment of IGST.";
     }
 
-    if (taxType === "IGST") {
+    if (taxType === "igst") {
       return "Supply to SEZ unit: IGST 18% applied on this invoice.";
     }
 
@@ -139,11 +139,11 @@ export function getClientFacingTaxComplianceNote(params: {
     return "No GST applied because agency is marked as not registered under GST.";
   }
 
-  if (taxType === "CGST_SGST") {
+  if (taxType === "cgst_sgst") {
     return "Domestic same-state billing: CGST 9% and SGST 9% applied.";
   }
 
-  if (taxType === "IGST") {
+  if (taxType === "igst") {
     return "Domestic interstate billing: IGST 18% applied.";
   }
 

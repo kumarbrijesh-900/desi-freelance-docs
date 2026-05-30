@@ -1,103 +1,127 @@
-import type { IndiaStateOption } from "@/lib/india-state-options";
 import type { InvoiceTaxBreakdown } from "@/types/invoice";
 
-type CalculateTaxInput = {
-  subtotal: number;
-  agencyState: IndiaStateOption | "";
-  clientState: IndiaStateOption | "";
-  isInternational: boolean;
-  isClientSezUnit: boolean;
-  gstRegistered: boolean;
-  lutAvailability: "" | "yes" | "no";
-  noLutTaxHandling: "" | "add-igst" | "keep-zero-tax";
-  taxRate?: number;
-};
+export function computeInvoiceTax(formData: any, taxableValue: number = 0): InvoiceTaxBreakdown {
+  const gstin = formData?.agency?.gstin || "";
+  // Check either agency.gstRegistrationStatus === 'registered' or gstin.length === 15
+  const isRegistered = formData?.agency?.gstRegistrationStatus === "registered" || gstin.length === 15;
+  const rate = formData?.tax?.taxRate ?? 18;
+  const clientLocation = formData?.client?.clientLocation;
+  const lutAvailability = formData?.agency?.lutAvailability;
+  const agencyState = formData?.agency?.agencyState;
+  const clientState = formData?.client?.clientState;
 
-export function calculateTax({
-  subtotal,
-  agencyState,
-  clientState,
-  isInternational,
-  isClientSezUnit,
-  gstRegistered,
-  lutAvailability,
-  noLutTaxHandling,
-  taxRate = 18,
-}: CalculateTaxInput): InvoiceTaxBreakdown {
-  const rate = taxRate / 100;
-
-  if (!gstRegistered) {
+  if (!isRegistered) {
     return {
-      totalTax: 0,
-      taxType: "NONE",
+      registered: false,
+      taxType: 'exempt',
+      rate: 0,
+      taxableValue,
+      cgst: 0, sgst: 0, igst: 0, taxAmount: 0,
+      totalPayable: taxableValue,
+      label: "GST not applicable",
     };
   }
 
-  if (isInternational) {
-    if (lutAvailability === "yes") {
-      return {
-        totalTax: 0,
-        taxType: "NONE",
-      };
-    }
-
-    if (noLutTaxHandling === "add-igst") {
-      const igst = subtotal * rate;
-
-      return {
-        igst,
-        totalTax: igst,
-        taxType: "IGST",
-      };
-    }
-
+  if (formData?.tax?.isRcmEnabled) {
     return {
-      totalTax: 0,
-      taxType: "NONE",
+      registered: true,
+      taxType: 'exempt',
+      rate: 0,
+      taxableValue,
+      cgst: 0, sgst: 0, igst: 0, taxAmount: 0,
+      totalPayable: taxableValue,
+      label: "Reverse charge \u2014 GST payable by recipient",
     };
   }
 
-  if (isClientSezUnit) {
-    if (lutAvailability === "yes") {
+  if (clientLocation === "international") {
+    if (lutAvailability === "no" || formData?.agency?.noLutTaxHandling === "add-igst") {
+      const igst = Number((taxableValue * (rate / 100)).toFixed(2));
       return {
-        totalTax: 0,
-        taxType: "NONE",
+        registered: true,
+        taxType: 'igst',
+        rate,
+        taxableValue,
+        cgst: 0, sgst: 0, igst, taxAmount: igst,
+        totalPayable: taxableValue + igst,
+        label: `IGST ${rate}%`,
       };
     }
-
-    const igst = subtotal * rate;
-
     return {
-      igst,
-      totalTax: igst,
-      taxType: "IGST",
+      registered: true,
+      taxType: 'zero_rated',
+      rate: 0,
+      taxableValue,
+      cgst: 0, sgst: 0, igst: 0, taxAmount: 0,
+      totalPayable: taxableValue,
+      label: "Export of services \u2014 zero-rated under LUT",
+    };
+  }
+
+  // Domestic SEZ is technically zero-rated with LUT
+  const clientIsSez = formData?.client?.isClientSezUnit === "yes";
+  if (clientIsSez) {
+    if (lutAvailability === "yes") {
+      return {
+        registered: true,
+        taxType: 'zero_rated',
+        rate: 0,
+        taxableValue,
+        cgst: 0, sgst: 0, igst: 0, taxAmount: 0,
+        totalPayable: taxableValue,
+        label: "SEZ Supply \u2014 zero-rated under LUT",
+      };
+    }
+    const igst = Number((taxableValue * (rate / 100)).toFixed(2));
+    return {
+      registered: true,
+      taxType: 'igst',
+      rate,
+      taxableValue,
+      cgst: 0, sgst: 0, igst, taxAmount: igst,
+      totalPayable: taxableValue + igst,
+      label: `IGST ${rate}%`,
     };
   }
 
   if (!agencyState || !clientState) {
     return {
-      totalTax: 0,
-      taxType: "NONE",
+      registered: true,
+      taxType: 'exempt', // fallback
+      rate: 0,
+      taxableValue,
+      cgst: 0, sgst: 0, igst: 0, taxAmount: 0,
+      totalPayable: taxableValue,
+      label: "GST not applicable",
     };
   }
 
   if (agencyState === clientState) {
-    const cgst = subtotal * (rate / 2);
-    const sgst = subtotal * (rate / 2);
-
+    const taxAmount = Number((taxableValue * (rate / 100)).toFixed(2));
+    const half = Number((taxAmount / 2).toFixed(2));
+    const remainder = Number((taxAmount - half).toFixed(2));
     return {
-      cgst,
-      sgst,
-      totalTax: cgst + sgst,
-      taxType: "CGST_SGST",
+      registered: true,
+      taxType: 'cgst_sgst',
+      rate,
+      taxableValue,
+      cgst: half,
+      sgst: remainder,
+      igst: 0,
+      taxAmount,
+      totalPayable: taxableValue + taxAmount,
+      label: `CGST ${rate/2}% + SGST ${rate/2}%`,
     };
   }
 
-  const igst = subtotal * rate;
-
+  const igst = Number((taxableValue * (rate / 100)).toFixed(2));
   return {
-    igst,
-    totalTax: igst,
-    taxType: "IGST",
+    registered: true,
+    taxType: 'igst',
+    rate,
+    taxableValue,
+    cgst: 0, sgst: 0, igst, taxAmount: igst,
+    totalPayable: taxableValue + igst,
+    label: `IGST ${rate}%`,
   };
 }

@@ -165,14 +165,19 @@ export interface TaxConfig {
   tdsRate?: number;
 }
 
-export type InvoiceTaxType = "CGST_SGST" | "IGST" | "NONE";
+export type InvoiceTaxType = 'cgst_sgst' | 'igst' | 'zero_rated' | 'exempt';
 
 export interface InvoiceTaxBreakdown {
-  cgst?: number;
-  sgst?: number;
-  igst?: number;
-  totalTax: number;
+  registered: boolean;
   taxType: InvoiceTaxType;
+  rate: number;
+  taxableValue: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  taxAmount: number;
+  totalPayable: number;
+  label: string;
 }
 
 export type LicenseType =

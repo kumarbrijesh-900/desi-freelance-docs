@@ -131,12 +131,12 @@ export default function TotalsTaxesSection({
         ? "rounded-[var(--app-radius-card)] bg-[color:var(--state-success-bg)] px-4 py-3 text-sm leading-6 text-[color:var(--state-success-text)] ring-1 ring-inset ring-[color:var(--state-success-border)]"
         : "rounded-[var(--app-radius-card)] bg-[color:var(--color-paper)] px-4 py-3 text-sm leading-6 text-[color:var(--color-ink)] ring-1 ring-inset ring-[color:var(--color-soft)]";
   const taxAmountHelperText =
-    computed.taxType === "CGST_SGST"
+    computed.taxType === "cgst_sgst"
       ? `CGST ${formatCurrency(computed.cgst ?? 0, currency)} + SGST ${formatCurrency(
           computed.sgst ?? 0,
           currency,
         )}`
-      : computed.taxType === "IGST"
+      : computed.taxType === "igst"
         ? `IGST ${formatCurrency(computed.igst ?? 0, currency)}`
         : isLocked
           ? "No tax is currently applied to this invoice."
@@ -145,9 +145,9 @@ export default function TotalsTaxesSection({
     ? "This total tax rate is calculated automatically from client location, GST registration, and billing state."
     : "Set the exact GST percentage applied to the subtotal.";
   const taxModeSummaryLabel =
-    computed.taxType === "CGST_SGST"
+    computed.taxType === "cgst_sgst"
       ? "CGST + SGST"
-      : computed.taxType === "IGST"
+      : computed.taxType === "igst"
         ? "IGST"
         : "No tax";
 
@@ -224,7 +224,7 @@ export default function TotalsTaxesSection({
 
             <div className="flex items-start justify-between text-[14px]">
               <dt className="text-[color:var(--color-ink-2)]">
-                {computed.taxType !== "NONE" 
+                {computed.taxType !== "exempt" 
                   ? `Tax (${effectiveRate}% ${taxModeSummaryLabel})` 
                   : "Tax (0%)"}
               </dt>
@@ -271,7 +271,7 @@ export default function TotalsTaxesSection({
           {/* Tax Explanation */}
           <div className="mt-6 pt-4 border-t border-[color:var(--color-soft)]">
             <p className="text-[12px] leading-relaxed text-[color:var(--color-ink-2)]">
-              {complianceMessage || (computed.taxType === "NONE" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
+              {complianceMessage || (computed.taxType === "exempt" ? "Tax: 0% — agency not GST registered" : taxAmountHelperText)}
             </p>
           </div>
 

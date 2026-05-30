@@ -9,6 +9,7 @@
 import type { InvoiceFormData } from "@/types/invoice";
 import type { TemplateData, TemplateLineItem } from "./template-types";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { getGstStateCode } from "@/lib/gst-state-codes";
 import { amountToWords } from "@/lib/amount-to-words";
 import {
@@ -108,20 +109,6 @@ function clientSafeNotes(value?: string | null): string {
   return notes;
 }
 
-function getTaxLineLabel(
-  taxType: "CGST_SGST" | "IGST" | "NONE",
-  rate: number,
-): string {
-  const percentage = Math.round(rate * 100);
-  switch (taxType) {
-    case "CGST_SGST":
-      return `CGST + SGST (${percentage}%)`;
-    case "IGST":
-      return `IGST (${percentage}%)`;
-    default:
-      return "Tax (0%)";
-  }
-}
 
 /* ─── Main transformer ───────────────────────────── */
 
@@ -307,15 +294,13 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     itemCount: lineItems.length,
 
     subtotalFormatted: formatCurrency(totals.subtotal, displayCurrency),
-    taxLabel: getTaxLineLabel(
-      totals.taxType,
-      (formData.tax?.taxRate ?? 18) / 100,
-    ),
+    taxLabel: computeInvoiceTax(formData, totals.subtotal).label,
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
     grandTotalFormatted: formatCurrency(totals.grandTotal, displayCurrency),
     grandTotalRaw: totals.grandTotal,
     approximateUsd,
     taxComplianceNote: taxComplianceNote || "",
+    taxInfo: computeInvoiceTax(formData, totals.subtotal),
 
     bankName: formData.payment?.bankName || "",
     accountName: formData.payment?.accountName || "",

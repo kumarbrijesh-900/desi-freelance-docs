@@ -7,7 +7,7 @@
  * Templates are purely visual — no business logic.
  */
 
-import type { InvoiceFormData, InvoiceLineItem } from "@/types/invoice";
+import type { InvoiceFormData, InvoiceLineItem, InvoiceTaxBreakdown } from "@/types/invoice";
 
 /* ─── Pre-computed line item for templates ────────── */
 
@@ -75,6 +75,7 @@ export interface TemplateData {
   grandTotalRaw: number;
   approximateUsd: string | null;
   taxComplianceNote: string;
+  taxInfo: InvoiceTaxBreakdown;
 
   /* ── Payment ───────────────────────────── */
   bankName: string;

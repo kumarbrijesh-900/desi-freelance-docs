@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { evaluateStateSignals } from "@/lib/invoice-address";
 import { getClientFacingTaxComplianceNote } from "@/lib/invoice-compliance";
 import { parseGstin } from "@/lib/gstin-parser";
-import { calculateTax } from "@/lib/invoice-tax";
+import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { defaultInvoiceFormData, mergeInvoiceFormData } from "@/types/invoice";
 
 function testGstinParsing() {
@@ -46,74 +46,52 @@ function testGstinMergeAutoDerivation() {
 }
 
 function testRegularDomesticTaxBranches() {
-  const sameState = calculateTax({
-    subtotal: 1000,
-    agencyState: "Karnataka",
-    clientState: "Karnataka",
-    isInternational: false,
-    isClientSezUnit: false,
-    gstRegistered: true,
-    lutAvailability: "no",
-    noLutTaxHandling: "",
-  });
-  const differentState = calculateTax({
-    subtotal: 1000,
-    agencyState: "Karnataka",
-    clientState: "Maharashtra",
-    isInternational: false,
-    isClientSezUnit: false,
-    gstRegistered: true,
-    lutAvailability: "no",
-    noLutTaxHandling: "",
-  });
+  const sameState = computeInvoiceTax(mergeInvoiceFormData({
+    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
+    client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic" },
+  }), 1000);
+
+  const differentState = computeInvoiceTax(mergeInvoiceFormData({
+    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
+    client: { ...defaultInvoiceFormData.client, clientState: "Maharashtra", clientLocation: "domestic" },
+  }), 1000);
 
   assert.equal(
     sameState.taxType,
-    "CGST_SGST",
+    "cgst_sgst",
     "Same-state domestic billing should use CGST + SGST"
   );
   assert.equal(
     differentState.taxType,
-    "IGST",
+    "igst",
     "Different-state domestic billing should use IGST"
   );
 }
 
 function testSezTaxBranching() {
-  const sezWithLut = calculateTax({
-    subtotal: 1000,
-    agencyState: "Karnataka",
-    clientState: "Karnataka",
-    isInternational: false,
-    isClientSezUnit: true,
-    gstRegistered: true,
-    lutAvailability: "yes",
-    noLutTaxHandling: "",
-  });
-  const sezWithoutLut = calculateTax({
-    subtotal: 1000,
-    agencyState: "Karnataka",
-    clientState: "Karnataka",
-    isInternational: false,
-    isClientSezUnit: true,
-    gstRegistered: true,
-    lutAvailability: "no",
-    noLutTaxHandling: "",
-  });
+  const sezWithLut = computeInvoiceTax(mergeInvoiceFormData({
+    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "yes" },
+    client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic", isClientSezUnit: "yes" },
+  }), 1000);
+
+  const sezWithoutLut = computeInvoiceTax(mergeInvoiceFormData({
+    agency: { ...defaultInvoiceFormData.agency, agencyState: "Karnataka", gstRegistrationStatus: "registered", lutAvailability: "no" },
+    client: { ...defaultInvoiceFormData.client, clientState: "Karnataka", clientLocation: "domestic", isClientSezUnit: "yes" },
+  }), 1000);
 
   assert.notEqual(
     sezWithLut.taxType,
-    "CGST_SGST",
+    "cgst_sgst",
     "Domestic SEZ supply should never fall back to CGST + SGST"
   );
   assert.equal(
     sezWithLut.taxType,
-    "NONE",
+    "zero_rated",
     "Domestic SEZ with LUT should stay zero-rated in the tax engine"
   );
   assert.equal(
     sezWithoutLut.taxType,
-    "IGST",
+    "igst",
     "Domestic SEZ without LUT should use IGST"
   );
 }
@@ -134,7 +112,7 @@ function testInternationalIgstLabeling() {
         clientLocation: "international",
       },
     }).client,
-    taxType: "IGST",
+    taxType: "igst",
   });
 
   assert.match(
