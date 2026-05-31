@@ -3,7 +3,6 @@
 import React from "react";
 import { DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
 import { computeSettlementTiming, formatTimingPill, formatProjectedDate } from "@/lib/lifecycle/timing";
-import { formatDateInputValue } from "@/lib/milestone-trigger-date";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -255,7 +254,14 @@ export function ActiveDrilldown({
             </div>
             {primary_action === 'mark_settled' && state?.next_milestone && (
               <div className="text-[9px] font-bold uppercase tracking-widest text-ink/50 text-right mt-1">
-                ON SETTLE → M{(state.next_milestone.order_index ?? 0) + 1} ({formatInr(Number(state.next_milestone.amount || 0))}) STARTS ~{formatProjectedDate(formatDateInputValue(7))}
+                {(() => {
+                  const m = state.next_milestone!;
+                  const prefix = `ON SETTLE → M${(m.order_index ?? 0) + 1} (${formatInr(Number(m.amount || 0))})`;
+                  if (m.trigger_mode === 'scheduled' && m.trigger_date) {
+                    return `${prefix} STARTS ~${formatProjectedDate(m.trigger_date)}`;
+                  }
+                  return `${prefix} GOES LIVE`;
+                })()}
               </div>
             )}
           </div>

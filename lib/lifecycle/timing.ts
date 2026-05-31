@@ -68,3 +68,8 @@ export function formatProjectedDate(value?: string | null): string {
     year: "numeric",
   }).toUpperCase();
 }
+
+export function nextMilestoneStartLabel(m: { trigger_mode?: string | null; trigger_date?: string | null }): string {
+  if (m.trigger_mode === 'scheduled' && m.trigger_date) return `STARTS ${formatProjectedDate(m.trigger_date)}`;
+  return 'STARTS ON SETTLE';
+}

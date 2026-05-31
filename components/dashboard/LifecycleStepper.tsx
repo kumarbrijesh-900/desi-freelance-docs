@@ -1,9 +1,7 @@
 import React from "react";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
-import { formatTimingPill, SettlementTiming } from "@/lib/lifecycle/timing";
+import { formatTimingPill, SettlementTiming, formatProjectedDate, nextMilestoneStartLabel } from "@/lib/lifecycle/timing";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
-import { formatProjectedDate } from "@/lib/lifecycle/timing";
-import { formatDateInputValue } from "@/lib/milestone-trigger-date";
 
 export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) {
   const milestones = [...project.milestones].filter(m =>
@@ -66,7 +64,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
             if ((isSettled || isActive) && invoice && (invoice as any).shared_at && (invoice as any).due_date) {
               timingLabel = `SENT ${formatProjectedDate((invoice as any).shared_at)} · DUE ${formatProjectedDate((invoice as any).due_date)}`;
             } else if (isPending && i === firstPendingIndex) {
-              timingLabel = `STARTS ~${formatProjectedDate(formatDateInputValue(7))}`;
+              timingLabel = nextMilestoneStartLabel(m);
             }
 
             return (
