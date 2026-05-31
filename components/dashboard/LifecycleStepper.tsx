@@ -32,7 +32,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
         </div>
       </div>
 
-      <div className="bg-white border-2 border-ink p-6 shadow-[4px_4px_0_var(--color-rule)] mb-6 overflow-x-auto no-scrollbar">
+      <div className="bg-white border-2 border-ink p-6 shadow-[var(--elev-1)] mb-6 overflow-x-auto no-scrollbar">
         <div className="flex items-start min-w-[600px]">
           {milestones.map((m, i) => {
             const milestoneStatus = (m.status || "").toLowerCase();

@@ -109,38 +109,38 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border-2 border-ink font-extrabold uppercase px-4 py-2 text-[11px] tracking-widest shadow-[3px_3px_0_var(--color-ink)] transition-all";
+  let btnClass = "border-2 border-ink font-extrabold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
     case "send_now":
       btnLabel = "SEND NOW";
-      btnClass += " bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onSendNow;
       break;
     case "mark_settled":
       btnLabel = "MARK SETTLED";
-      btnClass += " bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onMarkSettled;
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onResend;
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onFinalize;
       break;
     case "review_revision":
       btnLabel = "REVIEW REVISION";
-      btnClass += " bg-coral text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-coral text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onReviewRevision;
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onPreview;
       break;
   }

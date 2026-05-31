@@ -9,6 +9,11 @@
   --color-ink-3:        #9a9080;
   --color-soft:         #e6dcc4;
 
+  --elev-0: none;
+  --elev-1: 2px 2px 0 var(--color-ink);
+  --elev-2: 4px 4px 0 var(--color-ink);
+  --elev-3: 6px 6px 0 var(--color-ink);
+
   /* Gen-Z accents — saturated, but seated on warm paper */
   --color-acid:         #cbff3f;  /* PRIMARY · acid lime  */
   --color-coral:        #ff5a4d;  /* ALERT  · hot coral   */
