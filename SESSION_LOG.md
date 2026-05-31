@@ -2035,3 +2035,37 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
   - Ported the Landing Page (`app/page.tsx`) end-to-end to the new Paper + Ink design system.
   - Implemented the `bg-paper-butter` canvas.
   - Used the `<Button>`, `<Box>`, `<Pill>`, `<Marker>` (rose), and `<Sticker>` (lav) primitives for a bold Gen-Z aesthetic.
+
+## Update: May 27-31, 2026 - Major Bug Fixes, UI/UX Polish, & Dashboard Refinements
+
+### Neo-Brutalist Hierarchy Passes (Dashboard)
+- **Slice 1 (Elevation tokens & resting tiers)**: Defined `--elev-0` through `--elev-3` tokens in `app/globals.css`. Standardized the 4-card stat strip to a uniform background with `--elev-1`. Flattened status pills in the dashboard header to `--elev-0`. Corrected the timeline frame shadow from `6px` to `var(--elev-1)` and updated primary CTA buttons (MARK SETTLED, NUDGE CLIENT) to `var(--elev-3)`.
+- **Slice 2A (Settlement Zone)**: Restructured `ActiveDrilldown.tsx` layout. Grouped the NUDGE and MARK SETTLED buttons into a dedicated settlement zone at the bottom of the card, along with a dynamically computed due countdown (e.g. `DUE IN X DAYS`, `DUE TODAY`, `OVERDUE BY X DAYS`). Changed the EDIT button to a ghost variant in the top-right header.
+- **Slice 2B (Calm Right Column)**: Dropped the main card wrapper shadow to `var(--elev-1)` and removed the lime right-edge accent. Dropped the Invoices Ledger table container shadow and row-level VIEW button shadows to `var(--elev-1)`.
+- **Removed FINALIZE M1**: Removed the obsolete "FINALIZE M1" button block from the dashboard UI.
+
+### Invoices & Milestones Logic Fixes
+- **First Milestone Billing Rule (Model A)**: Ensured that the master invoice accurately bills only its first milestone, preventing nested children for order 0.
+- **Order-0 Firing Guard**: Guarded `fireMilestoneInvoice` against firing the first milestone (`order_index === 0`) natively, returning a strict error. Added defense-in-depth to the cron `trigger-scheduled-milestones` route to exclude `order_index = 0` milestones.
+- **Non-destructive Milestone Sync**: Preserved lifecycle and trigger states when syncing updated form data to the DB milestones to prevent unintentional state wipes.
+- **GST Calculations**: Fixed systemic GST calculation logic and ensured correct rendering on invoices, milestones, and settlement drawer views.
+- **Invoice Routing**: Ensured that the invoice owner is routed to the editor view, not the client preview layout.
+- **MSA Reissue Lock**: Resolved an issue where reissue was blocked by moving the state transition to the share API and ensuring both `msa_status` and `msa_response` reset to pending on reissue and share.
+- **Applied Payment Terms**: Derived `applied_payment_terms` exclusively from the per-invoice payment term to maintain a single source of truth.
+
+### Dashboard Data & Timeline Polish
+- **Lifecycle Active Status**: Corrected the derivation of the active milestone to be the first unsettled one instead of the last.
+- **Metrics Accuracy**: Included shared-but-draft master invoices in the project total calculations. Fixed the in-flight invoice counts to reflect billed but unsettled invoices instead of the entire milestone plan.
+- **Real Activity Feed**: Scoped the dashboard activity feed correctly to the selected project instead of leaking global activity.
+- **Timeline Highlights**: Added logic to highlight the active milestone and fade future pending milestones. Fixed timeline duplication and formatting by mapping directly over the milestones array rather than lifecycle steps.
+- **Project Name Hydration**: Fixed a bug where the project name could hydrate as `undefined` if returned as an array or missing in `form_data.meta`.
+- **Auto-select Project**: Configured the dashboard to automatically select the most recently updated project upon loading.
+- **Share Callout UX**: Suppressed confusing status strings in the share revised-terms callout and made the email CTA fully visible.
+
+### UI / UX Enhancements (General)
+- **Editor Profile Autocomplete**: Implemented profile-backed agency autocomplete in the invoice editor and allowed the agency name to be editable while preserving address spaces.
+- **Sticky Actions**: Moved the bottom action bar in the editor to a global sticky position, removing redundant header buttons on desktop views.
+- **Clients List UX**: Addressed avatar compression issues and aligned action icons. Replaced text action buttons with precise SVGs, added an "ACTIONS" column header, and updated the "New" client badge to a cleaner text label.
+- **Milestone Editor Auto-scroll**: Fixed a gap in UX where adding a second milestone in the editor wouldn't keep the first milestone visible by implementing a scroll-to-view interaction.
+- **Notifications Lazy GC**: Built lazy garbage collection for the notification tray, capping stale and read notifications automatically without adding chron jobs or heavy DB loads.
+- **Contrast & Delight**: Boosted WCAG AA contrast for active project tabs, tweaked the attention dot, added nudge actions, delight popups for finished tasks, and polished delete action UIs across the board.
