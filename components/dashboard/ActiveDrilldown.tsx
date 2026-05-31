@@ -150,6 +150,26 @@ export function ActiveDrilldown({
   const taxBreakdown = computeInvoiceTax(invoice.form_data, subtotal);
   const grandTotal = taxBreakdown.totalPayable;
 
+  let countdownJSX = null;
+  if (invoice?.due_date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(invoice.due_date);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    
+    const shortDate = due.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
+    
+    if (diffDays > 0) {
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mt-1">DUE IN {diffDays} DAYS · {shortDate}</div>;
+    } else if (diffDays === 0) {
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-coral mt-1">DUE TODAY</div>;
+    } else {
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-coral mt-1">OVERDUE BY {Math.abs(diffDays)} DAYS</div>;
+    }
+  }
+
   return (
     <div className="flex flex-col xl:flex-row gap-8 min-h-0">
       <div className="flex-1 bg-paper p-6 border-2 border-ink shadow-[4px_4px_0_var(--color-acid)] flex flex-col">
@@ -162,27 +182,10 @@ export function ActiveDrilldown({
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
           </div>
           <div className="flex items-center gap-2">
-            {primary_action === 'mark_settled' && (
-              <button
-                type="button"
-                onClick={onResend}
-                title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
-                className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[3px_3px_0_var(--color-ink)] hover:bg-paper-2 transition-all group relative"
-              >
-                NUDGE CLIENT
-              </button>
-            )}
-            <button
-              className={btnClass + (!handler ? " opacity-50 cursor-not-allowed" : "")}
-              onClick={handler}
-              disabled={!handler}
-            >
-              {btnLabel}
-            </button>
             <button
               type="button"
               onClick={onFinalize}
-              className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[3px_3px_0_var(--color-ink)] hover:bg-paper-2 transition-all"
+              className="px-4 py-2 border-2 border-transparent hover:border-ink hover:bg-paper-2 font-extrabold uppercase text-[11px] tracking-widest transition-all text-ink"
             >
               EDIT
             </button>
@@ -217,12 +220,35 @@ export function ActiveDrilldown({
 
         <div className="h-px bg-ink/20 my-4" />
 
-        <div className="flex justify-between items-center mt-auto">
-          <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
-            {milestone ? `M${(milestone.order_index ?? 0) + 1} TOTAL` : 'TOTAL'} · {taxBreakdown.label}
+        <div className="border-t-2 border-ink mt-auto pt-4 flex justify-between items-end">
+          <div className="flex flex-col items-start gap-0.5">
+            <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+              {milestone ? `M${(milestone.order_index ?? 0) + 1} TOTAL` : 'TOTAL'} · {taxBreakdown.label}
+            </div>
+            <div className="text-2xl font-black text-ink leading-none mt-1">
+              {formatInr(grandTotal)}
+            </div>
+            {countdownJSX}
           </div>
-          <div className="text-2xl font-black text-ink">
-            {formatInr(grandTotal)}
+          
+          <div className="flex items-center gap-2">
+            {primary_action === 'mark_settled' && (
+              <button
+                type="button"
+                onClick={onResend}
+                title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
+                className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+              >
+                NUDGE CLIENT
+              </button>
+            )}
+            <button
+              className={btnClass + (!handler ? " opacity-50 cursor-not-allowed" : "")}
+              onClick={handler}
+              disabled={!handler}
+            >
+              {btnLabel}
+            </button>
           </div>
         </div>
       </div>
