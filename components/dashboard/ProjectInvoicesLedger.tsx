@@ -44,7 +44,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         INVOICES ({allInvoices.length})
       </div>
 
-      <div className="border-2 border-black bg-white shadow-[4px_4px_0_#111118]">
+      <div className="border-2 border-ink bg-white shadow-[var(--elev-1)]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b-2 border-black bg-[#FAFAF5]">
@@ -99,7 +99,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                       return (
                         <Link
                           href={rowHref}
-                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border border-black px-3 py-1 bg-white hover:bg-black hover:text-white transition-colors"
+                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border-2 border-ink px-3 py-1 bg-white shadow-[var(--elev-1)] hover:bg-paper-2 transition-colors text-ink"
                         >
                           VIEW
                         </Link>

@@ -2,6 +2,8 @@ import React from "react";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatTimingPill, SettlementTiming } from "@/lib/lifecycle/timing";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { formatProjectedDate } from "@/lib/lifecycle/timing";
+import { formatDateInputValue } from "@/lib/milestone-trigger-date";
 
 export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) {
   const milestones = [...project.milestones].filter(m =>
@@ -9,6 +11,14 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
   ).sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
   
   const master = project.invoices.find(inv => !(inv as any).parent_invoice_id);
+
+  const firstPendingIndex = milestones.findIndex(m => {
+    const status = (m.status || "").toLowerCase();
+    const hasChild = master ? project.invoices.some(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1) : false;
+    const isSet = status === "settled";
+    const isAct = (status === "live" || hasChild || m.trigger_status === "fired") && !isSet;
+    return !isAct && !isSet;
+  });
 
   return (
     <div className="mb-6">
@@ -51,6 +61,14 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
             const amtStr = m.amount ? formatInr(Number(m.amount)) : "—";
             const statusStr = isSettled ? "SETTLED" : isActive ? "LIVE" : "PENDING";
 
+            const invoice = (i === 0) ? master : (master ? project.invoices.find(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1) : null);
+            let timingLabel = null;
+            if ((isSettled || isActive) && invoice && (invoice as any).shared_at && (invoice as any).due_date) {
+              timingLabel = `SENT ${formatProjectedDate((invoice as any).shared_at)} · DUE ${formatProjectedDate((invoice as any).due_date)}`;
+            } else if (isPending && i === firstPendingIndex) {
+              timingLabel = `STARTS ~${formatProjectedDate(formatDateInputValue(7))}`;
+            }
+
             return (
               <div key={m.id} className="flex-1 relative">
                 <div className="flex items-center">
@@ -77,6 +95,11 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                   <div className={`text-[10px] font-extrabold uppercase tracking-widest ${isActive ? 'text-grass' : 'text-ink/40'}`}>
                     {statusStr}
                   </div>
+                  {timingLabel && (
+                    <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/40 mt-1">
+                      {timingLabel}
+                    </div>
+                  )}
                 </div>
               </div>
             );

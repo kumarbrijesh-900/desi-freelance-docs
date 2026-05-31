@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
+import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
 import { ActiveDrilldown, formatInr } from "@/components/dashboard/ActiveDrilldown";
@@ -29,20 +30,6 @@ type SettlementChoice = {
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
-function formatDrawerDate(value?: string | null): string {
-  if (!value) return "Not set";
-  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const date = dateOnlyMatch
-    ? new Date(Number(dateOnlyMatch[1]), Number(dateOnlyMatch[2]) - 1, Number(dateOnlyMatch[3]))
-    : new Date(value);
-  if (Number.isNaN(date.getTime())) return "Not set";
-  return date.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function formatTimingLabel(value?: string | null): string {
@@ -405,7 +392,7 @@ function DashboardContent() {
               : "Project closes after this final settlement."
             : settlementChoice.triggerMode === "scheduled"
               ? nextMilestone
-                ? `M${nextMilestoneNumber} starts on ${formatDrawerDate(settlementChoice.triggerDate)}.`
+                ? `M${nextMilestoneNumber} starts on ${formatProjectedDate(settlementChoice.triggerDate)}.`
                 : "Project closes after this final settlement."
               : "Remaining milestones are soft-cancelled.";
         const scheduleDateInvalid = settlementChoice.triggerMode === "scheduled" && !settlementChoice.triggerDate;

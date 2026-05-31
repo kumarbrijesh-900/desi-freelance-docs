@@ -2,6 +2,8 @@
 
 import React from "react";
 import { DrilldownState } from "@/lib/lifecycle/computeActiveDrilldown";
+import { computeSettlementTiming, formatTimingPill, formatProjectedDate } from "@/lib/lifecycle/timing";
+import { formatDateInputValue } from "@/lib/milestone-trigger-date";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -172,7 +174,7 @@ export function ActiveDrilldown({
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 min-h-0">
-      <div className="flex-1 bg-paper p-6 border-2 border-ink shadow-[4px_4px_0_var(--color-acid)] flex flex-col">
+      <div className="flex-1 bg-paper p-6 border-2 border-ink shadow-[var(--elev-1)] flex flex-col">
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
@@ -231,24 +233,31 @@ export function ActiveDrilldown({
             {countdownJSX}
           </div>
           
-          <div className="flex items-center gap-2">
-            {primary_action === 'mark_settled' && (
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-2">
+              {primary_action === 'mark_settled' && (
+                <button
+                  type="button"
+                  onClick={onResend}
+                  title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
+                  className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+                >
+                  NUDGE CLIENT
+                </button>
+              )}
               <button
-                type="button"
-                onClick={onResend}
-                title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
-                className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+                className={btnClass + (!handler ? " opacity-50 cursor-not-allowed" : "")}
+                onClick={handler}
+                disabled={!handler}
               >
-                NUDGE CLIENT
+                {btnLabel}
               </button>
+            </div>
+            {primary_action === 'mark_settled' && state?.next_milestone && (
+              <div className="text-[9px] font-bold uppercase tracking-widest text-ink/50 text-right mt-1">
+                ON SETTLE → M{(state.next_milestone.order_index ?? 0) + 1} ({formatInr(Number(state.next_milestone.amount || 0))}) STARTS ~{formatProjectedDate(formatDateInputValue(7))}
+              </div>
             )}
-            <button
-              className={btnClass + (!handler ? " opacity-50 cursor-not-allowed" : "")}
-              onClick={handler}
-              disabled={!handler}
-            >
-              {btnLabel}
-            </button>
           </div>
         </div>
       </div>

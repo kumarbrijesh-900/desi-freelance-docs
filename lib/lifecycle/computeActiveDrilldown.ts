@@ -16,6 +16,7 @@ export type DrilldownState = {
   milestone: MilestoneContext | null;
   items: LineItem[];
   primary_action: 'send_now' | 'mark_settled' | 'resend' | 'finalize' | 'review_revision' | 'review_only';
+  next_milestone?: MilestoneContext | null;
 };
 
 export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownState {
@@ -27,6 +28,7 @@ export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownS
       milestone: null,
       items: [],
       primary_action: 'review_only',
+      next_milestone: null,
     };
   }
 
@@ -108,10 +110,21 @@ export function computeActiveDrilldown(project: ProjectWithInvoices): DrilldownS
     return !(q === 0 && r === 0);
   });
 
+  // Determine next milestone
+  let nextMilestone = null;
+  if (activeMilestone) {
+    const ordered = [...activeMilestones].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+    const activeIdx = ordered.findIndex(m => m.id === activeMilestone?.id);
+    if (activeIdx !== -1 && activeIdx + 1 < ordered.length) {
+      nextMilestone = ordered[activeIdx + 1];
+    }
+  }
+
   return {
     invoice: relevantInvoice,
     milestone: activeMilestone,
     items,
     primary_action: primaryAction,
+    next_milestone: nextMilestone,
   };
 }
