@@ -58,9 +58,7 @@ export function ActiveDrilldown({
   const invoiceNum = invoice.invoice_number || "DRAFT";
 
   let subtitle = `${invoiceNum}`;
-  if (milestone?.trigger_date) {
-    subtitle += ` · DUE ${new Date(milestone.trigger_date).toLocaleDateString('en-IN').replace(/\//g, ' / ')}`;
-  } else if (invoice.due_date) {
+  if (invoice.due_date) {
     subtitle += ` · DUE ${new Date(invoice.due_date).toLocaleDateString('en-IN').replace(/\//g, ' / ')}`;
   } else {
     subtitle += ` · DUE NOT SET`;
