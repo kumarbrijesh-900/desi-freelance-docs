@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
     .select("*")
     .eq("trigger_mode", "scheduled")
     .eq("trigger_status", "pending")
+    .neq("order_index", 0)
     .lte("trigger_date", nowIso)
     .order("trigger_date", { ascending: true });
 
@@ -87,6 +88,10 @@ export async function GET(request: NextRequest) {
         milestone,
         projectRow,
       );
+
+      if (fired.ok === false || !fired.childInvoiceId) {
+        throw new Error(fired.error || "Failed to fire milestone invoice");
+      }
 
       results.push({
         id: milestone.id,

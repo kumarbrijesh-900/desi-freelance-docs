@@ -2,10 +2,12 @@ import { Resend } from "resend";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 
 export interface FireMilestoneInvoiceResult {
-  childInvoiceId: string;
-  token: string;
-  invoiceNumber: string;
-  milestoneIndex: number;
+  childInvoiceId?: string;
+  token?: string;
+  invoiceNumber?: string;
+  milestoneIndex?: number;
+  ok?: boolean;
+  error?: string;
 }
 
 function updateFormDataMilestones(
@@ -40,6 +42,13 @@ export async function fireMilestoneInvoice(
 
   if (!invoiceId) {
     throw new Error("Milestone row is missing invoice_id");
+  }
+
+  if (nextMilestoneIndex === 0) {
+    return {
+      ok: false,
+      error: "first milestone is billed on the master; cannot fire as a child",
+    };
   }
 
   const { data: parent, error: fetchError } = await supabase
