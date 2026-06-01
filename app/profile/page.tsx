@@ -731,7 +731,7 @@ export default function ProfilePage() {
                   Back
                 </button>
                 <h1 className="font-display text-7xl font-bold tracking-[-0.035em]">
-                  Your <Marker tone="lav">profile</Marker>
+                  Your profile
                 </h1>
                 <p className="mt-1.5 text-[13px] text-[color:var(--color-ink-2)]">
                   Agency details saved here auto-fill every new invoice you

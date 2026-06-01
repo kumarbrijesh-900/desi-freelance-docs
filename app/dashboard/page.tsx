@@ -273,7 +273,7 @@ function DashboardContent() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex gap-2 mb-3 items-center">
-                    <div className="px-3 py-1 bg-grass text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-ink rounded-full animate-pulse" /> LIVE</div>
+                    <div className="px-3 py-1 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> LIVE</div>
                     <div className="px-3 py-1 bg-sky text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)]">
                       {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
                     </div>
@@ -289,7 +289,7 @@ function DashboardContent() {
                     })()}
                   </div>
                   <h1 className="font-display font-black text-[56px] leading-[1.05] tracking-tight mb-2 text-ink max-w-[800px]">
-                    <Marker tone="rose">{selectedProject.project.name}</Marker>
+                    {selectedProject.project.name}
                   </h1>
                   <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
                     CLIENT · {selectedProject.project.client?.client_name || "Unknown"} · {selectedProject.project.client?.city || "Unknown"}

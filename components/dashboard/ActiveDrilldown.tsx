@@ -114,12 +114,12 @@ export function ActiveDrilldown({
   switch (primary_action) {
     case "send_now":
       btnLabel = "SEND NOW";
-      btnClass += " shadow-[var(--elev-3)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onSendNow;
       break;
     case "mark_settled":
       btnLabel = "MARK SETTLED";
-      btnClass += " shadow-[var(--elev-3)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onMarkSettled;
       break;
     case "resend":
@@ -129,7 +129,7 @@ export function ActiveDrilldown({
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-grass text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onFinalize;
       break;
     case "review_revision":

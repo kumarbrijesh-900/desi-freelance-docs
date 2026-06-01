@@ -149,7 +149,7 @@ export default function InvoicesPage() {
               <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{filteredInvoices.length} RESULTS</div>
             </div>
             <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
-              <Marker tone="rose">Invoices</Marker>
+              Invoices
             </h1>
             <div className="text-[13px] font-extrabold uppercase tracking-widest text-ink/70">
               Every invoice you've ever sent. Or drafted, and never sent.

@@ -42,11 +42,11 @@ export default function Home() {
   }, [router]);
 
   return (
-    <main className="min-h-screen flex flex-col bg-paper-butter">
+    <main className="min-h-screen flex flex-col bg-paper">
       <AppHeader />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-20 pb-28 px-4 sm:px-6 lg:px-8 bg-paper-butter">
+      <section className="relative overflow-hidden pt-20 pb-28 px-4 sm:px-6 lg:px-8 bg-paper">
         <div className="mx-auto w-full max-w-[1440px] relative z-20">
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -169,7 +169,7 @@ export default function Home() {
       <StripeDivider tone="sky" />
 
       {/* ── Features ── */}
-      <section className="bg-paper-butter py-24">
+      <section className="bg-paper py-24">
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
           
           <div className="flex justify-between items-end mb-20">

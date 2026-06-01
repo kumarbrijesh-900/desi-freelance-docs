@@ -90,7 +90,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                     isSettled ? "text-base font-black text-ink" : 
                     "text-base font-bold text-ink/40"
                   }`}>{amtStr}</div>
-                  <div className={`text-[10px] font-extrabold uppercase tracking-widest ${isActive ? 'text-grass' : 'text-ink/40'}`}>
+                  <div className={`text-[10px] font-extrabold uppercase tracking-widest ${isActive ? 'text-acid' : 'text-ink/40'}`}>
                     {statusStr}
                   </div>
                   {timingLabel && (
