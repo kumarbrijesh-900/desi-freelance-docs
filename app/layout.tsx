@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Fraunces, JetBrains_Mono, Caveat } from "next/font/google";
+import { Archivo, Space_Mono, Caveat } from "next/font/google";
 import { ToastProvider } from "@/components/ui/AppToast";
 
-const fraunces = Fraunces({ 
+const archivo = Archivo({ 
   subsets: ["latin"], 
   variable: "--font-display", 
-  weight: ["500", "600", "700"] 
+  weight: ["400", "500", "600", "700", "800", "900"] 
 });
 
-const mono = JetBrains_Mono({ 
+const mono = Space_Mono({ 
   subsets: ["latin"], 
   variable: "--font-mono", 
-  weight: ["400", "500", "600", "700"] 
+  weight: ["400", "700"] 
 });
 
 const caveat = Caveat({ 
@@ -46,11 +46,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      data-scroll-behavior="smooth"
-      className={`${fraunces.variable} ${mono.variable} ${caveat.variable} h-full antialiased`}
-    >
+      <html
+        lang="en"
+        data-scroll-behavior="smooth"
+        className={`${archivo.variable} ${mono.variable} ${caveat.variable} h-full antialiased`}
+      >
       <head>
         <meta name="theme-color" content="#F8F8FA" />
       </head>
