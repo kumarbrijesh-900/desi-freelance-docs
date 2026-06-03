@@ -29,7 +29,7 @@ export function ProjectRail({
     const msaStatus = (master.msa_status || "").toLowerCase();
 
     // coral #FF6B5C dot if: msa_status='proposed' AND client_msa_note IS NOT NULL (revision)
-    if (msaStatus === "proposed" && master.client_msa_note) return "#FF6B5C";
+    if (msaStatus === "proposed" && master.client_msa_note) return "#D85A30";
 
     // amber #BA7517 dot if: shared_at IS NOT NULL AND msa_status='pending' AND days_since_share > 3
     if (master.shared_at && msaStatus === "pending") {
@@ -44,13 +44,13 @@ export function ProjectRail({
       const dueDate = (m as any).due_date || master.due_date;
       return (status === "LIVE" || status === "PENDING") && dueDate && new Date(dueDate).getTime() < Date.now();
     });
-    if (hasFailed || isPastDue) return "#FF6B5C";
+    if (hasFailed || isPastDue) return "#D85A30";
 
     // gray dot if: status='draft' AND days_since_updated > 7
     if (!master.shared_at) { // Draft
       const updated = new Date(master.updated_at).getTime();
       const days = (Date.now() - updated) / 86400000;
-      if (days > 7) return "#9CA3AF";
+      if (days > 7) return "#a99e8c";
     }
 
     return null;
@@ -129,7 +129,7 @@ export function ProjectRail({
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-[color:var(--color-lime-warm)] border-2 border-black shadow-[3px_3px_0_#111118] text-black font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-white text-ink border-2 border-black shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
         >
           + NEW INVOICE
         </button>
@@ -176,17 +176,17 @@ export function ProjectRail({
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
                 className={`block min-h-[90px] p-4 pl-5 border-b-2 border-black relative cursor-pointer transition-all
-                  ${isSelected ? "bg-ink shadow-[4px_4px_0_var(--color-grass)] z-10 border-y-[3px] border-black scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
+                  ${isSelected ? "bg-ink shadow-[4px_4px_0_var(--color-acid)] z-10 border-y-[3px] border-black scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
                 `}
               >
                 {/* 10px colored left stripe */}
                 <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-black ${
-                  summary.startsWith("DRAFT") ? "bg-butter" :
-                  summary === "COMPLETE" ? "bg-grass" :
-                  summary.startsWith("REVISION") ? "bg-coral" :
+                  summary.startsWith("DRAFT") ? "bg-soft" :
+                  summary === "COMPLETE" ? "bg-ink" :
+                  summary.startsWith("REVISION") ? "bg-[#D85A30]" :
                   summary.startsWith("LIVE") ? "bg-acid" :
-                  summary.startsWith("ACTIVE") ? "bg-sky" :
-                  "bg-lav"
+                  summary.startsWith("ACTIVE") ? "bg-strong" :
+                  "bg-[#BA7517]"
                 }`} />
 
                 {dot && (
@@ -207,16 +207,16 @@ export function ProjectRail({
                   </div>
                   <div className="flex items-center justify-between">
                     <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[2px_2px_0_#FFF]' : 'border-ink shadow-[2px_2px_0_var(--color-ink)]'} ${
-                      summary.startsWith("DRAFT") ? "bg-butter text-ink" :
-                      summary === "COMPLETE" ? "bg-grass text-ink" :
-                      summary.startsWith("REVISION") ? "bg-coral text-ink" :
-                      summary.startsWith("LIVE") ? "bg-acid text-ink" :
-                      summary.startsWith("ACTIVE") ? "bg-sky text-ink" :
-                      "bg-lav text-ink"
+                      summary.startsWith("DRAFT") ? "bg-soft text-ink" :
+                      summary === "COMPLETE" ? "bg-ink text-acc-ink" :
+                      summary.startsWith("REVISION") ? "bg-[#D85A30] text-acc-ink" :
+                      summary.startsWith("LIVE") ? "bg-acid text-acc-ink" :
+                      summary.startsWith("ACTIVE") ? "bg-strong text-ink" :
+                      "bg-[#BA7517] text-acc-ink"
                     }`}>
                       {summary}
                     </div>
-                    {isSelected && <div className="text-grass font-black text-sm pr-2">→</div>}
+                    {isSelected && <div className="text-acid font-black text-sm pr-2">→</div>}
                   </div>
                 </div>
               </Link>
