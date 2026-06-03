@@ -124,6 +124,28 @@ function DashboardContent() {
     [selectedProject]
   );
 
+  const dueSoonAlerts = useMemo(() => {
+    const alerts: { projectId: string; projectName: string; milestoneNumber: number; milestoneTitle: string; dueDays: number }[] = [];
+    for (const p of projects) {
+      const d = computeActiveDrilldown(p);
+      if (d?.primary_action === 'mark_settled' && d.invoice?.due_date && d.milestone) {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const due = new Date(d.invoice.due_date); due.setHours(0, 0, 0, 0);
+        const dueDays = Math.round((due.getTime() - today.getTime()) / 86400000);
+        if (dueDays <= 2) {
+          alerts.push({
+            projectId: p.project.id,
+            projectName: p.project.name,
+            milestoneNumber: (d.milestone.order_index ?? 0) + 1,
+            milestoneTitle: d.milestone.title || `Milestone ${(d.milestone.order_index ?? 0) + 1}`,
+            dueDays,
+          });
+        }
+      }
+    }
+    return alerts.sort((a, b) => a.dueDays - b.dueDays);
+  }, [projects]);
+
   const getMasterInvoice = useCallback(() => {
     return selectedProject?.invoices.find(invoice => !(invoice as any).parent_invoice_id) ?? null;
   }, [selectedProject]);
@@ -269,6 +291,28 @@ function DashboardContent() {
             </div>
           ) : selectedProject ? (
             <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
+              {dueSoonAlerts.length > 0 && (
+                <div className="mb-6 border-2 border-ink bg-acc-soft shadow-[var(--elev-1)]">
+                  <div className="px-4 py-2 border-b-2 border-ink text-[10px] font-extrabold uppercase tracking-widest text-ink flex items-center gap-2">
+                    <span className="w-4 h-4 flex items-center justify-center bg-[#D85A30] text-acc-ink text-[10px] font-black">!</span>
+                    PAYMENTS DUE SOON · {dueSoonAlerts.length}
+                  </div>
+                  <div className="divide-y divide-ink/15">
+                    {dueSoonAlerts.map(a => {
+                      const timing = a.dueDays < 0
+                        ? `OVERDUE BY ${Math.abs(a.dueDays)} DAY${Math.abs(a.dueDays) === 1 ? '' : 'S'}`
+                        : a.dueDays === 0 ? 'DUE TODAY'
+                        : `DUE IN ${a.dueDays} DAY${a.dueDays === 1 ? '' : 'S'}`;
+                      return (
+                        <button key={a.projectId} onClick={() => router.replace(`/dashboard?project=${a.projectId}`)} className="w-full text-left px-4 py-2.5 hover:bg-paper-2 transition-colors flex items-center justify-between gap-3">
+                          <span className="text-[12px] font-bold text-ink truncate">{a.projectName} · M{a.milestoneNumber} {a.milestoneTitle}</span>
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] shrink-0">{timing} · NUDGE AVAILABLE</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {/* Title Section */}
               <div className="flex justify-between items-start mb-6">
                 <div>
