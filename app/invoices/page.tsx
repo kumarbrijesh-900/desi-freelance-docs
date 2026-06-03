@@ -96,26 +96,116 @@ export default function InvoicesPage() {
   const handleExportXls = () => {
     const chosen = flattenedInvoices.filter(item => selectedIds.has(item.invoice.id));
     if (chosen.length === 0) return;
-    const rows = chosen.map(item => ({
-      "Invoice #": item.invoice.invoice_number || "DRAFT",
-      "Type": item.isMaster
-        ? "Master"
-        : (Number.isFinite(Number(item.invoice.milestone_index))
-            ? `M${Number(item.invoice.milestone_index) + 1} billing`
-            : "Milestone billing"),
-      "Project": item.projectName || "Unlinked",
-      "Client": item.clientName || "Unknown",
-      "Status": item.invoice.status || "draft",
-      "Amount (INR)": Number(item.invoice.grand_total || 0),
-      "Created": item.invoice.created_at ? new Date(item.invoice.created_at).toISOString().slice(0, 10) : "",
-      "Shared": item.invoice.shared_at ? new Date(item.invoice.shared_at).toISOString().slice(0, 10) : "",
-      "Due": item.invoice.due_date ? String(item.invoice.due_date).slice(0, 10) : "",
-      "Settled": item.invoice.settled_at ? new Date(item.invoice.settled_at).toISOString().slice(0, 10) : "",
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
+
+    const today = new Date();
+    const toDate = (v: any) => (v ? new Date(v) : "");
+    const daysBetween = (a: any, b: any) =>
+      Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
+    const fyOf = (v: any) => {
+      if (!v) return "";
+      const d = new Date(v);
+      const sy = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+      return `${sy}-${String((sy + 1) % 100).padStart(2, "0")}`;
+    };
+    const msaMap: Record<string, string> = { accepted: "Contract accepted", proposed: "Proposed", pending: "Not sent" };
+
+    let sumAmount = 0, sumOutstanding = 0, sumCollected = 0;
+
+    const rows: any[] = chosen.map(item => {
+      const inv: any = item.invoice;
+      const fd: any = inv.form_data || {};
+      const tax: any = fd.tax || {};
+      const client: any = fd.client || {};
+      const agency: any = fd.agency || {};
+      const meta: any = fd.meta || {};
+
+      const s = (inv.status || "draft").toLowerCase();
+      const paid = s === "settled" || s === "paid" || !!inv.settled_at;
+      const shared = !!inv.shared_at;
+      const cancelled = s === "cancelled";
+      const amount = Number(inv.grand_total || 0);
+      const outstanding = shared && !paid && !cancelled && !s.includes("partial") ? amount : 0;
+      const collected = paid ? amount : 0;
+      sumAmount += amount; sumOutstanding += outstanding; sumCollected += collected;
+
+      const daysToPay = paid && inv.shared_at && inv.settled_at ? daysBetween(inv.shared_at, inv.settled_at) : "";
+      const overdue = !paid && inv.due_date && new Date(inv.due_date) < today ? daysBetween(inv.due_date, today) : 0;
+      const ageing = paid ? "Paid" : !inv.due_date ? "" : overdue <= 0 ? "Current" : overdue <= 30 ? "1-30" : overdue <= 60 ? "31-60" : "60+";
+
+      const taxRate = Number(tax.taxRate || 0);
+      const rcm = !!tax.isRcmEnabled;
+      const intl = String(client.clientLocation || "").toLowerCase() === "international";
+      const sameState = !!agency.agencyState && !!client.clientState && agency.agencyState === client.clientState;
+      const treatment = intl
+        ? (agency.lutNumber ? "Export - LUT (zero-rated)" : "Export")
+        : rcm ? "RCM - recipient pays"
+        : taxRate > 0 ? (sameState ? "CGST+SGST" : "IGST")
+        : "No tax";
+
+      const mtotal = item.masterInvoice?.form_data?.milestones?.length || 0;
+      const mpos = item.isMaster ? 1 : (Number.isFinite(Number(inv.milestone_index)) ? Number(inv.milestone_index) : null);
+      const milestone = mpos ? (mtotal > 0 ? `M${mpos} of ${mtotal}` : `M${mpos}`) : "";
+
+      const msa = item.masterMsaStatus
+        ? (String(item.masterMsaStatus).toLowerCase() === "proposed" && item.masterHasClientMsaNote
+            ? "Revision requested"
+            : (msaMap[String(item.masterMsaStatus).toLowerCase()] || String(item.masterMsaStatus)))
+        : "";
+
+      const terms = inv.applied_payment_terms || (inv.payment_terms_days ? `Net ${inv.payment_terms_days} days` : "");
+
+      return {
+        "Invoice #": inv.invoice_number || "DRAFT",
+        "Type": item.isMaster ? "Master" : (mpos ? `M${mpos} billing` : "Milestone billing"),
+        "Master invoice": item.isMaster ? "" : (item.masterInvoice?.invoice_number || ""),
+        "Project": item.projectName || "Unlinked",
+        "Milestone": milestone,
+        "Client": item.clientName || client.clientName || "Unknown",
+        "Contract (MSA)": msa,
+        "Invoice date": toDate(meta.invoiceDate || inv.created_at),
+        "Shared": toDate(inv.shared_at),
+        "Due": toDate(inv.due_date),
+        "Settled": toDate(inv.settled_at),
+        "Amount (INR)": amount,
+        "Paid?": paid ? "Yes" : "No",
+        "Outstanding (INR)": outstanding,
+        "Collected (INR)": collected,
+        "Days to pay": daysToPay,
+        "Days overdue": overdue,
+        "Ageing": ageing,
+        "Payment terms": terms,
+        "Settlement": inv.is_offline ? "Offline" : (paid ? "Online (Lance)" : ""),
+        "GST rate %": taxRate,
+        "Tax treatment": treatment,
+        "RCM": rcm ? "Yes" : "No",
+        "Place of supply": client.clientState || "",
+        "Location": intl ? "International" : "Domestic",
+        "Currency": client.clientCurrency || "INR",
+        "Client GSTIN": client.clientGstin || "",
+        "Your GSTIN": agency.gstin || "",
+        "FY": fyOf(meta.invoiceDate || inv.created_at),
+      };
+    });
+
+    rows.push({
+      "Invoice #": `TOTALS (${chosen.length} invoices)`,
+      "Type": "", "Master invoice": "", "Project": "", "Milestone": "", "Client": "",
+      "Contract (MSA)": "", "Invoice date": "", "Shared": "", "Due": "", "Settled": "",
+      "Amount (INR)": sumAmount, "Paid?": "", "Outstanding (INR)": sumOutstanding, "Collected (INR)": sumCollected,
+      "Days to pay": "", "Days overdue": "", "Ageing": "", "Payment terms": "", "Settlement": "",
+      "GST rate %": "", "Tax treatment": "", "RCM": "", "Place of supply": "", "Location": "",
+      "Currency": "", "Client GSTIN": "", "Your GSTIN": "", "FY": "",
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows, { cellDates: true });
+    ws["!cols"] = Object.keys(rows[0]).map(k => ({ wch: Math.min(26, Math.max(10, k.length + 2)) }));
+    if (ws["!ref"]) {
+      const range = XLSX.utils.decode_range(ws["!ref"]);
+      ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: range.e.r, c: range.e.c } }) };
+    }
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Invoices");
-    XLSX.writeFile(wb, `lance-invoices-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    XLSX.writeFile(wb, `lance-invoices-${new Date().toISOString().slice(0, 10)}.xlsx`, { cellDates: true });
   };
 
   useEffect(() => {
