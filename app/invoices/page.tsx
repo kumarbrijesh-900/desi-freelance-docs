@@ -111,7 +111,21 @@ export default function InvoicesPage() {
 
     let sumAmount = 0, sumOutstanding = 0, sumCollected = 0;
 
-    const rows: any[] = chosen.map(item => {
+    type Agg = { n: number; amount: number; outstanding: number; collected: number; payDays: number; payCount: number };
+    const blank = (): Agg => ({ n: 0, amount: 0, outstanding: 0, collected: 0, payDays: 0, payCount: 0 });
+    const byStatus = new Map<string, Agg>();
+    const byClient = new Map<string, Agg>();
+    const byTreatment = new Map<string, Agg>();
+    const byMonth = new Map<string, Agg>();
+    const byAgeing = new Map<string, Agg>();
+    const bump = (map: Map<string, Agg>, key: string, amount: number, outstanding: number, collected: number, payDays: number | "") => {
+      const a = map.get(key) || blank();
+      a.n += 1; a.amount += amount; a.outstanding += outstanding; a.collected += collected;
+      if (typeof payDays === "number") { a.payDays += payDays; a.payCount += 1; }
+      map.set(key, a);
+    };
+
+    const detailRows: any[] = chosen.map(item => {
       const inv: any = item.invoice;
       const fd: any = inv.form_data || {};
       const tax: any = fd.tax || {};
@@ -119,18 +133,18 @@ export default function InvoicesPage() {
       const agency: any = fd.agency || {};
       const meta: any = fd.meta || {};
 
-      const s = (inv.status || "draft").toLowerCase();
-      const paid = s === "settled" || s === "paid" || !!inv.settled_at;
+      const statusRaw = (inv.status || "draft").toLowerCase();
+      const paid = statusRaw === "settled" || statusRaw === "paid" || !!inv.settled_at;
       const shared = !!inv.shared_at;
-      const cancelled = s === "cancelled";
+      const cancelled = statusRaw === "cancelled";
       const amount = Number(inv.grand_total || 0);
-      const outstanding = shared && !paid && !cancelled && !s.includes("partial") ? amount : 0;
+      const outstanding = shared && !paid && !cancelled && !statusRaw.includes("partial") ? amount : 0;
       const collected = paid ? amount : 0;
       sumAmount += amount; sumOutstanding += outstanding; sumCollected += collected;
 
       const daysToPay = paid && inv.shared_at && inv.settled_at ? daysBetween(inv.shared_at, inv.settled_at) : "";
       const overdue = !paid && inv.due_date && new Date(inv.due_date) < today ? daysBetween(inv.due_date, today) : 0;
-      const ageing = paid ? "Paid" : !inv.due_date ? "" : overdue <= 0 ? "Current" : overdue <= 30 ? "1-30" : overdue <= 60 ? "31-60" : "60+";
+      const ageing = paid ? "Paid" : !inv.due_date ? "No due date" : overdue <= 0 ? "Current" : overdue <= 30 ? "1-30" : overdue <= 60 ? "31-60" : "60+";
 
       const taxRate = Number(tax.taxRate || 0);
       const rcm = !!tax.isRcmEnabled;
@@ -153,6 +167,15 @@ export default function InvoicesPage() {
         : "";
 
       const terms = inv.applied_payment_terms || (inv.payment_terms_days ? `Net ${inv.payment_terms_days} days` : "");
+      const clientName = item.clientName || client.clientName || "Unknown";
+      const invDate = meta.invoiceDate || inv.created_at;
+      const monthKey = invDate ? new Date(invDate).toISOString().slice(0, 7) : "Unknown";
+
+      bump(byStatus, statusRaw || "draft", amount, outstanding, collected, daysToPay);
+      bump(byClient, clientName, amount, outstanding, collected, daysToPay);
+      bump(byTreatment, treatment, amount, outstanding, collected, daysToPay);
+      bump(byMonth, monthKey, amount, outstanding, collected, daysToPay);
+      bump(byAgeing, ageing, amount, outstanding, collected, daysToPay);
 
       return {
         "Invoice #": inv.invoice_number || "DRAFT",
@@ -160,9 +183,9 @@ export default function InvoicesPage() {
         "Master invoice": item.isMaster ? "" : (item.masterInvoice?.invoice_number || ""),
         "Project": item.projectName || "Unlinked",
         "Milestone": milestone,
-        "Client": item.clientName || client.clientName || "Unknown",
+        "Client": clientName,
         "Contract (MSA)": msa,
-        "Invoice date": toDate(meta.invoiceDate || inv.created_at),
+        "Invoice date": toDate(invDate),
         "Shared": toDate(inv.shared_at),
         "Due": toDate(inv.due_date),
         "Settled": toDate(inv.settled_at),
@@ -183,11 +206,11 @@ export default function InvoicesPage() {
         "Currency": client.clientCurrency || "INR",
         "Client GSTIN": client.clientGstin || "",
         "Your GSTIN": agency.gstin || "",
-        "FY": fyOf(meta.invoiceDate || inv.created_at),
+        "FY": fyOf(invDate),
       };
     });
 
-    rows.push({
+    detailRows.push({
       "Invoice #": `TOTALS (${chosen.length} invoices)`,
       "Type": "", "Master invoice": "", "Project": "", "Milestone": "", "Client": "",
       "Contract (MSA)": "", "Invoice date": "", "Shared": "", "Due": "", "Settled": "",
@@ -197,14 +220,46 @@ export default function InvoicesPage() {
       "Currency": "", "Client GSTIN": "", "Your GSTIN": "", "FY": "",
     });
 
-    const ws = XLSX.utils.json_to_sheet(rows, { cellDates: true });
-    ws["!cols"] = Object.keys(rows[0]).map(k => ({ wch: Math.min(26, Math.max(10, k.length + 2)) }));
-    if (ws["!ref"]) {
-      const range = XLSX.utils.decode_range(ws["!ref"]);
-      ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: range.e.r, c: range.e.c } }) };
+    const wsDetail = XLSX.utils.json_to_sheet(detailRows, { cellDates: true });
+    wsDetail["!cols"] = Object.keys(detailRows[0]).map(k => ({ wch: Math.min(26, Math.max(10, k.length + 2)) }));
+    if (wsDetail["!ref"]) {
+      const range = XLSX.utils.decode_range(wsDetail["!ref"]);
+      wsDetail["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: range.e.r, c: range.e.c } }) };
     }
+
+    const aoa: any[][] = [];
+    aoa.push(["Lance — Invoice Summary"]);
+    aoa.push([`Exported ${new Date().toISOString().slice(0, 10)} · ${chosen.length} invoices`]);
+    aoa.push([]);
+    aoa.push(["BY STATUS", "Invoices", "Amount", "Outstanding", "Collected"]);
+    Array.from(byStatus.entries()).sort((a, b) => b[1].amount - a[1].amount).forEach(([k, a]) =>
+      aoa.push([k, a.n, a.amount, a.outstanding, a.collected]));
+    aoa.push(["TOTAL", chosen.length, sumAmount, sumOutstanding, sumCollected]);
+    aoa.push([]);
+    aoa.push(["AGEING (unpaid)", "Invoices", "Outstanding"]);
+    ["Current", "1-30", "31-60", "60+"].forEach(b => {
+      const a = byAgeing.get(b);
+      if (a) aoa.push([b, a.n, a.outstanding]);
+    });
+    aoa.push([]);
+    aoa.push(["BY TAX TREATMENT", "Invoices", "Amount"]);
+    Array.from(byTreatment.entries()).sort((a, b) => b[1].amount - a[1].amount).forEach(([k, a]) =>
+      aoa.push([k, a.n, a.amount]));
+    aoa.push([]);
+    aoa.push(["BY CLIENT", "Invoices", "Amount", "Outstanding", "Collected", "Avg days to pay"]);
+    Array.from(byClient.entries()).sort((a, b) => b[1].amount - a[1].amount).forEach(([k, a]) =>
+      aoa.push([k, a.n, a.amount, a.outstanding, a.collected, a.payCount ? Math.round(a.payDays / a.payCount) : ""]));
+    aoa.push([]);
+    aoa.push(["BY MONTH", "Invoices", "Amount", "Collected"]);
+    Array.from(byMonth.entries()).sort((a, b) => String(a[0]).localeCompare(String(b[0]))).forEach(([k, a]) =>
+      aoa.push([k, a.n, a.amount, a.collected]));
+
+    const wsSummary = XLSX.utils.aoa_to_sheet(aoa);
+    wsSummary["!cols"] = [{ wch: 26 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 16 }];
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+    XLSX.utils.book_append_sheet(wb, wsDetail, "Invoices");
     XLSX.writeFile(wb, `lance-invoices-${new Date().toISOString().slice(0, 10)}.xlsx`, { cellDates: true });
   };
 
