@@ -9,6 +9,16 @@ import { announceInvoiceDataChanged } from "@/lib/invoice-events";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/AppToast";
 
+function invoiceHasContent(formData: InvoiceFormData): boolean {
+  if (!formData) return false;
+  if (formData.client?.clientName?.trim()) return true;
+  const priced = (items?: any[]) =>
+    (items || []).some((li) => Number(li?.qty || 0) > 0 && Number(li?.rate || 0) > 0);
+  if (priced(formData.lineItems)) return true;
+  if ((formData.milestones || []).some((m: any) => priced(m?.lineItems))) return true;
+  return false;
+}
+
 interface UseInvoicePersistenceProps {
   formData: InvoiceFormData;
   isBootstrapped: boolean;
@@ -30,6 +40,7 @@ export function useInvoicePersistence({
   useEffect(() => {
     if (!isBootstrapped || !formData) return;
     if (isReadOnlyMode) return;
+    if (!invoiceHasContent(formData)) return;
     localStorage.setItem(ANONYMOUS_DRAFT_KEY, JSON.stringify(formData));
     try {
       localStorage.setItem("lance_draft_invoice", JSON.stringify(formData));
@@ -66,6 +77,7 @@ export function useInvoicePersistence({
     async function autoCloudSave() {
       const userId = await getCurrentUserId();
       if (!userId) return;
+      if (!invoiceHasContent(formData)) return;
 
       const { data, error } = await saveInvoice({
         formData,
