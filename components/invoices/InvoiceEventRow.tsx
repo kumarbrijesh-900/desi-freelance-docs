@@ -94,7 +94,7 @@ export function InvoiceEventRow({
   return (
     <Link
       href={rowHref}
-      className="flex items-stretch bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] mb-3 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
+      className="flex items-stretch bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
     >
       {selectable && (
         <div
@@ -112,7 +112,7 @@ export function InvoiceEventRow({
       {/* Color stripe */}
       <div className={`w-[10px] ${statusInfo.side} border-r-[1.5px] border-ink shrink-0`} />
 
-      <div className="flex flex-1 items-center px-6 py-4">
+      <div className="flex flex-1 items-center px-6 py-3">
         {/* Col 1 */}
         <div className="w-[200px] shrink-0">
           <div className="text-[13px] font-extrabold uppercase tracking-widest text-ink mb-1">{invoice.invoice_number || "DRAFT"}</div>

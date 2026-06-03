@@ -204,33 +204,25 @@ export default function InvoicesPage() {
         )}
 
 
-        <div className="flex justify-between items-end mb-5 shrink-0">
-          <div>
-            <div className="flex gap-2 mb-3 items-center">
-              <div className="px-3 py-1 bg-lav text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">ALL TIME</div>
-              <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">{filteredInvoices.length} RESULTS</div>
-            </div>
-            <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
-              Invoices
-            </h1>
-            <div className="text-[13px] font-extrabold uppercase tracking-widest text-ink/70">
-              Every invoice you've ever sent. Or drafted, and never sent.
-            </div>
+        <div className="flex items-center justify-between gap-4 mb-4 shrink-0">
+          <div className="flex items-baseline gap-3 min-w-0">
+            <h1 className="font-display font-black text-[36px] leading-none text-ink">Invoices</h1>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 whitespace-nowrap">All time · {filteredInvoices.length} results</span>
           </div>
-          <div className="flex gap-3 items-center">
-            <div className="relative w-[320px]">
+          <div className="flex gap-3 items-center shrink-0">
+            <div className="relative w-[300px]">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-ink font-bold">⌕</div>
               <input
                 type="text"
                 placeholder="Search · #, client, project…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border-2 border-ink font-bold text-sm shadow-[3px_3px_0_var(--color-rule)] focus:outline-none focus:border-ink placeholder:text-ink/40 transition-all focus:shadow-[4px_4px_0_var(--color-rule)]"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-ink font-bold text-sm shadow-[3px_3px_0_var(--color-rule)] focus:outline-none focus:border-ink placeholder:text-ink/40 transition-all focus:shadow-[4px_4px_0_var(--color-rule)]"
               />
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="border-2 border-ink bg-grass px-6 py-3.5 text-sm font-black uppercase tracking-widest text-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border-2 border-ink bg-grass px-5 py-2.5 text-sm font-black uppercase tracking-widest text-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               + NEW INVOICE
             </a>
