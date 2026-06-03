@@ -22,7 +22,7 @@ export default function InvoicesPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ invoiceId: string; label: string } | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete"];
+  const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete", "Offline"];
 
   useEffect(() => {
     async function load() {
@@ -100,6 +100,7 @@ export default function InvoicesPage() {
       case "Live": return status === "live" || status === "finalized";
       case "Settled": return status === "settled";
       case "Complete": return status === "complete";
+      case "Offline": return (item.invoice as any).is_offline === true;
       default: return true;
     }
   });
@@ -207,6 +208,7 @@ export default function InvoicesPage() {
                 case "Live": return status === "live" || status === "finalized";
                 case "Settled": return status === "settled";
                 case "Complete": return status === "complete";
+                case "Offline": return (item.invoice as any).is_offline === true;
                 default: return true;
               }
             }).length;
@@ -221,6 +223,7 @@ export default function InvoicesPage() {
                else if (f === "Live") toneClass = "bg-lav text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Settled") toneClass = "bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Complete") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Offline") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
             }
 
             return (
