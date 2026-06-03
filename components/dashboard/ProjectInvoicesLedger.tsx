@@ -10,17 +10,17 @@ function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClien
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
-  if (status === 'cancelled') return { bg: '#E5E5E5', fg: '#737373', label: 'cancelled', strikethrough: true };
-  if (status === 'settled') return { bg: '#00DCB4', fg: '#04342C', label: 'settled' };
-  if (status === 'partial') return { bg: '#5DCAA5', fg: '#04342C', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { bg: '#D85A30', fg: '#FFFFFF', label: 'revision requested' };
-  if (msa === 'accepted' && status !== 'settled') return { bg: '#5DCAA5', fg: '#04342C', label: 'locked' };
-  if (msa === 'proposed') return { bg: '#BA7517', fg: '#FFFFFF', label: 'awaiting client' };
-  if (msa === 'pending' && status === 'finalized') return { bg: '#BA7517', fg: '#FFFFFF', label: 'awaiting client' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-lime-warm)', fg: '#173404', label: 'live' };
-  if (status === 'complete') return { bg: '#00DCB4', fg: '#04342C', label: 'complete' };
-  if (status === 'draft') return { bg: 'transparent', fg: '#000000', label: 'draft', border: true };
-  return { bg: '#E5E5E5', fg: '#737373', label: status };
+  if (status === 'cancelled') return { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
+  if (status === 'settled') return { bg: '#24201a', fg: '#fbf4e7', label: 'settled' };
+  if (status === 'partial') return { bg: '#f6ddcf', fg: '#24201a', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { bg: '#D85A30', fg: '#fbf4e7', label: 'revision requested' };
+  if (msa === 'accepted' && status !== 'settled') return { bg: 'transparent', fg: '#24201a', label: 'locked', border: true };
+  if (msa === 'proposed') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
+  if (msa === 'pending' && status === 'finalized') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
+  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: '#cf4a25', fg: '#fbf4e7', label: 'live' };
+  if (status === 'complete') return { bg: '#24201a', fg: '#fbf4e7', label: 'complete' };
+  if (status === 'draft') return { bg: 'transparent', fg: '#7c7263', label: 'draft', border: true };
+  return { bg: '#d8ccb3', fg: '#7c7263', label: status };
 }
 
 export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoices }) {
