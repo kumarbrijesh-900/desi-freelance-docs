@@ -237,18 +237,18 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {/* Stat strip — full color */}
-        <div className="flex gap-3 mb-4 shrink-0">
+        {/* Stat strip — compact pills */}
+        <div className="flex flex-wrap gap-2 mb-4 shrink-0">
           {[
-            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral", fg: "text-ink" },
-            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass", fg: "text-ink" },
-            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "Average turnaround" : "No settled invoices yet", bg: "bg-acid", fg: "text-ink" },
-            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", bg: "bg-lav", fg: "text-ink" },
+            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral" },
+            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass" },
+            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", bg: "bg-acid" },
+            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", bg: "bg-lav" },
           ].map((s, i) => (
-            <div key={i} className={`flex-1 p-4 ${s.bg} ${s.fg} border-2 border-ink shadow-[4px_4px_0_var(--color-rule)]`}>
-              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-85 mb-1.5">{s.l}</div>
-              <div className="text-[26px] font-black leading-none mb-1.5">{s.v}</div>
-              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-75">{s.s}</div>
+            <div key={i} className={`inline-flex items-center gap-2 px-3.5 py-2 ${s.bg} text-ink border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-rule)]`}>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest opacity-80">{s.l}</span>
+              <span className="text-[14px] font-black leading-none">{s.v}</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest opacity-70">· {s.s}</span>
             </div>
           ))}
         </div>
