@@ -142,7 +142,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
       <div className="bg-white border-2 border-ink p-6 shadow-[var(--elev-1)] mb-6 overflow-x-auto no-scrollbar relative">
         <div className="relative min-w-[800px] py-4">
           
-          <div className="absolute top-[53px] left-0 right-0 h-0 z-0">
+          <div className="absolute top-[69px] left-0 right-0 h-0 z-0">
             <div 
               className="absolute h-[3px] bg-acid -translate-y-1/2" 
               style={{ left: `${startCenter}%`, width: `${solidEnd - startCenter}%` }} 
