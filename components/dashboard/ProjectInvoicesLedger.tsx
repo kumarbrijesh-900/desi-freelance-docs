@@ -64,7 +64,17 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                 : Number.isFinite(milestoneIndex)
                   ? `M${milestoneIndex} billing`
                   : "Milestone billing";
-              const statusInfo = getStatusPill(inv.status || "draft", master?.msa_status || null, !!master?.client_msa_note);
+              let statusInfo;
+              if (isMaster) {
+                statusInfo = getStatusPill(inv.status || "draft", master?.msa_status || null, !!master?.client_msa_note);
+              } else {
+                const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
+                const mStatus = (ms?.status || "").toLowerCase();
+                if (mStatus === "settled") statusInfo = { bg: '#24201a', fg: '#fbf4e7', label: 'settled' };
+                else if (mStatus === "live") statusInfo = { bg: '#cf4a25', fg: '#fbf4e7', label: 'live' };
+                else if (mStatus === "cancelled") statusInfo = { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
+                else statusInfo = { bg: 'transparent', fg: '#7c7263', label: 'pending', border: true };
+              }
 
               // Compute grand total
               let total = Number(inv.grand_total || 0);
