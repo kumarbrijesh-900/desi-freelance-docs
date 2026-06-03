@@ -149,23 +149,33 @@ export function ActiveDrilldown({
   const taxBreakdown = computeInvoiceTax(invoice.form_data, subtotal);
   const grandTotal = taxBreakdown.totalPayable;
 
-  let countdownJSX = null;
+  let dueDays: number | null = null;
   if (invoice?.due_date) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const due = new Date(invoice.due_date); due.setHours(0, 0, 0, 0);
+    dueDays = Math.round((due.getTime() - today.getTime()) / 86400000);
+  }
+  // NUDGE only makes sense when payment is due within 2 days or already overdue.
+  const nudgeRelevant = dueDays !== null && dueDays <= 2;
+  const nudgeTooltip =
+    dueDays === null
+      ? "Sends the client a polite payment reminder."
+      : dueDays < 0
+        ? `Payment is overdue by ${Math.abs(dueDays)} day${Math.abs(dueDays) === 1 ? "" : "s"} — sends a polite reminder.`
+        : dueDays === 0
+          ? "Payment is due today — sends a polite reminder."
+          : `Payment is due in ${dueDays} day${dueDays === 1 ? "" : "s"} — sends a polite reminder.`;
+
+  let countdownJSX = null;
+  if (invoice?.due_date && dueDays !== null) {
     const due = new Date(invoice.due_date);
-    due.setHours(0, 0, 0, 0);
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
     const shortDate = due.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
-    
-    if (diffDays > 0) {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mt-1">DUE IN {diffDays} DAYS · {shortDate}</div>;
-    } else if (diffDays === 0) {
+    if (dueDays > 0) {
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mt-1">DUE IN {dueDays} DAYS · {shortDate}</div>;
+    } else if (dueDays === 0) {
       countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">DUE TODAY</div>;
     } else {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">OVERDUE BY {Math.abs(diffDays)} DAYS</div>;
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">OVERDUE BY {Math.abs(dueDays)} DAYS</div>;
     }
   }
 
@@ -232,11 +242,11 @@ export function ActiveDrilldown({
           
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-2">
-              {primary_action === 'mark_settled' && (
+              {primary_action === 'mark_settled' && nudgeRelevant && (
                 <button
                   type="button"
                   onClick={onResend}
-                  title="Their dt of payment is due in 24 hours, this nudge will send a polite mail to client as a reminder"
+                  title={nudgeTooltip}
                   className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
                 >
                   NUDGE CLIENT
