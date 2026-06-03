@@ -63,7 +63,7 @@ export function InvoiceEventRow({
   const typeLabel = isMaster
     ? "MASTER"
     : Number.isFinite(milestoneIndex)
-      ? `M${milestoneIndex + 1} BILLING`
+      ? `M${milestoneIndex} BILLING`
       : "MILESTONE BILLING";
   
   const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote);
