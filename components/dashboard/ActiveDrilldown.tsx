@@ -134,7 +134,7 @@ export function ActiveDrilldown({
       break;
     case "review_revision":
       btnLabel = "REVIEW REVISION";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-coral text-white active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onReviewRevision;
       break;
     case "review_only":
@@ -144,7 +144,7 @@ export function ActiveDrilldown({
       break;
   }
 
-  const dotColors = ["bg-sky", "bg-lav", "bg-coral", "bg-grass", "bg-butter"];
+  const dotColors = ["bg-ink"];
   const subtotal = items.reduce((sum, item) => sum + (Number(item.qty || 0) * Number(item.rate || 0)), 0);
   const taxBreakdown = computeInvoiceTax(invoice.form_data, subtotal);
   const grandTotal = taxBreakdown.totalPayable;
@@ -163,9 +163,9 @@ export function ActiveDrilldown({
     if (diffDays > 0) {
       countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70 mt-1">DUE IN {diffDays} DAYS · {shortDate}</div>;
     } else if (diffDays === 0) {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-coral mt-1">DUE TODAY</div>;
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">DUE TODAY</div>;
     } else {
-      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-coral mt-1">OVERDUE BY {Math.abs(diffDays)} DAYS</div>;
+      countdownJSX = <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#D85A30] mt-1">OVERDUE BY {Math.abs(diffDays)} DAYS</div>;
     }
   }
 
@@ -175,7 +175,7 @@ export function ActiveDrilldown({
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
-              <div className="px-2 py-0.5 bg-acid text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
+              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
             </div>
             <h2 className="text-[28px] font-display font-black tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
@@ -285,11 +285,11 @@ export function ActiveDrilldown({
             else if (type === "invoice_settled") { ic = "✓"; k = "grass"; }
 
             let bgClass = "bg-paper text-ink";
-            if (k === "grass") bgClass = "bg-grass text-ink";
-            else if (k === "coral") bgClass = "bg-coral text-ink";
-            else if (k === "sky") bgClass = "bg-sky text-ink";
-            else if (k === "lav") bgClass = "bg-lav text-ink";
-            else if (k === "butter") bgClass = "bg-butter text-ink";
+            if (k === "grass") bgClass = "bg-ink text-acc-ink";
+            else if (k === "coral") bgClass = "bg-[#D85A30] text-acc-ink";
+            else if (k === "sky") bgClass = "bg-paper text-ink";
+            else if (k === "lav") bgClass = "bg-paper text-ink";
+            else if (k === "butter") bgClass = "bg-ink text-acc-ink";
 
             return (
               <div key={act.id} className="flex items-start gap-2.5" title={act.message || ""}>
