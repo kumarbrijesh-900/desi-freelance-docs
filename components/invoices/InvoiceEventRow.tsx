@@ -23,6 +23,15 @@ function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClien
   return { side: 'bg-rule', pill: 'bg-rule text-ink', label: status };
 }
 
+export function isInvoiceRowDeletable(
+  invoice: any,
+  masterMsaStatus?: string | null,
+  hasClientMsaNote?: boolean,
+) {
+  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote);
+  return info.label === "draft" || info.label === "live";
+}
+
 export function InvoiceEventRow({
   invoice,
   projectName,
@@ -32,7 +41,10 @@ export function InvoiceEventRow({
   masterMsaStatus,
   masterHasClientMsaNote,
   masterInvoice,
-  onDelete
+  onDelete,
+  selectable,
+  selected,
+  onToggleSelect
 }: {
   invoice: any;
   projectName?: string;
@@ -43,6 +55,9 @@ export function InvoiceEventRow({
   masterHasClientMsaNote?: boolean;
   masterInvoice?: any;
   onDelete?: (id: string) => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }) {
   const milestoneIndex = Number(invoice.milestone_index);
   const typeLabel = isMaster
@@ -81,6 +96,19 @@ export function InvoiceEventRow({
       href={rowHref}
       className="flex items-stretch bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] mb-3 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
     >
+      {selectable && (
+        <div
+          className="flex items-center pl-3 pr-1 shrink-0"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect?.(invoice.id); }}
+        >
+          <input
+            type="checkbox"
+            checked={!!selected}
+            readOnly
+            className="w-4 h-4 border-2 border-ink accent-ink cursor-pointer"
+          />
+        </div>
+      )}
       {/* Color stripe */}
       <div className={`w-[10px] ${statusInfo.side} border-r-[1.5px] border-ink shrink-0`} />
 

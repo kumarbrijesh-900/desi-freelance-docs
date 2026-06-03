@@ -4,13 +4,14 @@ import React, { useEffect, useState } from "react";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
-import { InvoiceEventRow } from "@/components/invoices/InvoiceEventRow";
+import { InvoiceEventRow, isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
 import { AppPagination } from "@/components/ui/AppPagination";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
 import { deleteInvoice } from "@/lib/supabase/invoices";
+import * as XLSX from "xlsx";
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
@@ -21,6 +22,8 @@ export default function InvoicesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteConfirm, setDeleteConfirm] = useState<{ invoiceId: string; label: string } | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
   const filters = ["All", "Draft", "Sent", "MSA proposed", "Revision", "Live", "Settled", "Complete", "Offline"];
 
@@ -58,8 +61,66 @@ export default function InvoicesPage() {
     setTimeout(() => setActionMessage(null), 3000);
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkDelete = async () => {
+    const deletable = flattenedInvoices.filter(
+      item => selectedIds.has(item.invoice.id) &&
+        isInvoiceRowDeletable(item.invoice, item.masterMsaStatus, item.masterHasClientMsaNote)
+    );
+    let ok = 0;
+    let failed = 0;
+    for (const item of deletable) {
+      const { error } = await deleteInvoice(item.invoice.id);
+      if (error) failed++; else ok++;
+    }
+    const skipped = selectedIds.size - deletable.length;
+    await loadProjects();
+    clearSelection();
+    setBulkDeleteConfirm(false);
+    const parts = [`${ok} deleted`];
+    if (skipped > 0) parts.push(`${skipped} protected skipped`);
+    if (failed > 0) parts.push(`${failed} failed`);
+    setActionMessage(parts.join(" · "));
+    setTimeout(() => setActionMessage(null), 4000);
+  };
+
+  const handleExportXls = () => {
+    const chosen = flattenedInvoices.filter(item => selectedIds.has(item.invoice.id));
+    if (chosen.length === 0) return;
+    const rows = chosen.map(item => ({
+      "Invoice #": item.invoice.invoice_number || "DRAFT",
+      "Type": item.isMaster
+        ? "Master"
+        : (Number.isFinite(Number(item.invoice.milestone_index))
+            ? `M${Number(item.invoice.milestone_index) + 1} billing`
+            : "Milestone billing"),
+      "Project": item.projectName || "Unlinked",
+      "Client": item.clientName || "Unknown",
+      "Status": item.invoice.status || "draft",
+      "Amount (INR)": Number(item.invoice.grand_total || 0),
+      "Created": item.invoice.created_at ? new Date(item.invoice.created_at).toISOString().slice(0, 10) : "",
+      "Shared": item.invoice.shared_at ? new Date(item.invoice.shared_at).toISOString().slice(0, 10) : "",
+      "Due": item.invoice.due_date ? String(item.invoice.due_date).slice(0, 10) : "",
+      "Settled": item.invoice.settled_at ? new Date(item.invoice.settled_at).toISOString().slice(0, 10) : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+    XLSX.writeFile(wb, `lance-invoices-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedIds(new Set());
   }, [filter, search]);
 
   // Flatten all invoices and attach project/client metadata
@@ -240,6 +301,49 @@ export default function InvoicesPage() {
           <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">SORT · NEWEST FIRST ▼</div>
         </div>
 
+        {/* Bulk selection toolbar */}
+        {!loading && filteredInvoices.length > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)]">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filteredInvoices.length > 0 && filteredInvoices.every(item => selectedIds.has(item.invoice.id))}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedIds(new Set(filteredInvoices.map(item => item.invoice.id)));
+                  } else {
+                    clearSelection();
+                  }
+                }}
+                className="w-4 h-4 border-2 border-ink accent-ink cursor-pointer"
+              />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+                Select all {filteredInvoices.length}
+              </span>
+            </label>
+            <div className="grow" />
+            {selectedIds.size > 0 ? (
+              <>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink">{selectedIds.size} selected</span>
+                <button type="button" onClick={handleExportXls}
+                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink bg-white text-ink shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
+                  Export XLS
+                </button>
+                <button type="button" onClick={() => setBulkDeleteConfirm(true)}
+                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
+                  Delete
+                </button>
+                <button type="button" onClick={clearSelection}
+                  className="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-ink/60 hover:text-ink">
+                  Clear
+                </button>
+              </>
+            ) : (
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/40">Select rows to export or delete</span>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <div className="py-20 text-center font-black tracking-tight text-xl text-ink/40 uppercase">
             Loading invoices…
@@ -265,6 +369,9 @@ export default function InvoicesPage() {
                 masterHasClientMsaNote={item.masterHasClientMsaNote}
                 masterInvoice={item.masterInvoice}
                 onDelete={(id) => setDeleteConfirm({ invoiceId: id, label: item.invoice.invoice_number || 'this draft' })}
+                selectable
+                selected={selectedIds.has(item.invoice.id)}
+                onToggleSelect={toggleSelect}
               />
             ))}
             <div className="flex justify-between items-center mt-4">
@@ -314,6 +421,28 @@ export default function InvoicesPage() {
                 className="border-[3px] border-black bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
               >
                 Delete permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Bulk Delete Confirmation Dialog ── */}
+      {bulkDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-sm border-[3px] border-black bg-white shadow-[6px_6px_0_#111118] p-6">
+            <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete selected?</h3>
+            <p className="text-sm font-bold text-neutral-600 mb-5">
+              Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setBulkDeleteConfirm(false)}
+                className="border-2 border-black bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]">
+                Cancel
+              </button>
+              <button type="button" onClick={handleBulkDelete}
+                className="border-[3px] border-black bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                Delete selected
               </button>
             </div>
           </div>
