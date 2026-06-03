@@ -193,9 +193,9 @@ export default function InvoicesPage() {
   const gstCollected = settledSum * 0.18; // approximation for display
 
   return (
-    <div className={appPageShellClass}>
+    <div className={`${appPageShellClass} h-dvh overflow-hidden flex flex-col`}>
       <AppHeader />
-      <main className={`${appPageContainerClass} max-w-[1200px] mx-auto py-8 relative overflow-x-hidden`}>
+      <main className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
           <div className="mb-6 px-4 py-3 bg-ink text-white text-sm font-bold shadow-[4px_4px_0_var(--color-rule)]">
@@ -204,7 +204,7 @@ export default function InvoicesPage() {
         )}
 
 
-        <div className="flex justify-between items-end mb-8">
+        <div className="flex justify-between items-end mb-5 shrink-0">
           <div>
             <div className="flex gap-2 mb-3 items-center">
               <div className="px-3 py-1 bg-lav text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)]">ALL TIME</div>
@@ -238,7 +238,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Stat strip — full color */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-3 mb-4 shrink-0">
           {[
             { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral", fg: "text-ink" },
             { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass", fg: "text-ink" },
@@ -254,7 +254,7 @@ export default function InvoicesPage() {
         </div>
 
         {/* Filter tabs */}
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
+        <div className="flex items-center gap-2 mb-4 flex-wrap shrink-0">
           {filters.map(f => {
             const count = flattenedInvoices.filter(item => {
               if (f === "All") return true;
@@ -303,7 +303,7 @@ export default function InvoicesPage() {
 
         {/* Bulk selection toolbar */}
         {!loading && filteredInvoices.length > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)]">
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] shrink-0">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -356,7 +356,8 @@ export default function InvoicesPage() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
             {paginatedInvoices.map(item => (
               <InvoiceEventRow
                 key={item.invoice.id}
@@ -374,7 +375,8 @@ export default function InvoicesPage() {
                 onToggleSelect={toggleSelect}
               />
             ))}
-            <div className="flex justify-between items-center mt-4">
+            </div>
+            <div className="flex justify-between items-center mt-4 shrink-0">
               <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
                 <span>Rows per page:</span>
                 <select 
