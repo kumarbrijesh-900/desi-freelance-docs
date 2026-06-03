@@ -274,7 +274,7 @@ function DashboardContent() {
                 <div>
                   <div className="flex gap-2 mb-3 items-center">
                     <div className="px-3 py-1 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> LIVE</div>
-                    <div className="px-3 py-1 bg-sky text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)]">
+                    <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)]">
                       {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
                     </div>
                     {(() => {
@@ -424,7 +424,7 @@ function DashboardContent() {
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="border-2 border-black bg-[#FF6B35] px-3 py-1 text-xl font-black leading-none text-white shadow-[3px_3px_0_#111118]"
+                  className="border-2 border-ink bg-white px-3 py-1 text-xl font-black leading-none text-ink shadow-[3px_3px_0_var(--color-ink)]"
                   aria-label="Close settlement drawer"
                 >
                   ×
@@ -469,7 +469,7 @@ function DashboardContent() {
                   </div>
                 </section>
 
-                <section className="mt-5 border-[3px] border-black bg-[#FFFBE6] p-4 shadow-[4px_4px_0_#111118]">
+                <section className="mt-5 border-[3px] border-black bg-acc-soft p-4 shadow-[4px_4px_0_#111118]">
                   <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                     Contract authority
                   </div>
@@ -516,12 +516,12 @@ function DashboardContent() {
                               ? "cancelled"
                               : status;
                         const markerClass = isSettled
-                          ? "bg-[#00DCB4]"
+                          ? "bg-ink text-acc-ink"
                           : isCurrent
-                            ? "bg-[color:var(--color-lime-warm)]"
+                            ? "bg-acid text-acc-ink"
                             : isCancelled
-                              ? "bg-[#D4D2CC]"
-                              : "bg-white border-dashed";
+                              ? "bg-soft"
+                              : "bg-paper border-dashed";
 
                         return (
                           <div key={milestone.id} className="relative pb-5 last:pb-0">
@@ -618,7 +618,7 @@ function DashboardContent() {
                   type="button"
                   onClick={confirmSettlement}
                   disabled={scheduleDateInvalid}
-                  className="border-[3px] border-black bg-[color:var(--color-lime-warm)] px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#111118] disabled:cursor-not-allowed disabled:bg-[#D4D2CC] disabled:text-neutral-600 disabled:shadow-none"
+                  className="border-[3px] border-black bg-acid text-acc-ink px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[4px_4px_0_#111118] disabled:cursor-not-allowed disabled:bg-soft disabled:text-ink/50 disabled:shadow-none"
                 >
                   Confirm settlement
                 </button>
@@ -633,14 +633,14 @@ function DashboardContent() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-[480px] border-[3px] border-black bg-white shadow-[8px_8px_0_#111118]">
             {/* Header Area */}
-            <div className="relative overflow-hidden bg-grass px-8 py-10 text-center">
+            <div className="relative overflow-hidden bg-acid px-8 py-10 text-center">
               {/* Confetti / Delight elements (static CSS representation) */}
               <div className="absolute left-4 top-4 text-4xl">✨</div>
               <div className="absolute bottom-4 right-4 text-4xl">🎉</div>
               <div className="absolute left-1/2 top-0 h-full w-full -translate-x-1/2 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.1)_100%)] mix-blend-overlay"></div>
               
               <div className="relative z-10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-black bg-white shadow-[4px_4px_0_#111118]">
-                <span className="text-4xl text-grass">✓</span>
+                <span className="text-4xl text-acid">✓</span>
               </div>
               <h2 className="relative z-10 text-3xl font-black uppercase tracking-tight text-white drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">
                 Project Complete!
@@ -661,7 +661,7 @@ function DashboardContent() {
                   <span className="text-xs font-extrabold uppercase tracking-widest text-neutral-500">
                     Total Billed
                   </span>
-                  <span className="text-2xl font-black text-grass drop-shadow-[1px_1px_0_rgba(0,0,0,0.2)]">
+                  <span className="text-2xl font-black text-acid drop-shadow-[1px_1px_0_rgba(0,0,0,0.2)]">
                     {projectClosureData.cost}
                   </span>
                 </div>
@@ -670,7 +670,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border-[3px] border-black bg-[#111118] py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0_#FF6B35] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_#FF6B35] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border-[3px] border-black bg-[#111118] py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0_var(--color-acid)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_var(--color-acid)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>
