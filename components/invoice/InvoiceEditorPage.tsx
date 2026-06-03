@@ -518,6 +518,26 @@ function EditorContent() {
     };
   }, []);
 
+  // Prefill agency/business details from the saved profile on a new/empty invoice.
+  // Runs once after bootstrap; never clobbers a restored draft or a cloud-loaded invoice.
+  useEffect(() => {
+    if (!isBootstrapped || isReadOnlyMode) return;
+    if (searchParams.get("id")) return;
+    if (formData?.agency?.agencyName?.trim()) return;
+    let cancelled = false;
+    void (async () => {
+      const { data: profile } = await loadProfile();
+      if (cancelled || !profile) return;
+      setFormData((prev) => {
+        if (prev?.agency?.agencyName?.trim()) return prev;
+        return { ...prev, agency: { ...prev.agency, ...profileToAgencyDetails(profile) } };
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isBootstrapped, isReadOnlyMode]);
+
   useEffect(() => {
     if (!isBootstrapped) return;
     if (isReadOnlyMode) return;
