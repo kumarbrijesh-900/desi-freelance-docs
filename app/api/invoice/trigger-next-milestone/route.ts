@@ -173,6 +173,23 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: settleError.message }, { status: 500 });
       }
 
+      // Stamp the billing invoice for the milestone just settled. order_index 0
+      // (M1) is billed on the master itself and is covered by the master roll-up
+      // below (partial while open, settled on close). Milestones >= 1 are billed
+      // on child invoices whose milestone_index is 1-based (= order_index + 1);
+      // a child is fully settled the instant its milestone settles.
+      if (currentOrderIndex >= 1) {
+        const { error: childSettleError } = await supabaseAdmin
+          .from("invoices")
+          .update({ status: "settled", settled_at: nowIso })
+          .eq("parent_invoice_id", invoiceId)
+          .eq("milestone_index", currentOrderIndex + 1);
+
+        if (childSettleError) {
+          return NextResponse.json({ error: childSettleError.message }, { status: 500 });
+        }
+      }
+
       await supabaseAdmin.from("notifications").insert({
         user_id: parent.user_id,
         invoice_id: invoiceId,
@@ -212,7 +229,7 @@ export async function POST(req: NextRequest) {
       const { error: invoiceUpdateError } = await supabaseAdmin
         .from("invoices")
         .update({
-          status: "PARTIAL",
+          status: "partial",
           form_data: updatedFormData,
           ...computeAppliedMsaSnapshot(updatedFormData as any),
           applied_payment_terms: (updatedFormData as any).meta?.paymentTerms
@@ -276,7 +293,7 @@ export async function POST(req: NextRequest) {
       const { error: invoiceUpdateError } = await supabaseAdmin
         .from("invoices")
         .update({
-          status: "SETTLED",
+          status: "settled",
           settled_at: nowIso,
           form_data: updatedFormData,
           ...computeAppliedMsaSnapshot(updatedFormData as any),
