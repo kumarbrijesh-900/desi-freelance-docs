@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 
-function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
+function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false) {
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
@@ -19,6 +19,7 @@ function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClien
   if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (status === 'finalized' || status === 'sent' || status === 'live') return { side: 'bg-acid', pill: 'bg-acid text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'live' };
   if (status === 'complete') return { side: 'bg-grass', pill: 'bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'complete' };
+  if (status === 'draft' && wasShared) return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (status === 'draft') return { side: 'bg-butter', pill: 'bg-transparent text-ink border-2 border-rule border-dashed', label: 'draft' };
   return { side: 'bg-rule', pill: 'bg-rule text-ink', label: status };
 }
@@ -28,7 +29,7 @@ export function isInvoiceRowDeletable(
   masterMsaStatus?: string | null,
   hasClientMsaNote?: boolean,
 ) {
-  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote);
+  const info = getStatusInfo(invoice?.status || "draft", masterMsaStatus || null, !!hasClientMsaNote, !!invoice?.shared_at);
   return info.label === "draft" || info.label === "live";
 }
 
@@ -66,7 +67,7 @@ export function InvoiceEventRow({
       ? `M${milestoneIndex} BILLING`
       : "MILESTONE BILLING";
   
-  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote);
+  const statusInfo = getStatusInfo(invoice.status || "draft", masterMsaStatus || null, !!masterHasClientMsaNote, !!invoice.shared_at);
 
   let total = Number(invoice.grand_total || 0);
   if (total === 0 && invoice.form_data?.totals?.total) {
