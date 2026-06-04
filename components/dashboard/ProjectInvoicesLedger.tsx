@@ -32,14 +32,14 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
   if (allInvoices.length === 0) {
     return (
-      <div className="px-6 py-5 bg-neutral-50 text-sm text-neutral-500">
+      <div className="py-5 bg-neutral-50 text-sm text-neutral-500">
         No invoices found for this project.
       </div>
     );
   }
 
   return (
-    <div className="px-6 py-5">
+    <div className="py-5">
       <div className="text-[10px] uppercase tracking-widest font-bold text-neutral-600 mb-3">
         INVOICES ({allInvoices.length})
       </div>

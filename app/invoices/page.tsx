@@ -367,7 +367,7 @@ export default function InvoicesPage() {
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="border-2 border-ink bg-grass px-5 py-2.5 text-sm font-black uppercase tracking-widest text-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border-2 border-ink bg-acid px-5 py-2.5 text-sm font-black uppercase tracking-widest text-acc-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               + NEW INVOICE
             </a>
