@@ -61,7 +61,7 @@ function SignupCard() {
       <button
         type="button"
         onClick={handleGoogleSignup}
-        className="mt-6 flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-white py-3 font-bold uppercase transition-all hover:bg-[#F5F5F8] active:scale-[0.98]"
+        className="mt-6 flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-white py-3 font-bold uppercase transition-all hover:bg-paper-2 active:scale-[0.98]"
       >
         <GoogleIcon className="h-5 w-5" />
         Sign up with Google
@@ -69,18 +69,18 @@ function SignupCard() {
 
       <p className="mt-6 text-center text-[13px] text-[color:var(--color-ink)]">
         Already have an account?{" "}
-        <Link href={`/login${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-[color:var(--brand-indigo)] hover:underline">
+        <Link href={`/login${next !== "/dashboard" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-acid hover:underline">
           Log in
         </Link>
       </p>
 
       <p className="mt-6 text-[11px] leading-4 text-[color:var(--color-ink-3)]">
         By signing up, you agree to our{" "}
-        <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+        <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-acid">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]">
+        <Link href="/privacy" className="font-bold text-[#111118] underline underline-offset-2 hover:text-acid">
           Privacy Policy
         </Link>.
       </p>
@@ -91,7 +91,7 @@ function SignupCard() {
 /* ─── Page ─── */
 export default function SignupPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#F5F5F8]">
+    <main className="relative min-h-screen overflow-hidden bg-paper">
       {/* Subtle gradient accent */}
       {/* Gradients removed for Neo Brutalist look */}
 
@@ -99,7 +99,7 @@ export default function SignupPage() {
         <MotionReveal preset="fade-up" delay={0}>
           <div className="mb-8">
             <Link href="/" className="group flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[18px] font-black text-[#111118]">
+              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-acid text-[18px] font-black text-acc-ink">
                 L
               </span>
               <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[#111118] font-syne antialiased">
@@ -114,7 +114,7 @@ export default function SignupPage() {
             <h1 className="text-4xl font-bold tracking-[-0.03em] text-[color:var(--color-ink)] sm:text-5xl lg:text-[3.5rem] lg:leading-[1.1]">
               Professional invoicing,
               <br />
-              <span className="text-[color:var(--color-lime-500)]">
+              <span className="text-acid">
                 simplified for you.
               </span>
             </h1>
