@@ -450,12 +450,21 @@ export async function saveProfileWithGlobalMsa(input: {
 export async function syncProfileFromInvoice(
   formData: any,
 ): Promise<{ success: boolean; error?: string }> {
+  // Never sync from an invoice with no real agency identity — upsertProfile is a
+  // full-row overwrite, so a blank agency would erase the saved profile.
+  const invoiceAgencyName = String(formData?.agency?.agencyName ?? "").trim();
+  if (!invoiceAgencyName) return { success: true };
+
   const { data: profile, error: loadError } = await loadProfile();
   if (loadError && loadError !== "Not authenticated")
     return { success: false, error: loadError };
 
-  // If profile is mostly empty, or we want to force-sync details
-  // For now, we'll upsert to ensure we capture the guest's effort
+  // First-capture only: once the profile has an agency identity (seeded or set on
+  // the Profile page), that is the source of truth — don't clobber it from an invoice.
+  if (profile && String(profile.agency_name ?? "").trim()) {
+    return { success: true };
+  }
+
   const { error: upsertError } = await upsertProfile(
     formData.agency,
     formData.payment,

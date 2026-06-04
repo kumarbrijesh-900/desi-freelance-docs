@@ -1567,6 +1567,7 @@ const handleSaveDraft = async () => {
     });
     if (!result.error && result.data) {
       setParserDocumentId(result.data.id);
+      void syncProfileFromInvoice(formDataForSave);
       const newUrl = `/invoice/new?id=${result.data.id}`;
       window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, "", newUrl);
     }
