@@ -2098,3 +2098,32 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - GSTIN/PAN not stored in any invoice or profile → user to add on the Profile page (then they'll prefill).
 - INV-6551 left as `draft` by user choice (shows "Locked" via accepted MSA); flip to finalized later to clear it from the Draft tab.
 - New shares already set `status: finalized` (share route); only the two old stragglers were affected.
+
+---
+
+## 2026-06-04 — Session 2 (PM): Launch-readiness P0 sweep (FREE launch)
+
+**Decision:** Launch **free** for now — no billing code exists and nothing is gated behind it, so a free launch adds zero scope. Subscription/monetization deferred to post-launch.
+
+**Headline finding — the deferred queue was stale.** Reconciled the (AM) handoff's "deferred queue" against `main` + prod: **~7 of 8 items already done** — Profile+Global MSA atomic save (AUDIT-P0-001) ✅, C2 drawer richness ✅, late-fee unit normalization ✅, template placeholder suppression (AUDIT-P1-003) ✅, same-day trigger-date ✅, PostgREST `projects.client_id` (no dangerous embed — non-issue) ✅, GSTIN/PAN storage ✅. Only **orphan-invoice backfill** genuinely open. Prod tip at session start was `87fbe27`, not `c619f37` (one docs commit ahead).
+
+**Data-integrity sweep (P0-2) — core state is sound.**
+- Milestone/line-item integrity **clean**: every master's `form_data.milestones` count == its `invoice_milestones` rows; children correctly carry 0 (master holds them). `invoice_line_items` is **populated** (the "tables are empty" note was stale).
+- `msa_status` is the **canonical** MSA column — runtime trusts it everywhere (client lock `msa_status || msa_response`, `isMsaAccepted = msa_status==='accepted'`, drilldown, rail). `msa_response` is only a fallback.
+- Found 4 invoices with `msa_status` ahead of `msa_response`: 3 (INV-9996/9446/3173) genuinely accepted (status + timestamps) but `msa_response` stale = manual-SQL test fixtures; 1 (INV-1238) is "proposed" = correct by design (propose path leaves `msa_response` pending).
+
+**Changes shipped this session (all verified vs prod/main):**
+- **(a) MSA cleanup** — guarded `UPDATE` set `msa_response='accepted'` on INV-9996/9446/3173 (only where genuinely accepted + stale); INV-1238 untouched. All MSA columns now coherent. (Data only, no schema change.)
+- **(b) Codified missing tables** — `supabase/migrations/20260517000000_create_invoice_milestones_and_line_items.sql` (SHA `7d1cbf1`). Both tables were SQL-editor-only (no migration); a fresh `db reset` would have failed. Creates base tables (trigger_* / index / milestone RLS left to the existing later migrations) and **closes the `invoice_line_items` RLS gap** (its `ENABLE RLS` + ALL policy were live-only). Idempotent (`IF NOT EXISTS`); reproducibility artifact — **not applied to prod**.
+- **(c) Extraction route lockdown** — AI brief extraction is hidden in MVP (parser ~25% accuracy). `/api/brief-extract` was UI-hidden but the route was still **live + unauthenticated + OpenAI-billed** (cost/abuse surface). Feature-flagged off by default via `EXTRACTION_ENABLED` (`ENABLE_BRIEF_EXTRACTION` env, unset = disabled) → returns 404 (SHA `4cc4e31`). **Verified live: `POST /api/brief-extract` → 404.** Re-enable later (v2 parser) by setting the env var — no code change.
+
+**Confirmed wired (no action needed):** GSTIN/PAN end-to-end — Profile inputs (15/10-char) → `user_profiles` columns → `profileToAgencyDetails` prefill (blank-invoice path seeds the agency block incl. GSTIN/PAN) → template render. The "GSTIN/PAN not stored" handoff note was stale.
+
+**Deliverable:** pre-launch QA checklist for the manual MVP walk, severity-tagged, mobile rows starred; extraction section dropped (feature off).
+
+**Prod tip after session:** `4cc4e31` (READY).
+
+**Open / next:**
+- **P0-1** — run the manual QA walk (founder).
+- **P0-3** — email deliverability: verify Resend domain auth (SPF/DKIM) + a real inbox delivery (inside QA §0/§5).
+- Still deferred: orphan-invoice backfill (migration exists, not applied); v1.5 multi-milestone real-entity refactor; v2 (brief-parsing engine, GSTIN auto-fetch).
