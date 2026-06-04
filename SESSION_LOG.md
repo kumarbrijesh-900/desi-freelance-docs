@@ -2069,3 +2069,32 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - **Milestone Editor Auto-scroll**: Fixed a gap in UX where adding a second milestone in the editor wouldn't keep the first milestone visible by implementing a scroll-to-view interaction.
 - **Notifications Lazy GC**: Built lazy garbage collection for the notification tray, capping stale and read notifications automatically without adding chron jobs or heavy DB loads.
 - **Contrast & Delight**: Boosted WCAG AA contrast for active project tabs, tweaked the attention dot, added nudge actions, delight popups for finished tasks, and polished delete action UIs across the board.
+
+## 2026-06-04 — Draft churn killed, agency prefill, status-label fix, safe profile capture
+
+### Shipped (all deployed READY on prod)
+- `ab9e791` fix: guard the **inline** `autoCloudSave` in InvoiceEditorPage (`?restore=1` path) — content gate + `existingId: searchParams.get("id")`. Stops empty-draft minting and duplicate inserts.
+- `ef9f4d8` fix: agency prefill is now session-race-proof — keyed on the retry-loaded `savedProfile` state instead of a one-shot `loadProfile()`.
+- `b8119c1` fix(invoices): `getStatusInfo` takes `wasShared`; shared-but-still-draft now reads **"Awaiting"**, not "Draft". Both call sites pass `!!invoice.shared_at`. Side benefit: shared rows no longer bulk-deletable.
+- `b0cc8b4` chore: deleted never-mounted `components/invoice/editor/useInvoicePersistence.ts` + its import.
+- `c619f37` fix(profile): `syncProfileFromInvoice` is now **safe first-capture** — no-ops if the invoice has no agency name (prevents blank overwrite) and no-ops if the profile already has an agency (Profile page = source of truth). Also wired into `handleSaveDraft` so the main save path captures on first real save.
+- Superseded earlier in session: `936d4fd` (guarded the dead hook — NO-OP) and `eff31a2` (original one-shot prefill effect). Kept for trail.
+
+### Prod data mutations (Supabase MCP)
+- Deleted 3 junk empty drafts INV-2026-7173 / 3974 / 5434 (+ their milestones/line_items), guarded on `draft / ₹0 / not shared / not child`.
+- Seeded `user_profiles` for the user: `agency_name='bkb kumar', state='Karnataka', city='BANGALORE'` (guarded on empty; MSA defaults untouched).
+- Flipped INV-2026-2431 (Popula) `status: draft → finalized` (it was shared but stuck at draft).
+
+### Root causes (the trail that cost rounds)
+- **Decoy hook.** First draft-fix guarded `useInvoicePersistence`, which is imported but **never called**. The live autosave was a byte-identical **inline twin** in `InvoiceEditorPage` (~L541). Lesson: grep for the *call site*, not the import, before guarding a path.
+- **`upsertProfile` is a full-row overwrite** (`agencyToProfileRow` writes every column, no fallbacks on identity fields). `syncProfileFromInvoice` therefore could wipe the profile — and was wired into preview/restore saves. Hardened to first-capture-only.
+- **Prefill lost the auth-session race** — one-shot `loadProfile()` on mount returns null before the session hydrates; the editor's other profile/client effects all retry 3×500ms. Fixed by keying on `savedProfile`.
+- **Pill was blind to `shared_at`** — shared+draft+msa-pending fell through to the "draft" label (INV-4078 proved the pattern: shared+pending+*finalized* already read "awaiting").
+
+### End state
+- 12 invoices, 3 drafts (INV-3838, 1230, 6551). Popula = finalized → "Awaiting" under Live tab. Profile agency = "bkb kumar".
+
+### Open / deferred
+- GSTIN/PAN not stored in any invoice or profile → user to add on the Profile page (then they'll prefill).
+- INV-6551 left as `draft` by user choice (shows "Locked" via accepted MSA); flip to finalized later to clear it from the Draft tab.
+- New shares already set `status: finalized` (share route); only the two old stragglers were affected.
