@@ -155,7 +155,6 @@ import {
 } from "@/lib/invoice-validation-utils";
 import { ExitConfirmModal } from "@/components/invoice/editor/ExitConfirmModal";
 import { useInvoiceAutofill } from "@/components/invoice/editor/useInvoiceAutofill";
-import { useInvoicePersistence } from "@/components/invoice/editor/useInvoicePersistence";
 import { InlineStepSection } from "@/components/invoice/editor/InlineStepSection";
 import { WorkbenchReadinessPanel } from "@/components/invoice/editor/WorkbenchReadinessPanel";
 import { useToast } from "@/components/ui/AppToast";
