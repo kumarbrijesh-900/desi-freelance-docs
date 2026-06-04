@@ -546,11 +546,22 @@ function EditorContent() {
     async function autoCloudSave() {
       const userId = await getCurrentUserId();
       if (!userId) return;
+      const hasContent =
+        !!formData.client?.clientName?.trim() ||
+        (formData.lineItems || []).some(
+          (li: any) => Number(li?.qty || 0) > 0 && Number(li?.rate || 0) > 0,
+        ) ||
+        (formData.milestones || []).some((m: any) =>
+          (m?.lineItems || []).some(
+            (li: any) => Number(li?.qty || 0) > 0 && Number(li?.rate || 0) > 0,
+          ),
+        );
+      if (!hasContent) return;
 
       const { data, error } = await saveInvoice({
         formData,
         status: "draft" as InvoiceStatus,
-        existingId: undefined,
+        existingId: searchParams.get("id") ?? undefined,
         projectId,
         projectName: projectName.trim() || undefined,
       });
