@@ -5,6 +5,15 @@ import { z } from "zod";
 
 const MAX_INPUT_BYTES = 10_240; // 10 KB max brief size
 
+// ── Feature flag: AI brief extraction is DISABLED for the MVP ──────────────
+// The parser is not accurate enough to ship and the UI entry point is hidden.
+// While live, this route is an unauthenticated, OpenAI-billed endpoint and a
+// cost/abuse surface, so it must not be reachable in production.
+// Default (env var unset) = disabled. To re-enable later (v2 brief-parsing
+// engine), set ENABLE_BRIEF_EXTRACTION=true in the Vercel environment — no code
+// change needed.
+const EXTRACTION_ENABLED = process.env.ENABLE_BRIEF_EXTRACTION === "true";
+
 function getClientIp(request: Request): string {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -47,6 +56,14 @@ const BriefExtractSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // ─── Feature gate: return 404 before any rate-limit or OpenAI call ──
+  if (!EXTRACTION_ENABLED) {
+    return NextResponse.json(
+      { extraction: null, error: "Not found." },
+      { status: 404 },
+    );
+  }
+
   // ─── Rate limiting ────────────────────────────────────────
   const clientIp = getClientIp(request);
   const { success } = await ratelimit.limit(clientIp);
