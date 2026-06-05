@@ -597,6 +597,10 @@ function PreviewContent() {
         action: "invoice_shared",
       });
 
+      // First-capture agency/payment details into the user's profile so a
+      // skip-onboarding user's next invoice is pre-filled instead of blank.
+      await syncProfileFromInvoice(data);
+
       // Brief delay for transition
       await new Promise((resolve) => setTimeout(resolve, 300));
       setShowShareModal(true);
@@ -638,6 +642,8 @@ function PreviewContent() {
           invoiceId: saved.id,
           action: "invoice_sent_pdf",
         });
+        // First-capture agency/payment details into the profile on export too.
+        await syncProfileFromInvoice(data);
       }
     }
 

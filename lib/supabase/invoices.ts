@@ -296,6 +296,7 @@ export async function saveInvoice(
     input.projectName?.trim() ||
     formDataWithProject.projectName?.trim() ||
     formDataWithProject.project?.name?.trim() ||
+    (input.formData.meta as any)?.projectName?.trim() ||
     "";
   const requestedProjectDescription =
     input.projectDescription?.trim() ||
@@ -303,14 +304,20 @@ export async function saveInvoice(
     formDataWithProject.project?.description?.trim() ||
     undefined;
 
-  if (!resolvedProjectId && requestedProjectName) {
+  // When no project was named, group the invoice under a project named after the
+  // client, so it still appears on the (project-rooted) dashboard instead of orphaning.
+  const effectiveProjectName =
+    requestedProjectName ||
+    (resolvedClientId ? input.formData.client?.clientName?.trim() || "" : "");
+
+  if (!resolvedProjectId && effectiveProjectName) {
     if (resolvedClientId) {
       try {
         const { data: existingProject, error: projectLookupError } = await supabase
           .from("projects")
           .select("id, name")
           .eq("user_id", userId)
-          .ilike("name", requestedProjectName)
+          .ilike("name", effectiveProjectName)
           .limit(1)
           .maybeSingle();
 
@@ -321,7 +328,7 @@ export async function saveInvoice(
         } else {
           const { data: newProject, error: projectCreateError } =
             await createProject(
-              requestedProjectName,
+              effectiveProjectName,
               resolvedClientId,
               requestedProjectDescription,
             );
@@ -353,8 +360,8 @@ export async function saveInvoice(
 
   const finalFormData = { ...input.formData } as any;
   if (!finalFormData.meta) finalFormData.meta = {};
-  if (requestedProjectName) {
-    finalFormData.meta.projectName = requestedProjectName;
+  if (effectiveProjectName) {
+    finalFormData.meta.projectName = effectiveProjectName;
   }
 
   // Fix Bug 2: Map MSA fields correctly to database columns
