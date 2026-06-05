@@ -213,16 +213,18 @@ async function persistNewClientFromInvoice(
   const clientName = formData.client?.clientName?.trim();
   const clientEmail = formData.client?.clientEmail?.trim().toLowerCase();
 
-  if (!clientName || !clientEmail) {
+  if (!clientName) {
     return { clientId: null, createdClient: null, error: null };
   }
 
   try {
-    const { data: existingClient, error: lookupError } = await supabase
-      .from("clients")
-      .select("id")
-      .eq("user_id", userId)
-      .ilike("client_email", clientEmail)
+    // Dedup by email when present; otherwise match on name so a name-only
+    // client is still created once and reused on later invoices.
+    const lookupQuery = clientEmail
+      ? supabase.from("clients").select("id").eq("user_id", userId).ilike("client_email", clientEmail)
+      : supabase.from("clients").select("id").eq("user_id", userId).ilike("client_name", clientName);
+    const { data: existingClient, error: lookupError } = await lookupQuery
+      .limit(1)
       .maybeSingle();
 
     if (lookupError) {

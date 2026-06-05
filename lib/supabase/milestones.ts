@@ -160,6 +160,7 @@ export async function fireMilestoneInvoice(
       shared_at: nowIso,
       due_date: calculatedDueDate,
       project_id: effectiveProjectId,
+      client_id: parent.client_id ?? null,
       ...appliedSnapshot,
       applied_payment_terms: childFormData.meta?.paymentTerms
         ? `Net ${childFormData.meta.paymentTerms} days`

@@ -150,10 +150,6 @@ export async function createClientFromInvoice(
     throw new Error("Client name is required before adding to client list.");
   }
 
-  if (!clientEmail) {
-    throw new Error("Client email is required before adding to client list.");
-  }
-
   const profileDefaults = await getProfileMsaDefaults(userId);
   const now = new Date().toISOString();
   const clientAddress =
