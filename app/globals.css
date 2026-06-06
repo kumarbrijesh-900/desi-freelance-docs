@@ -16,7 +16,7 @@
   --elev-3: 6px 6px 0 var(--color-ink);
 
   /* Gen-Z accents — saturated, but seated on warm paper */
-  --color-acid:         #cf4a25;  /* PRIMARY · terracotta  */
+  --color-acid:         #b8431f;  /* PRIMARY · terracotta (deepened for AA contrast) */
   --color-acc-soft:     #f6ddcf;
   --color-acc-ink:      #fbf4e7;
   --color-coral:        #ff5a4d;  /* ALERT  · hot coral   */
@@ -186,8 +186,8 @@ input:focus, select:focus, textarea:focus {
 
 .app-soft-button-primary {
   border-color: #111118;
-  background: var(--color-lime-300);
-  color: #111118;
+  background: var(--color-acid);
+  color: var(--color-acc-ink);
   box-shadow: var(--brutal-shadow-md);
   position: relative;
   overflow: hidden;
@@ -198,13 +198,15 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-button-primary:hover {
-  background: var(--color-lime-400);
+  background: var(--color-acid);
+  filter: brightness(0.94);
   box-shadow: var(--brutal-shadow-lg);
   transform: translate(-1px, -1px);
 }
 
 .app-soft-button-primary:active {
-  background: var(--color-lime-500);
+  background: var(--color-acid);
+  filter: brightness(0.88);
   box-shadow: var(--brutal-shadow-pressed);
   transform: translate(2px, 2px);
 }

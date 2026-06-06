@@ -254,7 +254,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-ink bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-ink bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
             </button>

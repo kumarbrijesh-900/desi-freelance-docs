@@ -129,7 +129,7 @@ export function ProjectRail({
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-white text-ink border-2 border-black shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-acid text-acc-ink border-2 border-black shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
         >
           + NEW INVOICE
         </button>
