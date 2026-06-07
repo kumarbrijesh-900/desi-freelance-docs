@@ -17,7 +17,7 @@ function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClien
   if (msa === 'accepted' && status !== 'settled') return { bg: 'transparent', fg: '#24201a', label: 'locked', border: true };
   if (msa === 'proposed') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
   if (msa === 'pending' && status === 'finalized') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: '#cf4a25', fg: '#fbf4e7', label: 'live' };
+  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
   if (status === 'complete') return { bg: '#24201a', fg: '#fbf4e7', label: 'complete' };
   if (status === 'draft') return { bg: 'transparent', fg: '#7c7263', label: 'draft', border: true };
   return { bg: '#d8ccb3', fg: '#7c7263', label: status };
@@ -71,7 +71,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                 const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
                 const mStatus = (ms?.status || "").toLowerCase();
                 if (mStatus === "settled") statusInfo = { bg: '#24201a', fg: '#fbf4e7', label: 'settled' };
-                else if (mStatus === "live") statusInfo = { bg: '#cf4a25', fg: '#fbf4e7', label: 'live' };
+                else if (mStatus === "live") statusInfo = { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
                 else if (mStatus === "cancelled") statusInfo = { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
                 else statusInfo = { bg: 'transparent', fg: '#7c7263', label: 'pending', border: true };
               }
