@@ -11,14 +11,15 @@ function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClien
   const msa = (msaStatus || '').toLowerCase();
 
   if (status === 'cancelled') return { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
-  if (status === 'settled') return { bg: '#24201a', fg: '#fbf4e7', label: 'settled' };
-  if (status === 'partial') return { bg: '#f6ddcf', fg: '#24201a', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { bg: '#D85A30', fg: '#fbf4e7', label: 'revision requested' };
-  if (msa === 'accepted' && status !== 'settled') return { bg: 'transparent', fg: '#24201a', label: 'locked', border: true };
-  if (msa === 'proposed') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
-  if (msa === 'pending' && status === 'finalized') return { bg: '#BA7517', fg: '#fbf4e7', label: 'awaiting client' };
+  if (status === 'overdue') return { bg: 'var(--color-overdue)', fg: '#fbf4e7', label: 'overdue' };
+  if (status === 'settled') return { bg: 'var(--color-grass)', fg: '#24201a', label: 'settled' };
+  if (status === 'partial') return { bg: 'var(--color-lav)', fg: '#24201a', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { bg: 'var(--color-coral)', fg: '#24201a', label: 'revision requested' };
+  if (msa === 'accepted' && status !== 'settled') return { bg: 'var(--color-sky)', fg: '#24201a', label: 'locked' };
+  if (msa === 'proposed') return { bg: 'var(--color-butter)', fg: '#24201a', label: 'awaiting client' };
+  if (msa === 'pending' && status === 'finalized') return { bg: 'var(--color-butter)', fg: '#24201a', label: 'awaiting client' };
   if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
-  if (status === 'complete') return { bg: '#24201a', fg: '#fbf4e7', label: 'complete' };
+  if (status === 'complete') return { bg: 'var(--color-forest)', fg: '#fbf4e7', label: 'complete' };
   if (status === 'draft') return { bg: 'transparent', fg: '#7c7263', label: 'draft', border: true };
   return { bg: '#d8ccb3', fg: '#7c7263', label: status };
 }
@@ -70,7 +71,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               } else {
                 const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
                 const mStatus = (ms?.status || "").toLowerCase();
-                if (mStatus === "settled") statusInfo = { bg: '#24201a', fg: '#fbf4e7', label: 'settled' };
+                if (mStatus === "settled") statusInfo = { bg: 'var(--color-grass)', fg: '#24201a', label: 'settled' };
                 else if (mStatus === "live") statusInfo = { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
                 else if (mStatus === "cancelled") statusInfo = { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
                 else statusInfo = { bg: 'transparent', fg: '#7c7263', label: 'pending', border: true };

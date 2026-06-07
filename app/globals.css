@@ -25,6 +25,8 @@
   --color-lav:          #b29bff;  /* PRO    · lavender    */
   --color-butter:       #ffd84d;  /* WARN   · butter      */
   --color-grass:        #3acc7a;  /* OK     · fresh green */
+  --color-overdue:      #a32d2d;  /* OVERDUE - deep red */
+  --color-forest:       #0f6e56;  /* COMPLETE - deep green */
   --color-plum:         #7c2dd6;
 
   /* Tonal page backgrounds (per-route) */
