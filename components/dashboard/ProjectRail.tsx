@@ -182,11 +182,11 @@ export function ProjectRail({
                 {/* 10px colored left stripe */}
                 <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-black ${
                   summary.startsWith("DRAFT") ? "bg-soft" :
-                  summary === "COMPLETE" ? "bg-ink" :
-                  summary.startsWith("REVISION") ? "bg-[#D85A30]" :
+                  summary === "COMPLETE" ? "bg-forest" :
+                  summary.startsWith("REVISION") ? "bg-coral" :
                   summary.startsWith("LIVE") ? "bg-acid" :
                   summary.startsWith("ACTIVE") ? "bg-strong" :
-                  "bg-[#BA7517]"
+                  "bg-butter"
                 }`} />
 
                 {dot && (
@@ -208,11 +208,11 @@ export function ProjectRail({
                   <div className="flex items-center justify-between">
                     <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[2px_2px_0_#FFF]' : 'border-ink shadow-[2px_2px_0_var(--color-ink)]'} ${
                       summary.startsWith("DRAFT") ? "bg-soft text-ink" :
-                      summary === "COMPLETE" ? "bg-ink text-acc-ink" :
-                      summary.startsWith("REVISION") ? "bg-[#D85A30] text-acc-ink" :
+                      summary === "COMPLETE" ? "bg-forest text-acc-ink" :
+                      summary.startsWith("REVISION") ? "bg-coral text-ink" :
                       summary.startsWith("LIVE") ? "bg-acid text-acc-ink" :
                       summary.startsWith("ACTIVE") ? "bg-strong text-ink" :
-                      "bg-[#BA7517] text-acc-ink"
+                      "bg-butter text-ink"
                     }`}>
                       {summary}
                     </div>
