@@ -887,10 +887,9 @@ export default function ClientsPage() {
         {/* Stat strip — calm tan (canonical: tan cards + one ink hero) */}
         <div className="flex flex-wrap gap-4 mb-6">
           {[
-            { l: "Lifetime billed", v: "₹38.4L", s: `across ${clients.length} clients`, hero: true },
-            { l: "Avg invoice", v: "₹1.84L", s: "↑12% QoQ", hero: false },
-            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "2 pending", hero: false },
-            { l: "Repeat clients", v: "75%", s: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length} of ${clients.length} active`, hero: false },
+            { l: "Clients", v: `${clients.length}`, s: "in your roster", hero: true },
+            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "contracts on file", hero: false },
+            { l: "Repeat clients", v: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, s: "billed more than once", hero: false },
           ].map((s, i) => (
             <div key={i} className={`p-5 border-2 border-ink shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
               <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>

@@ -418,9 +418,9 @@ export default function InvoicesPage() {
                else if (f === "Sent") toneClass = "bg-sky text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Revision") toneClass = "bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Live") toneClass = "bg-lav text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Live") toneClass = "bg-acid text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Settled") toneClass = "bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Complete") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Complete") toneClass = "bg-forest text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Offline") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
             }
 
