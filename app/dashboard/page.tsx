@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState, Suspense } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
@@ -112,8 +112,11 @@ function DashboardContent() {
     void loadProjects();
   }, [loadProjects]);
 
+  const didInitRef = useRef(false);
   useEffect(() => {
-    if (projects.length > 0 && !projectId) {
+    if (projects.length === 0 || didInitRef.current) return;
+    didInitRef.current = true;
+    if (!projectId) {
       router.replace(`/dashboard?project=${projects[0].project.id}`);
     }
   }, [projects, projectId, router]);
