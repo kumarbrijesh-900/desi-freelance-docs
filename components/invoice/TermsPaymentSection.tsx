@@ -188,8 +188,8 @@ export default function TermsPaymentSection({
   const isReadOnly = editorReadOnly || !isAddendumMode;
 
   // Derive effective MSA data from local form state (Step 2) or DB (persisted client)
-  const effectiveMsaDays = selectedClientMsa?.msa_payment_terms_days ?? agency.msaPaymentTermsDays ?? client.msaPaymentTermsDays;
-  const effectiveBoilerplate = selectedClientMsa?.msa_notes_boilerplate ?? agency.msaNotesBoilerplate ?? client.msaNotesBoilerplate ?? "";
+  const effectiveMsaDays = client.msaPaymentTermsDays ?? selectedClientMsa?.msa_payment_terms_days ?? agency.msaPaymentTermsDays;
+  const effectiveBoilerplate = client.msaNotesBoilerplate ?? selectedClientMsa?.msa_notes_boilerplate ?? agency.msaNotesBoilerplate ?? "";
   const hasClientMsa = Boolean(selectedClientMsa);
   const hasGlobalMsa = Boolean(agency.msaPaymentTermsDays || agency.msaNotesBoilerplate);
   const hasAnyMsaAuthority = hasClientMsa || hasGlobalMsa;

@@ -12,6 +12,7 @@ import { mergeInvoiceFormData, type InvoiceFormData } from "@/types/invoice";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 import {
   createClientFromInvoice,
+  clientDetailsToRow,
   type ClientRow,
 } from "@/lib/supabase/clients";
 
@@ -232,7 +233,22 @@ async function persistNewClientFromInvoice(
     }
 
     if (existingClient) {
-      return { clientId: existingClient.id, createdClient: null, error: null };
+      const row = clientDetailsToRow(formData.client);
+      const { data: updatedClient, error: updateError } = await supabase
+        .from("clients")
+        .update({
+          ...row,
+          last_invoiced_at: new Date().toISOString(),
+        })
+        .eq("id", existingClient.id)
+        .eq("user_id", userId)
+        .select()
+        .single();
+
+      if (updateError) {
+        return { clientId: existingClient.id, createdClient: null, error: updateError.message };
+      }
+      return { clientId: existingClient.id, createdClient: updatedClient as ClientRow, error: null };
     }
 
     const createdClient = await createClientFromInvoice(formData, userId);

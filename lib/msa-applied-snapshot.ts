@@ -26,23 +26,23 @@ export function computeAppliedMsaSnapshot(
   const agency = formData?.agency ?? {};
 
   // Per-field priority chain (not all-or-nothing per source):
-  // 1. client.msa* if hasAddendum AND the specific field is set
+  // 1. client.msa* if set
   // 2. agency.msa* if set
   // 3. hardcoded fallback
   const pickDays = (): number => {
-    if (hasAddendum && Number(client.msaPaymentTermsDays) > 0) return Number(client.msaPaymentTermsDays);
+    if (Number(client.msaPaymentTermsDays) > 0) return Number(client.msaPaymentTermsDays);
     if (Number(agency.msaPaymentTermsDays) > 0) return Number(agency.msaPaymentTermsDays);
     return FALLBACK.payment_terms_days;
   };
 
   const pickRate = (): number => {
-    if (hasAddendum && Number(client.msaLateFeeRate) > 0) return Number(client.msaLateFeeRate);
+    if (Number(client.msaLateFeeRate) > 0) return Number(client.msaLateFeeRate);
     if (Number(agency.msaLateFeeRate) > 0) return Number(agency.msaLateFeeRate);
     return FALLBACK.late_fee_rate;
   };
 
   const pickUnit = (): string => {
-    const raw = (hasAddendum && client.msaLateFeeUnit) || agency.msaLateFeeUnit || FALLBACK.late_fee_unit;
+    const raw = client.msaLateFeeUnit || agency.msaLateFeeUnit || FALLBACK.late_fee_unit;
     return UNIT_NORMALIZE[raw] ?? raw;
   };
 
