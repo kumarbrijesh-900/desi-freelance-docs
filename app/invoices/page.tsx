@@ -374,18 +374,18 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {/* Stat strip — compact pills */}
-        <div className="flex flex-wrap gap-2 mb-4 shrink-0">
+        {/* Stat strip — calm tan (canonical: tan cards + one ink hero) */}
+        <div className="flex flex-wrap gap-4 mb-4 shrink-0">
           {[
-            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, bg: "bg-coral" },
-            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, bg: "bg-grass" },
-            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", bg: "bg-acid" },
-            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", bg: "bg-lav" },
+            { l: "Outstanding", v: formatInr(outstandingSum), s: `${outstandingInvoices.length} invoices`, hero: true },
+            { l: "Settled · 90d", v: formatInr(settledSum), s: `${settledInvoices.length} invoices`, hero: false },
+            { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
+            { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
           ].map((s, i) => (
-            <div key={i} className={`inline-flex items-center gap-2 px-3.5 py-2 ${s.bg} text-ink border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-rule)]`}>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest opacity-80">{s.l}</span>
-              <span className="text-[14px] font-black leading-none">{s.v}</span>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest opacity-70">· {s.s}</span>
+            <div key={i} className={`p-5 border-2 border-ink shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
+              <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>
+              <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.v}</div>
+              <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.s}</div>
             </div>
           ))}
         </div>
@@ -413,7 +413,7 @@ export default function InvoicesPage() {
 
             let toneClass = "bg-transparent text-ink border-transparent hover:bg-paper-2 hover:border-ink/20";
             if (filter === f) {
-               if (f === "All") toneClass = "bg-acid text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               if (f === "All") toneClass = "bg-ink text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Draft") toneClass = "bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Sent") toneClass = "bg-sky text-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";

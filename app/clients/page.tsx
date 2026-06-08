@@ -884,18 +884,18 @@ export default function ClientsPage() {
           )}
         </AnimatePresence>
 
-        {/* Stat strip — full color */}
-        <div className="flex gap-3 mb-6">
+        {/* Stat strip — calm tan (canonical: tan cards + one ink hero) */}
+        <div className="flex flex-wrap gap-4 mb-6">
           {[
-            { l: "Lifetime billed", v: "₹38.4L", s: `across ${clients.length} clients`, bg: "bg-grass", fg: "text-white" },
-            { l: "Avg invoice", v: "₹1.84L", s: "↑12% QoQ", bg: "bg-acid", fg: "text-ink" },
-            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "2 pending", bg: "bg-lav", fg: "text-white" },
-            { l: "Repeat clients", v: "75%", s: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length} of ${clients.length} active`, bg: "bg-rose", fg: "text-ink" },
+            { l: "Lifetime billed", v: "₹38.4L", s: `across ${clients.length} clients`, hero: true },
+            { l: "Avg invoice", v: "₹1.84L", s: "↑12% QoQ", hero: false },
+            { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "2 pending", hero: false },
+            { l: "Repeat clients", v: "75%", s: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length} of ${clients.length} active`, hero: false },
           ].map((s, i) => (
-            <div key={i} className={`flex-1 p-4 ${s.bg} ${s.fg} border-2 border-ink shadow-[4px_4px_0_var(--color-rule)]`}>
-              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-85 mb-1.5">{s.l}</div>
-              <div className="text-[26px] font-black leading-none mb-1.5">{s.v}</div>
-              <div className="text-[11px] font-extrabold uppercase tracking-widest opacity-75">{s.s}</div>
+            <div key={i} className={`p-5 border-2 border-ink shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
+              <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>
+              <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.v}</div>
+              <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.s}</div>
             </div>
           ))}
         </div>
