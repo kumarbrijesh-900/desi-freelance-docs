@@ -284,13 +284,19 @@ function DashboardContent() {
         />
 
         {/* Right Content */}
-        <div className="flex-1 bg-[#FAFAF5] overflow-y-auto no-scrollbar">
+        <div className={`${selectedProject ? "block" : "hidden md:block"} flex-1 bg-[#FAFAF5] overflow-y-auto no-scrollbar`}>
           {loading ? (
             <div className="flex h-full items-center justify-center font-extrabold tracking-wide text-neutral-400">
               Loading projects…
             </div>
           ) : selectedProject ? (
             <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
+              <button
+                onClick={() => router.replace('/dashboard')}
+                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border-2 border-ink bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-ink shadow-[2px_2px_0_var(--color-ink)] active:translate-y-[2px] active:shadow-none"
+              >
+                ← Projects
+              </button>
               {dueSoonAlerts.length > 0 && (
                 <div className="mb-6 border-2 border-ink bg-acc-soft shadow-[var(--elev-1)]">
                   <div className="px-4 py-2 border-b-2 border-ink text-[10px] font-extrabold uppercase tracking-widest text-ink flex items-center gap-2">

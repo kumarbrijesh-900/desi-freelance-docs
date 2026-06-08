@@ -123,7 +123,7 @@ export function ProjectRail({
   });
 
   return (
-    <div className="flex flex-col h-full bg-white border-r-2 border-black w-full md:w-[240px] shrink-0">
+    <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-white border-r-2 border-black w-full md:w-[240px] shrink-0`}>
       <div className="p-4 flex flex-col gap-4">
         <div className="text-[11px] uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
 
