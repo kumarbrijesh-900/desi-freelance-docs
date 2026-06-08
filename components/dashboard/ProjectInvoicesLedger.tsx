@@ -45,8 +45,8 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         INVOICES ({allInvoices.length})
       </div>
 
-      <div className="border-2 border-ink bg-white shadow-[var(--elev-1)]">
-        <table className="w-full text-left border-collapse">
+      <div className="border-2 border-ink bg-white shadow-[var(--elev-1)] overflow-x-auto">
+        <table className="w-full min-w-[520px] text-left border-collapse">
           <thead>
             <tr className="border-b-2 border-black bg-[#FAFAF5]">
               <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-black">Invoice</th>

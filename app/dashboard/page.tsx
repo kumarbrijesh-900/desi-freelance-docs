@@ -323,9 +323,9 @@ function DashboardContent() {
                 </div>
               )}
               {/* Title Section */}
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-start mb-6">
                 <div>
-                  <div className="flex gap-2 mb-3 items-center">
+                  <div className="flex flex-wrap gap-2 mb-3 items-center whitespace-nowrap">
                     <div className="px-3 py-1 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> LIVE</div>
                     <div className="px-3 py-1 bg-white text-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[var(--elev-0)]">
                       {drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} OF ${selectedProject.milestones.length}` : `${selectedProject.milestones.length} MILESTONES`}
@@ -357,13 +357,12 @@ function DashboardContent() {
                 </div>
               </div>
 
-              {/* 4-card stat strip — Project total is the #8 ink hero */}
-              <div className="flex gap-4 mb-7">
+              {/* 3-card stat strip — Project total is the ink hero */}
+              <div className="flex flex-wrap gap-4 mb-7">
                 {[
                   { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, hero: true },
                   { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => (m.status || '').toLowerCase() === 'settled').length} settled`, hero: false },
-                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", hero: false },
-                  { label: "At risk", val: "₹0", sub: "—", hero: false }
+                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", hero: false }
                 ].map((s, i) => (
                   <div key={i} className={`p-5 border-2 border-ink shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
                     <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.label}</div>
