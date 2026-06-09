@@ -2127,3 +2127,53 @@ If any step fails, the fix went in but the surfacing has a gap — investigate b
 - **P0-1** — run the manual QA walk (founder).
 - **P0-3** — email deliverability: verify Resend domain auth (SPF/DKIM) + a real inbox delivery (inside QA §0/§5).
 - Still deferred: orphan-invoice backfill (migration exists, not applied); v1.5 multi-milestone real-entity refactor; v2 (brief-parsing engine, GSTIN auto-fetch).
+
+---
+
+## 2026-06-06 → 06-09 — Design-system convergence, mobile overflow pass, security hardening (RLS)
+
+Thread driven via Claude (diagnose + prompt-author + verify) → AG (execute/push) → verify vs `origin/main`. Every commit below was confirmed on main by reading the file at FETCH_HEAD, not from AG's paste.
+
+### Shipped — design system (all verified on main)
+- `5cc5660` unify primary CTA to terracotta — `--color-acid` `#cf4a25`→`#b8431f` (now ~4.9:1 AA on cream `--color-acc-ink`); `.app-soft-button-primary` + `getAppButtonClass` primary → terracotta/cream; Profile Save, ProjectRail "+New invoice", AppHeader button reskinned. Header logo deliberately left ink.
+- `927389c` LIVE pill AA contrast + remove hardcoded `#cf4a25` — `InvoiceEventRow` live pill text→acc-ink; `ProjectInvoicesLedger` + `Pill.tsx` hex→`var(--color-acid)`/token. `#cf4a25` now zero in source.
+- `b08f200` unify invoice status pills list↔drawer — added tokens `--color-overdue #a32d2d` + `--color-forest #0f6e56`; rewrote `getStatusInfo` (InvoiceEventRow) + `getStatusPill` (ProjectInvoicesLedger) onto the canonical palette.
+- `882f389` unify ProjectRail status pills (COMPLETE→forest, REVISION→coral, AWAITING→butter, text contrast flipped). Corner alert-dots left as-is.
+- `b9711d1` stat strips → calm tan (clients + invoices) + "All" filter chip → ink. **PARTIAL** — AG kept the clients dummy values and skipped the Live/Complete chips; corrected in `5267095`.
+- `5267095` clients stat strip → real computed metrics (Clients / MSAs signed / Repeat clients), removing the hardcoded fakes `₹38.4L`, `₹1.84L`, `↑12% QoQ`, `75%`, "2 pending"; Live chip → terracotta, Complete chip → forest.
+
+### Shipped — mobile
+- `a29d2d2` mobile master-detail toggle on dashboard — rail hides when a project is selected (`hidden md:flex`), content takes over; added "← Projects" back button (`md:hidden`).
+- `c0a855e` guard dashboard auto-select to run once per visit (`useRef` once-guard) — stops the back button being bounced by re-auto-select.
+- `f749b79` mobile overflow fixes — title header stacks (`flex-col md:flex-row`, fixes clipped EXPORT); meta pills wrap as whole units + `whitespace-nowrap`; stat strip wraps; ledger table `overflow-x-auto` + `min-w-[520px]`. Also removed the hardcoded "At risk ₹0 / —" dummy stat card (4→3 cards).
+- `1a12f3d` milestone timeline → vertical stack on mobile (`md:hidden` vertical block reusing `stops` + `liveStopIndex`; desktop horizontal stepper preserved via `hidden md:block`); timeline header stacks on mobile.
+
+### Canonical status palette (locked, founder-approved)
+draft=outline/ink-2 · awaiting=butter `#ffd84d` · revision=coral `#ff5a4d` · live=terracotta `#b8431f`+cream+pulse · partial=lavender `#b29bff` · locked=sky `#4cb4ff` · settled=green `#3acc7a` · complete=forest `#0f6e56` · overdue=red `#a32d2d` · cancelled=`#d8ccb3` strike. Filter chips: All=ink/cream, Live=terracotta, Complete=forest, Revision=coral, Settled=grass, Draft=butter, Sent=sky. (Sharp corners + round pills = deliberate identity; radius left alone. Stepper done-node black = structural idiom, left alone.)
+
+### Prod DB — security migrations (Supabase MCP, applied to prod)
+- **`enable_rls_projects_subscriptions_sac_codes`** — CRITICAL FIX. `public.projects` and `public.subscriptions` had **RLS disabled + zero policies** → the public anon key could read/write every user's rows. Enabled RLS + owner policy `FOR ALL TO authenticated USING/WITH CHECK (auth.uid() = user_id)` on both; `sac_codes_architecture` → RLS + public read-only (`SELECT TO anon, authenticated USING (true)`). Verified non-breaking first: dashboard reads `projects` via the authenticated browser client already filtered by `user_id`; the anon share flow writes `invoices` (not `projects`); server/cron use the service role (bypass RLS).
+- **`harden_security_warnings_followup`** — (1) `notifications` anon INSERT was `WITH CHECK (true)` → tightened to only allow a notification for a genuinely shared invoice under its true owner (`EXISTS` on `invoices.share_token` + matching `user_id`); pre-existing owner-insert policy retained. (2) dropped the duplicate `read_receipts` insert policy "Read Receipts: public can insert". (3) `REVOKE EXECUTE` on trigger fn `advance_first_milestone_to_live()` from PUBLIC/anon/authenticated (removes the `/rest/v1/rpc` exposure; the trigger still fires). (4) pinned `search_path = ''` on `handle_updated_at` + `block_owner_msa_self_accept`. **Live-verified**: accepting the MSA via a share link still creates the owner's notification.
+
+### Advisor state (post-migrations)
+- Security: 3 ERROR (`rls_disabled_in_public`) → **0 errors**. One WARN remains — `auth_leaked_password_protection` — which is a manual Auth-settings toggle (not SQL).
+- Performance: 210 notices, all WARN/INFO, none launch-blocking → `multiple_permissive_policies` ×141 (accumulated overlapping owner policies), `auth_rls_initplan` ×56 (`auth.uid()` re-evaluated per row), `unindexed_foreign_keys` ×9, `unused_index` ×4. Deferred — premature at current data scale.
+
+### Data check (no code change — both were test artifacts, UI is faithful)
+- INV-2026-9997 (M2) shows ₹0 because `grand_total = 0` in the DB; M3 (₹728) got an amount, M2 didn't. Test data, not a UI bug.
+- The duplicate "Invoice sent to client · 8 days" rows = INV-9998 (M3) genuinely sent twice on 2026-05-30 (~9 min apart, 06:29 + 06:38) → two real `notifications` rows. activity_log is empty; the feed reads from `notifications`, correctly scoped to the project's three invoices (`871b3e76`/`38268d22`/`0023fa6e`).
+
+### Watch / observations
+- **Concurrent DB writers / policy drift.** Twice this session a policy I had just read was gone before I could change it — storage `Allow public read` and `read_receipts_insert_public` (I only dropped the one duplicate). Points to another writer (local `supabase db push` / another agent / dashboard). Net effect was safe, but keep one source of truth for migrations.
+- `read_receipts` now has **no** anon INSERT policy at all (one dropped by me, one vanished). View-tracking still works via the service-role `track-view` API; the client-side insert at `lib/supabase/invoices.ts:764` would be blocked if it's actually exercised.
+
+### Also on main since last log (not driven in this thread; for trail)
+`3dca1e6` (06-04 ledger border + new-invoice CTA), `8691f74` (06-05 auth pages reskin), `af2d846` (06-05 onboarding address+bank), `2c29e35` (06-05 auto-project + profile sync on share/export), `1dd519c` (06-05 name-only clients + relaxed email guard + milestone client_id propagation), `710af7e` (06-08 client payment-terms + project addendum — concurrent, touched `TermsPaymentSection.tsx` / `msa-applied-snapshot.ts` / `invoices.ts` only).
+
+### Open / deferred
+- Enable Leaked Password Protection (Auth → Password settings) — last security advisor item.
+- Optional DB: scoped `read_receipts` anon insert (if the client-side path matters); 9 FK indexes; RLS policy consolidation + `auth.uid()`→`(select auth.uid())` initplan (post-launch).
+- Junk prod rows: "Test Project 1779434613", "AUDIT DRAFT RETRY CLIENT 20260525_095716" + dashboard auto-selecting that debug project.
+- Pre-launch QA walk (founder) + Resend SPF/DKIM + real inbox delivery.
+- Carryover: orphan-invoice backfill; v1.5 multi-milestone real-entity refactor; v2 brief-parsing / GSTIN auto-fetch.
+
