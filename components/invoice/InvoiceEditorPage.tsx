@@ -1531,6 +1531,13 @@ const handleSaveDraft = async () => {
     return;
   }
 
+  if (!hasNamedProject) {
+    setShowAllValidationErrors(true);
+    setCurrentStep("deliverables");
+    push({ kind: "info", ttl: "Name your project before saving." });
+    return;
+  }
+
   persistDraft();
 
   const userId = await getCurrentUserId();

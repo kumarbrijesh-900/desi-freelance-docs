@@ -322,11 +322,9 @@ export async function saveInvoice(
     formDataWithProject.project?.description?.trim() ||
     undefined;
 
-  // When no project was named, group the invoice under a project named after the
-  // client, so it still appears on the (project-rooted) dashboard instead of orphaning.
-  const effectiveProjectName =
-    requestedProjectName ||
-    (resolvedClientId ? input.formData.client?.clientName?.trim() || "" : "");
+  // A project is created ONLY from an intentional, user-entered name — no silent
+  // fallback to the client's name. The editor requires a project name before saving.
+  const effectiveProjectName = requestedProjectName;
 
   if (!resolvedProjectId && effectiveProjectName) {
     if (resolvedClientId) {
