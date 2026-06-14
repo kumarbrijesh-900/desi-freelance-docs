@@ -2177,3 +2177,25 @@ draft=outline/ink-2 · awaiting=butter `#ffd84d` · revision=coral `#ff5a4d` · 
 - Pre-launch QA walk (founder) + Resend SPF/DKIM + real inbox delivery.
 - Carryover: orphan-invoice backfill; v1.5 multi-milestone real-entity refactor; v2 brief-parsing / GSTIN auto-fetch.
 
+---
+
+## 2026-06-14 — Project-name mandate + locked dock mobile fix
+
+### Shipped
+
+- `33c904d` **require intentional project name** — removed the silent client-name fallback in `saveInvoice` (`lib/supabase/invoices.ts`): `effectiveProjectName` is now strictly `requestedProjectName`, so a project is only ever created from a user-typed name. Added a `hasNamedProject` guard to `handleSaveDraft` in `InvoiceEditorPage.tsx` that blocks saving, jumps to the Items step, shows validation errors, and toasts "Name your project before saving." The finalize/preview gate and the auto-restore-on-mount save path were intentionally left untouched.
+
+- `350411c` **locked dock mobile fix** (`InvoiceEditorPage.tsx`) — restyled both locked-state buttons from heavy black slabs (`bg-[#111118]` / `shadow-[4px_4px_0_#111118]` / lime text / `p-3 sm:p-4`) to the canonical design-system variants:
+  - Primary locked action → `getAppButtonClass({ variant: "secondary", size: "sm" })` + `h-9 px-4 sm:h-10 sm:px-5`.
+  - "View preview" → `getAppButtonClass({ variant: "ghost", size: "sm" })` + same responsive sizing.
+  - Added short mobile labels for all lock intents (Duplicate / Resend / Reactivate / Download / Preview) via `hidden sm:inline` / `sm:hidden` spans — matches the editable CTA pattern.
+  - Lock reason line changed from `hidden sm:flex` to `flex` (visible on all viewports). Mobile shows terse "Locked — {reason}"; desktop keeps full "This invoice is locked — {reason}" via `truncate` + responsive spans.
+  - Editable status text ("Ready for preview" / "Missing details") also made icon-only on mobile (text wrapped in `hidden sm:inline`).
+
+### Files changed
+- `lib/supabase/invoices.ts`
+- `components/invoice/InvoiceEditorPage.tsx`
+
+### Verification
+- `npm run build` passed cleanly on both commits.
+
