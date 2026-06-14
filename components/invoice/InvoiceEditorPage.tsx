@@ -3207,13 +3207,16 @@ return (
           </button>
           <div className="h-4 w-px bg-[color:var(--color-soft)]" />
           
-          <div className="hidden sm:flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
+          <div className="flex min-w-0 max-w-[520px] items-center gap-2 px-3 py-1.5 text-[11px] font-bold">
             {isReadOnlyMode ? (
-              <span className="text-[#6B6660]">This invoice is locked — {readOnlyReason}</span>
+              <span className="text-[#6B6660] truncate">
+                <span className="hidden sm:inline">This invoice is locked — {readOnlyReason}</span>
+                <span className="sm:hidden">Locked — {readOnlyReason}</span>
+              </span>
             ) : invoiceReadyForPreview ? (
-              <span className="text-[#007A63] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /> Ready for preview</span>
+              <span className="text-[#007A63] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Ready for preview</span></span>
             ) : (
-              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /> Missing details</span>
+              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Missing details</span></span>
             )}
           </div>
         </div>
@@ -3237,17 +3240,31 @@ return (
               <button
                 type="button"
                 onClick={handleLockedAlternativeAction}
-                className="inline-flex items-center justify-center gap-2 border-0 bg-[#111118] p-3 text-[11px] font-black uppercase text-[color:var(--color-lime-warm)] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:p-4 sm:text-[12px]"
+                className={cn(
+                  getAppButtonClass({ variant: "secondary", size: "sm" }),
+                  "h-9 px-4 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                )}
               >
-                {lockState.alternativeAction?.label ?? "View preview"}
+                <span className="hidden sm:inline">{lockState.alternativeAction?.label ?? "View preview"}</span>
+                <span className="sm:hidden">{
+                  lockState.alternativeAction?.intent === "duplicate" ? "Duplicate" :
+                  lockState.alternativeAction?.intent === "resend" ? "Resend" :
+                  lockState.alternativeAction?.intent === "reactivate" ? "Reactivate" :
+                  lockState.alternativeAction?.intent === "download" ? "Download" :
+                  "Preview"
+                }</span>
               </button>
               {lockState.alternativeAction && (
                 <button
                   type="button"
                   onClick={handleLockedPreviewRoute}
-                  className="inline-flex items-center justify-center gap-2 border-2 border-[#111118] bg-transparent p-3 text-[11px] font-bold text-[#111118] shadow-[4px_4px_0_#111118] transition-transform active:scale-[0.97] sm:p-4 sm:text-[12px]"
+                  className={cn(
+                    getAppButtonClass({ variant: "ghost", size: "sm" }),
+                    "h-9 px-4 sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                  )}
                 >
-                  View preview
+                  <span className="hidden sm:inline">View preview</span>
+                  <span className="sm:hidden">Preview</span>
                 </button>
               )}
             </>
