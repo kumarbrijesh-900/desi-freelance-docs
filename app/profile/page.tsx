@@ -742,15 +742,15 @@ export default function ProfilePage() {
 
             {/* Tabs */}
             <div className="sticky top-[64px] z-20 bg-white mb-8">
-              <div className="flex flex-wrap items-center gap-2 py-4 border-b border-black">
+              <div className="flex flex-wrap items-center gap-2 py-4 border-b border-ink">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
                       activeTab === tab.id
-                        ? "bg-black text-white border-2 border-black"
-                        : "bg-transparent text-neutral-600 border-2 border-transparent hover:border-black hover:bg-neutral-100"
+                        ? "bg-black text-white border border-soft"
+                        : "bg-transparent text-neutral-600 border-2 border-transparent hover:border-ink hover:bg-neutral-100"
                     }`}
                   >
                     {tab.label}
@@ -1335,7 +1335,7 @@ export default function ProfilePage() {
           {saveFeedback && (
             <div
               className={cn(
-                "w-full border-2 border-[#111118] px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#111118] sm:flex-1",
+                "w-full border border-soft px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#111118] sm:flex-1",
                 saveState === "partial"
                   ? "bg-[#FFFBE6] text-[#111118]"
                   : saveState === "error"
@@ -1358,7 +1358,7 @@ export default function ProfilePage() {
             type="button"
             onClick={handleSave}
             disabled={saveState === "saving"}
-            className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-acid)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-acid)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-acc-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveState === "saving" ? (
               "Saving…"

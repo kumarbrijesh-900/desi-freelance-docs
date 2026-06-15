@@ -56,7 +56,7 @@ export function WorkbenchReadinessPanel({
   return (
     <div
       className={cn(
-        "border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)]",
+        "border border-soft bg-white shadow-[var(--brutal-shadow-sm)]",
         compact ? "px-4 py-3" : "px-3 py-3",
       )}
       aria-label="Invoice workbench readiness"
@@ -65,7 +65,7 @@ export function WorkbenchReadinessPanel({
         <div className="flex min-w-0 items-start gap-2.5">
           <span
             className={cn(
-              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border-2 border-[#111118]",
+              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-soft",
               isReadOnly
                 ? "bg-[#F5F4F0] text-[#6B6660]"
                 : ready ? "bg-[#00DCB4] text-[#111118]" : "bg-[#FFFBE6] text-[#B45309]",
@@ -99,7 +99,7 @@ export function WorkbenchReadinessPanel({
         </div>
       </div>
 
-      <div className="mt-3 h-2 border-2 border-[#111118] bg-[#F5F5F0]">
+      <div className="mt-3 h-2 border border-soft bg-[#F5F5F0]">
         <div
           className={cn(
             "h-full",
@@ -156,7 +156,7 @@ export function WorkbenchReadinessPanel({
         <button
           type="button"
           onClick={onReview}
-          className="mt-3 flex h-9 w-full items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+          className="mt-3 flex h-9 w-full items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
           {rail ? "Review" : "Review blocker"}
         </button>

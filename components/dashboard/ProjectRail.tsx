@@ -123,25 +123,25 @@ export function ProjectRail({
   });
 
   return (
-    <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-white border-r-2 border-black w-full md:w-[240px] shrink-0`}>
+    <div className={`${selectedProjectId ? "hidden md:flex" : "flex"} flex-col h-full bg-white border-r-2 border-ink w-full md:w-[240px] shrink-0`}>
       <div className="p-4 flex flex-col gap-4">
         <div className="text-[11px] uppercase tracking-wide font-bold">PROJECTS · {projects.length}</div>
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-acid text-acc-ink border-2 border-black shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-acid text-acc-ink border border-soft shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
         >
           + NEW INVOICE
         </button>
       </div>
 
-      <div className="px-4 flex flex-wrap gap-2 pb-2 border-b-2 border-black">
+      <div className="px-4 flex flex-wrap gap-2 pb-2 border-b-2 border-ink">
         {filters.map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`whitespace-nowrap px-2 py-1 text-[10px] uppercase font-bold tracking-wide border
-              ${filter === f ? "bg-black text-white border-black" : "bg-transparent text-neutral-600 border-transparent hover:border-black"}
+              ${filter === f ? "bg-black text-white border-ink" : "bg-transparent text-neutral-600 border-transparent hover:border-ink"}
             `}
           >
             {f}
@@ -157,7 +157,7 @@ export function ProjectRail({
             placeholder="Search projects..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-black app-focus-ring"
+            className="w-full pl-8 pr-2 py-1.5 text-xs bg-white border border-ink app-focus-ring"
           />
         </div>
       </div>
@@ -175,12 +175,12 @@ export function ProjectRail({
               <Link
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
-                className={`block min-h-[90px] p-4 pl-5 border-b-2 border-black relative cursor-pointer transition-all
-                  ${isSelected ? "bg-ink shadow-[4px_4px_0_var(--color-acid)] z-10 border-y-[3px] border-black scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
+                className={`block min-h-[90px] p-4 pl-5 border-b-2 border-ink relative cursor-pointer transition-all
+                  ${isSelected ? "bg-ink shadow-[4px_4px_0_var(--color-acid)] z-10 border-y-[3px] border-ink scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
                 `}
               >
                 {/* 10px colored left stripe */}
-                <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-black ${
+                <div className={`absolute left-0 top-0 bottom-0 w-[10px] border-r-[1.5px] border-ink ${
                   summary.startsWith("DRAFT") ? "bg-soft" :
                   summary === "COMPLETE" ? "bg-forest" :
                   summary.startsWith("REVISION") ? "bg-coral" :
@@ -191,7 +191,7 @@ export function ProjectRail({
 
                 {dot && (
                   <div 
-                    className="absolute top-4 right-3 w-[10px] h-[10px] rounded-full border border-black shadow-[1px_1px_0_#111118] animate-pulse" 
+                    className="absolute top-4 right-3 w-[10px] h-[10px] rounded-full border border-ink shadow-[1px_1px_0_#111118] animate-pulse" 
                     style={{ backgroundColor: dot }} 
                   />
                 )}

@@ -68,28 +68,28 @@ const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: stri
   },
   "client-proposed": {
     label: "REVISION REQUESTED",
-    className: "border-[#111118] bg-[#FFB35F] text-[#111118]",
+    className: "border-soft bg-[#FFB35F] text-[#111118]",
   },
   "awaiting-client": {
     label: "AWAITING CLIENT",
-    className: "border-[#111118] bg-[#FFE08A] text-[#111118]",
+    className: "border-soft bg-[#FFE08A] text-[#111118]",
   },
   "msa-accepted": {
     label: "LOCKED",
-    className: "border-[#111118] bg-[#FBE5E5] text-[#111118]",
+    className: "border-soft bg-[#FBE5E5] text-[#111118]",
   },
   "invoice-settled": {
     label: "SETTLED",
-    className: "border-[#111118] bg-[#00DCB4] text-[#111118]",
+    className: "border-soft bg-[#00DCB4] text-[#111118]",
   },
   "invoice-partial": {
     label: "PARTIALLY SETTLED",
-    className: "border-[#111118] text-[#111118]",
+    className: "border-soft text-[#111118]",
     style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
   },
   "invoice-cancelled": {
     label: "CANCELLED",
-    className: "border-[#111118] bg-[#D4D2CC] text-[#111118]",
+    className: "border-soft bg-[#D4D2CC] text-[#111118]",
   },
 };
 
@@ -1002,7 +1002,7 @@ function PreviewContent() {
             {/* Neo-Brutalist Locked Invoice Status Banner */}
             {lockState.isReadOnly && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-start justify-between gap-5 border-[3px] border-black bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#111118] sm:flex-row sm:items-center sm:p-6">
+                <div className="flex flex-col items-start justify-between gap-5 border border-soft bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#111118] sm:flex-row sm:items-center sm:p-6">
                   <div className="flex items-start gap-4 text-left">
                     <Lock className="h-8 w-8 shrink-0 text-black" strokeWidth={2.8} />
                     <div>

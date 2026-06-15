@@ -17,7 +17,7 @@ export function AppModal({ isOpen, onClose, className, children, ...props }: App
       />
       <div
         className={cn(
-          "relative w-full max-w-lg rounded-2xl border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]",
+          "relative w-full max-w-lg rounded-2xl border border-soft bg-white p-6 shadow-[var(--brutal-shadow-lg)]",
           className
         )}
         {...props}

@@ -195,7 +195,7 @@ function ThumbnailCard({
         ${
           isSelected
             ? "border-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)]"
-            : "border-[color:var(--color-soft)] hover:border-[#111118]"
+            : "border-[color:var(--color-soft)] hover:border-soft"
         }
         cursor-pointer
       `}
@@ -212,7 +212,7 @@ function ThumbnailCard({
         {/* Visitor overlay (blurred) */}
         {lockState === "blurred" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/25 backdrop-blur-[1px]">
-            <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow">
+            <div className="flex h-6 w-6 items-center justify-center border border-soft bg-white shadow">
               <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>
@@ -221,7 +221,7 @@ function ThumbnailCard({
         {/* Free-tier overlay (visible but locked) */}
         {lockState === "locked" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-            <div className="flex h-6 w-6 items-center justify-center border-2 border-[#111118] bg-white shadow ring-1 ring-black/5">
+            <div className="flex h-6 w-6 items-center justify-center border border-soft bg-white shadow ring-1 ring-black/5">
               <LockIcon className="h-3 w-3 text-[color:var(--color-ink-2)]" />
             </div>
           </div>
@@ -229,7 +229,7 @@ function ThumbnailCard({
 
         {/* Selected check */}
         {isSelected && (
-          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] shadow-sm">
+          <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] shadow-sm">
             <CheckIcon className="h-2.5 w-2.5 text-[#111118]" />
           </div>
         )}

@@ -36,7 +36,7 @@ export function Pill({ tone = "ghost", children, className }: PillProps) {
   return (
     <span className={cn(
       "inline-flex items-center gap-1.5",
-      "px-3 py-1 border-2 border-ink rounded-full",
+      "px-3 py-1 border border-soft rounded-full",
       "font-mono text-[10px] font-bold tracking-[.14em] uppercase",
       tones[tone],
       className

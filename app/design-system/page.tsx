@@ -38,7 +38,7 @@ export default function DesignSystemPage() {
 
         {/* Colors */}
         <section>
-          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b-2 border-ink pb-4">Colors</h2>
+          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b border-soft pb-4">Colors</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {colors.map((c) => (
               <div key={c.label} className="space-y-3">
@@ -53,7 +53,7 @@ export default function DesignSystemPage() {
 
         {/* Buttons */}
         <section>
-          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b-2 border-ink pb-4">Buttons</h2>
+          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b border-soft pb-4">Buttons</h2>
           <div className="flex flex-wrap gap-8 items-center">
             <Button variant="primary">Primary (Acid)</Button>
             <Button variant="coral">Coral Alert</Button>
@@ -66,7 +66,7 @@ export default function DesignSystemPage() {
 
         {/* Pills */}
         <section>
-          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b-2 border-ink pb-4">Pills / Status</h2>
+          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b border-soft pb-4">Pills / Status</h2>
           <div className="flex flex-wrap gap-4">
             <Pill tone="draft">Draft</Pill>
             <Pill tone="sent">Sent</Pill>
@@ -81,7 +81,7 @@ export default function DesignSystemPage() {
 
         {/* Boxes */}
         <section>
-          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b-2 border-ink pb-4">Boxes</h2>
+          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b border-soft pb-4">Boxes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Box shadow="ink" className="p-6">
               <h3 className="font-mono text-xs font-bold uppercase tracking-widest mb-2">Default Box</h3>
@@ -107,7 +107,7 @@ export default function DesignSystemPage() {
 
         {/* Typography Accents */}
         <section>
-          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b-2 border-ink pb-4">Accents</h2>
+          <h2 className="font-display text-3xl font-bold uppercase mb-8 border-b border-soft pb-4">Accents</h2>
           
           <div className="space-y-12">
             <div>

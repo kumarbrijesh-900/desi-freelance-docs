@@ -48,11 +48,11 @@ export default function SettlementModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="settlement-modal-title">
       <MotionReveal preset="fade-up" className="w-full max-w-md">
-        <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
+        <div className="border border-soft bg-white p-6 shadow-[var(--brutal-shadow-lg)]">
           {isSuccess ? (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-2xl font-black text-[#111118] shadow-[var(--brutal-shadow-md)]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-soft bg-[color:var(--color-lime-warm)] text-2xl font-black text-[#111118] shadow-[var(--brutal-shadow-md)]">
                   ✓
                 </div>
                 <h2 className="text-xl font-bold text-[color:var(--color-ink)]">
@@ -84,7 +84,7 @@ export default function SettlementModal({
 
               <div className="space-y-4">
                 {/* Amount Summary */}
-                <div className="border-2 border-[#111118] bg-[color:var(--color-paper)] p-4">
+                <div className="border border-soft bg-[color:var(--color-paper)] p-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-[color:var(--color-ink-2)] font-bold">Milestone Subtotal</span>
                     <span className="font-bold text-[color:var(--color-ink)] tabular-nums">
@@ -105,7 +105,7 @@ export default function SettlementModal({
                       onChange={(e) => setTdsPercent(Number(e.target.value))}
                       placeholder="0"
                       disabled={isBusy}
-                      className="w-full h-11 border-2 border-[#111118] bg-white px-4 text-sm outline-none transition-colors )] disabled:cursor-not-allowed disabled:opacity-60 app-focus-ring"
+                      className="w-full h-11 border border-soft bg-white px-4 text-sm outline-none transition-colors )] disabled:cursor-not-allowed disabled:opacity-60 app-focus-ring"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[color:var(--color-ink-2)]">
                       %
@@ -128,7 +128,7 @@ export default function SettlementModal({
                 </div>
 
                 {errorMessage && (
-                  <div className="border-2 border-[#111118] bg-[#FFEBA4] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[#111118]">
+                  <div className="border border-soft bg-[#FFEBA4] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[#111118]">
                     {errorMessage}
                   </div>
                 )}
@@ -139,7 +139,7 @@ export default function SettlementModal({
                   type="button"
                   onClick={onClose}
                   disabled={isBusy}
-                  className="flex-1 border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -147,7 +147,7 @@ export default function SettlementModal({
                   type="button"
                   onClick={() => onConfirm(tdsAmount)}
                   disabled={isBusy}
-                  className="flex-[2] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                  className="flex-[2] border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isBusy ? "Settling..." : isError ? "Try Again" : "Confirm Settlement"}
                 </button>

@@ -123,8 +123,8 @@ export default function MSAAcceptanceModal({
     return (
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
         <MotionReveal preset="fade-up" className="w-full max-w-md">
-          <div className="border-2 border-[#111118] bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-2 border-[#111118] bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
+          <div className="border border-soft bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border border-soft bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]">
               <CheckCircleIcon className="h-8 w-8" />
             </div>
             <h2 className="text-xl font-bold text-[color:var(--color-ink)]">
@@ -134,7 +134,7 @@ export default function MSAAcceptanceModal({
               Your counter-proposal for <strong>Invoice #{invoiceNumber}</strong> has been sent to {agencyName}. They will review your feedback and get back to you soon.
             </p>
             {msaResponseText && (
-              <div className="mt-4 p-4 border-l-4 border-[#111118] bg-[color:var(--color-paper)] text-left">
+              <div className="mt-4 p-4 border-l-4 border-soft bg-[color:var(--color-paper)] text-left">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-2)] mb-2">
                   Client Note
                 </p>
@@ -147,8 +147,8 @@ export default function MSAAcceptanceModal({
               This invoice will remain locked until terms are finalized.
             </p>
             {previewMode && onClosePreview && (
-              <div className="mt-6 border-t-2 border-[#111118] pt-6">
-                <div className="border-2 border-[#111118] bg-[#FFD700] px-4 py-3 shadow-[var(--brutal-shadow-md)] mb-4 text-left">
+              <div className="mt-6 border-t-2 border-soft pt-6">
+                <div className="border border-soft bg-[#FFD700] px-4 py-3 shadow-[var(--brutal-shadow-md)] mb-4 text-left">
                   <h3 className="text-sm font-black uppercase tracking-wider text-[#111118] mb-1">
                     PREVIEW MODE
                   </h3>
@@ -159,7 +159,7 @@ export default function MSAAcceptanceModal({
                 <button
                   type="button"
                   onClick={onClosePreview}
-                  className="w-full border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  className="w-full border border-soft bg-white px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
                 >
                   Close Preview
                 </button>
@@ -174,21 +174,21 @@ export default function MSAAcceptanceModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6 overflow-y-auto">
       <MotionReveal preset="fade-up" className="w-full max-w-2xl my-auto">
-        <div className="relative border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
+        <div className="relative border border-soft bg-white shadow-[var(--brutal-shadow-md)] overflow-hidden">
           {previewMode && onClosePreview && (
             <button
               type="button"
               onClick={onClosePreview}
-              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-white hover:brightness-110 shadow-[var(--brutal-shadow-md)] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center border border-soft bg-[#FF5C00] text-white hover:brightness-110 shadow-[var(--brutal-shadow-md)] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
               aria-label="Close Preview"
             >
               <span className="text-2xl font-bold leading-none mb-1">×</span>
             </button>
           )}
           {/* Header */}
-          <div className="border-b-2 border-[#111118] bg-[#FFFBE6] px-6 py-6 sm:px-8">
+          <div className="border-b-2 border-soft bg-[#FFFBE6] px-6 py-6 sm:px-8">
             <div className="flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[#111118]">
+              <span className="flex h-12 w-12 items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] text-[#111118]">
                 <DocumentSparkIcon className="h-6 w-6" />
               </span>
               <div>
@@ -205,8 +205,8 @@ export default function MSAAcceptanceModal({
           {msaStatus === "pending" && msaResponseText && 
            !['pending', 'accepted', 'rejected', 'proposed', 'negotiating'].includes(msaResponseText.toLowerCase()) && 
            mode === "view" && (
-            <div className="border-b-2 border-[#111118] bg-[#EBFDF9] px-6 py-4 sm:px-8 flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-white text-[#007A63]">
+            <div className="border-b-2 border-soft bg-[#EBFDF9] px-6 py-4 sm:px-8 flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-soft bg-white text-[#007A63]">
                 <DocumentSparkIcon className="h-4 w-4" />
               </span>
               <div>
@@ -222,10 +222,10 @@ export default function MSAAcceptanceModal({
           )}
 
 
-          <div className="grid border-b-2 border-[#111118] bg-white sm:grid-cols-3">
-            <div className="border-b-2 border-[#111118] p-4 sm:border-b-0 sm:border-r-2">
+          <div className="grid border-b-2 border-soft bg-white sm:grid-cols-3">
+            <div className="border-b-2 border-soft p-4 sm:border-b-0 sm:border-r-2">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#EBFDF9] text-[#007A63]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-soft bg-[#EBFDF9] text-[#007A63]">
                   <ShieldCheck className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -234,9 +234,9 @@ export default function MSAAcceptanceModal({
                 </div>
               </div>
             </div>
-            <div className="border-b-2 border-[#111118] p-4 sm:border-b-0 sm:border-r-2">
+            <div className="border-b-2 border-soft p-4 sm:border-b-0 sm:border-r-2">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#E0F3FF] text-[#164E63]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-soft bg-[#E0F3FF] text-[#164E63]">
                   <CreditCard className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -247,7 +247,7 @@ export default function MSAAcceptanceModal({
             </div>
             <div className="p-4">
               <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#111118] bg-[#F5F5F0] text-[#111118]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-soft bg-[#F5F5F0] text-[#111118]">
                   <FileText className="h-4 w-4" strokeWidth={2.4} />
                 </span>
                 <div>
@@ -267,7 +267,7 @@ export default function MSAAcceptanceModal({
                   <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[color:var(--color-ink-2)] mb-3">
                     Master Service Agreement
                   </h2>
-                  <div className="border-2 border-[#111118] bg-[color:var(--color-paper)] p-5">
+                  <div className="border border-soft bg-[color:var(--color-paper)] p-5">
                     <h3 className="text-sm font-bold text-[color:var(--color-ink)] mb-2">
                       {msaTitle}
                     </h3>
@@ -281,7 +281,7 @@ export default function MSAAcceptanceModal({
                 {(paymentTerms || addendumNotes) && (
                   <div className="border-2 border-[#FF5C00] bg-[#FFF0EC] p-5 shadow-[var(--brutal-shadow-sm)]">
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border-2 border-[#111118] bg-amber-200 text-[10px] font-bold text-amber-800">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-soft bg-amber-200 text-[10px] font-bold text-amber-800">
                         !
                       </span>
                       <div>
@@ -294,13 +294,13 @@ export default function MSAAcceptanceModal({
                         <ul className="mt-3 space-y-2">
                           {paymentTerms && (
                             <li className="flex items-center gap-2 text-[12px] font-normal text-amber-900">
-                              <span className="h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
+                              <span className="h-1.5 w-1.5 border border-soft bg-amber-400 shrink-0" />
                               Payment Terms: <span className="font-bold underline decoration-amber-300 underline-offset-2">{paymentTerms}</span>
                             </li>
                           )}
                           {addendumNotes && (
                             <li className="flex items-start gap-2 text-[12px] font-normal text-amber-900">
-                              <span className="mt-1.5 h-1.5 w-1.5 border border-[#111118] bg-amber-400 shrink-0" />
+                              <span className="mt-1.5 h-1.5 w-1.5 border border-soft bg-amber-400 shrink-0" />
                               <span>Additional Notes: <span className="font-bold">{addendumNotes}</span></span>
                             </li>
                           )}
@@ -321,7 +321,7 @@ export default function MSAAcceptanceModal({
                     value={proposalText}
                     onChange={(e) => setProposalText(e.target.value)}
                     placeholder="e.g. 'I would like to request Net 30 payment terms instead of Net 15...'"
-                    className="w-full h-40 border-2 border-[#111118] bg-white p-4 text-sm outline-none transition-colors )] resize-none app-focus-ring"
+                    className="w-full h-40 border border-soft bg-white p-4 text-sm outline-none transition-colors )] resize-none app-focus-ring"
                   />
                 </div>
                 <p className="text-xs text-[color:var(--color-ink-2)] italic">
@@ -344,7 +344,7 @@ export default function MSAAcceptanceModal({
           <div className="border-t border-[color:var(--color-soft)] bg-[color:var(--color-paper)] px-6 py-6 sm:px-8">
             {previewMode ? (
               <div className="flex flex-col gap-5">
-                <div className="border-4 border-[#111118] bg-[#FFD700] px-6 py-5 shadow-[var(--brutal-shadow-lg)]">
+                <div className="border-4 border-soft bg-[#FFD700] px-6 py-5 shadow-[var(--brutal-shadow-lg)]">
                   <h3 className="text-lg font-black uppercase tracking-wider text-[#111118] mb-1">
                     PREVIEW MODE
                   </h3>
@@ -356,7 +356,7 @@ export default function MSAAcceptanceModal({
                   <button
                     type="button"
                     onClick={onClosePreview}
-                    className="self-center border-2 border-[#111118] bg-white px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    className="self-center border border-soft bg-white px-8 py-3 text-sm font-bold uppercase tracking-wider text-[#111118] shadow-[var(--brutal-shadow-md)] hover:bg-gray-50 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
                   >
                     Close Preview
                   </button>
@@ -372,7 +372,7 @@ export default function MSAAcceptanceModal({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleAcceptTerms}
-                    className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="flex-[2] min-w-[160px] border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
                     {!isSubmitting && <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />}
                     {isSubmitting ? "Processing…" : "Accept Terms"}
@@ -382,7 +382,7 @@ export default function MSAAcceptanceModal({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => setMode("propose")}
-                      className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)] inline-flex items-center justify-center gap-2"
+                      className="flex-1 min-w-[160px] border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)] inline-flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="h-4 w-4" strokeWidth={2.5} />
                       Propose Changes
@@ -396,7 +396,7 @@ export default function MSAAcceptanceModal({
                   type="button"
                   disabled={isSubmittingProposal || !proposalText.trim()}
                   onClick={handleSubmitProposal}
-                  className="flex-[2] min-w-[160px] border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                  className="flex-[2] min-w-[160px] border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isSubmittingProposal ? "Submitting…" : "Submit Proposal"}
                 </button>
@@ -407,7 +407,7 @@ export default function MSAAcceptanceModal({
                     setMode("view");
                     setProposalText("");
                   }}
-                  className="flex-1 min-w-[160px] border-2 border-[#111118] bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)]"
+                  className="flex-1 min-w-[160px] border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)]"
                 >
                   Cancel
                 </button>

@@ -209,7 +209,7 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
-        <div className="mb-4 border-[3px] border-[#111118] bg-white p-4 shadow-[4px_4px_0px_#111118]">
+        <div className="mb-4 border-[3px] border-soft bg-white p-4 shadow-[4px_4px_0px_#111118]">
           <div className="mb-3">
             <label className="text-xs font-bold uppercase tracking-wider text-[#111118]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
@@ -229,7 +229,7 @@ export default function DeliverablesSection({
                   onProjectNameChange(event.target.value);
                 }}
                 placeholder="e.g. Villa Renovation Phase 2"
-                className="w-full rounded-2xl border-[2px] border-[#111118] px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
+                className="w-full rounded-2xl border-[2px] border-soft px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
               />
               {showAllErrors && !projectName.trim() && (
                 <p className="mt-2 text-xs font-bold text-[#FF5C00]">
@@ -371,7 +371,7 @@ export default function DeliverablesSection({
               onClick={addMilestone}
               disabled={effectiveMilestones.length >= MAX_MILESTONES}
               className={cn(
-                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white py-6 text-[13px] font-bold text-[color:var(--color-ink-2)] transition-all group",
+                "w-full flex items-center justify-center gap-2 border-2 border-dashed border-soft bg-white py-6 text-[13px] font-bold text-[color:var(--color-ink-2)] transition-all group",
                 effectiveMilestones.length >= MAX_MILESTONES
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:border-[color:var(--brand-indigo-deep)] hover:text-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5"
@@ -486,7 +486,7 @@ function LineItemCard({
       "group relative border-2 bg-white p-4 transition-all",
       isReadOnly
       ? "border-[#D4D2CC] hover:shadow-none"
-      : "border-[#111118] hover:shadow-[var(--brutal-shadow-sm)]",
+      : "border-soft hover:shadow-[var(--brutal-shadow-sm)]",
     )}>
       {/* Delete button */}
       {!isReadOnly && canRemove && (
@@ -579,7 +579,7 @@ function LineItemCard({
             }}
           />
           {!isReadOnly && showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border border-soft bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s: string) => (
                 <button
                   key={s}
@@ -782,7 +782,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border-2 border-[#111118] bg-white text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft bg-white text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
@@ -791,7 +791,7 @@ function BrutalSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 w-full z-50 border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
+        <div className="absolute left-0 top-full mt-1 w-full z-50 border border-soft bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
           {options.map((opt) => {
             const isSelected = opt.value === value;
             return (

@@ -13,7 +13,7 @@ export const AppTabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes
     <div
       ref={ref}
       className={cn(
-        "inline-flex h-12 items-center justify-center border-b-2 border-[#111118] bg-white text-[color:var(--color-ink-2)]",
+        "inline-flex h-12 items-center justify-center border-b-2 border-soft bg-white text-[color:var(--color-ink-2)]",
         className
       )}
       {...props}

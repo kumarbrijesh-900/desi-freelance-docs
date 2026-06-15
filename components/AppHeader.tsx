@@ -100,8 +100,8 @@ function UserMenu({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 origin-top-right border-2 border-[#111118] bg-white p-1 shadow-[var(--brutal-shadow-md)] z-50">
-          <div className="px-3 py-2 border-b-2 border-[#111118] mb-1">
+        <div className="absolute right-0 mt-2 w-48 origin-top-right border border-soft bg-white p-1 shadow-[var(--brutal-shadow-md)] z-50">
+          <div className="px-3 py-2 border-b-2 border-soft mb-1">
             <p className="text-[10px] font-bold text-[#6E6E7A] uppercase tracking-[0.08em]">
               Account
             </p>
@@ -205,14 +205,14 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-2 border-ink bg-paper print:hidden">
+      <header className="sticky top-0 z-50 border-b border-soft bg-paper print:hidden">
         <div
           className={`${appPageContainerClass} flex items-center justify-between py-3`}
         >
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
-              <span className="flex h-7 w-7 items-center justify-center border-2 border-ink bg-acid text-[12px] font-black text-acc-ink">
+              <span className="flex h-7 w-7 items-center justify-center border border-soft bg-acid text-[12px] font-black text-acc-ink">
                 L
               </span>
               <span className="text-[16px] font-black tracking-[0.1em] uppercase text-ink font-syne antialiased">
@@ -223,7 +223,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="sm:hidden flex h-8 w-8 items-center justify-center border-2 border-ink hover:border-acid transition-colors"
+              className="sm:hidden flex h-8 w-8 items-center justify-center border border-soft hover:border-acid transition-colors"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -237,7 +237,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
               )}
             </button>
 
-            <nav className="ml-4 hidden items-center gap-5 border-l-2 border-ink pl-5 sm:flex">
+            <nav className="ml-4 hidden items-center gap-5 border-l border-soft pl-5 sm:flex">
               {user && <NavLink href="/dashboard" label="Dashboard" />}
               {user && (
                 <>
@@ -254,7 +254,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
             <button
               type="button"
               onClick={handleNewInvoice}
-              className="hidden sm:inline-flex items-center gap-1.5 border-2 border-ink bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 border border-soft bg-acid px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-acc-ink shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
             >
               + New Invoice
             </button>

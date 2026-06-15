@@ -51,7 +51,7 @@ function LoginCard() {
   };
 
   return (
-    <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
+    <div className="w-full max-w-sm border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
       <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
         {isRestoring ? "Your draft is safe" : "Get started"}
       </h2>
@@ -64,7 +64,7 @@ function LoginCard() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="mt-6 flex w-full items-center justify-center gap-3 border-2 border-[#111118] bg-white py-3 font-bold uppercase transition-all hover:bg-paper-2 active:scale-[0.98]"
+        className="mt-6 flex w-full items-center justify-center gap-3 border border-soft bg-white py-3 font-bold uppercase transition-all hover:bg-paper-2 active:scale-[0.98]"
       >
         <GoogleIcon className="h-5 w-5" />
         Continue with Google
@@ -101,7 +101,7 @@ export default function LoginPage() {
         <MotionReveal preset="fade-up" delay={0}>
           <div className="mb-8">
             <Link href="/" className="group flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center border-2 border-[#111118] bg-acid text-[18px] font-black text-acc-ink">
+              <span className="flex h-10 w-10 items-center justify-center border border-soft bg-acid text-[18px] font-black text-acc-ink">
                 L
               </span>
               <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[#111118] font-syne antialiased">
@@ -133,7 +133,7 @@ export default function LoginPage() {
           {/* Suspense required because useSearchParams needs it during SSR */}
           <Suspense
             fallback={
-              <div className="w-full max-w-sm border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
+              <div className="w-full max-w-sm border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)]">
                 <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
                   Get started
                 </h2>

@@ -11,7 +11,7 @@ export function AppAvatar({ src, initials, size = "md", className, ...props }: A
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden border-2 border-[#111118] bg-[color:var(--color-lime-warm)] text-[#111118] font-black uppercase shadow-[var(--brutal-shadow-sm)]",
+        "relative flex shrink-0 items-center justify-center overflow-hidden border border-soft bg-[color:var(--color-lime-warm)] text-[#111118] font-black uppercase shadow-[var(--brutal-shadow-sm)]",
         size === "sm" ? "h-8 w-8 text-xs" : size === "lg" ? "h-16 w-16 text-xl" : "h-12 w-12 text-sm",
         className
       )}

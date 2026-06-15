@@ -610,7 +610,7 @@ export default function AgencyDetailsSection({
                     )}
                   </div>
                 ) : !isReadOnly ? (
-                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[#111118] bg-white px-4 transition-all hover:border-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5">
+                  <label className="group relative flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-soft bg-white px-4 transition-all hover:border-[color:var(--brand-indigo-deep)] hover:bg-[color:var(--brand-indigo-deep)]/5">
                     <input
                       type="file"
                       accept="image/*"

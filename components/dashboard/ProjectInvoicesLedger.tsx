@@ -45,14 +45,14 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
         INVOICES ({allInvoices.length})
       </div>
 
-      <div className="border-2 border-ink bg-white shadow-[var(--elev-1)] overflow-x-auto">
+      <div className="border border-soft bg-white shadow-[var(--elev-1)] overflow-x-auto">
         <table className="w-full min-w-[520px] text-left border-collapse">
           <thead>
-            <tr className="border-b-2 border-black bg-[#FAFAF5]">
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-black">Invoice</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-black hidden sm:table-cell">Type</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-black text-right">Amount</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-black">Status</th>
+            <tr className="border-b-2 border-ink bg-[#FAFAF5]">
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink">Invoice</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink hidden sm:table-cell">Type</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink text-right">Amount</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink">Status</th>
               <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide text-center w-24">Action</th>
             </tr>
           </thead>
@@ -84,19 +84,19 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               }
 
               return (
-                <tr key={inv.id} className={idx < allInvoices.length - 1 ? "border-b-2 border-black" : ""}>
-                  <td className="p-3 border-r-2 border-black text-sm font-bold">
+                <tr key={inv.id} className={idx < allInvoices.length - 1 ? "border-b-2 border-ink" : ""}>
+                  <td className="p-3 border-r-2 border-ink text-sm font-bold">
                     {inv.invoice_number || "DRAFT"}
                   </td>
-                  <td className="p-3 border-r-2 border-black text-xs text-neutral-600 hidden sm:table-cell">
+                  <td className="p-3 border-r-2 border-ink text-xs text-neutral-600 hidden sm:table-cell">
                     {typeLabel}
                   </td>
-                  <td className="p-3 border-r-2 border-black text-sm font-extrabold text-right">
+                  <td className="p-3 border-r-2 border-ink text-sm font-extrabold text-right">
                     {formatInr(total)}
                   </td>
-                  <td className="p-3 border-r-2 border-black text-xs">
+                  <td className="p-3 border-r-2 border-ink text-xs">
                     <span
-                      className={`px-2 py-0.5 font-bold uppercase ${statusInfo.border ? 'border border-black' : ''} ${statusInfo.strikethrough ? 'line-through' : ''}`}
+                      className={`px-2 py-0.5 font-bold uppercase ${statusInfo.border ? 'border border-ink' : ''} ${statusInfo.strikethrough ? 'line-through' : ''}`}
                       style={{ backgroundColor: statusInfo.bg, color: statusInfo.fg }}
                     >
                       {statusInfo.label}
@@ -110,7 +110,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                       return (
                         <Link
                           href={rowHref}
-                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border-2 border-ink px-3 py-1 bg-white shadow-[var(--elev-1)] hover:bg-paper-2 transition-colors text-ink"
+                          className="inline-block text-[10px] uppercase font-extrabold tracking-wide border border-soft px-3 py-1 bg-white shadow-[var(--elev-1)] hover:bg-paper-2 transition-colors text-ink"
                         >
                           VIEW
                         </Link>

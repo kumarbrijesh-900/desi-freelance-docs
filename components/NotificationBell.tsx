@@ -119,7 +119,7 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-8 w-8 items-center justify-center border-2 border-[#111118] bg-white transition-all hover:bg-[color:var(--color-paper)] active:scale-95"
+        className="relative flex h-8 w-8 items-center justify-center border border-soft bg-white transition-all hover:bg-[color:var(--color-paper)] active:scale-95"
       >
         <BellIcon
           className={cn(
@@ -130,14 +130,14 @@ export default function NotificationBell() {
           )}
         />
         {hasUnread && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border-2 border-[#111118] bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center border border-soft bg-[#FF5C00] text-[9px] font-bold text-white animate-in zoom-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 origin-top-right border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 origin-top-right border border-soft bg-white shadow-[var(--brutal-shadow-lg)] z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] bg-[color:var(--color-paper)]/50 px-4 py-3">
             <h3 className="text-[13px] font-bold text-[color:var(--color-ink)]">Activity</h3>
             {hasUnread && (

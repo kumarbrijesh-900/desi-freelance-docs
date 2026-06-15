@@ -136,7 +136,7 @@ export default function BriefIntakeCard({
     return (
       <MotionReveal className="mb-4" preset="fade-up" delay={40}>
         <section
-          className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] overflow-hidden"
+          className="border border-soft bg-white shadow-[var(--brutal-shadow-sm)] overflow-hidden"
           aria-labelledby="brief-intake-collapsed-heading"
         >
           <motion.div
@@ -144,7 +144,7 @@ export default function BriefIntakeCard({
             className="flex h-12 items-center justify-between gap-3 px-4"
           >
             <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-warm)] border-2 border-[#111118] text-[12px] font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-warm)] border border-soft text-[12px] font-bold">
                 ✨
               </span>
               <div className="flex flex-col min-w-0">
@@ -179,7 +179,7 @@ export default function BriefIntakeCard({
   return (
     <MotionReveal className="mb-4" preset="fade-up" delay={40}>
       <section
-        className="border-2 border-[#111118] bg-white shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
+        className="border border-soft bg-white shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
         aria-labelledby="brief-intake-heading"
       >
         {/* Toggle */}
@@ -233,7 +233,7 @@ export default function BriefIntakeCard({
                     {imageFiles.map((file) => (
                       <span
                         key={`${file.name}-${file.lastModified}`}
-                        className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[#111118]"
+                        className="inline-flex items-center gap-2 border border-soft bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[#111118]"
                       >
                         <ClipboardCheckIcon className="h-3.5 w-3.5" />
                         {file.name}
@@ -242,7 +242,7 @@ export default function BriefIntakeCard({
                   </div>
                 )}
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#111118] pt-3 mt-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-soft pt-3 mt-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <label
                       className={cn(

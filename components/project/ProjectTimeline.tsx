@@ -60,7 +60,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
       // settled -> filled mint (#00DCB4) circle, 16px
       return {
         bg: "bg-[#00DCB4]",
-        border: "border-2 border-[#111118]",
+        border: "border border-soft",
       };
     }
     if (isOverdue) {
@@ -80,19 +80,19 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
       // live or shared+msa-accepted -> filled lime (var(--color-lime-warm)) circle, 16px
       return {
         bg: "bg-[color:var(--color-lime-warm)]",
-        border: "border-2 border-[#111118]",
+        border: "border border-soft",
       };
     }
     if (isScheduled) {
       return {
         bg: "bg-white",
-        border: "border-2 border-dashed border-[#111118]",
+        border: "border-2 border-dashed border-soft",
       };
     }
     // pending or msa not yet accepted -> hollow circle with 2px black border, 16px
     return {
       bg: "bg-white",
-      border: "border-2 border-[#111118]",
+      border: "border border-soft",
     };
   };
 

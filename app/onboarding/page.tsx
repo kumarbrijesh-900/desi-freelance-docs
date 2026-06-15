@@ -272,7 +272,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <div className="border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-sm)]">
+                <div className="border border-soft bg-white p-6 shadow-[var(--brutal-shadow-sm)]">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-2 h-2 bg-[#bfff00]" />
                     <h3 className="text-sm font-bold uppercase tracking-wider text-[color:var(--color-ink)]">

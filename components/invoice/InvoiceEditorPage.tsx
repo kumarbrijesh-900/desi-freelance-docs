@@ -2554,7 +2554,7 @@ return (
 
             {isReadOnlyMode && (
               <MotionReveal preset="fade-up" className="mb-4">
-                <div className="flex items-start gap-3 border-2 border-[#111118] bg-[#FFEBA4] p-4 shadow-[4px_4px_0px_0px_#111118]">
+                <div className="flex items-start gap-3 border border-soft bg-[#FFEBA4] p-4 shadow-[4px_4px_0px_0px_#111118]">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111118] text-[color:var(--color-lime-warm)]">
                     <svg
                       className="h-4 w-4"
@@ -2840,7 +2840,7 @@ return (
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="space-y-4">
                       {/* Inline Meta Card */}
-                      <div className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3 flex items-center justify-between">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                             Invoice Details
@@ -2927,7 +2927,7 @@ return (
                       </div>
 
                       {/* Expanded Totals Card */}
-                      <div className="border-2 border-[#111118] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">Totals</p>
                         </div>
@@ -2976,7 +2976,7 @@ return (
             <div className="xl:hidden mt-4">
               <div
                 id="mobile-totals-footer"
-                className="border-2 border-[#111118] bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
+                className="border border-soft bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -3276,7 +3276,7 @@ return (
                 "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                 invoiceReadyForPreview
                   ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                  : "border-2 border-[#111118] bg-[#FFFBE6] text-[#111118] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
+                  : "border border-soft bg-[#FFFBE6] text-[#111118] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
               )}
             >
               <span className="hidden sm:inline">

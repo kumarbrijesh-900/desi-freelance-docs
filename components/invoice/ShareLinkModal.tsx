@@ -215,8 +215,8 @@ export default function ShareLinkModal({
 
   return sent ? (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70" role="dialog" aria-modal="true" aria-labelledby="share-link-modal-title">
-    <div className="w-full max-w-md border-2 border-[#111118] bg-white p-8 shadow-[var(--brutal-shadow-lg)] text-center">
-      <div className="inline-flex h-14 w-14 items-center justify-center border-2 border-[#111118] bg-[#00DCB4] mb-4">
+    <div className="w-full max-w-md border border-soft bg-white p-8 shadow-[var(--brutal-shadow-lg)] text-center">
+      <div className="inline-flex h-14 w-14 items-center justify-center border border-soft bg-[#00DCB4] mb-4">
         <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
       </div>
       <h2 className="text-xl font-bold uppercase text-[#111118] mb-2">Invoice Sent!</h2>
@@ -226,13 +226,13 @@ export default function ShareLinkModal({
       <div className="flex gap-3 justify-center">
         <a
           href="/dashboard"
-          className="border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
+          className="border border-soft bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
         >
           Go to Dashboard
         </a>
         <a
           href="/invoices"
-          className="border-2 border-[#111118] bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118]"
+          className="border border-soft bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118]"
         >
           View Invoices
         </a>
@@ -250,7 +250,7 @@ export default function ShareLinkModal({
       }}
     >
       <MotionReveal preset="scale-in">
-        <div className="mx-4 w-full max-w-lg border-2 border-[#111118] bg-white p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
+        <div className="mx-4 w-full max-w-lg border border-soft bg-white p-6 shadow-[var(--brutal-shadow-lg)] overflow-hidden">
           {/* ── Header ── */}
           <div className="border-b border-[color:var(--color-soft)] px-6 py-4">
             <h2 className="text-lg font-bold text-[color:var(--color-ink)]">
@@ -270,7 +270,7 @@ export default function ShareLinkModal({
               <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
                 Sending to
               </label>
-              <div className="mt-1.5 flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-paper)] px-3 py-2.5">
+              <div className="mt-1.5 flex items-center gap-2 border border-soft bg-[color:var(--color-paper)] px-3 py-2.5">
                 <MailIcon className="h-4 w-4 shrink-0 text-[color:var(--color-ink-2)]" />
                 <span
                   className={`text-sm ${clientEmail?.trim() ? "text-[color:var(--color-ink)] font-normal" : "text-[color:var(--color-ink-2)] italic"}`}
@@ -291,7 +291,7 @@ export default function ShareLinkModal({
               const framing = getMilestoneFraming(invoiceData);
               if (!framing) return null;
               return (
-                <div className="border-2 border-[#111118] bg-[color:var(--color-paper)] p-4">
+                <div className="border border-soft bg-[color:var(--color-paper)] p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">
                       Milestone Billing
@@ -328,7 +328,7 @@ export default function ShareLinkModal({
             })()}
 
             {/* ── MSA Section ── */}
-            <div className="border-2 border-[#111118] bg-[color:var(--color-paper)] p-4 space-y-3">
+            <div className="border border-soft bg-[color:var(--color-paper)] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DocumentSparkIcon className="h-4 w-4 text-[color:var(--color-ink-2)]" />
@@ -358,7 +358,7 @@ export default function ShareLinkModal({
               )}
 
               {/* MSA Protection Summary */}
-              <div className="border-2 border-[#111118] bg-[color:var(--color-paper)] p-4">
+              <div className="border border-soft bg-[color:var(--color-paper)] p-4">
                 <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)] mb-3">
                   Effective Terms:
                 </h4>
@@ -407,7 +407,7 @@ export default function ShareLinkModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-[13px] font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-[#111118] transition-all"
+                className="px-4 py-2 text-[13px] font-bold text-[color:var(--color-ink-2)] border-2 border-transparent hover:border-soft transition-all"
               >
                 Cancel
               </button>
@@ -415,7 +415,7 @@ export default function ShareLinkModal({
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !clientEmail?.trim()}
-                className="inline-flex items-center gap-2 border-2 border-[#111118] bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">
                   <SendIcon className="h-4 w-4" />

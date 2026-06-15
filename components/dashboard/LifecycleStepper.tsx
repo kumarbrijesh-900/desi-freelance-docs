@@ -140,7 +140,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
       </div>
 
       {/* Mobile vertical timeline */}
-      <div className="md:hidden bg-white border-2 border-ink p-5 shadow-[var(--elev-1)] mb-6">
+      <div className="md:hidden bg-white border border-soft p-5 shadow-[var(--elev-1)] mb-6">
         {stops.map((stop, idx) => {
           const isLast = idx === stops.length - 1;
           const segSolid = idx < liveStopIndex;
@@ -186,7 +186,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
           );
         })}
       </div>
-      <div className="bg-white border-2 border-ink p-6 shadow-[var(--elev-1)] mb-6 overflow-x-auto no-scrollbar relative hidden md:block">
+      <div className="bg-white border border-soft p-6 shadow-[var(--elev-1)] mb-6 overflow-x-auto no-scrollbar relative hidden md:block">
         <div className="relative min-w-[800px] py-4">
           
           <div className="absolute top-[69px] left-0 right-0 h-0 z-0">

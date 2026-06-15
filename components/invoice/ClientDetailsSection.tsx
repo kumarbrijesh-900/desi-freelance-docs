@@ -292,7 +292,7 @@ export default function ClientDetailsSection({
     ].filter(Boolean).join(" · ") || "No terms configured — expand to set up";
 
   const generateClauseButtonClass =
-    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
+    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border border-soft px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
 
   return (
     <section className={cn(embedded ? "rounded-2xl border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
@@ -857,7 +857,7 @@ export default function ClientDetailsSection({
                   <div className="space-y-2">
                     <p><strong>Master Service Agreement (MSA).</strong> The foundational legal contract that governs payment deadlines, late fees, IP ownership, and licensing for your engagement with this client.</p>
                     <p className="font-bold text-[10px] text-[#FF5C00]">These defaults can be overridden per-project via a Project Addendum attached to the invoice.</p>
-                    <div className="flex flex-col gap-1.5 mt-2 border-t border-[#111118]/20 pt-2">
+                    <div className="flex flex-col gap-1.5 mt-2 border-t border-soft/20 pt-2">
                       <a href="/profile" className="text-[color:var(--brand-indigo-deep)] font-bold hover:underline flex items-center gap-1">→ Edit Global Defaults (Profile)</a>
                       <a href="/clients" className="text-[color:var(--brand-indigo-deep)] font-bold hover:underline flex items-center gap-1">→ Edit Client-Specific Terms</a>
                     </div>
@@ -1044,7 +1044,7 @@ export default function ClientDetailsSection({
 
                 {/* Primary action — mobile: after inputs; desktop: also in header */}
                 {!isReadOnly && (
-                  <div className="border-t-2 border-dashed border-[#111118]/25 pt-4 sm:hidden">
+                  <div className="border-t-2 border-dashed border-soft/25 pt-4 sm:hidden">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -1060,7 +1060,7 @@ export default function ClientDetailsSection({
                 )}
 
                 {/* Generated MSA — connected preview after generation action */}
-                <div className="space-y-3 border-t-2 border-[#111118] pt-4 min-w-0">
+                <div className="space-y-3 border-t-2 border-soft pt-4 min-w-0">
                   <div>
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-ink)]">
                       Generated MSA
@@ -1073,7 +1073,7 @@ export default function ClientDetailsSection({
                   </div>
 
                   {hasGeneratedMsa ? (
-                    <div className="border-2 border-[#111118] bg-[#FFFBE6] p-3 shadow-[var(--brutal-shadow-sm)] min-w-0">
+                    <div className="border border-soft bg-[#FFFBE6] p-3 shadow-[var(--brutal-shadow-sm)] min-w-0">
                       <textarea
                         suppressHydrationWarning
                         value={value.msaNotesBoilerplate || ""}
@@ -1090,7 +1090,7 @@ export default function ClientDetailsSection({
                               e.stopPropagation();
                               updateField("msaNotesBoilerplate", "");
                             }}
-                            className="inline-flex items-center justify-center border-2 border-[#111118] bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] hover:bg-[#FFF5F2] transition-colors"
+                            className="inline-flex items-center justify-center border border-soft bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5C00] uppercase tracking-wider shadow-[var(--brutal-shadow-pressed)] hover:bg-[#FFF5F2] transition-colors"
                           >
                             Clear
                           </button>
@@ -1098,7 +1098,7 @@ export default function ClientDetailsSection({
                       )}
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-[#111118]/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
+                    <div className="border-2 border-dashed border-soft/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
                       No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[#111118]">{clauseActionLabel}</span>.
                     </div>
                   )}

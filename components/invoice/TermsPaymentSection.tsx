@@ -275,7 +275,7 @@ export default function TermsPaymentSection({
                    <span className={cn(
                     "inline-flex items-center gap-1.5 border-2 px-2.5 py-0.5 text-[10px] font-bold",
                     isReadOnly
-                      ? "border-[#111118] bg-[color:var(--color-paper)] text-[color:var(--color-ink-3)]"
+                      ? "border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink-3)]"
                       : "border-[color:var(--brand-indigo-deep)] bg-[#EEF2FF] text-[color:var(--brand-indigo-deep)]"
                   )}>
                     {isReadOnly ? (
@@ -449,7 +449,7 @@ export default function TermsPaymentSection({
                                   "border-2 px-2.5 py-0.5 text-[10px] font-bold transition-all",
                                   meta.paymentTerms === days
                                     ? "bg-[#111] border-[#111] text-white shadow-sm"
-                                    : "bg-white border-[#111118] text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
+                                    : "bg-white border-soft text-[color:var(--color-ink)] hover:border-[color:var(--color-ink-3)]",
                                   isReadOnly && "opacity-50 cursor-not-allowed"
                                 )}
                               >
@@ -580,7 +580,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                                 }
                               }}
-                              className="w-16 border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-16 border border-soft bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                           </div>
@@ -602,7 +602,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                                 }
                               }}
-                              className="w-20 border-2 border-[#111118] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-20 border border-soft bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                           </div>
@@ -640,8 +640,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 value.license.isLicenseIncluded
-                                  ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  ? "border border-soft bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border border-soft bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               Yes
@@ -654,8 +654,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 !value.license.isLicenseIncluded
-                                  ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  ? "border border-soft bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border border-soft bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               No
@@ -687,8 +687,8 @@ export default function TermsPaymentSection({
                                         onClick={() => updateLicenseField("licenseType", opt.value as any)}
                                         className={cn(
                                           value.license.licenseType === opt.value
-                                            ? "border-2 border-[#111118] bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                            : "border-2 border-[#111118] bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                            ? "border border-soft bg-[#111118] text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                            : "border border-soft bg-white text-[#111118] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                                         )}
                                       >
                                         {opt.label}

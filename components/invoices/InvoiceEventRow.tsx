@@ -96,7 +96,7 @@ export function InvoiceEventRow({
   return (
     <Link
       href={rowHref}
-      className="flex items-stretch bg-white border-2 border-ink shadow-[3px_3px_0_var(--color-rule)] mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
+      className="flex items-stretch bg-white border border-soft shadow-[3px_3px_0_var(--color-rule)] mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
     >
       {selectable && (
         <div
@@ -107,7 +107,7 @@ export function InvoiceEventRow({
             type="checkbox"
             checked={!!selected}
             readOnly
-            className="w-4 h-4 border-2 border-ink accent-ink cursor-pointer"
+            className="w-4 h-4 border border-soft accent-ink cursor-pointer"
           />
         </div>
       )}

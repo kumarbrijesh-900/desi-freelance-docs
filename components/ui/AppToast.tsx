@@ -65,26 +65,26 @@ export function Toaster() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[10px] border-2 border-ink shadow-[4px_4px_0_var(--color-ink)] bg-white relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
+          className="pointer-events-auto flex items-start gap-2.5 p-3 px-3.5 rounded-[10px] border border-soft shadow-[4px_4px_0_var(--color-ink)] bg-white relative overflow-hidden animate-[toast-in_0.42s_cubic-bezier(0.175,0.885,0.32,1.275)]"
         >
           {toast.kind === "success" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border-2 border-ink flex items-center justify-center bg-grass text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-grass text-white">
               <CheckIcon size={14} strokeWidth={3} />
             </div>
           )}
           {toast.kind === "error" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border-2 border-ink flex items-center justify-center bg-coral text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-coral text-white">
               <XIcon size={14} strokeWidth={3} />
             </div>
           )}
           {toast.kind === "info" && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border-2 border-ink flex items-center justify-center bg-sky text-white">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-sky text-white">
               <InfoIcon size={14} strokeWidth={3} />
             </div>
           )}
           {/* Default fallback if no kind or unknown kind */}
           {!toast.kind && (
-            <div className="w-[26px] h-[26px] shrink-0 rounded-full border-2 border-ink flex items-center justify-center bg-butter text-ink">
+            <div className="w-[26px] h-[26px] shrink-0 rounded-full border border-soft flex items-center justify-center bg-butter text-ink">
               <InfoIcon size={14} strokeWidth={3} />
             </div>
           )}

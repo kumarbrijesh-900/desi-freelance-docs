@@ -32,7 +32,7 @@ export function ActiveDrilldown({
 }) {
   if (!state || !state.invoice) {
     return (
-      <div className="px-6 py-5 border-b-2 border-ink bg-paper-2">
+      <div className="px-6 py-5 border-b border-soft bg-paper-2">
         <div className="text-[10px] uppercase tracking-widest font-bold text-ink/70 mb-3">
           Active now
         </div>
@@ -108,7 +108,7 @@ export function ActiveDrilldown({
 
   // Determine Action Button
   let btnLabel = "";
-  let btnClass = "border-2 border-ink font-extrabold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
+  let btnClass = "border border-soft font-extrabold uppercase px-4 py-2 text-[11px] tracking-widest transition-all";
   let handler: (() => void) | undefined;
 
   switch (primary_action) {
@@ -181,11 +181,11 @@ export function ActiveDrilldown({
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 min-h-0">
-      <div className="flex-1 bg-paper p-6 border-2 border-ink shadow-[var(--elev-1)] flex flex-col">
+      <div className="flex-1 bg-paper p-6 border border-soft shadow-[var(--elev-1)] flex flex-col">
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
-              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
+              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
             </div>
             <h2 className="text-[28px] font-display font-black tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>
@@ -229,7 +229,7 @@ export function ActiveDrilldown({
 
         <div className="h-px bg-ink/20 my-4" />
 
-        <div className="border-t-2 border-ink mt-auto pt-4 flex justify-between items-end">
+        <div className="border-t border-soft mt-auto pt-4 flex justify-between items-end">
           <div className="flex flex-col items-start gap-0.5">
             <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
               {milestone ? `M${(milestone.order_index ?? 0) + 1} TOTAL` : 'TOTAL'} · {taxBreakdown.label}
@@ -247,7 +247,7 @@ export function ActiveDrilldown({
                   type="button"
                   onClick={onResend}
                   title={nudgeTooltip}
-                  className="px-4 py-2 bg-white text-ink border-2 border-ink font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
+                  className="px-4 py-2 bg-white text-ink border border-soft font-extrabold uppercase text-[11px] tracking-widest shadow-[var(--elev-2)] hover:bg-paper-2 transition-all group relative"
                 >
                   NUDGE CLIENT
                 </button>

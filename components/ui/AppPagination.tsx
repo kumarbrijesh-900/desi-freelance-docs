@@ -12,7 +12,7 @@ export function AppPagination({
   if (totalPages === 0) return null; // Only hide if there are exactly 0 pages (no data)
 
   return (
-    <div className="flex items-center justify-between border-2 border-black bg-white shadow-[4px_4px_0_#111118] p-2 mt-8">
+    <div className="flex items-center justify-between border border-soft bg-white shadow-[4px_4px_0_#111118] p-2 mt-8">
       <button
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}

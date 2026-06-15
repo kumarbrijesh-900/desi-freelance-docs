@@ -3,7 +3,7 @@ import { cn } from "@/lib/ui-foundation";
 
 export const AppTable = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="w-full overflow-auto rounded-2xl border-2 border-[#111118]">
+    <div className="w-full overflow-auto rounded-2xl border border-soft">
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   )
@@ -12,7 +12,7 @@ AppTable.displayName = "AppTable";
 
 export const AppTableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("[&_tr]:border-b-2 [&_tr]:border-[#111118] bg-[color:var(--color-paper-2)]", className)} {...props} />
+    <thead ref={ref} className={cn("[&_tr]:border-b-2 [&_tr]:border-soft bg-[color:var(--color-paper-2)]", className)} {...props} />
   )
 );
 AppTableHeader.displayName = "AppTableHeader";
@@ -29,7 +29,7 @@ export const AppTableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttri
     <tr
       ref={ref}
       className={cn(
-        "border-b border-[#111118] transition-colors hover:bg-[color:var(--color-paper)] data-[state=selected]:bg-[color:var(--color-paper-2)]",
+        "border-b border-soft transition-colors hover:bg-[color:var(--color-paper)] data-[state=selected]:bg-[color:var(--color-paper-2)]",
         className
       )}
       {...props}

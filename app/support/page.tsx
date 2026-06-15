@@ -39,7 +39,7 @@ export default function SupportPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t-2 border-[#111118] mt-12 bg-white">
+      <footer className="border-t-2 border-soft mt-12 bg-white">
         <div
           className={`${appPageContainerClass} flex flex-col items-center gap-2 py-8 text-center sm:flex-row sm:justify-between sm:text-left`}
         >

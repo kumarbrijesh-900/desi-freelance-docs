@@ -102,7 +102,7 @@ export default function Home() {
               </div>
 
               <Box shadow="coral" className="bg-paper p-8 relative z-20">
-                <div className="flex justify-between items-start border-b-2 border-ink pb-6 mb-6">
+                <div className="flex justify-between items-start border-b border-soft pb-6 mb-6">
                   <div>
                     <h3 className="font-display text-3xl font-black uppercase tracking-tight text-ink">INV-042</h3>
                     <p className="font-mono text-xs uppercase tracking-widest text-ink-2 mt-1">Acme Corp</p>
@@ -115,17 +115,17 @@ export default function Home() {
                     <span className="font-mono text-sm text-ink-2">Brand Identity Design</span>
                     <span className="font-mono text-sm font-bold text-ink">₹85,000</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-t-2 border-ink/10">
+                  <div className="flex justify-between items-center py-2 border-t border-soft/10">
                     <span className="font-mono text-sm text-ink-2">Web Development</span>
                     <span className="font-mono text-sm font-bold text-ink">₹1,20,000</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-t-2 border-ink/10">
+                  <div className="flex justify-between items-center py-2 border-t border-soft/10">
                     <span className="font-mono text-sm text-ink-2">IGST (18%)</span>
                     <span className="font-mono text-sm font-bold text-ink">₹36,900</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-6 border-t-2 border-ink">
+                <div className="flex justify-between items-center pt-6 border-t border-soft">
                   <span className="font-display text-xl font-bold uppercase text-ink">Total</span>
                   <span className="font-display text-2xl font-black text-ink">₹2,41,900</span>
                 </div>
@@ -143,23 +143,23 @@ export default function Home() {
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-6 sm:gap-12 text-center font-mono text-[12px] md:text-[14px] font-bold uppercase tracking-[0.14em] text-ink">
             <div className="flex items-center gap-3">
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-grass"></span>
+              <span className="w-3.5 h-3.5 rounded-full border border-soft bg-grass"></span>
               <span>GST compliant</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-sky"></span>
+              <span className="w-3.5 h-3.5 rounded-full border border-soft bg-sky"></span>
               <span>Milestone billing</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-lav"></span>
+              <span className="w-3.5 h-3.5 rounded-full border border-soft bg-lav"></span>
               <span>MSA enforced</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-coral"></span>
+              <span className="w-3.5 h-3.5 rounded-full border border-soft bg-coral"></span>
               <span>Private by default</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-ink bg-butter"></span>
+              <span className="w-3.5 h-3.5 rounded-full border border-soft bg-butter"></span>
               <span>RCM / LUT aware</span>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function Home() {
           <div className="flex flex-col gap-6 max-w-4xl mx-auto">
             {/* Step 1 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-hi text-ink font-display font-black text-2xl rounded-xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-soft bg-hi text-ink font-display font-black text-2xl rounded-xl">
                 01
               </div>
               <div className="flex-1">
@@ -207,7 +207,7 @@ export default function Home() {
 
             {/* Step 2 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-rose text-ink font-display font-black text-2xl rounded-xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-soft bg-rose text-ink font-display font-black text-2xl rounded-xl">
                 02
               </div>
               <div className="flex-1">
@@ -225,7 +225,7 @@ export default function Home() {
 
             {/* Step 3 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-sky text-white font-display font-black text-2xl rounded-xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-soft bg-sky text-white font-display font-black text-2xl rounded-xl">
                 03
               </div>
               <div className="flex-1">
@@ -243,7 +243,7 @@ export default function Home() {
 
             {/* Step 4 */}
             <Box shadow="ink" className="p-8 bg-paper flex items-center gap-8">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-lav text-white font-display font-black text-2xl rounded-xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-soft bg-lav text-white font-display font-black text-2xl rounded-xl">
                 04
               </div>
               <div className="flex-1">
@@ -271,7 +271,7 @@ export default function Home() {
             
             <div className="max-w-xs">
               <div className="flex items-center gap-3 mb-4">
-                <span className="flex h-10 w-10 items-center justify-center border-2 border-ink bg-acid text-[18px] font-black text-acc-ink shadow-[2px_2px_0_var(--color-ink)]">
+                <span className="flex h-10 w-10 items-center justify-center border border-soft bg-acid text-[18px] font-black text-acc-ink shadow-[2px_2px_0_var(--color-ink)]">
                   L
                 </span>
                 <span className="font-display text-3xl font-black uppercase tracking-tight text-ink">
@@ -326,7 +326,7 @@ export default function Home() {
 
           </div>
           
-          <div className="border-t-2 border-ink/10 mt-16 pt-8 text-center md:text-left">
+          <div className="border-t border-soft/10 mt-16 pt-8 text-center md:text-left">
             <p className="font-mono text-xs uppercase tracking-widest text-ink-3">
               © 2026 Lance. Made in India.
             </p>
