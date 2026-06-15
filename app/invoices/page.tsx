@@ -415,11 +415,11 @@ export default function InvoicesPage() {
             if (filter === f) {
                if (f === "All") toneClass = "bg-ink text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Draft") toneClass = "bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Sent") toneClass = "bg-sky text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Sent") toneClass = "bg-sky text-white shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Revision") toneClass = "bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Revision") toneClass = "bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Live") toneClass = "bg-acid text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Settled") toneClass = "bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               else if (f === "Settled") toneClass = "bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Complete") toneClass = "bg-forest text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
                else if (f === "Offline") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
             }
@@ -467,7 +467,7 @@ export default function InvoicesPage() {
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
-                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
+                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border-2 border-ink bg-coral text-white shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
                   Delete
                 </button>
                 <button type="button" onClick={clearSelection}

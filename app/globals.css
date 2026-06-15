@@ -24,15 +24,15 @@
   --color-ochre-deep:   #a5772a;
   --color-gold:         #caa14e;  /* gold accent */
   --color-clay:         #cf9b78;  /* soft clay — sparingly */
-  --color-coral:        #ff5a4d;  /* ALERT  · hot coral   */
-  --color-rose:         #ff9ec7;  /* SOFT   · candy pink  */
-  --color-sky:          #4cb4ff;  /* INFO   · electric blue */
-  --color-lav:          #b29bff;  /* PRO    · lavender    */
-  --color-butter:       #ffd84d;  /* WARN   · butter      */
-  --color-grass:        #3acc7a;  /* OK     · fresh green */
-  --color-overdue:      #a32d2d;  /* OVERDUE - deep red */
-  --color-forest:       #0f6e56;  /* COMPLETE - deep green */
-  --color-plum:         #7c2dd6;
+  --color-coral:        #c2502f;  /* ALERT / REVISION · rust */
+  --color-rose:         #e7c9b8;  /* SOFT · clay-blush */
+  --color-sky:          #3c6e63;  /* INFO / LOCKED · muted teal */
+  --color-lav:          #7d7059;  /* PARTIAL / VIEWED · taupe */
+  --color-butter:       #c8943b;  /* AWAITING / WARN · ochre */
+  --color-grass:        #157a54;  /* SETTLED / OK · emerald */
+  --color-overdue:      #a32d2d;  /* OVERDUE · deep red */
+  --color-forest:       #1e3d33;  /* COMPLETE · bottle-green */
+  --color-plum:         #6f5775;  /* muted plum */
 
   /* Tonal page backgrounds (per-route) */
   --color-paper-rose:   #ffeef5;

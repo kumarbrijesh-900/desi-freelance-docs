@@ -12,10 +12,10 @@ function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClien
   // Return side (left stripe color) and pill details
   if (status === 'cancelled') return { side: 'bg-rule', pill: 'bg-rule text-ink line-through', label: 'cancelled' };
   if (status === 'overdue') return { side: 'bg-overdue', pill: 'bg-overdue text-acc-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'overdue' };
-  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'settled' };
-  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'revision' };
-  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-sky', pill: 'bg-sky text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'locked' };
+  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'settled' };
+  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'revision' };
+  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-sky', pill: 'bg-sky text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'locked' };
   if (msa === 'proposed') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
   if (status === 'finalized' || status === 'sent' || status === 'live') return { side: 'bg-acid', pill: 'bg-acid text-acc-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'live' };
