@@ -3,7 +3,7 @@ import { cn } from "@/lib/ui-foundation";
 
 export const AppTable = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="w-full overflow-auto rounded-none border-2 border-[#111118]">
+    <div className="w-full overflow-auto rounded-2xl border-2 border-[#111118]">
       <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   )

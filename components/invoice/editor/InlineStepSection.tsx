@@ -72,7 +72,7 @@ export function InlineStepSection({
       }
       data-step-kind={stepKind}
       className={cn(
-        "box shadow relative scroll-mt-32 overflow-visible rounded-none px-[18px] sm:px-[32px] py-[28px] transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
+        "box shadow relative scroll-mt-32 overflow-visible rounded-2xl px-[18px] sm:px-[32px] py-[28px] transition-[background-color,border-color,box-shadow] duration-[var(--app-duration-medium)]",
       )}
     >
       <div className="flex flex-col gap-2">

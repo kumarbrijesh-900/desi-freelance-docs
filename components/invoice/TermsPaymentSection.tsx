@@ -255,7 +255,7 @@ export default function TermsPaymentSection({
     <>
       
 
-      <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
+      <section className={cn(embedded ? "rounded-2xl border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
         {!embedded && (
           <div className="mb-8 space-y-2">
             <h2 className={appSectionTitleClass}>Payment</h2>
@@ -393,7 +393,7 @@ export default function TermsPaymentSection({
                           <div className="space-y-1.5">
                             <label className={appFieldLabelClass}>Settlement Type</label>
                             <div className={cn(
-                              "inline-flex max-w-full flex-wrap gap-1 rounded-none border border-[color:var(--color-soft)] bg-[color:var(--color-paper)] p-1",
+                              "inline-flex max-w-full flex-wrap gap-1 rounded-2xl border border-[color:var(--color-soft)] bg-[color:var(--color-paper)] p-1",
                               isReadOnly && "opacity-60 cursor-not-allowed pointer-events-none"
                             )}>
                               {[
@@ -413,7 +413,7 @@ export default function TermsPaymentSection({
                                       disabled={isReadOnly}
                                       className="sr-only"
                                      />
-                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-none border px-3 py-1 text-[12px] font-bold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--color-ink)]" : "app-soft-choice-option text-[color:var(--color-ink)] hover:text-[color:var(--color-ink)]")}>
+                                    <span className={cn("flex min-h-[34px] items-center justify-center rounded-2xl border px-3 py-1 text-[12px] font-bold tracking-[0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--app-duration-fast)]", isSelected ? "app-soft-choice-option-active text-[color:var(--color-ink)]" : "app-soft-choice-option text-[color:var(--color-ink)] hover:text-[color:var(--color-ink)]")}>
                                       {option.label}
                                     </span>
                                   </label>
@@ -1055,7 +1055,7 @@ export default function TermsPaymentSection({
                           </div>
                         </div>
 
-                        <div className="rounded-none bg-[color:var(--color-paper-2)]/50 p-5 ring-1 ring-inset ring-[color:var(--color-soft)]">
+                        <div className="rounded-2xl bg-[color:var(--color-paper-2)]/50 p-5 ring-1 ring-inset ring-[color:var(--color-soft)]">
                           <p className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)] mb-4">Address Preview</p>
                           <pre className="whitespace-pre-wrap font-mono text-[11px] text-[color:var(--color-ink)] leading-relaxed">{value.bankAddress || "No address provided"}</pre>
                         </div>

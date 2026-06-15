@@ -198,7 +198,7 @@ export default function DeliverablesSection({
     <section
       className={cn(
         "overflow-visible",
-        embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass(),
+        embedded ? "rounded-2xl border-0 bg-transparent p-0 shadow-none" : getAppPanelClass(),
       )}
     >
       {!embedded && (
@@ -229,7 +229,7 @@ export default function DeliverablesSection({
                   onProjectNameChange(event.target.value);
                 }}
                 placeholder="e.g. Villa Renovation Phase 2"
-                className="w-full rounded-none border-[2px] border-[#111118] px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
+                className="w-full rounded-2xl border-[2px] border-[#111118] px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
               />
               {showAllErrors && !projectName.trim() && (
                 <p className="mt-2 text-xs font-bold text-[#FF5C00]">

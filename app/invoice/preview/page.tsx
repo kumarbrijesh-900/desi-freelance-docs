@@ -1110,7 +1110,7 @@ function PreviewContent() {
                     }}
                   >
                     <div
-                      className="invoice-sheet relative mx-auto rounded-none border border-[color:var(--color-ink)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
+                      className="invoice-sheet relative mx-auto rounded-2xl border border-[color:var(--color-ink)] bg-white shadow-[var(--app-floating-shadow)] transition-all duration-300 print:static print:transform-none print:border-0 print:shadow-none"
                       style={{
                         width: "794px",
                         height: "1123px",

@@ -11,9 +11,9 @@
   --color-strong:       #c9bb9d;
 
   --elev-0: none;
-  --elev-1: 2px 2px 0 var(--color-ink);
-  --elev-2: 4px 4px 0 var(--color-ink);
-  --elev-3: 6px 6px 0 var(--color-ink);
+  --elev-1: 0 6px 16px -10px rgba(30,61,51,0.40);
+  --elev-2: 0 14px 30px -16px rgba(30,61,51,0.48);
+  --elev-3: 0 22px 44px -20px rgba(30,61,51,0.55);
 
   /* E palette — deep + soothing */
   --color-acid:         #1e3d33;  /* PRIMARY · bottle-green (legacy token name) */
@@ -46,17 +46,23 @@
   --font-sans:    var(--font-sans);
   --font-mono:    var(--font-mono);
 
-  /* Hard-shadow scale (the look) */
-  --shadow-chunk-sm:  3px 3px 0 var(--color-ink);
-  --shadow-chunk:     4px 4px 0 var(--color-ink);
-  --shadow-chunk-lg:  6px 6px 0 var(--color-ink);
-  --shadow-chunk-coral: 5px 5px 0 var(--color-coral);
-  --shadow-chunk-sky:   5px 5px 0 var(--color-sky);
-  --shadow-chunk-lav:   5px 5px 0 var(--color-lav);
+  /* Soft-shadow scale (E) — layered, green-tinted */
+  --shadow-chunk-sm:  0 8px 18px -12px rgba(30,61,51,0.42);
+  --shadow-chunk:     0 14px 30px -16px rgba(30,61,51,0.48);
+  --shadow-chunk-lg:  0 22px 44px -20px rgba(30,61,51,0.55);
+  --shadow-chunk-coral: 0 14px 30px -16px rgba(165,119,42,0.38);
+  --shadow-chunk-sky:   0 14px 30px -16px rgba(60,110,99,0.36);
+  --shadow-chunk-lav:   0 14px 30px -16px rgba(95,87,74,0.32);
+
+  /* Brutal-shadow aliases — now soft; base for desktop (was undefined) */
+  --brutal-shadow-sm:      0 6px 16px -10px rgba(30,61,51,0.40);
+  --brutal-shadow-md:      0 14px 30px -16px rgba(30,61,51,0.48);
+  --brutal-shadow-lg:      0 22px 44px -20px rgba(30,61,51,0.55);
+  --brutal-shadow-pressed: 0 3px 10px -6px rgba(30,61,51,0.40);
 
   --radius-pill: 9999px;
-  --radius-box:  4px;
-  --radius-soft: 10px;
+  --radius-box:  14px;
+  --radius-soft: 18px;
 }
 
 
@@ -724,10 +730,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
 
 @media (max-width: 768px) {
   :root {
-    --brutal-shadow-sm: 2px 2px 0 #111118;
-    --brutal-shadow-md: 2px 2px 0 #111118;
-    --brutal-shadow-lg: 3px 3px 0 #111118;
-    --brutal-shadow-pressed: 1px 1px 0 #111118;
+    --brutal-shadow-sm: 0 5px 14px -10px rgba(30,61,51,0.38);
+    --brutal-shadow-md: 0 10px 24px -14px rgba(30,61,51,0.45);
+    --brutal-shadow-lg: 0 16px 34px -18px rgba(30,61,51,0.50);
+    --brutal-shadow-pressed: 0 3px 9px -6px rgba(30,61,51,0.38);
     --app-control-height-sm: 34px;
     --app-control-height-md: 40px;
     --app-control-height-lg: 48px;
@@ -755,10 +761,10 @@ input::placeholder, select::placeholder, textarea::placeholder {
 
 @media (max-width: 480px) {
   :root {
-    --brutal-shadow-sm: 1.5px 1.5px 0 #111118;
-    --brutal-shadow-md: 2px 2px 0 #111118;
-    --brutal-shadow-lg: 2px 2px 0 #111118;
-    --brutal-shadow-pressed: 1px 1px 0 #111118;
+    --brutal-shadow-sm: 0 4px 12px -9px rgba(30,61,51,0.36);
+    --brutal-shadow-md: 0 9px 22px -14px rgba(30,61,51,0.42);
+    --brutal-shadow-lg: 0 14px 30px -16px rgba(30,61,51,0.48);
+    --brutal-shadow-pressed: 0 3px 8px -6px rgba(30,61,51,0.36);
     --app-control-height-sm: 32px;
     --app-control-height-md: 38px;
     --app-control-height-lg: 44px;

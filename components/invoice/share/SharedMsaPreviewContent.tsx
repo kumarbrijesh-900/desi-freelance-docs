@@ -410,7 +410,7 @@ export default function SharedMsaPreviewContent({
           showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
-            className="invoice-sheet mx-auto w-full max-w-[210mm] border-2 border-[#111118] bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-none print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
+            className="invoice-sheet mx-auto w-full max-w-[210mm] border-2 border-[#111118] bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
             preset="scale-in"
           >
             <TemplateRenderer formData={formData} templateId={templateId} />

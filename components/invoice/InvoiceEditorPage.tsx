@@ -2848,7 +2848,7 @@ return (
                           {!isReadOnlyMode && (
                             <div className="flex items-center gap-2">
                               <span className="text-[10px] font-bold text-[color:var(--color-ink-2)]">Edit</span>
-                              <AppSwitch className="rounded-none" checked={isEditingMeta} onChange={setIsEditingMeta} />
+                              <AppSwitch className="rounded-2xl" checked={isEditingMeta} onChange={setIsEditingMeta} />
                             </div>
                           )}
                         </div>

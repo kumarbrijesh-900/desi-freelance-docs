@@ -443,7 +443,7 @@ export default function BriefSummaryModal({
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-none bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
+          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
         >
           <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5 bg-gradient-to-r from-transparent to-white/[0.02]">
             <div className="flex items-center gap-4">
@@ -500,7 +500,7 @@ export default function BriefSummaryModal({
                   <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-brand px-1">
                     Extracted Successfully
                   </h3>
-                  <div className="rounded-none border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
+                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
                     {successFields.map((f) => {
                       const val = getExtractedValueForLabel(f.label, localData);
                       return (

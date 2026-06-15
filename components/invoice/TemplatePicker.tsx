@@ -105,7 +105,7 @@ function MiniInvoiceThumbnail({ template }: { template: TemplateMetadata }) {
       >
         <div className="flex items-center gap-1">
           <div
-            className="h-1.5 w-1.5 rounded-none"
+            className="h-1.5 w-1.5 rounded-2xl"
             style={{ backgroundColor: barText, opacity: 0.5 }}
           />
           <div

@@ -295,7 +295,7 @@ export default function ClientDetailsSection({
     "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border-2 border-[#111118] px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
 
   return (
-    <section className={cn(embedded ? "rounded-none border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
+    <section className={cn(embedded ? "rounded-2xl border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
       {!embedded && (
         <div className="mb-6 space-y-2">
           <h2 className={appSectionTitleClass}>Client</h2>

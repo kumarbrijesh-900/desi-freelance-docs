@@ -212,7 +212,7 @@ export default function AgencyDetailsSection({
       <section
         className={cn(
           embedded
-            ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+            ? "rounded-2xl border-0 bg-transparent p-0 shadow-none"
             : getAppPanelClass(),
         )}
       >
@@ -424,7 +424,7 @@ export default function AgencyDetailsSection({
                         </AnimatePresence>
 
                         {showNoLutTotalsNote && (
-                          <div className="rounded-none bg-[color:var(--color-paper-2)] px-3 py-2">
+                          <div className="rounded-2xl bg-[color:var(--color-paper-2)] px-3 py-2">
                             <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)]">
                               Without a valid LUT, IGST will be applied to export invoices by default.
                             </p>

@@ -31,7 +31,7 @@ export default function ChoiceCards<T extends string>({
   const reducedMotion = useReducedMotion();
   const wrapperClass =
     variant === "segmented"
-      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-none p-1 ${columns === 2 ? "grid-cols-2" : ""}`
+      ? `app-soft-choice-track grid min-w-0 auto-rows-fr gap-1 rounded-2xl p-1 ${columns === 2 ? "grid-cols-2" : ""}`
       : variant === "minimal-segmented"
         ? cn(
             "flex items-center gap-1 border border-[color:var(--color-ink)] rounded-[var(--app-radius-control)] p-1 h-11 bg-transparent",
@@ -43,7 +43,7 @@ export default function ChoiceCards<T extends string>({
 
   const getCardClass = (isSelected: boolean) => {
     if (variant === "segmented") {
-      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-none border px-3 py-2 text-left text-[13px] font-normal transition-all duration-150 ${
+      return `flex min-h-[40px] min-w-0 items-center gap-2 rounded-2xl border px-3 py-2 text-left text-[13px] font-normal transition-all duration-150 ${
         isSelected
           ? "app-soft-choice-option-active text-[color:var(--color-ink)]"
           : "app-soft-choice-option text-[color:var(--color-ink)] opacity-65 hover:opacity-100"
@@ -51,7 +51,7 @@ export default function ChoiceCards<T extends string>({
     }
 
     if (variant === "minimal-segmented") {
-      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-none px-3 py-1 text-center text-[13px] font-normal transition-all duration-200 ${
+      return `flex h-full min-w-0 items-center justify-center gap-2 rounded-2xl px-3 py-1 text-center text-[13px] font-normal transition-all duration-200 ${
         isSelected
           ? "bg-white text-[color:var(--color-ink)] shadow-sm ring-1 ring-black/5"
           : "bg-transparent text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]"
