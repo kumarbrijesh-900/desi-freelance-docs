@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Archivo, Space_Mono, Caveat } from "next/font/google";
+import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/ui/AppToast";
 
-const archivo = Archivo({ 
-  subsets: ["latin"], 
-  variable: "--font-display", 
-  weight: ["400", "500", "600", "700", "800", "900"] 
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700", "800"]
 });
 
-const mono = Space_Mono({ 
-  subsets: ["latin"], 
-  variable: "--font-mono", 
-  weight: ["400", "700"] 
+const sans = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"]
 });
 
-const caveat = Caveat({ 
-  subsets: ["latin"], 
-  variable: "--font-hand", 
-  weight: ["500", "600"] 
+const mono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "700"]
 });
 
 export const metadata: Metadata = {
@@ -49,10 +49,10 @@ export default function RootLayout({
       <html
         lang="en"
         data-scroll-behavior="smooth"
-        className={`${archivo.variable} ${mono.variable} ${caveat.variable} h-full antialiased`}
+        className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
       >
       <head>
-        <meta name="theme-color" content="#F8F8FA" />
+        <meta name="theme-color" content="#f2ebd8" />
       </head>
       <body className="min-h-full flex flex-col relative">
         <ToastProvider>

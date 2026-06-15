@@ -38,8 +38,8 @@
 
   /* Fonts */
   --font-display: var(--font-display);
+  --font-sans:    var(--font-sans);
   --font-mono:    var(--font-mono);
-  --font-hand:    var(--font-hand);
 
   /* Hard-shadow scale (the look) */
   --shadow-chunk-sm:  3px 3px 0 var(--color-ink);
@@ -59,9 +59,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--color-ink);
-  --font-sans: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
-  --font-syne: var(--font-syne);
-  --font-mono: var(--font-geist-mono);
+
   --color-indigo-brand: var(--brand-indigo);
   --color-indigo-light: var(--brand-indigo-light);
   --color-indigo-muted: var(--brand-indigo-muted);
@@ -72,7 +70,7 @@ body {
   background-image: radial-gradient(circle at 1px 1px, rgba(36,32,26,0.045) 1px, transparent 0);
   background-size: 22px 22px;
   color: var(--color-ink);
-  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
 html {
@@ -80,11 +78,11 @@ html {
 }
 
 h1, h2, h3 {
-  font-family: var(--font-syne), var(--font-dm-sans), system-ui, sans-serif;
+  font-family: var(--font-display), system-ui, sans-serif;
 }
 
 .font-syne {
-  font-family: var(--font-syne), sans-serif !important;
+  font-family: var(--font-display), sans-serif !important;
 }
 
 /* --- Panels --- */
