@@ -103,34 +103,34 @@ h1, h2, h3 {
 .app-soft-panel-success,
 .app-soft-panel-warning,
 .app-soft-shell {
-  border: 2px solid #111118;
+  border: 1px solid var(--color-soft);
   background: var(--color-paper);
   box-shadow: var(--brutal-shadow-sm);
-  border-radius: 0;
+  border-radius: var(--radius-soft);
 }
 
 .app-soft-panel-muted {
   background: var(--color-paper-2);
-  border-color: #111118;
+  border-color: var(--color-soft);
   box-shadow: none;
 }
 
 .app-soft-panel-success {
-  border-color: #111118;
-  background: var(--state-success-bg);
-  color: var(--state-success-text);
+  border-color: var(--color-soft);
+  background: var(--color-acc-soft);
+  color: var(--color-ink);
   box-shadow: var(--brutal-shadow-sm);
 }
 
 .app-soft-panel-warning {
-  border-color: #111118;
-  background: var(--state-warning-bg);
-  color: var(--state-warning-text);
+  border-color: var(--color-soft);
+  background: #f6ecd6;
+  color: var(--color-ink);
   box-shadow: var(--brutal-shadow-sm);
 }
 
 .app-soft-shell {
-  background: #ffffff;
+  background: var(--color-paper-2);
   box-shadow: var(--brutal-shadow-lg);
   backdrop-filter: none;
 }
@@ -138,40 +138,40 @@ h1, h2, h3 {
 /* --- Fields --- */
 
 .app-soft-field {
-  border: 2px solid #111118;
+  border: 1px solid var(--color-soft);
   background: #ffffff;
   box-shadow: none;
-  border-radius: 0;
+  border-radius: var(--radius-box);
   transition: border-color var(--app-duration-fast) var(--app-ease-standard), box-shadow var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .app-soft-field:hover {
-  border-color: #111118;
-  box-shadow: var(--brutal-shadow-pressed);
+  border-color: var(--color-ink-3);
+  box-shadow: none;
 }
 
 .app-soft-field:focus-within {
-  border-color: #111118;
-  box-shadow: 0 0 0 2px var(--color-lime-300);
+  border-color: var(--color-acid);
+  box-shadow: 0 0 0 3px var(--color-acc-soft);
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #111118;
-  box-shadow: 0 0 0 2px var(--color-lime-300);
+  border-color: var(--color-acid);
+  box-shadow: 0 0 0 3px var(--color-acc-soft);
 }
 
 .app-soft-field-filled {
-  border-color: #111118;
+  border-color: var(--color-soft);
   background: var(--color-paper);
   color: var(--color-ink);
   box-shadow: none;
 }
 
 .app-soft-field-error {
-  border-color: var(--color-coral-400);
+  border-color: #c2502f;
   background: #ffffff;
-  box-shadow: 3px 3px 0 var(--color-coral-400);
+  box-shadow: 0 0 0 3px rgba(194,80,47,0.22);
   animation: none;
 }
 
