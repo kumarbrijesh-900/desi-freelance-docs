@@ -2505,12 +2505,12 @@ return (
           {isGuestMode && (
             <div className="mb-6 print:hidden">
               <div className="border-2 border-[color:var(--color-lime-warm)] bg-[#FFFBE6] px-4 py-3 flex items-center justify-between gap-3">
-                <p className="text-[13px] text-[#111118]">
+                <p className="text-[13px] text-[color:var(--color-ink)]">
                   <span className="font-bold uppercase tracking-wider">Guest mode</span> — your invoice is saved locally. Sign in to enable cloud save, PDF export, and sharing.
                 </p>
                 <Link
                   href="/login"
-                  className="shrink-0 text-[12px] font-bold text-[#111118] underline underline-offset-2 hover:text-[#8B5CF6]"
+                  className="shrink-0 text-[12px] font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-[#8B5CF6]"
                 >
                   Sign in →
                 </Link>
@@ -2555,7 +2555,7 @@ return (
             {isReadOnlyMode && (
               <MotionReveal preset="fade-up" className="mb-4">
                 <div className="flex items-start gap-3 border border-soft bg-[#FFEBA4] p-4 shadow-[var(--brutal-shadow-md)]">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111118] text-[color:var(--color-lime-warm)]">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-[color:var(--color-lime-warm)]">
                     <svg
                       className="h-4 w-4"
                       viewBox="0 0 24 24"
@@ -3151,7 +3151,7 @@ return (
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            className="flex w-full max-w-sm flex-col overflow-hidden bg-[#111118] border border-[color:var(--color-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
+            className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
             <h3 className="text-lg font-bold text-white mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
@@ -3276,7 +3276,7 @@ return (
                 "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                 invoiceReadyForPreview
                   ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
-                  : "border border-soft bg-[#FFFBE6] text-[#111118] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
+                  : "border border-soft bg-[#FFFBE6] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
               )}
             >
               <span className="hidden sm:inline">

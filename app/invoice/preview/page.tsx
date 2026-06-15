@@ -68,28 +68,28 @@ const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: stri
   },
   "client-proposed": {
     label: "REVISION REQUESTED",
-    className: "border-soft bg-[#FFB35F] text-[#111118]",
+    className: "border-soft bg-[#FFB35F] text-[color:var(--color-ink)]",
   },
   "awaiting-client": {
     label: "AWAITING CLIENT",
-    className: "border-soft bg-[#FFE08A] text-[#111118]",
+    className: "border-soft bg-[#FFE08A] text-[color:var(--color-ink)]",
   },
   "msa-accepted": {
     label: "LOCKED",
-    className: "border-soft bg-[#FBE5E5] text-[#111118]",
+    className: "border-soft bg-[#FBE5E5] text-[color:var(--color-ink)]",
   },
   "invoice-settled": {
     label: "SETTLED",
-    className: "border-soft bg-[#00DCB4] text-[#111118]",
+    className: "border-soft bg-[#00DCB4] text-[color:var(--color-ink)]",
   },
   "invoice-partial": {
     label: "PARTIALLY SETTLED",
-    className: "border-soft text-[#111118]",
+    className: "border-soft text-[color:var(--color-ink)]",
     style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
   },
   "invoice-cancelled": {
     label: "CANCELLED",
-    className: "border-soft bg-[#D4D2CC] text-[#111118]",
+    className: "border-soft bg-[#D4D2CC] text-[color:var(--color-ink)]",
   },
 };
 
@@ -1018,7 +1018,7 @@ function PreviewContent() {
                     <button
                       type="button"
                       onClick={handleLockedAlternativeAction}
-                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[var(--brutal-shadow-pressed)]"
+                      className="inline-flex items-center justify-center bg-ink px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[var(--brutal-shadow-pressed)]"
                     >
                       {lockState.alternativeAction.label}
                     </button>

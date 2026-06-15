@@ -542,7 +542,7 @@ export default function InvoicesPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete invoice?</h3>
+            <h3 className="text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
             <p className="text-sm font-bold text-neutral-600 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
             </p>
@@ -570,7 +570,7 @@ export default function InvoicesPage() {
       {bulkDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete selected?</h3>
+            <h3 className="text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
             <p className="text-sm font-bold text-neutral-600 mb-5">
               Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
             </p>

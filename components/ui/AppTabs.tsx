@@ -30,8 +30,8 @@ export const AppTabsTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "inline-flex h-full items-center justify-center whitespace-nowrap px-6 py-1.5 text-sm font-bold uppercase tracking-wider transition-all disabled:pointer-events-none disabled:opacity-50",
-      "hover:bg-[color:var(--color-paper-2)] hover:text-[#111118]",
-      active && "border-b-4 border-[color:var(--brand-indigo-deep)] bg-[color:var(--color-paper)] text-[#111118]",
+      "hover:bg-[color:var(--color-paper-2)] hover:text-[color:var(--color-ink)]",
+      active && "border-b-4 border-[color:var(--brand-indigo-deep)] bg-[color:var(--color-paper)] text-[color:var(--color-ink)]",
       className
     )}
     {...props}

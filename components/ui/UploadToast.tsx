@@ -26,11 +26,11 @@ export default function UploadToast({ message, visible }: UploadToastProps) {
         >
           <div
             className={cn(
-              "flex items-center gap-3 rounded-full border border-[color:var(--color-lime-300)] bg-[#111118] px-5 py-3",
+              "flex items-center gap-3 rounded-full border border-[color:var(--color-lime-300)] bg-ink px-5 py-3",
               "shadow-xl",
             )}
           >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-400)] text-[#111118] shadow-[0_1px_0_rgba(255,255,255,0.2)]">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--color-lime-400)] text-[color:var(--color-ink)] shadow-[0_1px_0_rgba(255,255,255,0.2)]">
               <CheckIcon className="h-4 w-4 stroke-[3]" />
             </span>
             <span className="text-sm font-bold text-white">{message}</span>

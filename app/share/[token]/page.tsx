@@ -265,8 +265,8 @@ export default function PublicInvoiceSharePage({
       {showProposedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex items-center gap-2.5 border border-soft bg-[#FFD700] px-5 py-3 shadow-[var(--brutal-shadow-md)]">
-            <span className="text-[#111118] font-bold text-base">✓</span>
-            <p className="text-sm font-bold text-[#111118]">
+            <span className="text-[color:var(--color-ink)] font-bold text-base">✓</span>
+            <p className="text-sm font-bold text-[color:var(--color-ink)]">
               Proposal sent — waiting for the freelancer to review your changes.
             </p>
           </div>

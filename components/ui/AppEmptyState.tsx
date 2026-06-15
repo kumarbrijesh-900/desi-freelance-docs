@@ -23,7 +23,7 @@ export function AppEmptyState({ title, description, icon, action, className, ...
           {icon}
         </div>
       )}
-      <h3 className="mb-2 text-lg font-black uppercase tracking-tight text-[#111118]">{title}</h3>
+      <h3 className="mb-2 text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)]">{title}</h3>
       {description && <p className="mb-6 max-w-sm text-sm font-normal text-[color:var(--color-ink-2)]">{description}</p>}
       {action && <div>{action}</div>}
     </div>

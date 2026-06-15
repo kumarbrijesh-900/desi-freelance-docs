@@ -154,7 +154,7 @@ export default function BriefIntakeCard({
                 >
                   AI Autofill
                 </span>
-                <span className="truncate text-[12px] font-bold text-[#111118]">
+                <span className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">
                   Ready to scan your brief
                 </span>
               </div>
@@ -233,7 +233,7 @@ export default function BriefIntakeCard({
                     {imageFiles.map((file) => (
                       <span
                         key={`${file.name}-${file.lastModified}`}
-                        className="inline-flex items-center gap-2 border border-soft bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[#111118]"
+                        className="inline-flex items-center gap-2 border border-soft bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[color:var(--color-ink)]"
                       >
                         <ClipboardCheckIcon className="h-3.5 w-3.5" />
                         {file.name}

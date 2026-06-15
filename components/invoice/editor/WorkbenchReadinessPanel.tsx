@@ -68,7 +68,7 @@ export function WorkbenchReadinessPanel({
               "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border border-soft",
               isReadOnly
                 ? "bg-[#F5F4F0] text-[#6B6660]"
-                : ready ? "bg-[#00DCB4] text-[#111118]" : "bg-[#FFFBE6] text-[#B45309]",
+                : ready ? "bg-[#00DCB4] text-[color:var(--color-ink)]" : "bg-[#FFFBE6] text-[#B45309]",
             )}
             aria-hidden="true"
           >
@@ -87,11 +87,11 @@ export function WorkbenchReadinessPanel({
             )}>
               {readinessLabel}
             </p>
-            <p className="mt-0.5 text-[14px] font-black text-[#111118]">
+            <p className="mt-0.5 text-[14px] font-black text-[color:var(--color-ink)]">
               {statusText}
             </p>
             {!isReadOnly && (
-              <p className="mt-1 text-[11px] font-black text-[#111118]">
+              <p className="mt-1 text-[11px] font-black text-[color:var(--color-ink)]">
                 {progress}%
               </p>
             )}
@@ -115,7 +115,7 @@ export function WorkbenchReadinessPanel({
             {readOnlyReason || "This invoice is read-only."}
           </p>
         ) : ready ? (
-          <p className="text-[12px] font-bold leading-5 text-[#111118]">
+          <p className="text-[12px] font-bold leading-5 text-[color:var(--color-ink)]">
             All required sections are complete. Review totals, then open preview.
           </p>
         ) : (
@@ -123,7 +123,7 @@ export function WorkbenchReadinessPanel({
             <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
               Next blocker
             </p>
-            <p className="mt-0.5 text-[12px] font-bold leading-5 text-[#111118]">
+            <p className="mt-0.5 text-[12px] font-bold leading-5 text-[color:var(--color-ink)]">
               {rail ? "" : nextStepLabel ? `${nextStepLabel}: ` : `${activeStepLabel}: `}
               {visibleFields.length > 0
                 ? visibleFields.join(", ")
@@ -140,11 +140,11 @@ export function WorkbenchReadinessPanel({
       )}>
         <div className="min-w-0">
           <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Client</p>
-          <p className="truncate text-[12px] font-bold text-[#111118]">{clientName?.trim() || "Not set"}</p>
+          <p className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">{clientName?.trim() || "Not set"}</p>
         </div>
         <div className="min-w-0">
           <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Due</p>
-          <p className="truncate text-[12px] font-bold text-[#111118]">{dueDate || "Not set"}</p>
+          <p className="truncate text-[12px] font-bold text-[color:var(--color-ink)]">{dueDate || "Not set"}</p>
         </div>
         <div className={cn("min-w-0", !rail && "text-right")}>
           <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">Total</p>
@@ -156,7 +156,7 @@ export function WorkbenchReadinessPanel({
         <button
           type="button"
           onClick={onReview}
-          className="mt-3 flex h-9 w-full items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#111118] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+          className="mt-3 flex h-9 w-full items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
           {rail ? "Review" : "Review blocker"}
         </button>

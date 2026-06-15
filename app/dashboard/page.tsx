@@ -458,7 +458,7 @@ function DashboardContent() {
             onClick={() => setSettlementChoice(null)}
           >
             <aside
-              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-ink bg-white shadow-[-4px_0_0_#111118]"
+              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-ink bg-white shadow-[var(--brutal-shadow-md)]"
               onClick={event => event.stopPropagation()}
             >
               <div className="flex items-start justify-between border-b-[3px] border-ink bg-[#FAF7F2] px-5 py-4">
@@ -466,7 +466,7 @@ function DashboardContent() {
                   <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
                     Settlement drawer
                   </div>
-                  <h2 className="mt-1 text-2xl font-black uppercase tracking-tight text-[#111118]">
+                  <h2 className="mt-1 text-2xl font-black uppercase tracking-tight text-[color:var(--color-ink)]">
                     Settle M{settlementChoice.milestoneNumber}?
                   </h2>
                   <p className="mt-1 text-sm font-bold text-neutral-600">
@@ -495,7 +495,7 @@ function DashboardContent() {
                       <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
                         Clear ({taxLabel})
                       </div>
-                      <div className="mt-1 text-xl font-black text-[#111118]">
+                      <div className="mt-1 text-xl font-black text-[color:var(--color-ink)]">
                         {formatInr(settlementAmount)}
                       </div>
                     </div>
@@ -503,7 +503,7 @@ function DashboardContent() {
                       <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
                         Timing
                       </div>
-                      <div className="mt-1 text-sm font-black text-[#111118]">
+                      <div className="mt-1 text-sm font-black text-[color:var(--color-ink)]">
                         {formatTimingLabel(timingSource)}
                       </div>
                     </div>
@@ -511,12 +511,12 @@ function DashboardContent() {
                       <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
                         After
                       </div>
-                      <div className="mt-1 text-sm font-black text-[#111118]">
+                      <div className="mt-1 text-sm font-black text-[color:var(--color-ink)]">
                         {afterCopy}
                       </div>
                     </div>
                   </div>
-                  <div className="px-4 py-3 text-sm font-extrabold text-[#111118]">
+                  <div className="px-4 py-3 text-sm font-extrabold text-[color:var(--color-ink)]">
                     Confirm only after the payment is visible in your bank account.
                   </div>
                 </section>
@@ -529,7 +529,7 @@ function DashboardContent() {
                     <div className="flex h-8 w-8 items-center justify-center border border-soft bg-white text-sm font-black">
                       §
                     </div>
-                    <div className="text-base font-black uppercase text-[#111118]">
+                    <div className="text-base font-black uppercase text-[color:var(--color-ink)]">
                       {contractTitle}
                     </div>
                   </div>
@@ -539,11 +539,11 @@ function DashboardContent() {
                   <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-ink/40 pt-3 text-sm sm:grid-cols-2">
                     <div>
                       <span className="font-extrabold text-neutral-600">Payment:</span>{" "}
-                      <span className="font-black text-[#111118]">{getPaymentTermsLabel(masterInvoice as any)}</span>
+                      <span className="font-black text-[color:var(--color-ink)]">{getPaymentTermsLabel(masterInvoice as any)}</span>
                     </div>
                     <div>
                       <span className="font-extrabold text-neutral-600">Late Fee:</span>{" "}
-                      <span className="font-black text-[#111118]">{getLateFeeLabel(masterInvoice as any)}</span>
+                      <span className="font-black text-[color:var(--color-ink)]">{getLateFeeLabel(masterInvoice as any)}</span>
                     </div>
                   </div>
                 </section>
@@ -582,14 +582,14 @@ function DashboardContent() {
                             </div>
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <div className="text-sm font-black uppercase text-[#111118]">
+                                <div className="text-sm font-black uppercase text-[color:var(--color-ink)]">
                                   M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
                                 </div>
                                 <div className="mt-1 text-sm font-bold text-neutral-600">
                                   {formatInr(Number(milestone.amount || 0))}
                                 </div>
                               </div>
-                              <span className="border border-soft bg-white px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[#111118]">
+                              <span className="border border-soft bg-white px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[color:var(--color-ink)]">
                                 {statusLabel}
                               </span>
                             </div>
@@ -704,7 +704,7 @@ function DashboardContent() {
               <div className="text-center text-sm font-bold text-neutral-700">
                 You successfully closed all milestones for
               </div>
-              <div className="mt-2 text-center text-xl font-black uppercase text-[#111118]">
+              <div className="mt-2 text-center text-xl font-black uppercase text-[color:var(--color-ink)]">
                 {projectClosureData.projectName}
               </div>
               
@@ -722,7 +722,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border border-soft bg-[#111118] py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border border-soft bg-ink py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>

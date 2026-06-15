@@ -11,7 +11,7 @@ export interface DownloadDecisionModalProps {
   onCancel: () => void
 }
 
-const INK = '#111118'
+const INK = '#211c16'
 const LIME = 'var(--color-lime-warm)'
 const CREAM = '#FFFBE6'
 const CORAL = '#FF5C00'
@@ -50,7 +50,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
     >
       <div
         className="relative w-full max-w-xl bg-white"
-        style={{ border: `4px solid ${INK}`, boxShadow: `8px 8px 0 ${INK}` }}
+        style={{ border: `4px solid ${INK}`, boxShadow: 'var(--brutal-shadow-lg)' }}
         onClick={(event) => event.stopPropagation()}
       >
         <div
@@ -107,7 +107,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
               backgroundColor: LIME,
               color: INK,
               border: `2px solid ${INK}`,
-              boxShadow: `4px 4px 0 ${INK}`,
+              boxShadow: 'var(--brutal-shadow-md)',
             }}
           >
             <div className="flex items-center justify-between gap-3">
@@ -131,7 +131,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
               backgroundColor: '#ffffff',
               color: INK,
               border: `2px solid ${INK}`,
-              boxShadow: `4px 4px 0 ${INK}`,
+              boxShadow: 'var(--brutal-shadow-md)',
             }}
           >
             <div className="text-sm font-black uppercase tracking-wider">

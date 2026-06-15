@@ -211,13 +211,13 @@ export default function DeliverablesSection({
       <div className="space-y-8">
         <div className="mb-4 border-[3px] border-soft bg-white p-4 shadow-[var(--brutal-shadow-md)]">
           <div className="mb-3">
-            <label className="text-xs font-bold uppercase tracking-wider text-[#111118]">
+            <label className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
             </label>
           </div>
 
           {isReadOnly ? (
-            <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 text-sm font-bold text-[#111118]">
+            <div className="border-[2px] border-[#D4D2CC] bg-[#F5F4F0] px-3 py-2 text-sm font-bold text-[color:var(--color-ink)]">
               {projectName.trim() || "No project named"}
             </div>
           ) : (
@@ -229,7 +229,7 @@ export default function DeliverablesSection({
                   onProjectNameChange(event.target.value);
                 }}
                 placeholder="e.g. Villa Renovation Phase 2"
-                className="w-full rounded-2xl border-[2px] border-soft px-3 py-2 text-sm font-bold text-[#111118] outline-none )] app-focus-ring"
+                className="w-full rounded-2xl border-[2px] border-soft px-3 py-2 text-sm font-bold text-[color:var(--color-ink)] outline-none )] app-focus-ring"
               />
               {showAllErrors && !projectName.trim() && (
                 <p className="mt-2 text-xs font-bold text-[#FF5C00]">
@@ -289,7 +289,7 @@ export default function DeliverablesSection({
                           onChange={(e) => updateMilestoneTitle(milestone.id, e.target.value)}
                           className="w-full border border-transparent bg-transparent px-1 -ml-1 text-xl font-bold outline-none transition-all group-hover:underline hover:border-[color:var(--color-soft)] app-focus-ring"
                         />
-                        {!isReadOnly && <PencilIcon className="h-4 w-4 cursor-pointer text-gray-400 transition-colors hover:text-[#111118]" />}
+                        {!isReadOnly && <PencilIcon className="h-4 w-4 cursor-pointer text-gray-400 transition-colors hover:text-[color:var(--color-ink)]" />}
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
@@ -590,7 +590,7 @@ function LineItemCard({
                     onUpdate({ description: s });
                     setActiveDescriptionId(null);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118] transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] hover:bg-[color:var(--color-lime-warm)] hover:text-[color:var(--color-ink)] transition-colors"
                 >
                   {s}
                 </button>
@@ -805,8 +805,8 @@ function BrutalSelect({
                 className={cn(
                   "w-full text-left px-3 py-2.5 text-[14px] transition-colors border-b border-[color:var(--color-soft)] last:border-b-0",
                   isSelected
-                    ? "font-bold text-[#111118] bg-[#F4FFE0]"
-                    : "text-[color:var(--color-ink)] hover:bg-[color:var(--color-lime-warm)] hover:text-[#111118]"
+                    ? "font-bold text-[color:var(--color-ink)] bg-[#F4FFE0]"
+                    : "text-[color:var(--color-ink)] hover:bg-[color:var(--color-lime-warm)] hover:text-[color:var(--color-ink)]"
                 )}
               >
                 {opt.label}

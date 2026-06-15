@@ -79,11 +79,11 @@ function LoginCard() {
 
       <p className="mt-6 text-[11px] leading-4 text-[color:var(--color-ink-3)]">
         By continuing, you agree to our{" "}
-        <Link href="/terms" className="font-bold text-[#111118] underline underline-offset-2 hover:text-acid">
+        <Link href="/terms" className="font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-acid">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="font-bold text-[#111118] underline underline-offset-2 hover:text-acid">
+        <Link href="/privacy" className="font-bold text-[color:var(--color-ink)] underline underline-offset-2 hover:text-acid">
           Privacy Policy
         </Link>.
       </p>
@@ -104,7 +104,7 @@ export default function LoginPage() {
               <span className="flex h-10 w-10 items-center justify-center border border-soft bg-acid text-[18px] font-black text-acc-ink">
                 L
               </span>
-              <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[#111118] font-syne antialiased">
+              <span className="text-[24px] font-black tracking-[0.1em] uppercase text-[color:var(--color-ink)] font-syne antialiased">
                 Lance
               </span>
             </Link>

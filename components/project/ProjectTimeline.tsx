@@ -128,7 +128,7 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
     <div className="relative w-full overflow-x-auto py-6 px-4 select-none scrollbar-thin">
       <div className="flex items-center min-w-max relative h-28">
         {/* Connecting lines between nodes: 2px solid black */}
-        <div className="absolute top-[8px] left-[80px] right-[80px] h-[2px] bg-[#111118] z-0" />
+        <div className="absolute top-[8px] left-[80px] right-[80px] h-[2px] bg-ink z-0" />
 
         {sorted.map((m, idx) => {
           const style = getMilestoneNodeStyle(m);
@@ -154,18 +154,18 @@ export default function ProjectTimeline({ milestones }: ProjectTimelineProps) {
                   )}
                 >
                   {isScheduled && (
-                    <Clock3 className="h-3 w-3 text-[#111118]" strokeWidth={2.5} />
+                    <Clock3 className="h-3 w-3 text-[color:var(--color-ink)]" strokeWidth={2.5} />
                   )}
                 </div>
 
                 {/* Label under each node (small, 11px) */}
                 <div className="mt-3 space-y-0.5 max-w-[140px]">
-                  <p className="text-[11px] font-black text-[#111118] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate">
+                  <p className="text-[11px] font-black text-[color:var(--color-ink)] uppercase tracking-tight group-hover:text-[#FF5C00] transition-colors leading-tight truncate">
                     {truncate(m.title, 20)}
                   </p>
                   <p className="text-[9px] font-bold text-[color:var(--color-ink-2)] uppercase tracking-wider">
                     {formatDate(m.due_date)} ·{" "}
-                    <span className="font-black text-[#111118]">
+                    <span className="font-black text-[color:var(--color-ink)]">
                       {formatCurrency(m.amount)}
                     </span>
                   </p>

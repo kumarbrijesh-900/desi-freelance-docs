@@ -230,7 +230,7 @@ function ThumbnailCard({
         {/* Selected check */}
         {isSelected && (
           <div className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] shadow-sm">
-            <CheckIcon className="h-2.5 w-2.5 text-[#111118]" />
+            <CheckIcon className="h-2.5 w-2.5 text-[color:var(--color-ink)]" />
           </div>
         )}
       </div>
@@ -240,7 +240,7 @@ function ThumbnailCard({
         <p
           className={`text-[10px] font-bold leading-tight uppercase ${
             isSelected
-              ? "text-[#111118]"
+              ? "text-[color:var(--color-ink)]"
               : "text-[color:var(--color-ink)]"
           }`}
         >

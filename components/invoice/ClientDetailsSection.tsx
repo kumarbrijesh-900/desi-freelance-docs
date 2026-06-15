@@ -292,7 +292,7 @@ export default function ClientDetailsSection({
     ].filter(Boolean).join(" · ") || "No terms configured — expand to set up";
 
   const generateClauseButtonClass =
-    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border border-soft px-3 py-2 sm:py-1.5 text-[11px] font-black text-[#111118] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
+    "inline-flex w-full sm:w-auto items-center justify-center gap-1.5 bg-[#FFFBE6] border border-soft px-3 py-2 sm:py-1.5 text-[11px] font-black text-[color:var(--color-ink)] uppercase tracking-wider shadow-[var(--brutal-shadow-sm)] hover:shadow-[var(--brutal-shadow-md)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer";
 
   return (
     <section className={cn(embedded ? "rounded-2xl border-0 bg-transparent p-0 shadow-none" : getAppPanelClass())}>
@@ -1099,7 +1099,7 @@ export default function ClientDetailsSection({
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-soft/30 bg-white/60 px-3 py-4 text-[12px] text-[color:var(--color-ink-2)] leading-relaxed break-normal">
-                      No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[#111118]">{clauseActionLabel}</span>.
+                      No clause generated yet. Fill in payment and legal fields, then tap <span className="font-bold text-[color:var(--color-ink)]">{clauseActionLabel}</span>.
                     </div>
                   )}
                 </div>

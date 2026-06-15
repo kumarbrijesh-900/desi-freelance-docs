@@ -73,7 +73,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onLoginClick}
-            className="flex w-full items-center justify-center gap-3 border border-soft bg-[color:var(--color-lime-warm)] py-3 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 border border-soft bg-[color:var(--color-lime-warm)] py-3 text-sm font-bold text-[color:var(--color-ink)] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google
@@ -82,7 +82,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 w-full h-11 border border-soft bg-white text-[11px] font-bold text-[#111118] uppercase transition-all hover:bg-[color:var(--color-paper)]"
+            className="mt-4 w-full h-11 border border-soft bg-white text-[11px] font-bold text-[color:var(--color-ink)] uppercase transition-all hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>

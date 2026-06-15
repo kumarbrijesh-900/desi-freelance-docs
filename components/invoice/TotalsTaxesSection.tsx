@@ -324,7 +324,7 @@ export default function TotalsTaxesSection({
                     />
                   </div>
                   {isRcmEnabled ? (
-                    <div className="mb-3 border border-soft bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[#111118] shadow-[var(--brutal-shadow-pressed)] break-normal">
+                    <div className="mb-3 border border-soft bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-pressed)] break-normal">
                       Reverse Charge is active. The client is responsible for paying GST directly to the government instead of the freelancer/agency collecting it.
                     </div>
                   ) : null}

@@ -219,20 +219,20 @@ export default function ShareLinkModal({
       <div className="inline-flex h-14 w-14 items-center justify-center border border-soft bg-[#00DCB4] mb-4">
         <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
       </div>
-      <h2 className="text-xl font-bold uppercase text-[#111118] mb-2">Invoice Sent!</h2>
+      <h2 className="text-xl font-bold uppercase text-[color:var(--color-ink)] mb-2">Invoice Sent!</h2>
       <p className="text-[13px] text-[color:var(--color-ink-2)] mb-6">
         A secure link has been delivered to <strong>{clientEmail}</strong>. You will be notified when they view or accept it.
       </p>
       <div className="flex gap-3 justify-center">
         <a
           href="/dashboard"
-          className="border border-soft bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118] shadow-[var(--brutal-shadow-sm)]"
+          className="border border-soft bg-[color:var(--color-lime-warm)] px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
         >
           Go to Dashboard
         </a>
         <a
           href="/invoices"
-          className="border border-soft bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[#111118]"
+          className="border border-soft bg-white px-5 py-2.5 text-[12px] font-bold uppercase text-[color:var(--color-ink)]"
         >
           View Invoices
         </a>
@@ -415,7 +415,7 @@ export default function ShareLinkModal({
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !clientEmail?.trim()}
-                className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] uppercase shadow-[var(--brutal-shadow-md)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="inline-flex items-center gap-2">
                   <SendIcon className="h-4 w-4" />

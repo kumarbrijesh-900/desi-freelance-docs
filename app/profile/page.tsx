@@ -725,7 +725,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--color-ink-2)] hover:text-[#111118] transition-colors mb-4"
+                  className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.04em] text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] transition-colors mb-4"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m0 0l7 7m-7-7l7-7" /></svg>
                   Back
@@ -1223,7 +1223,7 @@ export default function ProfilePage() {
                           Global MSA Document
                         </h2>
                       </div>
-                      <span className="text-[#111118] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
+                      <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
                         {isMsaExpanded ? "Hide" : "View/Edit MSA Document →"}
                       </span>
                     </button>
@@ -1272,7 +1272,7 @@ export default function ProfilePage() {
                       title="Export Compliance"
                       description="Details for zero-tax international or SEZ billing."
                     />
-                    <span className="text-[#111118] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
+                    <span className="text-[color:var(--color-ink)] font-bold text-[13px] underline underline-offset-2 hover:text-[#8B5CF6]">
                       {isLutExpanded ? "Hide" : "Expand LUT Details →"}
                     </span>
                   </button>
@@ -1337,10 +1337,10 @@ export default function ProfilePage() {
               className={cn(
                 "w-full border border-soft px-3 py-2 text-[12px] font-bold shadow-[var(--brutal-shadow-md)] sm:flex-1",
                 saveState === "partial"
-                  ? "bg-[#FFFBE6] text-[#111118]"
+                  ? "bg-[#FFFBE6] text-[color:var(--color-ink)]"
                   : saveState === "error"
-                    ? "bg-[#FFF0EC] text-[#111118]"
-                    : "bg-[#E0FFF7] text-[#111118]",
+                    ? "bg-[#FFF0EC] text-[color:var(--color-ink)]"
+                    : "bg-[#E0FFF7] text-[color:var(--color-ink)]",
               )}
             >
               {saveFeedback}

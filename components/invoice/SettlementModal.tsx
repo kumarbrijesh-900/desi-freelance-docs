@@ -52,7 +52,7 @@ export default function SettlementModal({
           {isSuccess ? (
             <>
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-soft bg-[color:var(--color-lime-warm)] text-2xl font-black text-[#111118] shadow-[var(--brutal-shadow-md)]">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-soft bg-[color:var(--color-lime-warm)] text-2xl font-black text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)]">
                   ✓
                 </div>
                 <h2 className="text-xl font-bold text-[color:var(--color-ink)]">
@@ -128,7 +128,7 @@ export default function SettlementModal({
                 </div>
 
                 {errorMessage && (
-                  <div className="border border-soft bg-[#FFEBA4] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[#111118]">
+                  <div className="border border-soft bg-[#FFEBA4] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.16em] leading-5 text-[color:var(--color-ink)]">
                     {errorMessage}
                   </div>
                 )}
@@ -139,7 +139,7 @@ export default function SettlementModal({
                   type="button"
                   onClick={onClose}
                   disabled={isBusy}
-                  className="flex-1 border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[#111118] transition-all hover:bg-[color:var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-all hover:bg-[color:var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -147,7 +147,7 @@ export default function SettlementModal({
                   type="button"
                   onClick={() => onConfirm(tdsAmount)}
                   disabled={isBusy}
-                  className="flex-[2] border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[#111118] uppercase transition-all hover:brightness-105 disabled:opacity-50"
+                  className="flex-[2] border border-soft bg-[color:var(--color-lime-warm)] px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] uppercase transition-all hover:brightness-105 disabled:opacity-50"
                 >
                   {isBusy ? "Settling..." : isError ? "Try Again" : "Confirm Settlement"}
                 </button>

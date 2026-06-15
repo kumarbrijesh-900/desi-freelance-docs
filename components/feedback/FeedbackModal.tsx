@@ -178,7 +178,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   disabled={isSubmitting || !message.trim()}
                   className={cn(
                     "flex-[2] h-11 font-bold transition-all duration-200 shadow-sm",
-                    "bg-[color:var(--color-lime-300)] text-[#111118] hover:shadow-lg disabled:opacity-50",
+                    "bg-[color:var(--color-lime-300)] text-[color:var(--color-ink)] hover:shadow-lg disabled:opacity-50",
                   )}
                 >
                   {isSubmitting ? "Submitting..." : "Submit Feedback"}
