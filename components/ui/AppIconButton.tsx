@@ -12,12 +12,12 @@ export const AppIconButton = React.forwardRef<HTMLButtonElement, AppIconButtonPr
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center rounded-2xl border-2 border-[#111118] transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-xl border border-[color:var(--color-soft)] transition-[transform,box-shadow,background-color,border-color] duration-150 cursor-pointer active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50",
           size === "sm" ? "h-8 w-8" : size === "lg" ? "h-12 w-12" : "h-10 w-10",
-          variant === "primary" && "bg-[color:var(--color-lime-warm)] text-[#111118] hover:shadow-[var(--brutal-shadow-sm)] hover:translate-x-[-2px] hover:translate-y-[-2px]",
-          variant === "secondary" && "bg-white text-[#111118] hover:shadow-[var(--brutal-shadow-sm)] hover:translate-x-[-2px] hover:translate-y-[-2px]",
-          variant === "subtle" && "bg-[color:var(--color-paper-2)] text-[#111118] hover:shadow-[var(--brutal-shadow-pressed)]",
-          variant === "ghost" && "border-transparent bg-transparent hover:border-[#111118]",
+          variant === "primary" && "bg-acid text-acc-ink border-transparent hover:shadow-[var(--brutal-shadow-sm)]",
+          variant === "secondary" && "bg-white text-ink hover:shadow-[var(--brutal-shadow-sm)]",
+          variant === "subtle" && "bg-[color:var(--color-paper-2)] text-ink hover:shadow-[var(--brutal-shadow-pressed)]",
+          variant === "ghost" && "border-transparent bg-transparent hover:bg-[color:var(--color-acc-soft)]",
           className
         )}
         {...props}

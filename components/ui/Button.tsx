@@ -11,25 +11,24 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-acid text-acc-ink",
-  coral:   "bg-coral text-white",
-  sky:     "bg-sky text-white",
-  lav:     "bg-lav text-white",
-  ghost:   "bg-transparent shadow-none border-transparent hover:border-ink",
-  paper:   "bg-paper text-ink",
+  primary: "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)]",
+  coral:   "bg-coral text-white shadow-[var(--brutal-shadow-sm)]",
+  sky:     "bg-sky text-white shadow-[var(--brutal-shadow-sm)]",
+  lav:     "bg-lav text-white shadow-[var(--brutal-shadow-sm)]",
+  ghost:   "bg-transparent text-ink hover:bg-[color:var(--color-acc-soft)]",
+  paper:   "bg-paper text-ink border border-[color:var(--color-soft)] shadow-[var(--brutal-shadow-sm)]",
 };
 
 export function Button({ variant = "primary", className, children, ...props }: ButtonProps) {
   return (
     <motion.button
-      whileHover={{ x: -1, y: -1 }}
-      whileTap={{ x: 2, y: 2, transition: { duration: 0.06 } }}
+      whileHover={{ y: -1 }}
+      whileTap={{ scale: 0.96, transition: { duration: 0.08 } }}
       className={cn(
         "inline-flex items-center justify-center gap-2 px-4 py-2.5",
-        "border-2 border-ink rounded-lg",
-        "font-mono text-xs font-bold tracking-[.12em] uppercase",
-        "shadow-[3px_3px_0_var(--color-ink)] cursor-pointer",
-        "transition-colors",
+        "rounded-xl",
+        "font-sans text-xs font-bold tracking-[0.1em] uppercase",
+        "cursor-pointer transition-[transform,box-shadow,background-color,border-color] duration-150",
         variants[variant],
         className
       )}
