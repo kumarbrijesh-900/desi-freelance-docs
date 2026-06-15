@@ -10,18 +10,18 @@ function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClien
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
-  if (status === 'cancelled') return { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
-  if (status === 'overdue') return { bg: 'var(--color-overdue)', fg: '#fbf4e7', label: 'overdue' };
-  if (status === 'settled') return { bg: 'var(--color-grass)', fg: '#24201a', label: 'settled' };
-  if (status === 'partial') return { bg: 'var(--color-lav)', fg: '#24201a', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { bg: 'var(--color-coral)', fg: '#24201a', label: 'revision requested' };
-  if (msa === 'accepted' && status !== 'settled') return { bg: 'var(--color-sky)', fg: '#24201a', label: 'locked' };
-  if (msa === 'proposed') return { bg: 'var(--color-butter)', fg: '#24201a', label: 'awaiting client' };
-  if (msa === 'pending' && status === 'finalized') return { bg: 'var(--color-butter)', fg: '#24201a', label: 'awaiting client' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
-  if (status === 'complete') return { bg: 'var(--color-forest)', fg: '#fbf4e7', label: 'complete' };
-  if (status === 'draft') return { bg: 'transparent', fg: '#7c7263', label: 'draft', border: true };
-  return { bg: '#d8ccb3', fg: '#7c7263', label: status };
+  if (status === 'cancelled') return { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: 'cancelled', strikethrough: true };
+  if (status === 'overdue') return { bg: 'var(--color-overdue)', fg: '#f0e9d6', label: 'overdue' };
+  if (status === 'settled') return { bg: 'var(--color-grass)', fg: '#f0e9d6', label: 'settled' };
+  if (status === 'partial') return { bg: 'var(--color-lav)', fg: '#f0e9d6', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { bg: 'var(--color-coral)', fg: '#f0e9d6', label: 'revision requested' };
+  if (msa === 'accepted' && status !== 'settled') return { bg: 'var(--color-sky)', fg: '#f0e9d6', label: 'locked' };
+  if (msa === 'proposed') return { bg: 'var(--color-butter)', fg: 'var(--color-ink)', label: 'awaiting client' };
+  if (msa === 'pending' && status === 'finalized') return { bg: 'var(--color-butter)', fg: 'var(--color-ink)', label: 'awaiting client' };
+  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-acid)', fg: '#f0e9d6', label: 'live' };
+  if (status === 'complete') return { bg: 'var(--color-forest)', fg: '#f0e9d6', label: 'complete' };
+  if (status === 'draft') return { bg: 'transparent', fg: 'var(--color-ink-2)', label: 'draft', border: true };
+  return { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: status };
 }
 
 export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoices }) {
@@ -71,10 +71,10 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               } else {
                 const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
                 const mStatus = (ms?.status || "").toLowerCase();
-                if (mStatus === "settled") statusInfo = { bg: 'var(--color-grass)', fg: '#24201a', label: 'settled' };
-                else if (mStatus === "live") statusInfo = { bg: 'var(--color-acid)', fg: '#fbf4e7', label: 'live' };
-                else if (mStatus === "cancelled") statusInfo = { bg: '#d8ccb3', fg: '#7c7263', label: 'cancelled', strikethrough: true };
-                else statusInfo = { bg: 'transparent', fg: '#7c7263', label: 'pending', border: true };
+                if (mStatus === "settled") statusInfo = { bg: 'var(--color-grass)', fg: '#f0e9d6', label: 'settled' };
+                else if (mStatus === "live") statusInfo = { bg: 'var(--color-acid)', fg: '#f0e9d6', label: 'live' };
+                else if (mStatus === "cancelled") statusInfo = { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: 'cancelled', strikethrough: true };
+                else statusInfo = { bg: 'transparent', fg: 'var(--color-ink-2)', label: 'pending', border: true };
               }
 
               // Compute grand total
