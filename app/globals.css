@@ -34,6 +34,18 @@
   --color-forest:       #1e3d33;  /* COMPLETE · bottle-green */
   --color-plum:         #6f5775;  /* muted plum */
 
+  /* Semantic state surfaces (fixes previously-undefined tokens) */
+  --state-success-bg:   #e7efe7;
+  --state-success-text: #15603f;
+  --state-warning-bg:   #f6ecd6;
+  --state-warning-text: #8a6520;
+  --state-danger-bg:    #f6e0d8;
+  --state-danger-text:  #8f3a20;
+
+  /* Legacy accent aliases → E */
+  --color-lime-warm:    #e7c878;
+  --color-lime-300:     #157a54;
+
   /* Tonal page backgrounds (per-route) */
   --color-paper-rose:   #ffeef5;
   --color-paper-sky:    #e3f3ff;
