@@ -2554,7 +2554,7 @@ return (
 
             {isReadOnlyMode && (
               <MotionReveal preset="fade-up" className="mb-4">
-                <div className="flex items-start gap-3 border border-soft bg-[#FFEBA4] p-4 shadow-[4px_4px_0px_0px_#111118]">
+                <div className="flex items-start gap-3 border border-soft bg-[#FFEBA4] p-4 shadow-[var(--brutal-shadow-md)]">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#111118] text-[color:var(--color-lime-warm)]">
                     <svg
                       className="h-4 w-4"

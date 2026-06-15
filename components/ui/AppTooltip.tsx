@@ -157,7 +157,7 @@ export function AppTooltip({
         >
           <div
             className={cn(
-              "relative bg-ink text-paper rounded-[8px] p-[8px_12px] text-[11px] font-medium leading-[1.4] whitespace-normal text-left shadow-[3px_3px_0_var(--color-ink)]",
+              "relative bg-ink text-paper rounded-[8px] p-[8px_12px] text-[11px] font-medium leading-[1.4] whitespace-normal text-left shadow-[var(--brutal-shadow-md)]",
               contentClassName
             )}
           >

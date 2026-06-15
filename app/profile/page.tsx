@@ -1335,7 +1335,7 @@ export default function ProfilePage() {
           {saveFeedback && (
             <div
               className={cn(
-                "w-full border border-soft px-3 py-2 text-[12px] font-bold shadow-[3px_3px_0_#111118] sm:flex-1",
+                "w-full border border-soft px-3 py-2 text-[12px] font-bold shadow-[var(--brutal-shadow-md)] sm:flex-1",
                 saveState === "partial"
                   ? "bg-[#FFFBE6] text-[#111118]"
                   : saveState === "error"

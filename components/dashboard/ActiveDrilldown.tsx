@@ -124,22 +124,22 @@ export function ActiveDrilldown({
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onResend;
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onFinalize;
       break;
     case "review_revision":
       btnLabel = "REVIEW REVISION";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onReviewRevision;
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " shadow-[3px_3px_0_var(--color-ink)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
       handler = onPreview;
       break;
   }
@@ -185,7 +185,7 @@ export function ActiveDrilldown({
         <div className="flex justify-between items-start mb-5">
           <div>
             <div className="flex gap-2 mb-2">
-              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[2px_2px_0_var(--color-ink)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
+              <div className="px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-acc-ink rounded-full animate-pulse" /> ACTIVE NOW</div>
             </div>
             <h2 className="text-[28px] font-display font-black tracking-tight leading-tight mb-1.5 text-ink">{title}</h2>
             <h3 className="text-[10px] font-extrabold tracking-widest text-ink/70 uppercase">{subtitle}</h3>

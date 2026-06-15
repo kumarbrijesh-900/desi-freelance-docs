@@ -1002,7 +1002,7 @@ function PreviewContent() {
             {/* Neo-Brutalist Locked Invoice Status Banner */}
             {lockState.isReadOnly && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-start justify-between gap-5 border border-soft bg-[#FAF7F2] p-5 shadow-[4px_4px_0_#111118] sm:flex-row sm:items-center sm:p-6">
+                <div className="flex flex-col items-start justify-between gap-5 border border-soft bg-[#FAF7F2] p-5 shadow-[var(--brutal-shadow-md)] sm:flex-row sm:items-center sm:p-6">
                   <div className="flex items-start gap-4 text-left">
                     <Lock className="h-8 w-8 shrink-0 text-black" strokeWidth={2.8} />
                     <div>
@@ -1018,7 +1018,7 @@ function PreviewContent() {
                     <button
                       type="button"
                       onClick={handleLockedAlternativeAction}
-                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[4px_4px_0_#111118] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_#111118]"
+                      className="inline-flex items-center justify-center bg-[#111118] px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[var(--brutal-shadow-pressed)]"
                     >
                       {lockState.alternativeAction.label}
                     </button>

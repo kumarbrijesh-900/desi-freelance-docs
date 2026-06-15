@@ -42,7 +42,7 @@ export default function DesignSystemPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {colors.map((c) => (
               <div key={c.label} className="space-y-3">
-                <Box className="h-24 w-full shadow-[3px_3px_0_var(--color-ink)]" style={{ backgroundColor: c.value }} />
+                <Box className="h-24 w-full shadow-[var(--brutal-shadow-md)]" style={{ backgroundColor: c.value }} />
                 <div className="font-mono text-[10px] font-bold uppercase tracking-widest">
                   {c.label}
                 </div>

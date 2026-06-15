@@ -271,7 +271,7 @@ export default function Home() {
             
             <div className="max-w-xs">
               <div className="flex items-center gap-3 mb-4">
-                <span className="flex h-10 w-10 items-center justify-center border border-soft bg-acid text-[18px] font-black text-acc-ink shadow-[2px_2px_0_var(--color-ink)]">
+                <span className="flex h-10 w-10 items-center justify-center border border-soft bg-acid text-[18px] font-black text-acc-ink shadow-[var(--brutal-shadow-sm)]">
                   L
                 </span>
                 <span className="font-display text-3xl font-black uppercase tracking-tight text-ink">

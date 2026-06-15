@@ -343,7 +343,7 @@ export default function InvoicesPage() {
       <main className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-4 relative overflow-x-hidden flex-1 min-h-0 flex flex-col`}>
         
         {actionMessage && (
-          <div className="mb-6 px-4 py-3 bg-ink text-white text-sm font-bold shadow-[4px_4px_0_var(--color-rule)]">
+          <div className="mb-6 px-4 py-3 bg-ink text-white text-sm font-bold shadow-none">
             {actionMessage}
           </div>
         )}
@@ -362,12 +362,12 @@ export default function InvoicesPage() {
                 placeholder="Search · #, client, project…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-soft font-bold text-sm shadow-[3px_3px_0_var(--color-rule)] focus:outline-none focus:border-ink placeholder:text-ink/40 transition-all focus:shadow-[4px_4px_0_var(--color-rule)]"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-soft font-bold text-sm shadow-none focus:outline-none focus:border-ink placeholder:text-ink/40 transition-all focus:shadow-none"
               />
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="border border-soft bg-acid px-5 py-2.5 text-sm font-black uppercase tracking-widest text-acc-ink shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border border-soft bg-acid px-5 py-2.5 text-sm font-black uppercase tracking-widest text-acc-ink shadow-none transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               + NEW INVOICE
             </a>
@@ -413,15 +413,15 @@ export default function InvoicesPage() {
 
             let toneClass = "bg-transparent text-ink border-transparent hover:bg-paper-2 hover:border-ink/20";
             if (filter === f) {
-               if (f === "All") toneClass = "bg-ink text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Draft") toneClass = "bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Sent") toneClass = "bg-sky text-white shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Revision") toneClass = "bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Live") toneClass = "bg-acid text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Settled") toneClass = "bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Complete") toneClass = "bg-forest text-acc-ink shadow-[2px_2px_0_var(--color-rule)]";
-               else if (f === "Offline") toneClass = "bg-white text-ink shadow-[2px_2px_0_var(--color-rule)]";
+               if (f === "All") toneClass = "bg-ink text-acc-ink shadow-none";
+               else if (f === "Draft") toneClass = "bg-butter text-ink shadow-none";
+               else if (f === "Sent") toneClass = "bg-sky text-white shadow-none";
+               else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-none";
+               else if (f === "Revision") toneClass = "bg-coral text-white shadow-none";
+               else if (f === "Live") toneClass = "bg-acid text-acc-ink shadow-none";
+               else if (f === "Settled") toneClass = "bg-grass text-white shadow-none";
+               else if (f === "Complete") toneClass = "bg-forest text-acc-ink shadow-none";
+               else if (f === "Offline") toneClass = "bg-white text-ink shadow-none";
             }
 
             return (
@@ -440,7 +440,7 @@ export default function InvoicesPage() {
 
         {/* Bulk selection toolbar */}
         {!loading && filteredInvoices.length > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft shadow-[3px_3px_0_var(--color-rule)] shrink-0">
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft shadow-none shrink-0">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -463,11 +463,11 @@ export default function InvoicesPage() {
               <>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink">{selectedIds.size} selected</span>
                 <button type="button" onClick={handleExportXls}
-                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-white text-ink shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
+                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-white text-ink shadow-none hover:-translate-y-[1px] transition-transform">
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
-                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-coral text-white shadow-[2px_2px_0_var(--color-rule)] hover:-translate-y-[1px] transition-transform">
+                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-coral text-white shadow-none hover:-translate-y-[1px] transition-transform">
                   Delete
                 </button>
                 <button type="button" onClick={clearSelection}
@@ -486,7 +486,7 @@ export default function InvoicesPage() {
             Loading invoices…
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border border-soft shadow-[8px_8px_0_var(--color-rule)]">
+          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border border-soft shadow-none">
             <div className="text-[32px] font-black tracking-tight mb-2 text-ink">No invoices yet</div>
             <p className="text-[11px] font-extrabold uppercase tracking-widest text-ink/60">
               Create your first invoice to get started
@@ -541,7 +541,7 @@ export default function InvoicesPage() {
       {/* ── Delete Confirmation Dialog ── */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm border border-soft bg-white shadow-[6px_6px_0_#111118] p-6">
+          <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete invoice?</h3>
             <p className="text-sm font-bold text-neutral-600 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
@@ -550,14 +550,14 @@ export default function InvoicesPage() {
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]"
+                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteInvoice}
-                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
               >
                 Delete permanently
               </button>
@@ -569,18 +569,18 @@ export default function InvoicesPage() {
       {/* ── Bulk Delete Confirmation Dialog ── */}
       {bulkDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm border border-soft bg-white shadow-[6px_6px_0_#111118] p-6">
+          <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete selected?</h3>
             <p className="text-sm font-bold text-neutral-600 mb-5">
               Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
-                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]">
+                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]">
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete}
-                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
                 Delete selected
               </button>
             </div>

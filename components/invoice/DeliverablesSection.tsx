@@ -209,7 +209,7 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
-        <div className="mb-4 border-[3px] border-soft bg-white p-4 shadow-[4px_4px_0px_#111118]">
+        <div className="mb-4 border-[3px] border-soft bg-white p-4 shadow-[var(--brutal-shadow-md)]">
           <div className="mb-3">
             <label className="text-xs font-bold uppercase tracking-wider text-[#111118]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}

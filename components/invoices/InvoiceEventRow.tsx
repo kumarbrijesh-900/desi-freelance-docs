@@ -11,16 +11,16 @@ function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClien
 
   // Return side (left stripe color) and pill details
   if (status === 'cancelled') return { side: 'bg-rule', pill: 'bg-rule text-ink line-through', label: 'cancelled' };
-  if (status === 'overdue') return { side: 'bg-overdue', pill: 'bg-overdue text-acc-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'overdue' };
-  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'settled' };
-  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'revision' };
-  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-sky', pill: 'bg-sky text-white shadow-[2px_2px_0_var(--color-rule)]', label: 'locked' };
-  if (msa === 'proposed') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
-  if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { side: 'bg-acid', pill: 'bg-acid text-acc-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'live' };
-  if (status === 'complete') return { side: 'bg-forest', pill: 'bg-forest text-acc-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'complete' };
-  if (status === 'draft' && wasShared) return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-[2px_2px_0_var(--color-rule)]', label: 'awaiting' };
+  if (status === 'overdue') return { side: 'bg-overdue', pill: 'bg-overdue text-acc-ink shadow-none', label: 'overdue' };
+  if (status === 'settled') return { side: 'bg-grass', pill: 'bg-grass text-white shadow-none', label: 'settled' };
+  if (status === 'partial') return { side: 'bg-lav', pill: 'bg-lav text-white shadow-none', label: 'partial' };
+  if (msa === 'proposed' && hasClientMsaNote) return { side: 'bg-coral', pill: 'bg-coral text-white shadow-none', label: 'revision' };
+  if (msa === 'accepted' && status !== 'settled' && status !== 'live' && status !== 'finalized') return { side: 'bg-sky', pill: 'bg-sky text-white shadow-none', label: 'locked' };
+  if (msa === 'proposed') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-none', label: 'awaiting' };
+  if (msa === 'pending' && status === 'finalized') return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-none', label: 'awaiting' };
+  if (status === 'finalized' || status === 'sent' || status === 'live') return { side: 'bg-acid', pill: 'bg-acid text-acc-ink shadow-none', label: 'live' };
+  if (status === 'complete') return { side: 'bg-forest', pill: 'bg-forest text-acc-ink shadow-none', label: 'complete' };
+  if (status === 'draft' && wasShared) return { side: 'bg-butter', pill: 'bg-butter text-ink shadow-none', label: 'awaiting' };
   if (status === 'draft') return { side: 'bg-butter', pill: 'bg-transparent text-ink border-2 border-rule border-dashed', label: 'draft' };
   return { side: 'bg-rule', pill: 'bg-rule text-ink', label: status };
 }
@@ -96,7 +96,7 @@ export function InvoiceEventRow({
   return (
     <Link
       href={rowHref}
-      className="flex items-stretch bg-white border border-soft shadow-[3px_3px_0_var(--color-rule)] mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0_var(--color-rule)] transition-all"
+      className="flex items-stretch bg-white border border-soft shadow-none mb-2 overflow-hidden group hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-none transition-all"
     >
       {selectable && (
         <div

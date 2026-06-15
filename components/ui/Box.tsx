@@ -14,12 +14,12 @@ export function Box({ shadow = "ink", tone, className, children, ...props }: Box
     <div
       className={cn(
         "border border-soft rounded-[4px] relative",
-        shadow === "ink"      && "shadow-[4px_4px_0_var(--color-ink)]",
-        shadow === "coral"    && "shadow-[5px_5px_0_var(--color-coral),5px_5px_0_0.5px_var(--color-ink)]",
-        shadow === "sky"      && "shadow-[5px_5px_0_var(--color-sky),5px_5px_0_0.5px_var(--color-ink)]",
-        shadow === "lav"      && "shadow-[5px_5px_0_var(--color-lav),5px_5px_0_0.5px_var(--color-ink)]",
-        shadow === "chunk-hi" && "shadow-[5px_5px_0_var(--color-acid),5px_5px_0_0.5px_var(--color-ink)]",
-        shadow === "chunk-lg" && "shadow-[6px_6px_0_var(--color-ink)]",
+        shadow === "ink"      && "shadow-[var(--brutal-shadow-md)]",
+        shadow === "coral"    && "shadow-[var(--brutal-shadow-lg)]",
+        shadow === "sky"      && "shadow-[var(--brutal-shadow-lg)]",
+        shadow === "lav"      && "shadow-[var(--brutal-shadow-lg)]",
+        shadow === "chunk-hi" && "shadow-[var(--brutal-shadow-lg)]",
+        shadow === "chunk-lg" && "shadow-[var(--brutal-shadow-lg)]",
         !tone && "bg-paper",
         tone === "acid"   && "bg-acid text-acc-ink",
         tone === "rose"   && "bg-rose text-ink",

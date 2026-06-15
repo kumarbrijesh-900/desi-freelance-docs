@@ -129,7 +129,7 @@ export function ProjectRail({
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-acid text-acc-ink border border-soft shadow-[3px_3px_0_#111118] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-acid text-acc-ink border border-soft shadow-[var(--brutal-shadow-md)] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
         >
           + NEW INVOICE
         </button>
@@ -176,7 +176,7 @@ export function ProjectRail({
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
                 className={`block min-h-[90px] p-4 pl-5 border-b-2 border-ink relative cursor-pointer transition-all
-                  ${isSelected ? "bg-ink shadow-[4px_4px_0_var(--color-acid)] z-10 border-y-[3px] border-ink scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
+                  ${isSelected ? "bg-ink shadow-[var(--brutal-shadow-md)] z-10 border-y-[3px] border-ink scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-neutral-50"}
                 `}
               >
                 {/* 10px colored left stripe */}
@@ -191,7 +191,7 @@ export function ProjectRail({
 
                 {dot && (
                   <div 
-                    className="absolute top-4 right-3 w-[10px] h-[10px] rounded-full border border-ink shadow-[1px_1px_0_#111118] animate-pulse" 
+                    className="absolute top-4 right-3 w-[10px] h-[10px] rounded-full border border-ink shadow-[var(--brutal-shadow-sm)] animate-pulse" 
                     style={{ backgroundColor: dot }} 
                   />
                 )}
@@ -206,7 +206,7 @@ export function ProjectRail({
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[2px_2px_0_#FFF]' : 'border-ink shadow-[2px_2px_0_var(--color-ink)]'} ${
+                    <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[var(--brutal-shadow-sm)]' : 'border-ink shadow-[var(--brutal-shadow-sm)]'} ${
                       summary.startsWith("DRAFT") ? "bg-soft text-ink" :
                       summary === "COMPLETE" ? "bg-forest text-acc-ink" :
                       summary.startsWith("REVISION") ? "bg-coral text-white" :

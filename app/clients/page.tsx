@@ -846,9 +846,9 @@ export default function ClientsPage() {
         <div className="flex justify-between items-end mb-7">
           <div>
             <div className="flex gap-2 mb-3 items-center">
-              <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
-              <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
-              <div className="px-3 py-1 bg-butter text-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[2px_2px_0_var(--color-ink)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
+              <div className="px-3 py-1 bg-grass text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.invoice_count && c.invoice_count > 0).length} ACTIVE</div>
+              <div className="px-3 py-1 bg-sky text-white text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => c.client_type === 'international').length} INTL</div>
+              <div className="px-3 py-1 bg-butter text-ink text-[10px] font-extrabold uppercase tracking-widest border border-soft rounded-full shadow-[var(--brutal-shadow-sm)]">{clients.filter(c => !c.gstin && c.client_type !== 'international').length} NO GSTIN</div>
             </div>
             <h1 className="font-display font-black text-[80px] leading-[0.8] mb-3 text-ink">
               Your roster
@@ -859,13 +859,13 @@ export default function ClientsPage() {
           </div>
           <div className="flex gap-3 items-center">
             <button
-              className="border border-soft bg-white px-6 py-3.5 text-sm font-black uppercase tracking-widest text-ink transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] shadow-[4px_4px_0_var(--color-rule)] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border border-soft bg-white px-6 py-3.5 text-sm font-black uppercase tracking-widest text-ink transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] shadow-none hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               ↑ IMPORT CSV
             </button>
             <button
               onClick={handleAddNew}
-              className="border border-soft bg-ink px-6 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-[4px_4px_0_var(--color-rule)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--color-rule)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="border border-soft bg-ink px-6 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-none transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
             >
               + ADD CLIENT
             </button>
@@ -901,7 +901,7 @@ export default function ClientsPage() {
 
         {/* Filter / Search strip */}
         <div className="flex gap-3 mb-4">
-          <div className="relative grow border border-soft shadow-[3px_3px_0_var(--color-rule)] bg-white">
+          <div className="relative grow border border-soft shadow-none bg-white">
             <SearchIcon className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink" />
             <input
               type="text"
@@ -911,14 +911,14 @@ export default function ClientsPage() {
               className="w-full h-full pl-10 pr-4 py-3 bg-transparent font-bold text-sm focus:outline-none placeholder:text-ink/50"
             />
           </div>
-          <div className="relative w-[180px] border border-soft shadow-[3px_3px_0_var(--color-rule)] bg-white">
+          <div className="relative w-[180px] border border-soft shadow-none bg-white">
             <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
               <option>Location · All ▼</option>
               <option>Domestic</option>
               <option>International</option>
             </select>
           </div>
-          <div className="relative w-[180px] border border-soft shadow-[3px_3px_0_var(--color-rule)] bg-white">
+          <div className="relative w-[180px] border border-soft shadow-none bg-white">
             <select className="w-full h-full px-4 py-3 bg-transparent font-bold text-sm focus:outline-none appearance-none uppercase text-[11px] tracking-widest">
               <option>Type · All ▼</option>
               <option>Agency</option>
@@ -928,7 +928,7 @@ export default function ClientsPage() {
         </div>
 
         {/* Table */}
-        <div className="border border-soft shadow-[4px_4px_0_var(--color-rule)] bg-white overflow-hidden mb-6">
+        <div className="border border-soft shadow-none bg-white overflow-hidden mb-6">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-paper-2 border-b border-soft text-[10px] font-extrabold uppercase tracking-widest text-ink">
@@ -960,7 +960,7 @@ export default function ClientsPage() {
                     <tr key={client.id} className="border-b border-soft last:border-b-0 hover:bg-paper-2 transition-colors cursor-pointer group" onClick={() => window.location.href = `/clients/${client.id}`}>
                       <td className="py-4 px-6 border-r border-soft">
                         <div className="flex items-center gap-3">
-                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarBg} text-ink shadow-[2px_2px_0_var(--color-rule)]`}>
+                          <div className={`shrink-0 w-[32px] h-[32px] rounded-full border-[1.5px] border-ink flex items-center justify-center text-[11px] font-black ${avatarBg} text-ink shadow-none`}>
                             {initial}
                           </div>
                           <div className="font-bold text-[13px] uppercase tracking-wide group-hover:underline">{client.client_name}</div>
@@ -989,7 +989,7 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-4 px-6 border-r border-soft text-right">
                         {msaOk ? (
-                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-soft bg-grass text-white shadow-[2px_2px_0_var(--color-rule)]">✓ SIGNED</span>
+                          <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-soft bg-grass text-white shadow-none">✓ SIGNED</span>
                         ) : (
                           <span className="px-2 py-1 text-[9px] font-extrabold uppercase tracking-widest border border-ink bg-butter text-ink">PENDING</span>
                         )}
@@ -1048,7 +1048,7 @@ export default function ClientsPage() {
       {/* ── Delete Confirmation Dialog ── */}
       {deletingClientId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm border border-soft bg-white shadow-[6px_6px_0_#111118] p-6">
+          <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
             <h3 className="text-lg font-black uppercase tracking-tight text-[#111118] mb-2">Delete client?</h3>
             <p className="text-sm font-bold text-neutral-600 mb-5">
               This will permanently delete this client. Invoices associated with this client will not be deleted but they will lose the client association.
@@ -1057,14 +1057,14 @@ export default function ClientsPage() {
               <button
                 type="button"
                 onClick={handleDeleteCancel}
-                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[3px_3px_0_#111118] hover:bg-[#FAF7F2]"
+                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteConfirm}
-                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#111118] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
               >
                 Delete permanently
               </button>
