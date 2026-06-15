@@ -207,6 +207,9 @@ input:focus, select:focus, textarea:focus {
   transition-duration: 50ms;
 }
 
+/* Legibility guard: any bottle-green (bg-acid) surface forces cream foreground so text/icons never render dark-on-dark. */
+[class~="bg-acid"] { color: var(--color-acc-ink); }
+
 .app-soft-button-primary {
   border-color: var(--color-ink);
   background: var(--color-acid);

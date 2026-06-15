@@ -2462,8 +2462,8 @@ return (
                          {isReadOnlyMode ? "👁" : isCompleted ? "✓" : index + 1}
                       </div>
                       <div style={{flex:1}}>
-                        <div className="cap cap-strong" style={{fontSize:12}}>{getStepShortLabel(step)}</div>
-                        <div className="cap" style={{color:"var(--color-ink-2)", marginTop:2}}>{railStatus}</div>
+                        <div className="cap cap-strong" style={{fontSize:12, color: isActive ? "var(--color-acc-ink)" : "var(--color-ink)"}}>{getStepShortLabel(step)}</div>
+                        <div className="cap" style={{color: isActive ? "var(--color-acc-ink)" : "var(--color-ink-2)", marginTop:2}}>{railStatus}</div>
                       </div>
                     </button>
                   );

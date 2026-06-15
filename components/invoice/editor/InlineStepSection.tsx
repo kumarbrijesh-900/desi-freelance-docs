@@ -84,7 +84,7 @@ export function InlineStepSection({
             className="min-w-0 flex-1 text-left"
           >
             <div className="flex items-center gap-3">
-              <div className="box flex items-center justify-center shrink-0 bg-[color:var(--color-acid)]" style={{width:38, height:38, fontSize:18}}>
+              <div className="box flex items-center justify-center shrink-0 bg-[color:var(--color-acid)] text-[color:var(--color-acc-ink)]" style={{width:38, height:38, fontSize:18}}>
                 {StepIcon && <StepIcon className="w-5 h-5" strokeWidth={1.5} />}
               </div>
               <div className="min-w-0">
