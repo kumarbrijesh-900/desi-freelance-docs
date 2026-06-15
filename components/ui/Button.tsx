@@ -11,7 +11,7 @@ interface ButtonProps extends HTMLMotionProps<"button"> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-acid text-ink",
+  primary: "bg-acid text-acc-ink",
   coral:   "bg-coral text-white",
   sky:     "bg-sky text-white",
   lav:     "bg-lav text-white",

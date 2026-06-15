@@ -212,7 +212,7 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
           <div className="flex items-center gap-3">
             {leftSlot}
             <Link href="/" className="group flex items-center gap-2 mr-2">
-              <span className="flex h-7 w-7 items-center justify-center border-2 border-ink bg-acid text-[12px] font-black text-ink">
+              <span className="flex h-7 w-7 items-center justify-center border-2 border-ink bg-acid text-[12px] font-black text-acc-ink">
                 L
               </span>
               <span className="text-[16px] font-black tracking-[0.1em] uppercase text-ink font-syne antialiased">

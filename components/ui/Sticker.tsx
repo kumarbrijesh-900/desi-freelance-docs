@@ -19,7 +19,7 @@ export function Sticker({ rotate = -4, tone = "acid", children, className }: Sti
         "border-2 border-ink rounded-full",
         "font-display font-semibold text-[13px]",
         "shadow-[3px_3px_0_var(--color-ink)]",
-        tone === "acid"   && "bg-acid",
+        tone === "acid"   && "bg-acid text-acc-ink",
         tone === "coral"  && "bg-coral text-white",
         tone === "rose"   && "bg-rose",
         tone === "sky"    && "bg-sky text-white",

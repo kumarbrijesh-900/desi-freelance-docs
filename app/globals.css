@@ -1,24 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paper + ink */
-  --color-paper:        #efe5d0;
-  --color-paper-2:      #f7efe0;
-  --color-ink:          #24201a;
-  --color-ink-2:        #7c7263;
-  --color-ink-3:        #a99e8c;
-  --color-soft:         #d8ccb3;
-  --color-strong:       #c7b99c;
+  /* Paper + ink — E warm */
+  --color-paper:        #f2ebd8;
+  --color-paper-2:      #fbf6e8;
+  --color-ink:          #211c16;
+  --color-ink-2:        #5f574a;
+  --color-ink-3:        #988e7c;
+  --color-soft:         #ddd3bd;
+  --color-strong:       #c9bb9d;
 
   --elev-0: none;
   --elev-1: 2px 2px 0 var(--color-ink);
   --elev-2: 4px 4px 0 var(--color-ink);
   --elev-3: 6px 6px 0 var(--color-ink);
 
-  /* Gen-Z accents — saturated, but seated on warm paper */
-  --color-acid:         #b8431f;  /* PRIMARY · terracotta (deepened for AA contrast) */
-  --color-acc-soft:     #f6ddcf;
-  --color-acc-ink:      #fbf4e7;
+  /* E palette — deep + soothing */
+  --color-acid:         #1e3d33;  /* PRIMARY · bottle-green (legacy token name) */
+  --color-acid-2:       #2c5648;  /* primary hover */
+  --color-acc-soft:     #e7efe7;  /* soft green tint surface */
+  --color-acc-ink:      #f0e9d6;  /* cream — text on primary */
+  --color-ochre:        #c8943b;  /* WARM accent / awaiting */
+  --color-ochre-deep:   #a5772a;
+  --color-gold:         #caa14e;  /* gold accent */
+  --color-clay:         #cf9b78;  /* soft clay — sparingly */
   --color-coral:        #ff5a4d;  /* ALERT  · hot coral   */
   --color-rose:         #ff9ec7;  /* SOFT   · candy pink  */
   --color-sky:          #4cb4ff;  /* INFO   · electric blue */

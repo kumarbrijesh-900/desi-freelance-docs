@@ -21,7 +21,7 @@ export function Box({ shadow = "ink", tone, className, children, ...props }: Box
         shadow === "chunk-hi" && "shadow-[5px_5px_0_var(--color-acid),5px_5px_0_0.5px_var(--color-ink)]",
         shadow === "chunk-lg" && "shadow-[6px_6px_0_var(--color-ink)]",
         !tone && "bg-paper",
-        tone === "acid"   && "bg-acid text-ink",
+        tone === "acid"   && "bg-acid text-acc-ink",
         tone === "rose"   && "bg-rose text-ink",
         tone === "sky"    && "bg-sky text-white",
         tone === "lav"    && "bg-lav text-white",
