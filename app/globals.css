@@ -190,7 +190,7 @@ input:focus, select:focus, textarea:focus {
 /* --- Buttons --- */
 
 .app-soft-button {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: var(--color-paper);
   box-shadow: var(--brutal-shadow-md);
   border-radius: 0;
@@ -208,7 +208,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-button-primary {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: var(--color-acid);
   color: var(--color-acc-ink);
   box-shadow: var(--brutal-shadow-md);
@@ -241,18 +241,18 @@ input:focus, select:focus, textarea:focus {
 
 .app-soft-button-tertiary {
   background: var(--color-paper-2);
-  border-color: #111118;
+  border-color: var(--color-ink);
   box-shadow: var(--brutal-shadow-sm);
 }
 
 .app-soft-button-subtle {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: var(--color-paper-2);
   box-shadow: none;
 }
 
 .app-soft-button-destructive {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: var(--state-danger-bg);
   box-shadow: 3px 3px 0 var(--color-coral-400);
 }
@@ -264,7 +264,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-button-ghost:hover {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: var(--color-paper-2);
   box-shadow: var(--brutal-shadow-sm);
 }
@@ -272,7 +272,7 @@ input:focus, select:focus, textarea:focus {
 /* --- Choice controls --- */
 
 .app-soft-choice-track {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: var(--color-paper-2);
   box-shadow: none;
   border-radius: 0;
@@ -316,7 +316,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-choice-option-active {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
 }
@@ -331,7 +331,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-step-surface[data-step-state="active"] {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-md);
 }
@@ -357,7 +357,7 @@ input:focus, select:focus, textarea:focus {
 /* --- Dropzone --- */
 
 .app-dropzone-surface {
-  border: 2px dashed #111118;
+  border: 2px dashed var(--color-ink);
   background: #ffffff;
   box-shadow: none;
   border-radius: 0;
@@ -373,14 +373,14 @@ input:focus, select:focus, textarea:focus {
 /* --- Invoice step cards --- */
 
 .invoice-brief-card {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: var(--color-cream);
   box-shadow: var(--brutal-shadow-sm);
   border-radius: 0;
 }
 
 .invoice-step-card {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
   border-radius: 0;
@@ -392,24 +392,24 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-card[data-step-kind="final"] {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-md);
 }
 
 .invoice-step-card[data-step-state="active"] {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-lg);
 }
 
 .invoice-step-card[data-step-kind="final"][data-step-state="active"] {
-  border-color: #111118;
+  border-color: var(--color-ink);
   box-shadow: var(--brutal-shadow-lg);
 }
 
 .invoice-step-card[data-step-state="completed"] {
-  border-color: #111118;
+  border-color: var(--color-ink);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: var(--brutal-shadow-sm);
 }
@@ -419,13 +419,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-dot {
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #111118;
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px var(--color-ink);
 }
 
 /* --- Step rail --- */
 
 .invoice-step-rail {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
   backdrop-filter: none;
@@ -433,7 +433,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-rail-track {
-  border-left: 2px solid #111118;
+  border-left: 2px solid var(--color-ink);
 }
 
 .invoice-step-rail-item {
@@ -444,7 +444,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-rail-item[data-rail-state="active"] {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-left: 3px solid var(--color-lime-300);
   background: var(--color-lime-50);
   box-shadow: var(--brutal-shadow-sm);
@@ -470,7 +470,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-rail-index {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: #ffffff;
   color: var(--color-ink);
   box-shadow: none;
@@ -478,9 +478,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-step-rail-item[data-rail-state="active"] .invoice-step-rail-index {
-  border-color: #111118 !important;
+  border-color: var(--color-ink) !important;
   background: var(--color-lime-300) !important;
-  color: #111118 !important;
+  color: var(--color-ink) !important;
   font-weight: 800;
   box-shadow: var(--brutal-shadow-pressed) !important;
 }
@@ -501,7 +501,7 @@ input:focus, select:focus, textarea:focus {
 /* --- Line items --- */
 
 .invoice-line-item-workspace {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-radius: 0;
   background: var(--color-cream);
   box-shadow: inset 0 0 0 1px var(--color-soft);
@@ -510,7 +510,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-line-item-head {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-radius: 0;
   background: var(--color-paper);
   box-shadow: none;
@@ -518,7 +518,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-line-item-row {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-radius: 0;
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
@@ -531,7 +531,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-line-item-total {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-radius: 0;
   background: var(--color-lime-50);
   box-shadow: none;
@@ -543,14 +543,14 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-line-item-row:focus-within {
-  border-color: #111118;
+  border-color: var(--color-ink);
   box-shadow: 0 0 0 2px var(--color-lime-300);
 }
 
 /* --- Utility widgets --- */
 
 .invoice-utility-widget {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: var(--color-paper-2);
   box-shadow: none;
   border-radius: 0;
@@ -563,10 +563,10 @@ input:focus, select:focus, textarea:focus {
 /* --- Action dock --- */
 
 .invoice-action-dock {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-bottom: none;
   background: #ffffff;
-  box-shadow: 0 -4px 0 #111118;
+  box-shadow: 0 -4px 0 var(--color-ink);
   backdrop-filter: none;
   border-radius: 0;
 }
@@ -574,14 +574,14 @@ input:focus, select:focus, textarea:focus {
 /* --- Total summary --- */
 
 .invoice-total-summary-card {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
   border-radius: 0;
 }
 
 .invoice-total-hero {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   border-radius: 0;
   background: var(--color-lime-50);
   padding: 1rem;
@@ -589,7 +589,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .invoice-final-review-panel {
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   background: #ffffff;
   box-shadow: var(--brutal-shadow-md);
   border-radius: 0;
@@ -597,7 +597,7 @@ input:focus, select:focus, textarea:focus {
 
 .invoice-final-review-note {
   background: var(--color-cream);
-  border: 2px solid #111118;
+  border: 2px solid var(--color-ink);
   box-shadow: none;
   border-radius: 0;
 }
@@ -787,7 +787,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
   }
 
   .invoice-action-dock {
-    box-shadow: 0 -2px 0 #111118;
+    box-shadow: 0 -2px 0 var(--color-ink);
   }
 
   .invoice-line-item-workspace {

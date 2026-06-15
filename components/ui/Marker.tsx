@@ -10,7 +10,7 @@ interface MarkerProps {
 }
 
 export function Marker({ tone = "acid", children, className }: MarkerProps) {
-  const bg = `var(--color-${tone})`;
+  const bg = `color-mix(in srgb, var(--color-${tone}) 45%, var(--color-paper))`;
   return (
     <span 
       className={cn("inline-block", className)}
