@@ -1,80 +1,104 @@
 export default function StoryMilestone() {
   return (
     <div className="lst lst-milestone">
-      <div className="frame">
-        <div className="viewport">
-          <div className="film">
+      <div className="device">
+        <div className="bezel">
+          <div className="screen">
 
-            {/* SHOT 1 · settle M1 */}
+            {/* S1 · settle M1 */}
             <div className="shot s1">
-              <div className="scene">
-                <div className="loc"><span className="ld" />You · Acme · Brand refresh</div>
-                <div className="proj">Milestones</div>
-                <div className="card btn btnp">Mark M1 settled</div>
-                <div className="spine">
-                  <div className="fill" />
-                  <div className="node n1">✓</div>
-                  <div className="ring" />
-                  <div className="node n2">2</div>
-                  <div className="node n3">3</div>
-                  <div className="nlab l1">M1 · Design</div>
-                  <div className="nlab l2">M2 · Build</div>
-                  <div className="nlab l3">M3 · Handoff</div>
-                </div>
-                <div className="card confirm">
-                  <div className="ct">Settle milestone 1?</div>
-                  <div className="cb"><span className="cy">Confirm</span><span className="cn">Cancel</span></div>
-                </div>
-              </div>
-            </div>
-
-            {/* SHOT 2 · auto-generate */}
-            <div className="shot s2">
-              <div className="scene">
-                <div className="loc"><span className="ld" style={{ background: "var(--color-gold)" }} />Lance · automatic</div>
-                <span className="sparkle" style={{ left: "30%", top: "96px" }}>✨</span>
-                <span className="sparkle" style={{ right: "28%", top: "104px", animationDelay: ".1s" }}>✦</span>
-                <div className="gen"><span className="spin">⟳</span> Generating next invoice…</div>
-                <div className="card">
-                  <div className="ch">
-                    <div>
-                      <div className="ct num">INV-043</div>
-                      <div className="cs">Milestone 2 · Build</div>
+              <div className="app">
+                <div className="topbar"><span className="dots"><i /><i /><i /></span><span className="topttl">Lance · Client · Brand refresh</span></div>
+                <div className="appbody">
+                  <div className="mpanel">
+                    <div className="mttl">Milestones · Brand refresh</div>
+                    <div className="spine">
+                      <div className="mtrack"><div className="mfill" /></div>
+                      <div className="mnode n1"><span className="num1">1</span><span className="chk">✓</span></div>
+                      <div className="mnode n2">2</div>
+                      <div className="mnode n3">3</div>
                     </div>
-                    <span className="pill" style={{ background: "var(--color-acc-soft)", color: "var(--color-acid)" }}>New</span>
+                    <div className="mlabels"><span>M1 · Design</span><span>M2 · Build</span><span>M3 · Handoff</span></div>
+                    <button className="msettlebtn">Mark M1 settled</button>
                   </div>
-                  <div className="ln" style={{ width: "78%" }} />
-                  <div className="camt num">₹1,20,000</div>
-                  <span className="auto">✨ auto-generated</span>
+                  <div className="cback" />
+                  <div className="confirm">
+                    <div className="cq">Settle milestone 1?</div>
+                    <div className="csub">Lance will generate &amp; send the next invoice.</div>
+                    <div className="cbtns"><span className="cy">Confirm</span><span className="cn">Cancel</span></div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* SHOT 3 · sent */}
+            {/* S2 · auto-generate */}
+            <div className="shot s2">
+              <div className="app">
+                <div className="topbar"><span className="dots"><i /><i /><i /></span><span className="topttl">Lance · generating…</span></div>
+                <div className="appbody">
+                  <div className="gen"><span className="spin">⟳</span> Lance is writing milestone 2&rsquo;s invoice…</div>
+                  <span className="sparkle sp1">✨</span><span className="sparkle sp2">✦</span>
+                  <div className="newinv">
+                    <div className="nitop">
+                      <div><div className="nino">INV-043</div><div className="nisub">Milestone 2 · Build</div></div>
+                      <span className="newpill">New</span>
+                    </div>
+                    <div className="niline" />
+                    <div className="nirow"><span>Auto-generated from M2</span><span className="num">₹1,20,000</span></div>
+                    <span className="autotag">✨ auto-generated, in sequence</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* S3 · auto-send (transit out) */}
             <div className="shot s3">
-              <div className="scene">
-                <div className="loc"><span className="ld" />→ Acme Corp</div>
-                <div className="card">
-                  <div className="ct num">INV-043 · M2</div>
-                  <div className="cs">₹1,20,000</div>
-                </div>
-                <div className="path"><svg viewBox="0 0 300 70"><path className="dash" d="M4,55 C90,55 120,14 200,16 C250,17 280,26 296,26" /></svg></div>
-                <div className="mring" />
-                <div className="mail">✉</div>
-                <div className="plane">✈</div>
-                <div className="done">✓ Sent to Acme · automatically</div>
+              <div className="env">
+                <div className="sky" /><div className="ground" />
+                <div className="enotice">Sending INV-043 to Client…</div>
+                <div className="dev you"><div className="mini-mon" /><span className="devlab">You</span></div>
+                <div className="dev cli"><div className="mini-phone" /><span className="devlab">Client</span></div>
+                <svg className="flightsvg" viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet">
+                  <path id="lm-arc" className="arcline" d="M24,68 C62,20 102,20 140,68" />
+                  <g className="plane">
+                    <path className="planedart" d="M-3,-1.7 L3.6,0 L-3,1.7 L-1,0 Z" />
+                    <animateMotion dur="16s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;0.57;0.72;1" keyPoints="0;0;1;1" keySplines="0 0 1 1;.42 0 .58 1;0 0 1 1"><mpath href="#lm-arc" /></animateMotion>
+                  </g>
+                </svg>
               </div>
             </div>
 
-          </div>
-          <div className="seam" />
-        </div>
+            {/* S4 · sent automatically */}
+            <div className="shot s4">
+              <div className="app">
+                <div className="topbar"><span className="dots"><i /><i /><i /></span><span className="topttl">Lance · Client · Brand refresh</span></div>
+                <div className="appbody mdash">
+                  <div className="mpanel">
+                    <div className="mttl">Milestones · Brand refresh</div>
+                    <div className="spine">
+                      <div className="mtrack"><div className="mfill" style={{ width: "52%" }} /></div>
+                      <div className="mnode n1 done"><span className="num1">1</span><span className="chk">✓</span></div>
+                      <div className="mnode n2 active">2</div>
+                      <div className="mnode n3">3</div>
+                    </div>
+                    <div className="mlabels"><span>M1 · Design</span><span>M2 · Build</span><span>M3 · Handoff</span></div>
+                  </div>
+                  <div className="senttoast"><span className="stick">✓</span> INV-043 sent to Client · automatically</div>
+                </div>
+              </div>
+            </div>
 
-        <div className="cap">
-          <span className="accent" style={{ background: "var(--color-acid)" }} />
-          <div className="t">Auto milestone invoicing</div>
-          <div className="d">Working in milestones? Mark one settled — Lance generates the next milestone invoice and sends it to your client automatically. Strictly in sequence, fully auditable, zero re-keying.</div>
+            <div className="seam" />
+          </div>
         </div>
+        <div className="neck" />
+        <div className="base" />
+      </div>
+
+      <div className="lstm-cap">
+        <span className="ac" />
+        <div className="ti">Auto milestone invoicing</div>
+        <div className="de">Working in milestones? Mark one settled and Lance generates the next milestone invoice and sends it to your client automatically — strictly in sequence, fully auditable, zero re-keying.</div>
       </div>
     </div>
   );
