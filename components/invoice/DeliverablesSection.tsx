@@ -64,6 +64,7 @@ interface DeliverablesSectionProps {
   freeRevisionRounds?: number;
   extraRevisionFeePercent?: number;
   isReadOnly?: boolean;
+  defaultLineItemType?: InvoiceLineItemType;
 }
 
 
@@ -95,18 +96,22 @@ export default function DeliverablesSection({
   freeRevisionRounds = 2,
   extraRevisionFeePercent = 15,
   isReadOnly = false,
+  defaultLineItemType,
 }: DeliverablesSectionProps) {
   const createDefaultLineItem = useCallback((): InvoiceLineItem => {
+    const fallbackType = (defaultLineItemType || "Other") as InvoiceLineItemType;
+    const fallbackUnit =
+      (invoiceDefaultUnitByType[fallbackType] || "per-deliverable") as InvoiceRateUnit;
     return {
       id: crypto.randomUUID(),
-      type: (isGuestMode ? "" : "Other") as InvoiceLineItemType,
+      type: (isGuestMode ? "" : fallbackType) as InvoiceLineItemType,
       description: "",
       qty: isGuestMode ? "" : 1,
       rate: isGuestMode ? "" : 0,
-      rateUnit: (isGuestMode ? "" : "per-deliverable") as InvoiceRateUnit,
+      rateUnit: (isGuestMode ? "" : fallbackUnit) as InvoiceRateUnit,
       subType: "",
     } as any;
-  }, [isGuestMode]);
+  }, [isGuestMode, defaultLineItemType]);
 
   const createDefaultMilestone = useCallback((index: number): Milestone => {
     return {
@@ -342,6 +347,7 @@ export default function DeliverablesSection({
                             itemIndex={milestone.lineItems.indexOf(item)}
                             isGuestMode={isGuestMode}
                             isReadOnly={isReadOnly}
+                            defaultLineItemType={defaultLineItemType}
                           />
                         </motion.div>
                       ))}
@@ -406,6 +412,7 @@ function LineItemCard({
   itemIndex,
   isGuestMode,
   isReadOnly,
+  defaultLineItemType,
 }: {
   item: InvoiceLineItem;
   currency: InvoiceDisplayCurrency;
@@ -425,6 +432,7 @@ function LineItemCard({
   itemIndex: number;
   isGuestMode?: boolean;
   isReadOnly?: boolean;
+  defaultLineItemType?: InvoiceLineItemType;
 }) {
   const catalogEntry = getInvoiceLineItemCatalogEntry(item.type);
   const hasSubTypes = (catalogEntry as any)?.hasSubTypes;
@@ -510,7 +518,10 @@ function LineItemCard({
             <BrutalSelect
               value={item.type}
               onChange={handleItemTypeChange}
-              options={invoiceLineItemTypeOptions.map(opt => ({ label: opt, value: opt }))}
+              options={(defaultLineItemType && invoiceLineItemTypeOptions.includes(defaultLineItemType)
+                ? [defaultLineItemType, ...invoiceLineItemTypeOptions.filter((opt) => opt !== defaultLineItemType)]
+                : invoiceLineItemTypeOptions
+              ).map(opt => ({ label: opt, value: opt }))}
               placeholder="Select category..."
               className={getInputStateClass(`deliverables.${itemIndex}.type`, item.type)}
               isReadOnly={isReadOnly}
