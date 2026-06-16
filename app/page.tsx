@@ -66,13 +66,6 @@ export default function Home() {
               <Button variant="primary" onClick={startInvoice} className="px-[22px] py-3.5 text-[15px] font-bold">
                 Create your first invoice →
               </Button>
-              <Button
-                variant="paper"
-                onClick={() => document.getElementById("see-it-work")?.scrollIntoView({ behavior: "smooth" })}
-                className="bg-white px-[22px] py-3.5 text-[15px] font-bold"
-              >
-                ▶ Watch the 90-sec demo
-              </Button>
             </div>
             <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[13px] font-semibold text-ink-3">
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> No signup to start</span>
