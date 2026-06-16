@@ -1,7 +1,11 @@
+import StoryStage from "./StoryStage";
+import SkyScene from "./SkyScene";
+
 export default function StoryMilestone() {
   return (
     <div className="lst lst-milestone">
-      <div className="device">
+      <StoryStage>
+        <div className="device">
         <div className="bezel">
           <div className="screen">
 
@@ -55,6 +59,7 @@ export default function StoryMilestone() {
             <div className="shot s3">
               <div className="env">
                 <div className="sky" /><div className="ground" />
+                <SkyScene />
                 <div className="enotice">Sending INV-043 to Client…</div>
                 <div className="dev you"><div className="mini-mon" /><span className="devlab">You</span></div>
                 <div className="dev cli"><div className="mini-phone" /><span className="devlab">Client</span></div>
@@ -93,7 +98,8 @@ export default function StoryMilestone() {
         </div>
         <div className="neck" />
         <div className="base" />
-      </div>
+        </div>
+      </StoryStage>
 
       <div className="lstm-cap">
         <span className="ac" />

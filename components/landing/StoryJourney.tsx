@@ -1,7 +1,11 @@
+import StoryStage from "./StoryStage";
+import SkyScene from "./SkyScene";
+
 export default function StoryJourney() {
   return (
     <div className="lst lst-journey">
-      <div className="device">
+      <StoryStage>
+        <div className="device">
         <div className="bezel">
           <div className="screen">
 
@@ -27,6 +31,7 @@ export default function StoryJourney() {
             <div className="shot s2">
               <div className="env">
                 <div className="sky" /><div className="ground" />
+                <SkyScene />
                 <div className="enotice">Sending to Client…</div>
                 <div className="dev you"><div className="mini-mon" /><span className="devlab">You</span></div>
                 <div className="dev cli"><div className="mini-phone" /><span className="devlab">Client</span></div>
@@ -65,6 +70,7 @@ export default function StoryJourney() {
             <div className="shot s4">
               <div className="env">
                 <div className="sky" /><div className="ground" />
+                <SkyScene />
                 <div className="enotice">Read receipt →</div>
                 <div className="dev you"><div className="mini-mon" /><span className="devlab">You</span></div>
                 <div className="dev cli"><div className="mini-phone" /><span className="devlab">Client</span></div>
@@ -97,7 +103,8 @@ export default function StoryJourney() {
         </div>
         <div className="neck" />
         <div className="base" />
-      </div>
+        </div>
+      </StoryStage>
 
       <div className="lstm-cap">
         <span className="ac" />
