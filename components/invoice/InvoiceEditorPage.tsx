@@ -39,6 +39,9 @@ import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
 import ClientDetailsSection from "@/components/invoice/ClientDetailsSection";
 import InvoiceMetaSection from "@/components/invoice/InvoiceMetaSection";
 import DeliverablesSection from "@/components/invoice/DeliverablesSection";
+import { normalizeInvoiceLineItemType } from "@/lib/invoice-line-item-catalog";
+import { invoiceDefaultUnitByType } from "@/lib/invoice-deliverables";
+import { getDefaultSacCodeForType } from "@/lib/invoice-sac";
 import TotalsTaxesSection from "@/components/invoice/TotalsTaxesSection";
 import TermsPaymentSection from "@/components/invoice/TermsPaymentSection";
 import BriefSummaryModal from "@/components/invoice/BriefSummaryModal";
@@ -530,6 +533,47 @@ function EditorContent() {
       return { ...prev, agency: { ...prev.agency, ...profileToAgencyDetails(savedProfile) } };
     });
   }, [savedProfile, isBootstrapped, isReadOnlyMode]);
+
+  // Preset the deliverable category from the user's profession (primaryService),
+  // resolved to a canonical catalog type. Falls back silently if unrecognized.
+  const professionDefaultType = useMemo(
+    () =>
+      normalizeInvoiceLineItemType(
+        savedProfile ? profileToAgencyDetails(savedProfile).primaryService : undefined,
+      ),
+    [savedProfile],
+  );
+
+  // On a new/empty invoice, default the first milestone's first line item to the
+  // profession category — but only while it is still pristine (untouched default),
+  // so it never overrides a type the user has already chosen.
+  useEffect(() => {
+    if (!isBootstrapped || isReadOnlyMode) return;
+    if (searchParams.get("id")) return;
+    if (!professionDefaultType) return;
+    setFormData((prev) => {
+      const firstItem = prev?.milestones?.[0]?.lineItems?.[0];
+      if (!firstItem) return prev;
+      if (firstItem.type !== "UI/UX Design" || (firstItem.description || "").trim()) return prev;
+      if (firstItem.type === professionDefaultType) return prev;
+      const nextUnit =
+        invoiceDefaultUnitByType[professionDefaultType] || firstItem.rateUnit;
+      const nextSac = getDefaultSacCodeForType(professionDefaultType);
+      return {
+        ...prev,
+        milestones: prev.milestones.map((m, mi) =>
+          mi !== 0
+            ? m
+            : {
+                ...m,
+                lineItems: m.lineItems.map((li, li2) =>
+                  li2 !== 0 ? li : { ...li, type: professionDefaultType, rateUnit: nextUnit, sacCode: nextSac },
+                ),
+              },
+        ),
+      };
+    });
+  }, [professionDefaultType, isBootstrapped, isReadOnlyMode]);
 
   useEffect(() => {
     if (!isBootstrapped) return;
@@ -2177,6 +2221,7 @@ const renderStepContent = (step: InvoiceStepperStep) => {
           isGuestMode={isGuestMode}
           freeRevisionRounds={formData.client.freeRevisionRounds}
           extraRevisionFeePercent={formData.client.extraRevisionFeePercent}
+          defaultLineItemType={professionDefaultType}
         />
       );
     case "payment":
