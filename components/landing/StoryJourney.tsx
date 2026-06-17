@@ -106,6 +106,14 @@ export default function StoryJourney() {
         </div>
       </StoryStage>
 
+      <div className="storynav">
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+      </div>
+
       <div className="lstm-cap">
         <span className="ac" />
         <div className="ti">Read receipts + MSA gating</div>

@@ -101,6 +101,13 @@ export default function StoryMilestone() {
         </div>
       </StoryStage>
 
+      <div className="storynav">
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+        <span className="seg"><i className="fill" /></span>
+      </div>
+
       <div className="lstm-cap">
         <span className="ac" />
         <div className="ti">Auto milestone invoicing</div>
