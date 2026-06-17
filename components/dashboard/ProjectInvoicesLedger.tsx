@@ -5,23 +5,27 @@ import Link from "next/link";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { formatInr } from "./ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
+import { getStatusTint, type StatusKind } from "@/lib/status-tint";
 
 function getStatusPill(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean) {
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
-  if (status === 'cancelled') return { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: 'cancelled', strikethrough: true };
-  if (status === 'overdue') return { bg: 'var(--color-overdue)', fg: '#f0e9d6', label: 'overdue' };
-  if (status === 'settled') return { bg: 'var(--color-grass)', fg: '#f0e9d6', label: 'settled' };
-  if (status === 'partial') return { bg: 'var(--color-lav)', fg: '#f0e9d6', label: 'partial' };
-  if (msa === 'proposed' && hasClientMsaNote) return { bg: 'var(--color-coral)', fg: '#f0e9d6', label: 'revision requested' };
-  if (msa === 'accepted' && status !== 'settled') return { bg: 'var(--color-sky)', fg: '#f0e9d6', label: 'locked' };
-  if (msa === 'proposed') return { bg: 'var(--color-butter)', fg: 'var(--color-ink)', label: 'awaiting client' };
-  if (msa === 'pending' && status === 'finalized') return { bg: 'var(--color-butter)', fg: 'var(--color-ink)', label: 'awaiting client' };
-  if (status === 'finalized' || status === 'sent' || status === 'live') return { bg: 'var(--color-acid)', fg: '#f0e9d6', label: 'live' };
-  if (status === 'complete') return { bg: 'var(--color-forest)', fg: '#f0e9d6', label: 'complete' };
-  if (status === 'draft') return { bg: 'transparent', fg: 'var(--color-ink-2)', label: 'draft', border: true };
-  return { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: status };
+  let kind: StatusKind = "neutral";
+  let label = status;
+  if (status === 'cancelled') { kind = "cancelled"; label = "cancelled"; }
+  else if (status === 'overdue') { kind = "overdue"; label = "overdue"; }
+  else if (status === 'settled') { kind = "settled"; label = "settled"; }
+  else if (status === 'partial') { kind = "partial"; label = "partial"; }
+  else if (msa === 'proposed' && hasClientMsaNote) { kind = "revision"; label = "revision requested"; }
+  else if (msa === 'accepted' && status !== 'settled') { kind = "locked"; label = "locked"; }
+  else if (msa === 'proposed') { kind = "awaiting"; label = "awaiting client"; }
+  else if (msa === 'pending' && status === 'finalized') { kind = "awaiting"; label = "awaiting client"; }
+  else if (status === 'finalized' || status === 'sent' || status === 'live') { kind = "live"; label = "live"; }
+  else if (status === 'complete') { kind = "complete"; label = "complete"; }
+  else if (status === 'draft') { kind = "draft"; label = "draft"; }
+
+  return { ...getStatusTint(kind), label };
 }
 
 export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoices }) {
@@ -71,10 +75,10 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               } else {
                 const ms = project.milestones.find(m => (m.order_index ?? -1) === milestoneIndex - 1);
                 const mStatus = (ms?.status || "").toLowerCase();
-                if (mStatus === "settled") statusInfo = { bg: 'var(--color-grass)', fg: '#f0e9d6', label: 'settled' };
-                else if (mStatus === "live") statusInfo = { bg: 'var(--color-acid)', fg: '#f0e9d6', label: 'live' };
-                else if (mStatus === "cancelled") statusInfo = { bg: 'var(--color-soft)', fg: 'var(--color-ink-2)', label: 'cancelled', strikethrough: true };
-                else statusInfo = { bg: 'transparent', fg: 'var(--color-ink-2)', label: 'pending', border: true };
+                if (mStatus === "settled") statusInfo = { ...getStatusTint("settled"), label: 'settled' };
+                else if (mStatus === "live") statusInfo = { ...getStatusTint("live"), label: 'live' };
+                else if (mStatus === "cancelled") statusInfo = { ...getStatusTint("cancelled"), label: 'cancelled' };
+                else statusInfo = { ...getStatusTint("scheduled"), label: 'pending' };
               }
 
               // Compute grand total
@@ -96,8 +100,8 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                   </td>
                   <td className="p-3 border-r-2 border-ink text-xs">
                     <span
-                      className={`px-2 py-0.5 font-bold uppercase ${statusInfo.border ? 'border border-ink' : ''} ${statusInfo.strikethrough ? 'line-through' : ''}`}
-                      style={{ backgroundColor: statusInfo.bg, color: statusInfo.fg }}
+                      className={`px-2 py-0.5 rounded-full border font-bold uppercase ${statusInfo.strikethrough ? 'line-through' : ''}`}
+                      style={{ backgroundColor: statusInfo.bg, color: statusInfo.fg, borderColor: statusInfo.bd, borderStyle: statusInfo.dashed ? 'dashed' : 'solid' }}
                     >
                       {statusInfo.label}
                     </span>

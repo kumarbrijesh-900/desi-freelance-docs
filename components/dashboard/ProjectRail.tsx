@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ProjectWithInvoices } from "@/lib/supabase/projects";
 import { Search } from "lucide-react";
+import { getStatusTint, statusKindFromSummary } from "@/lib/status-tint";
 
 type FilterMode = "ALL" | "ACTIVE" | "AT RISK" | "AWAITING CLIENT" | "COMPLETE";
 
@@ -170,6 +171,7 @@ export function ProjectRail({
             const isSelected = p.project.id === selectedProjectId;
             const dot = getAttentionDot(p);
             const summary = getSummary(p);
+            const sTint = getStatusTint(statusKindFromSummary(summary));
 
             return (
               <Link
@@ -206,14 +208,12 @@ export function ProjectRail({
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className={`text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border-2 rounded-full ${isSelected ? 'border-white shadow-[var(--brutal-shadow-sm)]' : 'border-ink shadow-[var(--brutal-shadow-sm)]'} ${
-                      summary.startsWith("DRAFT") ? "bg-soft text-ink" :
-                      summary === "COMPLETE" ? "bg-forest text-acc-ink" :
-                      summary.startsWith("REVISION") ? "bg-coral text-white" :
-                      summary.startsWith("LIVE") ? "bg-acid text-acc-ink" :
-                      summary.startsWith("ACTIVE") ? "bg-strong text-ink" :
-                      "bg-butter text-ink"
-                    }`}>
+                    <div
+                      className="text-[8px] font-extrabold uppercase tracking-widest px-2 py-0.5 border rounded-full"
+                      style={isSelected
+                        ? { backgroundColor: "rgba(255,255,255,0.14)", color: "#f0e9d6", borderColor: "rgba(255,255,255,0.4)" }
+                        : { backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
+                    >
                       {summary}
                     </div>
                     {isSelected && <div className="text-acid font-black text-sm pr-2">→</div>}
