@@ -45,6 +45,12 @@
   /* Legacy accent aliases → E */
   --color-lime-warm:    #e7c878;
   --color-lime-300:     #157a54;
+  --color-lime-50:      #eef6ee;  /* light green tint — success surfaces (was dangling) */
+  --color-coral-400:    #c2502f;  /* alias → coral · alert/revision (was dangling) */
+  --brand-indigo:       #1e3d33;  /* indigo retired → bottle-green (was dangling) */
+  --brand-indigo-deep:  #1e3d33;
+  --brand-indigo-light: #2c5648;
+  --brand-indigo-muted: #5f574a;
 
   /* Tonal page backgrounds (per-route) */
   --color-paper-rose:   #ffeef5;
@@ -94,6 +100,7 @@ body {
   background-size: 22px 22px;
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  text-wrap: pretty;
 }
 
 html {
@@ -102,6 +109,7 @@ html {
 
 h1, h2, h3 {
   font-family: var(--font-display), system-ui, sans-serif;
+  text-wrap: balance;
 }
 
 .font-syne {
@@ -193,16 +201,16 @@ input:focus, select:focus, textarea:focus {
   border: 2px solid var(--color-ink);
   background: var(--color-paper);
   box-shadow: var(--brutal-shadow-md);
-  border-radius: 0;
+  border-radius: var(--radius-box);
 }
 
 .app-soft-button:hover {
   box-shadow: var(--brutal-shadow-lg);
-  transform: translate(-1px, -1px);
+  transform: translateY(-1px);
 }
 
 .app-soft-button:active {
-  transform: translate(2px, 2px);
+  transform: scale(0.97);
   box-shadow: var(--brutal-shadow-pressed);
   transition-duration: 50ms;
 }
@@ -227,14 +235,14 @@ input:focus, select:focus, textarea:focus {
   background: var(--color-acid);
   filter: brightness(0.94);
   box-shadow: var(--brutal-shadow-lg);
-  transform: translate(-1px, -1px);
+  transform: translateY(-1px);
 }
 
 .app-soft-button-primary:active {
   background: var(--color-acid);
   filter: brightness(0.88);
   box-shadow: var(--brutal-shadow-pressed);
-  transform: translate(2px, 2px);
+  transform: scale(0.97);
 }
 
 .app-soft-button-secondary {
@@ -257,7 +265,7 @@ input:focus, select:focus, textarea:focus {
 .app-soft-button-destructive {
   border-color: var(--color-ink);
   background: var(--state-danger-bg);
-  box-shadow: 3px 3px 0 var(--color-coral-400);
+  box-shadow: var(--brutal-shadow-sm);
 }
 
 .app-soft-button-ghost {
@@ -305,9 +313,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes dot-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(203, 255, 63, 0.7); }
-  70%  { box-shadow: 0 0 0 6px rgba(203, 255, 63, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(203, 255, 63, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(30, 61, 51, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(30, 61, 51, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(30, 61, 51, 0); }
 }
 
 .app-soft-choice-option {
@@ -354,7 +362,7 @@ input:focus, select:focus, textarea:focus {
 
 .app-focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-lime-300);
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-acid);
 }
 
 /* --- Dropzone --- */
@@ -738,7 +746,7 @@ input::placeholder, select::placeholder, textarea::placeholder {
 }
 
 .field-needs-attention {
-  box-shadow: 3px 3px 0 var(--color-coral-400);
+  box-shadow: 0 0 0 3px rgba(194,80,47,0.22);
 }
 
 /* --- Tablet (screens 768px and below) --- */
@@ -1680,3 +1688,15 @@ input::placeholder, select::placeholder, textarea::placeholder {
 @keyframes lm-bar3{0%,56%{transform:scaleX(0)}77%,100%{transform:scaleX(1)}}
 @keyframes lm-bar4{0%,77%{transform:scaleX(0)}100%{transform:scaleX(1)}}
 @media (prefers-reduced-motion: reduce){.lst .storynav .seg .fill{transform:scaleX(1);}}
+
+/* ===== Global button curve =====
+   Every <button> is rounded by default. Tailwind radius utilities
+   (rounded-full, rounded-xl, rounded-none, etc.) live in the utilities layer
+   and override this base rule, so switches/pills/icon buttons keep their
+   intended shape. Labels and badges are spans/divs, not <button>, so their
+   square boxes are untouched. */
+@layer base {
+  button {
+    border-radius: var(--radius-box);
+  }
+}

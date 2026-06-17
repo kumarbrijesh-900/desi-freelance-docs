@@ -12,7 +12,7 @@ export const AppIconButton = React.forwardRef<HTMLButtonElement, AppIconButtonPr
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center rounded-xl border border-[color:var(--color-soft)] transition-[transform,box-shadow,background-color,border-color] duration-150 cursor-pointer active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center rounded-xl app-focus-ring border border-[color:var(--color-soft)] transition-[transform,box-shadow,background-color,border-color] duration-150 cursor-pointer active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50",
           size === "sm" ? "h-8 w-8" : size === "lg" ? "h-12 w-12" : "h-10 w-10",
           variant === "primary" && "bg-acid text-acc-ink border-transparent hover:shadow-[var(--brutal-shadow-sm)]",
           variant === "secondary" && "bg-white text-ink hover:shadow-[var(--brutal-shadow-sm)]",
