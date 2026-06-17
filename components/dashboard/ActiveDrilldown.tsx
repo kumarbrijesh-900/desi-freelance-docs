@@ -114,32 +114,32 @@ export function ActiveDrilldown({
   switch (primary_action) {
     case "send_now":
       btnLabel = "SEND NOW";
-      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:scale-[0.97]";
       handler = onSendNow;
       break;
     case "mark_settled":
       btnLabel = "MARK SETTLED";
-      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--elev-3)] bg-acid text-acc-ink active:scale-[0.97]";
       handler = onMarkSettled;
       break;
     case "resend":
       btnLabel = "NUDGE CLIENT";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onResend;
       break;
     case "finalize":
       btnLabel = "FINALIZE & SEND";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:scale-[0.97]";
       handler = onFinalize;
       break;
     case "review_revision":
       btnLabel = "REVIEW REVISION";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-acid text-acc-ink active:scale-[0.97]";
       handler = onReviewRevision;
       break;
     case "review_only":
       btnLabel = "VIEW";
-      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none";
+      btnClass += " shadow-[var(--brutal-shadow-md)] bg-white text-ink hover:bg-paper-2 active:scale-[0.97]";
       handler = onPreview;
       break;
   }

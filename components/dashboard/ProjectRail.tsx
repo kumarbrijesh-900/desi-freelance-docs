@@ -129,7 +129,7 @@ export function ProjectRail({
 
         <button
           onClick={onNewInvoice}
-          className="w-full bg-acid text-acc-ink border border-soft shadow-[var(--brutal-shadow-md)] font-extrabold uppercase tracking-wide py-2 active:translate-y-[3px] active:translate-x-[3px] active:shadow-none transition-all"
+          className="w-full bg-acid text-acc-ink border border-soft shadow-[var(--brutal-shadow-md)] font-extrabold uppercase tracking-wide py-2 active:scale-[0.97] transition-all"
         >
           + NEW INVOICE
         </button>
@@ -140,8 +140,8 @@ export function ProjectRail({
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`whitespace-nowrap px-2 py-1 text-[10px] uppercase font-bold tracking-wide border
-              ${filter === f ? "bg-black text-white border-ink" : "bg-transparent text-neutral-600 border-transparent hover:border-ink"}
+            className={`whitespace-nowrap rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wide border transition-colors
+              ${filter === f ? "bg-acid text-acc-ink border-acid" : "bg-transparent text-ink-2 border-transparent hover:border-soft hover:text-ink"}
             `}
           >
             {f}
