@@ -46,6 +46,7 @@
   --color-lime-warm:    #e7c878;
   --color-lime-300:     #157a54;
   --color-lime-50:      #eef6ee;  /* light green tint — success surfaces (was dangling) */
+  --color-cream:        #f7f0dd;  /* warm cream surface (was dangling) */
   --color-coral-400:    #c2502f;  /* alias → coral · alert/revision (was dangling) */
   --brand-indigo:       #1e3d33;  /* indigo retired → bottle-green (was dangling) */
   --brand-indigo-deep:  #1e3d33;
@@ -616,9 +617,9 @@ input:focus, select:focus, textarea:focus {
 /* --- Animations --- */
 
 @keyframes field-complete-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(190, 255, 0, 0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(190, 255, 0, 0.15); }
-  100% { box-shadow: 0 0 0 0 rgba(190, 255, 0, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(21, 122, 84, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(21, 122, 84, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(21, 122, 84, 0); }
 }
 
 .field-complete-flash {
@@ -1699,4 +1700,94 @@ input::placeholder, select::placeholder, textarea::placeholder {
   button {
     border-radius: var(--radius-box);
   }
+}
+
+/* ===== Editor surface softening (E) =====
+   The invoice-editor surfaces predate the E pass: authored square
+   (border-radius: 0) with heavy 2px ink borders. These rules round them to the
+   E radius and drop to the same 1px hairline used by panels/fields so the
+   editor matches the rest of the app; active states keep a green edge.
+   Placed after the originals (matching specificity) so they win the cascade. */
+
+/* Containers → hairline + rounded */
+.app-soft-choice-track,
+.app-soft-step-surface,
+.invoice-brief-card,
+.invoice-step-card,
+.invoice-step-rail,
+.invoice-step-rail-index,
+.invoice-line-item-workspace,
+.invoice-line-item-head,
+.invoice-line-item-row,
+.invoice-line-item-total,
+.invoice-utility-widget,
+.invoice-total-summary-card,
+.invoice-total-hero,
+.invoice-final-review-panel,
+.invoice-final-review-note {
+  border-width: 1px;
+  border-color: var(--color-soft);
+  border-radius: var(--radius-box);
+}
+
+/* Option shells → round, keep their (transparent) edge */
+.app-soft-choice-option,
+.invoice-step-rail-item {
+  border-width: 1px;
+  border-radius: var(--radius-box);
+}
+
+/* Dashed dropzone → soften + round, keep dashed affordance */
+.app-dropzone-surface {
+  border-width: 1px;
+  border-color: var(--color-ink-3);
+  border-radius: var(--radius-box);
+}
+
+/* Rail spine → thin hairline */
+.invoice-step-rail-track {
+  border-left-width: 1px;
+  border-left-color: var(--color-soft);
+}
+
+/* Active / emphasis → green edge, rounded */
+.app-soft-choice-option-active,
+.app-soft-step-surface[data-step-state="active"],
+.invoice-step-card[data-step-state="active"],
+.invoice-step-card[data-step-kind="final"],
+.invoice-step-card[data-step-kind="final"][data-step-state="active"],
+.invoice-step-rail-item[data-rail-state="active"] {
+  border-color: var(--color-acid);
+  border-radius: var(--radius-box);
+}
+
+/* Completed → muted hairline */
+.invoice-step-card[data-step-state="completed"] {
+  border-color: var(--color-soft);
+}
+
+/* Action dock → rounded top, no bottom edge, soft lift (was hard 0 -4px 0 ink) */
+.invoice-action-dock {
+  border-width: 1px;
+  border-bottom-width: 0;
+  border-color: var(--color-soft);
+  border-radius: var(--radius-box) var(--radius-box) 0 0;
+  box-shadow: 0 -10px 24px -16px rgba(30,61,51,0.40);
+}
+
+/* Timeline dot → soft green ring (was hard ink ring) */
+.invoice-step-dot {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 4px var(--color-acid);
+}
+
+/* Explicit transitions (replace transition: all) */
+.invoice-step-card,
+.invoice-step-rail-item,
+.invoice-line-item-row,
+.app-soft-choice-option {
+  transition: background-color var(--app-duration-fast) var(--app-ease-standard),
+              border-color var(--app-duration-fast) var(--app-ease-standard),
+              box-shadow var(--app-duration-fast) var(--app-ease-standard),
+              color var(--app-duration-fast) var(--app-ease-standard),
+              transform var(--app-duration-fast) var(--app-ease-standard);
 }
