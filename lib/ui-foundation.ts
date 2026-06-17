@@ -116,10 +116,6 @@ export function appContainerCenteredClass() {
   return "flex justify-center w-full";
 }
 
-export function appBottomBarClass() {
-  return "bg-white border-t-2 border-[color:var(--brutal-border-color)] p-4";
-}
-
 export function appMobileStepPillClass() {
   return "hidden lg:flex items-center gap-2";
 }
@@ -128,13 +124,13 @@ export function getAppStatusPillClass(
   tone: "default" | "success" | "muted" | "warning" = "default",
 ) {
   return cn(
-    "shrink-0 border-2 border-[color:var(--brutal-border-color)] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
+    "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]",
     tone === "success"
-      ? "bg-[#E0FFF7] text-[#006B52]"
+      ? "bg-[#e4f1ea] text-[#157a54] border-[#c7e4d4]"
       : tone === "muted"
-        ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)]"
+        ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] border-[color:var(--color-soft)]"
         : tone === "warning"
-          ? "bg-[#FF5C00] text-white"
-          : "bg-[color:var(--color-paper)] text-[color:var(--color-ink)]",
+          ? "bg-[#f6ecd6] text-[#a5772a] border-[#ecd9b0]"
+          : "bg-[color:var(--color-paper)] text-[color:var(--color-ink)] border-[color:var(--color-soft)]",
   );
 }
