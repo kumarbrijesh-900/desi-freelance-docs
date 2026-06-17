@@ -35,8 +35,8 @@ function NavLink({ href, label }: { href: string; label: string }) {
       className={cn(
         "text-[11px] font-bold uppercase tracking-[0.1em] transition-colors duration-100 font-syne antialiased",
         isActive
-          ? "text-[color:var(--color-lime-warm)]"
-          : "text-[#9999A8] hover:text-white",
+          ? "text-[color:var(--color-acid)] underline underline-offset-[6px] decoration-2"
+          : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
       )}
     >
       {label}
@@ -84,7 +84,7 @@ function UserMenu({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-8 w-8 items-center justify-center border-2 border-[color:var(--color-lime-warm)] bg-[#1A1A24] overflow-hidden transition-all hover:bg-[#2A2A34]"
+        className="flex h-8 w-8 items-center justify-center border border-soft bg-acid overflow-hidden transition-all hover:bg-[color:var(--color-acid-2)]"
       >
         {avatar ? (
           <img
@@ -93,7 +93,7 @@ function UserMenu({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-[10px] font-bold text-[color:var(--color-lime-warm)]">
+          <span className="text-[10px] font-bold text-acc-ink">
             {initials}
           </span>
         )}
@@ -102,7 +102,7 @@ function UserMenu({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 origin-top-right border border-soft bg-white p-1 shadow-[var(--brutal-shadow-md)] z-50">
           <div className="px-3 py-2 border-b-2 border-soft mb-1">
-            <p className="text-[10px] font-bold text-[#6E6E7A] uppercase tracking-[0.08em]">
+            <p className="text-[10px] font-bold text-[color:var(--color-ink-3)] uppercase tracking-[0.08em]">
               Account
             </p>
             <p className="text-[13px] font-bold text-[color:var(--color-ink)] truncate">
@@ -119,7 +119,7 @@ function UserMenu({
                 router.push("/profile");
               }
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-lime-warm)] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
           >
             Profile Settings
           </button>
@@ -129,16 +129,16 @@ function UserMenu({
               setIsOpen(false);
               onFeedbackClick();
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-lime-warm)] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-ink)] hover:bg-[color:var(--color-acc-soft)] transition-colors"
           >
             Provide Feedback
           </button>
 
-          <div className="h-[2px] bg-ink my-1" />
+          <div className="h-px bg-soft my-1" />
 
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[#FF5C00] hover:bg-[#FFF0EC] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] font-bold text-[color:var(--color-coral)] hover:bg-[#f6e0d8] transition-colors"
           >
             Log Out
           </button>
@@ -281,13 +281,13 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="sm:hidden border-t-2 border-[#333] bg-ink">
+          <div className="sm:hidden border-t border-soft bg-[color:var(--color-paper-2)]">
             <div className={`${appPageContainerClass} py-3`}>
               <nav className="flex flex-col gap-1">
                 <button
                   type="button"
                   onClick={handleNewInvoice}
-                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)] border-b-2 border-[#333] mb-1"
+                  className="flex items-center justify-center px-3 py-3 text-[13px] font-bold uppercase tracking-[0.04em] bg-acid text-acc-ink rounded-[var(--radius-box)] mb-2"
                 >
                   + New Invoice
                 </button>
@@ -295,10 +295,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                   <Link
                     href="/dashboard"
                     className={cn(
-                      "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                      "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                       pathname === "/dashboard"
-                        ? "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]"
-                        : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                        ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
+                        : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -310,10 +310,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/invoices"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/invoices"
-                          ? "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]"
-                          : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                          ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
+                          : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -322,10 +322,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/clients"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/clients"
-                          ? "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]"
-                          : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                          ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
+                          : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -334,10 +334,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                     <Link
                       href="/profile"
                       className={cn(
-                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                        "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                         pathname === "/profile"
-                          ? "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]"
-                          : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                          ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
+                          : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -348,10 +348,10 @@ export default function AppHeader({ rightSlot, leftSlot }: AppHeaderProps) {
                 <Link
                   href="/support"
                   className={cn(
-                    "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] transition-colors",
+                    "flex items-center px-3 py-2.5 text-[13px] font-bold uppercase tracking-[0.04em] rounded-[var(--radius-box)] transition-colors",
                     pathname === "/support"
-                      ? "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]"
-                      : "text-[#9999A8] hover:text-white hover:bg-[#1A1A24]"
+                      ? "bg-[color:var(--color-acc-soft)] text-[color:var(--color-acid)]"
+                      : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper)]"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
