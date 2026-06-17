@@ -82,6 +82,12 @@
   --radius-pill: 9999px;
   --radius-box:  14px;
   --radius-soft: 18px;
+
+  /* App-radius aliases → E radii (referenced across the app but never defined) */
+  --app-radius-button:  var(--radius-box);
+  --app-radius-control: var(--radius-box);
+  --app-radius-card:    var(--radius-soft);
+  --app-radius-shell:   var(--radius-soft);
 }
 
 

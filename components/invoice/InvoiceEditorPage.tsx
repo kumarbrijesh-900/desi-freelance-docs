@@ -3320,7 +3320,7 @@ return (
               className={cn(
                 "inline-flex items-center gap-2 font-bold rounded-[var(--app-radius-button)] transition-all h-9 px-4 sm:h-10 sm:px-6",
                 invoiceReadyForPreview
-                  ? "bg-[#bfff00] text-black shadow-sm border border-[#bfff00] hover:brightness-105 active:scale-[0.97] transition-transform"
+                  ? "bg-acid text-acc-ink shadow-[var(--brutal-shadow-sm)] border border-acid hover:brightness-105 active:scale-[0.97] transition-transform"
                   : "border border-soft bg-[#FFFBE6] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] active:scale-[0.97] transition-transform"
               )}
             >
