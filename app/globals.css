@@ -79,6 +79,9 @@
   --brutal-shadow-lg:      0 22px 44px -20px rgba(30,61,51,0.55);
   --brutal-shadow-pressed: 0 3px 10px -6px rgba(30,61,51,0.40);
 
+  /* Brutal-border alias — now a soft hairline; was undefined, so borders using it fell back to currentColor */
+  --brutal-border-color: var(--color-soft);
+
   --radius-pill: 9999px;
   --radius-box:  14px;
   --radius-soft: 18px;
