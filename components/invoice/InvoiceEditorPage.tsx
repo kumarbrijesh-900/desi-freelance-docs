@@ -2841,7 +2841,7 @@ return (
                               "inline-flex items-center justify-center gap-2 font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-200",
                               !stepValidityByStep[currentStep]
                                 ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] font-normal cursor-not-allowed"
-                                : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm active:scale-[0.97] transition-all",
+                                : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm active:scale-[0.97] transition-all",
                             )}
                           >
                             Continue to{" "}

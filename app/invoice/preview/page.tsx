@@ -1246,7 +1246,7 @@ function PreviewContent() {
                   "inline-flex items-center justify-center gap-2 rounded-[var(--app-radius-button)] font-bold tracking-[-0.01em] text-[13px] h-10 px-6 transition-all duration-100 active:scale-[0.97]",
                   isSavingAndSharing || !lockState.canShare
                     ? "bg-[color:var(--color-paper-2)] text-[color:var(--color-ink-2)] cursor-not-allowed opacity-80 border border-[color:var(--color-soft)]"
-                    : "bg-[#bfff00] text-black cursor-pointer hover:bg-[#bfff00]/90 shadow-sm border border-[#bfff00] active:bg-[#9acc00]"
+                    : "bg-acid text-acc-ink cursor-pointer hover:bg-[color:var(--color-acid-2)] shadow-sm border border-acid"
                 )}
                 title={!lockState.canShare ? lockState.reason : undefined}
               >

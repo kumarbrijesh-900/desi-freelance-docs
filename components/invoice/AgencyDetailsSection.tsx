@@ -575,7 +575,7 @@ export default function AgencyDetailsSection({
                           Agency Logo Attached
                           {value.logoUrl === value.profileLogoUrl &&
                             value.logoUrl !== "" && (
-                              <span className="ml-2 inline-flex items-center rounded-full bg-lime-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime-700 ring-1 ring-inset ring-lime-600/20">
+                              <span className="ml-2 inline-flex items-center rounded-full bg-[#e4f1ea] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#157a54] ring-1 ring-inset ring-[#c7e4d4]">
                                 Synced
                               </span>
                             )}

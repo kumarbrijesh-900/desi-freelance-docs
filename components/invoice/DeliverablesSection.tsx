@@ -358,9 +358,9 @@ export default function DeliverablesSection({
                     <button
                       type="button"
                       onClick={() => addLineItem(milestone.id)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--color-ink-2)] transition-colors hover:text-lime-600 group"
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-[color:var(--color-ink-2)] transition-colors hover:text-[color:var(--color-acid)] group"
                     >
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--color-soft)] group-hover:border-lime-200 group-hover:bg-lime-50 transition-all">+</span>
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-[color:var(--color-soft)] group-hover:border-[color:var(--color-acid)] group-hover:bg-[color:var(--color-acc-soft)] transition-all">+</span>
                       Add Line Item
                     </button>
                   )}
