@@ -48,6 +48,7 @@ import { playInteractionCue } from "@/lib/interaction-feedback";
 import { uploadProfessionalAsset } from "@/lib/supabase/storage";
 import type { AgencyDetails, PaymentDetails } from "@/types/invoice";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
+import { PROFESSION_OPTIONS } from "@/lib/professions";
 import ReactCrop, {
   type Crop,
   type PixelCrop,
@@ -806,34 +807,9 @@ export default function ProfilePage() {
                           })}
                         >
                           <option value="">Select your primary service...</option>
-                          <option value="Animation">Animation</option>
-                          <option value="Architecture & Interior Design">
-                            Architecture & Interior Design
-                          </option>
-                          <option value="Branding & Identity">
-                            Branding & Identity
-                          </option>
-                          <option value="Consulting">Consulting</option>
-                          <option value="Graphic Design">Graphic Design</option>
-                          <option value="Illustration">Illustration</option>
-                          <option value="Infographics & Presentation Design">
-                            Infographics & Presentation Design
-                          </option>
-                          <option value="Logo Design">Logo Design</option>
-                          <option value="Motion Graphics">Motion Graphics</option>
-                          <option value="Packaging Design">Packaging Design</option>
-                          <option value="Photography">Photography</option>
-                          <option value="Print Design">Print Design</option>
-                          <option value="Social Media Content">
-                            Social Media Content
-                          </option>
-                          <option value="Software Development">
-                            Software Development
-                          </option>
-                          <option value="UI/UX Design">UI/UX Design</option>
-                          <option value="Video Editing">Video Editing</option>
-                          <option value="Videography">Videography</option>
-                          <option value="Other">Other</option>
+                          {PROFESSION_OPTIONS.map((p) => (
+                            <option key={p.value} value={p.value}>{p.label}</option>
+                          ))}
                         </select>
                       </FieldRow>
                     </div>
