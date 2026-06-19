@@ -9,9 +9,10 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import type { InvoiceFormData } from "@/types/invoice";
 import { prepareTemplateData } from "./template-data";
+import { OfflineCopyMark } from "./Watermark";
 import ClassicTemplate from "./classic";
 import EditorialTemplate from "./editorial";
 import NeonAtelierTemplate from "./neon-atelier";
@@ -35,29 +36,48 @@ export default function TemplateRenderer({
 }: TemplateRendererProps) {
   const data = useMemo(() => prepareTemplateData(formData), [formData]);
 
+  let template: ReactNode;
   switch (templateId) {
     case "editorial":
-      return <EditorialTemplate data={data} />;
+      template = <EditorialTemplate data={data} />;
+      break;
     case "neon-atelier":
-      return <NeonAtelierTemplate data={data} />;
+      template = <NeonAtelierTemplate data={data} />;
+      break;
     case "midnight":
-      return <MidnightTemplate data={data} />;
+      template = <MidnightTemplate data={data} />;
+      break;
     case "terracotta":
-      return <TerracottaTemplate data={data} />;
+      template = <TerracottaTemplate data={data} />;
+      break;
     case "swiss-grid":
-      return <SwissGridTemplate data={data} />;
+      template = <SwissGridTemplate data={data} />;
+      break;
     case "mono":
-      return <MonoTemplate data={data} />;
+      template = <MonoTemplate data={data} />;
+      break;
     case "sakura":
-      return <SakuraTemplate data={data} />;
+      template = <SakuraTemplate data={data} />;
+      break;
     case "brutalist":
-      return <BrutalistTemplate data={data} />;
+      template = <BrutalistTemplate data={data} />;
+      break;
     case "ledger":
-      return <LedgerTemplate data={data} />;
+      template = <LedgerTemplate data={data} />;
+      break;
     case "coastal":
-      return <CoastalTemplate data={data} />;
+      template = <CoastalTemplate data={data} />;
+      break;
     case "classic":
     default:
-      return <ClassicTemplate data={data} />;
+      template = <ClassicTemplate data={data} />;
+      break;
   }
+
+  return (
+    <div className="relative">
+      {template}
+      {data.isOffline && <OfflineCopyMark />}
+    </div>
+  );
 }

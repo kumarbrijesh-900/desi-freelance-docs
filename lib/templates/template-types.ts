@@ -106,6 +106,7 @@ export interface TemplateData {
 
   /* ── Extra UI Meta ──────────────────────── */
   isDraft: boolean;
+  isOffline: boolean;
   projectName: string;
 }
 

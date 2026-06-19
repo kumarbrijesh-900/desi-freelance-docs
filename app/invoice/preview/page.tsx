@@ -685,6 +685,9 @@ function PreviewContent() {
       console.error("[DownloadOffline] Failed to mark invoice offline:", error);
       // Continue with the download anyway so the user is not blocked.
     }
+    // Reflect offline status in the rendered invoice so the downloaded PDF is watermarked.
+    setData((prev) => (prev ? { ...prev, isOffline: true } : prev));
+    await new Promise((resolve) => setTimeout(resolve, 80));
     handleDownloadPdf({ markAsSent: false });
   };
 

@@ -327,6 +327,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     signatureUrl: formData.agency?.signatureUrl || "",
 
     isDraft: false,
+    isOffline: Boolean(formData.isOffline),
     projectName: (useMilestones
       ? formData.milestones[0]?.lineItems[0]?.description
       : formData.lineItems[0]?.description) || "",
