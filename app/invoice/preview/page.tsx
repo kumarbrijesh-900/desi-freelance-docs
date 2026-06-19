@@ -98,7 +98,7 @@ function CanonicalStateBadge({ state }: { state: LockState }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center border-2 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em]",
+        "inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em]",
         badge.className,
       )}
       style={badge.style}
@@ -1002,14 +1002,14 @@ function PreviewContent() {
             {/* Neo-Brutalist Locked Invoice Status Banner */}
             {lockState.isReadOnly && (
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
-                <div className="flex flex-col items-start justify-between gap-5 border border-soft bg-[#FAF7F2] p-5 shadow-[var(--brutal-shadow-md)] sm:flex-row sm:items-center sm:p-6">
+                <div className="flex flex-col items-start justify-between gap-5 rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-5 shadow-[var(--brutal-shadow-md)] sm:flex-row sm:items-center sm:p-6">
                   <div className="flex items-start gap-4 text-left">
-                    <Lock className="h-8 w-8 shrink-0 text-black" strokeWidth={2.8} />
+                    <Lock className="h-8 w-8 shrink-0 text-[color:var(--color-ink)]" strokeWidth={2.4} />
                     <div>
-                      <h3 className="text-[24px] font-extrabold uppercase leading-none tracking-[0.02em] text-black">
-                        INVOICE LOCKED
+                      <h3 className="font-syne text-[24px] font-bold leading-none tracking-tight text-[color:var(--color-ink)]">
+                        Invoice locked
                       </h3>
-                      <p className="mt-2 text-[14px] font-normal leading-5 text-[#6B6660]">
+                      <p className="mt-2 text-[14px] font-normal leading-5 text-[color:var(--color-ink-2)]">
                         {lockState.reason}
                       </p>
                     </div>
@@ -1018,7 +1018,7 @@ function PreviewContent() {
                     <button
                       type="button"
                       onClick={handleLockedAlternativeAction}
-                      className="inline-flex items-center justify-center bg-ink px-5 py-3 text-[12px] font-black uppercase tracking-[0.08em] text-[color:var(--color-lime-warm)] shadow-[var(--brutal-shadow-md)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[var(--brutal-shadow-pressed)]"
+                      className="inline-flex items-center justify-center rounded-full bg-acid px-5 py-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-md)] transition-colors hover:bg-acid-2"
                     >
                       {lockState.alternativeAction.label}
                     </button>
@@ -1201,8 +1201,8 @@ function PreviewContent() {
                   All changes saved
                 </span>
               ) : saveState === "error" ? (
-                <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5C00]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-coral)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-coral)]" />
                   Cloud Save Failed (Saved Locally)
                 </span>
               ) : null}
