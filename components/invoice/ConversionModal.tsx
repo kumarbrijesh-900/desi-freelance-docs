@@ -49,23 +49,23 @@ export default function ConversionModal({
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="conversion-modal-title">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70"
+        className="absolute inset-0 bg-[rgba(33,28,22,0.6)]"
         onClick={onClose}
       />
 
       <MotionReveal
         preset="fade-up"
-        className="relative w-full max-w-sm overflow-hidden border border-soft bg-white shadow-[var(--brutal-shadow-lg)]"
+        className="relative w-full max-w-sm overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-lg)]"
       >
         <div className="p-8 text-center">
-          <div className="mx-auto h-14 w-14 bg-[color:var(--color-lime-100)] flex items-center justify-center mb-4 text-2xl">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#e4f1ea] text-2xl text-[#157a54]">
             ✓
           </div>
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-green-600">
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#157a54]">
             Your invoice is safe — sign up to download it
           </p>
 
-          <h2 className="text-xl font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
+          <h2 className="font-syne text-xl font-bold text-[color:var(--color-ink)] mb-2">{title}</h2>
           <p className="text-[13px] text-[color:var(--color-ink-2)] leading-relaxed mb-8">
             Your draft is saved locally and will be restored after sign-in. Create a free account to enable cloud save, PDF export, and sharing.
           </p>
@@ -73,7 +73,7 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onLoginClick}
-            className="flex w-full items-center justify-center gap-3 border border-soft bg-[color:var(--color-lime-warm)] py-3 text-sm font-bold text-[color:var(--color-ink)] uppercase transition-all hover:brightness-105 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 rounded-[var(--radius-box)] border border-soft bg-white py-3 text-sm font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:bg-[color:var(--color-paper)] active:scale-[0.98]"
           >
             <GoogleIcon className="h-5 w-5" />
             Continue with Google
@@ -82,12 +82,12 @@ export default function ConversionModal({
           <button
             type="button"
             onClick={onClose}
-            className="mt-4 w-full h-11 border border-soft bg-white text-[11px] font-bold text-[color:var(--color-ink)] uppercase transition-all hover:bg-[color:var(--color-paper)]"
+            className="mt-4 h-11 w-full rounded-[var(--radius-box)] border border-soft bg-white text-[11px] font-bold text-[color:var(--color-ink-3)] transition-all hover:bg-[color:var(--color-paper)]"
           >
             Not now, I'll do it later
           </button>
 
-          <p className="mt-8 text-[10px] leading-relaxed text-gray-300 uppercase tracking-widest">
+          <p className="mt-8 text-[10px] leading-relaxed text-[color:var(--color-ink-3)] uppercase tracking-widest">
             Built for Indian Freelancers
           </p>
         </div>
