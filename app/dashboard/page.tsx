@@ -26,6 +26,7 @@ type SettlementChoice = {
   milestoneTitle: string;
   triggerMode: TriggerMode;
   triggerDate: string;
+  tdsPercent: number;
 };
 
 function isUuid(value: string): boolean {
@@ -186,6 +187,7 @@ function DashboardContent() {
       milestoneTitle: state.milestone.title || `Milestone ${(state.milestone.order_index ?? 0) + 1}`,
       triggerMode: "scheduled",
       triggerDate: formatDateInputValue(7),
+      tdsPercent: 0,
     });
   };
 
@@ -207,6 +209,11 @@ function DashboardContent() {
       milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber + 1,
     ) ?? null;
     const isProjectClosing = settlementChoice.triggerMode === "cancelled" || !nextMilestone;
+
+    const currentSettlingMilestone = settlementMilestones.find(
+      milestone => (milestone.order_index ?? 0) + 1 === settlementChoice.milestoneNumber,
+    ) ?? null;
+    body.tds_amount = Math.round((Number(currentSettlingMilestone?.amount || 0) * (settlementChoice.tdsPercent || 0)) / 100);
 
     if (settlementChoice.triggerMode === "scheduled") {
       if (!settlementChoice.triggerDate) return;
@@ -430,6 +437,9 @@ function DashboardContent() {
           ? computeInvoiceTax(masterInvoice.form_data as any, milestoneAmount)
           : null;
         const settlementAmount = taxBreakdown ? taxBreakdown.totalPayable : milestoneAmount;
+        const tdsPercent = settlementChoice.tdsPercent || 0;
+        const tdsAmount = Math.round((milestoneAmount * tdsPercent) / 100);
+        const netReceived = settlementAmount - tdsAmount;
         const taxLabel = taxBreakdown ? taxBreakdown.label : "Tax";
         const timingSource = currentMilestone?.trigger_date || masterInvoice?.due_date;
         const hasProjectAddendum = Boolean(selectedProject?.project.project_addendum_text || masterInvoice?.has_addendum);
@@ -515,6 +525,42 @@ function DashboardContent() {
                         {afterCopy}
                       </div>
                     </div>
+                  </div>
+                  <div className="border-t border-soft px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <label htmlFor="tds-percent-input" className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
+                        TDS deducted by client
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          id="tds-percent-input"
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.1}
+                          value={tdsPercent === 0 ? "" : tdsPercent}
+                          placeholder="0"
+                          onChange={event => {
+                            const next = Math.max(0, Math.min(100, Number(event.target.value) || 0));
+                            setSettlementChoice(choice => (choice ? { ...choice, tdsPercent: next } : choice));
+                          }}
+                          className="h-9 w-16 rounded-[10px] border border-soft bg-white px-2 text-right text-sm font-semibold tabular-nums outline-none app-focus-ring"
+                        />
+                        <span className="text-sm font-bold text-[color:var(--color-ink-2)]">%</span>
+                      </div>
+                    </div>
+                    {tdsPercent > 0 && (
+                      <div className="mt-3 space-y-1 border-t border-dashed border-[#cfc4ab] pt-2">
+                        <div className="flex items-center justify-between text-xs text-[color:var(--color-ink-2)]">
+                          <span>TDS on {formatInr(milestoneAmount)} base (−{tdsPercent}%)</span>
+                          <span className="tabular-nums">−{formatInr(tdsAmount)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-[color:var(--color-ink)]">Net you&apos;ll receive</span>
+                          <span className="font-syne text-lg font-bold tabular-nums text-[color:var(--color-ink)]">{formatInr(netReceived)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 border-t border-soft px-4 py-3 text-sm font-bold text-[color:var(--color-ink)]">
                     <span className="h-2 w-2 flex-none rounded-full bg-[color:var(--color-ochre)]" />

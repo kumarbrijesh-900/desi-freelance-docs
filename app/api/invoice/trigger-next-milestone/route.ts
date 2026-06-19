@@ -14,6 +14,7 @@ const NewSchema = z.object({
   project_id: z.string().uuid().nullable().optional(),
   trigger_mode: TriggerModeSchema,
   trigger_date: z.string().nullable().optional(),
+  tds_amount: z.number().nonnegative().nullable().optional(),
 });
 
 const LegacySchema = z.object({
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
     const triggerMode: TriggerMode = isLegacy ? "immediate" : input.trigger_mode;
     const requestedProjectId = isLegacy ? null : input.project_id ?? null;
     const requestedTriggerDate = isLegacy ? null : input.trigger_date ?? null;
+    const tdsAmount = isLegacy ? 0 : Number(input.tds_amount ?? 0);
 
     const { data: parent, error: fetchError } = await supabaseAdmin
       .from("invoices")
@@ -165,7 +167,7 @@ export async function POST(req: NextRequest) {
       statusUpdates.set(currentOrderIndex, "SETTLED");
       const { error: settleError } = await supabaseAdmin
         .from("invoice_milestones")
-        .update({ status: "SETTLED" })
+        .update({ status: "SETTLED", tds_amount: tdsAmount })
         .eq("invoice_id", invoiceId)
         .eq("order_index", currentOrderIndex);
 
