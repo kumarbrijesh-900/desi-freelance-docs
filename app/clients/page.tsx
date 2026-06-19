@@ -512,8 +512,8 @@ function ClientForm({
                         ipLabels[msaIpTriggerType] || ipLabels.upon_full_payment;
 
                       const unitLabels: Record<string, string> = {
-                        monthly: "monthly",
-                        annually: "annually",
+                        monthly: "per month",
+                        annually: "per annum",
                         daily: "per day",
                       };
                       const unitLabel =

@@ -116,10 +116,10 @@ function formatLateFeeUnit(unit?: string | null) {
     day: "per day",
     monthly: "per month",
     month: "per month",
-    annually: "per year",
-    annual: "per year",
-    yearly: "per year",
-    year: "per year",
+    annually: "per annum",
+    annual: "per annum",
+    yearly: "per annum",
+    year: "per annum",
   };
 
   if (!normalized) return "per month";
