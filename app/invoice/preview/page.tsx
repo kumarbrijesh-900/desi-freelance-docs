@@ -64,32 +64,32 @@ function getPdfTitle(invoiceNumber?: string) {
 const CANONICAL_BADGE_STYLES: Record<LockState, { label: string; className: string; style?: CSSProperties }> = {
   editable: {
     label: "DRAFT",
-    className: "border-[#D4D2CC] bg-transparent text-[#6B6660]",
+    className: "border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink-3)]",
   },
   "client-proposed": {
     label: "REVISION REQUESTED",
-    className: "border-soft bg-[#FFB35F] text-[color:var(--color-ink)]",
+    className: "border-[#e0b9a6] bg-[#f7e4dc] text-[color:var(--color-coral)]",
   },
   "awaiting-client": {
     label: "AWAITING CLIENT",
-    className: "border-soft bg-[#FFE08A] text-[color:var(--color-ink)]",
+    className: "border-[#ecd9b0] bg-[#f6ecd6] text-[color:var(--color-ochre-deep)]",
   },
   "msa-accepted": {
     label: "LOCKED",
-    className: "border-soft bg-[#FBE5E5] text-[color:var(--color-ink)]",
+    className: "border-[#cadbd6] bg-[#e3ecea] text-[#3c6e63]",
   },
   "invoice-settled": {
     label: "SETTLED",
-    className: "border-soft bg-[#00DCB4] text-[color:var(--color-ink)]",
+    className: "border-[#c7e4d4] bg-[#e4f1ea] text-[#157a54]",
   },
   "invoice-partial": {
     label: "PARTIALLY SETTLED",
     className: "border-soft text-[color:var(--color-ink)]",
-    style: { background: "linear-gradient(90deg, #00DCB4 0 50%, #FFB35F 50% 100%)" },
+    style: { background: "linear-gradient(90deg, #e4f1ea 0 50%, #f6ecd6 50% 100%)" },
   },
   "invoice-cancelled": {
     label: "CANCELLED",
-    className: "border-soft bg-[#D4D2CC] text-[color:var(--color-ink)]",
+    className: "border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink-3)]",
   },
 };
 
@@ -1004,9 +1004,9 @@ function PreviewContent() {
               <MotionReveal preset="fade-up" className="mb-8 print:hidden">
                 <div className="flex flex-col items-start justify-between gap-5 rounded-[var(--radius-soft)] border border-soft bg-[color:var(--color-paper-2)] p-5 shadow-[var(--brutal-shadow-md)] sm:flex-row sm:items-center sm:p-6">
                   <div className="flex items-start gap-4 text-left">
-                    <Lock className="h-8 w-8 shrink-0 text-[color:var(--color-ink)]" strokeWidth={2.4} />
+                    <Lock className="h-8 w-8 shrink-0 text-[color:var(--color-ink)]" strokeWidth={2.2} />
                     <div>
-                      <h3 className="font-syne text-[24px] font-bold leading-none tracking-tight text-[color:var(--color-ink)]">
+                      <h3 className="font-syne text-[24px] font-bold leading-none tracking-[0.02em] text-[color:var(--color-ink)]">
                         Invoice locked
                       </h3>
                       <p className="mt-2 text-[14px] font-normal leading-5 text-[color:var(--color-ink-2)]">
