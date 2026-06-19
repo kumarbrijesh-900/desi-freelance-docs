@@ -197,7 +197,7 @@ export default function PublicInvoiceSharePage({
     return (
       <main className="flex min-h-screen items-center justify-center bg-[color:var(--color-paper)]">
         <MotionReveal preset="fade-up">
-          <div className="flex items-center gap-3 border border-[color:var(--color-ink)] bg-white p-6 shadow-lg">
+          <div className="flex items-center gap-3 rounded-[var(--radius-soft)] border border-soft bg-white p-6 shadow-lg">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--color-soft)] bg-[color:var(--color-paper)]">
               <DocumentSparkIcon className="h-5 w-5 text-[color:var(--color-ink)]" />
             </span>
@@ -214,9 +214,9 @@ export default function PublicInvoiceSharePage({
     return (
       <main className="flex min-h-screen items-center justify-center bg-[color:var(--color-paper)]">
         <MotionReveal preset="fade-up">
-          <div className="mx-4 max-w-md border border-[color:var(--color-ink)] bg-white p-8 text-center shadow-lg">
-            <h1 className="text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
-              Invoice Not Found
+          <div className="mx-4 max-w-md rounded-[var(--radius-soft)] border border-soft bg-white p-8 text-center shadow-lg">
+            <h1 className="font-syne text-[28px] font-bold tracking-tight text-[color:var(--color-ink)] sm:text-[32px]">
+              Invoice not found
             </h1>
             <p className="mt-2 text-sm text-[color:var(--color-ink)]">
               Invoice not found or link expired.
@@ -253,9 +253,9 @@ export default function PublicInvoiceSharePage({
 
       {showAcceptedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 border border-green-200 bg-green-50 px-5 py-3 shadow-lg">
-            <span className="text-green-600 text-base">✓</span>
-            <p className="text-sm font-bold text-green-800">
+          <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-5 py-3 shadow-lg">
+            <span className="text-[#157a54] text-base">✓</span>
+            <p className="text-sm font-bold text-[#157a54]">
               Terms accepted — invoice is now active
             </p>
           </div>
@@ -264,9 +264,9 @@ export default function PublicInvoiceSharePage({
 
       {showProposedToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 border border-soft bg-[#FFD700] px-5 py-3 shadow-[var(--brutal-shadow-md)]">
-            <span className="text-[color:var(--color-ink)] font-bold text-base">✓</span>
-            <p className="text-sm font-bold text-[color:var(--color-ink)]">
+          <div className="flex items-center gap-2.5 rounded-[12px] border border-[#ecd9b0] bg-[#f6ecd6] px-5 py-3 shadow-lg">
+            <span className="text-[color:var(--color-ochre-deep)] font-bold text-base">✓</span>
+            <p className="text-sm font-bold text-[color:var(--color-ochre-deep)]">
               Proposal sent — waiting for the freelancer to review your changes.
             </p>
           </div>
