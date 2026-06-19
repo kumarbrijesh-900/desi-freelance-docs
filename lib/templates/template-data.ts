@@ -322,7 +322,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     agencyStateCode: getGstStateCode(formData.agency?.agencyState || ""),
     clientStateCode: getGstStateCode(formData.client?.clientState || ""),
     amountInWords: amountToWords(totals.grandTotal, displayCurrency),
-    reverseCharge: false,
+    reverseCharge: Boolean(formData.tax?.isRcmEnabled),
     authorizedSignatory: formData.agency?.agencyName || "",
     signatureUrl: formData.agency?.signatureUrl || "",
 
