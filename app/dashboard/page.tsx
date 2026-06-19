@@ -449,7 +449,7 @@ function DashboardContent() {
               : "Remaining milestones are soft-cancelled.";
         const scheduleDateInvalid = settlementChoice.triggerMode === "scheduled" && !settlementChoice.triggerDate;
         const optionRowClass = (mode: TriggerMode) =>
-          `flex cursor-pointer items-start gap-3 border border-soft p-3 hover:bg-[#FAF7F2] ${settlementChoice.triggerMode === mode ? "bg-[#FAF7F2]" : "bg-white"
+          `flex cursor-pointer items-start gap-3 rounded-[var(--radius-box)] border p-3 ${settlementChoice.triggerMode === mode ? "border-[#bcd2c5] bg-acc-soft" : "border-soft bg-white hover:bg-[color:var(--color-paper-2)]"
           }`;
 
         return (
@@ -458,25 +458,25 @@ function DashboardContent() {
             onClick={() => setSettlementChoice(null)}
           >
             <aside
-              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-[3px] border-ink bg-white shadow-[var(--brutal-shadow-md)]"
+              className="absolute right-0 top-0 flex h-full w-full max-w-[620px] flex-col border-l-4 border-[color:var(--color-acid)] bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-md)]"
               onClick={event => event.stopPropagation()}
             >
-              <div className="flex items-start justify-between border-b-[3px] border-ink bg-[#FAF7F2] px-5 py-4">
+              <div className="flex items-start justify-between border-b border-soft bg-[color:var(--color-paper)] px-5 py-4">
                 <div>
-                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     Settlement drawer
                   </div>
-                  <h2 className="mt-1 text-2xl font-black uppercase tracking-tight text-[color:var(--color-ink)]">
+                  <h2 className="mt-1 font-syne text-2xl font-bold tracking-tight text-[color:var(--color-ink)]">
                     Settle M{settlementChoice.milestoneNumber}?
                   </h2>
-                  <p className="mt-1 text-sm font-bold text-neutral-600">
+                  <p className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
                     {settlementChoice.milestoneTitle}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="border border-soft bg-white px-3 py-1 text-xl font-black leading-none text-ink shadow-[var(--brutal-shadow-md)]"
+                  className="rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-3 py-1 text-xl font-bold leading-none text-ink transition-colors hover:bg-white"
                   aria-label="Close settlement drawer"
                 >
                   ×
@@ -484,76 +484,77 @@ function DashboardContent() {
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 py-5">
-                <section className="border border-soft bg-white shadow-[var(--brutal-shadow-md)]">
-                  <div className="border-b-2 border-ink px-4 py-3">
-                    <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                <section className="rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
+                  <div className="border-b border-soft px-4 py-3">
+                    <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                       Settlement checkpoint
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 border-b-2 border-ink sm:grid-cols-3">
-                    <div className="border-b-2 border-ink px-4 py-3 sm:border-b-0 sm:border-r-2">
-                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                  <div className="grid grid-cols-1 border-b border-soft sm:grid-cols-3">
+                    <div className="border-b border-soft px-4 py-3 sm:border-b-0 sm:border-r">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         Clear ({taxLabel})
                       </div>
-                      <div className="mt-1 text-xl font-black text-[color:var(--color-ink)]">
+                      <div className="mt-1 font-syne text-xl font-bold text-[color:var(--color-ink)] tabular-nums">
                         {formatInr(settlementAmount)}
                       </div>
                     </div>
-                    <div className="border-b-2 border-ink px-4 py-3 sm:border-b-0 sm:border-r-2">
-                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                    <div className="border-b border-soft px-4 py-3 sm:border-b-0 sm:border-r">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         Timing
                       </div>
-                      <div className="mt-1 text-sm font-black text-[color:var(--color-ink)]">
+                      <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
                         {formatTimingLabel(timingSource)}
                       </div>
                     </div>
                     <div className="px-4 py-3">
-                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-500">
+                      <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                         After
                       </div>
-                      <div className="mt-1 text-sm font-black text-[color:var(--color-ink)]">
+                      <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
                         {afterCopy}
                       </div>
                     </div>
                   </div>
-                  <div className="px-4 py-3 text-sm font-extrabold text-[color:var(--color-ink)]">
+                  <div className="flex items-center gap-2 border-t border-soft px-4 py-3 text-sm font-bold text-[color:var(--color-ink)]">
+                    <span className="h-2 w-2 flex-none rounded-full bg-[color:var(--color-ochre)]" />
                     Confirm only after the payment is visible in your bank account.
                   </div>
                 </section>
 
-                <section className="mt-5 border border-soft bg-acc-soft p-4 shadow-[var(--brutal-shadow-md)]">
-                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                <section className="mt-5 rounded-[var(--radius-soft)] border border-[#d2e0d2] bg-acc-soft p-4 shadow-[var(--brutal-shadow-sm)]">
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-sky)]">
                     Contract authority
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center border border-soft bg-white text-sm font-black">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-[9px] border border-[#cfe0db] bg-white font-syne text-base font-bold text-[color:var(--color-acid)]">
                       §
                     </div>
-                    <div className="text-base font-black uppercase text-[color:var(--color-ink)]">
+                    <div className="font-syne text-base font-bold text-[color:var(--color-ink)]">
                       {contractTitle}
                     </div>
                   </div>
-                  <p className="mt-2 text-sm font-normal leading-relaxed text-neutral-700">
+                  <p className="mt-2 text-sm font-normal leading-relaxed text-[color:var(--color-ink-2)]">
                     {contractCopy}
                   </p>
-                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-ink/40 pt-3 text-sm sm:grid-cols-2">
+                  <div className="mt-4 grid grid-cols-1 gap-3 border-t border-dashed border-[#b9cabf] pt-3 text-sm sm:grid-cols-2">
                     <div>
-                      <span className="font-extrabold text-neutral-600">Payment:</span>{" "}
-                      <span className="font-black text-[color:var(--color-ink)]">{getPaymentTermsLabel(masterInvoice as any)}</span>
+                      <span className="font-bold text-[color:var(--color-sky)]">Payment:</span>{" "}
+                      <span className="font-bold text-[color:var(--color-ink)]">{getPaymentTermsLabel(masterInvoice as any)}</span>
                     </div>
                     <div>
-                      <span className="font-extrabold text-neutral-600">Late Fee:</span>{" "}
-                      <span className="font-black text-[color:var(--color-ink)]">{getLateFeeLabel(masterInvoice as any)}</span>
+                      <span className="font-bold text-[color:var(--color-sky)]">Late Fee:</span>{" "}
+                      <span className="font-bold text-[color:var(--color-ink)]">{getLateFeeLabel(masterInvoice as any)}</span>
                     </div>
                   </div>
                 </section>
 
-                <section className="mt-5 border border-soft bg-white p-4 shadow-[var(--brutal-shadow-md)]">
-                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                <section className="mt-5 rounded-[var(--radius-soft)] border border-soft bg-white p-4 shadow-[var(--brutal-shadow-sm)]">
+                  <div className="text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     Milestone progress checklist
                   </div>
                   {settlementMilestones.length > 0 ? (
-                    <div className="relative ml-3 mt-4 border-l-2 border-ink pl-5">
+                    <div className="relative ml-3 mt-4 border-l border-[color:var(--color-strong)] pl-5">
                       {settlementMilestones.map(milestone => {
                         const milestoneNumber = (milestone.order_index ?? 0) + 1;
                         const status = (milestone.status || "pending").toLowerCase();
@@ -568,28 +569,35 @@ function DashboardContent() {
                               ? "cancelled"
                               : status;
                         const markerClass = isSettled
-                          ? "bg-ink text-acc-ink"
+                          ? "bg-[#e4f1ea] text-[#157a54] border-[#c7e4d4]"
                           : isCurrent
-                            ? "bg-acid text-acc-ink"
+                            ? "bg-acid text-acc-ink border-acid"
                             : isCancelled
-                              ? "bg-soft"
-                              : "bg-paper border-dashed";
+                              ? "bg-soft border-soft"
+                              : "border-dashed border-[#c9bb9d] text-[color:var(--color-ink-3)]";
+                        const statusPillClass = isSettled
+                          ? "bg-[#e4f1ea] text-[#157a54] border-[#c7e4d4]"
+                          : isCurrent
+                            ? "bg-acid text-acc-ink border-acid"
+                            : isCancelled
+                              ? "bg-soft text-[color:var(--color-ink-2)] border-soft line-through"
+                              : "bg-transparent text-[#8c8270] border-[#c9bb9d] border-dashed";
 
                         return (
                           <div key={milestone.id} className="relative pb-5 last:pb-0">
-                            <div className={`absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center border border-soft text-[10px] font-black ${markerClass}`}>
+                            <div className={`absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${markerClass}`}>
                               {isSettled ? "✓" : isCurrent ? "●" : ""}
                             </div>
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <div className="text-sm font-black uppercase text-[color:var(--color-ink)]">
+                                <div className="font-syne text-sm font-semibold text-[color:var(--color-ink)]">
                                   M{milestoneNumber}: {milestone.title || `Milestone ${milestoneNumber}`}
                                 </div>
-                                <div className="mt-1 text-sm font-bold text-neutral-600">
+                                <div className="mt-1 text-sm font-bold text-[color:var(--color-ink-2)]">
                                   {formatInr(Number(milestone.amount || 0))}
                                 </div>
                               </div>
-                              <span className="border border-soft bg-white px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[color:var(--color-ink)]">
+                              <span className={`flex-none rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusPillClass}`}>
                                 {statusLabel}
                               </span>
                             </div>
@@ -598,14 +606,14 @@ function DashboardContent() {
                       })}
                     </div>
                   ) : (
-                    <div className="mt-4 border-2 border-dashed border-neutral-400 bg-[#FAF7F2] p-3 text-sm font-bold text-neutral-600">
+                    <div className="mt-4 rounded-[var(--radius-box)] border border-dashed border-soft bg-[color:var(--color-paper-2)] p-3 text-sm font-bold text-[color:var(--color-ink-2)]">
                       No milestone checklist found for this invoice.
                     </div>
                   )}
                 </section>
 
-                <fieldset className="mt-5 border border-soft bg-white p-4 shadow-[var(--brutal-shadow-md)]">
-                  <legend className="px-2 text-[11px] font-extrabold uppercase tracking-widest text-neutral-600">
+                <fieldset className="mt-5 rounded-[var(--radius-soft)] border border-soft bg-white p-4 shadow-[var(--brutal-shadow-sm)]">
+                  <legend className="px-2 text-[11px] font-extrabold uppercase tracking-widest text-[color:var(--color-ink-3)]">
                     What happens next?
                   </legend>
                   <div className="mt-2 flex flex-col gap-3">
@@ -637,18 +645,18 @@ function DashboardContent() {
                           value={option.value}
                           checked={settlementChoice.triggerMode === option.value}
                           onChange={() => setSettlementChoice(choice => choice ? { ...choice, triggerMode: option.value } : choice)}
-                          className="mt-1 h-4 w-4 accent-black"
+                          className="mt-1 h-4 w-4 accent-[#1e3d33]"
                         />
                         <span className="flex-1">
-                          <span className="block text-sm font-extrabold uppercase tracking-wide">{option.title}</span>
-                          <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-600">{option.copy}</span>
+                          <span className="block text-sm font-bold text-[color:var(--color-ink)]">{option.title}</span>
+                          <span className="mt-0.5 block text-xs font-medium text-[color:var(--color-ink-2)]">{option.copy}</span>
                           {option.value === "scheduled" && settlementChoice.triggerMode === "scheduled" && (
                             <input
                               type="date"
                               min={formatDateInputValue(0)}
                               value={settlementChoice.triggerDate}
                               onChange={event => setSettlementChoice(choice => choice ? { ...choice, triggerDate: event.target.value } : choice)}
-                              className="mt-3 w-full border border-soft bg-white px-3 py-2 text-sm font-bold outline-none ] app-focus-ring"
+                              className="mt-3 w-full rounded-[10px] border border-soft bg-white px-3 py-2 text-sm font-semibold outline-none app-focus-ring"
                             />
                           )}
                         </span>
@@ -658,11 +666,11 @@ function DashboardContent() {
                 </fieldset>
               </div>
 
-              <div className="flex justify-end gap-2 border-t-[3px] border-ink bg-[#FAF7F2] px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-soft bg-[color:var(--color-paper)] px-5 py-4">
                 <button
                   type="button"
                   onClick={() => setSettlementChoice(null)}
-                  className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]"
+                  className="rounded-full border border-soft bg-white px-5 py-2.5 text-xs font-bold tracking-wide transition-colors hover:bg-[color:var(--color-paper-2)]"
                 >
                   Cancel
                 </button>
@@ -670,7 +678,7 @@ function DashboardContent() {
                   type="button"
                   onClick={confirmSettlement}
                   disabled={scheduleDateInvalid}
-                  className="border border-soft bg-acid text-acc-ink px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] disabled:cursor-not-allowed disabled:bg-soft disabled:text-ink/50 disabled:shadow-none"
+                  className="rounded-full border border-acid bg-acid text-acc-ink px-5 py-2.5 text-xs font-bold tracking-wide shadow-[var(--brutal-shadow-sm)] transition-colors hover:bg-[color:var(--color-acid-2)] disabled:cursor-not-allowed disabled:border-soft disabled:bg-soft disabled:text-ink/50 disabled:shadow-none"
                 >
                   Confirm settlement
                 </button>
