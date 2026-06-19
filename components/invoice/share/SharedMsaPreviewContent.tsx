@@ -125,7 +125,7 @@ export default function SharedMsaPreviewContent({
         }
       `}</style>
 
-      <main className="min-h-screen bg-[#F5F5F8] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
+      <main className="min-h-screen bg-[color:var(--color-paper)] px-4 py-8 md:px-6 md:py-12 print:bg-white print:p-0">
         <div className={cn(
           "mx-auto mb-10 flex max-w-[210mm] items-center justify-end print:hidden",
           showMsaOverlay && "opacity-20 pointer-events-none"
@@ -135,7 +135,7 @@ export default function SharedMsaPreviewContent({
               <button
                 type="button"
                 onClick={() => router.push(`/dashboard?invoiceId=${id}`)}
-                className="border border-soft bg-[#FFD700] px-5 py-2.5 text-[13px] font-bold uppercase text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-md)] hover:bg-[#FFED4A] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none"
+                className="rounded-full border border-soft bg-[color:var(--color-ochre)] px-5 py-2.5 text-[13px] font-bold text-[color:var(--color-acc-ink)] transition-colors hover:bg-[color:var(--color-ochre-deep)]"
               >
                 Close Preview
               </button>
@@ -143,7 +143,7 @@ export default function SharedMsaPreviewContent({
             <button
               type="button"
               onClick={() => window.print()}
-              className="border border-soft bg-white px-5 py-2.5 text-[13px] font-bold uppercase text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
+              className="rounded-full border border-soft bg-white px-5 py-2.5 text-[13px] font-bold text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)]"
             >
               <PrinterIcon className="h-4 w-4 inline mr-2" />
               Download PDF
@@ -156,33 +156,33 @@ export default function SharedMsaPreviewContent({
           "mx-auto mb-6 max-w-[210mm] print:hidden",
           showMsaOverlay && "opacity-20 pointer-events-none"
         )}>
-          <div className="overflow-hidden border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
-            <div className="flex flex-col gap-4 border-b-2 border-soft bg-[#FFFBE6] px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
+            <div className="flex flex-col gap-4 border-b border-soft bg-acc-soft px-5 py-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                   Client invoice summary
                 </p>
-                <p className="mt-1 text-[15px] font-black text-[color:var(--color-ink)]">
+                <p className="mt-1 font-syne text-[15px] font-bold text-[color:var(--color-ink)]">
                   Invoice {invoiceNumber || templateData?.invoiceNumber || "—"} from {formData.agency?.agencyName || "the freelancer"}
                 </p>
               </div>
               <div className="text-left md:text-right">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                   Amount Due
                 </p>
-                <p className="text-2xl font-black text-[color:var(--color-ink)]">
+                <p className="font-syne text-2xl font-bold text-[color:var(--color-ink)] tabular-nums">
                   {currencySymbol}{formattedTotal}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-0 md:grid-cols-3">
-              <div className="border-b-2 border-soft p-4 md:border-b-0 md:border-r-2">
+              <div className="border-b border-soft p-4 md:border-b-0 md:border-r">
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
                       "flex h-9 w-9 shrink-0 items-center justify-center border border-soft",
-                      trustState.tone === "success" ? "bg-[#EBFDF9] text-[#007A63]" : "bg-[#FFFBE6] text-[#B45309]",
+                      trustState.tone === "success" ? "bg-[#e4f1ea] text-[#157a54]" : "bg-[#f6ecd6] text-[color:var(--color-ochre-deep)]",
                     )}
                     aria-hidden="true"
                   >
@@ -193,10 +193,10 @@ export default function SharedMsaPreviewContent({
                     )}
                   </span>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                       Agreement
                     </p>
-                    <p className="mt-1 text-[13px] font-black text-[color:var(--color-ink)]">{trustState.label}</p>
+                    <p className="mt-1 text-[13px] font-bold text-[color:var(--color-ink)]">{trustState.label}</p>
                     <p className="mt-1 text-[12px] font-normal leading-5 text-[color:var(--color-ink)]">
                       {trustState.detail}
                     </p>
@@ -204,16 +204,16 @@ export default function SharedMsaPreviewContent({
                 </div>
               </div>
 
-              <div className="border-b-2 border-soft p-4 md:border-b-0 md:border-r-2">
+              <div className="border-b border-soft p-4 md:border-b-0 md:border-r">
                 <div className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#E0F3FF] text-[#164E63]" aria-hidden="true">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#e3ecea] text-[#3c6e63]" aria-hidden="true">
                     <CreditCard className="h-5 w-5" strokeWidth={2.3} />
                   </span>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                       Payment
                     </p>
-                    <p className="mt-1 text-[13px] font-black text-[color:var(--color-ink)]">{paymentStateLabel}</p>
+                    <p className="mt-1 text-[13px] font-bold text-[color:var(--color-ink)]">{paymentStateLabel}</p>
                     <p className="mt-1 text-[12px] font-normal leading-5 text-[color:var(--color-ink)]">
                       {paymentTermsLabel} · Due {dueDateLabel}. {paymentStateDetail}
                     </p>
@@ -223,14 +223,14 @@ export default function SharedMsaPreviewContent({
 
               <div className="p-4">
                 <div className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#F5F5F0] text-[color:var(--color-ink)]" aria-hidden="true">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink)]" aria-hidden="true">
                     <FileCheck2 className="h-5 w-5" strokeWidth={2.3} />
                   </span>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                       Client action
                     </p>
-                    <p className="mt-1 text-[13px] font-black text-[color:var(--color-ink)]">
+                    <p className="mt-1 text-[13px] font-bold text-[color:var(--color-ink)]">
                       {isTermsAccepted || isChildInvoice ? "Download or pay" : isTermsProposed ? "Await reissue" : "Review terms first"}
                     </p>
                     <p className="mt-1 text-[12px] font-normal leading-5 text-[color:var(--color-ink)]">
@@ -246,14 +246,14 @@ export default function SharedMsaPreviewContent({
             </div>
 
             {(isTermsAccepted || isChildInvoice) && (
-              <div className="flex flex-col gap-3 border-t-2 border-soft bg-[#F8F8F4] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 border-t border-soft bg-[color:var(--color-paper)] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-[12px] font-bold text-[color:var(--color-ink)]">
                   Keep this invoice for your records before making payment.
                 </p>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="inline-flex items-center justify-center gap-2 border border-soft bg-[color:var(--color-lime-warm)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-acid bg-acid px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-acc-ink)] shadow-[var(--brutal-shadow-sm)] transition-colors hover:bg-acid-2"
                 >
                   <Download className="h-4 w-4" strokeWidth={2.4} />
                   Download PDF
@@ -265,9 +265,9 @@ export default function SharedMsaPreviewContent({
 
         {!showMsaOverlay && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 border border-soft bg-[#EBFDF9] px-4 py-2.5">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-[#007A63]" strokeWidth={2.5} />
-              <p className="text-sm font-bold text-[#007A63]">
+            <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-[#157a54]" strokeWidth={2.5} />
+              <p className="text-sm font-bold text-[#157a54]">
                 {isChildInvoice
                   ? "This milestone invoice is covered by an accepted agreement."
                   : "Terms are accepted. The invoice is active and ready for payment."}
@@ -278,42 +278,42 @@ export default function SharedMsaPreviewContent({
 
         {hasPaymentCheckpoint && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="overflow-hidden border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
-              <div className="flex flex-col gap-3 border-b-2 border-soft bg-[#F8F8F4] px-5 py-4 md:flex-row md:items-center md:justify-between">
+            <div className="overflow-hidden rounded-[var(--radius-soft)] border border-soft bg-white shadow-[var(--brutal-shadow-sm)]">
+              <div className="flex flex-col gap-3 border-b border-soft bg-[color:var(--color-paper)] px-5 py-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]" aria-hidden="true">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-acid bg-acid text-[color:var(--color-acc-ink)]" aria-hidden="true">
                     <Banknote className="h-5 w-5" strokeWidth={2.4} />
                   </span>
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                       Payment checkpoint
                     </p>
-                    <p className="mt-1 text-[15px] font-black text-[color:var(--color-ink)]">
+                    <p className="mt-1 font-syne text-[15px] font-bold text-[color:var(--color-ink)]">
                       Pay {currencySymbol}{formattedTotal} by {dueDateLabel}
                     </p>
                   </div>
                 </div>
-                <div className="border border-soft bg-[#FFFBE6] px-3 py-2 text-left md:text-right">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                <div className="rounded-[10px] border border-soft bg-[color:var(--color-paper-2)] px-3 py-2 text-left md:text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                     Payment reference
                   </p>
-                  <p className="mt-0.5 text-[13px] font-black text-[color:var(--color-ink)]">
+                  <p className="mt-0.5 text-[13px] font-bold text-[color:var(--color-ink)]">
                     {invoiceNumber || templateData?.invoiceNumber || "Invoice"}
                   </p>
                 </div>
               </div>
 
               <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr_1fr]">
-                <div className="border-b-2 border-soft p-4 lg:border-b-0 lg:border-r-2">
+                <div className="border-b border-soft p-4 lg:border-b-0 lg:border-r">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#E0F3FF] text-[#164E63]" aria-hidden="true">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#e3ecea] text-[#3c6e63]" aria-hidden="true">
                       <CreditCard className="h-5 w-5" strokeWidth={2.3} />
                     </span>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                         Terms
                       </p>
-                      <p className="mt-1 text-[13px] font-black text-[color:var(--color-ink)]">{paymentTermsLabel}</p>
+                      <p className="mt-1 text-[13px] font-bold text-[color:var(--color-ink)]">{paymentTermsLabel}</p>
                       <p className="mt-1 text-[12px] font-normal leading-5 text-[color:var(--color-ink)]">
                         Payment is expected by {dueDateLabel}. Mention the invoice number while paying.
                       </p>
@@ -321,20 +321,20 @@ export default function SharedMsaPreviewContent({
                   </div>
                 </div>
 
-                <div className="border-b-2 border-soft p-4 lg:border-b-0 lg:border-r-2">
+                <div className="border-b border-soft p-4 lg:border-b-0 lg:border-r">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#EBFDF9] text-[#007A63]" aria-hidden="true">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#e4f1ea] text-[#157a54]" aria-hidden="true">
                       <Landmark className="h-5 w-5" strokeWidth={2.3} />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                         Bank details
                       </p>
                       {paymentRows.length > 0 ? (
                         <dl className="mt-2 grid gap-2">
                           {paymentRows.slice(0, 4).map((row) => (
-                            <div key={row.label} className="border-l-2 border-soft pl-2 text-[12px] leading-5">
-                              <dt className="text-[10px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">{row.label}</dt>
+                            <div key={row.label} className="border-l border-soft pl-2 text-[12px] leading-5">
+                              <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--color-ink-2)]">{row.label}</dt>
                               <dd className="min-w-0 break-all font-bold text-[color:var(--color-ink)]">{row.value}</dd>
                             </div>
                           ))}
@@ -350,7 +350,7 @@ export default function SharedMsaPreviewContent({
 
                 <div className="p-4">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[#F5F5F0] text-[color:var(--color-ink)]" aria-hidden="true">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-soft bg-[color:var(--color-paper)] text-[color:var(--color-ink)]" aria-hidden="true">
                       {templateData?.hasQrCode ? (
                         <QrCode className="h-5 w-5" strokeWidth={2.3} />
                       ) : (
@@ -358,10 +358,10 @@ export default function SharedMsaPreviewContent({
                       )}
                     </span>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-ink-2)]">
                         Confirmation
                       </p>
-                      <p className="mt-1 text-[13px] font-black text-[color:var(--color-ink)]">
+                      <p className="mt-1 text-[13px] font-bold text-[color:var(--color-ink)]">
                         {templateData?.hasQrCode ? "QR available" : "Send payment proof"}
                       </p>
                       <p className="mt-1 text-[12px] font-normal leading-5 text-[color:var(--color-ink)]">
@@ -375,11 +375,11 @@ export default function SharedMsaPreviewContent({
               </div>
 
               {templateData?.hasNotes && (
-                <div className="border-t-2 border-soft bg-[#FFF0EC] px-5 py-3">
-                  <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9A3412]">
+                <div className="border-t border-soft bg-[#f7e4dc] px-5 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--color-coral)]">
                     Payment note
                   </p>
-                  <p className="mt-1 text-[12px] font-bold leading-5 text-[#9A3412]">
+                  <p className="mt-1 text-[12px] font-bold leading-5 text-[color:var(--color-coral)]">
                     {templateData.notes}
                   </p>
                 </div>
@@ -391,12 +391,12 @@ export default function SharedMsaPreviewContent({
         {/* ── MSA Previously Accepted Banner (child invoices) ── */}
         {isChildInvoice && (
           <div className="mx-auto mb-4 max-w-[210mm] print:hidden">
-            <div className="flex items-center gap-2.5 border border-soft bg-[#FFFBE6] px-4 py-2.5">
-              <span className="text-green-600 text-sm">✓</span>
-              <p className="text-sm text-green-800">
+            <div className="flex items-center gap-2.5 rounded-[12px] border border-[#c7e4d4] bg-[#e4f1ea] px-4 py-2.5">
+              <span className="text-[#157a54] text-sm">✓</span>
+              <p className="text-sm text-[#157a54]">
                 <span className="font-bold">MSA previously accepted</span>
                 {parentMsaAcceptedOn && (
-                  <span className="text-green-700 font-normal"> — signed on {parentMsaAcceptedOn}</span>
+                  <span className="text-[#157a54] font-normal"> — signed on {parentMsaAcceptedOn}</span>
                 )}
                 . This invoice is covered under the same agreement.
               </p>
@@ -410,7 +410,7 @@ export default function SharedMsaPreviewContent({
           showMsaOverlay && "blur-2xl pointer-events-none select-none opacity-40 scale-[0.98]"
         )}>
           <MotionReveal
-            className="invoice-sheet mx-auto w-full max-w-[210mm] border border-soft bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
+            className="invoice-sheet mx-auto w-full max-w-[210mm] rounded-[var(--radius-soft)] border border-soft bg-white px-5 py-5 shadow-[var(--brutal-shadow-lg)] sm:px-7 sm:py-6 print:max-w-none print:rounded-2xl print:border-0 print:px-0 print:py-0 print:shadow-none mb-12"
             preset="scale-in"
           >
             <TemplateRenderer formData={formData} templateId={templateId} />
@@ -418,7 +418,7 @@ export default function SharedMsaPreviewContent({
         </div>
 
         <div className={cn(
-          "mx-auto border-t-2 border-soft py-4 text-center text-[12px] text-[color:var(--color-ink-2)] print:hidden max-w-[210mm] mt-8",
+          "mx-auto border-t border-soft py-4 text-center text-[12px] text-[color:var(--color-ink-2)] print:hidden max-w-[210mm] mt-8",
           showMsaOverlay && "opacity-0"
         )}>
           Invoice #{invoiceNumber || templateData?.invoiceNumber || "Invoice"}
