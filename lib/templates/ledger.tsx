@@ -131,6 +131,9 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
           {data.amountInWords && (
             <div className="px-4 py-2 text-[10px] italic text-[#8B7355] text-right border-t border-[#E8DFC9]">{data.amountInWords}</div>
           )}
+          {data.taxComplianceNote && (
+            <div className="px-4 py-2 text-[10px] text-[#8B7355] text-right leading-4 border-t border-[#E8DFC9]">{data.taxComplianceNote}</div>
+          )}
         </div>
       </section>
 

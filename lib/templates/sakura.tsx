@@ -139,6 +139,7 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           </div>
           {data.amountInWords && <p className="text-right text-[10px] text-[#B09098] italic">{data.amountInWords}</p>}
           {data.approximateUsd && <p className="text-right text-[10px] text-[#B09098]">≈ {data.approximateUsd}</p>}
+          {data.taxComplianceNote && <p className="text-right text-[10px] text-[#B09098] leading-4 mt-1">{data.taxComplianceNote}</p>}
         </div>
       </section>
 

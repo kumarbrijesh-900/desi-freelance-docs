@@ -128,6 +128,9 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           {data.approximateUsd && (
             <p className="text-right text-[10px] text-[color:var(--color-ink-2)]">≈ {data.approximateUsd}</p>
           )}
+          {data.taxComplianceNote && (
+            <p className="text-right text-[10px] text-[color:var(--color-ink-2)] leading-4">{data.taxComplianceNote}</p>
+          )}
         </div>
       </section>
 

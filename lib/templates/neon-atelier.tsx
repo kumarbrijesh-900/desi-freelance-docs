@@ -283,6 +283,11 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   ≈ {data.approximateUsd}
                 </div>
               )}
+              {data.taxComplianceNote && (
+                <div className="text-[10px] text-[#A8A08E] mt-2 leading-4">
+                  {data.taxComplianceNote}
+                </div>
+              )}
             </div>
             <div className="bg-[#2D5BFF] text-white print:bg-transparent print:text-[#111118] print:border-t-4 print:border-[#2D5BFF] p-8 print:py-4 print:px-0 min-w-[250px] text-right">
               <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/40 print:text-[#A8A08E] block mb-2">

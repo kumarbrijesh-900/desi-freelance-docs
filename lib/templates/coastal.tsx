@@ -145,6 +145,7 @@ export default function CoastalTemplate({ data }: InvoiceTemplateProps) {
             </div>
             {data.amountInWords && <p className="text-right text-[10px] text-[#94A3B8] italic">{data.amountInWords}</p>}
             {data.approximateUsd && <p className="text-right text-[10px] text-[#94A3B8]">≈ {data.approximateUsd}</p>}
+            {data.taxComplianceNote && <p className="text-right text-[10px] text-[#94A3B8] leading-4 mt-1">{data.taxComplianceNote}</p>}
           </div>
         </section>
 

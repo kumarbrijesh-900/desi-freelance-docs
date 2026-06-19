@@ -283,6 +283,11 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               ≈ {data.approximateUsd}
             </p>
           )}
+          {data.taxComplianceNote && (
+            <p className="text-right text-[10px] text-[#888] leading-4 pt-1">
+              {data.taxComplianceNote}
+            </p>
+          )}
         </div>
       </section>
 

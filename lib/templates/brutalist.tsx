@@ -133,6 +133,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
             <span className="text-[28px] font-bold tracking-tight">{data.grandTotalFormatted}</span>
           </div>
           {data.amountInWords && <p className="text-[9px] text-black/40 italic text-right">{data.amountInWords}</p>}
+          {data.taxComplianceNote && <p className="text-[9px] text-black/40 text-right leading-snug mt-1">{data.taxComplianceNote}</p>}
         </div>
       </section>
 
