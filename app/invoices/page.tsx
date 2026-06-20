@@ -369,25 +369,25 @@ export default function InvoicesPage() {
 
         <div className="flex items-center justify-between gap-4 mb-4 shrink-0">
           <div className="flex items-baseline gap-3 min-w-0">
-            <h1 className="font-display font-black text-[36px] leading-none text-ink">Invoices</h1>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/50 whitespace-nowrap">All time · {filteredInvoices.length} results</span>
+            <h1 className="font-display font-bold text-[34px] tracking-[-0.02em] leading-none text-ink">Invoices</h1>
+            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-3 whitespace-nowrap">All time · {filteredInvoices.length} results</span>
           </div>
           <div className="flex gap-3 items-center shrink-0">
             <div className="relative w-[300px]">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-ink font-bold">⌕</div>
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3">⌕</div>
               <input
                 type="text"
                 placeholder="Search · #, client, project…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-soft font-bold text-sm shadow-none focus:outline-none focus:border-ink placeholder:text-ink/40 transition-all focus:shadow-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-soft rounded-[11px] font-semibold text-sm focus:outline-none focus:border-acid focus:ring-2 focus:ring-acid/15 placeholder:text-ink-3 transition-colors"
               />
             </div>
             <a
               href="/invoice/new?fresh=1"
-              className="border border-soft bg-acid px-5 py-2.5 text-sm font-black uppercase tracking-widest text-acc-ink shadow-none transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none whitespace-nowrap"
+              className="bg-acid px-5 py-2.5 rounded-[11px] text-sm font-bold text-acc-ink shadow-[0_10px_22px_-12px_rgba(30,61,51,0.55)] transition-transform hover:-translate-y-px active:scale-[0.97] whitespace-nowrap"
             >
-              + NEW INVOICE
+              + New invoice
             </a>
           </div>
         </div>
@@ -400,10 +400,10 @@ export default function InvoicesPage() {
             { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
             { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
           ].map((s, i) => (
-            <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
-              <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>
-              <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.v}</div>
-              <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.s}</div>
+            <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[0_10px_24px_-16px_rgba(30,61,51,0.35)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper-2 text-ink'}`}>
+              <div className={`text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5 ${s.hero ? 'opacity-70' : 'text-ink-2'}`}>{s.l}</div>
+              <div className={`font-display font-bold tabular-nums mb-1 ${s.hero ? 'text-[32px] leading-none' : 'text-2xl'}`}>{s.v}</div>
+              <div className={`text-[10px] font-bold uppercase tracking-[0.1em] ${s.hero ? 'opacity-70' : 'text-ink-3'}`}>{s.s}</div>
             </div>
           ))}
         </div>
@@ -429,36 +429,26 @@ export default function InvoicesPage() {
               }
             }).length;
 
-            let toneClass = "bg-transparent text-ink border-transparent hover:bg-paper-2 hover:border-ink/20";
-            if (filter === f) {
-               if (f === "All") toneClass = "bg-ink text-acc-ink shadow-none";
-               else if (f === "Draft") toneClass = "bg-butter text-ink shadow-none";
-               else if (f === "Sent") toneClass = "bg-sky text-white shadow-none";
-               else if (f === "MSA proposed") toneClass = "bg-white text-ink shadow-none";
-               else if (f === "Revision") toneClass = "bg-coral text-white shadow-none";
-               else if (f === "Live") toneClass = "bg-acid text-acc-ink shadow-none";
-               else if (f === "Settled") toneClass = "bg-grass text-white shadow-none";
-               else if (f === "Complete") toneClass = "bg-forest text-acc-ink shadow-none";
-               else if (f === "Offline") toneClass = "bg-white text-ink shadow-none";
-            }
+            let toneClass = "bg-white text-ink-2 border-soft hover:border-ink/30 hover:text-ink";
+            if (filter === f) toneClass = "bg-ink text-acc-ink border-ink";
 
             return (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border-2 transition-all ${toneClass} rounded-full`}
+                className={`px-3.5 py-1.5 text-[11px] font-semibold border transition-colors ${toneClass} rounded-full`}
               >
                 {f} · {count}
               </button>
             );
           })}
           <div className="grow" />
-          <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">SORT · NEWEST FIRST ▼</div>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-3">Newest first ▾</div>
         </div>
 
         {/* Bulk selection toolbar */}
         {!loading && filteredInvoices.length > 0 && (
-          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft shadow-none shrink-0">
+          <div className="flex items-center gap-3 mb-4 px-4 py-2.5 bg-white border border-soft rounded-[12px] shrink-0">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -472,41 +462,41 @@ export default function InvoicesPage() {
                 }}
                 className="w-4 h-4 border border-soft accent-ink cursor-pointer"
               />
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+              <span className="text-[11px] font-semibold tracking-tight text-ink-2">
                 Select all {filteredInvoices.length}
               </span>
             </label>
             <div className="grow" />
             {selectedIds.size > 0 ? (
               <>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink">{selectedIds.size} selected</span>
+                <span className="text-[11px] font-bold tracking-tight text-ink">{selectedIds.size} selected</span>
                 <button type="button" onClick={handleExportXls}
-                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-white text-ink shadow-none hover:-translate-y-[1px] transition-transform">
+                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold border border-soft bg-white text-ink hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Export XLS
                 </button>
                 <button type="button" onClick={() => setBulkDeleteConfirm(true)}
-                  className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-widest border border-soft bg-coral text-white shadow-none hover:-translate-y-[1px] transition-transform">
+                  className="px-3 py-1.5 rounded-[9px] text-[11px] font-semibold bg-coral text-white hover:-translate-y-px active:scale-[0.97] transition-transform">
                   Delete
                 </button>
                 <button type="button" onClick={clearSelection}
-                  className="px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-ink/60 hover:text-ink">
+                  className="px-2 py-1.5 text-[11px] font-semibold text-ink-3 hover:text-ink">
                   Clear
                 </button>
               </>
             ) : (
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink/40">Select rows to export or delete</span>
+              <span className="text-[11px] font-medium text-ink-3">Select rows to export or delete</span>
             )}
           </div>
         )}
 
         {loading ? (
-          <div className="py-20 text-center font-black tracking-tight text-xl text-ink/40 uppercase">
+          <div className="py-20 text-center font-display font-bold tracking-tight text-xl text-ink-3">
             Loading invoices…
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border border-soft shadow-none">
-            <div className="text-[32px] font-black tracking-tight mb-2 text-ink">No invoices yet</div>
-            <p className="text-[11px] font-extrabold uppercase tracking-widest text-ink/60">
+          <div className="py-20 text-center flex flex-col items-center justify-center bg-white border border-soft rounded-[16px]">
+            <div className="text-[28px] font-display font-bold tracking-tight mb-2 text-ink">No invoices yet</div>
+            <p className="text-[12px] font-medium text-ink-2">
               Create your first invoice to get started
             </p>
           </div>
@@ -527,12 +517,12 @@ export default function InvoicesPage() {
             ))}
             </div>
             <div className="flex justify-between items-center mt-4 shrink-0">
-              <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-2">
                 <span>Projects per page:</span>
                 <select 
                   value={itemsPerPage} 
                   onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                  className="bg-transparent border-none outline-none font-extrabold text-ink cursor-pointer"
+                  className="bg-transparent border-none outline-none font-semibold text-ink cursor-pointer"
                 >
                   <option value={10}>10</option>
                   <option value={15}>15</option>
@@ -553,24 +543,24 @@ export default function InvoicesPage() {
 
       {/* ── Delete Confirmation Dialog ── */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
-            <p className="text-sm font-bold text-neutral-600 mb-5">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm border border-soft bg-white rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
+            <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete invoice?</h3>
+            <p className="text-sm font-medium text-ink-2 mb-5">
               This will permanently delete <strong>{deleteConfirm.label}</strong>. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
-                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]"
+                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] hover:bg-paper-2 active:scale-[0.97] transition-transform"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteInvoice}
-                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+                className="bg-coral px-4 py-2 rounded-[10px] text-xs font-semibold text-white shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform"
               >
                 Delete permanently
               </button>
@@ -581,19 +571,19 @@ export default function InvoicesPage() {
 
       {/* ── Bulk Delete Confirmation Dialog ── */}
       {bulkDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-sm border border-soft bg-white shadow-[var(--brutal-shadow-lg)] p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
-            <p className="text-sm font-bold text-neutral-600 mb-5">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm border border-soft bg-white rounded-[16px] shadow-[var(--brutal-shadow-lg)] p-6">
+            <h3 className="text-lg font-display font-bold tracking-tight text-[color:var(--color-ink)] mb-2">Delete selected?</h3>
+            <p className="text-sm font-medium text-ink-2 mb-5">
               Permanently deletes the selected <strong>draft/live</strong> invoices. Settled or partial invoices in your selection are protected and skipped. This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setBulkDeleteConfirm(false)}
-                className="border border-soft bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide shadow-[var(--brutal-shadow-md)] hover:bg-[#FAF7F2]">
+                className="border border-soft bg-white px-4 py-2 rounded-[10px] text-xs font-semibold shadow-[var(--brutal-shadow-md)] hover:bg-paper-2 active:scale-[0.97] transition-transform">
                 Cancel
               </button>
               <button type="button" onClick={handleBulkDelete}
-                className="border border-soft bg-coral px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-white shadow-[var(--brutal-shadow-md)] hover:bg-red-600 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none">
+                className="bg-coral px-4 py-2 rounded-[10px] text-xs font-semibold text-white shadow-[var(--brutal-shadow-md)] hover:brightness-95 active:scale-[0.97] transition-transform">
                 Delete selected
               </button>
             </div>
