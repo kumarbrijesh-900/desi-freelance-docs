@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import StoryJourney from "@/components/landing/StoryJourney";
 import StoryMilestone from "@/components/landing/StoryMilestone";
+import StoryCreate from "@/components/landing/StoryCreate";
 
 export default function Home() {
   const router = useRouter();
@@ -119,6 +120,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-7">
+            <StoryCreate />
             <StoryJourney />
             <StoryMilestone />
 
