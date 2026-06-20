@@ -1,5 +1,45 @@
 # Session Log — May 22-23, 2026
 
+## Invoices grouping + mobile + core-loop readiness + FAQ/feedback (June 20-21, 2026)
+
+Session covering: project-grouped invoices listing, invoices-page chrome → E, core money-loop readiness fixes, mobile-responsive invoices, FAQ/feedback polish + dead-file removal, and 8 product/trust FAQs seeded to prod. Three strategic audits delivered (reference, not work-orders). Every commit verified on `origin/main` before proceeding — byte-exact diff vs locally-saved expected when Claude pre-authored the code, code-review of the diff when AG improvised from an audit.
+
+### Shipped this session
+
+| # | Scope | Files | SHA |
+|---|---|---|---|
+| Grouped invoices | New collapsible project-grouped listing (E card: chevron + name + client avatar + invoice count + milestone progress spine + rolled-up status pill + project value; nested invoice rows with spine connector). Reuses `getStatusInfo` / `isInvoiceRowDeletable` + `invoiceTotal` fallback math so pills/amounts/delete-eligibility match everywhere | `components/invoices/ProjectInvoiceGroup.tsx` (new), `app/invoices/page.tsx`, `components/invoices/InvoiceEventRow.tsx` (export `getStatusInfo`) | `a69192f` |
+| Invoices chrome → E | 32 className-only transforms: title → Bricolage bold, search rounded + green focus, New-invoice button rounded + soft shadow + press, stat cards rounded + soft + tabular-nums, filter chips white/soft + solid-ink active (dropped brutalist rainbow), bulk toolbar rounded, both delete modals rounded + ink/40 backdrop + Bricolage + press | `app/invoices/page.tsx` | `15083b6` |
+| Core-loop readiness | (a) onboarding auto-seeds a Global MSA via `saveProfileWithGlobalMsa` (fixes first-share 422); (b) `SharedMsaPreviewContent` fallback "contract loading" modal kills the blurred dead-end; (c) share-invoice email injects `grandTotal` + `projectName` into all 4 tones. AG-implemented from the readiness audit → code-reviewed, not byte-compared | `app/onboarding/page.tsx`, `components/invoice/share/SharedMsaPreviewContent.tsx`, `app/api/share-invoice/route.ts` | `3e979cf` |
+| Invoices mobile | Rows stack into 2-column cards on mobile (number/tag left, amount/status right) via `sm:contents` that flattens back to the flat desktop row at `sm`+; desc hides, spine indent/ticks collapse; the three fixed widths gated behind `sm:`; page header stacks with full-width search. Desktop byte-identical | `components/invoices/ProjectInvoiceGroup.tsx`, `app/invoices/page.tsx` | `10bb9c8` |
+| FAQ/feedback polish | Feedback Submit button → brand bottle-green + cream text (was off-palette emerald `--color-lime-300`); FAQ category accent stripe → visible ochre (was `--color-lime-warm` → transparent); deleted dead `SubmitFeedback.tsx` (155L, an unused duplicate of the modal, imported nowhere) | `components/feedback/FeedbackModal.tsx`, `components/faq/FaqSection.tsx`, `components/feedback/SubmitFeedback.tsx` (deleted) | `cf45b7f` |
+| Product FAQs | 8 product/trust FAQs seeded to prod `faqs` under a new "About Lance" category (sorts to top): what Lance does, is it free, does it handle money, how milestones work, is the contract binding, what the client sees, own contract terms, is data safe. Idempotent insert (guarded on question text). FAQ table now 25 published rows | DB only (no code change) | — |
+
+### Audits delivered (in /outputs — reference, not work-orders)
+- **Readiness audit** — core money-loop. Top-3 fixed in `3e979cf`. Tier-3 deferred (resend unconditionally resets `msa_status`; settle confirmation doesn't say M2 auto-sent; unguarded notification inserts; email-send failure leaves half-shared state).
+- **Parsing/write-path audit** — the April "systemic instability" is mostly FIXED: autofill overwrite gate `shouldApplyCandidate` is now fill-only; line-items guarded by `!hasMeaningfulLineItems`; `mergeInvoiceFormData` state/PAN fill-only; agency seeded from profile not inferred. One residual: client name-role inference still broad (`from` / `for` / `brand`). Recommendation: do NOT refactor the engine.
+- **UI / cross-device / export audit** — editor + client-share responsive, saved data cloud-synced, OCR (Tesseract) dynamically imported. Fixed #1 (invoices mobile → `10bb9c8`). Still open: no ErrorBoundary / `global-error` (white-screen risk); XLSX statically imported (~1 MB on every `/invoices` visit). XLS export confirmed value-worthy — Summary sheet (by status / ageing / tax treatment / client + avg-days-to-pay / month) + 30-col filterable Invoices sheet with totals.
+
+### Verification discipline (held all session)
+Every pushed SHA: `git fetch` + hard reset + `--stat` scope check (catches AG `git add .` strays) + byte-exact diff vs locally-saved `_expected` (when Claude pre-authored exact code) or code-review of the diff + the code AG called into (when AG improvised). JSX structure proven via tag-skeleton / nesting parse + brace/paren/bracket/backtick balance. AG prompts simulated (extract fenced blocks → apply to a fresh repo copy → assert `== _expected`) before handing over.
+
+### Open carryovers (deferred; founder-owned priority)
+- ErrorBoundary + `app/global-error.tsx` / `error.tsx` / `not-found.tsx` (white-screen insurance before strangers/clients are on it).
+- Dynamic-import XLSX in `app/invoices/page.tsx` (trim ~1 MB off `/invoices` on mobile).
+- Email CTA color regression in `app/api/share-invoice/route.ts` (`#157a54` → `#1e3d33` bottle-green) — bundle into next batch.
+- Client name-role "leave blank + flag when low-confidence" fix (parsing audit's one residual).
+- `user_feedback` has 2 identical INSERT policies (harmless dupe; dedupe whenever).
+- Mark the April audit docs (pipeline-diagnosis / recovery-strategy / executive-recovery-plan / forensic-audit) superseded — they describe a now-fixed state.
+- GTM (founder-owned): recruit white-glove design-partner cohort — first revenue + validation.
+
+### Commits this session
+- `a69192f` feat: group invoices by project
+- `15083b6` style: restyle invoices page chrome
+- `3e979cf` Fix core loop readiness blockers
+- `10bb9c8` Make invoice listing responsive on mobile
+- `cf45b7f` UI polish bundle and dead file deletion
+- (DB) 8 product FAQs seeded to `faqs` — no commit
+
 ## v2.9 — Milestone Trigger Workstream + Cleanup (May 24, 2026)
 
 Multi-hour session covering Workstream B revision, full v2.9 milestone trigger build (C1-C4), production smoke test, and 6-bug cleanup pass. Net: v2.9 shipped end-to-end with audit trail intact and v2.8.4 backlog closed.
