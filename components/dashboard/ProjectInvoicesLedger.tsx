@@ -110,7 +110,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
                     {(() => {
                       const status = (inv.status || '').toLowerCase();
                       const msa = (master?.msa_status || '').toLowerCase();
-                      const rowHref = invoiceRowHref(inv.id);
+                      const rowHref = invoiceRowHref(inv.id, inv.status);
                       return (
                         <Link
                           href={rowHref}

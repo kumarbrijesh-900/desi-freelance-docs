@@ -85,7 +85,7 @@ export function InvoiceEventRow({
 
   const status = (invoice.status || 'draft').toLowerCase();
   const msa = (masterMsaStatus || '').toLowerCase();
-  const rowHref = invoiceRowHref(invoice.id);
+  const rowHref = invoiceRowHref(invoice.id, invoice.status);
   const clientInitial = (clientName || "U").slice(0, 2).toUpperCase();
   const cName = clientName || "Unknown Client";
   const pName = projectName || "Unlinked Project";
