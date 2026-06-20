@@ -5,6 +5,7 @@ import { z } from "zod";
 import { ratelimit } from "@/lib/upstash";
 import { randomBytes } from "crypto";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
+import { prepareTemplateData } from "@/lib/templates/template-data";
 
 export const dynamic = "force-dynamic";
 
@@ -236,30 +237,34 @@ export async function POST(req: NextRequest) {
     const hasMsa = !!resolvedMsaId;
     const hasAddendum = false;
 
+    const templateData = prepareTemplateData(invoice.form_data);
+    const amountStr = templateData.grandTotalFormatted;
+    const projectStr = templateData.projectName ? ` for ${templateData.projectName}` : "";
+
     // Tone-specific email content
     const toneContent = {
       initial: {
         subject: `Invoice from ${agencyName} — ready for your review`,
         headline: `Invoice from ${agencyName}`,
-        body: `A new invoice is ready for your review. Please review the Master Service Agreement terms before viewing the final invoice.`,
+        body: `A new invoice for ${amountStr}${projectStr} is ready for your review. Please review the Master Service Agreement terms before viewing the final invoice.`,
         cta: `View Invoice & Terms →`,
       },
       polite: {
         subject: `Friendly reminder: Invoice from ${agencyName}`,
         headline: `Gentle Reminder`,
-        body: `Just a friendly reminder that your invoice from ${agencyName} is approaching its due date. We'd appreciate it if you could review it at your earliest convenience.`,
+        body: `Just a friendly reminder that your invoice for ${amountStr}${projectStr} is approaching its due date. We'd appreciate it if you could review it at your earliest convenience.`,
         cta: `Review Invoice →`,
       },
       firm: {
         subject: `Action required: Overdue invoice from ${agencyName}`,
         headline: `Payment Overdue`,
-        body: `This is a follow-up regarding an overdue invoice from ${agencyName}. Payment was expected by the due date mentioned in the invoice. Please arrange payment at your earliest convenience to avoid any late fees as per our agreed terms.`,
+        body: `This is a follow-up regarding an overdue invoice for ${amountStr}${projectStr}. Payment was expected by the due date mentioned in the invoice. Please arrange payment at your earliest convenience to avoid any late fees as per our agreed terms.`,
         cta: `View Overdue Invoice →`,
       },
       final: {
         subject: `Final notice: Overdue payment — ${agencyName}`,
         headline: `Final Payment Notice`,
-        body: `This is a final reminder regarding an outstanding invoice from ${agencyName}. Despite previous reminders, payment remains pending. Please arrange immediate payment to avoid further action as outlined in our Master Service Agreement.`,
+        body: `This is a final reminder regarding an outstanding invoice for ${amountStr}${projectStr}. Despite previous reminders, payment remains pending. Please arrange immediate payment to avoid further action as outlined in our Master Service Agreement.`,
         cta: `View Invoice & Settle →`,
       },
     };
@@ -295,7 +300,7 @@ export async function POST(req: NextRequest) {
                     </p>
                     
                     <a href="${shareUrl}"
-                      style="display:inline-block;background-color:#1e3d33;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                      style="display:inline-block;background-color:#157a54;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
                       ${content.cta}
                     </a>
                     

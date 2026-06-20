@@ -441,6 +441,29 @@ export default function SharedMsaPreviewContent({
             onClosePreview={() => setPreviewDismissed(true)}
           />
         )}
+        {showMsaOverlay && !msaTerms && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 px-4 py-6">
+            <MotionReveal preset="fade-up" className="w-full max-w-md">
+              <div className="rounded-[var(--radius-soft)] border border-soft bg-white p-8 text-center shadow-[var(--brutal-shadow-md)]">
+                <h2 className="font-syne text-xl font-bold text-[color:var(--color-ink)]">
+                  Contract loading error
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-ink)]">
+                  Refresh to try again, or ask your freelancer to resend the link.
+                </p>
+                <div className="mt-8">
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="w-full rounded-full border border-soft bg-white px-6 py-2.5 text-sm font-bold text-[color:var(--color-ink)] transition-colors hover:bg-[color:var(--color-paper-2)] shadow-[var(--brutal-shadow-sm)]"
+                  >
+                    Refresh page
+                  </button>
+                </div>
+              </div>
+            </MotionReveal>
+          </div>
+        )}
       </main>
     </>
   );

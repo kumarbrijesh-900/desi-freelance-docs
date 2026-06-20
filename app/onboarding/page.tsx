@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import { PROFESSION_OPTIONS } from "@/lib/professions";
-import { upsertProfile } from "@/lib/supabase/profiles";
+import { saveProfileWithGlobalMsa } from "@/lib/supabase/profiles";
+import { DEFAULT_MSA_TITLE, DEFAULT_MSA_CONTENT } from "@/lib/default-msa";
 import {
   isValidGstin,
   getStateFromGstin,
@@ -98,8 +99,14 @@ export default function OnboardingPage() {
     setSaveError("");
     setIsSubmitting(true);
     try {
-      const { error } = await upsertProfile(buildAgency(), {});
-      if (error) throw new Error(error);
+      const result = await saveProfileWithGlobalMsa({
+        agency: buildAgency(),
+        payment: {},
+        globalMsaId: null,
+        globalMsaTitle: DEFAULT_MSA_TITLE,
+        globalMsaContent: DEFAULT_MSA_CONTENT,
+      });
+      if (result.error) throw new Error(result.error);
       router.push(getNextRoute());
     } catch (err) {
       console.error("Onboarding failed:", err);
@@ -115,7 +122,13 @@ export default function OnboardingPage() {
     setSaveError("");
     setIsSubmitting(true);
     try {
-      await upsertProfile(buildAgency(), {});
+      await saveProfileWithGlobalMsa({
+        agency: buildAgency(),
+        payment: {},
+        globalMsaId: null,
+        globalMsaTitle: DEFAULT_MSA_TITLE,
+        globalMsaContent: DEFAULT_MSA_CONTENT,
+      });
     } catch (err) {
       console.error("Onboarding skip persist failed:", err);
     }
