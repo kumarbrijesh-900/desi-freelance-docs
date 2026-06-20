@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import AppHeader from "@/components/AppHeader";
 import { appPageContainerClass, appPageShellClass } from "@/lib/layout-foundation";
 import { getAllProjectsWithInvoices, ProjectWithInvoices } from "@/lib/supabase/projects";
-import { InvoiceEventRow, isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
+import { isInvoiceRowDeletable } from "@/components/invoices/InvoiceEventRow";
+import { ProjectInvoiceGroup } from "@/components/invoices/ProjectInvoiceGroup";
 import { AppPagination } from "@/components/ui/AppPagination";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
@@ -311,8 +312,25 @@ export default function InvoicesPage() {
     }
   });
 
-  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
-  const paginatedInvoices = filteredInvoices.slice(
+  // Group filtered invoices back under their project, master first then milestones.
+  const groupedProjects = (() => {
+    const map = new Map<string, { projectId: string | null; projectName?: string; clientName?: string; items: typeof filteredInvoices }>();
+    for (const item of filteredInvoices) {
+      const key = item.projectId || "__unlinked__";
+      if (!map.has(key)) map.set(key, { projectId: item.projectId, projectName: item.projectName, clientName: item.clientName, items: [] });
+      map.get(key)!.items.push(item);
+    }
+    const groups = Array.from(map.values());
+    groups.forEach(g => g.items.sort((a, b) => {
+      if (a.isMaster) return -1;
+      if (b.isMaster) return 1;
+      return (Number(a.invoice.milestone_index) || 0) - (Number(b.invoice.milestone_index) || 0);
+    }));
+    return groups;
+  })();
+
+  const totalPages = Math.ceil(groupedProjects.length / itemsPerPage);
+  const paginatedGroups = groupedProjects.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -495,27 +513,22 @@ export default function InvoicesPage() {
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
-            {paginatedInvoices.map(item => (
-              <InvoiceEventRow
-                key={item.invoice.id}
-                invoice={item.invoice}
-                projectName={item.projectName}
-                clientName={item.clientName}
-                isMaster={item.isMaster}
-                projectId={item.projectId}
-                masterMsaStatus={item.masterMsaStatus}
-                masterHasClientMsaNote={item.masterHasClientMsaNote}
-                masterInvoice={item.masterInvoice}
-                onDelete={(id) => setDeleteConfirm({ invoiceId: id, label: item.invoice.invoice_number || 'this draft' })}
-                selectable
-                selected={selectedIds.has(item.invoice.id)}
+            {paginatedGroups.map(group => (
+              <ProjectInvoiceGroup
+                key={group.projectId || "__unlinked__"}
+                projectName={group.projectName}
+                clientName={group.clientName}
+                projectId={group.projectId}
+                items={group.items}
+                selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
+                onDelete={(id, label) => setDeleteConfirm({ invoiceId: id, label })}
               />
             ))}
             </div>
             <div className="flex justify-between items-center mt-4 shrink-0">
               <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-ink/70">
-                <span>Rows per page:</span>
+                <span>Projects per page:</span>
                 <select 
                   value={itemsPerPage} 
                   onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}

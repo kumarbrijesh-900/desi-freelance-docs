@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatInr } from "../dashboard/ActiveDrilldown";
 import { invoiceRowHref } from "@/lib/invoice-row-href";
 
-function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false) {
+export function getStatusInfo(invoiceStatus: string, msaStatus: string | null, hasClientMsaNote: boolean, wasShared: boolean = false) {
   const status = (invoiceStatus || '').toLowerCase();
   const msa = (msaStatus || '').toLowerCase();
 
