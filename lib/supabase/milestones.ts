@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
+import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 
 export interface FireMilestoneInvoiceResult {
   childInvoiceId?: string;
@@ -138,6 +139,7 @@ export async function fireMilestoneInvoice(
     },
   };
   const appliedSnapshot = computeAppliedMsaSnapshot(childFormData as any);
+  const childGrandTotal = calculateInvoiceTotals(childFormData as any).grandTotal;
 
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
   const randBytes = Array.from(crypto.getRandomValues(new Uint8Array(12)));
@@ -148,6 +150,7 @@ export async function fireMilestoneInvoice(
     .insert({
       invoice_number: newInvoiceNumber,
       form_data: childFormData,
+      grand_total: childGrandTotal,
       status: "finalized",
       template_id: parent.template_id ?? "classic",
       user_id: parent.user_id,
@@ -226,7 +229,7 @@ export async function fireMilestoneInvoice(
                   <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
                     Your previous milestone has been completed. The next milestone invoice is now ready for your review.
                   </p>
-                  <a href="${shareUrl}" style="display:inline-block;background:#111118;color:var(--color-lime-warm);font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
+                  <a href="${shareUrl}" style="display:inline-block;background:#111118;color:#ffffff;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
                     View Milestone ${nextMilestoneIndex + 1} Invoice →
                   </a>
                   <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">
