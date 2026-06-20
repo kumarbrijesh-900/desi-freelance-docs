@@ -118,7 +118,7 @@ export function ProjectInvoiceGroup({
         <span className={`text-ink/40 text-[13px] w-[14px] shrink-0 transition-transform ${expanded ? "" : "-rotate-90"}`}>▾</span>
         <div className="flex-1 min-w-0">
           <div className={`font-display font-bold text-[17px] leading-tight tracking-[-0.01em] truncate ${unlinked ? "text-ink-2" : "text-ink"}`}>{pName}</div>
-          <div className="flex items-center gap-2 mt-1 text-[11.5px] text-ink-2 min-w-0">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[11.5px] text-ink-2 min-w-0">
             {!unlinked && (
               <span className="w-[18px] h-[18px] rounded-full grid place-items-center text-[8px] font-extrabold text-white shrink-0" style={{ background: accent }}>{cInitial}</span>
             )}
@@ -148,8 +148,8 @@ export function ProjectInvoiceGroup({
 
       {/* Nested invoices */}
       {expanded && (
-        <div className="relative pl-[40px] pr-[18px] pb-[14px]">
-          <div className="absolute left-[25px] top-0 bottom-5 w-px bg-soft" />
+        <div className="relative px-3 sm:pl-[40px] sm:pr-[18px] pb-[14px]">
+          <div className="absolute left-[25px] top-0 bottom-5 w-px bg-soft hidden sm:block" />
           {items.map((it, i) => {
             const inv = it.invoice;
             const label = labels[i];
@@ -163,23 +163,25 @@ export function ProjectInvoiceGroup({
               <Link
                 key={inv.id}
                 href={invoiceRowHref(inv.id, inv.status)}
-                className="group relative flex items-center gap-3 px-[14px] py-[11px] mb-[7px] rounded-[11px] border border-soft bg-paper-2 hover:bg-white hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)] transition-all"
+                className="group relative flex items-center gap-2.5 sm:gap-3 px-3 sm:px-[14px] py-2.5 sm:py-[11px] mb-[7px] rounded-[11px] border border-soft bg-paper-2 hover:bg-white hover:shadow-[0_8px_20px_-14px_rgba(30,61,51,0.4)] transition-all"
               >
-                <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft" />
+                <span className="absolute left-[-15px] top-1/2 w-[13px] h-px bg-soft hidden sm:block" />
                 <div
                   className="flex items-center shrink-0"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect(inv.id); }}
                 >
                   <input type="checkbox" checked={selected} readOnly className="w-4 h-4 border border-soft accent-ink cursor-pointer" />
                 </div>
-                <div className="w-[150px] shrink-0">
-                  <div className="font-mono font-bold text-[12.5px] tracking-[-0.02em] text-ink">{inv.invoice_number || "DRAFT"}</div>
-                  <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink/50 mt-0.5">{tag}</div>
+                <div className="flex-1 sm:flex-none sm:w-[150px] min-w-0 shrink sm:shrink-0">
+                  <div className="font-mono font-bold text-[12.5px] tracking-[-0.02em] text-ink truncate">{inv.invoice_number || "DRAFT"}</div>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-ink/50 mt-0.5 truncate">{tag}</div>
                 </div>
-                <div className="flex-1 min-w-0 text-[12px] text-ink-2 truncate">{desc}</div>
-                <div className="w-[110px] shrink-0 text-right font-display font-bold text-[15px] text-ink tabular-nums">{formatInr(invoiceTotal(inv))}</div>
-                <div className="w-[92px] shrink-0 flex justify-center">
-                  <span className={`inline-block rounded-full px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
+                <div className="hidden sm:block sm:flex-1 min-w-0 text-[12px] text-ink-2 truncate">{desc}</div>
+                <div className="flex flex-col items-end gap-1 shrink-0 sm:contents">
+                  <div className="shrink-0 text-right font-display font-bold text-[15px] text-ink tabular-nums sm:w-[110px]">{formatInr(invoiceTotal(inv))}</div>
+                  <div className="shrink-0 flex justify-end sm:w-[92px] sm:justify-center">
+                    <span className={`inline-block rounded-full px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.07em] whitespace-nowrap ${pillClass(label)}`}>{cap(label)}</span>
+                  </div>
                 </div>
                 {deletable ? (
                   <button

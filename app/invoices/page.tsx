@@ -367,13 +367,13 @@ export default function InvoicesPage() {
         )}
 
 
-        <div className="flex items-center justify-between gap-4 mb-4 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 shrink-0">
           <div className="flex items-baseline gap-3 min-w-0">
             <h1 className="font-display font-bold text-[34px] tracking-[-0.02em] leading-none text-ink">Invoices</h1>
             <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-3 whitespace-nowrap">All time · {filteredInvoices.length} results</span>
           </div>
-          <div className="flex gap-3 items-center shrink-0">
-            <div className="relative w-[300px]">
+          <div className="flex gap-3 items-center w-full sm:w-auto sm:shrink-0">
+            <div className="relative flex-1 sm:flex-none sm:w-[300px]">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3">⌕</div>
               <input
                 type="text"
