@@ -12,7 +12,6 @@ import { Pill } from "@/components/ui/Pill";
 import { Sticker } from "@/components/ui/Sticker";
 import { formatInr } from "@/components/dashboard/ActiveDrilldown";
 import { deleteInvoice } from "@/lib/supabase/invoices";
-import * as XLSX from "xlsx";
 
 export default function InvoicesPage() {
   const [projects, setProjects] = useState<ProjectWithInvoices[]>([]);
@@ -94,9 +93,11 @@ export default function InvoicesPage() {
     setTimeout(() => setActionMessage(null), 4000);
   };
 
-  const handleExportXls = () => {
+  const handleExportXls = async () => {
     const chosen = flattenedInvoices.filter(item => selectedIds.has(item.invoice.id));
     if (chosen.length === 0) return;
+    const xlsxMod = await import("xlsx");
+    const XLSX = (xlsxMod as any).default ?? xlsxMod;
 
     const today = new Date();
     const toDate = (v: any) => (v ? new Date(v) : "");

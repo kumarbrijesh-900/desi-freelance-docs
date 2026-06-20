@@ -36,7 +36,6 @@ const roleLabels = {
     "business name",
     "issued by",
     "my name",
-    "from",
   ],
   client: [
     "client",
@@ -307,7 +306,7 @@ function inferAgencyName(text: string): InferredRoleName | undefined {
   }
 
   const inferred = findFirstMatch(text, [
-    /\b(?:issued by|my name is|from)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:gstin|bank|address|invoice|project|based\b|from\b|at\b)|$)/i,
+    /\b(?:issued by|my name is)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:gstin|bank|address|invoice|project|based\b|from\b|at\b)|$)/i,
     /\bwe(?:'re| are)\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:gstin|bank|address|invoice|project|based\b|from\b|at\b)|$)/i,
     /\bwe at\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:gstin|bank|address|invoice|project|based\b|from\b|at\b)|$)/i,
     /\bour (?:studio|agency)(?: is)?\s+([a-z0-9&.' -]{2,80}?)(?=,|\.|\n|\s+(?:gstin|bank|address|invoice|project|based\b|from\b|at\b)|$)/i,

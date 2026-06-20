@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED — June 2026.** This describes the April 2026 invoice-pipeline instability, which has since been largely resolved. For current state see the June audits in `/outputs` (readiness · parsing-write-path · UI/cross-device/export). Kept for historical context — do not action items here without re-verifying against the live code.
+
 # Invoice Pipeline Diagnosis
 
 Date: 2026-04-02
