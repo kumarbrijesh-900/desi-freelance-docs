@@ -25,7 +25,7 @@ export default function AppSwitch({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--interactive-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        checked ? "bg-[color:var(--color-lime-warm)]" : "bg-gray-200",
+        checked ? "bg-[color:var(--color-acid)]" : "bg-gray-200",
         className,
       )}
     >

@@ -10,7 +10,7 @@ export function AppBanner({ tone = "default", className, children, ...props }: A
     <div
       className={cn(
         "w-full border-b-2 border-soft px-4 py-3 text-sm font-bold uppercase tracking-wider text-center",
-        tone === "default" && "bg-[color:var(--color-lime-warm)] text-[color:var(--color-ink)]",
+        tone === "default" && "bg-[color:var(--color-acc-soft)] text-[color:var(--color-ink)]",
         tone === "warning" && "bg-[color:var(--state-warning-bg)] text-[color:var(--state-warning-text)]",
         tone === "success" && "bg-[color:var(--state-success-bg)] text-[color:var(--state-success-text)]",
         tone === "danger" && "bg-[color:var(--color-coral-400)] text-[color:var(--color-ink)]",

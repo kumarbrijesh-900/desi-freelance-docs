@@ -107,7 +107,7 @@ export default function OnboardingPage() {
         globalMsaContent: DEFAULT_MSA_CONTENT,
       });
       if (result.error) throw new Error(result.error);
-      router.push(getNextRoute());
+      router.replace(getNextRoute());
     } catch (err) {
       console.error("Onboarding failed:", err);
       setSaveError(
@@ -132,7 +132,7 @@ export default function OnboardingPage() {
     } catch (err) {
       console.error("Onboarding skip persist failed:", err);
     }
-    router.push(getNextRoute());
+    router.replace(getNextRoute());
   };
 
   return (

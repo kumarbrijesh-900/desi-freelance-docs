@@ -14,7 +14,7 @@ export const AppProgressBar = React.forwardRef<
       {...props}
     >
       <div
-        className="h-full bg-[color:var(--color-lime-warm)] border-r-2 border-soft transition-all duration-300 ease-[var(--app-ease-standard)]"
+        className="h-full bg-[color:var(--color-acid)] border-r-2 border-soft transition-all duration-300 ease-[var(--app-ease-standard)]"
         style={{ width: `${percentage}%` }}
       />
     </div>
