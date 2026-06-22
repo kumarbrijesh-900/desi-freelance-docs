@@ -45,6 +45,11 @@
   /* Legacy accent aliases → E */
   --color-lime-warm:    #e7c878;
   --color-lime-300:     #157a54;
+  --color-lime-400:     #28b681;  /* defined: was dangling - bright emerald */
+  --color-lime-500:     #1d9e75;  /* defined: was dangling - settled green */
+  --color-lime-600:     #157a54;  /* defined: was dangling - emerald */
+  --color-lime-700:     #11603f;  /* defined: was dangling - deep green */
+  --color-lime-900:     #0c3a29;  /* defined: was dangling - very dark green */
   --color-lime-50:      #eef6ee;  /* light green tint — success surfaces (was dangling) */
   --color-cream:        #f7f0dd;  /* warm cream surface (was dangling) */
   --color-coral-400:    #c2502f;  /* alias → coral · alert/revision (was dangling) */
