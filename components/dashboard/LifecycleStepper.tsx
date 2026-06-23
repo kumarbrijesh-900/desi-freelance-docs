@@ -154,8 +154,8 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
           let chipNode = null;
           if (stop.type === "milestone") {
             if (stop.state === "live") chipNode = <span className="inline-block mt-1 px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest font-mono">LIVE</span>;
-            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-3 text-[10px] font-extrabold uppercase tracking-widest font-mono">PENDING</span>;
-            else if (stop.state === "done") chipNode = <span className="inline-block mt-1 text-[10px] font-extrabold uppercase tracking-widest text-ink-3 font-mono">SETTLED</span>;
+            else if (stop.state === "pending") chipNode = <span className="inline-block mt-1 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-extrabold uppercase tracking-widest font-mono">PENDING</span>;
+            else if (stop.state === "done") chipNode = <span className="inline-block mt-1 text-[10px] font-extrabold uppercase tracking-widest text-ink-2 font-mono">SETTLED</span>;
           }
 
           return (
@@ -172,14 +172,14 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                 {stop.state === "live" && (
                   <span className="inline-block mb-1 px-2 py-0.5 bg-acid text-acc-ink text-[9px] font-extrabold font-mono uppercase rounded-sm">NOW</span>
                 )}
-                <div className="text-[10px] text-ink-3 font-extrabold font-mono uppercase tracking-widest mb-0.5">{stop.kicker}</div>
+                <div className="text-[10px] text-ink-2 font-extrabold font-mono uppercase tracking-widest mb-0.5">{stop.kicker}</div>
                 <div className={`text-[14px] font-display font-bold leading-tight mb-0.5 ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.name}</div>
                 {stop.amount && (
-                  <div className={`text-[15px] font-display font-black ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-3'}`}>{stop.amount}</div>
+                  <div className={`text-[15px] font-display font-black ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>{stop.amount}</div>
                 )}
                 {chipNode}
                 {stop.meta && (
-                  <div className="text-[9px] font-extrabold uppercase tracking-widest text-ink-3 font-mono mt-1.5">{stop.meta}</div>
+                  <div className="text-[9px] font-extrabold uppercase tracking-widest text-ink-2 font-mono mt-1.5">{stop.meta}</div>
                 )}
               </div>
             </div>
@@ -223,9 +223,9 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                 if (stop.state === "live") {
                   chipNode = <div className="inline-block mt-2 px-2 py-0.5 bg-acid text-acc-ink text-[10px] font-extrabold uppercase tracking-widest font-mono">LIVE</div>;
                 } else if (stop.state === "pending") {
-                  chipNode = <div className="inline-block mt-2 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-3 text-[10px] font-extrabold uppercase tracking-widest font-mono">PENDING</div>;
+                  chipNode = <div className="inline-block mt-2 px-2 py-0.5 border-[1.5px] border-dashed border-[color:var(--color-strong)] text-ink-2 text-[10px] font-extrabold uppercase tracking-widest font-mono">PENDING</div>;
                 } else if (stop.state === "done") {
-                  chipNode = <div className="mt-2 text-[10px] font-extrabold uppercase tracking-widest text-ink-3 font-mono">SETTLED</div>;
+                  chipNode = <div className="mt-2 text-[10px] font-extrabold uppercase tracking-widest text-ink-2 font-mono">SETTLED</div>;
                 }
               }
 
@@ -248,18 +248,18 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
                   </div>
                   
                   <div className="px-2">
-                    <div className="text-[10px] text-ink-3 font-extrabold font-mono uppercase tracking-widest mb-1">{stop.kicker}</div>
+                    <div className="text-[10px] text-ink-2 font-extrabold font-mono uppercase tracking-widest mb-1">{stop.kicker}</div>
                     <div className={`text-[13px] font-display font-bold leading-tight mb-1 ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>
                       {stop.name}
                     </div>
                     {stop.amount && (
-                      <div className={`text-[14px] font-display font-black ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-3'}`}>
+                      <div className={`text-[14px] font-display font-black ${stop.state === 'done' || stop.state === 'live' ? 'text-ink' : 'text-ink-2'}`}>
                         {stop.amount}
                       </div>
                     )}
                     {chipNode}
                     {stop.meta && (
-                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-ink-3 font-mono mt-3">
+                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-ink-2 font-mono mt-3">
                         {stop.meta}
                       </div>
                     )}

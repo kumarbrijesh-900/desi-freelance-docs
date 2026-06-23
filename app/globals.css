@@ -334,7 +334,11 @@ input:focus, select:focus, textarea:focus {
 }
 
 .app-soft-choice-option {
-  transition: all var(--app-duration-fast) var(--app-ease-standard);
+  transition: background-color var(--app-duration-fast) var(--app-ease-standard),
+              border-color var(--app-duration-fast) var(--app-ease-standard),
+              box-shadow var(--app-duration-fast) var(--app-ease-standard),
+              color var(--app-duration-fast) var(--app-ease-standard),
+              transform var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .app-soft-choice-option:hover {
@@ -410,7 +414,11 @@ input:focus, select:focus, textarea:focus {
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
   border-radius: 0;
-  transition: all var(--app-duration-medium) var(--app-ease-standard);
+  transition: background-color var(--app-duration-medium) var(--app-ease-standard),
+              border-color var(--app-duration-medium) var(--app-ease-standard),
+              box-shadow var(--app-duration-medium) var(--app-ease-standard),
+              color var(--app-duration-medium) var(--app-ease-standard),
+              transform var(--app-duration-medium) var(--app-ease-standard);
 }
 
 .invoice-step-card[data-step-kind="support"] {
@@ -466,7 +474,11 @@ input:focus, select:focus, textarea:focus {
   border: 2px solid transparent;
   background: transparent;
   border-radius: 0;
-  transition: all var(--app-duration-fast) var(--app-ease-standard);
+  transition: background-color var(--app-duration-fast) var(--app-ease-standard),
+              border-color var(--app-duration-fast) var(--app-ease-standard),
+              box-shadow var(--app-duration-fast) var(--app-ease-standard),
+              color var(--app-duration-fast) var(--app-ease-standard),
+              transform var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .invoice-step-rail-item[data-rail-state="active"] {
@@ -549,7 +561,11 @@ input:focus, select:focus, textarea:focus {
   background: #ffffff;
   box-shadow: var(--brutal-shadow-sm);
   overflow: visible;
-  transition: all var(--app-duration-fast) var(--app-ease-standard);
+  transition: background-color var(--app-duration-fast) var(--app-ease-standard),
+              border-color var(--app-duration-fast) var(--app-ease-standard),
+              box-shadow var(--app-duration-fast) var(--app-ease-standard),
+              color var(--app-duration-fast) var(--app-ease-standard),
+              transform var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .invoice-line-item-row[data-row-tone="muted"] {

@@ -11,7 +11,7 @@ export default function Error({
 }) {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-      <div className="text-[13px] font-bold uppercase tracking-[0.12em] text-ink-3 mb-3">Something broke</div>
+      <div className="text-[13px] font-bold uppercase tracking-[0.12em] text-ink-2 mb-3">Something broke</div>
       <h1 className="font-display text-[34px] font-bold tracking-[-0.02em] text-ink mb-2.5">This page hit a snag</h1>
       <p className="max-w-md text-[15px] leading-relaxed text-ink-2 mb-7">
         An unexpected error interrupted this page. Your saved work is safe — try again, or head back to your dashboard.

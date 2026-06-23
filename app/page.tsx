@@ -68,7 +68,7 @@ export default function Home() {
                 Create your first invoice →
               </Button>
             </div>
-            <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[13px] font-semibold text-ink-3">
+            <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-[13px] font-semibold text-ink-2">
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> No signup to start</span>
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> No credit card</span>
               <span className="inline-flex items-center gap-1.5"><span className="font-extrabold text-grass">✓</span> Exports as PDF</span>
@@ -112,7 +112,7 @@ export default function Home() {
       <section id="see-it-work" className="bg-paper px-6 py-20 sm:py-24">
         <div className="mx-auto max-w-[1180px]">
           <div className="mx-auto mb-12 max-w-[34em] text-center">
-            <div className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-3">See it work</div>
+            <div className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-2">See it work</div>
             <h2 className="font-display text-[clamp(28px,3.6vw,44px)] font-bold leading-[1.04] text-ink">
               Your invoices, <span className="text-acid">on autopilot</span>.
             </h2>
@@ -174,22 +174,22 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap gap-x-16 gap-y-8">
               <div>
-                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-3">Product</div>
+                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-2">Product</div>
                 <a href="/invoice/new" className="mb-2.5 block text-sm font-semibold text-ink transition-colors hover:text-acid">Create invoice</a>
                 <a href="/support" className="mb-2.5 block text-sm font-semibold text-ink transition-colors hover:text-acid">FAQ</a>
               </div>
               <div>
-                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-3">Legal</div>
+                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-2">Legal</div>
                 <a href="/terms" className="mb-2.5 block text-sm font-semibold text-ink transition-colors hover:text-acid">Terms</a>
                 <a href="/privacy" className="mb-2.5 block text-sm font-semibold text-ink transition-colors hover:text-acid">Privacy</a>
               </div>
               <div>
-                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-3">Contact</div>
+                <div className="mb-3.5 text-xs font-bold uppercase tracking-wider text-ink-2">Contact</div>
                 <a href="mailto:hello@lanceinvoice.xyz" className="block text-sm font-semibold text-ink transition-colors hover:text-acid">hello@lanceinvoice.xyz</a>
               </div>
             </div>
           </div>
-          <div className="mt-10 flex flex-wrap justify-between gap-2.5 border-t border-soft pt-[22px] text-[12.5px] text-ink-3">
+          <div className="mt-10 flex flex-wrap justify-between gap-2.5 border-t border-soft pt-[22px] text-[12.5px] text-ink-2">
             <span>© 2026 Lance. Made in India.</span>
             <span className="font-mono">v2.0</span>
           </div>
