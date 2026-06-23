@@ -13,6 +13,7 @@ import { MotionReveal, MotionButton } from "@/components/ui/motion-primitives";
 import AppSelectField from "@/components/ui/AppSelectField";
 
 import { useToast } from "@/components/ui/AppToast";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { push } = useToast();
+
+  const overlayRef = useModalA11y(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -66,7 +69,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40"

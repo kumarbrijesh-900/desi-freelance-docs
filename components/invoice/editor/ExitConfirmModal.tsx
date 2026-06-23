@@ -1,4 +1,5 @@
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 export function ExitConfirmModal({
   onSkip,
@@ -9,8 +10,10 @@ export function ExitConfirmModal({
   onSaveDraft: () => void;
   onClose: () => void;
 }) {
+  const overlayRef = useModalA11y(true, onClose);
+
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
+    <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[300] flex items-center justify-center bg-[color:var(--bg-overlay)] px-4">
       <div className={`w-full max-w-md ${getAppPanelClass()}`}>
         <h2 className="text-xl font-black tracking-tight tracking-tight text-[color:var(--color-ink)]">
           Leave invoice editor?

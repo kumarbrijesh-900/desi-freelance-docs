@@ -4,6 +4,7 @@ import React from "react";
 import { supabase } from "@/lib/supabase/client";
 import { MotionReveal } from "@/components/ui/motion-primitives";
 import { getAppButtonClass, getAppPanelClass } from "@/lib/ui-foundation";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 interface ConversionModalProps {
   isOpen: boolean;
@@ -43,10 +44,12 @@ export default function ConversionModal({
   title = "Your invoice is ready!",
   subtitle = "Create a free Lance account to download your PDF, save this client, and lock in your agency branding.",
 }: ConversionModalProps) {
+  const overlayRef = useModalA11y(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="conversion-modal-title">
+    <div ref={overlayRef} tabIndex={-1} className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="conversion-modal-title">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[rgba(33,28,22,0.6)]"
