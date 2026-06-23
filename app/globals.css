@@ -16,8 +16,8 @@
   --elev-3: 0 22px 44px -20px rgba(30,61,51,0.55);
 
   /* E palette — deep + soothing */
-  --color-acid:         #1e3d33;  /* PRIMARY · bottle-green (legacy token name) */
-  --color-acid-2:       #2c5648;  /* primary hover */
+  --color-acid:         #3a6e59;  /* PRIMARY · bottle-green (legacy token name) */
+  --color-acid-2:       #2d5a48;  /* primary hover */
   --color-acc-soft:     #e7efe7;  /* soft green tint surface */
   --color-acc-ink:      #f0e9d6;  /* cream — text on primary */
   --color-ochre:        #c8943b;  /* WARM accent / awaiting */
