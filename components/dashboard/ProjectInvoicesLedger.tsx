@@ -37,7 +37,7 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
   if (allInvoices.length === 0) {
     return (
-      <div className="py-5 bg-neutral-50 text-sm text-neutral-500">
+      <div className="py-5 bg-paper-2 text-sm text-ink/70">
         No invoices found for this project.
       </div>
     );
@@ -45,18 +45,18 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
 
   return (
     <div className="py-5">
-      <div className="text-[10px] uppercase tracking-widest font-bold text-neutral-600 mb-3">
+      <div className="text-[10px] uppercase tracking-widest font-bold text-ink/70 mb-3">
         INVOICES ({allInvoices.length})
       </div>
 
       <div className="border border-soft bg-white shadow-[var(--elev-1)] overflow-x-auto">
         <table className="w-full min-w-[520px] text-left border-collapse">
           <thead>
-            <tr className="border-b-2 border-ink bg-[#FAFAF5]">
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink">Invoice</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink hidden sm:table-cell">Type</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink text-right">Amount</th>
-              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r-2 border-ink">Status</th>
+            <tr className="border-b border-soft bg-paper-2">
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft">Invoice</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft hidden sm:table-cell">Type</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft text-right">Amount</th>
+              <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide border-r border-soft">Status</th>
               <th className="p-3 text-[10px] uppercase font-extrabold tracking-wide text-center w-24">Action</th>
             </tr>
           </thead>
@@ -88,17 +88,17 @@ export function ProjectInvoicesLedger({ project }: { project: ProjectWithInvoice
               }
 
               return (
-                <tr key={inv.id} className={idx < allInvoices.length - 1 ? "border-b-2 border-ink" : ""}>
-                  <td className="p-3 border-r-2 border-ink text-sm font-bold">
+                <tr key={inv.id} className={idx < allInvoices.length - 1 ? "border-b border-soft" : ""}>
+                  <td className="p-3 border-r border-soft text-sm font-bold">
                     {inv.invoice_number || "DRAFT"}
                   </td>
-                  <td className="p-3 border-r-2 border-ink text-xs text-neutral-600 hidden sm:table-cell">
+                  <td className="p-3 border-r border-soft text-xs text-ink/70 hidden sm:table-cell">
                     {typeLabel}
                   </td>
-                  <td className="p-3 border-r-2 border-ink text-sm font-extrabold text-right">
+                  <td className="p-3 border-r border-soft text-sm font-extrabold text-right">
                     {formatInr(total)}
                   </td>
-                  <td className="p-3 border-r-2 border-ink text-xs">
+                  <td className="p-3 border-r border-soft text-xs">
                     <span
                       className={`px-2 py-0.5 rounded-full border font-bold uppercase ${statusInfo.strikethrough ? 'line-through' : ''}`}
                       style={{ backgroundColor: statusInfo.bg, color: statusInfo.fg, borderColor: statusInfo.bd, borderStyle: statusInfo.dashed ? 'dashed' : 'solid' }}

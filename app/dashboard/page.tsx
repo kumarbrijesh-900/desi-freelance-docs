@@ -294,7 +294,7 @@ function DashboardContent() {
         />
 
         {/* Right Content */}
-        <div className={`${selectedProject ? "block" : "hidden md:block"} flex-1 bg-[#FAFAF5] overflow-y-auto no-scrollbar`}>
+        <div className={`${selectedProject ? "block" : "hidden md:block"} flex-1 bg-paper-2 overflow-y-auto no-scrollbar`}>
           {loading ? (
             <div className="flex h-full items-center justify-center font-extrabold tracking-wide text-neutral-400">
               Loading projects…
