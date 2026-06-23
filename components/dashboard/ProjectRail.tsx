@@ -178,7 +178,7 @@ export function ProjectRail({
                 key={p.project.id}
                 href={`/dashboard?project=${p.project.id}`}
                 className={`block min-h-[90px] p-4 pl-5 border-b border-soft relative cursor-pointer transition-all
-                  ${isSelected ? "bg-ink shadow-[var(--brutal-shadow-md)] z-10 border-y-[3px] border-ink scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-paper-2"}
+                  ${isSelected ? "bg-acid shadow-[var(--brutal-shadow-md)] z-10 border-y-[3px] border-acid scale-[1.02] -mr-[2px]" : "bg-paper hover:bg-paper-2"}
                 `}
               >
                 {/* 10px colored left stripe */}

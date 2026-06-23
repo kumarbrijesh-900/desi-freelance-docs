@@ -401,7 +401,7 @@ export default function InvoicesPage() {
             { l: "Avg paid in", v: avgPaidDays !== null ? `${avgPaidDays} days` : "—", s: avgPaidDays !== null ? "turnaround" : "none yet", hero: false },
             { l: "GST collected", v: formatInr(gstCollected), s: "FY 25-26", hero: false },
           ].map((s, i) => (
-            <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[0_10px_24px_-16px_rgba(30,61,51,0.35)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper-2 text-ink'}`}>
+            <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[0_10px_24px_-16px_rgba(30,61,51,0.35)] ${s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : 'flex-1 bg-paper-2 text-ink'}`}>
               <div className={`text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5 ${s.hero ? 'opacity-70' : 'text-ink-2'}`}>{s.l}</div>
               <div className={`font-display font-bold tabular-nums mb-1 ${s.hero ? 'text-[32px] leading-none' : 'text-2xl'}`}>{s.v}</div>
               <div className={`text-[10px] font-bold uppercase tracking-[0.1em] ${s.hero ? 'opacity-70' : 'text-ink-3'}`}>{s.s}</div>
@@ -431,7 +431,7 @@ export default function InvoicesPage() {
             }).length;
 
             let toneClass = "bg-white text-ink-2 border-soft hover:border-ink/30 hover:text-ink";
-            if (filter === f) toneClass = "bg-ink text-acc-ink border-ink";
+            if (filter === f) toneClass = "bg-acid text-acc-ink border-acid";
 
             return (
               <button

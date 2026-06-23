@@ -125,7 +125,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-ink" />
+            <div className="w-2.5 h-2.5 bg-grass" />
             <div className="text-[10px] font-extrabold uppercase tracking-widest text-ink font-mono">SETTLED</div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -146,7 +146,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
           const segSolid = idx < liveStopIndex;
           let dotClass = "w-[34px] h-[34px] rounded-full flex items-center justify-center shrink-0 relative z-10";
           let dotContent = null;
-          if (stop.state === "done") { dotClass += " bg-ink text-white"; dotContent = "✓"; }
+          if (stop.state === "done") { dotClass += " bg-grass text-white"; dotContent = "✓"; }
           else if (stop.state === "live") { dotClass += " bg-acid text-acc-ink shadow-[0_0_0_5px_var(--color-acc-soft)]"; if (stop.type === "milestone") dotContent = `M${(stop.originalIndex ?? 0) + 1}`; }
           else if (stop.state === "pending") { dotClass += " bg-paper border-[3px] border-dashed border-[color:var(--color-strong)] text-ink"; if (stop.type === "milestone") dotContent = `M${(stop.originalIndex ?? 0) + 1}`; }
           else { dotClass += " bg-paper border-[2px] border-solid border-[color:var(--color-strong)] text-ink"; }
@@ -206,7 +206,7 @@ export function LifecycleStepper({ project }: { project: ProjectWithInvoices }) 
               let dotContent = null;
 
               if (stop.state === "done") {
-                dotClass += " bg-ink text-white";
+                dotClass += " bg-grass text-white";
                 dotContent = "✓";
               } else if (stop.state === "live") {
                 dotClass += " bg-acid text-acc-ink shadow-[0_0_0_6px_var(--color-acc-soft)]";

@@ -367,16 +367,20 @@ function DashboardContent() {
               {/* 3-card stat strip — Project total is the ink hero */}
               <div className="flex flex-wrap gap-4 mb-7">
                 {[
-                  { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, hero: true },
-                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => (m.status || '').toLowerCase() === 'settled').length} settled`, hero: false },
-                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", hero: false }
-                ].map((s, i) => (
-                  <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
+                  { label: "Project total", val: formatInr(selectedProject.metrics.billed), sub: `${selectedProject.milestones.length} milestones`, hero: true, tone: "ink" },
+                  { label: "Collected", val: formatInr(selectedProject.metrics.collected), sub: `${selectedProject.milestones.filter(m => (m.status || '').toLowerCase() === 'settled').length} settled`, hero: false, tone: "green" },
+                  { label: "In flight", val: formatInr(selectedProject.metrics.outstanding), sub: drilldownState?.milestone ? `M${(drilldownState.milestone.order_index ?? 0) + 1} active` : "0 active", hero: false, tone: "ochre" }
+                ].map((s, i) => {
+                  const cardTone = s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : s.tone === 'green' ? 'flex-1 bg-[#e9f1ea] text-ink' : s.tone === 'ochre' ? 'flex-1 bg-[#f7edd6] text-ink' : 'flex-1 bg-paper text-ink';
+                  const valTone = s.tone === 'green' ? 'text-[color:var(--color-grass)]' : s.tone === 'ochre' ? 'text-[color:var(--color-ochre-deep)]' : '';
+                  return (
+                  <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${cardTone}`}>
                     <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.label}</div>
-                    <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.val}</div>
+                    <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'} ${s.hero ? '' : valTone}`}>{s.val}</div>
                     <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.sub}</div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Vertical layout per spec */}

@@ -891,7 +891,7 @@ export default function ClientsPage() {
             { l: "MSAs signed", v: `${clients.filter(c => c.msa_effective_date).length} of ${clients.length}`, s: "contracts on file", hero: false },
             { l: "Repeat clients", v: `${clients.filter(c => c.invoice_count && c.invoice_count > 1).length}`, s: "billed more than once", hero: false },
           ].map((s, i) => (
-            <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-ink text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
+            <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : 'flex-1 bg-paper text-ink'}`}>
               <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.l}</div>
               <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'}`}>{s.v}</div>
               <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.s}</div>
