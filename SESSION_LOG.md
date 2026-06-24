@@ -1,5 +1,93 @@
 # Session Log — May 22-23, 2026
 
+## READ FIRST: orientation for a new chat (pinned reference - keep at top)
+
+New Claude instance? Read this block, then the most recent session entries below (newest-first). It tells you what Lance is, how work ships here, and what's queued. Confirm the active task with the founder before starting.
+
+**Product.** Lance (lanceinvoice.xyz) - GST-compliant, milestone-driven invoicing + MSA-enforcement for Indian creative freelancers. "Delivery tracker first, finance second." Stack: Next.js (App Router) + React 19 + Supabase + Vercel + Resend + Tailwind v4 + framer-motion 12 + lucide-react. Repo `kumarbrijesh-900/desi-freelance-docs` (public, `main`, auto-deploys to Vercel).
+
+**How work ships (read carefully).** Claude does NOT push code. Claude authors *exact* Antigravity (AG) prompts - precise FIND/REPLACE blocks, explicit do-not-touch, "stage only these files." The founder runs them in AG (Gemini Flash: fast, auto-pushes, but hallucinates "done" and silently drops files) and pastes back the SHA. Claude then verifies byte-exact on `origin/main` before the next step. For risky/multi-file changes, double-check with Codex (rg-based). DB reads/migrations via the Supabase MCP; deploy checks via the Vercel MCP. Prod anchors (Supabase/Vercel project IDs, user id) live in Claude's memory - deliberately NOT committed (public repo).
+
+**Verification discipline (every SHA).** `git fetch` + hard reset to `origin/main` + `git diff --stat HEAD~1 HEAD` scope check (catches AG `git add .` strays), then byte-exact: apply the prompt's FIND->REPLACE to the commit's parent and assert `== HEAD` per file (robust when files move across commits). Prove JSX structure with a tag-skeleton check + brace/paren/bracket/backtick balance. Generate AG prompts from the verified local diff, then re-parse the prompt's fenced blocks and re-apply to a fresh `git show HEAD:` copy to confirm they reproduce the expected file. For broad sweeps, run a residual scan proving zero offenders remain on deployed `origin/main`. Show a mockup (real E tokens) before pushing any visual/aesthetic change.
+
+**Design system - "E".** Tokens in `app/globals.css` `@theme`; plan in project file `lance-E-migration-plan.md`. Cream paper + bottle-green primary (`--color-acid` `#3a6e59`) + ochre/ink; fonts Bricolage Grotesque (display) / Hanken Grotesk (UI) / Space Mono (mono). Radius (consistent app-wide as of June 24): cards/dropdowns `rounded-[14px]`, modals/empty-states `rounded-[16px]`, inputs/buttons `rounded-[11px]`, chips/icon-boxes `rounded-md`, pills/progress `rounded-full`. Status palette: settled emerald `#157a54` (`bg-grass`), awaiting ochre `#c8943b`, revision/alert rust `#c2502f`, overdue `#a32d2d`, info muted-teal. Money: `tabular-nums`.
+
+**Founder comms.** Terse, momentum-driven ("go", "run it", SHA-only, filename-only = "do this surface"). Strong design eye. Judges by deployed visible effect (sends screenshots). Lead with the simpler/safer fix; split risky logic from safe copy/CSS; when consistency is the goal be thorough and run completeness scans - don't ship partial passes.
+
+### Current queue (next up)
+
+**1. Invoice templates - UX/UI + compliance pass.** Full pass over all 11 templates. Files: registry `lib/templates/registry.ts` (palette/metadata), renderer `lib/templates/renderer.tsx` (the actual invoice markup - most layout + compliance fields live here), picker `components/invoice/TemplatePicker.tsx` (+ `MiniInvoiceThumbnail`); rendered/printed via `app/invoice/preview/page.tsx`, `app/invoice/[id]/client-preview/page.tsx`, `app/share/[token]/page.tsx`. Templates: `classic`, `editorial`, `neon-atelier` (Studio Pro), `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`.
+- *UX/UI:* bring each to E (type scale, palette/contrast - check WCAG AA on every palette incl. the dark ones, spacing, `tabular-nums` on money, print/PDF fidelity). `editorial`/`brutalist`/`midnight` likely carry pre-E styling.
+- *Compliance (India GST tax invoice, CGST Rule 46):* verify each renders supplier name+address+**GSTIN**, unique invoice number + date, recipient name+address+GSTIN (or state+name if unregistered and value > Rs.50k), **place of supply** + state code, **HSN/SAC** per line, description, qty/unit, taxable value, **CGST/SGST or IGST** with rates + amounts, total tax, grand total (+ amount in words), reverse-charge note where applicable, export/SEZ endorsement (LUT vs with-IGST) when international, and the signature/declaration block. Flag missing or mislabeled fields. Domestic vs international/SEZ paths differ (`lib/sez-lookup`, LUT handling).
+- *Approach:* inventory first (which fields each template currently outputs), then go template-by-template - UX cleanup, then a per-template compliance checklist. Mockups before pushing visual changes; one AG prompt per template or per concern, verified byte-exact.
+
+**2. Smaller carryovers** (detail in session entries below): stray blank line in `app/clients/page.tsx` import (~L28, from `0af4252`); ErrorBoundary + `app/global-error.tsx`/`error.tsx`/`not-found.tsx` (white-screen insurance); dynamic-import XLSX in `app/invoices/page.tsx` (~1 MB off `/invoices` mobile); client name-role "leave blank + flag when low-confidence"; mark the April audit docs (pipeline-diagnosis / recovery-strategy / executive-recovery-plan / forensic-audit) superseded.
+
+**3. GTM (founder-owned, standing).** Recruit a white-glove design-partner cohort to validate the accept + milestone flow end-to-end - kit in `/outputs/lance-cohort-outreach.md`.
+
+---
+
+## Radius consistency sweep + E-v2 surfaces + zero-total guard (June 24, 2026)
+
+Single session: closed the cross-surface **corner-radius inconsistency** the founder flagged via screenshots - Invoices was the *only* surface that ever got `rounded-*`; Clients, Dashboard, the dashboard components, the full invoice editor (9 section files), and the client drawer were all still square. Also shipped three E-v2 follow-ons (batch-3 polish, editor tone reframe, zero-total preview guard). Root cause of the radius gap: the E "per-surface sweep" (plan Phase 5-6) only ever completed on Invoices; the global `button{}` rule + `.app-soft-*` classes are E-correct but those surfaces used raw inline `border border-soft` with no radius. Every commit verified byte-exact on `origin/main` + a residual sharp-surface scan proving **zero** square surfaces remain on what's deployed.
+
+### Shipped this session
+
+| # | Scope | Files | SHA |
+|---|---|---|---|
+| Batch-3 polish | ProjectRail `LIVE` -> `IN PROGRESS` (display-only `{summary.replace(/^LIVE/,...)}`); DUE-date orange->amber 6x (`#FF5C00` -> `var(--color-ochre-deep)`); removed rotated "active" Sticker + dead import on clients | `components/dashboard/ProjectRail.tsx`, `components/invoice/InvoiceEditorPage.tsx`, `app/clients/page.tsx` | `0af4252` |
+| Editor tone reframe | Failure-state -> progress language: "N mandatory" -> "N to go", coral NEXT BLOCKER box -> amber UP NEXT, "Missing details" -> "Details to finish", "Review blocker" -> "Review what's left" x3, red zero-total alarm -> calm note; cleared last `#FF5C00` | `InvoiceEditorPage.tsx`, `TotalsTaxesSection.tsx`, `editor/InlineStepSection.tsx`, `editor/WorkbenchReadinessPanel.tsx` | `7a2dfd9` |
+| Zero-total preview guard | `handlePreviewInvoice` blocks `grandTotal <= 0` before preview/cloud-save - calm "add an amount" nudge + scroll to Items (chokepoint all preview paths funnel through) | `InvoiceEditorPage.tsx` (+6) | `0723d39` |
+| Radius: Clients + Dashboard | 26 `rounded-*` insertions - stat cards 14px, modals/empty-states 16px, inputs/buttons 11px, chips `rounded-md` (matches Invoices) | `app/clients/page.tsx`, `app/dashboard/page.tsx`, `components/dashboard/{LifecycleStepper,ActiveDrilldown,ProjectInvoicesLedger}.tsx` | `4d69d63` |
+| Radius: invoice editor | 43 insertions across 9 section files - inline callouts, autocomplete dropdowns, line-item cards, payment toggles, number inputs, tax chips, template-picker icon boxes, readiness progress bar (`rounded-full`). Excluded false positives where the `cn()` base already carried a radius | `components/invoice/*` (9 files) | `fbf1d5f` |
+| Radius: client drawer | Drawer inner corners (`sm:rounded-l-[16px]`, edge-pinned) + Entity-Type segmented control | `app/clients/page.tsx` | `64d5f7b` |
+
+### Verification discipline
+Every SHA: `git fetch` + hard reset + `--stat` scope check, then byte-exact (apply the prompt's exact FROM->TO to the commit's parent, assert `== HEAD` per file) - robust to files moving across commits. Radius sweeps additionally proven by a **windowed residual scan** (any card/panel/input/button with a border + surface signal but no `rounded` within its `cn()` block) returning **0 sharp surfaces** on deployed `origin/main`. AG prompts generated programmatically from the verified local diff, then validated by re-parsing the prompt's fenced blocks -> applying to a fresh `git show HEAD:` copy -> asserting `== expected`.
+
+### Notes / carryovers
+- AG left one stray blank line in `app/clients/page.tsx` import area (~L28) from `0af4252` - cosmetic, fold into a future prompt.
+- Zero-total guard follow-ups (offered, not taken): a validation-lib version so the bottom CTA itself reflects zero-total; a belt-and-suspenders guard on any direct share/send path that skips preview.
+- GTM (founder-owned, standing): white-glove design-partner cohort to validate the accept + milestone flow end-to-end - kit ready in `/outputs/lance-cohort-outreach.md`.
+
+### Commits this session
+- `64d5f7b` style: add E radius to client drawer
+- `fbf1d5f` style: add E corner radius across invoice editor
+- `4d69d63` style: add E corner radius to Clients and Dashboard
+- `0723d39` feat: invoice editor block previewing zero total invoice
+- `7a2dfd9` copy: reframe invoice editor blocker tone to progress
+- `0af4252` style: UX polish batch 3 (project rail, due date color, sticker removal)
+
+## Dashboard E-system migration + WCAG AA + modal a11y + E-v2 surfaces (June 23, 2026)
+
+Session: finished the brutalist->E migration on the dashboard surfaces, a WCAG AA contrast fix, keyboard a11y for the founder-facing modals, a primary-green lightening, and a second E "v2" pass on the dashboard (green-emphasis + semantic money). Cohort outreach kit drafted to `/outputs/lance-cohort-outreach.md`.
+
+### Shipped this session
+
+| # | Scope | Files | SHA |
+|---|---|---|---|
+| Dashboard tables -> E | `ProjectInvoicesLedger`, `ProjectRail`, dashboard page converted to E tokens (`border-soft`, `bg-paper-2`, `text-ink/70`, ...) | `components/dashboard/{ProjectInvoicesLedger,ProjectRail}.tsx`, `app/dashboard/page.tsx` | `796df44` |
+| WCAG AA contrast | `text-ink-3` (2.72:1 on cream - fails AA) -> `text-ink-2` (5.99:1) where used; finished `transition: all` -> explicit 5-property migration in `globals.css` (kills layout jank) | `app/page.tsx`, `LifecycleStepper.tsx`, `app/error.tsx`, `app/globals.css` | `f1b0de9` |
+| Modal keyboard a11y | Shared `use-modal-a11y` hook (Esc-to-close, focus-on-open, Tab focus-trap, focus-restore) wired into 4 founder-facing modals; client-facing MSA modals deliberately untouched | `lib/use-modal-a11y.ts` (new), `editor/ExitConfirmModal.tsx`, `FeedbackModal.tsx`, `ConversionModal.tsx`, `ShareLinkModal.tsx` | `2d1a193` |
+| Lighten primary green | `--color-acid` `#1e3d33` -> `#3a6e59` (bottle-green read too dark on large fills) | `app/globals.css` | `e89a8b0` |
+| Dashboard E-v2 surfaces | Green-emphasis stat cards, emerald `bg-grass` settled dots, semantic money numbers | `app/dashboard/page.tsx`, `components/dashboard/*` (5 files) | `889aeca` |
+
+### Commits this session
+- `889aeca` style: dashboard E v2 surfaces (green emphasis, emerald dots, semantic money)
+- `e89a8b0` style: lighten the primary green token
+- `2d1a193` a11y: add keyboard support to modals (Escape-to-close + focus-trap)
+- `f1b0de9` a11y: WCAG AA contrast fix (text-ink-3 -> text-ink-2) + finish transition:all cleanup
+- `796df44` style: convert dashboard tables from brutalist to E style
+
+## E primitive sweep + tokens + contrast (June 21-22, 2026)
+
+Short sessions continuing the E rollout on shared primitives and tokens (logged from commit subjects).
+
+- `9d31407` style: define 5 dangling lime-400/500/600/700/900 green tokens
+- `a5dd070` style: fix client-avatar contrast (cream text on dark E backgrounds)
+- `6aa3597` style: E primitive accent sweep + onboarding back-nav fix
+- `70bac44` chore: carryover queue cleanup batch
+
 ## Invoices grouping + mobile + core-loop readiness + FAQ/feedback (June 20-21, 2026)
 
 Session covering: project-grouped invoices listing, invoices-page chrome → E, core money-loop readiness fixes, mobile-responsive invoices, FAQ/feedback polish + dead-file removal, and 8 product/trust FAQs seeded to prod. Three strategic audits delivered (reference, not work-orders). Every commit verified on `origin/main` before proceeding — byte-exact diff vs locally-saved expected when Claude pre-authored the code, code-review of the diff when AG improvised from an audit.
