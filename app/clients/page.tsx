@@ -25,7 +25,7 @@ import {
 } from "@/lib/layout-foundation";
 import { Marker } from "@/components/ui/Marker";
 import { Pill } from "@/components/ui/Pill";
-import { Sticker } from "@/components/ui/Sticker";
+
 import {
   getAppButtonClass,
   getAppFieldClass,
@@ -837,11 +837,6 @@ export default function ClientsPage() {
       <AppHeader />
 
       <section className={`${appPageContainerClass} max-w-[1200px] mx-auto pt-8 pb-24 relative overflow-x-hidden`}>
-        {/* Floating sticker */}
-        <div className="absolute top-[80px] right-0 z-10 hidden lg:block">
-          <Sticker rotate={-6} tone="butter">✦ {clients.length} active</Sticker>
-        </div>
-
         {/* Header */}
         <div className="flex justify-between items-end mb-7">
           <div>

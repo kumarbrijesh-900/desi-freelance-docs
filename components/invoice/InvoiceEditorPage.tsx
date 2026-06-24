@@ -2708,10 +2708,10 @@ return (
                         type="date"
                         value={formData.meta.dueDate}
                         onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-normal text-[#FF5C00] app-focus-ring"
+                        className="mt-0.5 w-full border-none bg-transparent p-0 text-[12px] font-normal text-[color:var(--color-ochre-deep)] app-focus-ring"
                       />
                     ) : (
-                      <span className="text-[12px] font-bold text-[#FF5C00]">
+                      <span className="text-[12px] font-bold text-[color:var(--color-ochre-deep)]">
                         {formData.meta?.dueDate || '—'}
                       </span>
                     )}
@@ -2938,10 +2938,10 @@ return (
                                   type="date"
                                   value={formData.meta.dueDate}
                                   onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-normal text-[#FF5C00] shadow-sm ring-1 ring-inset ring-gray-200 transition-all app-focus-ring"
+                                  className="w-full border-none bg-white px-3 py-2 text-[12px] font-normal text-[color:var(--color-ochre-deep)] shadow-sm ring-1 ring-inset ring-gray-200 transition-all app-focus-ring"
                                 />
                               ) : (
-                                <p className="text-[13px] font-normal text-[#FF5C00]">{formData.meta?.dueDate || '—'}</p>
+                                <p className="text-[13px] font-normal text-[color:var(--color-ochre-deep)]">{formData.meta?.dueDate || '—'}</p>
                               )}
                             </div>
                           </div>
@@ -3103,10 +3103,10 @@ return (
                       type="date"
                       value={formData.meta.dueDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, meta: { ...prev.meta, dueDate: e.target.value } }))}
-                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[#FF5C00] border-b border-[color:var(--color-ink)] focus:outline-none"
+                      className="w-32 bg-transparent text-right text-[11px] font-bold text-[color:var(--color-ochre-deep)] border-b border-[color:var(--color-ink)] focus:outline-none"
                     />
                   ) : (
-                    <div style={{fontSize:11, fontWeight:600, color: "#FF5C00"}}>{formData.meta?.dueDate || '—'}</div>
+                    <div style={{fontSize:11, fontWeight:600, color: "var(--color-ochre-deep)"}}>{formData.meta?.dueDate || '—'}</div>
                   )}
                 </div>
                 {/* PO # */}

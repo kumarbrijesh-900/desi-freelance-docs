@@ -214,7 +214,7 @@ export function ProjectRail({
                         ? { backgroundColor: "rgba(255,255,255,0.14)", color: "#f0e9d6", borderColor: "rgba(255,255,255,0.4)" }
                         : { backgroundColor: sTint.bg, color: sTint.fg, borderColor: sTint.bd, borderStyle: sTint.dashed ? "dashed" : "solid" }}
                     >
-                      {summary}
+                      {summary.replace(/^LIVE/, "IN PROGRESS")}
                     </div>
                     {isSelected && <div className="text-acid font-black text-sm pr-2">→</div>}
                   </div>
