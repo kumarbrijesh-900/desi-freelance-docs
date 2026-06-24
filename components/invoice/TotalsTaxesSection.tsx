@@ -262,8 +262,8 @@ export default function TotalsTaxesSection({
             )}
 
             {grandTotal === 0 && hasItems && (
-              <p className="mt-2 border-2 border-[#FF5C00] bg-[#FFF0EC] p-3 text-[11px] font-bold leading-relaxed text-[#FF5C00] shadow-[var(--brutal-shadow-sm)]">
-                Note: The grand total for this invoice is {formatCurrency(0, currency)}. Proceed?
+              <p className="text-[12px] text-[color:var(--color-ink-2)] italic text-right">
+                Grand total is {formatCurrency(0, currency)} — add amounts to your items to bill.
               </p>
             )}
           </div>

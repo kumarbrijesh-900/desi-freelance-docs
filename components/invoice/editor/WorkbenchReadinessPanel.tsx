@@ -158,7 +158,7 @@ export function WorkbenchReadinessPanel({
           onClick={onReview}
           className="mt-3 flex h-9 w-full items-center justify-center border border-soft bg-[color:var(--color-lime-warm)] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-sm)] transition-all hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
         >
-          {rail ? "Review" : "Review blocker"}
+          {rail ? "Review" : "Review what's left"}
         </button>
       )}
     </div>

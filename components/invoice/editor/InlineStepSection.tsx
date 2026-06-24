@@ -36,7 +36,7 @@ export function InlineStepSection({
   const stepKind = getStepKind(step);
   let statusLabel =
     !isCompleted && isMounted && issueCount > 0
-      ? `${issueCount} mandatory`
+      ? `${issueCount} to go`
       : isCompleted
         ? optionalIssueCount > 0 ? "Ready" : "Complete ✓"
         : isActive && isMounted && issueCount === 0
@@ -107,7 +107,7 @@ export function InlineStepSection({
                   "pill",
                   statusLabel.toLowerCase().includes("ready")
                     ? "success"
-                    : statusLabel.toLowerCase().includes("mandatory")
+                    : statusLabel.toLowerCase().includes("to go")
                       ? "alert"
                       : "ghost"
                 )}

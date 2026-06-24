@@ -2486,7 +2486,7 @@ return (
                   const isCompleted = displayStepValidityByStep[step] && !isActive;
                   const isIncomplete = !displayStepValidityByStep[step];
                   const stepState = isActive ? "active" : isCompleted ? "completed" : "pending";
-                  const railStatus = isReadOnlyMode ? "view" : step === "totals" && !invoiceReadyForPreview ? "Pending" : isActive ? missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} mandatory` : missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isCompleted ? missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isIncomplete && missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} mandatory` : firstInvalidStep === step ? "Up next" : "Pending";
+                  const railStatus = isReadOnlyMode ? "view" : step === "totals" && !invoiceReadyForPreview ? "Pending" : isActive ? missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} to go` : missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isCompleted ? missingOptionalCountByStep[step] > 0 ? "Ready" : "Complete ✓" : isIncomplete && missingFieldCountByStep[step] > 0 ? `${missingFieldCountByStep[step]} to go` : firstInvalidStep === step ? "Up next" : "Pending";
                   
                   return (
                     <button
@@ -2518,9 +2518,9 @@ return (
             
             <MotionReveal preset="fade-up" delay={80}>
               {nextBlockingGroup && !isReadOnlyMode ? (
-                <div className="box" style={{padding:"14px 16px", background:"#f7d0bd", borderColor:"var(--color-coral)"}}>
-                  <div className="cap cap-strong" style={{color:"var(--color-coral)", marginBottom: 4}}>⚠ NEXT BLOCKER</div>
-                  <div style={{fontSize: 11, color:"#7a2a10", lineHeight:1.5}}>
+                <div className="box" style={{padding:"14px 16px", background:"#FBF3DD", borderColor:"var(--color-soft)"}}>
+                  <div className="cap cap-strong" style={{color:"var(--color-ochre-deep)", marginBottom: 4}}>UP NEXT</div>
+                  <div style={{fontSize: 11, color:"var(--color-ink-2)", lineHeight:1.5}}>
                     {nextBlockingGroup.step === "deliverables" && nextBlockingFields.includes("Project")
                       ? "Name your project to continue."
                       : `${getStepShortLabel(nextBlockingGroup.step)} needs ${nextBlockingFields.slice(0, 3).join(", ")}${nextBlockingFields.length > 3 ? ` +${nextBlockingFields.length - 3} more` : ""}.`}
@@ -3261,7 +3261,7 @@ return (
             ) : invoiceReadyForPreview ? (
               <span className="text-[#007A63] flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Ready for preview</span></span>
             ) : (
-              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Missing details</span></span>
+              <span className="text-[#8A4B00] flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" strokeWidth={2.3} /><span className="hidden sm:inline"> Details to finish</span></span>
             )}
           </div>
         </div>
@@ -3325,7 +3325,7 @@ return (
               )}
             >
               <span className="hidden sm:inline">
-                {invoiceReadyForPreview ? "Preview invoice" : "Review blocker"}
+                {invoiceReadyForPreview ? "Preview invoice" : "Review what's left"}
               </span>
               <span className="sm:hidden">
                 {invoiceReadyForPreview ? "Preview" : "Review"}
