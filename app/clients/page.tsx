@@ -195,7 +195,7 @@ function ClientForm({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative w-full sm:w-[560px] bg-white h-full flex flex-col shadow-[var(--brutal-shadow-lg)]"
+        className="relative w-full sm:w-[560px] sm:rounded-l-[16px] bg-white h-full flex flex-col shadow-[var(--brutal-shadow-lg)]"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[color:var(--color-soft)] p-6">
@@ -254,14 +254,14 @@ function ClientForm({
 
               <div className="sm:col-span-2">
                 <label className={appFieldLabelClass}>Entity Type</label>
-                <div className="flex p-1 bg-[color:var(--color-paper)] border border-[color:var(--color-soft)]">
+                <div className="flex p-1 rounded-lg bg-[color:var(--color-paper)] border border-[color:var(--color-soft)]">
                   <button
                     type="button"
                     onClick={() => setClientEntityType("agency")}
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "agency"
-                        ? "bg-white text-[color:var(--color-ink)] shadow-sm border border-[color:var(--color-soft)]"
+                        ? "bg-white text-[color:var(--color-ink)] rounded-md shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
                     )}
                   >
@@ -273,7 +273,7 @@ function ClientForm({
                     className={cn(
                       "flex-1 py-1.5 text-[12px] font-bold transition-all",
                       clientEntityType === "freelancer"
-                        ? "bg-white text-[color:var(--color-ink)] shadow-sm border border-[color:var(--color-soft)]"
+                        ? "bg-white text-[color:var(--color-ink)] rounded-md shadow-sm border border-[color:var(--color-soft)]"
                         : "text-[color:var(--color-ink-2)] hover:text-[color:var(--color-ink)]",
                     )}
                   >
