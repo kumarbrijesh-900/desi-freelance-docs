@@ -214,7 +214,7 @@ export default function DeliverablesSection({
       )}
 
       <div className="space-y-8">
-        <div className="mb-4 border-[3px] border-soft bg-white p-4 shadow-[var(--brutal-shadow-md)]">
+        <div className="mb-4 border-[3px] border-soft rounded-[14px] bg-white p-4 shadow-[var(--brutal-shadow-md)]">
           <div className="mb-3">
             <label className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-ink)]">
               Project {!isReadOnly && <span className="text-[#FF5C00]">*</span>}
@@ -246,7 +246,7 @@ export default function DeliverablesSection({
         </div>
 
         {(freeRevisionRounds > 0 || extraRevisionFeePercent > 0) && (
-          <div className="flex items-center gap-2 border-2 border-[color:var(--color-soft)] bg-[#FFFBE6] px-4 py-2.5 mb-4">
+          <div className="flex items-center gap-2 border-2 border-[color:var(--color-soft)] rounded-[14px] bg-[#FFFBE6] px-4 py-2.5 mb-4">
             <span className="text-[12px]">📎</span>
             <p className="text-[11px] font-normal text-[color:var(--color-ink)]">
               Revision policy: <strong>{freeRevisionRounds}</strong> free rounds per deliverable. Extra rounds at <strong>{extraRevisionFeePercent}%</strong> of item total.
@@ -491,7 +491,7 @@ function LineItemCard({
 
   return (
     <div className={cn(
-      "group relative border-2 bg-white p-4 transition-all",
+      "group relative border-2 rounded-[14px] bg-white p-4 transition-all",
       isReadOnly
       ? "border-[#D4D2CC] hover:shadow-none"
       : "border-soft hover:shadow-[var(--brutal-shadow-sm)]",
@@ -590,7 +590,7 @@ function LineItemCard({
             }}
           />
           {!isReadOnly && showSuggestions && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border border-soft bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
+            <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-md border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-md)] py-1 overflow-y-auto max-h-60">
               {suggestions.map((s: string) => (
                 <button
                   key={s}
@@ -793,7 +793,7 @@ function BrutalSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-soft bg-white text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
+        className="w-full border border-soft rounded-[11px] bg-white text-left text-[14px] font-normal text-[color:var(--color-ink)] h-11 pl-3 pr-10 flex items-center cursor-pointer hover:shadow-[var(--brutal-shadow-pressed)] transition-all relative"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
@@ -802,7 +802,7 @@ function BrutalSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1 w-full z-50 border border-soft bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
+        <div className="absolute left-0 top-full mt-1 w-full z-50 border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-md)] max-h-[280px] overflow-y-auto">
           {options.map((opt) => {
             const isSelected = opt.value === value;
             return (

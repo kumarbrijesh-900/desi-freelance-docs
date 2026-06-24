@@ -324,7 +324,7 @@ export default function TotalsTaxesSection({
                     />
                   </div>
                   {isRcmEnabled ? (
-                    <div className="mb-3 border border-soft bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-pressed)] break-normal">
+                    <div className="mb-3 border border-soft rounded-[14px] bg-[#F7FFD6] px-3 py-2.5 text-[11px] font-bold leading-relaxed text-[color:var(--color-ink)] shadow-[var(--brutal-shadow-pressed)] break-normal">
                       Reverse Charge is active. The client is responsible for paying GST directly to the government instead of the freelancer/agency collecting it.
                     </div>
                   ) : null}
@@ -341,12 +341,12 @@ export default function TotalsTaxesSection({
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 {paymentTerms && (
-                  <div className="border border-soft bg-[#F0EAFF] text-[#8B5CF6] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border border-soft rounded-md bg-[#F0EAFF] text-[#8B5CF6] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     {paymentTerms}
                   </div>
                 )}
                 {bankName && (
-                  <div className="border border-soft bg-[color:var(--color-paper-2)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
+                  <div className="border border-soft rounded-md bg-[color:var(--color-paper-2)] text-[color:var(--color-ink)] text-[11px] font-bold px-3 py-1 uppercase tracking-[0.05em]">
                     Bank: {bankName}
                   </div>
                 )}

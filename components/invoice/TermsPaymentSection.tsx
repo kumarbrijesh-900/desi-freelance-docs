@@ -331,7 +331,7 @@ export default function TermsPaymentSection({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="bg-[color:var(--color-paper)] border border-[color:var(--color-soft)] p-4 shadow-sm"
+                    className="bg-[color:var(--color-paper)] border border-[color:var(--color-soft)] rounded-[14px] p-4 shadow-sm"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
@@ -580,7 +580,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, freeRevisionRounds: Number(e.target.value) });
                                 }
                               }}
-                              className="w-16 border border-soft bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-16 border border-soft rounded-[11px] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">rounds</span>
                           </div>
@@ -602,7 +602,7 @@ export default function TermsPaymentSection({
                                   onClientChange({ ...client, extraRevisionFeePercent: Number(e.target.value) });
                                 }
                               }}
-                              className="w-20 border border-soft bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
+                              className="w-20 border border-soft rounded-[11px] bg-white text-[14px] font-normal text-[color:var(--color-ink)] h-11 px-3 outline-none"
                             />
                             <span className="text-[12px] text-[color:var(--color-ink-2)] shrink-0">% of line item</span>
                           </div>
@@ -640,8 +640,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 value.license.isLicenseIncluded
-                                  ? "border border-soft bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border border-soft bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               Yes
@@ -654,8 +654,8 @@ export default function TermsPaymentSection({
                               }}
                               className={cn(
                                 !value.license.isLicenseIncluded
-                                  ? "border border-soft bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                  : "border border-soft bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                  ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                  : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                               )}
                             >
                               No
@@ -687,8 +687,8 @@ export default function TermsPaymentSection({
                                         onClick={() => updateLicenseField("licenseType", opt.value as any)}
                                         className={cn(
                                           value.license.licenseType === opt.value
-                                            ? "border border-soft bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
-                                            : "border border-soft bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
+                                            ? "border border-soft rounded-[11px] bg-ink text-white font-bold px-5 py-2.5 text-[13px] cursor-pointer transition-all"
+                                            : "border border-soft rounded-[11px] bg-white text-[color:var(--color-ink)] font-bold px-5 py-2.5 text-[13px] cursor-pointer hover:bg-[#F5F5F8] transition-all"
                                         )}
                                       >
                                         {opt.label}
@@ -733,7 +733,7 @@ export default function TermsPaymentSection({
                                   )}
                                 </AnimatePresence>
 
-                                <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/50 p-3 border border-[color:var(--color-soft)]">{licenseExplanation}</p>
+                                <p className="text-[11px] leading-relaxed text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/50 p-3 border border-[color:var(--color-soft)] rounded-[14px]">{licenseExplanation}</p>
                               </div>
                             </motion.div>
                           )}

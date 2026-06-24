@@ -531,7 +531,7 @@ export default function AgencyDetailsSection({
                   )}
                 />
                 {showSuggestions && showProfileSuggestion && !isReadOnly && (
-                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
+                  <div className="absolute left-0 right-0 z-[9999] mt-1 max-h-[200px] pb-20 overflow-y-auto border border-[color:var(--color-soft)] rounded-[14px] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in-95 duration-200" style={{ top: "100%" }}>
                     <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-soft)] mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-ink-3)]">Saved Profile</span>
                     </div>

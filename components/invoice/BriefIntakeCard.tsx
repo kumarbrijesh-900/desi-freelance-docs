@@ -136,7 +136,7 @@ export default function BriefIntakeCard({
     return (
       <MotionReveal className="mb-4" preset="fade-up" delay={40}>
         <section
-          className="border border-soft bg-white shadow-[var(--brutal-shadow-sm)] overflow-hidden"
+          className="border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-sm)] overflow-hidden"
           aria-labelledby="brief-intake-collapsed-heading"
         >
           <motion.div
@@ -179,7 +179,7 @@ export default function BriefIntakeCard({
   return (
     <MotionReveal className="mb-4" preset="fade-up" delay={40}>
       <section
-        className="border border-soft bg-white shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
+        className="border border-soft rounded-[14px] bg-white shadow-[var(--brutal-shadow-sm)] relative overflow-hidden px-4 py-3 sm:px-[18px]"
         aria-labelledby="brief-intake-heading"
       >
         {/* Toggle */}
@@ -233,7 +233,7 @@ export default function BriefIntakeCard({
                     {imageFiles.map((file) => (
                       <span
                         key={`${file.name}-${file.lastModified}`}
-                        className="inline-flex items-center gap-2 border border-soft bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[color:var(--color-ink)]"
+                        className="inline-flex items-center gap-2 border border-soft rounded-md bg-[#F4F4F5] px-2 py-1 text-[11px] font-bold text-[color:var(--color-ink)]"
                       >
                         <ClipboardCheckIcon className="h-3.5 w-3.5" />
                         {file.name}

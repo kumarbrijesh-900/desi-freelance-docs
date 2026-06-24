@@ -2650,7 +2650,7 @@ return (
             {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
             {/* Mobile Meta Summary Strip (Rectified for UX) */}
             <div className={cn(
-              "mx-4 mb-2 border border-[color:var(--color-soft)] px-4 py-3 transition-all duration-300 xl:hidden",
+              "mx-4 mb-2 border border-[color:var(--color-soft)] rounded-[14px] px-4 py-3 transition-all duration-300 xl:hidden",
               isEditingMeta && !isReadOnlyMode ? "bg-white shadow-sm ring-1 ring-[color:var(--brand-indigo)]/20" : "bg-[color:var(--color-paper)]"
             )}>
               <div className="flex flex-col gap-3">
@@ -2891,7 +2891,7 @@ return (
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="space-y-4">
                       {/* Inline Meta Card */}
-                      <div className="border border-soft bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3 flex items-center justify-between">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">
                             Invoice Details
@@ -2978,7 +2978,7 @@ return (
                       </div>
 
                       {/* Expanded Totals Card */}
-                      <div className="border border-soft bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
+                      <div className="border border-soft rounded-[14px] bg-[color:var(--color-paper-2)] px-4 py-4 shadow-[var(--brutal-shadow-sm)]">
                         <div className="border-b border-[color:var(--color-soft)] pb-2 mb-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[color:var(--color-ink-2)]">Totals</p>
                         </div>
@@ -3003,7 +3003,7 @@ return (
                   <div 
                     id="live-totals-footer" 
                     className={cn(
-                      "border border-[color:var(--color-soft)] transition-all duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
+                      "border border-[color:var(--color-soft)] rounded-[14px] transition-all duration-300 bg-[color:var(--color-paper)] px-4 py-2.5"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -3027,7 +3027,7 @@ return (
             <div className="xl:hidden mt-4">
               <div
                 id="mobile-totals-footer"
-                className="border border-soft bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
+                className="border border-soft rounded-[14px] bg-[color:var(--color-paper)] px-4 py-3 shadow-[var(--brutal-shadow-sm)]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -3202,7 +3202,7 @@ return (
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] p-6 shadow-[var(--brutal-shadow-lg)]"
+            className="flex w-full max-w-sm flex-col overflow-hidden bg-ink border border-[color:var(--color-soft)] rounded-[16px] p-6 shadow-[var(--brutal-shadow-lg)]"
           >
             <h3 className="text-lg font-bold text-white mb-2">
               {postSubmitActionModal.isReady ? "All set!" : "Almost there!"}
@@ -3279,7 +3279,7 @@ return (
               onClick={handleSaveDraft}
               className={cn(
                 getAppButtonClass({ variant: "ghost", size: "sm" }),
-                "h-9 px-4 border border-[color:var(--color-soft)] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
+                "h-9 px-4 border border-[color:var(--color-soft)] rounded-[11px] text-[color:var(--color-ink)] sm:h-10 sm:px-5 active:scale-[0.97] transition-transform",
               )}
             >
               <SaveIcon className="mr-2 h-4 w-4" />
