@@ -303,12 +303,12 @@ function DashboardContent() {
             <div className="flex flex-col min-h-full p-8 md:p-10 relative overflow-x-hidden">
               <button
                 onClick={() => router.replace('/dashboard')}
-                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
+                className="md:hidden mb-4 self-start inline-flex items-center gap-1.5 border border-soft rounded-[11px] bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-widest text-ink shadow-[var(--brutal-shadow-sm)] active:translate-y-[2px] active:shadow-none"
               >
                 ← Projects
               </button>
               {dueSoonAlerts.length > 0 && (
-                <div className="mb-6 border border-soft bg-acc-soft shadow-[var(--elev-1)]">
+                <div className="mb-6 rounded-[14px] border border-soft bg-acc-soft shadow-[var(--elev-1)]">
                   <div className="px-4 py-2 border-b border-soft text-[10px] font-extrabold uppercase tracking-widest text-ink flex items-center gap-2">
                     <span className="w-4 h-4 flex items-center justify-center bg-[#D85A30] text-acc-ink text-[10px] font-black">!</span>
                     PAYMENTS DUE SOON · {dueSoonAlerts.length}
@@ -374,7 +374,7 @@ function DashboardContent() {
                   const cardTone = s.hero ? 'flex-[1.5] bg-acid text-acc-ink' : s.tone === 'green' ? 'flex-1 bg-[#e9f1ea] text-ink' : s.tone === 'ochre' ? 'flex-1 bg-[#f7edd6] text-ink' : 'flex-1 bg-paper text-ink';
                   const valTone = s.tone === 'green' ? 'text-[color:var(--color-grass)]' : s.tone === 'ochre' ? 'text-[color:var(--color-ochre-deep)]' : '';
                   return (
-                  <div key={i} className={`p-5 border border-soft shadow-[var(--elev-1)] ${cardTone}`}>
+                  <div key={i} className={`p-5 rounded-[14px] border border-soft shadow-[var(--elev-1)] ${cardTone}`}>
                     <div className={`text-[11px] font-extrabold uppercase tracking-widest mb-1 ${s.hero ? 'opacity-70' : 'opacity-85'}`}>{s.label}</div>
                     <div className={`font-black mb-1 ${s.hero ? 'text-[34px] leading-none' : 'text-2xl'} ${s.hero ? '' : valTone}`}>{s.val}</div>
                     <div className={`text-[11px] font-extrabold uppercase tracking-widest ${s.hero ? 'opacity-70' : 'opacity-75'}`}>{s.sub}</div>
@@ -400,7 +400,7 @@ function DashboardContent() {
               <ProjectInvoicesLedger project={selectedProject} />
             </div>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center bg-white border border-soft m-8 shadow-[var(--brutal-shadow-lg)]">
+            <div className="flex h-full flex-col items-center justify-center bg-white border border-soft rounded-[16px] m-8 shadow-[var(--brutal-shadow-lg)]">
               <div className="text-4xl font-black mb-4 tracking-tighter">Select a project</div>
               <p className="text-neutral-500 font-bold tracking-wide">
                 Or click + New invoice to start
@@ -411,7 +411,7 @@ function DashboardContent() {
       </main>
 
       {actionMessage && (
-        <div className="fixed bottom-5 right-5 z-50 border border-soft bg-white px-4 py-3 text-sm font-bold shadow-[var(--brutal-shadow-md)]">
+        <div className="fixed bottom-5 right-5 z-50 border border-soft rounded-[14px] bg-white px-4 py-3 text-sm font-bold shadow-[var(--brutal-shadow-md)]">
           <button
             type="button"
             onClick={() => setActionMessage(null)}
@@ -741,7 +741,7 @@ function DashboardContent() {
       {/* ── Project Closure Delight Modal ── */}
       {projectClosureData && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-[480px] border border-soft bg-white shadow-[var(--brutal-shadow-lg)]">
+          <div className="w-full max-w-[480px] border border-soft rounded-[16px] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
             {/* Header Area */}
             <div className="relative overflow-hidden bg-acid px-8 py-10 text-center">
               {/* Confetti / Delight elements (static CSS representation) */}
@@ -780,7 +780,7 @@ function DashboardContent() {
               <button
                 type="button"
                 onClick={() => setProjectClosureData(null)}
-                className="w-full border border-soft bg-ink py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                className="w-full border border-soft rounded-[11px] bg-ink py-4 text-[13px] font-black uppercase tracking-widest text-white shadow-[var(--brutal-shadow-md)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--brutal-shadow-lg)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Awesome
               </button>
