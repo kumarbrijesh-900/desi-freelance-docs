@@ -1362,6 +1362,12 @@ const handlePreviewInvoice = async () => {
     return;
   }
 
+  if (computedTotals.grandTotal <= 0) {
+    scrollToStep("deliverables", { focus: true });
+    push({ kind: "info", ttl: "Add an amount before previewing — this invoice still totals zero." });
+    return;
+  }
+
   try {
     let invoiceNumberForPreview = formData.meta.invoiceNumber;
     if (!isReadOnlyMode && invoiceNumberForPreview?.endsWith("-000")) {
