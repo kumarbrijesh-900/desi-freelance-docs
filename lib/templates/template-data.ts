@@ -7,7 +7,7 @@
  */
 
 import type { InvoiceFormData } from "@/types/invoice";
-import type { TemplateData, TemplateLineItem } from "./template-types";
+import type { TemplateData, TemplateLineItem, TemplateTaxRow } from "./template-types";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import { computeInvoiceTax } from "@/lib/invoice-tax";
 import { getGstStateCode } from "@/lib/gst-state-codes";
@@ -52,6 +52,28 @@ function formatCurrency(amount: number, currency = "INR"): string {
   } catch {
     return `₹${amount.toLocaleString("en-IN")}`;
   }
+}
+
+function buildTaxRows(
+  taxInfo: ReturnType<typeof computeInvoiceTax>,
+  currency: string,
+): TemplateTaxRow[] {
+  if (taxInfo.taxType === "cgst_sgst") {
+    const half = `${taxInfo.rate / 2}%`;
+    return [
+      { label: `CGST ${half}`, amountFormatted: formatCurrency(taxInfo.cgst, currency) },
+      { label: `SGST ${half}`, amountFormatted: formatCurrency(taxInfo.sgst, currency) },
+    ];
+  }
+  if (taxInfo.taxType === "igst") {
+    return [
+      { label: `IGST ${taxInfo.rate}%`, amountFormatted: formatCurrency(taxInfo.igst, currency) },
+    ];
+  }
+  // zero_rated / exempt — single descriptive row at zero
+  return [
+    { label: taxInfo.label, amountFormatted: formatCurrency(taxInfo.taxAmount, currency) },
+  ];
 }
 
 function getUnitLabel(unit?: string): string {
@@ -156,6 +178,9 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     international && !formData.client?.clientCurrency
       ? formatCurrency(convertInrToApproximateUsd(totals.grandTotal), "USD")
       : null;
+
+  const taxInfo = computeInvoiceTax(formData, totals.subtotal);
+  const taxRows = buildTaxRows(taxInfo, displayCurrency);
 
   // Prepare line items — v1.5: flatten milestones into template line items
   const lineItems: TemplateLineItem[] = [];
@@ -294,13 +319,14 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     itemCount: lineItems.length,
 
     subtotalFormatted: formatCurrency(totals.subtotal, displayCurrency),
-    taxLabel: computeInvoiceTax(formData, totals.subtotal).label,
+    taxLabel: taxInfo.label,
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
+    taxRows,
     grandTotalFormatted: formatCurrency(totals.grandTotal, displayCurrency),
     grandTotalRaw: totals.grandTotal,
     approximateUsd,
     taxComplianceNote: taxComplianceNote || "",
-    taxInfo: computeInvoiceTax(formData, totals.subtotal),
+    taxInfo,
 
     bankName: formData.payment?.bankName || "",
     accountName: formData.payment?.accountName || "",

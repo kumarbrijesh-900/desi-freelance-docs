@@ -26,6 +26,13 @@ export interface TemplateLineItem {
   groupSubtotalFormatted?: string;
 }
 
+/* ─── Pre-computed tax row for templates ─────────── */
+
+export interface TemplateTaxRow {
+  label: string;
+  amountFormatted: string;
+}
+
 /* ─── Pre-computed template data ─────────────────── */
 
 export interface TemplateData {
@@ -71,6 +78,7 @@ export interface TemplateData {
   subtotalFormatted: string;
   taxLabel: string;
   taxFormatted: string;
+  taxRows: TemplateTaxRow[];
   grandTotalFormatted: string;
   grandTotalRaw: number;
   approximateUsd: string | null;
