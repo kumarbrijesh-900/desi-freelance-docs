@@ -11,11 +11,11 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MonoTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[#1a1a1a] bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['JetBrains_Mono',_'Fira_Code',_monospace] text-[color:var(--color-ink)] bg-white min-h-[295mm] tabular-nums pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Dark Header Strip ─────────────────── */}
-      <header className="bg-[#111] text-white print:bg-transparent print:text-[#111] print:border-b-4 print:border-[#111] p-6 print:p-0 print:pb-6 mb-8">
+      <header className="bg-[color:var(--color-ink)] text-white print:bg-transparent print:text-[color:var(--color-ink)] print:border-b-4 print:border-[color:var(--color-ink)] p-6 print:p-0 print:pb-6 mb-8">
         <div className="flex justify-between items-start">
           <div>
             {data.agencyLogoUrl && (
@@ -25,14 +25,14 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
             {data.agencyAddress && data.agencyAddress !== "—" && (
               <p className="text-[11px] text-[color:var(--color-ink-2)] whitespace-pre-line mt-1 max-w-[260px]">{data.agencyAddress}</p>
             )}
-            {data.agencyState && <p className="text-[10px] text-[color:var(--color-ink-2)] mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
-            {data.showAgencyGstin && <p className="text-[10px] text-green-400 mt-0.5">GSTIN {data.agencyGstin}</p>}
+            {data.agencyState && <p className="text-[10px] text-[color:var(--color-ink-2)] mt-1">{data.agencyState}</p>}
+            {data.showAgencyGstin && <p className="text-[10px] text-[color:var(--color-ink-2)] mt-0.5">GSTIN {data.agencyGstin}</p>}
             {data.agencyPan && <p className="text-[10px] text-[color:var(--color-ink-2)]">PAN {data.agencyPan}</p>}
           </div>
           <div className="text-right">
             <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest">Invoice</p>
-            <p className="text-[20px] font-bold text-green-400 mt-1">{data.invoiceNumber}</p>
-            {data.poNumber && <><p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mt-3">PO Number</p><p className="text-[16px] font-bold text-green-400 mt-1">{data.poNumber}</p></>}
+            <p className="text-[20px] font-bold text-[color:var(--color-ink-2)] mt-1">{data.invoiceNumber}</p>
+            {data.poNumber && <><p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mt-3">PO Number</p><p className="text-[16px] font-bold text-[color:var(--color-ink-2)] mt-1">{data.poNumber}</p></>}
             <div className="mt-3 text-[11px] text-[color:var(--color-ink-2)] space-y-0.5">
               <p>issued: {data.invoiceDate}</p>
               <p>due: <span className="text-red-400">{data.dueDate}</span></p>
@@ -42,7 +42,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
       </header>
 
       {/* ── Client + Terms ────────────────────── */}
-      <section className="grid grid-cols-[1fr_180px] gap-8 mb-10 pb-6 border-b border-dashed border-[#111118]">
+      <section className="grid grid-cols-[1fr_180px] gap-8 mb-10 pb-6 border-b border-dashed border-[color:var(--color-ink)]">
         <div>
           <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-2">// billed_to</p>
           <p className="text-[15px] font-bold">{data.clientName}</p>
@@ -50,7 +50,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
             <p className="text-[11px] text-[color:var(--color-ink-2)] whitespace-pre-line mt-1 max-w-[300px]">{data.clientAddress}</p>
           )}
           <div className="mt-2 text-[10px] text-[color:var(--color-ink-2)] space-y-0.5">
-            {data.clientState && <p>{data.clientState?.replace(/\s*\(\d+\)/, '')}</p>}
+            {data.clientState && <p className="font-semibold">Place of Supply: {data.clientState}</p>}
             {data.clientTaxId && <p>{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</p>}
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-4">// line_items[]</p>
         <table className="w-full border-collapse text-[11px]">
           <thead>
-            <tr className="border-b-2 border-[#111]">
+            <tr className="border-b-2 border-[color:var(--color-ink)]">
               <th className="py-2 text-left font-normal text-[color:var(--color-ink-2)] text-[10px] uppercase tracking-wider">description</th>
               <th className="py-2 text-center w-[50px] font-normal text-[color:var(--color-ink-2)] text-[10px]">qty</th>
               <th className="py-2 text-right w-[100px] font-normal text-[color:var(--color-ink-2)] text-[10px]">rate</th>
@@ -80,7 +80,7 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
                 if (milestoneHeaderCount <= 1) return null;
 
                 return (
-                  <tr key={item.id} className="bg-[#f5f5f0]">
+                  <tr key={item.id} className="bg-[color:var(--color-paper)]">
                     <td colSpan={3} className="py-3 px-3">
                       <span className="text-[10px] text-green-600 font-bold">▸ </span>
                       <span className="text-[12px] font-bold capitalize">{item.description}</span>
@@ -113,12 +113,12 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
         <div className="w-[280px] space-y-2">
           <MilestoneSummaryBlock data={data} />
           <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
-            <span>subtotal</span><span className="font-bold text-[#111]">{data.subtotalFormatted}</span>
+            <span>subtotal</span><span className="font-bold text-[color:var(--color-ink)]">{data.subtotalFormatted}</span>
           </div>
           <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
-            <span>{data.taxLabel}</span><span className="font-bold text-[#111]">{data.taxFormatted}</span>
+            <span>{data.taxLabel}</span><span className="font-bold text-[color:var(--color-ink)]">{data.taxFormatted}</span>
           </div>
-          <div className="pt-3 mt-2 border-t-2 border-[#111] flex justify-between items-baseline">
+          <div className="pt-3 mt-2 border-t-2 border-[color:var(--color-ink)] flex justify-between items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-widest">total_due</span>
             <span className="text-[24px] font-bold text-green-600">{data.grandTotalFormatted}</span>
           </div>
@@ -140,8 +140,8 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           {data.hasBankDetails && (
             <div>
               <p className="text-[10px] text-[color:var(--color-ink-2)] uppercase tracking-widest mb-2">// bank_details</p>
-              <div className="text-[11px] text-[color:var(--color-ink)] space-y-0.5 bg-[#f5f5f0] p-3">
-                <p className="font-bold text-[#111]">{data.bankName}</p>
+              <div className="text-[11px] text-[color:var(--color-ink)] space-y-0.5 bg-[color:var(--color-paper)] p-3">
+                <p className="font-bold text-[color:var(--color-ink)]">{data.bankName}</p>
                 {!data.isInternational ? (
                   <><p>acc: {data.accountNumber}</p><p>ifsc: {data.ifscCode}</p></>
                 ) : (
@@ -170,13 +170,13 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           ) : (
             <p className="text-[16px] font-bold mb-2">{data.authorizedSignatory || data.agencyName}</p>
           )}
-          <div className="h-px w-40 bg-[#111] ml-auto mb-1" />
+          <div className="h-px w-40 bg-[color:var(--color-ink)] ml-auto mb-1" />
           <p className="text-[9px] text-[color:var(--color-ink-2)] uppercase tracking-widest">digital_signature</p>
         </div>
       </section>
 
       {data.reverseCharge && (
-        <div className="mt-8 border border-[#111] px-4 py-3 text-center">
+        <div className="mt-8 border border-[color:var(--color-ink)] px-4 py-3 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest">★ Tax is payable on reverse charge basis ★</p>
         </div>
       )}

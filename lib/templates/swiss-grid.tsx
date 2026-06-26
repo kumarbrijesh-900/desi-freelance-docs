@@ -23,7 +23,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1D3557] bg-white min-h-[295mm] tabular-nums pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.04] print:hidden"
@@ -95,10 +95,10 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
             </p>
           )}
           {(data.showAgencyGstin || data.agencyPan) && (
-            <div className="mt-1.5 flex flex-wrap gap-4 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
+            <div className="mt-1.5 flex flex-wrap gap-4 text-[9px] uppercase tracking-[0.15em] text-[#457B9D]">
               {data.agencyState && (
                 <span>
-                  {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                  {data.agencyState}
                 </span>
               )}
               {data.showAgencyGstin && <span>GSTIN {data.agencyGstin}</span>}
@@ -127,7 +127,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                 key={label}
                 className="flex items-baseline gap-2 text-[10px]"
               >
-                <span className="w-12 shrink-0 font-bold uppercase tracking-[0.2em] text-[#A8DADC]">
+                <span className="w-12 shrink-0 font-bold uppercase tracking-[0.2em] text-[#457B9D]">
                   {label}
                 </span>
                 <span className="font-bold text-[#1D3557]">{value}</span>
@@ -171,10 +171,10 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
             </p>
           )}
           {(data.clientState || data.clientTaxId) && (
-            <div className="mt-1 flex flex-col gap-0.5 text-[9px] uppercase tracking-[0.15em] text-[#A8DADC]">
+            <div className="mt-1 flex flex-col gap-0.5 text-[9px] uppercase tracking-[0.15em] text-[#457B9D]">
               {data.clientState && (
-                <span>
-                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                <span className="font-semibold">
+                  Place of Supply: {data.clientState}
                 </span>
               )}
               {data.clientTaxId && (
@@ -225,7 +225,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                         </div>
                       </td>
                       <td colSpan={3} className="px-2 py-3 text-right align-bottom">
-                        <div className="text-[7px] font-bold uppercase tracking-[0.4em] text-[#A8DADC] mb-0.5">
+                        <div className="text-[7px] font-bold uppercase tracking-[0.4em] text-[#457B9D] mb-0.5">
                           Subtotal
                         </div>
                         <div className="font-mono text-[14px] font-bold text-[#1D3557]">
@@ -255,7 +255,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                         )}
                         {item.sacCode && (
                           <span>
-                            <span className="text-[#A8DADC]">HSN/SAC:</span>{" "}
+                            <span className="text-[#457B9D]">HSN/SAC:</span>{" "}
                             <span className="font-bold text-[#1D3557]">
                               {item.sacCode}
                             </span>
@@ -350,7 +350,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
           <div className="space-y-1.5 text-[11px]">
             <MilestoneSummaryBlock data={data} textColor="#A8DADC" borderColor="#A8DADC" accentColor="#1D3557" />
             <div className="flex justify-between">
-              <span className="font-bold uppercase tracking-[0.15em] text-[#A8DADC]">
+              <span className="font-bold uppercase tracking-[0.15em] text-[#457B9D]">
                 Subtotal
               </span>
               <span className="font-mono tabular-nums font-bold text-[#1D3557]">
@@ -358,7 +358,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-bold uppercase tracking-[0.15em] text-[#A8DADC]">
+              <span className="font-bold uppercase tracking-[0.15em] text-[#457B9D]">
                 {data.taxLabel}
               </span>
               <span className="font-mono tabular-nums font-bold text-[#1D3557]">
@@ -377,12 +377,12 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
             </div>
           </div>
           {data.approximateUsd && (
-            <p className="mt-1.5 text-right text-[9px] text-[#A8DADC]">
+            <p className="mt-1.5 text-right text-[9px] text-[#457B9D]">
               ≈ {data.approximateUsd}
             </p>
           )}
           {data.taxComplianceNote && (
-            <p className="mt-1.5 text-[9px] text-[#A8DADC]">
+            <p className="mt-1.5 text-[9px] text-[#457B9D]">
               {data.taxComplianceNote}
             </p>
           )}
@@ -418,7 +418,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                   alt="Signature"
                   className="h-10 w-auto object-contain brightness-0"
                 />
-                <p className="text-[8px] italic text-[#A8DADC]">
+                <p className="text-[8px] italic text-[#457B9D]">
                   Digitally Signed
                 </p>
               </div>
@@ -429,7 +429,7 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                 </p>
               </div>
             )}
-            <p className="mt-1 text-[9px] text-[#A8DADC]">Signature</p>
+            <p className="mt-1 text-[9px] text-[#457B9D]">Signature</p>
           </div>
         </div>
       </section>

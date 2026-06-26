@@ -11,7 +11,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['Space_Grotesk',_'DM_Sans',_sans-serif] text-black bg-white min-h-[295mm] tabular-nums pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
 
       {/* ── Header: asymmetric split ─────────── */}
@@ -57,7 +57,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           {data.agencyAddress && data.agencyAddress !== "—" && (
             <p className="text-[11px] leading-relaxed whitespace-pre-line">{data.agencyAddress}</p>
           )}
-          {data.agencyState && <p className="text-[10px] text-black/50 mt-1">{data.agencyState?.replace(/\s*\(\d+\)/, '')}</p>}
+          {data.agencyState && <p className="text-[10px] text-black/50 mt-1">{data.agencyState}</p>}
           {data.showAgencyGstin && <p className="text-[10px] font-bold mt-1">GSTIN {data.agencyGstin}</p>}
           {data.agencyPan && <p className="text-[10px] text-black/50">PAN {data.agencyPan}</p>}
         </div>
@@ -67,7 +67,7 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           {data.clientAddress && data.clientAddress !== "—" && (
             <p className="text-[11px] text-black/60 leading-relaxed whitespace-pre-line mt-1">{data.clientAddress}</p>
           )}
-          {data.clientState && <p className="text-[10px] text-black/40 mt-1">{data.clientState?.replace(/\s*\(\d+\)/, '')}</p>}
+          {data.clientState && <p className="text-[10px] text-black/40 mt-1">Place of Supply: {data.clientState}</p>}
           {data.clientTaxId && <p className="text-[10px] mt-0.5">{data.clientTaxLabel?.replace('Client ', '').replace(' (Optional)', '')}: {data.clientTaxId}</p>}
         </div>
       </section>
