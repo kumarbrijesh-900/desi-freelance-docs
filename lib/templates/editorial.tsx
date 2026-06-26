@@ -8,7 +8,7 @@
  *
  * Key elements:
  * • Huge 48px invoice number — the hero element
- * • Warm off-white (#F8F7F4) surface tone
+ * • Warm off-white surface tone (--color-paper-2)
  * • Hairline (0.5px) dividers — delicate, refined
  * • Body items as editorial cards, not table rows
  * • System serif (Georgia) for headings — timeless
@@ -22,9 +22,9 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#27272F] bg-[#F8F7F4] min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['DM_Sans',_sans-serif] text-[color:var(--color-ink)] bg-[color:var(--color-paper-2)] min-h-[295mm] tabular-nums pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
-      <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[#27272F]/[0.02] -rotate-12 z-0 print:hidden">
+      <div className="absolute top-[20%] -left-10 select-none pointer-events-none text-[240px] font-['Georgia',_serif] italic text-[color:var(--color-ink)] opacity-[0.02] -rotate-12 z-0 print:hidden">
         INV
       </div>
 
@@ -33,7 +33,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(45deg, #27272F 0, #27272F 1px, transparent 0, transparent 50%)",
+            "repeating-linear-gradient(45deg, var(--color-ink) 0, var(--color-ink) 1px, transparent 0, transparent 50%)",
           backgroundSize: "3px 3px",
         }}
       />
@@ -41,12 +41,12 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
         style={{
-          backgroundImage: "radial-gradient(#27272F 0.8px, transparent 0.8px)",
+          backgroundImage: "radial-gradient(var(--color-ink) 0.8px, transparent 0.8px)",
           backgroundSize: "20px 20px",
         }}
       />
 
-      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] bg-[#EEEBE5] rounded-full blur-[120px] opacity-20 z-0 pointer-events-none print:hidden" />
+      <div className="absolute top-[30%] right-[10%] w-[400px] h-[400px] bg-[color:var(--color-soft)] rounded-full blur-[120px] opacity-20 z-0 pointer-events-none print:hidden" />
 
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.4] mix-blend-multiply print:hidden"
@@ -57,7 +57,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       />
 
       {/* ── Top accent line ───────────────────── */}
-      <div className="relative z-10 h-[1px] w-full bg-[#27272F] print:bg-black" />
+      <div className="relative z-10 h-[1px] w-full bg-[color:var(--color-ink)] print:bg-black" />
 
       {/* ── Masthead ──────────────────────────── */}
       <header className="pb-6 pt-6">
@@ -72,21 +72,21 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                 />
               )}
             </div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-[#999]">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
               Issued by
             </p>
-            <h1 className="mt-1 font-['Georgia',_serif] text-[22px] font-normal italic leading-tight text-[#27272F]">
+            <h1 className="mt-1 font-['Georgia',_serif] text-[22px] font-normal italic leading-tight text-[color:var(--color-ink)]">
               {data.agencyName}
             </h1>
           </div>
 
           {/* Oversized invoice number — the hero */}
           <div className="text-right">
-            <p className="font-['Georgia',_serif] text-[48px] font-normal leading-none tracking-tight text-[#27272F] md:text-[56px]">
+            <p className="font-['Georgia',_serif] text-[48px] font-normal leading-none tracking-tight text-[color:var(--color-ink)] md:text-[56px]">
               {data.invoiceNumber}
             </p>
-            {data.poNumber && <><p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#999]">PO Number</p><p className="font-[\'Georgia\',_serif] text-[24px] text-[#27272F]">{data.poNumber}</p></>}
-            <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[#999]">
+            {data.poNumber && <><p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">PO Number</p><p className="font-[\'Georgia\',_serif] text-[24px] text-[color:var(--color-ink)]">{data.poNumber}</p></>}
+            <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">
               {data.invoiceDate}
             </p>
           </div>
@@ -94,72 +94,72 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       </header>
 
       {/* ── Hairline ─────────────────────────── */}
-      <div className="h-[0.5px] w-full bg-[#D8D5CE] print:bg-[#ccc]" />
+      <div className="h-[0.5px] w-full bg-[color:var(--color-soft)] print:bg-[color:var(--color-soft)]" />
 
       {/* ── Meta Strip ───────────────────────── */}
       <div className="grid grid-cols-3 gap-4 py-4 text-[11px]">
         <div>
-          <p className="uppercase tracking-[0.2em] text-[#999]">Due Date</p>
-          <p className="mt-1 font-normal text-[#27272F]">{data.dueDate}</p>
+          <p className="uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">Due Date</p>
+          <p className="mt-1 font-normal text-[color:var(--color-ink)]">{data.dueDate}</p>
         </div>
         <div>
-          <p className="uppercase tracking-[0.2em] text-[#999]">Terms</p>
-          <p className="mt-1 font-normal text-[#27272F]">{data.paymentTerms}</p>
+          <p className="uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">Terms</p>
+          <p className="mt-1 font-normal text-[color:var(--color-ink)]">{data.paymentTerms}</p>
         </div>
         <div>
-          <p className="uppercase tracking-[0.2em] text-[#999]">Currency</p>
-          <p className="mt-1 font-normal text-[#27272F]">
+          <p className="uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">Currency</p>
+          <p className="mt-1 font-normal text-[color:var(--color-ink)]">
             {data.displayCurrency}
           </p>
         </div>
       </div>
 
-      <div className="h-[0.5px] w-full bg-[#D8D5CE] print:bg-[#ccc]" />
+      <div className="h-[0.5px] w-full bg-[color:var(--color-soft)] print:bg-[color:var(--color-soft)]" />
 
       {/* ── Parties — Editorial two-panel ────── */}
       <section className="relative z-10 grid gap-6 py-5 md:grid-cols-2">
-        <div className="md:pr-6 md:border-r md:border-[#EEEBE5]">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+        <div className="md:pr-6 md:border-r md:border-[color:var(--color-soft)]">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
             From
           </p>
-          <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">
+          <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[color:var(--color-ink)]">
             {data.agencyName}
           </p>
           {data.agencyAddress && data.agencyAddress !== "—" && (
-            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
+            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[color:var(--color-ink-2)]">
               {data.agencyAddress}
             </p>
           )}
           {data.showAgencyGstin && (
-            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[#999]">
+            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[color:var(--color-ink-2)]">
               {data.agencyState && (
                 <span>
-                  {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                  {data.agencyState}
                 </span>
               )}
-              <span className="font-bold text-[#777]">
+              <span className="font-bold text-[color:var(--color-ink-2)]">
                 GSTIN {data.agencyGstin}
               </span>
             </div>
           )}
         </div>
         <div className="md:pl-6">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
             To
           </p>
-          <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[#27272F]">
+          <p className="mt-2 font-['Georgia',_serif] text-[15px] italic text-[color:var(--color-ink)]">
             {data.clientName}
           </p>
           {data.clientAddress && data.clientAddress !== "—" && (
-            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[#777]">
+            <p className="mt-1 whitespace-pre-line text-[12px] leading-5 text-[color:var(--color-ink-2)]">
               {data.clientAddress}
             </p>
           )}
           {(data.clientState || data.clientTaxId) && (
-            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[#999]">
+            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-[color:var(--color-ink-2)]">
               {data.clientState && (
-                <span>
-                  {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                <span className="font-semibold">
+                  Place of Supply: {data.clientState}
                 </span>
               )}
               {data.clientTaxId && (
@@ -172,11 +172,11 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         </div>
       </section>
 
-      <div className="h-[0.5px] w-full bg-[#D8D5CE] print:bg-[#ccc]" />
+      <div className="h-[0.5px] w-full bg-[color:var(--color-soft)] print:bg-[color:var(--color-soft)]" />
 
       {/* ── Line Items — Editorial card style ── */}
       <section className="py-5">
-        <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+        <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
           Services
         </p>
 
@@ -189,21 +189,21 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                 return (
                   <div
                     key={item.id}
-                    className="mt-6 flex items-end justify-between border-y border-[#EEEBE5] bg-[#EEEBE5]/40 px-4 py-4"
+                    className="mt-6 flex items-end justify-between border-y border-[color:var(--color-soft)] bg-[color:var(--color-paper-2)] px-4 py-4"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+                      <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
                         Milestone
                       </p>
-                      <p className="mt-1 font-['Georgia',_serif] text-[16px] font-bold italic text-[#27272F] capitalize">
+                      <p className="mt-1 font-['Georgia',_serif] text-[16px] font-bold italic text-[color:var(--color-ink)] capitalize">
                         {item.description}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[9px] uppercase tracking-[0.2em] text-[#999]">
+                      <p className="text-[9px] uppercase tracking-[0.2em] text-[color:var(--color-ink-2)]">
                         Subtotal
                       </p>
-                      <p className="text-[16px] font-normal tabular-nums text-[#27272F]">
+                      <p className="text-[16px] font-normal tabular-nums text-[color:var(--color-ink)]">
                         {item.groupSubtotalFormatted}
                       </p>
                     </div>
@@ -216,28 +216,28 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                 key={item.id}
                 className={`flex items-start justify-between gap-6 py-3 ${
                   i > 0 && !data.lineItems[i - 1].isMilestoneHeader
-                    ? "border-t border-[#EEEBE5] print:border-[#ddd]"
+                    ? "border-t border-[color:var(--color-soft)] print:border-[color:var(--color-soft)]"
                     : ""
                 }`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-['Georgia',_serif] text-[14px] italic leading-tight text-[#27272F]">
+                  <p className="font-['Georgia',_serif] text-[14px] italic leading-tight text-[color:var(--color-ink)]">
                     {item.description}
                   </p>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[#777]">
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-[color:var(--color-ink-2)]">
                     {item.type} · {item.qty} × {item.rateFormatted}
                   </p>
                   {item.sacCode && (
-                    <p className="mt-0.5 text-[10px] text-[#555]">
-                      <span className="text-[#999]">HSN/SAC:</span>{" "}
-                      <span className="font-bold text-[#27272F]">
+                    <p className="mt-0.5 text-[10px] text-[color:var(--color-ink-2)]">
+                      <span className="text-[color:var(--color-ink-2)]">HSN/SAC:</span>{" "}
+                      <span className="font-bold text-[color:var(--color-ink)]">
                         {item.sacCode}
                       </span>
                       {item.unit && (
-                        <span className="text-[#999]">
+                        <span className="text-[color:var(--color-ink-2)]">
                           {" "}
                           · Unit:{" "}
-                          <span className="font-bold text-[#555]">
+                          <span className="font-bold text-[color:var(--color-ink-2)]">
                             {item.unit}
                           </span>
                         </span>
@@ -245,7 +245,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                     </p>
                   )}
                 </div>
-                <p className="shrink-0 text-[15px] font-normal tabular-nums text-[#27272F]">
+                <p className="shrink-0 text-[15px] font-normal tabular-nums text-[color:var(--color-ink)]">
                   {item.amountFormatted}
                 </p>
               </div>
@@ -254,15 +254,15 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         </div>
       </section>
 
-      <div className="h-[0.5px] w-full bg-[#D8D5CE] print:bg-[#ccc]" />
+      <div className="h-[0.5px] w-full bg-[color:var(--color-soft)] print:bg-[color:var(--color-soft)]" />
 
       {/* ── Bottom: Totals + Payment ─────────── */}
       <section className="grid gap-6 py-5 md:grid-cols-[minmax(0,1fr)_220px]">
         {/* Left: Notes, License, Bank */}
-        <div className="space-y-4 text-[12px] leading-5 text-[#777]">
+        <div className="space-y-4 text-[12px] leading-5 text-[color:var(--color-ink-2)]">
           {data.hasNotes && (
             <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
                 Notes
               </p>
               <p className="mt-1.5 whitespace-pre-line">{data.notes}</p>
@@ -271,7 +271,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
 
           {data.hasLicense && (
             <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
                 License
               </p>
               <p className="mt-1.5">
@@ -283,7 +283,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
 
           {data.hasBankDetails && (
             <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
                 Payment
               </p>
               <div className="mt-1.5 space-y-0.5">
@@ -306,7 +306,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                   </>
                 )}
                 {data.lineItems.some((i) => i.isMilestoneHeader) && (
-                  <p className="mt-2 text-[10px] italic text-[#999] border-t border-[#EEEBE5] pt-1.5">
+                  <p className="mt-2 text-[10px] italic text-[color:var(--color-ink-2)] border-t border-[color:var(--color-soft)] pt-1.5">
                     Note: Please transfer the relevant Milestone Subtotal as outlined above.
                   </p>
                 )}
@@ -316,7 +316,7 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
 
           {data.hasQrCode && (
             <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--color-ink-2)]">
                 Scan to Pay
               </p>
               <div className="mt-2 h-20 w-20 flex items-center justify-center overflow-hidden">
@@ -333,35 +333,35 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
         {/* Right: Totals */}
         <div className="self-end">
           <div className="space-y-2 text-[13px]">
-            <MilestoneSummaryBlock data={data} textColor="#777" borderColor="#EEEBE5" accentColor="#27272F" />
-            <div className="flex justify-between text-[#777]">
+            <MilestoneSummaryBlock data={data} textColor="var(--color-ink-2)" borderColor="var(--color-soft)" accentColor="var(--color-ink)" />
+            <div className="flex justify-between text-[color:var(--color-ink-2)]">
               <span>Subtotal</span>
               <span className="tabular-nums">{data.subtotalFormatted}</span>
             </div>
-            <div className="flex justify-between text-[#777]">
+            <div className="flex justify-between text-[color:var(--color-ink-2)]">
               <span>{data.taxLabel}</span>
               <span className="tabular-nums">{data.taxFormatted}</span>
             </div>
           </div>
 
-          <div className="mt-3 border-t border-[#27272F] pt-3 print:border-black">
+          <div className="mt-3 border-t border-[color:var(--color-ink)] pt-3 print:border-black">
             <div className="flex items-baseline justify-between">
-              <span className="font-['Georgia',_serif] text-[12px] italic text-[#777]">
+              <span className="font-['Georgia',_serif] text-[12px] italic text-[color:var(--color-ink-2)]">
                 Total Due
               </span>
-              <span className="font-['Georgia',_serif] text-[28px] font-normal text-[#27272F]">
+              <span className="font-['Georgia',_serif] text-[28px] font-normal text-[color:var(--color-ink)]">
                 {data.grandTotalFormatted}
               </span>
             </div>
           </div>
 
           {data.approximateUsd && (
-            <p className="mt-2 text-right text-[11px] text-[#999]">
+            <p className="mt-2 text-right text-[11px] text-[color:var(--color-ink-2)]">
               ≈ {data.approximateUsd}
             </p>
           )}
           {data.taxComplianceNote && (
-            <p className="mt-2 text-[10px] leading-4 text-[#999]">
+            <p className="mt-2 text-[10px] leading-4 text-[color:var(--color-ink-2)]">
               {data.taxComplianceNote}
             </p>
           )}
@@ -369,24 +369,24 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
       </section>
 
       {/* ── Compliance Footer ──────────────────── */}
-      <section className="mt-4 grid gap-4 border-t border-[#E0E0E0] pt-4 lg:grid-cols-2">
+      <section className="mt-4 grid gap-4 border-t border-[color:var(--color-soft)] pt-4 lg:grid-cols-2">
         {data.grandTotalRaw > 0 && (
           <div>
-            <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">
+            <p className="font-['Georgia',_serif] text-[11px] italic text-[color:var(--color-ink-2)]">
               Total Amount in Words
             </p>
-            <p className="mt-1 text-[12px] font-normal text-[#27272F]">
+            <p className="mt-1 text-[12px] font-normal text-[color:var(--color-ink)]">
               {data.amountInWords}
             </p>
             {data.reverseCharge && (
-              <p className="mt-2 font-['Georgia',_serif] text-[10px] font-bold italic tracking-[0.1em] text-[#27272F]">
+              <p className="mt-2 font-['Georgia',_serif] text-[10px] font-bold italic tracking-[0.1em] text-[color:var(--color-ink)]">
                 ★ Tax is Payable on Reverse Charge Basis ★
               </p>
             )}
           </div>
         )}
         <div>
-          <p className="font-['Georgia',_serif] text-[11px] italic text-[#777]">
+          <p className="font-['Georgia',_serif] text-[11px] italic text-[color:var(--color-ink-2)]">
             Authorized Signatory
           </p>
           <div className="mt-4 flex flex-col items-start">
@@ -397,18 +397,18 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
                   alt="Signature"
                   className="h-10 w-auto object-contain brightness-0"
                 />
-                <p className="text-[8px] italic text-[#999]">
+                <p className="text-[8px] italic text-[color:var(--color-ink-2)]">
                   Digitally Signed
                 </p>
               </div>
             ) : (
-              <div className="mt-2 w-full border-b border-[#27272F] pb-1">
-                <p className="text-[12px] font-normal text-[#555]">
+              <div className="mt-2 w-full border-b border-[color:var(--color-ink)] pb-1">
+                <p className="text-[12px] font-normal text-[color:var(--color-ink-2)]">
                   {data.authorizedSignatory || data.agencyName}
                 </p>
               </div>
             )}
-            <p className="mt-1 text-[10px] text-[#999]">Signature</p>
+            <p className="mt-1 text-[10px] text-[color:var(--color-ink-2)]">Signature</p>
           </div>
         </div>
       </section>
