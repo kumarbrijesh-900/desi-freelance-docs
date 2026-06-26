@@ -22,7 +22,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[295mm] pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
+    <div className="font-['DM_Sans',_sans-serif] text-[#1A1A2E] bg-white min-h-[295mm] tabular-nums pt-[15mm] px-[15mm] pb-[10mm] box-border relative overflow-visible print:overflow-visible print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div className="absolute top-[10%] -right-20 w-96 h-96 bg-[#6C63FF]/[0.04] rounded-full blur-[120px] pointer-events-none z-0 print:hidden" />
       <div className="absolute bottom-[20%] -left-20 w-80 h-80 bg-[#9B93FF]/[0.05] rounded-full blur-[100px] pointer-events-none z-0 print:hidden" />
@@ -72,15 +72,15 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
               {data.agencyName}
             </h1>
             {data.agencyAddress && data.agencyAddress !== "—" && (
-              <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#F0F0F5]/50 print:text-[#777]">
+              <p className="mt-2 max-w-md whitespace-pre-line text-[12px] leading-5 text-[#F0F0F5]/50 print:text-[#666]">
                 {data.agencyAddress}
               </p>
             )}
             {(data.showAgencyGstin || data.agencyPan) && (
-              <div className="mt-1.5 flex flex-wrap gap-4 text-[10px] text-[#F0F0F5]/30 print:text-[#999]">
+              <div className="mt-1.5 flex flex-wrap gap-4 text-[10px] text-[#F0F0F5]/30 print:text-[#666]">
                 {data.agencyState && (
                   <span>
-                    {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                    {data.agencyState}
                   </span>
                 )}
                 {data.showAgencyGstin && <span>GSTIN: {data.agencyGstin}</span>}
@@ -96,8 +96,8 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             <p className="mt-1 text-[26px] font-bold text-[#F0F0F5] print:text-[#111]">
               {data.invoiceNumber}
             </p>
-            {data.poNumber && <><p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#F0F0F5]/50 print:text-[#888]">PO Number</p><p className="text-[18px] font-bold text-[#F0F0F5] print:text-[#111]">{data.poNumber}</p></>}
-            <div className="mt-2 space-y-1 text-[11px] text-[#F0F0F5]/50 print:text-[#888]">
+            {data.poNumber && <><p className="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#F0F0F5]/50 print:text-[#666]">PO Number</p><p className="text-[18px] font-bold text-[#F0F0F5] print:text-[#111]">{data.poNumber}</p></>}
+            <div className="mt-2 space-y-1 text-[11px] text-[#F0F0F5]/50 print:text-[#666]">
               <p>{data.invoiceDate}</p>
               <p>Due {data.dueDate}</p>
               <p>{data.paymentTerms}</p>
@@ -118,10 +118,10 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           </p>
         )}
         {(data.clientState || data.clientTaxId) && (
-          <div className="mt-1.5 flex flex-col gap-0.5 text-[10px] text-[#999]">
+          <div className="mt-1.5 flex flex-col gap-0.5 text-[10px] text-[#666]">
             {data.clientState && (
-              <span>
-                {data.clientState?.replace(/\s*\(\d+\)/, '')}
+              <span className="font-semibold">
+                Place of Supply: {data.clientState}
               </span>
             )}
             {data.clientTaxId && (
@@ -139,7 +139,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#6C63FF] print:text-[#666]">
             Services
           </p>
-          <p className="text-[10px] text-[#999]">
+          <p className="text-[10px] text-[#666]">
             {data.itemCount} item{data.itemCount !== 1 ? "s" : ""}
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
         {/* Responsive Ledger */}
         <div className="mt-6">
           {/* Table Header - Desktop Only */}
-          <div className="hidden md:grid md:grid-cols-[1fr_80px_120px_80px_110px] gap-4 border-b border-[#6C63FF]/20 pb-3 text-[9px] uppercase tracking-[0.16em] text-[#999] px-2">
+          <div className="hidden md:grid md:grid-cols-[1fr_80px_120px_80px_110px] gap-4 border-b border-[#6C63FF]/20 pb-3 text-[9px] uppercase tracking-[0.16em] text-[#666] px-2">
             <div className="font-bold">Description</div>
             <div className="font-bold text-center">Qty</div>
             <div className="font-bold">Rate</div>
@@ -176,7 +176,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                       </p>
                     </div>
                     <div className="text-right mt-2 md:mt-0">
-                      <p className="text-[9px] uppercase tracking-[0.16em] text-[#999]">
+                      <p className="text-[9px] uppercase tracking-[0.16em] text-[#666]">
                         Subtotal
                       </p>
                       <p className="text-[15px] font-bold tabular-nums text-[#1A1A2E]">
@@ -199,13 +199,13 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                         {item.description}
                       </p>
                       {/* Desktop Subtext */}
-                      <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#888]">
+                      <div className="hidden md:flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-[10px] text-[#666]">
                         {item.type && (
-                          <span className="font-bold text-[#aaa]">{item.type}</span>
+                          <span className="font-bold text-[#666]">{item.type}</span>
                         )}
                         {item.sacCode && (
                           <span>
-                            HSN/SAC: <span className="font-bold text-[#ccc]">{item.sacCode}</span>
+                            HSN/SAC: <span className="font-bold text-[#666]">{item.sacCode}</span>
                           </span>
                         )}
                       </div>
@@ -224,11 +224,11 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                         {item.type || "Service"}
                       </span>
                       {item.sacCode && (
-                        <span className="text-[10px] text-[#999]">SAC {item.sacCode}</span>
+                        <span className="text-[10px] text-[#666]">SAC {item.sacCode}</span>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-[11px] text-[#888] font-normal">
+                      <p className="text-[11px] text-[#666] font-normal">
                         {item.qty} {item.unit} × {item.rateFormatted}
                       </p>
                     </div>
@@ -332,7 +332,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             </div>
           </div>
           <div className="mt-3 bg-gradient-to-br from-[#6C63FF] to-[#5548D9] px-4 py-3 text-right text-white print:bg-[#e8e8f0] print:text-[#111]">
-            <p className="text-[9px] uppercase tracking-[0.2em] text-white/60 print:text-[#888]">
+            <p className="text-[9px] uppercase tracking-[0.2em] text-white/60 print:text-[#666]">
               Total Due
             </p>
             <p className="mt-1 text-[22px] font-bold tabular-nums">
@@ -340,12 +340,12 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
             </p>
           </div>
           {data.approximateUsd && (
-            <p className="mt-2 text-right text-[10px] text-[#999]">
+            <p className="mt-2 text-right text-[10px] text-[#666]">
               ≈ {data.approximateUsd}
             </p>
           )}
           {data.taxComplianceNote && (
-            <p className="mt-2 text-[10px] text-[#999]">
+            <p className="mt-2 text-[10px] text-[#666]">
               {data.taxComplianceNote}
             </p>
           )}
@@ -356,7 +356,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
       <section className="mt-4 grid gap-4 border-t border-[#E8E8F0] pt-4 lg:grid-cols-2">
         {data.grandTotalRaw > 0 && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">
               Amount in Words
             </p>
             <p className="mt-1.5 text-[12px] font-bold text-[#1A1A2E]">
@@ -370,7 +370,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
           </div>
         )}
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#888]">
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#6C63FF] print:text-[#666]">
             Authorized Signatory
           </p>
           <div className="mt-4 flex flex-col items-start">
@@ -381,7 +381,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                   alt="Signature"
                   className="h-10 w-auto object-contain brightness-0"
                 />
-                <p className="text-[8px] italic text-[#999]">
+                <p className="text-[8px] italic text-[#666]">
                   Digitally Signed
                 </p>
               </div>
@@ -392,7 +392,7 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                 </p>
               </div>
             )}
-            <p className="mt-1 text-[10px] text-[#999]">Signature</p>
+            <p className="mt-1 text-[10px] text-[#666]">Signature</p>
           </div>
         </div>
       </section>
