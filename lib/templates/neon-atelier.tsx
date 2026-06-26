@@ -21,7 +21,7 @@ import { MilestoneSummaryBlock } from "./MilestoneSummaryBlock";
 
 export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
   return (
-    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[295mm] w-full max-w-[210mm] mx-auto relative overflow-visible print:overflow-visible print:m-0 print:border-none print:min-h-0 print:h-auto">
+    <div className="font-inter text-[#111118] bg-[#FAF9F6] min-h-[295mm] tabular-nums w-full max-w-[210mm] mx-auto relative overflow-visible print:overflow-visible print:m-0 print:border-none print:min-h-0 print:h-auto">
       {/* ── Background Elements ────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] print:hidden"
@@ -80,7 +80,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 <div className="flex flex-wrap gap-x-3 pt-1">
                   {data.agencyState && (
                     <span>
-                      {data.agencyState?.replace(/\s*\(\d+\)/, '')}
+                      {data.agencyState}
                     </span>
                   )}
                   {data.showAgencyGstin && (
@@ -93,7 +93,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
           </div>
 
           <div className="text-right text-white print:text-[#111118] pt-4">
-            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
+            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#666] block mb-2">
               Invoice Reference
             </span>
             <div className="font-outfit text-[18px] font-bold tracking-wider">
@@ -101,7 +101,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             </div>
             {data.poNumber && <><span className="text-[10px] font-black uppercase tracking-widest text-[#FF1493] block mb-2 border-b-2 border-[#111118] pb-1 mt-6">PO Number</span><div className="font-outfit text-[16px] font-bold tracking-wider">{data.poNumber}</div></>}
             <div className="mt-8">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#666] block mb-2">
                 Issue Date
               </span>
               <div className="font-outfit text-[16px] font-bold">
@@ -109,7 +109,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               </div>
             </div>
             <div className="mt-4">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#A8A08E] block mb-2">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#666] block mb-2">
                 Due Date
               </span>
               <div className="font-outfit text-[16px] font-bold">
@@ -132,7 +132,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
         {/* ── Parties Grid ──────────────────── */}
         <section className="grid grid-cols-2 gap-x-[30mm] mb-12 items-start">
           <div className="border-l-4 border-[#00C896] pl-5 py-1">
-            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#A8A08E] block mb-3">
+            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#666] block mb-3">
               Bill To
             </span>
             <div className="font-outfit text-[24px] font-extrabold text-[#111118] mb-2">
@@ -144,10 +144,10 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
               </p>
             )}
             {(data.clientState || data.clientTaxId) && (
-              <div className="mt-2 flex flex-col gap-0.5 text-[10px] font-bold text-[#A8A08E] uppercase tracking-wider">
+              <div className="mt-2 flex flex-col gap-0.5 text-[10px] font-bold text-[#666] uppercase tracking-wider">
                 {data.clientState && (
-                  <span>
-                    {data.clientState?.replace(/\s*\(\d+\)/, '')}
+                  <span className="font-semibold">
+                    Place of Supply: {data.clientState}
                   </span>
                 )}
                 {data.clientTaxId && (
@@ -159,7 +159,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             )}
           </div>
           <div className="text-right">
-            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#A8A08E] block mb-3">
+            <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#666] block mb-3">
               Project Details
             </span>
             <div className="font-outfit text-[16px] font-bold text-[#2D5BFF]">
@@ -170,7 +170,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 CURRENCY: {data.displayCurrency}
               </p>
             )}
-            <p className="mt-2 text-[11px] text-[#999] font-normal uppercase tracking-tight">
+            <p className="mt-2 text-[11px] text-[#666] font-normal uppercase tracking-tight">
               Terms: {data.paymentTerms}
             </p>
           </div>
@@ -202,7 +202,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                     <tr key={item.id} className="bg-[#FAF9F6] border-y border-[#e8e6e1]">
                       <td colSpan={2} className="p-4">
                         <div className="flex flex-col gap-1">
-                          <span className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E]">
+                          <span className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#666]">
                             Milestone
                           </span>
                           <div className="font-outfit text-[18px] font-black text-[#111118] capitalize">
@@ -211,7 +211,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                         </div>
                       </td>
                       <td className="p-4 text-right align-bottom">
-                        <div className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-1">
+                        <div className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#666] mb-1">
                           Subtotal
                         </div>
                         <div className="font-outfit text-[16px] font-black text-[#111118]">
@@ -234,7 +234,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                         )}
                         {item.sacCode && (
                           <span>
-                            <span className="text-[#999]">HSN/SAC:</span>{" "}
+                            <span className="text-[#666]">HSN/SAC:</span>{" "}
                             <span className="font-bold text-[#333]">
                               {item.sacCode}
                             </span>
@@ -242,7 +242,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                         )}
                         {item.unit && (
                           <span>
-                            <span className="text-[#999]">Unit:</span>{" "}
+                            <span className="text-[#666]">Unit:</span>{" "}
                             <span className="font-bold">{item.unit}</span>
                           </span>
                         )}
@@ -266,31 +266,31 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
           <div className="flex justify-end items-stretch mb-10">
             <div className="text-right mr-8 pt-4">
               <MilestoneSummaryBlock data={data} textColor="#888" borderColor="#e8e6e1" accentColor="#2D5BFF" />
-              <div className="text-[12px] text-[#888] mb-2">
+              <div className="text-[12px] text-[#666] mb-2">
                 Subtotal:{" "}
                 <span className="font-bold text-[#111118]">
                   {data.subtotalFormatted}
                 </span>
               </div>
-              <div className="text-[12px] text-[#888]">
+              <div className="text-[12px] text-[#666]">
                 {data.taxLabel}:{" "}
                 <span className="font-bold text-[#111118]">
                   {data.taxFormatted}
                 </span>
               </div>
               {data.approximateUsd && (
-                <div className="text-[10px] text-[#A8A08E] mt-2 italic">
+                <div className="text-[10px] text-[#666] mt-2 italic">
                   ≈ {data.approximateUsd}
                 </div>
               )}
               {data.taxComplianceNote && (
-                <div className="text-[10px] text-[#A8A08E] mt-2 leading-4">
+                <div className="text-[10px] text-[#666] mt-2 leading-4">
                   {data.taxComplianceNote}
                 </div>
               )}
             </div>
             <div className="bg-[#2D5BFF] text-white print:bg-transparent print:text-[#111118] print:border-t-4 print:border-[#2D5BFF] p-8 print:py-4 print:px-0 min-w-[250px] text-right">
-              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/40 print:text-[#A8A08E] block mb-2">
+              <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/40 print:text-[#666] block mb-2">
                 Grand Total Due
               </span>
               <div className="font-outfit text-[42px] font-black leading-none">
@@ -333,7 +333,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   )}
                   {data.hasQrCode && (
                     <div>
-                      <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] mb-2">
+                      <p className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#666] mb-2">
                         Scan to Pay
                       </p>
                       <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
@@ -348,7 +348,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                 </div>
               </div>
               <div className="mt-4">
-                <span className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#A8A08E] block mb-1">
+                <span className="font-outfit text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#666] block mb-1">
                   Amount in Words
                 </span>
                 <p className="text-[11px] font-bold text-[#111118]">
@@ -359,7 +359,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
 
             <div className="text-right">
               <div className="mb-6">
-                <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#A8A08E] block mb-3">
+                <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-[#666] block mb-3">
                   Authorized Signatory
                 </span>
                 <div className="flex flex-col items-end gap-2">
@@ -375,12 +375,12 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                     </div>
                   )}
                   <div className="w-[150px] h-[1px] bg-[#111118]/20" />
-                  <p className="text-[8px] uppercase tracking-widest text-[#ccc]">
+                  <p className="text-[8px] uppercase tracking-widest text-[#666]">
                     Official Signature
                   </p>
                 </div>
               </div>
-              <p className="text-[9px] text-[#bbb] uppercase tracking-[0.1em]">
+              <p className="text-[9px] text-[#666] uppercase tracking-[0.1em]">
                 © 2026 {data.agencyName}. All Rights Reserved.
               </p>
             </div>
