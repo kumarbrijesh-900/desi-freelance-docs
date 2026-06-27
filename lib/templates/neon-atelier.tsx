@@ -92,7 +92,7 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
             </div>
           </div>
 
-          <div className="text-right text-white print:text-[#111118] pt-4">
+          <div className="text-right text-white print:text-[#111118] pt-4 pr-[10mm] print:pr-0">
             <span className="font-outfit text-[9px] uppercase tracking-[0.25em] font-extrabold text-white/50 print:text-[#666] block mb-2">
               Invoice Reference
             </span>
