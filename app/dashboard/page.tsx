@@ -272,19 +272,23 @@ function DashboardContent() {
     await loadProjects();
   };
 
-  const handleCloseProject = async (reason: string) => {
+  const handleCloseProject = async (reason: string, notifyClient: boolean) => {
     if (!closeProjectFor) return;
+    const projectName = closeProjectFor.name;
     const response = await fetch("/api/project/close", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ project_id: closeProjectFor.id, reason }),
+      body: JSON.stringify({ project_id: closeProjectFor.id, reason, notify_client: notifyClient }),
     });
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setActionMessage(payload.error || payload.reason || "Could not close the project.");
       return;
     }
-    setActionMessage(`${closeProjectFor.name} closed.`);
+    const payload = await response.json().catch(() => ({}));
+    setActionMessage(
+      payload.notified ? `${projectName} closed. The client was notified.` : `${projectName} closed.`,
+    );
     setCloseProjectFor(null);
     await loadProjects();
   };

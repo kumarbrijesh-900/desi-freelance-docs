@@ -14,7 +14,7 @@ interface CloseProjectModalProps {
   isOpen: boolean;
   projectName: string;
   onClose: () => void;
-  onConfirm: (reason: string) => void | Promise<void>;
+  onConfirm: (reason: string, notifyClient: boolean) => void | Promise<void>;
 }
 
 export function CloseProjectModal({
@@ -25,6 +25,7 @@ export function CloseProjectModal({
 }: CloseProjectModalProps) {
   const [selected, setSelected] = useState("");
   const [otherText, setOtherText] = useState("");
+  const [notifyClient, setNotifyClient] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const isOther = selected === "Other";
@@ -34,6 +35,7 @@ export function CloseProjectModal({
   const reset = () => {
     setSelected("");
     setOtherText("");
+    setNotifyClient(false);
     setSubmitting(false);
   };
 
@@ -46,7 +48,7 @@ export function CloseProjectModal({
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      await onConfirm(reason);
+      await onConfirm(reason, notifyClient);
       reset();
     } finally {
       setSubmitting(false);
@@ -103,6 +105,21 @@ export function CloseProjectModal({
           className="mt-3 w-full rounded-xl border-2 border-soft focus:border-coral focus:outline-none px-4 py-3 text-sm text-ink resize-none"
         />
       )}
+
+      <label className="mt-5 flex items-start gap-3 px-4 py-3 rounded-xl border-2 border-soft cursor-pointer hover:border-ink/40 transition-all">
+        <input
+          type="checkbox"
+          checked={notifyClient}
+          onChange={(e) => setNotifyClient(e.target.checked)}
+          className="mt-0.5 accent-coral"
+        />
+        <span className="text-sm font-bold text-ink leading-snug">
+          Email the client a brief closure notice
+          <span className="block text-[12px] font-semibold text-ink-2 mt-0.5">
+            A short, neutral note that the project is no longer active. Your reason for closing is never shared.
+          </span>
+        </span>
+      </label>
 
       <div className="mt-6 flex items-center justify-end gap-2">
         <button
