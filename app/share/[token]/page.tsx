@@ -129,6 +129,13 @@ export default function PublicInvoiceSharePage({
         });
       }
 
+      // Email the agency owner (server-side; fire-and-forget, never blocks the client)
+      fetch("/api/msa-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareToken: token }),
+      }).catch(() => {});
+
       // Success: Reveal the invoice
       setMsaStatus("accepted");
       setMsaResponse("accepted");
@@ -170,6 +177,13 @@ export default function PublicInvoiceSharePage({
           is_read: false
         });
       }
+
+      // Email the agency owner with the client's note (server-side; fire-and-forget)
+      fetch("/api/msa-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareToken: token }),
+      }).catch(() => {});
 
       setMsaStatus("proposed");
       setMsaResponse(note.trim());

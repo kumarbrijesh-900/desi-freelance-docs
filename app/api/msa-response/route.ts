@@ -1,148 +1,148 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { createClient as createServerClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
-const MsaResponseSchema = z.object({
-  shareToken: z.string().min(1, "shareToken is required"),
-  response: z.enum(["ACCEPTED", "REVISION ASKED", "PENDING"]),
-  note: z.string().max(2000).trim().optional().nullable(),
-});
-
 /**
  * POST /api/msa-response
- * Handles client response (accept/reject) to an MSA.
- * Updates the database and notifies the agency owner.
+ * Emails the agency owner when their client responds to the MSA on the public
+ * share page (accepts, or proposes changes). The share page itself performs the
+ * invoice update and writes the in-app notification; this route ONLY sends the
+ * owner email, because Resend is a server-side secret and cannot run in the
+ * browser. The share page calls it fire-and-forget, so it never blocks the client.
+ *
+ * The email type is derived from the invoice's CURRENT msa_status (not from any
+ * client-supplied flag), so it always reflects real state and cannot be spoofed
+ * into sending the wrong notice.
  */
+
+const Schema = z.object({
+  shareToken: z.string().min(1),
+});
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
-  const supabaseAuth = await createServerClient();
 
   try {
-    const body = await req.json();
-    const result = MsaResponseSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: result.error.flatten() },
-        { status: 400 },
-      );
+    const body = await req.json().catch(() => null);
+    const parsed = Schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
-    const { shareToken, response, note } = result.data;
+    const { shareToken } = parsed.data;
 
-    // 0. Fetch the invoice to check ownership
-    const { data: existingInvoice, error: fetchErr } = await supabaseAdmin
+    const { data: invoice } = await supabaseAdmin
       .from("invoices")
-      .select("id, user_id, invoice_number, shared_to_email, form_data")
+      .select(
+        "id, user_id, invoice_number, shared_to_email, msa_status, client_msa_note, form_data",
+      )
       .eq("share_token", shareToken)
-      .single();
+      .maybeSingle();
 
-    if (fetchErr || !existingInvoice) {
-      console.error("MSA_RESPONSE_FETCH_ERROR:", fetchErr);
+    if (!invoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
     }
 
-    // SECURITY GUARD: invoice owners cannot accept or reject their own MSA.
-    // This protects the audit trail integrity. The agency can preview the
-    // share page but the acceptance action is reserved for the client.
-    const {
-      data: { user: __mssa_currentUser },
-    } = await supabaseAuth.auth.getUser();
-    if (
-      __mssa_currentUser &&
-      existingInvoice &&
-      __mssa_currentUser.id === existingInvoice.user_id
-    ) {
-      return NextResponse.json(
-        {
-          error: "owner_cannot_accept_own_msa",
-          message:
-            "The invoice owner cannot accept or reject their own MSA. Send the share link to your client.",
-        },
-        { status: 403 }
-      );
+    const status = (invoice.msa_status || "").toLowerCase();
+    const accepted = status === "accepted";
+    const proposed = status === "proposed";
+    // Only these two states warrant an owner email.
+    if (!accepted && !proposed) {
+      return NextResponse.json({ success: true, emailed: false });
     }
 
-    // 1. Update the invoice status
-    const { data: inv, error: updateErr } = await supabaseAdmin
-      .from("invoices")
-      .update({
-        msa_status: response,
-        msa_response: response, // Keep legacy field synced
-        msa_responded_at: new Date().toISOString(),
-        client_msa_note: note || null,
-      })
-      .eq("id", existingInvoice.id)
-      .select("id, user_id, invoice_number, shared_to_email, form_data")
-      .single();
-
-    if (updateErr || !inv) {
-      console.error("MSA_RESPONSE_UPDATE_ERROR:", updateErr);
-      return NextResponse.json({ error: "Invoice not found or update failed" }, { status: 404 });
-    }
-
-    // 2. Fetch agency owner email and profile
+    // Agency email lives only in auth.users; display name in user_profiles.
     const { data: profile } = await supabaseAdmin
       .from("user_profiles")
-      .select("agency_name, user_id")
-      .eq("user_id", inv.user_id)
-      .single();
-    
-    // Get user email from auth
-    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(inv.user_id);
-    const ownerEmail = userData?.user?.email;
-
-    const agencyName = profile?.agency_name || "Agency Owner";
-
-    // 3. Send email notification to agency owner
-    if (ownerEmail) {
-      const subject = response === "ACCEPTED" 
-        ? `Action Required: MSA Accepted for Invoice ${inv.invoice_number}`
-        : `Action Required: MSA Changes Proposed for Invoice ${inv.invoice_number}`;
-      
-      const message = response === "ACCEPTED"
-        ? `Great news! Your client (${inv.shared_to_email}) has accepted the Master Service Agreement and viewed Invoice ${inv.invoice_number}.`
-        : `Your client (${inv.shared_to_email}) has proposed changes to the MSA for Invoice ${inv.invoice_number}.<br/><br/><strong>Proposal:</strong> "${note}"`;
-
-      await resend.emails.send({
-        from: "Lance Notifications <notifications@lanceinvoice.xyz>",
-        to: ownerEmail,
-        subject: subject,
-        html: `
-          <div style="font-family:sans-serif;padding:24px;border:1px solid #eee;border-radius:12px;max-width:500px;">
-            <h2 style="margin-top:0;font-size:18px;">${subject}</h2>
-            <p style="color:#444;line-height:1.6;font-size:15px;">${message}</p>
-            <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
-            <p style="font-size:12px;color:#888;">Log in to your <a href="https://lanceinvoice.xyz/invoices" style="color:#111;font-weight:700;">Lance dashboard</a> to view full details and reissue the invoice.</p>
-          </div>
-        `
-      });
+      .select("agency_name")
+      .eq("user_id", invoice.user_id)
+      .maybeSingle();
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(
+      invoice.user_id,
+    );
+    const agencyEmail = userData?.user?.email;
+    if (!agencyEmail) {
+      return NextResponse.json({ success: true, emailed: false });
     }
 
-    // 4. Create in-app notification
-    const notificationTitle = response === "ACCEPTED" ? "MSA Approved" : "MSA Changes Proposed";
-    const notificationMessage = response === "ACCEPTED"
-      ? `Client has accepted the MSA and viewed Invoice ${inv.invoice_number}.`
-      : `Client has proposed changes to the MSA for Invoice ${inv.invoice_number}. View Proposal.`;
+    const agencyName = profile?.agency_name || "there";
+    const clientName =
+      (invoice.form_data as any)?.client?.clientName ||
+      (invoice.form_data as any)?.client?.name ||
+      "Your client";
+    const invoiceNumber = invoice.invoice_number || "your invoice";
+    const clientEmail = invoice.shared_to_email || "your client";
+    const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://lanceinvoice.xyz"}/dashboard`;
+    const note = (invoice.client_msa_note || "").trim();
 
-    await supabaseAdmin.from("notifications").insert({
-      user_id: inv.user_id,
-      type: `msa_${response}`,
-      title: notificationTitle,
-      message: notificationMessage,
-      invoice_id: inv.id,
-      is_read: false,
+    const subject = accepted
+      ? `${clientName} accepted your terms — Invoice ${invoiceNumber}`
+      : `${clientName} proposed changes — Invoice ${invoiceNumber}`;
+    const headline = accepted ? "Terms accepted" : "Client proposed changes";
+    const intro = accepted
+      ? `Good news — ${clientName} (${clientEmail}) accepted the Master Service Agreement for invoice ${invoiceNumber}. You're clear to begin work.`
+      : `${clientName} (${clientEmail}) reviewed the Master Service Agreement for invoice ${invoiceNumber} and proposed changes before accepting.`;
+    const noteBlock =
+      proposed && note
+        ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+               <tr><td style="border-left:4px solid #c8943b;background:#f6ecd6;padding:16px 20px;">
+                 <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#a5772a;">What the client wrote</p>
+                 <p style="margin:0;font-size:15px;line-height:1.6;color:#4b5563;white-space:pre-wrap;font-style:italic;">&quot;${escapeHtml(note)}&quot;</p>
+               </td></tr>
+             </table>`
+        : "";
+    const ctaLabel = accepted ? "Open dashboard →" : "Review &amp; reissue →";
+
+    await resend.emails.send({
+      from: "Lance Automated Alerts <invoices@lanceinvoice.xyz>",
+      to: agencyEmail,
+      subject,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+        <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+            <tr><td align="center">
+              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+                <tr><td style="background:#111118;padding:24px 32px;">
+                  <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
+                </td></tr>
+                <tr><td style="padding:40px 32px;">
+                  <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">${headline}</h1>
+                  <p style="margin:0 0 24px;font-size:16px;color:#4b5563;line-height:1.6;">${intro}</p>
+                  ${noteBlock}
+                  <a href="${dashboardUrl}" style="display:inline-block;background-color:#1e3d33;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">${ctaLabel}</a>
+                </td></tr>
+                <tr><td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
+                  <p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers</p>
+                </td></tr>
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+      `,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, emailed: true });
   } catch (err: any) {
-    console.error("MSA_RESPONSE_CRITICAL_ERROR:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("MSA_RESPONSE_EMAIL_ERROR:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
