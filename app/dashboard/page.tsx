@@ -253,19 +253,20 @@ function DashboardContent() {
       return;
     }
 
-    const response = await fetch("/api/share-invoice", {
+    // NUDGE CLIENT uses the dedicated reminder endpoint (no share lock-state gate).
+    const response = await fetch("/api/invoice/nudge-client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ invoiceId: state.invoice.id, clientEmail, tone: "polite" }),
+      body: JSON.stringify({ invoice_id: state.invoice.id }),
     });
 
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      setActionMessage(payload.error || payload.reason || "Could not resend this invoice.");
+      setActionMessage(payload.error || payload.reason || "Could not send the reminder.");
       return;
     }
 
-    setActionMessage("Invoice resent to client.");
+    setActionMessage("Reminder sent to client.");
     await loadProjects();
   };
 

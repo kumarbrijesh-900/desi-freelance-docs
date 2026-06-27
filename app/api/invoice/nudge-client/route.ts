@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     /* ── 2. Fetch agency profile ── */
     const { data: profile } = await supabaseAdmin
       .from("user_profiles")
-      .select("email, agency_name")
+      .select("agency_name")
       .eq("user_id", invoice.user_id)
       .maybeSingle();
 
