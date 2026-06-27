@@ -357,14 +357,16 @@ export default function SwissGridTemplate({ data }: InvoiceTemplateProps) {
                 {data.subtotalFormatted}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="font-bold uppercase tracking-[0.15em] text-[#457B9D]">
-                {data.taxLabel}
-              </span>
-              <span className="font-mono tabular-nums font-bold text-[#1D3557]">
-                {data.taxFormatted}
-              </span>
-            </div>
+            {data.taxRows.map((row) => (
+              <div key={row.label} className="flex justify-between">
+                <span className="font-bold uppercase tracking-[0.15em] text-[#457B9D]">
+                  {row.label}
+                </span>
+                <span className="font-mono tabular-nums font-bold text-[#1D3557]">
+                  {row.amountFormatted}
+                </span>
+              </div>
+            ))}
           </div>
           <div className="mt-2 border-t-[3px] border-t-[#E63946] pt-2 print:border-t-[#999]">
             <div className="flex items-baseline justify-between">

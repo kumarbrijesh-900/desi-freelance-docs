@@ -267,12 +267,14 @@ export default function ClassicTemplate({ data }: InvoiceTemplateProps) {
               {data.subtotalFormatted}
             </span>
           </div>
-          <div className="flex justify-between text-[13px] text-[color:var(--color-ink-2)]">
-            <span>{data.taxLabel}</span>
-            <span className="font-bold text-[color:var(--color-ink)]">
-              {data.taxFormatted}
-            </span>
-          </div>
+          {data.taxRows.map((row) => (
+            <div key={row.label} className="flex justify-between text-[13px] text-[color:var(--color-ink-2)]">
+              <span>{row.label}</span>
+              <span className="font-bold text-[color:var(--color-ink)]">
+                {row.amountFormatted}
+              </span>
+            </div>
+          ))}
           <div className="pt-4 border-t border-[color:var(--color-ink)] flex justify-between items-baseline">
             <span className="text-[11px] font-bold uppercase tracking-[0.2em]">
               Total Due

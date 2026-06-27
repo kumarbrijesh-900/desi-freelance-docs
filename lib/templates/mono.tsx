@@ -115,9 +115,11 @@ export default function MonoTemplate({ data }: InvoiceTemplateProps) {
           <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
             <span>subtotal</span><span className="font-bold text-[color:var(--color-ink)]">{data.subtotalFormatted}</span>
           </div>
-          <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
-            <span>{data.taxLabel}</span><span className="font-bold text-[color:var(--color-ink)]">{data.taxFormatted}</span>
-          </div>
+          {data.taxRows.map((row) => (
+            <div key={row.label} className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
+              <span>{row.label}</span><span className="font-bold text-[color:var(--color-ink)]">{row.amountFormatted}</span>
+            </div>
+          ))}
           <div className="pt-3 mt-2 border-t-2 border-[color:var(--color-ink)] flex justify-between items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-widest">total_due</span>
             <span className="text-[24px] font-bold text-green-600">{data.grandTotalFormatted}</span>

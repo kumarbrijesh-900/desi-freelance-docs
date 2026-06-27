@@ -272,12 +272,14 @@ export default function StudioProTemplate({ data }: InvoiceTemplateProps) {
                   {data.subtotalFormatted}
                 </span>
               </div>
-              <div className="text-[12px] text-[#666]">
-                {data.taxLabel}:{" "}
-                <span className="font-bold text-[#111118]">
-                  {data.taxFormatted}
-                </span>
-              </div>
+              {data.taxRows.map((row) => (
+                <div key={row.label} className="text-[12px] text-[#666]">
+                  {row.label}:{" "}
+                  <span className="font-bold text-[#111118]">
+                    {row.amountFormatted}
+                  </span>
+                </div>
+              ))}
               {data.approximateUsd && (
                 <div className="text-[10px] text-[#666] mt-2 italic">
                   ≈ {data.approximateUsd}

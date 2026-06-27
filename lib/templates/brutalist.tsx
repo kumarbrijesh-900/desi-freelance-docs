@@ -125,9 +125,11 @@ export default function BrutalistTemplate({ data }: InvoiceTemplateProps) {
           <div className="flex justify-between text-[11px]">
             <span className="text-black/50">Subtotal</span><span className="font-bold">{data.subtotalFormatted}</span>
           </div>
-          <div className="flex justify-between text-[11px]">
-            <span className="text-black/50">{data.taxLabel}</span><span className="font-bold">{data.taxFormatted}</span>
-          </div>
+          {data.taxRows.map((row) => (
+            <div key={row.label} className="flex justify-between text-[11px]">
+              <span className="text-black/50">{row.label}</span><span className="font-bold">{row.amountFormatted}</span>
+            </div>
+          ))}
           <div className="pt-3 border-t-4 border-black flex justify-between items-baseline">
             <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Total</span>
             <span className="text-[28px] font-bold tracking-tight">{data.grandTotalFormatted}</span>

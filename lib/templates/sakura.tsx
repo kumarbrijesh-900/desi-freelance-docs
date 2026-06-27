@@ -130,9 +130,11 @@ export default function SakuraTemplate({ data }: InvoiceTemplateProps) {
           <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
             <span>Subtotal</span><span className="font-bold text-[color:var(--color-ink)]">{data.subtotalFormatted}</span>
           </div>
-          <div className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
-            <span>{data.taxLabel}</span><span className="font-bold text-[color:var(--color-ink)]">{data.taxFormatted}</span>
-          </div>
+          {data.taxRows.map((row) => (
+            <div key={row.label} className="flex justify-between text-[11px] text-[color:var(--color-ink-2)]">
+              <span>{row.label}</span><span className="font-bold text-[color:var(--color-ink)]">{row.amountFormatted}</span>
+            </div>
+          ))}
           <div className="pt-3 border-t border-[#E11D48]/30 flex justify-between items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Total due</span>
             <span className="text-[26px] font-bold text-[#E11D48]">{data.grandTotalFormatted}</span>

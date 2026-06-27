@@ -121,9 +121,11 @@ export default function LedgerTemplate({ data }: InvoiceTemplateProps) {
           <div className="flex justify-between px-4 py-2 text-[11px] border-t border-[color:var(--color-soft)]">
             <span className="text-[color:var(--color-ink-2)]">Subtotal</span><span className="font-bold">{data.subtotalFormatted}</span>
           </div>
-          <div className="flex justify-between px-4 py-2 text-[11px] border-t border-[color:var(--color-soft)]">
-            <span className="text-[color:var(--color-ink-2)]">{data.taxLabel}</span><span className="font-bold">{data.taxFormatted}</span>
-          </div>
+          {data.taxRows.map((row) => (
+            <div key={row.label} className="flex justify-between px-4 py-2 text-[11px] border-t border-[color:var(--color-soft)]">
+              <span className="text-[color:var(--color-ink-2)]">{row.label}</span><span className="font-bold">{row.amountFormatted}</span>
+            </div>
+          ))}
           <div className="flex justify-between px-4 py-3 bg-[color:var(--color-paper)] border-t-2 border-[color:var(--color-strong)] items-baseline">
             <span className="text-[10px] font-bold uppercase tracking-widest">Grand total</span>
             <span className="text-[24px] font-bold text-[color:var(--color-ink)]">{data.grandTotalFormatted}</span>

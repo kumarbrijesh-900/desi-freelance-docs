@@ -324,12 +324,14 @@ export default function MidnightTemplate({ data }: InvoiceTemplateProps) {
                 {data.subtotalFormatted}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span>{data.taxLabel}</span>
-              <span className="tabular-nums font-bold text-[#1A1A2E]">
-                {data.taxFormatted}
-              </span>
-            </div>
+            {data.taxRows.map((row) => (
+              <div key={row.label} className="flex justify-between">
+                <span>{row.label}</span>
+                <span className="tabular-nums font-bold text-[#1A1A2E]">
+                  {row.amountFormatted}
+                </span>
+              </div>
+            ))}
           </div>
           <div className="mt-3 bg-gradient-to-br from-[#6C63FF] to-[#5548D9] px-4 py-3 text-right text-white print:bg-[#e8e8f0] print:text-[#111]">
             <p className="text-[9px] uppercase tracking-[0.2em] text-white/60 print:text-[#666]">

@@ -338,10 +338,12 @@ export default function EditorialTemplate({ data }: InvoiceTemplateProps) {
               <span>Subtotal</span>
               <span className="tabular-nums">{data.subtotalFormatted}</span>
             </div>
-            <div className="flex justify-between text-[color:var(--color-ink-2)]">
-              <span>{data.taxLabel}</span>
-              <span className="tabular-nums">{data.taxFormatted}</span>
-            </div>
+            {data.taxRows.map((row) => (
+              <div key={row.label} className="flex justify-between text-[color:var(--color-ink-2)]">
+                <span>{row.label}</span>
+                <span className="tabular-nums">{row.amountFormatted}</span>
+              </div>
+            ))}
           </div>
 
           <div className="mt-3 border-t border-[color:var(--color-ink)] pt-3 print:border-black">

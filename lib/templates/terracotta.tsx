@@ -299,12 +299,14 @@ export default function TerracottaTemplate({ data }: InvoiceTemplateProps) {
                   {data.subtotalFormatted}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span>{data.taxLabel}</span>
-                <span className="tabular-nums font-bold text-[color:var(--color-ink)]">
-                  {data.taxFormatted}
-                </span>
-              </div>
+              {data.taxRows.map((row) => (
+                <div key={row.label} className="flex justify-between">
+                  <span>{row.label}</span>
+                  <span className="tabular-nums font-bold text-[color:var(--color-ink)]">
+                    {row.amountFormatted}
+                  </span>
+                </div>
+              ))}
             </div>
             <div className="mt-3 bg-[color:var(--color-coral)] px-3 py-2.5 text-right text-white print:bg-[color:var(--color-paper)] print:text-[color:var(--color-ink)]">
               <p className="text-[9px] uppercase tracking-[0.15em] text-white/60 print:text-[color:var(--color-ink-2)]">
