@@ -83,6 +83,20 @@ export async function GET(request: NextRequest) {
         projectRow = project;
       }
 
+      // Defense-in-depth: never fire a milestone for a closed project.
+      // (Closing a project already cancels its pending triggers, but guard anyway.)
+      if (projectRow && (projectRow as any).status === "closed") {
+        await supabaseAdmin
+          .from("invoice_milestones")
+          .update({
+            status: "cancelled",
+            trigger_status: "cancelled",
+            trigger_mode: "cancelled",
+          })
+          .eq("id", milestone.id);
+        continue;
+      }
+
       const fired = await fireMilestoneInvoice(
         supabaseAdmin,
         milestone,

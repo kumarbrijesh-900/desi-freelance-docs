@@ -19,7 +19,8 @@ export function ActiveDrilldown({
   onResend,
   onFinalize,
   onReviewRevision,
-  onPreview
+  onPreview,
+  onCloseProject
 }: {
   state: DrilldownState | null;
   invoiceIds?: string[];
@@ -29,6 +30,7 @@ export function ActiveDrilldown({
   onFinalize?: () => void;
   onReviewRevision?: () => void;
   onPreview?: () => void;
+  onCloseProject?: () => void;
 }) {
   if (!state || !state.invoice) {
     return (
@@ -198,6 +200,15 @@ export function ActiveDrilldown({
             >
               EDIT
             </button>
+            {onCloseProject && (
+              <button
+                type="button"
+                onClick={onCloseProject}
+                className="px-4 py-2 border-2 border-transparent hover:border-coral hover:bg-paper-2 font-extrabold uppercase text-[11px] tracking-widest transition-all text-coral"
+              >
+                CLOSE PROJECT
+              </button>
+            )}
           </div>
         </div>
 

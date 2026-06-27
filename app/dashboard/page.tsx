@@ -9,6 +9,7 @@ import { formatProjectedDate } from "@/lib/lifecycle/timing";
 import { ProjectRail } from "@/components/dashboard/ProjectRail";
 import { LifecycleStepper } from "@/components/dashboard/LifecycleStepper";
 import { ActiveDrilldown, formatInr } from "@/components/dashboard/ActiveDrilldown";
+import { CloseProjectModal } from "@/components/dashboard/CloseProjectModal";
 import { ProjectInvoicesLedger } from "@/components/dashboard/ProjectInvoicesLedger";
 import { Sticker } from "@/components/ui/Sticker";
 import { Marker } from "@/components/ui/Marker";
@@ -98,6 +99,7 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [projectClosureData, setProjectClosureData] = useState<{ projectName: string; cost: string } | null>(null);
+  const [closeProjectFor, setCloseProjectFor] = useState<{ id: string; name: string } | null>(null);
   const [settlementChoice, setSettlementChoice] = useState<SettlementChoice | null>(null);
 
   const loadProjects = useCallback(async () => {
@@ -270,6 +272,23 @@ function DashboardContent() {
     await loadProjects();
   };
 
+  const handleCloseProject = async (reason: string) => {
+    if (!closeProjectFor) return;
+    const response = await fetch("/api/project/close", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_id: closeProjectFor.id, reason }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setActionMessage(payload.error || payload.reason || "Could not close the project.");
+      return;
+    }
+    setActionMessage(`${closeProjectFor.name} closed.`);
+    setCloseProjectFor(null);
+    await loadProjects();
+  };
+
   const handleEdit = (state: DrilldownState | null, step?: string) => {
     if (!state?.invoice) return;
     const stepParam = step ? `&step=${step}` : "";
@@ -396,6 +415,7 @@ function DashboardContent() {
                 onFinalize={() => handleEdit(drilldownState)}
                 onReviewRevision={() => handleEdit(drilldownState, "payment")}
                 onPreview={() => handlePreview(drilldownState)}
+                onCloseProject={() => selectedProject && setCloseProjectFor({ id: selectedProject.project.id, name: selectedProject.project.name })}
               />
 
               <ProjectInvoicesLedger project={selectedProject} />
@@ -738,6 +758,13 @@ function DashboardContent() {
           </div>
         );
       })()}
+
+      <CloseProjectModal
+        isOpen={!!closeProjectFor}
+        projectName={closeProjectFor?.name || "this project"}
+        onClose={() => setCloseProjectFor(null)}
+        onConfirm={handleCloseProject}
+      />
 
       {/* ── Project Closure Delight Modal ── */}
       {projectClosureData && (
