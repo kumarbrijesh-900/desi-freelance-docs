@@ -15,13 +15,76 @@ New Claude instance? Read this block, then the most recent session entries below
 **Founder comms.** Terse, momentum-driven ("go", "run it", SHA-only, filename-only = "do this surface"). Strong design eye. Judges by deployed visible effect (sends screenshots). Lead with the simpler/safer fix; split risky logic from safe copy/CSS; when consistency is the goal be thorough and run completeness scans - don't ship partial passes.
 ### Current queue (next up)
 
-**1. ~~Invoice templates - UX/UI + compliance pass.~~** ✅ DONE (June 25-27). All 11 templates migrated: E-palette tokens, WCAG-AA contrast, `tabular-nums`, GST compliance fields (agency/client GSTIN, Place of Supply + state code, HSN/SAC), and CGST/SGST/IGST split rendering via shared `taxRows`. See session entry below.
+**1. ~~Invoice templates — UX/UI + compliance pass.~~** ✅ DONE (June 25-27).
 
-**2. Smaller carryovers** (detail in session entries below): stray blank line in `app/clients/page.tsx` import (~L28, from `0af4252`); ErrorBoundary + `app/global-error.tsx`/`error.tsx`/`not-found.tsx` (white-screen insurance); dynamic-import XLSX in `app/invoices/page.tsx` (~1 MB off `/invoices` mobile); client name-role "leave blank + flag when low-confidence"; mark the April audit docs (pipeline-diagnosis / recovery-strategy / executive-recovery-plan / forensic-audit) superseded.
+**2. ~~Notification + email completeness.~~** ✅ DONE (June 27, session 2). Realtime bell fixed, notification enum fixed, MSA agency email shipped + live-tested, full email inventory mapped. See entry below.
 
-**3. GTM (founder-owned, standing).** Recruit a white-glove design-partner cohort to validate the accept + milestone flow end-to-end - kit in `/outputs/lance-cohort-outreach.md`.
+**3. Open follow-ups (none blocking):**
+- `projects.status` TS type in `lib/supabase/projects.ts` still `"active" | "cancelled" | "completed"` — does not include `"closed"` (DB CHECK already accepts it; ProjectRail uses `(p.project as any).status === "closed"`). Extend the type.
+- **Email gaps left intentionally (product calls, not bugs):** project **completion** (final milestone settled) sends NO email to anyone — only the in-app "Project Complete!" modal; there is no payment-received receipt to the client, and no MSA-**accepted** confirmation email to the client (agency is emailed, client is not). Revisit if desired.
+- `request-milestone` route (`app/api/invoice/request-milestone/route.ts`) is **dead** (zero callers) and its email button uses a CSS var that won't render in email. Either delete or fix if ever wired.
+- Smaller carryovers unchanged: stray blank line in `app/clients/page.tsx` import; ErrorBoundary + `global-error.tsx`/`error.tsx`/`not-found.tsx`; dynamic-import XLSX in `app/invoices/page.tsx`; client name-role low-confidence handling; mark the April audit docs superseded.
+
+**4. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## Notification realtime + enum fixes, MSA agency email, email audit (June 27, 2026 — session 2)
+
+Continuation of June 27. Closed out every notification/email completeness gap surfaced by an end-to-end source audit. Two DB migrations (applied via Supabase MCP, not code commits) + one code commit (`f0ad896`) + one production live-test. Every code change verified byte-exact on `origin/main`; the MSA email additionally confirmed firing in prod with a real send.
+
+### Shipped this session
+
+| # | Scope | Mechanism | Ref |
+|---|---|---|---|
+| Realtime notification bell fix | `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications` | Supabase migration `enable_realtime_notifications` | applied via MCP |
+| Notification enum fix | `ALTER TYPE notification_type ADD VALUE 'milestone_settled'`, `'milestone_requested'` | Supabase migration `add_milestone_notification_types` | applied via MCP |
+| MSA agency email | Rewrote dead `/api/msa-response` into an email-only route (derives accept/propose from `msa_status`, reads `client_msa_note`, HTML-escapes it) + two fire-and-forget `fetch("/api/msa-response", { shareToken })` triggers in the share page's accept/propose handlers | `app/api/msa-response/route.ts` (full replace), `app/share/[token]/page.tsx` (2 inserts) | `f0ad896` |
+| Auto-nudge cron — live confirmation | No code change. Temporarily set INV-2026-9998 `due_date`=today, founder ran the cron in Vercel; verified agency email sent + `notifications` row persisted + `reminded_due_date` flipped true; reverted + deleted the test row | — | verified |
+
+### Root causes fixed
+- **Realtime bell was frozen.** `NotificationBell` subscribes to `postgres_changes` on `notifications` and refetches on any change — correct code. But the `supabase_realtime` publication had zero tables enrolled, so the DB never broadcast inserts; the bell only ever showed its page-load snapshot. Fix enrolls `notifications`. An already-open tab needs one refresh to re-subscribe; new notifications then appear live. (`invoices` is deliberately NOT in the publication — the bell refetches wholesale; default replica identity is fine.)
+- **Milestone notifications silently failed.** `notifications.type` is the Postgres enum `notification_type`. The settle path inserts `type='milestone_settled'`, and `requestNextMilestone` inserts `'milestone_requested'` — neither was in the enum. supabase-js returns `{ error }` (doesn't throw) and the call sites don't check it, so the inserts failed silently. Proof: zero `milestone_settled` rows in the whole table despite a settled milestone (INV-9997). Adding the two values makes "Milestone Paid" notifications persist with no code change.
+- **`/api/msa-response` was dead, so the agency was never emailed on MSA response.** The share page (`app/share/[token]/page.tsx` → `handleAcceptMsa` / `handleProposeMsaChanges`, via `SharedMsaPreviewContent` → `MSAAcceptanceModal`) does the invoice update + in-app notification client-side; nothing called `/api/msa-response`, so its broken `msa_${response}` (uppercase) notification insert never ran — moot. The real gap was no agency email. Resend is server-side, so the fix is a server route the client handlers call.
+
+### MSA email design (security-relevant)
+- Route decides accepted-vs-proposed from the invoice's current `msa_status` (not any client-supplied flag) → a malicious POST can't spoof a fake "accepted" email.
+- Client note is read from the DB and HTML-escaped (`escapeHtml`) before going into the email body → a client can't inject markup/phishing via the proposal text.
+- Triggers are fire-and-forget after each existing notification insert — never blocks the client; the existing update + in-app notification are untouched (no double-send). Modal's inline fallback never runs in the client flow (`onPropose` always supplied when `mode="client"`); client-preview is agency-only.
+- Emails the agency owner (auth.users email). Accept → "Terms accepted"; Propose → "Client proposed changes" with the client's note quoted in an ochre block.
+
+### Live test (MSA propose)
+INV-2026-4078 → `msa_status='proposed'` + note `Can we change the <b>delivery timeline</b> & adjust the "scope"? Budget < $5000 please.` → `POST /api/msa-response { shareToken }` → `{ success: true, emailed: true }` (HTTP 200). Founder screenshot confirmed: email received, branding correct, and the `<b>`/`&`/`"`/`<` all rendered as literal text (escaping works). Invoice reverted to `pending`/null.
+
+### Email inventory (authoritative — every live send + recipient)
+| Trigger | Recipient | File |
+|---|---|---|
+| Invoice first shared (4 tones) | Client | `app/api/share-invoice/route.ts` |
+| Next milestone auto-fires on settle | Client | `lib/supabase/milestones.ts` |
+| Reminder — due today | Client + Agency | `app/api/cron/check-invoices/route.ts` |
+| Follow-up — 2 days overdue | Agency | `app/api/cron/check-invoices/route.ts` |
+| Manual "Nudge client" | Client | `app/api/invoice/nudge-client/route.ts` |
+| MSA accepted / changes proposed | Agency | `app/api/msa-response/route.ts` (this session) |
+| Project closure (opt-in checkbox) | Client | `app/api/project/close/route.ts` |
+
+No email: completion (final settle), payment receipt, MSA-accepted confirmation to client. `request-milestone` route is dead.
+
+### Infra / workflow facts learned
+- **`msa_response` column has a CHECK that rejects `'proposed'`** — only `msa_status` takes `'proposed'`. The real propose flow leaves `msa_response` unchanged (`pending`).
+- **A stated push SHA may not be HEAD.** Founder said "PUSHED 0c0a586" but HEAD was `3a73bfd` (a later SESSION_LOG commit). Always `git ls-remote … refs/heads/main` for true HEAD and verify there.
+- bash shell is sh, not bash — `${var:0:7}` fails; use `cut -c1-7`.
+- GitHub API (unauthenticated) rate-limits fast — use `git clone --depth N` to inspect commit messages/diffs.
+- Vercel MCP still 403 (team scope needs re-auth in the connector). Rely on byte-exact source verification + founder screenshots.
+
+### Commits this session
+- `f0ad896` feat: MSA accepted / changes-proposed agency email (route rewrite + share-page triggers)
+- DB migrations (no commit): `enable_realtime_notifications`, `add_milestone_notification_types`
+
+### Repo migration files to add (applied to prod already)
+- `supabase/migrations/20260627_enable_realtime_notifications.sql` → `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;`
+- `supabase/migrations/20260627_add_milestone_notification_types.sql` → `ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'milestone_settled';` and `ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'milestone_requested';`
+
+-----
 
 ## Invoice template compliance + notification fixes + project closure lifecycle (June 25-27, 2026)
 
