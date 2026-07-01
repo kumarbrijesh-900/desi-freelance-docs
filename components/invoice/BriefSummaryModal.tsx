@@ -262,82 +262,82 @@ function EditableRow({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-3 border p-4 transition-all duration-200",
+        "group relative flex flex-col gap-3 rounded-[12px] border p-4 transition-colors",
         isApproved
-          ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-900)]/10"
+          ? "border-[#bcd8c8] bg-acc-soft"
           : isLowConfidence
-            ? "border-amber-500/30 bg-amber-500/5"
-            : "border-white/[0.08] bg-white/[0.02]",
+            ? "border-[color:rgba(200,148,59,0.4)] bg-[#faf4e5]"
+            : "border-soft bg-paper",
       )}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
-            "text-[10px] font-bold uppercase tracking-wider",
+            "text-[13px] font-semibold",
             isApproved
-              ? "text-[color:var(--color-lime-400)]"
+              ? "text-grass"
               : isLowConfidence
-                ? "text-amber-500"
+                ? "text-ochre-deep"
                 : isMandatory
-                  ? "text-cyan-500"
-                  : "text-[color:var(--color-ink-2)]",
+                  ? "text-ink"
+                  : "text-ink-2",
           )}
         >
-          {label} {isMandatory && <span className="text-[#FF5C00]">*</span>}
+          {label} {isMandatory && <span className="text-coral">*</span>}
         </span>
         {isLowConfidence && (
-          <span className="flex items-center gap-1 text-[8px] font-bold uppercase text-amber-500/70 border border-amber-500/30 px-1.5 py-0.5 rounded">
-            Low Confidence
+          <span className="flex items-center gap-1 rounded-full border border-[color:rgba(200,148,59,0.3)] bg-[color:rgba(200,148,59,0.14)] px-2 py-0.5 text-[11px] font-semibold text-ochre-deep">
+            Low confidence
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="relative flex-1 min-w-0">
+        <div className="relative min-w-0 flex-1">
           {fieldType === "checkbox" ? (
             <button
               onClick={handleToggle}
               className={cn(
-                "flex h-9 w-full items-center justify-between border px-3 transition-all text-sm",
+                "flex h-9 w-full items-center justify-between rounded-[10px] border px-3 text-sm transition-colors",
                 editValue === "true"
-                  ? "border-[color:var(--color-lime-700)] bg-[color:var(--color-lime-900)]/20 text-[color:var(--color-lime-400)]"
-                  : "border-white/[0.1] bg-white/[0.03] text-[color:var(--color-ink-2)]",
+                  ? "border-[#bcd8c8] bg-acc-soft text-grass"
+                  : "border-soft bg-paper-2 text-ink-2",
               )}
             >
-              <span className="font-bold">
-                {editValue === "true" ? "YES / ENABLED" : "NO / DISABLED"}
+              <span className="font-semibold">
+                {editValue === "true" ? "Yes" : "No"}
               </span>
               <div
                 className={cn(
-                  "h-5 w-5 rounded border flex items-center justify-center transition-all",
+                  "flex h-5 w-5 items-center justify-center rounded-[6px] border transition-colors",
                   editValue === "true"
-                    ? "bg-[color:var(--color-lime-500)] border-transparent"
-                    : "bg-white/5 border-white/10",
+                    ? "border-transparent bg-acid"
+                    : "border-soft bg-paper",
                 )}
               >
                 {editValue === "true" && (
-                  <CheckIcon className="h-3 w-3 text-black" />
+                  <CheckIcon className="h-3 w-3 text-acc-ink" />
                 )}
               </div>
             </button>
           ) : fieldType === "select" ? (
-            <div className="relative group">
+            <div className="relative">
               <select
                 value={editValue}
                 onChange={(e) => {
                   setEditValue(e.target.value);
                   if (isApproved) onApprove(label, e.target.value);
                 }}
-                className="h-9 w-full border border-white/[0.1] bg-black pl-3 pr-10 text-sm text-white outline-none appearance-none cursor-pointer app-focus-ring"
+                className="h-9 w-full appearance-none rounded-[10px] border border-soft bg-paper-2 pl-3 pr-10 text-sm text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft"
               >
-                <option value="">Select {label}...</option>
+                <option value="">Select {label.toLowerCase()}…</option>
                 {options.map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/40 group-hover:text-white/60 transition-colors">
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-ink-3">
                 <ChevronDownIcon className="h-4 w-4" />
               </span>
             </div>
@@ -349,8 +349,8 @@ function EditableRow({
                 setEditValue(e.target.value);
                 if (isApproved) onApprove(label, e.target.value);
               }}
-              placeholder={`Enter ${label.toLowerCase()}...`}
-              className="h-9 w-full border border-white/[0.1] bg-black px-3 text-sm text-white outline-none app-focus-ring"
+              placeholder={`Enter ${label.toLowerCase()}…`}
+              className="h-9 w-full rounded-[10px] border border-soft bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft"
             />
           )}
         </div>
@@ -360,10 +360,10 @@ function EditableRow({
             onClick={handleTick}
             disabled={!editValue.trim() || (isApproved && !isLowConfidence)}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center border transition-all",
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-colors",
               isApproved
-                ? "border-transparent bg-[color:var(--color-lime-500)] text-black"
-                : "border-white/[0.1] bg-white/[0.03] text-[color:var(--color-ink-2)] hover:border-cyan-500 hover:text-cyan-400 disabled:opacity-20",
+                ? "border-transparent bg-acid text-acc-ink"
+                : "border-soft bg-paper-2 text-ink-3 hover:border-acid hover:text-acid disabled:opacity-40",
             )}
           >
             <CheckIcon className="h-5 w-5" />
@@ -405,7 +405,6 @@ export default function BriefSummaryModal({
   const lowConfLabels = new Set(lowConfidenceFields.map((f) => f.label));
   const missingFlatLabels = missingFieldsGroups.flatMap((g) => g.fields);
 
-  // Group fields for the "Review Required" section: ALL Mandatory fields + ALL Low Confidence fields
   const allLabels = new Set([
     ...lowConfLabels,
     ...confidentFields.map((f) => f.label),
@@ -437,103 +436,121 @@ export default function BriefSummaryModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-[#16110c]/60 p-4"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#0c0c12] shadow-[var(--brutal-shadow-lg)] border border-white/[0.1]"
+          className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[18px] border border-soft bg-paper-2"
+          style={{ boxShadow: "var(--shadow-chunk-lg)" }}
         >
-          <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-5 bg-gradient-to-r from-transparent to-white/[0.02]">
-            <div className="flex items-center gap-4">
-              <div className="flex h-11 w-11 items-center justify-center bg-indigo-light text-indigo-brand shadow-inner">
+          <div className="flex items-center justify-between gap-4 border-b border-[#e6dcc6] px-6 py-5">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-acc-soft text-acid">
                 <SparklesIcon className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-white tracking-tight leading-none">
-                  Extraction Summary
+                <h2 className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-ink">
+                  Review the details
                 </h2>
-                <p className="text-sm text-[color:var(--color-ink-2)] mt-1.5 font-normal">
-                  Please validate the details before generating the invoice.
+                <p className="mt-1 text-[13px] text-ink-2">
+                  Confirm what we pulled from your brief before generating.
                 </p>
               </div>
             </div>
             <button
               onClick={() => onContinueManually(localData)}
-              className="p-2 text-[color:var(--color-ink)] hover:text-white transition-all hover:rotate-90 duration-300"
+              className="flex h-9 w-9 items-center justify-center rounded-[9px] text-ink-3 transition-colors hover:bg-[#efe6d1] hover:text-ink"
+              aria-label="Close"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 scroll-smooth">
+          <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
             {isNewClient && isLoggedIn && (
-              <label className="flex items-start gap-4 cursor-pointer border border-cyan-500/20 bg-cyan-500/[0.03] p-5 hover:bg-cyan-500/[0.05] transition-all group">
+              <label className="flex cursor-pointer items-start gap-3 rounded-[12px] border border-[#bcd8c8] bg-acc-soft p-4">
                 <input
                   type="checkbox"
                   checked={shouldSaveClient}
                   onChange={(e) => setShouldSaveClient(e.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-gray-700 bg-gray-900 text-cyan-500 transition-all cursor-pointer app-focus-ring"
+                  className="mt-0.5 h-5 w-5 rounded border-soft text-acid focus:ring-acc-soft"
                 />
                 <div>
-                  <p className="font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                    New Client Detected: {localData.client.clientName}
+                  <p className="text-[14px] font-semibold text-ink">
+                    Save {localData.client.clientName} to your client directory
                   </p>
-                  <p className="text-cyan-500/60 mt-1 leading-relaxed text-[10px] font-bold uppercase tracking-[0.16em]">
-                    Would you like to save this client to your Master Directory?
-                    This happens automatically once you save the invoice.
+                  <p className="mt-0.5 text-[12px] leading-relaxed text-ink-2">
+                    Happens automatically when you generate the invoice.
                   </p>
                 </div>
               </label>
             )}
 
-            {/* ─── Extracted Successfully ─── */}
-            {confidentFields.length > 0 && (() => {
-              const successFields = confidentFields.filter(f => {
-                const val = getExtractedValueForLabel(f.label, localData);
-                return val && val.trim().length > 0 && !lowConfLabels.has(f.label);
-              });
-              if (successFields.length === 0) return null;
-              return (
-                <div className="space-y-3">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-brand px-1">
-                    Extracted Successfully
-                  </h3>
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.04]">
-                    {successFields.map((f) => {
-                      const val = getExtractedValueForLabel(f.label, localData);
-                      return (
-                        <div key={f.label} className="flex items-center justify-between px-4 py-2.5">
-                          <span className="text-[12px] text-[color:var(--color-ink-2)] font-bold">{f.label}</span>
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-[13px] text-white font-bold max-w-[220px] truncate">{val}</span>
-                            <CheckIcon className="h-3.5 w-3.5 text-indigo-brand shrink-0" />
+            {/* ─── Extracted with confidence ─── */}
+            {confidentFields.length > 0 &&
+              (() => {
+                const successFields = confidentFields.filter((f) => {
+                  const val = getExtractedValueForLabel(f.label, localData);
+                  return (
+                    val && val.trim().length > 0 && !lowConfLabels.has(f.label)
+                  );
+                });
+                if (successFields.length === 0) return null;
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-0.5">
+                      <span className="h-2 w-2 rounded-full bg-grass" />
+                      <h3 className="text-[13px] font-semibold text-ink">
+                        Extracted with confidence
+                      </h3>
+                    </div>
+                    <div className="overflow-hidden rounded-[14px] border border-soft bg-paper">
+                      {successFields.map((f, i) => {
+                        const val = getExtractedValueForLabel(f.label, localData);
+                        return (
+                          <div
+                            key={f.label}
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2.5",
+                              i > 0 && "border-t border-[#e2d8c1]",
+                            )}
+                          >
+                            <span className="text-[13px] text-ink-2">
+                              {f.label}
+                            </span>
+                            <div className="flex items-center gap-2.5">
+                              <span className="max-w-[240px] truncate text-[13px] font-semibold text-ink">
+                                {val}
+                              </span>
+                              <CheckIcon className="h-3.5 w-3.5 shrink-0 text-grass" />
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
 
-            {/* ─── Needs Review ─── */}
+            {/* ─── Needs review ─── */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-amber-500">
-                  Needs Review
+              <div className="flex items-center gap-2 px-0.5">
+                <span className="h-2 w-2 rounded-full bg-ochre" />
+                <h3 className="text-[13px] font-semibold text-ink">
+                  Needs review
                 </h3>
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-24 bg-white/5 rounded-full overflow-hidden">
+                <div className="ml-auto flex items-center gap-2.5">
+                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#e6dcc6]">
                     <div
-                      className="h-full bg-cyan-500 transition-all duration-500"
+                      className="h-full rounded-full bg-acid transition-all duration-500"
                       style={{
                         width: `${(approvedFields.size / (reviewRequiredLabels.length || 1)) * 100}%`,
                       }}
                     />
                   </div>
-                  <span className="text-[10px] font-bold font-mono text-cyan-500/80">
+                  <span className="text-[12px] font-semibold tabular-nums text-ink-2">
                     {approvedFields.size}/{reviewRequiredLabels.length}
                   </span>
                 </div>
@@ -554,27 +571,25 @@ export default function BriefSummaryModal({
             </div>
           </div>
 
-          <div className="border-t border-white/[0.08] bg-black/40 p-6 flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 border-t border-[#e6dcc6] bg-[#f7f0df] px-6 py-4">
             <button
               onClick={onParseAgain}
-              className="px-5 py-2.5 text-sm font-bold text-[color:var(--color-ink-2)] hover:text-white transition-colors"
+              className="rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-[#efe6d1] hover:text-ink"
             >
-              Parse Again
+              Parse again
             </button>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => onSubmit(localData, shouldSaveClient)}
-                disabled={!allReviewed}
-                className={cn(
-                  "px-8 py-3 text-sm font-black transition-all shadow-lg active:scale-95",
-                  allReviewed
-                    ? "bg-[color:var(--color-lime-500)] text-black hover:bg-[color:var(--color-lime-400)] shadow-lime-500/20"
-                    : "bg-white/[0.05] text-white/20 cursor-not-allowed",
-                )}
-              >
-                Generate Invoice
-              </button>
-            </div>
+            <button
+              onClick={() => onSubmit(localData, shouldSaveClient)}
+              disabled={!allReviewed}
+              className={cn(
+                "rounded-[12px] px-8 py-3 text-sm font-bold transition-all active:scale-[0.97]",
+                allReviewed
+                  ? "bg-acid text-acc-ink hover:bg-acid-2"
+                  : "cursor-not-allowed bg-[#ece3cf] text-ink-3",
+              )}
+            >
+              Generate invoice
+            </button>
           </div>
         </motion.div>
       </motion.div>
