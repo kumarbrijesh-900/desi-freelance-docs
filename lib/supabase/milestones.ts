@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { renderLanceEmail } from "@/lib/email-template";
 
 export interface FireMilestoneInvoiceResult {
   childInvoiceId?: string;
@@ -211,40 +212,17 @@ export async function fireMilestoneInvoice(
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
       subject: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName} — ready for review`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-            <tr><td align="center">
-              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
-                <tr><td style="background:#111118;padding:24px 32px;">
-                  <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
-                </td></tr>
-                <tr><td style="padding:40px 32px;">
-                  <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">
-                    Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName}
-                  </h1>
-                  <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
-                    Your previous milestone has been completed. The next milestone invoice is now ready for your review.
-                  </p>
-                  <a href="${shareUrl}" style="display:inline-block;background:#111118;color:#ffffff;font-size:15px;font-weight:700;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                    View Milestone ${nextMilestoneIndex + 1} Invoice →
-                  </a>
-                  <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">
-                    This secure link was sent only to ${clientEmail}.
-                  </p>
-                </td></tr>
-                <tr><td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
-                  <p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers</p>
-                </td></tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-        </html>
-      `,
+      html: renderLanceEmail({
+        headline: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName}`,
+        paragraphs: [
+          "Your previous milestone has been completed. The next milestone invoice is now ready for your review.",
+        ],
+        cta: {
+          label: `View Milestone ${nextMilestoneIndex + 1} Invoice →`,
+          url: shareUrl,
+        },
+        finePrint: `This secure link was sent only to ${clientEmail}.`,
+      }),
     });
 
     await supabase.from("notifications").insert({
