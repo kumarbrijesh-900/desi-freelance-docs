@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { renderLanceEmail } from "@/lib/email-template";
 
 export const dynamic = "force-dynamic";
 
@@ -17,50 +18,6 @@ export const dynamic = "force-dynamic";
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://lanceinvoice.xyz";
-
-// Branded email shell, consistent with share-invoice / nudge-client.
-function renderEmail(opts: {
-  headline: string;
-  bodyHtml: string;
-  ctaLabel?: string;
-  ctaUrl?: string;
-}): string {
-  const cta =
-    opts.ctaLabel && opts.ctaUrl
-      ? `<a href="${opts.ctaUrl}" style="display:inline-block;background-color:#1e3d33;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">${opts.ctaLabel}</a>`
-      : "";
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-    <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-        <tr><td align="center">
-          <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-            <tr>
-              <td style="background:#111118;padding:24px 32px;">
-                <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:40px 32px;">
-                <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">${opts.headline}</h1>
-                ${opts.bodyHtml}
-                ${cta ? `<br/>${cta}` : ""}
-              </td>
-            </tr>
-            <tr>
-              <td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
-                <p style="margin:0;font-size:12px;color:#9ca3af;">Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers</p>
-              </td>
-            </tr>
-          </table>
-        </td></tr>
-      </table>
-    </body>
-    </html>
-  `;
-}
 
 export async function GET(request: Request) {
   // Verify this request came from Vercel Cron. Fails closed.
@@ -169,12 +126,13 @@ export async function GET(request: Request) {
             from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
             to: clientEmail,
             subject: `Reminder: Invoice ${inv.invoice_number} from ${agencyName} is due today`,
-            html: renderEmail({
+            html: renderLanceEmail({
               headline: "Payment due today",
-              bodyHtml: `<p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">Hi ${clientName},</p>
-                <p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">This is a gentle reminder that invoice <strong>${inv.invoice_number}</strong> from ${agencyName} is due for payment today. If you have already arranged payment, please disregard this note.</p>`,
-              ctaLabel: shareUrl ? "View invoice →" : undefined,
-              ctaUrl: shareUrl,
+              paragraphs: [
+                `Hi ${clientName},`,
+                `This is a gentle reminder that invoice <strong>${inv.invoice_number}</strong> from ${agencyName} is due for payment today. If you have already arranged payment, please disregard this note.`,
+              ],
+              cta: shareUrl ? { label: "View invoice →", url: shareUrl } : undefined,
             }),
           });
         }
@@ -184,12 +142,13 @@ export async function GET(request: Request) {
             from: `Lance Automated Alerts <invoices@lanceinvoice.xyz>`,
             to: agencyEmail,
             subject: `Due today: Invoice ${inv.invoice_number} for ${clientName}`,
-            html: renderEmail({
+            html: renderLanceEmail({
               headline: "Invoice due today",
-              bodyHtml: `<p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">Invoice <strong>${inv.invoice_number}</strong> for ${clientName} is due today. We have sent the client a gentle reminder.</p>
-                <p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">Received the payment? Mark the invoice as <strong>Settled</strong> in your dashboard to close the loop.</p>`,
-              ctaLabel: "Open dashboard →",
-              ctaUrl: `${APP_URL}/dashboard`,
+              paragraphs: [
+                `Invoice <strong>${inv.invoice_number}</strong> for ${clientName} is due today. We have sent the client a gentle reminder.`,
+                `Received the payment? Mark the invoice as <strong>Settled</strong> in your dashboard to close the loop.`,
+              ],
+              cta: { label: "Open dashboard →", url: `${APP_URL}/dashboard` },
             }),
           });
         }
@@ -236,12 +195,13 @@ export async function GET(request: Request) {
             from: `Lance Automated Alerts <invoices@lanceinvoice.xyz>`,
             to: agencyEmail,
             subject: `Action required: Invoice ${inv.invoice_number} is 2 days overdue`,
-            html: renderEmail({
+            html: renderLanceEmail({
               headline: "Invoice 2 days overdue",
-              bodyHtml: `<p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">Invoice <strong>${inv.invoice_number}</strong> for ${clientName} is now 2 days past its due date.</p>
-                <p style="margin:0 0 16px;font-size:16px;color:#4b5563;line-height:1.6;">If they have not paid, we recommend following up directly. If they have, mark the invoice as <strong>Settled</strong> to keep your records clean.</p>`,
-              ctaLabel: "Open dashboard →",
-              ctaUrl: `${APP_URL}/dashboard`,
+              paragraphs: [
+                `Invoice <strong>${inv.invoice_number}</strong> for ${clientName} is now 2 days past its due date.`,
+                `If they have not paid, we recommend following up directly. If they have, mark the invoice as <strong>Settled</strong> to keep your records clean.`,
+              ],
+              cta: { label: "Open dashboard →", url: `${APP_URL}/dashboard` },
             }),
           });
         }
