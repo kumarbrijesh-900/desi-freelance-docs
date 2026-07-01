@@ -9,7 +9,7 @@ import {
   ChevronDownIcon,
 } from "@/components/ui/app-icons";
 import { AnimatePresence, motion } from "@/components/ui/motion-primitives";
-import type { InvoiceFormData, InvoiceStepperStep } from "@/types/invoice";
+import type { InvoiceFormData, InvoiceStepperStep, InvoiceLineItem } from "@/types/invoice";
 import { cn } from "@/lib/ui-foundation";
 import type { BriefAutofillFieldSummary } from "@/lib/invoice-brief-intake";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
@@ -391,12 +391,14 @@ export default function BriefSummaryModal({
   const [localData, setLocalData] = useState<InvoiceFormData>(extractedData);
   const [approvedFields, setApprovedFields] = useState<Set<string>>(new Set());
   const [shouldSaveClient, setShouldSaveClient] = useState(true);
+  const [roleResolved, setRoleResolved] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setLocalData(extractedData);
       setApprovedFields(new Set());
       setShouldSaveClient(true);
+      setRoleResolved(false);
     }
   }, [isOpen, extractedData]);
 
@@ -405,13 +407,28 @@ export default function BriefSummaryModal({
   const lowConfLabels = new Set(lowConfidenceFields.map((f) => f.label));
   const missingFlatLabels = missingFieldsGroups.flatMap((g) => g.fields);
 
+  const isDeliverableLabel = (label: string) => {
+    const l = label.toLowerCase();
+    return (
+      l.includes("description") ||
+      l.includes("deliverable") ||
+      l.includes("rate") ||
+      l.includes("quantity") ||
+      l.includes("qty") ||
+      l.includes("unit") ||
+      l.includes("sac")
+    );
+  };
+
   const allLabels = new Set([
     ...lowConfLabels,
     ...confidentFields.map((f) => f.label),
     ...missingFlatLabels,
   ]);
   const reviewRequiredLabels = Array.from(allLabels).filter(
-    (l) => isMandatoryField(l, localData) || lowConfLabels.has(l),
+    (l) =>
+      (isMandatoryField(l, localData) || lowConfLabels.has(l)) &&
+      !isDeliverableLabel(l),
   );
 
   const allReviewed = reviewRequiredLabels.every((label) => {
@@ -429,6 +446,78 @@ export default function BriefSummaryModal({
       return next;
     });
   };
+
+  // Who's the client? — ambiguous agency/client role assignment
+  const agencyNameVal = localData.agency.agencyName.trim();
+  const clientNameVal = localData.client.clientName.trim();
+  const namesDistinct =
+    agencyNameVal.length > 0 &&
+    clientNameVal.length > 0 &&
+    agencyNameVal.toLowerCase() !== clientNameVal.toLowerCase();
+  const nameConfidenceWeak = lowConfidenceFields.some((f) => {
+    const l = f.label.toLowerCase();
+    return (
+      l.includes("agency name") ||
+      l.includes("client name") ||
+      l.includes("business name")
+    );
+  });
+  const showRoleQuestion = namesDistinct && nameConfidenceWeak && !roleResolved;
+
+  const chooseClient = (clientChoice: string, agencyChoice: string) => {
+    setLocalData((prev) => ({
+      ...prev,
+      agency: { ...prev.agency, agencyName: agencyChoice },
+      client: { ...prev.client, clientName: clientChoice },
+    }));
+    setRoleResolved(true);
+  };
+
+  // Items — detailed, editable
+  const displayItems = (localData.lineItems ?? []).filter(
+    (it) => !it.is_milestone_header,
+  );
+  const currencyCode = (localData.client.clientCurrency || "INR").toUpperCase();
+  const formatMoney = (n: number) => {
+    try {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: currencyCode,
+        maximumFractionDigits: 0,
+      }).format(n || 0);
+    } catch {
+      return currencyCode + " " + new Intl.NumberFormat("en-IN").format(n || 0);
+    }
+  };
+  const updateLineItem = (index: number, patch: Partial<InvoiceLineItem>) => {
+    setLocalData((prev) => ({
+      ...prev,
+      lineItems: (prev.lineItems ?? []).map((it, i) =>
+        i === index ? { ...it, ...patch } : it,
+      ),
+    }));
+  };
+  const itemsSubtotal = displayItems.reduce(
+    (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.rate) || 0),
+    0,
+  );
+  const labelMatches = (needles: string[]) =>
+    lowConfidenceFields.some((f) => {
+      const l = f.label.toLowerCase();
+      return needles.some((n) => l.includes(n));
+    });
+  const primaryDescLow =
+    displayItems.length > 0 && labelMatches(["description", "deliverable"]);
+  const primaryQtyLow =
+    displayItems.length > 0 && labelMatches(["quantity", "qty"]);
+  const primaryRateLow =
+    displayItems.length > 0 &&
+    lowConfidenceFields.some((f) => {
+      const l = f.label.toLowerCase();
+      return l.includes("rate") && !l.includes("unit");
+    });
+  const anyItemFieldLow = primaryDescLow || primaryQtyLow || primaryRateLow;
+  const prettyUnit = (u: string) => (u || "").replace(/-/g, " ");
 
   return (
     <AnimatePresence>
@@ -469,32 +558,183 @@ export default function BriefSummaryModal({
           </div>
 
           <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
-            {isNewClient && isLoggedIn && (
-              <label className="flex cursor-pointer items-start gap-3 rounded-[12px] border border-[#bcd8c8] bg-acc-soft p-4">
-                <input
-                  type="checkbox"
-                  checked={shouldSaveClient}
-                  onChange={(e) => setShouldSaveClient(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 rounded border-soft text-acid focus:ring-acc-soft"
-                />
-                <div>
-                  <p className="text-[14px] font-semibold text-ink">
-                    Save {localData.client.clientName} to your client directory
+            {showRoleQuestion && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-gold" />
+                  <h3 className="text-[13px] font-semibold text-ink">
+                    Who&apos;s the client?
+                  </h3>
+                </div>
+                <div
+                  className="rounded-[14px] border p-4"
+                  style={{
+                    background: "rgba(202,161,78,0.12)",
+                    borderColor: "rgba(202,161,78,0.4)",
+                  }}
+                >
+                  <p className="mb-3.5 text-[13px] leading-relaxed text-ink-2">
+                    We found two names but couldn&apos;t tell which is which.
+                    Pick the one you&apos;re billing.
                   </p>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-ink-2">
-                    Happens automatically when you generate the invoice.
+                  <div className="flex flex-wrap gap-2.5">
+                    <button
+                      onClick={() => chooseClient(clientNameVal, agencyNameVal)}
+                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid hover:bg-paper active:scale-[0.98]"
+                    >
+                      <span className="block text-[11px] tracking-wide text-ink-3">
+                        Client
+                      </span>
+                      <span className="font-display text-[17px] font-bold tracking-[-0.01em] text-ink">
+                        {clientNameVal}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => chooseClient(agencyNameVal, clientNameVal)}
+                      className="flex-1 basis-[180px] rounded-[12px] border border-soft bg-paper-2 px-4 py-3 text-left transition hover:border-acid hover:bg-paper active:scale-[0.98]"
+                    >
+                      <span className="block text-[11px] tracking-wide text-ink-3">
+                        Client
+                      </span>
+                      <span className="font-display text-[17px] font-bold tracking-[-0.01em] text-ink">
+                        {agencyNameVal}
+                      </span>
+                    </button>
+                  </div>
+                  <p className="mt-3 text-[12px] text-ink-3">
+                    Whichever you pick becomes the client — the other is saved as
+                    you (the agency).
                   </p>
                 </div>
-              </label>
+              </div>
             )}
 
-            {/* ─── Extracted with confidence ─── */}
+            {displayItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-ink-2" />
+                  <h3 className="text-[13px] font-semibold text-ink">Items</h3>
+                  <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                    {displayItems.length}{" "}
+                    {displayItems.length === 1 ? "deliverable" : "deliverables"}
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {displayItems.map((item, i) => {
+                    const amount =
+                      (Number(item.qty) || 0) * (Number(item.rate) || 0);
+                    return (
+                      <div
+                        key={item.id ?? i}
+                        className="rounded-[14px] border border-soft bg-paper p-4"
+                      >
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          {item.type ? (
+                            <span className="rounded-full bg-acc-soft px-2.5 py-1 text-[12px] font-semibold text-acid">
+                              {item.type}
+                            </span>
+                          ) : (
+                            <span />
+                          )}
+                          <span className="font-display text-[16px] font-bold tabular-nums text-ink">
+                            {formatMoney(amount)}
+                          </span>
+                        </div>
+                        <input
+                          value={item.description}
+                          onChange={(e) =>
+                            updateLineItem(i, { description: e.target.value })
+                          }
+                          placeholder="Describe this deliverable…"
+                          className={cn(
+                            "mb-3 h-9 w-full rounded-[10px] border bg-paper-2 px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                            i === 0 && primaryDescLow
+                              ? "border-[color:rgba(200,148,59,0.5)]"
+                              : "border-soft",
+                          )}
+                        />
+                        <div className="grid grid-cols-3 gap-2.5">
+                          <label className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1 text-[11px] text-ink-3">
+                              Qty
+                              {i === 0 && primaryQtyLow && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
+                              )}
+                            </span>
+                            <input
+                              type="number"
+                              value={String(item.qty ?? "")}
+                              onChange={(e) =>
+                                updateLineItem(i, { qty: e.target.value })
+                              }
+                              className={cn(
+                                "h-9 w-full rounded-[10px] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                i === 0 && primaryQtyLow
+                                  ? "border-[color:rgba(200,148,59,0.5)]"
+                                  : "border-soft",
+                              )}
+                            />
+                          </label>
+                          <label className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1 text-[11px] text-ink-3">
+                              Rate
+                              {i === 0 && primaryRateLow && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-ochre" />
+                              )}
+                            </span>
+                            <input
+                              type="number"
+                              value={String(item.rate ?? "")}
+                              onChange={(e) =>
+                                updateLineItem(i, { rate: e.target.value })
+                              }
+                              className={cn(
+                                "h-9 w-full rounded-[10px] border bg-paper-2 px-2.5 text-sm tabular-nums text-ink outline-none focus:border-acid focus:ring-2 focus:ring-acc-soft",
+                                i === 0 && primaryRateLow
+                                  ? "border-[color:rgba(200,148,59,0.5)]"
+                                  : "border-soft",
+                              )}
+                            />
+                          </label>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[11px] text-ink-3">Unit</span>
+                            <div className="flex h-9 items-center rounded-[10px] border border-soft bg-paper px-2.5 text-sm text-ink-2">
+                              {item.rateUnit ? prettyUnit(item.rateUnit) : "—"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center justify-between border-t border-[#e6dcc6] px-1 pt-3">
+                  <span className="text-[13px] text-ink-2">Subtotal</span>
+                  <span className="font-display text-[17px] font-bold tabular-nums text-ink">
+                    {formatMoney(itemsSubtotal)}
+                  </span>
+                </div>
+
+                {anyItemFieldLow && (
+                  <p className="flex items-start gap-2 px-1 text-[12px] text-ink-3">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ochre" />
+                    We couldn&apos;t read the flagged fields cleanly —
+                    double-check them. GST is added at the next step.
+                  </p>
+                )}
+              </div>
+            )}
+
             {confidentFields.length > 0 &&
               (() => {
                 const successFields = confidentFields.filter((f) => {
                   const val = getExtractedValueForLabel(f.label, localData);
                   return (
-                    val && val.trim().length > 0 && !lowConfLabels.has(f.label)
+                    val &&
+                    val.trim().length > 0 &&
+                    !lowConfLabels.has(f.label) &&
+                    !isDeliverableLabel(f.label)
                   );
                 });
                 if (successFields.length === 0) return null;
@@ -534,41 +774,61 @@ export default function BriefSummaryModal({
                 );
               })()}
 
-            {/* ─── Needs review ─── */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 px-0.5">
-                <span className="h-2 w-2 rounded-full bg-ochre" />
-                <h3 className="text-[13px] font-semibold text-ink">
-                  Needs review
-                </h3>
-                <div className="ml-auto flex items-center gap-2.5">
-                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#e6dcc6]">
-                    <div
-                      className="h-full rounded-full bg-acid transition-all duration-500"
-                      style={{
-                        width: `${(approvedFields.size / (reviewRequiredLabels.length || 1)) * 100}%`,
-                      }}
-                    />
+            {reviewRequiredLabels.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-ochre" />
+                  <h3 className="text-[13px] font-semibold text-ink">
+                    Needs review
+                  </h3>
+                  <div className="ml-auto flex items-center gap-2.5">
+                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#e6dcc6]">
+                      <div
+                        className="h-full rounded-full bg-acid transition-all duration-500"
+                        style={{
+                          width: `${(approvedFields.size / (reviewRequiredLabels.length || 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[12px] font-semibold tabular-nums text-ink-2">
+                      {approvedFields.size}/{reviewRequiredLabels.length}
+                    </span>
                   </div>
-                  <span className="text-[12px] font-semibold tabular-nums text-ink-2">
-                    {approvedFields.size}/{reviewRequiredLabels.length}
-                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {reviewRequiredLabels.map((label) => (
+                    <EditableRow
+                      key={label}
+                      label={label}
+                      value={getExtractedValueForLabel(label, localData)}
+                      isApproved={approvedFields.has(label)}
+                      isMandatory={isMandatoryField(label, localData)}
+                      isLowConfidence={lowConfLabels.has(label)}
+                      onApprove={handleApproveField}
+                    />
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-2.5">
-                {reviewRequiredLabels.map((label) => (
-                  <EditableRow
-                    key={label}
-                    label={label}
-                    value={getExtractedValueForLabel(label, localData)}
-                    isApproved={approvedFields.has(label)}
-                    isMandatory={isMandatoryField(label, localData)}
-                    isLowConfidence={lowConfLabels.has(label)}
-                    onApprove={handleApproveField}
-                  />
-                ))}
-              </div>
-            </div>
+            )}
+
+            {isNewClient && isLoggedIn && (
+              <label className="flex cursor-pointer items-start gap-3 rounded-[12px] border border-[#bcd8c8] bg-acc-soft p-4">
+                <input
+                  type="checkbox"
+                  checked={shouldSaveClient}
+                  onChange={(e) => setShouldSaveClient(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 rounded border-soft text-acid focus:ring-acc-soft"
+                />
+                <div>
+                  <p className="text-[14px] font-semibold text-ink">
+                    Save {localData.client.clientName} to your client directory
+                  </p>
+                  <p className="mt-0.5 text-[12px] leading-relaxed text-ink-2">
+                    Happens automatically when you generate the invoice.
+                  </p>
+                </div>
+              </label>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-4 border-t border-[#e6dcc6] bg-[#f7f0df] px-6 py-4">
