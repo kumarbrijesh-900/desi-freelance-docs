@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { renderLanceEmail } from "@/lib/email-template";
 
 export const dynamic = "force-dynamic";
 
@@ -79,22 +80,26 @@ export async function POST(req: NextRequest) {
 
     let subject: string;
     let headline: string;
-    let bodyHtml: string;
+    let paragraphs: string[];
     let cta: string;
 
     if (isMsaPending) {
       subject = `Action needed: Please review terms for invoice ${invoiceNumber} — ${agencyName}`;
       headline = "Agreement Pending Review";
-      bodyHtml = `<p>Hi ${clientName},</p>
-        <p>A gentle reminder that invoice <strong>${invoiceNumber}</strong> from ${agencyName} requires your review and acceptance of the Master Service Agreement terms before proceeding.</p>
-        <p>Please take a moment to review the terms at your earliest convenience so we can proceed smoothly.</p>`;
+      paragraphs = [
+        `Hi ${clientName},`,
+        `A gentle reminder that invoice <strong>${invoiceNumber}</strong> from ${agencyName} requires your review and acceptance of the Master Service Agreement terms before proceeding.`,
+        `Please take a moment to review the terms at your earliest convenience so we can proceed smoothly.`,
+      ];
       cta = "Review Terms & Invoice →";
     } else {
       subject = `Payment reminder: Invoice ${invoiceNumber} from ${agencyName}`;
       headline = "Friendly Payment Reminder";
-      bodyHtml = `<p>Hi ${clientName},</p>
-        <p>Just a friendly nudge that invoice <strong>${invoiceNumber}</strong> from ${agencyName} has a payment date approaching or past due.</p>
-        <p>If you have already processed the payment, please disregard this email. Otherwise, we'd appreciate it if you could arrange payment at your earliest convenience.</p>`;
+      paragraphs = [
+        `Hi ${clientName},`,
+        `Just a friendly nudge that invoice <strong>${invoiceNumber}</strong> from ${agencyName} has a payment date approaching or past due.`,
+        `If you have already processed the payment, please disregard this email. Otherwise, we'd appreciate it if you could arrange payment at your earliest convenience.`,
+      ];
       cta = "View Invoice →";
     }
 
@@ -110,51 +115,12 @@ export async function POST(req: NextRequest) {
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
       subject,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-            <tr><td align="center">
-              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                <!-- Header -->
-                <tr>
-                  <td style="background:#111118;padding:24px 32px;">
-                    <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
-                  </td>
-                </tr>
-                <!-- Body -->
-                <tr>
-                  <td style="padding:40px 32px;">
-                    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">
-                      ${headline}
-                    </h1>
-                    ${bodyHtml}
-                    <br/>
-                    <a href="${shareUrl}"
-                      style="display:inline-block;background-color:#1e3d33;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      ${cta}
-                    </a>
-                    <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">
-                      This is a reminder from ${agencyName}. This secure link was sent only to ${clientEmail}.
-                    </p>
-                  </td>
-                </tr>
-                <!-- Footer -->
-                <tr>
-                  <td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
-                    <p style="margin:0;font-size:12px;color:#9ca3af;">
-                      Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-        </html>
-      `,
+      html: renderLanceEmail({
+        headline,
+        paragraphs,
+        cta: { label: cta, url: shareUrl },
+        finePrint: `This is a reminder from ${agencyName}. This secure link was sent only to ${clientEmail}.`,
+      }),
     });
 
     if (emailError) {
