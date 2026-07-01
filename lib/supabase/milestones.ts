@@ -242,3 +242,80 @@ export async function fireMilestoneInvoice(
     milestoneIndex: nextMilestoneIndex,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Client-facing settlement emails. Both are best-effort: a failed send must
+// never throw into the settle route. They reuse the shared E email module.
+// ---------------------------------------------------------------------------
+
+async function resolveAgencyName(supabase: any, userId: string): Promise<string> {
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("agency_name")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return profile?.agency_name || "Your freelancer";
+}
+
+/** #2 — payment receipt to the client when a (non-final) milestone is settled. */
+export async function sendMilestoneSettledReceipt(
+  supabase: any,
+  parent: any,
+  milestoneNumber: number,
+): Promise<void> {
+  const clientEmail = parent?.shared_to_email;
+  if (!clientEmail) return;
+  try {
+    const agencyName = await resolveAgencyName(supabase, parent.user_id);
+    const shareUrl = parent.share_token
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/share/${parent.share_token}`
+      : undefined;
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
+      to: clientEmail,
+      subject: `Payment recorded — Milestone ${milestoneNumber}, Invoice ${parent.invoice_number}`,
+      html: renderLanceEmail({
+        headline: "Payment recorded",
+        paragraphs: [
+          `${agencyName} has marked Milestone ${milestoneNumber} of invoice <strong>${parent.invoice_number}</strong> as settled. Thank you — this milestone is now complete.`,
+          `Keep this email for your records.`,
+        ],
+        cta: shareUrl ? { label: "View invoice →", url: shareUrl } : undefined,
+      }),
+    });
+  } catch (err) {
+    console.error("MILESTONE_RECEIPT_EMAIL_ERROR:", err);
+  }
+}
+
+/** #1 — project-complete email to the client when the final milestone settles. */
+export async function sendProjectCompleteEmail(
+  supabase: any,
+  parent: any,
+): Promise<void> {
+  const clientEmail = parent?.shared_to_email;
+  if (!clientEmail) return;
+  try {
+    const agencyName = await resolveAgencyName(supabase, parent.user_id);
+    const shareUrl = parent.share_token
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/share/${parent.share_token}`
+      : undefined;
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
+      to: clientEmail,
+      subject: `Project complete — Invoice ${parent.invoice_number}`,
+      html: renderLanceEmail({
+        headline: "Your project is complete",
+        paragraphs: [
+          `Every milestone on invoice <strong>${parent.invoice_number}</strong> from ${agencyName} has now been delivered and settled. The project is officially complete.`,
+          `Thank you for working with ${agencyName}. Keep this email for your records.`,
+        ],
+        cta: shareUrl ? { label: "View invoice →", url: shareUrl } : undefined,
+      }),
+    });
+  } catch (err) {
+    console.error("PROJECT_COMPLETE_EMAIL_ERROR:", err);
+  }
+}
