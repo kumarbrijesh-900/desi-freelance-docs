@@ -3,7 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { computeAppliedMsaSnapshot } from "@/lib/msa-applied-snapshot";
 import { parseScheduledMilestoneTriggerDate } from "@/lib/milestone-trigger-date";
-import { fireMilestoneInvoice } from "@/lib/supabase/milestones";
+import {
+  fireMilestoneInvoice,
+  sendMilestoneSettledReceipt,
+  sendProjectCompleteEmail,
+} from "@/lib/supabase/milestones";
 
 export const dynamic = "force-dynamic";
 
@@ -200,6 +204,12 @@ export async function POST(req: NextRequest) {
         message: `Milestone ${currentOrderIndex + 1} for Invoice ${parent.invoice_number} settled.`,
         is_read: false,
       });
+
+      // Payment receipt to the client for this milestone. Skipped on the final
+      // milestone, where the project-complete email (below) covers it instead.
+      if (nextMilestone) {
+        await sendMilestoneSettledReceipt(supabaseAdmin, parent, currentOrderIndex + 1);
+      }
     }
 
     if (triggerMode === "scheduled") {
@@ -317,6 +327,12 @@ export async function POST(req: NextRequest) {
         message: `Invoice ${parent.invoice_number} was settled and remaining milestones were cancelled.`,
         is_read: false,
       });
+
+      // Project-complete email — only on genuine completion (final milestone
+      // settled), not on an early close that still had remaining milestones.
+      if (!nextMilestone) {
+        await sendProjectCompleteEmail(supabaseAdmin, parent);
+      }
 
       return NextResponse.json({
         success: true,
