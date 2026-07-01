@@ -6,6 +6,7 @@ import { ratelimit } from "@/lib/upstash";
 import { randomBytes } from "crypto";
 import { getInvoiceLockState } from "@/lib/invoice-lock-state";
 import { prepareTemplateData } from "@/lib/templates/template-data";
+import { renderLanceEmail } from "@/lib/email-template";
 
 export const dynamic = "force-dynamic";
 
@@ -275,54 +276,12 @@ export async function POST(req: NextRequest) {
       from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
       to: clientEmail,
       subject: content.subject,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-        <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-            <tr><td align="center">
-              <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                <!-- Header -->
-                <tr>
-                  <td style="background:#111118;padding:24px 32px;">
-                    <span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;">Lance</span>
-                  </td>
-                </tr>
-                <!-- Body -->
-                <tr>
-                  <td style="padding:40px 32px;">
-                    <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111118;letter-spacing:-0.03em;">
-                      ${content.headline}
-                    </h1>
-                    <p style="margin:0 0 32px;font-size:16px;color:#4b5563;line-height:1.6;">
-                      ${content.body}
-                    </p>
-                    
-                    <a href="${shareUrl}"
-                      style="display:inline-block;background-color:#1e3d33;color:#f0e9d6;font-size:15px;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;letter-spacing:-0.01em;">
-                      ${content.cta}
-                    </a>
-                    
-                    <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;line-height:1.5;">
-                      This secure link was sent only to ${clientEmail}. It will expire once the invoice is processed.
-                    </p>
-                  </td>
-                </tr>
-                <!-- Footer -->
-                <tr>
-                  <td style="background:#f9fafb;border-top:1px solid #f3f4f6;padding:20px 32px;text-align:center;">
-                    <p style="margin:0;font-size:12px;color:#9ca3af;">
-                      Powered by <strong>Lance</strong> — Smart Invoicing for Freelancers
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-        </html>
-      `,
+      html: renderLanceEmail({
+        headline: content.headline,
+        paragraphs: [content.body],
+        cta: { label: content.cta, url: shareUrl },
+        finePrint: `This secure link was sent only to ${clientEmail}. It will expire once the invoice is processed.`,
+      }),
     });
 
     if (emailError) {
