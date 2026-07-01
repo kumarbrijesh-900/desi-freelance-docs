@@ -11,7 +11,7 @@ export interface Project {
   client_id: string | null;
   name: string;
   description: string | null;
-  status: "active" | "completed" | "cancelled";
+  status: "active" | "completed" | "cancelled" | "closed";
   msa_accepted_at: string | null;
   msa_accepted_via_invoice_id: string | null;
   project_addendum_text: string | null;

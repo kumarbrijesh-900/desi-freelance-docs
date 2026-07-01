@@ -24,7 +24,7 @@ export function ProjectRail({
 
   // Helper to compute attention dot
   const getAttentionDot = (p: ProjectWithInvoices): string | null => {
-    if ((p.project as any).status === "closed") return null;
+    if (p.project.status === "closed") return null;
     const master = p.invoices.find(inv => !(inv as any).parent_invoice_id);
     if (!master) return null;
 
@@ -60,7 +60,7 @@ export function ProjectRail({
 
   // Helper to get active milestone summary
   const getSummary = (p: ProjectWithInvoices): string => {
-    if ((p.project as any).status === "closed") return "CLOSED";
+    if (p.project.status === "closed") return "CLOSED";
     const master = p.invoices.find(inv => !(inv as any).parent_invoice_id);
     if (!master) return "No master invoice";
 
