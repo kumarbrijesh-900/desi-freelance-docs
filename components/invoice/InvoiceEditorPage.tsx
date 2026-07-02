@@ -64,7 +64,11 @@ import {
   hydrateInvoiceFormFromParsedExtraction,
   type ParsedInvoiceHydrationResult,
 } from "@/lib/invoice-parsed-extraction-hydration";
-import type { BriefParserResponse } from "@/lib/brief-parser-gateway";
+import {
+  invokeBriefParserGateway,
+  toLegacyAiBriefExtraction,
+  type BriefParserResponse,
+} from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
 import {
   getCurrentUserId,
@@ -1824,6 +1828,40 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       normalizedInput.text.trim() ||
       normalizedInput.ocrText.trim() ||
       normalizedInput.voiceTranscript?.trim()
+    ) {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const gateway = await invokeBriefParserGateway({
+          input: {
+            briefText: normalizedInput.text,
+            ocrText: normalizedInput.ocrText,
+            voiceTranscript: normalizedInput.voiceTranscript ?? "",
+            documentId: parserDocumentId ?? undefined,
+            isRetry: isBriefRetry,
+          },
+          authorizationHeader: session?.access_token
+            ? `Bearer ${session.access_token}`
+            : null,
+        });
+        // Only trust the gateway when a provider actually parsed the brief.
+        // (parse-brief returns 200 with an empty result when keys are unset /
+        // all providers fail — providerUsed is null in that case.)
+        if (gateway.ok && gateway.response.providerUsed) {
+          parserResponse = gateway.response;
+          aiExtraction = toLegacyAiBriefExtraction(gateway.response);
+        }
+      } catch (error) {
+        console.error("Brief parser gateway failed, falling back:", error);
+      }
+    }
+
+    if (
+      !aiExtraction &&
+      (normalizedInput.text.trim() ||
+        normalizedInput.ocrText.trim() ||
+        normalizedInput.voiceTranscript?.trim())
     ) {
       try {
         const {
