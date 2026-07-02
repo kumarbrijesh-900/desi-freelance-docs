@@ -74,6 +74,13 @@ function getExtractedValueForLabel(
   if (l.includes("gstin") && !l.includes("client"))
     return data.agency.gstin || "";
   if (l.includes("pan")) return data.agency.pan || "";
+  if (l.includes("agency address line 2")) return data.agency.addressLine2 || "";
+  if (l.includes("agency city")) return data.agency.city || "";
+  if (
+    l.includes("agency") &&
+    (l.includes("pin") || l.includes("postal") || l.includes("zip"))
+  )
+    return data.agency.pinCode || "";
   if (
     l.includes("agency address") ||
     (l.includes("address") && !l.includes("client") && !l.includes("bank"))
@@ -81,6 +88,14 @@ function getExtractedValueForLabel(
     return data.agency.addressLine1 || data.agency.address || "";
 
   if (l.includes("client name")) return data.client.clientName;
+  if (l.includes("client address line 2"))
+    return data.client.clientAddressLine2 || "";
+  if (l.includes("client city")) return data.client.clientCity || "";
+  if (
+    l.includes("client") &&
+    (l.includes("pin") || l.includes("postal") || l.includes("zip"))
+  )
+    return data.client.clientPinCode || "";
   if (
     l.includes("client address") ||
     (l.includes("address line") && l.includes("client"))
@@ -135,10 +150,27 @@ function setFormDataValue(
       value === "true" ? "registered" : "not-registered";
   if (l.includes("gstin") && !l.includes("client")) next.agency.gstin = value;
   if (l.includes("pan")) next.agency.pan = value;
-  if (l.includes("agency address")) next.agency.addressLine1 = value;
+  if (l.includes("agency address line 2")) next.agency.addressLine2 = value;
+  if (l.includes("agency city")) next.agency.city = value;
+  if (
+    l.includes("agency") &&
+    (l.includes("pin") || l.includes("postal") || l.includes("zip"))
+  )
+    next.agency.pinCode = value;
+  if (l.includes("agency address") && !l.includes("line 2"))
+    next.agency.addressLine1 = value;
 
   if (l.includes("client name")) next.client.clientName = value;
-  if (l.includes("client address")) next.client.clientAddressLine1 = value;
+  if (l.includes("client address line 2"))
+    next.client.clientAddressLine2 = value;
+  if (l.includes("client city")) next.client.clientCity = value;
+  if (
+    l.includes("client") &&
+    (l.includes("pin") || l.includes("postal") || l.includes("zip"))
+  )
+    next.client.clientPinCode = value;
+  if (l.includes("client address") && !l.includes("line 2"))
+    next.client.clientAddressLine1 = value;
   if (l.includes("client state")) next.client.clientState = value as any;
   if (l.includes("client country")) next.client.clientCountry = value as any;
   if (
