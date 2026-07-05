@@ -69,7 +69,11 @@ function getExtractedValueForLabel(
   const l = label.toLowerCase();
   if (l.includes("agency name")) return data.agency.agencyName;
   if (l.includes("agency state")) return data.agency.agencyState || "";
-  if (l.includes("agency registered") || l.includes("gst status"))
+  if (
+    l.includes("agency registered") ||
+    l.includes("gst status") ||
+    l.includes("gst registration")
+  )
     return String(data.agency.gstRegistrationStatus === "registered");
   if (l.includes("gstin") && !l.includes("client"))
     return data.agency.gstin || "";
@@ -132,6 +136,18 @@ function getExtractedValueForLabel(
   if (l.includes("invoice date")) return data.meta.invoiceDate || "";
   if (l.includes("due date")) return data.meta.dueDate || "";
 
+  if (l.includes("email")) return data.client.clientEmail || "";
+  if (l.includes("location")) return data.client.clientLocation || "";
+  if (l.includes("sez")) return data.client.isClientSezUnit || "";
+  if (l.includes("lut")) return data.agency.lutNumber || "";
+  if (l.includes("settlement"))
+    return data.payment.paymentSettlementType || "";
+  if (l.includes("license type")) return data.payment.license.licenseType || "";
+  if (l.includes("license duration"))
+    return data.payment.license.licenseDuration || "";
+  if (l.includes("license"))
+    return String(data.payment.license.isLicenseIncluded);
+
   return "";
 }
 
@@ -145,7 +161,11 @@ function setFormDataValue(
 
   if (l.includes("agency name")) next.agency.agencyName = value;
   if (l.includes("agency state")) next.agency.agencyState = value as any;
-  if (l.includes("gst status") || l.includes("registered"))
+  if (
+    l.includes("gst status") ||
+    l.includes("registered") ||
+    l.includes("gst registration")
+  )
     next.agency.gstRegistrationStatus =
       value === "true" ? "registered" : "not-registered";
   if (l.includes("gstin") && !l.includes("client")) next.agency.gstin = value;
@@ -226,6 +246,20 @@ function setFormDataValue(
   if (l.includes("invoice date")) next.meta.invoiceDate = value;
   if (l.includes("due date")) next.meta.dueDate = value;
   if (l.includes("payment terms")) next.meta.paymentTerms = parseInt(value, 10) || 15;
+
+  if (l.includes("email")) next.client.clientEmail = value;
+  if (l.includes("location")) next.client.clientLocation = value as any;
+  if (l.includes("sez")) next.client.isClientSezUnit = value as any;
+  if (l.includes("lut")) next.agency.lutNumber = value;
+  if (l.includes("settlement"))
+    next.payment.paymentSettlementType = value as any;
+  if (l.includes("license type")) {
+    next.payment.license.licenseType = value as any;
+  } else if (l.includes("license duration")) {
+    next.payment.license.licenseDuration = value;
+  } else if (l.includes("license")) {
+    next.payment.license.isLicenseIncluded = value === "true";
+  }
 
   return next;
 }
