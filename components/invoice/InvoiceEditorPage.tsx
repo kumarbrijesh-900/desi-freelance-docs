@@ -58,6 +58,7 @@ import {
 import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
   runBriefAutofill,
+  type BriefAutofillFieldSummary,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
 import {
@@ -66,7 +67,6 @@ import {
 } from "@/lib/invoice-parsed-extraction-hydration";
 import {
   invokeBriefParserGateway,
-  toLegacyAiBriefExtraction,
   type BriefParserResponse,
 } from "@/lib/brief-parser-gateway";
 import { supabase } from "@/lib/supabase/client";
@@ -1850,7 +1850,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
         // all providers fail — providerUsed is null in that case.)
         if (gateway.ok && gateway.response.providerUsed) {
           parserResponse = gateway.response;
-          aiExtraction = toLegacyAiBriefExtraction(gateway.response);
         }
       } catch (error) {
         console.error("Brief parser gateway failed, falling back:", error);
@@ -1858,7 +1857,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
     }
 
     if (
-      !aiExtraction &&
+      !parserResponse &&
       (normalizedInput.text.trim() ||
         normalizedInput.ocrText.trim() ||
         normalizedInput.voiceTranscript?.trim())
@@ -1922,11 +1921,60 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       }
     }
 
-    const result = runBriefAutofill({
-      currentFormData: formData,
-      input: normalizedInput,
-      aiExtraction,
-    });
+    const buildAutofillResultFromParser = (
+      hydration: ParsedInvoiceHydrationResult,
+      briefText: string,
+    ) => {
+      const summaries = hydration.hydratedFields.map(
+        (field): BriefAutofillFieldSummary => ({
+          label: field.label,
+          fieldPath: field.path,
+          step: field.path.startsWith("client")
+            ? "client"
+            : field.path.startsWith("payment")
+              ? "payment"
+              : field.path.startsWith("meta")
+                ? "meta"
+                : field.path.startsWith("deliverables") ||
+                    field.path.startsWith("lineItems")
+                  ? "deliverables"
+                  : "agency",
+          confidence: field.confidence,
+          source: "ai",
+          origin: "parser",
+        }),
+      );
+      return {
+        normalizedText: briefText,
+        nextFormData: hydration.nextFormData,
+        confidentFieldSummaries: summaries.filter(
+          (summary) => summary.confidence === "high",
+        ),
+        lowConfidenceFieldSummaries: summaries.filter(
+          (summary) => summary.confidence === "medium",
+        ),
+      };
+    };
+
+    const result = parserResponse
+      ? buildAutofillResultFromParser(
+          hydrateInvoiceFormFromParsedExtraction({
+            currentFormData: formData,
+            parserResponse,
+          }),
+          [
+            normalizedInput.text,
+            normalizedInput.ocrText,
+            normalizedInput.voiceTranscript ?? "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        )
+      : runBriefAutofill({
+          currentFormData: formData,
+          input: normalizedInput,
+          aiExtraction,
+        });
 
     if (!result.normalizedText.trim()) {
       push({ kind: "info", ttl: 
