@@ -11,73 +11,120 @@ const GROQ_TIMEOUT_MS = 30000;
 const GROK_TIMEOUT_MS = 30000;
 
 const JSON_SCHEMA_DESCRIPTION = `
-Return strict JSON with this shape. ALWAYS output the _thought_process field first to reason through the data before filling the remaining fields!
+Return strict JSON with this shape. ALWAYS output the _scratchpad field first to reason through the data before filling the remaining fields!
 {
-  "_thought_process": {
-    "identity_status": "guest | partial_data | full_data",
-    "gstin_logic": "Explain how you identified the client GSTIN vs agency GSTIN.",
-    "tax_logic": "Compare state codes to determine IGST vs CGST/SGST.",
-    "categorization_logic": "Explain SAC code choices."
+  "_scratchpad": "string (Think step-by-step about locations, tax rules, exact numbers from colloquial Indian slang, missing data, and ambiguities)",
+  "normalizedExtraction": {
+    "agency": {
+      "businessName": string|null,
+      "gstRegistered": boolean|null,
+      "gstin": string|null,
+      "pan": string|null,
+      "lutEnabled": boolean|null,
+      "lutNumber": string|null,
+      "addressLine1": string|null,
+      "addressLine2": string|null,
+      "city": string|null,
+      "state": string|null,
+      "pinCode": string|null,
+      "country": string|null
+    },
+    "client": {
+      "name": string|null,
+      "email": string|null,
+      "location": "domestic"|"international"|null,
+      "gstinOrTaxId": string|null,
+      "isSezUnit": boolean|null,
+      "country": string|null,
+      "addressLine1": string|null,
+      "addressLine2": string|null,
+      "city": string|null,
+      "state": string|null,
+      "pinCode": string|null,
+      "postalCode": string|null
+    },
+    "deliverables": [
+      {
+        "type": string|null,
+        "description": string|null,
+        "quantity": number|null,
+        "rate": number|null,
+        "unit": string|null,
+        "sacCode": string|null
+      }
+    ],
+    "payment": {
+      "terms": string|null,
+      "mode": string|null,
+      "accountName": string|null,
+      "bankName": string|null,
+      "bankAddress": string|null,
+      "accountNumber": string|null,
+      "ifscCode": string|null,
+      "swiftCode": string|null,
+      "ibanOrRouting": string|null
+    },
+    "meta": {
+      "invoiceNumber": string|null,
+      "invoiceDate": string|null,
+      "dueDate": string|null,
+      "currency": string|null,
+      "totalAmount": number|null
+    },
+    "taxHints": {
+      "treatment": "CGST_SGST"|"IGST"|"ZERO_RATED"|"NONE"|null,
+      "rate": number|null,
+      "domesticOrInternational": "domestic"|"international"|null,
+      "placeOfSupply": string|null,
+      "exportMentioned": boolean|null,
+      "sezMentioned": boolean|null,
+      "lutMentioned": boolean|null,
+      "ambiguity": string|null
+    }
   },
-  "is_guest": boolean,
-  "client_details": {
-    "client_id": "uuid if known, else null",
-    "is_new_client": boolean,
-    "name": "Proper Noun",
-    "gstin": "string or null",
-    "state_code": "2 digit string or null",
-    "is_international": boolean
+  "confidence": {
+    "overall": "high"|"medium"|"low",
+    "fields": { "field.path": "high"|"medium"|"low" }
   },
-  "tax_determination": {
-    "tax_type": "IGST | CGST_SGST | LUT | NONE",
-    "tax_rate_percentage": 18
-  },
-  "msa_terms": {
-    "payment_terms": "string",
-    "ip_transfer_trigger": "string"
-  },
-  "line_items": [
-    { "description": "string", "sac_code": "string", "qty": number, "base_rate": number }
-  ]
+  "missingFields": string[],
+  "clarificationQuestions": string[],
+  "warnings": string[]
 }
 `;
 
 function createPrompt(bundle: NormalizedParserBundle, resolverMode = false) {
-  const { context } = bundle;
-  const databaseContext = context?.databaseContext ?? { user_state: "guest" };
-
   return `
-You are the "Autonomous Billing Engine" for Lance, a premium freelance platform.
-Your mission is to transform unstructured briefs into perfect, tax-compliant relational data.
+You are a highly intelligent, GST-aware freelance invoice parser trained for the Indian context.
 
-DATABASE_CONTEXT (The User's Reality):
-${JSON.stringify(databaseContext, null, 2)}
+Parse the input bundle into invoice-ready structured data. Return JSON only. You must always use the _scratchpad first to reason about the extraction.
 
-Strict Reasoning Rules (Process these in _thought_process):
-1. **IDENTITY RESOLUTION (SENDER/AGENCY)**: The sender of this invoice is the user identified in `sender_agency_data` within DATABASE_CONTEXT. 
-   - You MUST populate the `agency_name` and `sender_name` (if requested in legacy) using this data.
-   - Priority for `agency_name`: Use `business_name` if available, otherwise use `full_name`.
-   - Rule: Do NOT attempt to extract the sender's name from the brief text unless the brief explicitly mentions a different person billing on the user's behalf.
-2. **IDENTITY RESOLUTION (CLIENT)**: Map the client to an existing 'client_id' from `existing_clients` if a match is found (fuzzy match name).
-3. **GSTIN DISAMBIGUATION**: If multiple GSTINs are present in the text, cross-reference them with the Agency GSTIN in `sender_agency_data` to determine which belongs to the Agency (Sender) and which belongs to the Client.
-4. **TAX GEOGRAPHY**: The first 2 digits of an Indian GSTIN represent the State Code. Compare the Agency State Code (from `sender_agency_data`) to the Client State Code. 
-   - Match = CGST/SGST.
-   - Differ = IGST.
-   - International = LUT (if client is outside India).
-4. **CATEGORIZATION**: Analyze the work and assign the correct SAC code:
-   - UX/UI / Product Design = 998314
-   - Web / App Development = 998313
-   - 3D / Motion / Video = 998315
-   - Branding / Strategy = 998311
-5. **MATH DELEGATION**: Extract the base rates and quantities perfectly. Do NOT calculate the final grand total with taxes. Default qty to 1 if not mentioned.
+Rules:
+- Extract only grounded values. Never invent GSTIN, tax treatment, dates, or prices.
+- **Strict Name Boundaries**: When extracting 'agency.businessName' or 'client.name', extract ONLY the exact, short proper noun. NEVER extract entire sentences or action phases (e.g., skip "doing a total of dedh lakh...").
+- **Indian Numerals & Slang**: Accurately convert informal amounts. "18k" = 18000, "1 lakh" = 100000, "athraa hazaar" = 18000, "dedh lakh" (1.5L) = 150000. Normalize all rates to digits.
+- **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
+- **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity (e.g., "Pune" and "Gurgaon" for the client), DO NOT guess or merge them. Leave both location fields completely blank and ask a 'clarificationQuestion' asking which is correct.
+- **Payment Terms & Structure**: Always capture any stated payment arrangement into payment.terms, preserving the wording. This includes net terms ("Net 15", "pay me in a couple weeks" -> "Net 15"/"14 Days") AND partial or milestone structures ("40% advance", "50% upfront rest on delivery", "milestone-based", "advance + balance"). Do not leave payment.terms empty when the brief states any such arrangement.
+- If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
+- If a client is outside India, mark client.location as international.
+- Split multiple deliverables into separate line items.
+- **SAC Categorization**: Assign each deliverable the closest 6-digit sacCode from this table; prefer a confident closest match over null. Only use null if the work is too vague to categorize at all.
+  - Web / Website / App / Landing page (build, development or redesign) = 998314
+  - UX / UI / Product Design = 998314
+  - Logo / Branding / Graphic / Print / Packaging Design = 998391
+  - Illustration / Concept art = 999632
+  - Animation / Motion Graphics = 999612
+  - Video / Photography / Film shoot = 998387
+  - Video Editing / Reels / Shorts = 999613
+  - Social Media Content = 998361
+  - Writing / Copywriting / Content = 998399
+- Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
 
-General Extraction Rules:
-- **Client Name**: Extract ONLY the official proper noun. Ignore conversational descriptors.
-- **Line Items**: Meticulously separate distinct deliverables.
-- **Quantities vs. Terms**: NEVER confuse payment term days (e.g., Net 15) with item quantities.
-- **Strict Schema Adherence**: You MUST return the full JSON structure. Use explicit empty values (null, [], "") if data is missing.
+Few-Shot Example Context:
+If input is: "I did a logo design for Metro Shoes in Bangalore for athraa hazaar. My agency is in Karnataka."
+Your _scratchpad should be: "Agency is in Karnataka. Client Metro Shoes is in Bangalore, which is also Karnataka. Same state means intra-state supply, so CGST_SGST applies. Rate is 'athraa hazaar' which translates to 18000 INR."
 
-${resolverMode ? "- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing." : ""}
+${resolverMode ? '- You are the final ambiguity resolver. Focus on contradictions, tax/SEZ/export uncertainty, and unclear pricing.' : ""}
 
 ${JSON_SCHEMA_DESCRIPTION}
 

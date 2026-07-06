@@ -6,7 +6,7 @@ import type {
   PostProcessResult,
 } from "./types.ts";
 
-const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const SAC_REGEX = /^\d{6}$/;
 const PLACEHOLDER_REGEX =
@@ -411,78 +411,146 @@ export function postProcessProviderOutput(
 ): PostProcessResult {
   const warnings: string[] = [];
   const root = isRecord(rawJson) ? rawJson : {};
-
-  // ─── NEW STRUCTURE MAPPING ────────────────────────────────
-  // The Autonomous Billing Engine uses a flatter, more relational structure
-  const clientDetails = isRecord(root.client_details) ? root.client_details : {};
-  const taxDet = isRecord(root.tax_determination) ? root.tax_determination : {};
-  const msaTerms = isRecord(root.msa_terms) ? root.msa_terms : {};
-  const lineItems = Array.isArray(root.line_items) ? root.line_items : [];
-  
-  // Database context for defaults if needed
-  const dbCtx = bundle.context?.databaseContext || {};
-  const agencyData = dbCtx.agency || {};
+  const source = isRecord(root.normalizedExtraction)
+    ? root.normalizedExtraction
+    : root;
+  const agency = isRecord(source.agency) ? source.agency : {};
+  const client = isRecord(source.client) ? source.client : {};
+  const payment = isRecord(source.payment) ? source.payment : {};
+  const meta = isRecord(source.meta) ? source.meta : {};
+  const taxHints = isRecord(source.taxHints) ? source.taxHints : {};
+  const confidenceRoot = isRecord(root.confidence) ? root.confidence : {};
+  const confidenceFields = isRecord(confidenceRoot.fields)
+    ? confidenceRoot.fields
+    : {};
 
   const extraction: NormalizedExtraction = {
     agency: {
-      businessName: cleanEntityName(agencyData.name),
-      gstin: normalizeGstin(agencyData.gstin, warnings),
-      state: normalizeState(agencyData.location),
-      // Guest-mode might have extracted agency info if it wasn't in context
-      ...(isRecord(root.agency_details) ? {
-        businessName: cleanEntityName(root.agency_details.name) || cleanEntityName(agencyData.name),
-        gstin: normalizeGstin(root.agency_details.gstin, warnings) || normalizeGstin(agencyData.gstin, warnings),
-      } : {}),
+      businessName: cleanEntityName(agency.businessName),
+      gstRegistered: cleanBoolean(agency.gstRegistered),
+      gstin: normalizeGstin(agency.gstin, warnings),
+      pan: cleanString(agency.pan)?.toUpperCase() ?? null,
+      lutEnabled: cleanBoolean(agency.lutEnabled),
+      lutNumber: cleanString(agency.lutNumber),
+      addressLine1: cleanString(agency.addressLine1),
+      addressLine2: cleanString(agency.addressLine2),
+      city: cleanString(agency.city),
+      state: normalizeState(agency.state),
+      pinCode: cleanString(agency.pinCode),
+      country: cleanString(agency.country),
     },
     client: {
-      name: cleanEntityName(clientDetails.name),
+      name: cleanEntityName(client.name),
+      email: cleanEmail(client.email),
+      location:
+        client.location === "domestic" || client.location === "international"
+          ? client.location
+          : hasInternationalHint(bundle.combinedText)
+          ? "international"
+          : null,
       gstinOrTaxId: normalizeClientTaxId({
-        value: clientDetails.gstin,
-        agencyGstin: normalizeGstin(agencyData.gstin, warnings),
-        agencyPan: null,
-        clientLocation: clientDetails.is_international ? "international" : "domestic",
+        value: client.gstinOrTaxId,
+        agencyGstin: normalizeGstin(agency.gstin, warnings),
+        agencyPan: cleanString(agency.pan)?.toUpperCase() ?? null,
+        clientLocation:
+          client.location === "domestic" || client.location === "international"
+            ? client.location
+            : hasInternationalHint(bundle.combinedText)
+            ? "international"
+            : null,
         warnings,
       }),
-      location: clientDetails.is_international ? "international" : "domestic",
-      state: normalizeState(clientDetails.state_code),
+      isSezUnit: cleanBoolean(client.isSezUnit),
+      country: cleanString(client.country),
+      addressLine1: cleanString(client.addressLine1),
+      addressLine2: cleanString(client.addressLine2),
+      city: cleanString(client.city),
+      state: normalizeState(client.state),
+      pinCode: cleanString(client.pinCode),
+      postalCode: cleanString(client.postalCode),
     },
-    deliverables: lineItems.map((item: any) => ({
-      description: cleanString(item.description),
-      quantity: cleanNumber(item.qty) ?? 1,
-      rate: cleanNumber(item.base_rate),
-      sacCode: cleanString(item.sac_code),
-      type: normalizeType(null, item.description),
-    })),
+    deliverables: Array.isArray(source.deliverables)
+      ? source.deliverables
+          .map((item) => normalizeLineItem(item, warnings))
+          .filter((item): item is NormalizedLineItem => Boolean(item))
+      : [],
     payment: {
-      terms: cleanString(msaTerms.payment_terms),
+      terms: cleanString(payment.terms)?.replace(/\bnet[\s-]?(\d+)\b/i, "Net $1") ?? null,
+      mode: cleanString(payment.mode),
+      accountName: cleanString(payment.accountName),
+      bankName: cleanString(payment.bankName),
+      bankAddress: cleanString(payment.bankAddress),
+      accountNumber: cleanString(payment.accountNumber),
+      ifscCode: cleanString(payment.ifscCode)?.toUpperCase() ?? null,
+      swiftCode: cleanString(payment.swiftCode)?.toUpperCase() ?? null,
+      ibanOrRouting: cleanString(payment.ibanOrRouting),
     },
     meta: {
-      currency: "INR", // Default for now
+      invoiceNumber: cleanString(meta.invoiceNumber),
+      invoiceDate: normalizeDate(meta.invoiceDate, warnings),
+      dueDate: normalizeDate(meta.dueDate, warnings),
+      currency: cleanString(meta.currency)?.toUpperCase() ?? null,
+      totalAmount: cleanNumber(meta.totalAmount),
     },
     taxHints: {
-      treatment: normalizeTreatment(taxDet.tax_type),
-      rate: cleanNumber(taxDet.tax_rate_percentage),
-      domesticOrInternational: clientDetails.is_international ? "international" : "domestic",
+      treatment: normalizeTreatment(taxHints.treatment),
+      rate: cleanNumber(taxHints.rate),
+      domesticOrInternational:
+        taxHints.domesticOrInternational === "domestic" ||
+        taxHints.domesticOrInternational === "international"
+          ? taxHints.domesticOrInternational
+          : null,
+      placeOfSupply: normalizeState(taxHints.placeOfSupply),
+      exportMentioned: cleanBoolean(taxHints.exportMentioned),
+      sezMentioned:
+        cleanBoolean(taxHints.sezMentioned) ??
+        (/\bsez\b/i.test(bundle.combinedText) ? true : null),
+      lutMentioned:
+        cleanBoolean(taxHints.lutMentioned) ??
+        (/\blut\b|\bbond\b/i.test(bundle.combinedText) ? true : null),
+      ambiguity: cleanString(taxHints.ambiguity),
     },
   };
 
-  // ─── POST-MAPPING REFINEMENTS ─────────────────────────────
   if (extraction.agency.gstin && extraction.agency.gstRegistered === null) {
     extraction.agency.gstRegistered = true;
   }
 
+  if (extraction.taxHints.domesticOrInternational && !extraction.client.location) {
+    extraction.client.location = extraction.taxHints.domesticOrInternational;
+  }
+
+  if (
+    extraction.taxHints.sezMentioned === true &&
+    extraction.client.isSezUnit === null
+  ) {
+    extraction.taxHints.treatment = null;
+    extraction.taxHints.ambiguity =
+      extraction.taxHints.ambiguity ||
+      "SEZ was mentioned, but authorised-operations status is unresolved.";
+  }
+
   const missingFields = collectMissingFields(extraction);
   const hardAmbiguity = detectHardAmbiguity(bundle, extraction);
-  
-  // Confidence for the new engine is driven by the presence of reasoning
-  const overallConf: Confidence = root._thought_process ? "high" : "medium";
-
   const confidence = {
-    overall: overallConf,
-    fields: {}, // Simplified for new engine
+    overall: overallConfidence(confidenceRoot.overall),
+    fields: Object.fromEntries(
+      Object.entries(confidenceFields).map(([key, value]) => [
+        key,
+        fieldConfidence(value),
+      ])
+    ),
   };
-
-  const clarificationQuestions = buildClarifications(missingFields, hardAmbiguity);
+  const clarificationQuestions = [
+    ...new Set([
+      ...(Array.isArray(root.clarificationQuestions)
+        ? root.clarificationQuestions.filter(
+            (question): question is string => typeof question === "string"
+          )
+        : []),
+      ...buildClarifications(missingFields, hardAmbiguity),
+    ]),
+  ];
 
   return {
     extraction,
@@ -492,7 +560,9 @@ export function postProcessProviderOutput(
     warnings: [
       ...warnings,
       ...(Array.isArray(root.warnings)
-        ? root.warnings.filter((w): w is string => typeof w === "string")
+        ? root.warnings.filter(
+            (warning): warning is string => typeof warning === "string"
+          )
         : []),
     ],
     hardAmbiguity,
