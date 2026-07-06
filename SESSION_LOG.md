@@ -17,17 +17,62 @@ New Claude instance? Read this block, then the most recent session entries below
 
 **1. ~~Invoice templates — UX/UI + compliance pass.~~** ✅ DONE (June 25-27).
 
-**2. ~~Notification + email completeness.~~** ✅ DONE (June 27, session 2). Realtime bell fixed, notification enum fixed, MSA agency email shipped + live-tested, full email inventory mapped. See entry below.
+**2. ~~Notification + email completeness.~~** ✅ DONE (June 27, session 2). Realtime bell fixed, notification enum fixed, MSA agency email shipped + live-tested, full email inventory mapped.
 
-**3. Open follow-ups (none blocking):**
+**3. Extraction / autofill workstream (in progress — see July 5-6 entry).** The deployed multi-provider `parse-brief` pipeline is now wired into the editor (1a/1b), the review modal surfaces all extracted fields (#1), the live parser prompt is tuned (edge-fn **v17**), and the repo is re-synced to prod. Remaining:
+- **PENDING — flip the autofill gate in main prod.** Autofill is *intentionally hidden* in prod until parsing is public-ready; 1a/1b/#1 run in dev/preview only. When quality is judged ready, locate + flip the gate cleanly (Claude to help find it).
+- **PLANNED — Stage 3: image → Gemini multimodal.** Parser is text-only today; screenshots are OCR'd to text client-side before the parser ever sees them.
+- **PLANNED — Stage 4: voice intake** (`voiceTranscript` is already a `parse-brief` bundle field, unused).
+- **PLANNED — Stage 5: broader field coverage + per-item confidence.**
+
+**4. Open follow-ups (none blocking):**
 - `projects.status` TS type in `lib/supabase/projects.ts` still `"active" | "cancelled" | "completed"` — does not include `"closed"` (DB CHECK already accepts it; ProjectRail uses `(p.project as any).status === "closed"`). Extend the type.
 - **Email gaps left intentionally (product calls, not bugs):** project **completion** (final milestone settled) sends NO email to anyone — only the in-app "Project Complete!" modal; there is no payment-received receipt to the client, and no MSA-**accepted** confirmation email to the client (agency is emailed, client is not). Revisit if desired.
 - `request-milestone` route (`app/api/invoice/request-milestone/route.ts`) is **dead** (zero callers) and its email button uses a CSS var that won't render in email. Either delete or fix if ever wired.
 - Smaller carryovers unchanged: stray blank line in `app/clients/page.tsx` import; ErrorBoundary + `global-error.tsx`/`error.tsx`/`not-found.tsx`; dynamic-import XLSX in `app/invoices/page.tsx`; client name-role low-confidence handling; mark the April audit docs superseded.
 
-**4. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
+**5. Planned build queue (non-extraction, founder-prioritised).**
+- **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
+- **v1.5 multi-milestone schema refactor** — promote Milestone to a real entity (existing empty `invoice_milestones` + `invoice_line_items` tables), Option A strict-sequential.
+- PostgREST FK rewrite via `projects.client_id` (no direct `invoices→clients` FK) — AUDIT-P0-002.
+- Restore C2 drawer richness (CHECKPOINT + CONTRACT + CHECKLIST).
+- Profile + Global MSA atomic save — AUDIT-P0-001.
+- Late-fee unit normalize (`msa-sync-utils.ts:71` + `default-msa.ts:24`).
+- Template placeholder suppression — AUDIT-P1-003; trigger-date edge case; orphan-invoice backfill.
+- Prod DB cleanup: delete `AUDIT DRAFT RETRY` orphan + `Test Project 1779434613`.
+
+**6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## Extraction pipeline adoption + review-modal niche fields + parser prompt tuning + parse-brief repo↔prod drift fix (July 5-6, 2026)
+
+Adopted the deployed-but-dormant multi-provider `parse-brief` edge function as the invoice autofill pipeline, taught the review modal the niche extracted fields, tuned the live parser prompt (deployed edge-fn **v17**), and reconciled a *generational* repo↔prod drift in the parse-brief function. All code changes verified byte-exact on `origin/main` + Vercel READY; the parser change additionally live-tested via a temporary Postgres `http` extension (enable → POST → drop; no DB rows written).
+
+### Shipped this session
+
+| # | Scope | Mechanism | Ref |
+|---|---|---|---|
+| Stage 1a — wire multi-provider gateway | `handleBriefAutofill` tries `invokeBriefParserGateway` (Supabase `parse-brief`: Gemini→Groq→Grok) FIRST, trusts it only when `gateway.ok && response.providerUsed` (parse-brief returns HTTP200-empty with `providerUsed:null` when all providers fail → this gate prevents wrongly skipping the OpenAI fallback); else falls back to OpenAI `/api/brief-extract` unchanged | `components/invoice/InvoiceEditorPage.tsx` | `0df913e` |
+| Stage 1b — overwrite-safe hydrator | Switched the mapper to `hydrateInvoiceFormFromParsedExtraction` (confidence-gated, preserves user-typed values); shaped its output into the existing `runBriefAutofill`-shaped result object so the fragile due-date/merge/modal tail is byte-unchanged | `components/invoice/InvoiceEditorPage.tsx` | `aa73960` |
+| #1 Review-modal niche fields | `BriefSummaryModal` value-getter + setter now recognise 7 previously-omitted extracted fields (client email, location, SEZ, LUT number, settlement type, license terms, GST-registration) — they were silently filtered out when their lookup returned empty; now shown + editable. Broadened the GST-registration match too. | `components/invoice/BriefSummaryModal.tsx` | `3234229` |
+| #2 Parser prompt tuning | Edited the live `parse-brief` prompt: capture partial/milestone payment terms ("40% advance") into `payment.terms`, and a concrete SAC table so web/website work gets a code instead of null→spurious "Which SAC code?" clarification. Deployed via the Supabase dashboard (paste one file). | `supabase/functions/parse-brief/provider-adapters.ts` | edge-fn **v17** |
+| parse-brief repo↔prod drift fix | Repo's parse-brief was a whole generation behind prod (old "Autonomous Billing Engine" flat `client_details`/`line_items` shape vs live "GST-aware `normalizedExtraction`"). Synced repo's `provider-adapters.ts` + `postprocess.ts` to the live v17 source, byte-exact. `types.ts`/`index.ts`/`normalization.ts`/`persistence.ts` already matched prod. | `supabase/functions/parse-brief/{provider-adapters,postprocess}.ts` | `fdb1c51` |
+
+### Live parser test (v17, via temporary `http` ext)
+Brief "…full website redesign… dedh lakh. 40% advance, balance on delivery… Bengaluru, Karnataka" → `payment.terms`="40% advance, balance on delivery", deliverable `sacCode`=998314 (type "Other" but SAC populated → **no** "Which SAC code?" clarification), dedh lakh→150000, same-state→CGST_SGST, provider gemini-flash first try, `rawStored:false`. Both target misses fixed; no regressions. `http` ext dropped; DB clean.
+
+### Key facts / learnings
+- **Two coexisting extraction pipelines** existed: OLD live (client Tesseract OCR → OpenAI `/api/brief-extract` → `runBriefAutofill`, aggressive overwrites + index-merge) vs NEW deployed-but-dormant (`parse-brief` edge fn + `hydrateInvoiceFormFromParsedExtraction`). Adopted the NEW one (Option A, founder-approved) — it already had confidence + overwrite-safety.
+- **`parse-brief` edge fn**: id `ec1bf407-3d95-43f5-bc80-e529e2cedba2`, ACTIVE, `verify_jwt:false`, now **v17**. 3-provider tiered fallback (Gemini→Groq→Grok), GST/Indian-slang-aware prompt, per-field confidence, clarifications; persists to `documents` only when authenticated.
+- **Provider secrets set** (Supabase edge-fn secrets): `GEMINI_API_KEY`, `GEMINI_FLASH_MODEL` (=gemini-2.5-flash), `GROQ_API_KEY`, `GROK_MODEL`. Deployed code has older default model strings but env vars override them — do NOT "fix" the code defaults.
+- **Autofill is INTENTIONALLY HIDDEN in main prod** — parsing not yet public-ready. 1a/1b/#1 are effective in dev/preview only until the gate is flipped.
+- **Edge functions deploy SEPARATELY** from the git-push→Vercel flow (Supabase dashboard/CLI), NOT from the repo. `deploy_edge_function` via MCP is impractical at this size (~41KB across 5 files → single-call payload truncates). Reliable path used: paste the one changed file into the Supabase dashboard editor + Deploy (the other live files stay intact). `get_edge_function` returns 5 files — `types.ts` is type-only (`import type`), erased at build, so not stored.
+- **Invoking an edge fn for tests** (no invoke tool; bash can't reach supabase.co): temporary Postgres `http` extension — `CREATE EXTENSION http` → `extensions.http(...)` POST with anon-key headers → `DROP EXTENSION`. Anon-key-only calls skip persistence (no `documents` row). Get consent first.
+- `supabase/functions/*` is **excluded from the Next/Vercel build** (Deno files, `Deno.env`) — repo edits there don't affect the app deploy (confirmed: `fdb1c51` built green).
+
+### Commits this session (chronological)
+`0df913e` (1a) → `aa73960` (1b) → `3234229` (#1 modal) → `fdb1c51` (repo drift sync). Parser prompt (#2) went live as edge-fn **v17** via the Supabase dashboard (no repo commit until `fdb1c51` synced it).
 
 ## Notification realtime + enum fixes, MSA agency email, email audit (June 27, 2026 — session 2)
 
