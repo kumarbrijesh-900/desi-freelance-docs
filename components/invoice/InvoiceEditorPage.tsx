@@ -32,7 +32,6 @@ import {
   motion,
 } from "@/components/ui/motion-primitives";
 import { Marker } from "@/components/ui/Marker";
-import type { AiBriefExtraction } from "@/lib/ai-brief-extractor";
 import { addDays } from "@/lib/date-math";
 import AgencyDetailsSection from "@/components/invoice/AgencyDetailsSection";
 import BriefIntakeCard from "@/components/invoice/BriefIntakeCard";
@@ -57,7 +56,6 @@ import {
 } from "@/lib/invoice-compliance";
 import { extractTextFromImage } from "@/lib/ocr-extractor";
 import {
-  runBriefAutofill,
   type BriefAutofillFieldSummary,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
@@ -1821,7 +1819,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       ocrText,
     };
 
-    let aiExtraction: AiBriefExtraction | null = null;
     let parserResponse: BriefParserResponse | null = null;
 
     if (
@@ -1856,70 +1853,6 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       }
     }
 
-    if (
-      !parserResponse &&
-      (normalizedInput.text.trim() ||
-        normalizedInput.ocrText.trim() ||
-        normalizedInput.voiceTranscript?.trim())
-    ) {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const response = await fetch("/api/brief-extract", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(session?.access_token
-              ? { Authorization: `Bearer ${session.access_token}` }
-              : {}),
-          },
-          body: JSON.stringify({
-            raw_input: [
-              normalizedInput.text,
-              normalizedInput.ocrText,
-              normalizedInput.voiceTranscript ?? "",
-            ]
-              .filter(Boolean)
-              .join("\n\n"),
-            agency_context: {
-              businessName: formData.agency.agencyName,
-              full_name: "",
-              city: formData.agency.city,
-              state: formData.agency.agencyState,
-              gstin: formData.agency.gstin,
-            },
-            client_context: selectedClientMsa
-              ? {
-                id: selectedClientMsa.id,
-                name: selectedClientMsa.client_name,
-                email: selectedClientMsa.client_email,
-                location:
-                  selectedClientMsa.country || selectedClientMsa.state,
-                gstinOrTaxId: selectedClientMsa.gstin,
-                msa: {
-                  payment_terms: selectedClientMsa.msa_payment_terms_days,
-                  late_fee: selectedClientMsa.msa_late_fee_rate,
-                  ip_trigger: selectedClientMsa.msa_ip_trigger_type,
-                  jurisdiction: selectedClientMsa.msa_jurisdiction_city,
-                },
-              }
-              : null,
-            documentId: parserDocumentId,
-            isRetry: isBriefRetry,
-          }),
-        });
-
-        if (response.ok) {
-          const payload = (await response.json()) as {
-            extraction?: AiBriefExtraction | null;
-          };
-          aiExtraction = payload.extraction ?? null;
-        }
-      } catch (error) {
-        console.error("AI brief extraction request failed:", error);
-      }
-    }
 
     const buildAutofillResultFromParser = (
       hydration: ParsedInvoiceHydrationResult,
@@ -1956,34 +1889,36 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       };
     };
 
-    const result = parserResponse
-      ? buildAutofillResultFromParser(
-          hydrateInvoiceFormFromParsedExtraction({
-            currentFormData: formData,
-            parserResponse,
-          }),
-          [
-            normalizedInput.text,
-            normalizedInput.ocrText,
-            normalizedInput.voiceTranscript ?? "",
-          ]
-            .filter(Boolean)
-            .join("\n"),
-        )
-      : runBriefAutofill({
-          currentFormData: formData,
-          input: normalizedInput,
-          aiExtraction,
-        });
-
-    if (!result.normalizedText.trim()) {
-      push({ kind: "info", ttl: 
-        input.imageFiles?.length
-          ? "Could not extract text clearly. Try uploading a clearer image or paste text."
-          : "Add a text brief first to extract invoice details.",
-       });
+    if (!parserResponse) {
+      const hadBriefInput = Boolean(
+        normalizedInput.text.trim() ||
+          normalizedInput.ocrText.trim() ||
+          normalizedInput.voiceTranscript?.trim(),
+      );
+      push({
+        kind: "info",
+        ttl: !hadBriefInput
+          ? input.imageFiles?.length
+            ? "Could not extract text clearly. Try uploading a clearer image or paste text."
+            : "Add a text brief first to extract invoice details."
+          : "Couldn't parse this brief right now — please try again in a moment.",
+      });
       return false;
     }
+
+    const result = buildAutofillResultFromParser(
+      hydrateInvoiceFormFromParsedExtraction({
+        currentFormData: formData,
+        parserResponse,
+      }),
+      [
+        normalizedInput.text,
+        normalizedInput.ocrText,
+        normalizedInput.voiceTranscript ?? "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
 
     const hydratedFormData = result.nextFormData;
 
