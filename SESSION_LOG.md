@@ -26,10 +26,12 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
 **4. Open follow-ups (none blocking):**
-- `projects.status` TS type in `lib/supabase/projects.ts` still `"active" | "cancelled" | "completed"` — does not include `"closed"` (DB CHECK already accepts it; ProjectRail uses `(p.project as any).status === "closed"`). Extend the type.
-- **Email gaps left intentionally (product calls, not bugs):** project **completion** (final milestone settled) sends NO email to anyone — only the in-app "Project Complete!" modal; there is no payment-received receipt to the client, and no MSA-**accepted** confirmation email to the client (agency is emailed, client is not). Revisit if desired.
-- `request-milestone` route (`app/api/invoice/request-milestone/route.ts`) is **dead** (zero callers) and its email button uses a CSS var that won't render in email. Either delete or fix if ever wired.
-- Smaller carryovers unchanged: stray blank line in `app/clients/page.tsx` import; ErrorBoundary + `global-error.tsx`/`error.tsx`/`not-found.tsx`; dynamic-import XLSX in `app/invoices/page.tsx`; client name-role low-confidence handling; mark the April audit docs superseded.
+- **Legacy extraction fallback is UNSAFE (July 6 finding).** In `handleBriefAutofill`, when the parse-brief gateway fails or all 3 providers return empty, the brief falls through to `/api/brief-extract` → `runBriefAutofill` — the old mapper with index-based line-item merge and silent high-confidence overwrites. Overwrite-safety (1b) holds only on the gateway path. Proposed fix: delete the legacy fallback entirely (gateway already has 3-provider redundancy; failure should be a "couldn't parse, try again" toast). Zero prod risk while the autofill gate is closed.
+- **Gate-flip exit criteria undefined.** "When quality is judged ready" needs a concrete bar: fixed eval set of 20–30 real briefs (Hinglish, dedh-lakh amounts, screenshot OCR, partial-payment terms) scored on field accuracy + spurious-clarification rate.
+- **Edge-fn drift ritual.** parse-brief deploys via dashboard paste, outside git. At session start when touching extraction: `get_edge_function`, diff vs repo. Drift WILL recur otherwise (it already did once, generationally).
+- Client name-role low-confidence handling — lives in the legacy pipeline; dies with the fallback removal above. Do not fix separately.
+- Component-level React ErrorBoundary still unadded (route-level `error.tsx`/`global-error.tsx`/`not-found.tsx` shipped July 1).
+- ~~All June-era carryovers CLOSED July 1~~: `projects.status` TS type extended with `"closed"`; project-complete email + settlement receipt + client MSA-accepted confirmation all shipped via shared email module; dead `request-milestone` route deleted; XLSX dynamically imported; stray blank line fixed; April audit docs stamped superseded.
 
 **5. Planned build queue (non-extraction, founder-prioritised).**
 - **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
@@ -73,6 +75,28 @@ Brief "…full website redesign… dedh lakh. 40% advance, balance on delivery�
 
 ### Commits this session (chronological)
 `0df913e` (1a) → `aa73960` (1b) → `3234229` (#1 modal) → `fdb1c51` (repo drift sync). Parser prompt (#2) went live as edge-fn **v17** via the Supabase dashboard (no repo commit until `fdb1c51` synced it).
+
+## Shared email module + Pile-2 emails + carryover cleanup + BriefSummaryModal passes (July 1–2, 2026)
+
+**Note: this entry was reconstructed on July 6 from commit history — the session itself went unlogged, and the July 5–6 handover restated stale follow-ups as a result. Lesson: log before ending a session; a handover that skips a session poisons the next cold start.**
+
+### Shipped (chronological, all verified on origin/main)
+| # | Scope | SHA |
+|---|---|---|
+| Carryover sweep: `projects.status` TS type gains `"closed"`, as-any casts dropped, stray blank line fixed, dead `request-milestone` route DELETED | `lib/supabase/projects.ts`, `components/dashboard/ProjectRail.tsx`, `app/clients/page.tsx` | `7ba4529` |
+| Session-2 migrations version-controlled + `audits/` stamped superseded | `supabase/migrations/*`, `audits/*` | `e1f1566` |
+| Client-facing MSA-accepted confirmation email (best-effort) | `e509fbe` |
+| Shared branded email module — single source for all transactional email markup | `lib/email-template.ts` (new) | `e6f51f2` |
+| All 6 existing senders migrated to the shared module (milestone-fire, nudge-client, project-close, share-invoice, msa-response, cron check-invoices) | `3d1836b`→`98690bc` |
+| Pile 2: settlement-receipt + project-complete email helpers, wired into settle path | `c7e2e04`, `016eeea` |
+| Oops pages (`not-found`/`error`/`global-error`) styled to E | `79e7d98` |
+| BriefSummaryModal: E re-theme (pass 1) + "Who's the client" step + detailed Items (pass 2) | `d76a246`, `852b98e` |
+| Address routing fix: line 2 / city / PIN to distinct fields | `2478279` |
+
+(`0df913e` — Stage 1a gateway wiring — also landed July 2; logged under the July 5–6 extraction entry.)
+
+### Email inventory delta (supersedes the June 27 table)
+Now sending: project-complete (final settle), settlement receipt to client, MSA-accepted confirmation to client. The June 27 "No email" list is fully closed. `request-milestone` route no longer exists.
 
 ## Notification realtime + enum fixes, MSA agency email, email audit (June 27, 2026 — session 2)
 
