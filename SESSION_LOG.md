@@ -25,13 +25,12 @@ New Claude instance? Read this block, then the most recent session entries below
 - **PLANNED — Stage 4: voice intake** (`voiceTranscript` is already a `parse-brief` bundle field, unused).
 - **PLANNED — Stage 5: broader field coverage + per-item confidence.**
 
-**4. Open follow-ups (none blocking):**
-- **Legacy extraction fallback is UNSAFE (July 6 finding).** In `handleBriefAutofill`, when the parse-brief gateway fails or all 3 providers return empty, the brief falls through to `/api/brief-extract` → `runBriefAutofill` — the old mapper with index-based line-item merge and silent high-confidence overwrites. Overwrite-safety (1b) holds only on the gateway path. Proposed fix: delete the legacy fallback entirely (gateway already has 3-provider redundancy; failure should be a "couldn't parse, try again" toast). Zero prod risk while the autofill gate is closed.
-- **Gate-flip exit criteria undefined.** "When quality is judged ready" needs a concrete bar: fixed eval set of 20–30 real briefs (Hinglish, dedh-lakh amounts, screenshot OCR, partial-payment terms) scored on field accuracy + spurious-clarification rate.
-- **Edge-fn drift ritual.** parse-brief deploys via dashboard paste, outside git. At session start when touching extraction: `get_edge_function`, diff vs repo. Drift WILL recur otherwise (it already did once, generationally).
-- Client name-role low-confidence handling — lives in the legacy pipeline; dies with the fallback removal above. Do not fix separately.
-- Component-level React ErrorBoundary still unadded (route-level `error.tsx`/`global-error.tsx`/`not-found.tsx` shipped July 1).
-- ~~All June-era carryovers CLOSED July 1~~: `projects.status` TS type extended with `"closed"`; project-complete email + settlement receipt + client MSA-accepted confirmation all shipped via shared email module; dead `request-milestone` route deleted; XLSX dynamically imported; stray blank line fixed; April audit docs stamped superseded.
+**4. Open follow-ups:**
+- **Extraction defect register (July 7 live test — full detail in the July 7 entry below):** P0-B `GROK_API_KEY` unset in prod, tier-3 provider dead (founder dashboard action). P1-C raw non-ISO strings reach date fields ("7 Days" → `meta.dueDate`); hydrator needs an ISO gate. P1-D parser assumes INR at HIGH confidence for unstated foreign currency (v18 prompt fix: null + clarify). P1-E `totalAmount` semantics drift, tax-inclusive vs exclusive across runs (v18 prompt fix: define as pre-tax subtotal). P2-F parser schema has no `milestones[]` — schedules collapse to prose and dates are destroyed; ship with v1.5. P2-G hydrator hard-crashes on un-normalized responses (`license` deref) — add a null-guard. P2-H withheld suggestions invisible: `preservedFields` carries no suggested values, so the review modal can't offer adopt — input to the modal redesign.
+- **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); Supabase `GROK_API_KEY` secret (or declare the chain 2-tier in the manual).
+- **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
+- Component-level React ErrorBoundary still unadded (route-level pages shipped July 1).
+- **Next up: Phase 2** — v1.5 milestone schema (Path B) + parser `milestones[]` + v18 prompt fixes, then Phase 3 QA walk, then gate-flip per the criteria in the July 7 entry.
 
 **5. Planned build queue (non-extraction, founder-prioritised).**
 - **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
@@ -46,6 +45,38 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## Engine live-test → Phase 0 (alarms) → Phase 1 (truth pass) (July 7, 2026)
+
+Full-day hardening arc: repaired the log's own integrity, killed the last unsafe extraction path, archived the legacy stack, live-tested the engine against production, fixed a 🔴 GST regression, gave the repo CI, and rewrote the operating manual to reality.
+
+### Shipped (chronological)
+| SHA | What |
+|---|---|
+| `45189aa` | SESSION_LOG repaired: missing July 1–2 entry reconstructed from commit history; stale follow-ups replaced |
+| `c0778e5` | Unsafe legacy fallback removed from `handleBriefAutofill` — single pipeline, tiered failure toast |
+| `b6033ac` | Legacy extraction stack (~7,300 lines, 11 files) archived to `_archived/legacy-extraction/` with types-only husks at original paths; `/api/brief-extract` gone; `test:extraction` repointed |
+| `38f1a99` | 🔴 GST catalog regression fixed: "UI/UX Design" defaultSacCode 998391 → **998314** (parser and editor now stamp the same SAC). Included a wrong-direction terms fix — see Lessons |
+| `d5fac1a` | Corrective: payment terms hydrate as **days** via `inferCommercialTermsFromText` ("Net 21" → 21 works for the first time ever — `parseInt("Net 21")` was always NaN; "50% advance…" can no longer write garbage); schema-true test fixtures; AG's regex-gated shim keeps due-date derivation alive for numeric terms |
+| `075ff6e` | **CI born**: `.github/workflows/ci.yml` — typecheck + GST + hydration + gateway + live-battery suites on every push/PR. Six captured prod parser responses committed as fixtures (43 assertions incl. overwrite-safety). Frozen parser bugs preserved in fixtures as documentation |
+| `85f1746` | Brief-autofill gate: JSX comment → `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL` env flag (Preview on, Production unset) |
+| `98e3c14` | `PROJECT_OPERATING_MANUAL.md` rewritten to July 2026 reality — supersedes the April manual (whitelist fiction corrected, extraction-never-worked story replaced, backup truth, CI, collaboration rules) |
+
+### Engine live-test (prod parse-brief v17, six scenarios, via temporary pg `http` extension — created and dropped)
+D1 intra-state Hinglish **PASS** (dedh lakh → 150000, CGST_SGST, zero spurious clarifications) · D2 inter-state **PASS** (IGST, PoS = destination, due date computed from Net 15; per-field confidence map came back empty this run) · D3 adversarial roles **PASS** — the from/for trap that killed the old pipeline is solved; missing rates were NOT invented; surfaced the grok key warning · F1 export+LUT **PASS** (ZERO_RATED @ 0, LUT ARN, SWIFT≠IFSC) · F2 **FAIL** (assumed INR at high confidence for a Dubai "25k"; asserted ZERO_RATED with lutMentioned:false, no clarification) · D4 **FAIL** (40/40/20 milestone schedule collapsed to prose, dates destroyed; totalAmount pre-tax here but tax-inclusive in D2).
+Write path proven on live payloads: user values always preserved; conflicts reported in `preservedFields`; withheld parser suggestions carry no values (P2-H).
+
+### Gate-flip criteria (referenced by manual §3 — flip prod flag only when ALL hold)
+1. CI green including the live battery. 2. P0-B resolved (Grok key set, or chain officially declared 2-tier). 3. P1-C date guard + P1-D/E v18 prompt fixes landed, then a **fresh** six-scenario live re-run comes back clean. 4. Review modal surfaces preserved-field suggested values (P2-H) or an explicit decision to ship without.
+
+### Prod ops
+Junk-record census: "Test Project 1779434613" + "AUDIT DRAFT RETRY" already gone; four legitimate projects remain. First logical backup exported (212 KB, 104 rows, 12 tables) — Supabase Free has **no restore path** (April's "7-day PITR" assumption was wrong; PITR is paid). `invoice_milestones` (12 rows) and `invoice_line_items` (18 rows) are **populated** — the "empty v1.5 tables" note in older docs is stale. Two profile tables (`profiles` + `user_profiles`) flagged as a schema smell.
+
+### Workflow changes
+Codex retired — Claude verifies directly (ls-remote → shallow clone → re-apply-assert → run suites on the pushed SHA). AG made unrequested edits twice today: harmful-signal `as any` casts (38f1a99) and a correct consequence-catch shim (d5fac1a) — both caught by byte-exact review; rule stands: sanctioned deviations only.
+
+### Lessons
+**Schema is the source of truth; a test is only a witness** — the 38f1a99 → d5fac1a arc: a stale string-schema test nearly shipped strings into a number-typed field; AG's own casts were the tell. CI's absence let BOTH critical suites sit red silently; that can no longer happen.
 
 ## Extraction pipeline adoption + review-modal niche fields + parser prompt tuning + parse-brief repo↔prod drift fix (July 5-6, 2026)
 
