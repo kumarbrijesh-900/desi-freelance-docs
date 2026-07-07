@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: GST compliance suite
+        run: npx tsx tests/compliance/run-gst-compliance-tests.ts
+      - name: Hydration suite
+        run: npx tsx tests/extraction/run-parsed-hydration-tests.ts
+      - name: Gateway contract suite
+        run: npx tsx tests/extraction/run-brief-parser-gateway-tests.ts
+      - name: Live-battery fixtures
+        run: npx tsx tests/extraction/run-live-battery-tests.ts
