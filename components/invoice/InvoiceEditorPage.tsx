@@ -2654,19 +2654,20 @@ return (
               </MotionReveal>
             )}
 
-            {/* AI Brief Extraction hidden for now */}
-            {/*
-            <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
-              <BriefIntakeCard
-                key={briefIntakeResetKey}
-                onExtract={handleBriefAutofill}
-                onPlaceholderAction={triggerToast}
-                isCollapsed={isBriefIntakeCollapsed}
-                onCollapsedChange={setIsBriefIntakeCollapsed}
-                userEmail={userEmail}
-              />
-            </div>
-            */}
+            {/* AI Brief Extraction — gated by NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL ("true" to render).
+                Production stays unset (off) until the gate-flip criteria in SESSION_LOG are met. */}
+            {process.env.NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL === "true" && (
+              <div className="opacity-80 transition-opacity duration-150 hover:opacity-100 focus-within:opacity-100">
+                <BriefIntakeCard
+                  key={briefIntakeResetKey}
+                  onExtract={handleBriefAutofill}
+                  onPlaceholderAction={triggerToast}
+                  isCollapsed={isBriefIntakeCollapsed}
+                  onCollapsedChange={setIsBriefIntakeCollapsed}
+                  userEmail={userEmail}
+                />
+              </div>
+            )}
 
             {/* ── Inline Meta Strip (hidden on xl+ where sidebar has it) ── */}
             {/* Mobile Meta Summary Strip (Rectified for UX) */}
