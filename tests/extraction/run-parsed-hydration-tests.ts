@@ -49,7 +49,7 @@ function createParserResponse(
         },
       ],
       payment: {
-        terms: "Net 15",
+        terms: "Net 21",
         mode: "Wise",
         accountName: "Acme Design Studio",
         bankName: "HDFC Bank",
@@ -118,7 +118,7 @@ function testHydratesEmptyInvoiceForm() {
   assert.equal(nextFormData.lineItems[0]?.rate, 25000);
   assert.equal(nextFormData.lineItems[0]?.sacCode, "998391");
   assert.equal(nextFormData.meta.invoiceNumber, "INV-2026-101");
-  assert.equal(nextFormData.meta.paymentTerms, "Net 15");
+  assert.equal(nextFormData.meta.paymentTerms, 21);
   assert.equal(nextFormData.payment.paymentSettlementType, "forex");
   assert.equal(nextFormData.payment.ifscCode, "HDFC0001122");
   assert.deepEqual(result.clarificationQuestions, [
@@ -235,7 +235,7 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
           },
         ],
         payment: {
-          terms: "Net 15",
+          terms: "50% advance, balance on delivery",
         },
         meta: {
           totalAmount: 18000,
@@ -423,7 +423,7 @@ function testGatewayCoercesStringNumbersSoHydrationKeepsRate() {
   assert.equal(result.nextFormData.client.clientName, "Metro Shoes Pvt Ltd");
   assert.equal(result.nextFormData.client.clientState, "Karnataka");
   assert.equal(result.nextFormData.lineItems[0]?.rate, 18000);
-  assert.equal(result.nextFormData.meta.paymentTerms, "Net 15");
+  assert.equal(result.nextFormData.meta.paymentTerms, 15);
 }
 
 function testExpandDeliverableInferencePreservesParserLineRate() {
