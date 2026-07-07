@@ -1013,16 +1013,16 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
 
   hydrateLineItems(ctx);
 
-  applyNumberField({
+  applyStringField({
     ctx,
     path: "payment.terms",
     label: "Payment terms",
     incoming: payment.terms,
-    currentValue: nextFormData.meta.paymentTerms,
-    originalValue: ctx.originalFormData.meta.paymentTerms,
-    defaultValue: defaultInvoiceFormData.meta.paymentTerms,
+    currentValue: nextFormData.meta.paymentTerms as any,
+    originalValue: ctx.originalFormData.meta.paymentTerms as any,
+    defaultValue: defaultInvoiceFormData.meta.paymentTerms as any,
     assign: (value) => {
-      nextFormData.meta.paymentTerms = value;
+      (nextFormData.meta as any).paymentTerms = value;
     },
   });
   applyStringField({

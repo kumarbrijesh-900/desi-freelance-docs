@@ -425,7 +425,7 @@ const canonicalInvoiceLineItemCatalog = [
   {
     type: "UI/UX Design",
     aliases: ["UI/UX"],
-    defaultSacCode: "998391",
+    defaultSacCode: "998314",
     defaultUnit: "per-screen",
     allowedUnits: [
       "per-screen",
