@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
         await supabaseAdmin
           .from("invoice_milestones")
           .update({
-            status: "cancelled",
+            status: "CANCELLED",
             trigger_status: "cancelled",
             trigger_mode: "cancelled",
           })
