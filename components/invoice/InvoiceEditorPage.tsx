@@ -597,13 +597,23 @@ function EditorContent() {
         );
       if (!hasContent) return;
 
-      const { data, error } = await saveInvoice({
-        formData,
-        status: "draft" as InvoiceStatus,
-        existingId: searchParams.get("id") ?? undefined,
-        projectId,
-        projectName: projectName.trim() || undefined,
-      });
+      let data: Awaited<ReturnType<typeof saveInvoice>>["data"] = null;
+      let error: string | null = null;
+      try {
+        ({ data, error } = await saveInvoice({
+          formData,
+          status: "draft" as InvoiceStatus,
+          existingId: searchParams.get("id") ?? undefined,
+          projectId,
+          projectName: projectName.trim() || undefined,
+        }));
+      } catch (e) {
+        error = e instanceof Error ? e.message : String(e);
+      }
+
+      if (error) {
+        console.warn("Background cloud save failed:", error);
+      }
 
       if (!error) {
         await syncProfileFromInvoice(formData);

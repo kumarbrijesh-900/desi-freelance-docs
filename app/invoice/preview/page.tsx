@@ -394,13 +394,19 @@ function PreviewContent() {
       const userId = await getCurrentUserId();
       if (!userId) return;
 
-      const { error, data: saved } = await saveInvoice({
-        formData: currentData,
-        status: "draft" as InvoiceStatus,
-        existingId: undefined,
-        templateId: selectedTemplate, // Pass the selected template!
-        projectId,
-      });
+      let error: string | null = null;
+      let saved: Awaited<ReturnType<typeof saveInvoice>>["data"] = null;
+      try {
+        ({ error, data: saved } = await saveInvoice({
+          formData: currentData,
+          status: "draft" as InvoiceStatus,
+          existingId: undefined,
+          templateId: selectedTemplate, // Pass the selected template!
+          projectId,
+        }));
+      } catch (e) {
+        error = e instanceof Error ? e.message : String(e);
+      }
 
       if (error) {
         console.error("Restoration Save Failed:", error);
