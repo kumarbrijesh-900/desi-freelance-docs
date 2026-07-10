@@ -474,90 +474,36 @@ export async function saveInvoice(
 }
 
 /**
- * Helper to sync the new relational milestones tables from the JSONB form_data.
- * This ensures the 'JOIN explosion' logic has actual data to aggregate.
+ * Atomic milestone sync — delegates to the sync_invoice_milestones Postgres RPC
+ * (single transaction, stable form_ref identity, server-computed amounts,
+ * lifecycle fields protected: status/trigger_* never touched, tds_amount frozen
+ * once SETTLED/CANCELLED). Throws on failure so the save fails LOUDLY —
+ * a silent partial write is worse than a failed save.
+ * Live-verified 2026-07-07 via transactional rollback probe on prod data.
  */
 async function syncMilestonesFromInvoice(invoiceId: string, formData: InvoiceFormData) {
-  const milestones = formData.milestones;
+  const milestones = (formData.milestones ?? []).map((m, idx) => ({
+    id: m.id || `idx-${idx}`,
+    title: m.title,
+    status: m.status,
+    tdsAmount: m.tdsAmount ?? 0,
+    lineItems: (m.lineItems ?? []).map((li) => ({
+      type: li.type,
+      subType: (li as { subType?: string }).subType ?? "",
+      description: li.description,
+      qty: Number(li.qty || 0),
+      rate: Number(li.rate || 0),
+      rateUnit: li.rateUnit,
+    })),
+  }));
 
-  const { data: existingRows } = await supabase
-    .from("invoice_milestones")
-    .select("id, order_index")
-    .eq("invoice_id", invoiceId);
+  const { error } = await supabase.rpc("sync_invoice_milestones", {
+    p_invoice_id: invoiceId,
+    p_milestones: milestones,
+  });
 
-  const existingByOrder = new Map<number, string>();
-  (existingRows ?? []).forEach((r: any) => existingByOrder.set(r.order_index, r.id));
-
-  if (!milestones || milestones.length === 0) {
-    if ((existingRows ?? []).length > 0) {
-      await supabase.from("invoice_milestones").delete().eq("invoice_id", invoiceId);
-    }
-    return;
-  }
-
-  for (let idx = 0; idx < milestones.length; idx++) {
-    const m = milestones[idx];
-    const amount = m.lineItems.reduce(
-      (sum, li) => sum + Number(li.qty || 0) * Number(li.rate || 0),
-      0,
-    );
-    const existingId = existingByOrder.get(idx);
-    let milestoneId: string;
-
-    if (existingId) {
-      // UPDATE structural fields ONLY. Never touch status / trigger_* (lifecycle-owned).
-      const { error } = await supabase
-        .from("invoice_milestones")
-        .update({
-          title: m.title || `Milestone ${idx + 1}`,
-          tds_amount: m.tdsAmount || 0,
-          amount,
-        })
-        .eq("id", existingId);
-      if (error) console.error("milestone update failed:", error.message);
-      milestoneId = existingId;
-    } else {
-      const { data: inserted, error } = await supabase
-        .from("invoice_milestones")
-        .insert({
-          invoice_id: invoiceId,
-          title: m.title || `Milestone ${idx + 1}`,
-          status: m.status || "PENDING",
-          tds_amount: m.tdsAmount || 0,
-          amount,
-          order_index: idx,
-        })
-        .select("id")
-        .single();
-      if (error || !inserted) { console.error("milestone insert failed:", error?.message); continue; }
-      milestoneId = inserted.id;
-    }
-
-    // Line items carry no lifecycle state -> safe to delete + recreate.
-    await supabase.from("invoice_line_items").delete().eq("milestone_id", milestoneId);
-    const items = m.lineItems.map((item, itemIdx) => ({
-      milestone_id: milestoneId,
-      item_type: item.type,
-      description: item.description,
-      quantity: Number(item.qty || 0),
-      rate: Number(item.rate || 0),
-      unit: item.rateUnit,
-      total: Number(item.qty || 0) * Number(item.rate || 0),
-      order_index: itemIdx,
-    }));
-    if (items.length > 0) {
-      const { error: liErr } = await supabase.from("invoice_line_items").insert(items);
-      if (liErr) console.error("line item insert failed:", liErr.message);
-    }
-  }
-
-  // Remove milestones deleted from the form (order_index now out of range).
-  const keepMax = milestones.length - 1;
-  const toDelete = (existingRows ?? [])
-    .filter((r: any) => r.order_index > keepMax)
-    .map((r: any) => r.id);
-  if (toDelete.length > 0) {
-    await supabase.from("invoice_milestones").delete().in("id", toDelete);
+  if (error) {
+    throw new Error(`Milestone sync failed — save aborted: ${error.message}`);
   }
 }
 
