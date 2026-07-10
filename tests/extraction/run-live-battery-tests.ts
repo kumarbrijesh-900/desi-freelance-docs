@@ -6,10 +6,10 @@
  * They replay through the gateway normalizer + hydrator, asserting the
  * write-path invariants that must never regress.
  *
- * Known frozen parser issues (do NOT "fix" by editing fixtures):
- *  - F2 currency INR is a captured parser mistake (P1-D, prompt fix pending)
- *  - D4 milestones collapsed to prose (P2-F, schema v2 pending)
- *  - D1 dueDate "7 Days" is un-normalized junk (P1-C, hydrator guard pending)
+ * F2 and D4 were re-captured 2026-07-10 from parse-brief v2 (P1-D and P2-F fixed
+ * server-side). D1/D2/D3/F1 remain valid v17 captures; the gateway defaults their
+ * missing milestones key. D1 still carries dueDate "7 Days" deliberately — it now
+ * proves the hydrator's ISO date gate (P1-C).
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -41,6 +41,7 @@ function testD1IntraStateHinglish() {
   assert.equal(typeof f.meta.paymentTerms, "number");
   assert.equal(f.meta.paymentTerms, 15, "advance-split prose must never write a bogus terms number");
   assert.equal(f.payment.accountName, "ruhnika@okhdfcbank");
+  assert.notEqual(f.meta.dueDate, "7 Days", "non-ISO junk must never reach a date field");
   console.log("D1 intra-state Hinglish: ok");
 }
 
@@ -110,21 +111,31 @@ function testF1ExportWithLut() {
 }
 
 function testF2ForeignWise() {
-  const { nextFormData: f } = hydrateEmpty("F2");
+  const result = hydrateEmpty("F2");
+  const f = result.nextFormData;
   assert.equal(f.client.clientLocation, "international");
   assert.equal(f.payment.paymentSettlementType, "forex");
   assert.equal(typeof f.meta.paymentTerms, "number");
+  assert.ok(result.missingFields.includes("meta.currency"), "unstated foreign currency must stay missing");
+  assert.ok(
+    result.clarificationQuestions.some((q: string) => q.toLowerCase().includes("currency")),
+    "currency clarification must surface",
+  );
   console.log("F2 foreign Wise: ok");
 }
 
 function testD4MilestoneProse() {
-  const { nextFormData: f } = hydrateEmpty("D4");
+  const result = hydrateEmpty("D4");
+  const f = result.nextFormData;
   assert.equal(f.client.clientState, "Maharashtra");
-  assert.equal(f.lineItems[0]?.qty, 10);
-  assert.equal(f.lineItems[0]?.rate, 30000);
+  assert.equal(f.lineItems[0]?.rate, 300000);
   assert.equal(f.meta.paymentTerms, 15, "milestone prose has no net-days; terms must stay untouched");
   assert.equal(typeof f.meta.paymentTerms, "number");
-  console.log("D4 milestone prose: ok");
+  assert.equal(result.parsedMilestones.length, 3, "structured milestones must survive the gateway");
+  assert.equal(result.parsedMilestones[0]?.percent, 40);
+  assert.equal(result.parsedMilestones[1]?.date, "2026-07-25");
+  assert.equal(result.parsedMilestones[2]?.date, "2026-08-20");
+  console.log("D4 structured milestones: ok");
 }
 
 testD1IntraStateHinglish();

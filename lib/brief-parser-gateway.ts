@@ -41,6 +41,14 @@ export type NormalizedBriefLineItem = {
   sacCode?: string | null;
 };
 
+export type NormalizedBriefMilestone = {
+  title: string | null;
+  percent: number | null;
+  amount: number | null;
+  condition: string | null;
+  date: string | null;
+};
+
 export type NormalizedBriefExtraction = {
   agency: {
     businessName?: string | null;
@@ -71,6 +79,7 @@ export type NormalizedBriefExtraction = {
     postalCode?: string | null;
   };
   deliverables: NormalizedBriefLineItem[];
+  milestones: NormalizedBriefMilestone[];
   payment: {
     terms?: string | null;
     mode?: string | null;
@@ -217,6 +226,29 @@ function booleanOrNull(value: unknown) {
   return typeof value === "boolean" ? value : null;
 }
 
+function normalizeMilestone(value: unknown): NormalizedBriefMilestone | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  const milestone: NormalizedBriefMilestone = {
+    title: stringOrNull(record.title),
+    percent: numberOrNull(record.percent),
+    amount: numberOrNull(record.amount),
+    condition: stringOrNull(record.condition),
+    date: stringOrNull(record.date),
+  };
+  if (
+    !milestone.title &&
+    milestone.percent === null &&
+    milestone.amount === null &&
+    !milestone.condition
+  ) {
+    return null;
+  }
+  return milestone;
+}
+
 function normalizeLineItem(value: unknown): NormalizedBriefLineItem | null {
   if (!isRecord(value)) {
     return null;
@@ -288,6 +320,11 @@ export function normalizeBriefParserResponse(
         ? extraction.deliverables
             .map((item) => normalizeLineItem(item))
             .filter((item): item is NormalizedBriefLineItem => Boolean(item))
+        : [],
+      milestones: Array.isArray(extraction.milestones)
+        ? extraction.milestones
+            .map((item) => normalizeMilestone(item))
+            .filter((item): item is NormalizedBriefMilestone => Boolean(item))
         : [],
       payment: {
         terms: stringOrNull(payment.terms),

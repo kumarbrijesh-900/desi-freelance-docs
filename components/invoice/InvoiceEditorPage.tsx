@@ -59,6 +59,7 @@ import {
   type BriefAutofillFieldSummary,
   type BriefIntakeInput,
 } from "@/lib/invoice-brief-intake";
+import { createClientFromInvoice } from "@/lib/supabase/clients";
 import {
   hydrateInvoiceFormFromParsedExtraction,
   type ParsedInvoiceHydrationResult,
@@ -1974,7 +1975,7 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
   }
 };
 
-const handleModalSubmit = (
+const handleModalSubmit = async (
   finalData: InvoiceFormData,
   saveClient: boolean,
 ) => {
@@ -1983,7 +1984,18 @@ const handleModalSubmit = (
     return;
   }
 
-  void saveClient;
+  if (saveClient) {
+    try {
+      const userId = await getCurrentUserId();
+      if (userId) {
+        await createClientFromInvoice(finalData, userId);
+        push({ kind: "info", ttl: "Client saved to your client list." });
+      }
+    } catch (e) {
+      console.warn("Save-client from brief review failed:", e);
+      push({ kind: "info", ttl: "Couldn't save the client — you can add them from Clients later." });
+    }
+  }
 
   // FIX 3: If extraction filled GSTIN, auto-toggle GST registered
   if (

@@ -2,6 +2,7 @@ import type {
   BriefParserConfidence,
   BriefParserResponse,
   NormalizedBriefLineItem,
+  NormalizedBriefMilestone,
 } from "@/lib/brief-parser-gateway";
 import {
   INDIA_STATE_OPTIONS,
@@ -49,6 +50,7 @@ type HydrationField = {
 
 export type ParsedInvoiceHydrationResult = {
   nextFormData: InvoiceFormData;
+  parsedMilestones: NormalizedBriefMilestone[];
   hydratedFields: HydrationField[];
   preservedFields: HydrationField[];
   unresolvedFields: string[];
@@ -1143,7 +1145,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     ctx,
     path: "meta.invoiceDate",
     label: "Invoice date",
-    incoming: meta.invoiceDate,
+    incoming: /^\d{4}-\d{2}-\d{2}$/.test(meta.invoiceDate ?? "") ? meta.invoiceDate : null,
     currentValue: nextFormData.meta.invoiceDate,
     originalValue: ctx.originalFormData.meta.invoiceDate,
     defaultValue: defaultInvoiceFormData.meta.invoiceDate,
@@ -1155,7 +1157,7 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
     ctx,
     path: "meta.dueDate",
     label: "Due date",
-    incoming: meta.dueDate,
+    incoming: /^\d{4}-\d{2}-\d{2}$/.test(meta.dueDate ?? "") ? meta.dueDate : null,
     currentValue: nextFormData.meta.dueDate,
     originalValue: ctx.originalFormData.meta.dueDate,
     defaultValue: defaultInvoiceFormData.meta.dueDate,
@@ -1212,7 +1214,8 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   }
 
   // ─── License hydration ──────────────────────────────────────
-  const { license } = normalizedExtraction;
+  const license = (normalizedExtraction as any).license;
+  if (license) {
 
   if (license.isIncluded === true) {
     applyToggleField({
@@ -1274,9 +1277,11 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
       },
     });
   }
+  }
 
   return {
     nextFormData: mergeInvoiceFormData(nextFormData),
+    parsedMilestones: normalizedExtraction.milestones || [],
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,
     unresolvedFields: [...new Set(ctx.unresolvedFields)],

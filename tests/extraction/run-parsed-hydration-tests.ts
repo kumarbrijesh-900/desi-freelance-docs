@@ -48,6 +48,7 @@ function createParserResponse(
           sacCode: "998391",
         },
       ],
+      milestones: [],
       payment: {
         terms: "Net 21",
         mode: "Wise",
@@ -234,6 +235,7 @@ function testGeminiLogoFixedFeeHydratesCanonicalFields() {
             sacCode: "998361",
           },
         ],
+        milestones: [],
         payment: {
           terms: "50% advance, balance on delivery",
         },
