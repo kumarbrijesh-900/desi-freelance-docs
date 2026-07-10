@@ -81,6 +81,8 @@ export interface TemplateData {
   taxRows: TemplateTaxRow[];
   grandTotalFormatted: string;
   grandTotalRaw: number;
+  roundOffRaw?: number;
+  roundOffFormatted?: string;
   approximateUsd: string | null;
   taxComplianceNote: string;
   taxInfo: InvoiceTaxBreakdown;

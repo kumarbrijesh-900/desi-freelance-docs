@@ -287,7 +287,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
   return {
     isMilestoneInvoice: !!isMilestoneInvoice,
     milestoneCount,
-    currentMilestoneLabel: `Milestone 1 of ${milestoneCount}`,
+    currentMilestoneLabel: `Milestone ${(formData.meta as any)?.milestoneIndex || 1} of ${(formData.meta as any)?.milestoneTotal || milestoneCount}`,
     currentMilestoneFormatted: formatCurrency(currentMilestoneAmount, displayCurrency),
     remainingMilestonesFormatted: formatCurrency(remainingAmount, displayCurrency),
     totalProjectFormatted: formatCurrency(totalProjectAmount, displayCurrency),
@@ -322,8 +322,13 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     taxLabel: taxInfo.label,
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
     taxRows,
-    grandTotalFormatted: formatCurrency(totals.grandTotal, displayCurrency),
+    // Sec 170 CGST Act: the payable invoice value is rounded to the nearest
+    // rupee. Sub-rows stay at paise; an explicit "Round off" display row is
+    // deferred to the templates pass (roundOff* fields below are ready for it).
+    grandTotalFormatted: formatCurrency(Math.round(totals.grandTotal), displayCurrency),
     grandTotalRaw: totals.grandTotal,
+    roundOffRaw: Number((Math.round(totals.grandTotal) - totals.grandTotal).toFixed(2)),
+    roundOffFormatted: formatCurrency(Number((Math.round(totals.grandTotal) - totals.grandTotal).toFixed(2)), displayCurrency),
     approximateUsd,
     taxComplianceNote: taxComplianceNote || "",
     taxInfo,
@@ -347,7 +352,7 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
 
     agencyStateCode: getGstStateCode(formData.agency?.agencyState || ""),
     clientStateCode: getGstStateCode(formData.client?.clientState || ""),
-    amountInWords: amountToWords(totals.grandTotal, displayCurrency),
+    amountInWords: amountToWords(Math.round(totals.grandTotal), displayCurrency),
     reverseCharge: Boolean(formData.tax?.isRcmEnabled),
     authorizedSignatory: formData.agency?.agencyName || "",
     signatureUrl: formData.agency?.signatureUrl || "",

@@ -129,6 +129,20 @@ export async function fireMilestoneInvoice(
   }
   const newInvoiceNumber = `INV-${year}-${String(maxNum + 1).padStart(4, "0")}`;
 
+  // CA-3 defense-in-depth: a GST-registered supply must never fall into the
+  // tax engine's silent 'exempt' branch on this server money path. The parent
+  // was validated at finalize; this guards corrupted/legacy rows only.
+  if (formData?.agency?.gstRegistrationStatus === "registered") {
+    const clientStateOk =
+      formData?.client?.clientLocation === "international" ||
+      Boolean(formData?.client?.clientState);
+    if (!formData?.agency?.agencyState || !clientStateOk) {
+      throw new Error(
+        "fireMilestoneInvoice: missing agency/client state on a GST-registered invoice — refusing to compute child tax silently as exempt."
+      );
+    }
+  }
+
   const childFormData = {
     ...formData,
     milestones: [nextMilestone],
@@ -137,6 +151,12 @@ export async function fireMilestoneInvoice(
       invoiceNumber: newInvoiceNumber,
       invoiceDate: new Date().toISOString().split("T")[0],
       dueDate: calculatedDueDate,
+      // Child docs must state their true position — the child's own
+      // milestones array is [this one], so count/index come from the parent.
+      milestoneIndex: nextMilestoneIndex + 1,
+      milestoneTotal: Array.isArray(formData.milestones)
+        ? formData.milestones.length
+        : 1,
     },
   };
   const appliedSnapshot = computeAppliedMsaSnapshot(childFormData as any);
