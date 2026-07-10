@@ -53,6 +53,15 @@ Return strict JSON with this shape. ALWAYS output the _scratchpad field first to
         "sacCode": string|null
       }
     ],
+    "milestones": [
+      {
+        "title": string|null,
+        "percent": number|null,
+        "amount": number|null,
+        "condition": string|null,
+        "date": string|null
+      }
+    ],
     "payment": {
       "terms": string|null,
       "mode": string|null,
@@ -118,6 +127,10 @@ Rules:
   - Video Editing / Reels / Shorts = 999613
   - Social Media Content = 998361
   - Writing / Copywriting / Content = 998399
+- **Milestone Schedules (structured)**: When the brief states a split or phased payment plan ("40% advance on signing, 40% on design approval, 20% on go-live", "50% upfront rest on delivery"), populate normalizedExtraction.milestones with one entry per phase — percent OR amount, the triggering condition, and any stated date (normalize to YYYY-MM-DD). Keep payment.terms as the human-readable summary; milestones[] is the structured truth. NEVER drop stated milestone dates.
+- **Currency Discipline**: Set meta.currency ONLY when the brief states it explicitly or uses an unambiguous symbol/code (₹/Rs/INR, $/USD, €/EUR, £/GBP, AED, SGD...). If amounts have no stated currency and the client is international, leave currency null and ask a clarificationQuestion for it. NEVER default an international client to INR.
+- **totalAmount is PRE-TAX**: meta.totalAmount is always the pre-tax subtotal (before GST). If the brief gives a tax-inclusive figure with a known rate, back the tax out; if unsure, leave totalAmount null and add a warning. Never return a GST-inclusive total.
+- **Zero-rated needs LUT status**: If treatment would be ZERO_RATED but LUT is not mentioned, still hint ZERO_RATED only alongside a clarificationQuestion asking whether an LUT is on file (without LUT, export is IGST-with-refund).
 - Model output is not final business logic. Prefer unresolved questions and confidence: "low" over false certainty.
 
 Few-Shot Example Context:

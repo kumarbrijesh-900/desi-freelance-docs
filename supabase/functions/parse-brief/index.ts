@@ -21,7 +21,7 @@ import type {
   ProviderName,
 } from "./types.ts";
 
-const PARSER_VERSION = "parse-brief-v1";
+const PARSER_VERSION = "parse-brief-v2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,6 +46,7 @@ function createEmptyResult(bundle: NormalizedParserBundle): PostProcessResult {
       agency: {},
       client: {},
       deliverables: [],
+      milestones: [],
       payment: {},
       meta: {},
       taxHints: {

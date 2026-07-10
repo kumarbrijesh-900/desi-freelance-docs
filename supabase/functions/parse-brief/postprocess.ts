@@ -2,6 +2,7 @@ import type {
   Confidence,
   NormalizedExtraction,
   NormalizedLineItem,
+  NormalizedMilestone,
   NormalizedParserBundle,
   PostProcessResult,
 } from "./types.ts";
@@ -277,6 +278,27 @@ function normalizeLineItem(
   };
 }
 
+function normalizeMilestone(
+  value: unknown,
+  warnings: string[]
+): NormalizedMilestone | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const title = cleanString(value.title);
+  const percent = cleanNumber(value.percent);
+  const amount = cleanNumber(value.amount);
+  const condition = cleanString(value.condition);
+  const date = normalizeDate(value.date, warnings);
+
+  if (!title && percent === null && amount === null && !condition) {
+    return null;
+  }
+
+  return { title, percent, amount, condition, date };
+}
+
 function normalizeTreatment(value: unknown) {
   if (
     value === "CGST_SGST" ||
@@ -347,6 +369,22 @@ function collectMissingFields(extraction: NormalizedExtraction) {
     missing.push("client.isSezUnit");
   }
 
+  if (
+    !extraction.meta.currency &&
+    extraction.client.location === "international" &&
+    (extraction.meta.totalAmount !== null ||
+      extraction.deliverables.some((item) => item.rate !== null))
+  ) {
+    missing.push("meta.currency");
+  }
+
+  if (
+    extraction.taxHints.treatment === "ZERO_RATED" &&
+    extraction.taxHints.lutMentioned !== true
+  ) {
+    missing.push("taxHints.lutStatus");
+  }
+
   return missing;
 }
 
@@ -396,6 +434,14 @@ function buildClarifications(missingFields: string[], hardAmbiguity: boolean) {
 
   if (missingFields.includes("client.isSezUnit")) {
     questions.push("Is the domestic client an SEZ unit or developer for authorised operations?");
+  }
+
+  if (missingFields.includes("meta.currency")) {
+    questions.push("Which currency should the amounts be in (INR, USD, AED, ...)?");
+  }
+
+  if (missingFields.includes("taxHints.lutStatus")) {
+    questions.push("Do you have an LUT on file for zero-rated export, or should IGST apply?");
   }
 
   if (hardAmbiguity) {
@@ -474,6 +520,11 @@ export function postProcessProviderOutput(
           .map((item) => normalizeLineItem(item, warnings))
           .filter((item): item is NormalizedLineItem => Boolean(item))
       : [],
+    milestones: Array.isArray(source.milestones)
+      ? source.milestones
+          .map((item) => normalizeMilestone(item, warnings))
+          .filter((item): item is NormalizedMilestone => Boolean(item))
+      : [],
     payment: {
       terms: cleanString(payment.terms)?.replace(/\bnet[\s-]?(\d+)\b/i, "Net $1") ?? null,
       mode: cleanString(payment.mode),
@@ -528,6 +579,19 @@ export function postProcessProviderOutput(
     extraction.taxHints.ambiguity =
       extraction.taxHints.ambiguity ||
       "SEZ was mentioned, but authorised-operations status is unresolved.";
+  }
+
+  // P1-D backstop: never let a defaulted INR stand for an international
+  // client when the text itself never mentions rupees.
+  if (
+    extraction.meta.currency === "INR" &&
+    extraction.client.location === "international" &&
+    !/₹|\brs\.?\s?\d|\binr\b|rupee/i.test(bundle.combinedText)
+  ) {
+    warnings.push(
+      'Dropped defaulted currency "INR" for an international client; currency was never stated.'
+    );
+    extraction.meta.currency = null;
   }
 
   const missingFields = collectMissingFields(extraction);

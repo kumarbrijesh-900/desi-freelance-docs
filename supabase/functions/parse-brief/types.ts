@@ -30,6 +30,14 @@ export type NormalizedParserBundle = ParserInputBundle & {
   combinedText: string;
 };
 
+export type NormalizedMilestone = {
+  title: string | null;
+  percent: number | null;
+  amount: number | null;
+  condition: string | null;
+  date: string | null;
+};
+
 export type NormalizedLineItem = {
   type?: string | null;
   description?: string | null;
@@ -69,6 +77,7 @@ export type NormalizedExtraction = {
     postalCode?: string | null;
   };
   deliverables: NormalizedLineItem[];
+  milestones: NormalizedMilestone[];
   payment: {
     terms?: string | null;
     mode?: string | null;
