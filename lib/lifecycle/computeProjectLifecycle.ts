@@ -103,13 +103,17 @@ export function computeProjectLifecycle(project: ProjectWithInvoices): Lifecycle
     hasValidMilestones = true;
 
     // Fired step
-    // completed if milestone has child_invoice, trigger_status='fired', or the milestone is already settled.
+    // Fired = this milestone's invoice went out. M1's invoice IS the master,
+    // so sending the master is M1's fire event. Later milestones fire via
+    // their child invoice, trigger_status='fired', or settlement.
     const hasChildInvoice = project.invoices.some(inv => (inv as any).parent_invoice_id === master.id && (inv as any).milestone_index === (m.order_index ?? 0) + 1);
+    const isFirstMilestone = (m.order_index ?? idx) === 0;
+    const firedViaMasterSend = isFirstMilestone && !!master.shared_at;
     const isSettled = milestoneStatus === 'settled';
-    const isFired = hasChildInvoice || m.trigger_status === 'fired' || isSettled;
+    const isFired = firedViaMasterSend || hasChildInvoice || m.trigger_status === 'fired' || isSettled;
 
     if (isFired) {
-      addStep('milestone_fired', `${title} fired`, true, m.trigger_date || m.updated_at);
+      addStep('milestone_fired', `${title} fired`, true, firedViaMasterSend ? master.shared_at : (m.trigger_date || m.updated_at));
     } else {
       if (m.trigger_mode === 'scheduled' && m.trigger_status === 'pending') {
         // active scheduled
