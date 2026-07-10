@@ -30,7 +30,7 @@ New Claude instance? Read this block, then the most recent session entries below
 - **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); Supabase `GROK_API_KEY` secret (or declare the chain 2-tier in the manual).
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
 - Component-level React ErrorBoundary still unadded (route-level pages shipped July 1).
-- **Next up: Phase 2** — v1.5 milestone schema (Path B) + parser `milestones[]` + v18 prompt fixes, then Phase 3 QA walk, then gate-flip per the criteria in the July 7 entry.
+- **Phase 2 progress:** 2.1 status canon ✓ · 2.2 atomic sync RPC + stable identity ✓ (see July 7 session-2 entry). Remaining: **2.3** read-path migration (dashboard/preview/templates onto tables via compatibility adapter; note child invoices carry ZERO relational milestone rows until first re-save through the RPC) · **2.4** parser convoy (v18: `milestones[]`, currency-must-ask, pre-tax totalAmount + hydrator ISO date gate, license null-guard, wire dead saveClient checkbox) · **2.5** hygiene (CA-3 engine-throw on missing state, CA-4 round-off row, CA-5 child "Milestone 1 of 1" label via `milestone_index`, `'manual'` trigger_mode type-vs-DB mismatch, two profile tables). Then Phase 3 QA walk, then gate-flip per criteria above.
 
 **5. Planned build queue (non-extraction, founder-prioritised).**
 - **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
@@ -45,6 +45,32 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## CA money audit → Phase 2.1 status canon → Phase 2.2 atomic sync RPC (July 7, 2026 — session 2)
+
+Phase 2 opened with a full CA-grade audit of every rupee path (read AND executed), then shipped the first two hardening packages against a verified-clean baseline.
+
+### Shipped (chronological)
+| What | Where |
+|---|---|
+| CANCELLED casing canon in the two lowercase writer routes | `479806b` |
+| DB migration `milestone_status_canon`: 2-row normalize + status CHECK fence (applied AFTER deploy READY, sequence held) | prod + twin file |
+| `syncMilestonesFromInvoice` → atomic `sync_invoice_milestones` RPC call, fail-loud throw | `0eb43e8` |
+| DB migration `milestone_stable_identity_and_atomic_sync`: `form_ref` column + backfill (12/12) + partial unique index + the RPC | prod + twin file |
+| autoCloudSave guards (editor + preview) + both migration twin files committed | `63d3001` |
+
+### CA audit verdicts (probes run on the live engine)
+**Correct with numeric proof:** CGST/SGST half+remainder split is paise-exact by construction (₹12,345.67@18% → 1111.11+1111.11 exact); all treatment branches lawful (intra/inter, SEZ-as-IGST, export±LUT, RCM excluded from payable); per-milestone invoice model is Sec 31(5)-consistent — the doc displays exactly the slice it taxes (proven: 2-milestone invoice taxes ₹1L not ₹1.5L); numbering Rule 46(b); TDS recorded-not-computed (194J reality); **`amount` semantics elected by code: Σ(qty×rate) pre-tax at save**.
+**Findings:** CA-1 non-atomic error-swallowing sync → **FIXED (RPC)** · CA-2 positional identity, reorder reattaches lifecycle → **FIXED (form_ref)** · CA-3 engine silently 'exempt' on missing state (validation gates upstream; engine should throw) — open · CA-4 no Sec 170 round-off row — open · CA-5 child docs hardcode "Milestone 1 of 1", remaining ₹0 — open · CA-6 status casing → **FIXED (2.1)**.
+
+### Drift retraction
+The earlier "amount 728 vs ₹4.3L items — two brains disagree in prod" claim was **wrong** — an unjoined-sample inference error. The joined audit: **zero drift, 12/12 clean**, orphans 0, TDS anomalies 0. The dual-write disease was latent, not active; 2.1/2.2 fenced a clean field.
+
+### 2.2 rollback-probe (real prod invoice, transaction aborted, zero persistence)
+LIVE `prototyping` reordered to idx 0 **carried its status** (CA-2 scenario now impossible) · SETTLED row attacked with `tdsAmount:777` → tds stayed 0 (frozen); LIVE row accepted structural tds (correct pre-settlement) · amounts server-recomputed (2×500=1000) · `delivery` deleted **by ref** · post-probe state pristine (728 and all 5 rows intact).
+
+### Incidents & lessons
+2.1 migration attempt 1 rolled back atomically on a constraint collision — discovery: **June had already fenced trigger_mode/trigger_status, undocumented**; also `'manual'` trigger_mode exists in the TS type but the DB CHECK rejects it (dead option or latent 500). AG **partially completed** 0eb43e8 (did the code edit, skipped both twin files, reported done) — root cause shared: the prompt referenced SQL "provided alongside" instead of inline. **Rule: AG prompts must be fully self-contained; never reference out-of-band content.** Verification of the loud-throw change surfaced a hazard I introduced: both `autoCloudSave` paths called `saveInvoice` unwrapped → unhandled rejection on background-sync failure; guarded in `63d3001`.
 
 ## Engine live-test → Phase 0 (alarms) → Phase 1 (truth pass) (July 7, 2026)
 
