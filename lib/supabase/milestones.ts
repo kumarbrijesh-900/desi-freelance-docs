@@ -228,22 +228,26 @@ export async function fireMilestoneInvoice(
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/share/${token}`;
 
   if (clientEmail) {
-    await resend.emails.send({
-      from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
-      to: clientEmail,
-      subject: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName} — ready for review`,
-      html: renderLanceEmail({
-        headline: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName}`,
-        paragraphs: [
-          "Your previous milestone has been completed. The next milestone invoice is now ready for your review.",
-        ],
-        cta: {
-          label: `View Milestone ${nextMilestoneIndex + 1} Invoice →`,
-          url: shareUrl,
-        },
-        finePrint: `This secure link was sent only to ${clientEmail}.`,
-      }),
-    });
+    try {
+      await resend.emails.send({
+        from: `${agencyName} via Lance <invoices@lanceinvoice.xyz>`,
+        to: clientEmail,
+        subject: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName} — ready for review`,
+        html: renderLanceEmail({
+          headline: `Milestone ${nextMilestoneIndex + 1} Invoice from ${agencyName}`,
+          paragraphs: [
+            "Your previous milestone has been completed. The next milestone invoice is now ready for your review.",
+          ],
+          cta: {
+            label: `View Milestone ${nextMilestoneIndex + 1} Invoice →`,
+            url: shareUrl,
+          },
+          finePrint: `This secure link was sent only to ${clientEmail}.`,
+        }),
+      });
+    } catch (emailError) {
+      console.error("Milestone-fire email failed (child invoice was created):", emailError);
+    }
 
     await supabase.from("notifications").insert({
       user_id: parent.user_id,
