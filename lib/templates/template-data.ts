@@ -182,6 +182,19 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
   const taxInfo = computeInvoiceTax(formData, totals.subtotal);
   const taxRows = buildTaxRows(taxInfo, displayCurrency);
 
+  // Sec 170 CGST Act: surface the rounding applied to reach the whole-rupee
+  // payable as an explicit row. Rendered by every template via taxRows —
+  // only when a rounding delta actually exists.
+  const roundOffDelta = Number(
+    (Math.round(totals.grandTotal) - totals.grandTotal).toFixed(2),
+  );
+  if (roundOffDelta !== 0) {
+    taxRows.push({
+      label: "Round off",
+      amountFormatted: `${roundOffDelta > 0 ? "+" : "−"}${formatCurrency(Math.abs(roundOffDelta), displayCurrency)}`,
+    });
+  }
+
   // Prepare line items — v1.5: flatten milestones into template line items
   const lineItems: TemplateLineItem[] = [];
 
@@ -323,8 +336,8 @@ export function prepareTemplateData(formData: InvoiceFormData): TemplateData {
     taxFormatted: formatCurrency(totals.taxAmount, displayCurrency),
     taxRows,
     // Sec 170 CGST Act: the payable invoice value is rounded to the nearest
-    // rupee. Sub-rows stay at paise; an explicit "Round off" display row is
-    // deferred to the templates pass (roundOff* fields below are ready for it).
+    // rupee. The explicit "Round off" row is appended to taxRows above and
+    // renders in every template; roundOff* fields remain for direct consumers.
     grandTotalFormatted: formatCurrency(Math.round(totals.grandTotal), displayCurrency),
     grandTotalRaw: totals.grandTotal,
     roundOffRaw: Number((Math.round(totals.grandTotal) - totals.grandTotal).toFixed(2)),
