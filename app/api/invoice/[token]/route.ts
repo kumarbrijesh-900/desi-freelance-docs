@@ -30,7 +30,7 @@ export async function GET(
 
   // 2. Enforce Legal Gating Logic
   // Statuses that require gating: PENDING, REVISION ASKED, NEGOTIATING
-  const msaStatus = invoice.msa_status || invoice.msa_response || "PENDING";
+  const msaStatus = (invoice.msa_status || invoice.msa_response || "pending").toLowerCase();
   const hasMsaGate = Boolean(invoice.msa_id);
   const isAccepted = msaStatus === "ACCEPTED";
 
