@@ -30,7 +30,7 @@ New Claude instance? Read this block, then the most recent session entries below
 - **Founder toggles pending:** Vercel `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true` on Preview scope (prod stays unset); Supabase `GROK_API_KEY` secret (or declare the chain 2-tier in the manual).
 - **Ops rituals (manual §4/§6):** edge-fn drift check at the start of extraction sessions; logical backup via MCP export monthly + before any migration (first: 2026-07-07, 212 KB / 104 rows). Cost alerts still unconfigured.
 - Component-level React ErrorBoundary still unadded (route-level pages shipped July 1).
-- **Phase 2 progress:** 2.1 status canon ✓ · 2.2 atomic sync RPC + stable identity ✓ (see July 7 session-2 entry). Remaining: **2.3** read-path migration (dashboard/preview/templates onto tables via compatibility adapter; note child invoices carry ZERO relational milestone rows until first re-save through the RPC) · **2.4** parser convoy (v18: `milestones[]`, currency-must-ask, pre-tax totalAmount + hydrator ISO date gate, license null-guard, wire dead saveClient checkbox) · **2.5** hygiene (CA-3 engine-throw on missing state, CA-4 round-off row, CA-5 child "Milestone 1 of 1" label via `milestone_index`, `'manual'` trigger_mode type-vs-DB mismatch, two profile tables). Then Phase 3 QA walk, then gate-flip per criteria above.
+- **PHASE 2 COMPLETE** (2.1–2.5, see July 8–11 entry). **Campaign board:** Track A templates ✓ closed · Track C backlog ✓ closed · **Track B in flight** (review-modal milestones display + kept-vs-suggested; mock owed against founder screenshots; extraction unhidden locally via `.env.local` Path-1) · Track D (Playwright revival) queued after B. **Phase 3 walk** deliberately deferred by founder — script authored, `PRELAUNCH_QA.md` commit prompt drafted but NOT yet fired; Phase 4 stays locked behind the walk. **Founder toggles still pending:** Vercel Preview env `NEXT_PUBLIC_ENABLE_BRIEF_AUTOFILL=true`; Supabase `GROK_API_KEY` (P0-B, tier-3 dead). Gate-flip criteria unchanged (July 7 session-1 entry).
 
 **5. Planned build queue (non-extraction, founder-prioritised).**
 - **Invoice templates pass** — 11 templates (`classic`, `editorial`, `neon-atelier`, `midnight`, `terracotta`, `swiss-grid`, `mono`, `sakura`, `brutalist`, `ledger`, `coastal`) with full GST Rule 46 compliance (GSTIN, place of supply + state code, HSN/SAC per line, CGST/SGST vs IGST split, amount in words, reverse-charge note, SEZ/export endorsement, signature block). Files: `lib/templates/registry.ts`, `lib/templates/renderer.tsx`, picker + three render/print routes.
@@ -45,6 +45,41 @@ New Claude instance? Read this block, then the most recent session entries below
 **6. GTM (founder-owned, standing).** Design-partner cohort — kit in `/outputs/lance-cohort-outreach.md`.
 
 ---
+
+## Phase 2 completed (2.3–2.5) → parse-brief v2 LIVE → email + vision audits → Tracks A & C closed (July 8–11, 2026)
+
+Four days: Phase 2 finished, the parser's second generation deployed to prod through tooling (no dashboard paste), two full-system audits, and a four-track campaign that closed its first two tracks — mostly by discovering the work was already done and never written down.
+
+### Shipped (chronological)
+| What | Where |
+|---|---|
+| M1 fires on master send — May smoke bugs #2/#3 dead; behavior-probed both directions | `80be35c` |
+| parse-brief v18 repo: `milestones[]` schema, currency discipline, pre-tax totals, LUT clarification (12 edits / 4 files) | `0e2ec6a` |
+| **parse-brief v2 deployed to prod (version 19) via MCP deploy tool** — repo is the deployed source; `verify_jwt: false` preserved. Live probes: F2 FIXED (Groq still tried INR; the deterministic backstop FIRED in prod — currency null + clarification), D4 FIXED (40/40/20 structured milestones with ISO dates, pre-tax ₹3,00,000) | prod |
+| Client v2: gateway `milestones[]` pass-through, hydrator ISO date gate (P1-C) + license section-guard (P2-G, crash-repro sealed) + `parsedMilestones` surfaced, saveClient wired (P2-I), fixtures F2/D4 re-captured to v2 truth, battery asserts upgraded | `fa47505` |
+| 2.5 hygiene: CA-3 child-path GST state guard (registered-only), CA-4 Sec-170 rounded payable + matching words, CA-5 true "Milestone X of N" on child docs via injected meta, phantom `'manual'` trigger_mode dropped (+ sanctioned `template-types` roundOff fields) | `f583a7e` |
+| Milestone-fire email guarded — was the app's ONLY unguarded send; a Resend outage could 500 the fire after the child existed | `72e43cb` |
+| Track A: Sec-170 "Round off" row appended centrally to `taxRows` — inherited by all 11 templates in native styling, renders only when delta ≠ 0 | `e45e551` |
+| Track C: msa_status default lowercase-normalized in token route (enum is lowercase; route was the odd sibling) | `916802b` |
+| Prod data: anchor chain `test@example.com` → `kumar.brijesh900+client@gmail.com` (Resend bounce source killed); `rryry@gmail.com` (INV-1230) → `+ruhnika` alias. Recipient census now 100% real inboxes | MCP, guarded + RETURNING |
+
+### Email audit (code + Resend dashboard ground truth)
+Seven senders mapped: client and agency each hear exactly what concerns them; `{Agency} via Lance` identity; inline-safe markup (zero CSS vars). Dashboard proof: 7/8 delivered — **project-closure mail confirmed live** (meenakshi, "Update on your project"), cron reminders both directions, MSA-response, overdue escalation. The single bounce was the fake anchor recipient (fixed above). **Three maiden-voyage mails have never prod-fired**: settlement receipt, project-complete, client MSA-confirmation (all shipped July 1; no qualifying events since) — the Phase-3 walk exercises all three. Incidental: `invoices.msa_status` is a lowercase Postgres ENUM (probe rejected 'ACCEPTED') → led to `916802b`.
+
+### Vision audit (PROJECT_VISIONFLOW.md vs reality)
+**~90% achieved, exceeded in four places** (tax depth incl. SEZ/RCM, project dashboard, automation robustness, extraction engine — none in the vision). True gaps: **GSTIN auto-fetch never built** (decision: v2, stated honestly), modal milestones display (= Track B), two soft items for the walk (onboarding→Totals return; share-popup dual totals). Zoho/Odoo steal-list (post-launch): per-invoice activity timeline (`read_receipts` sits at 0 rows waiting), surface the nudge schedule, "Record payment" modal, client statement view, keyboard-first item grid. Not stealing: gateways, portals, recurring, settings sprawl.
+
+### Track A — CLOSED (one commit)
+Census: the June "template compliance" session had already shipped Rule 46 across **11/11** (SAC, place of supply, RCM note, LUT, signature, GSTIN, words, tabular numerals) — unlogged. Today added the deferred round-off row centrally. WCAG computed: midnight `#6C63FF` 3.95 and neon `#2D5BFF` 3.63 **acquitted** (decorative eyebrows with `print:` overrides; 16px-bold ≥ AA-large 3.0); brutalist clean. Print CSS engineered centrally (white-force + exact color-adjust + per-template `print:` variants). 🔵 optional: midnight eyebrows → `#9B93FF` (6.51).
+
+### Track C — CLOSED (two one-liners + seven evidence-verdicts)
+a) invoices→clients traversal: acquitted, zero embeds · b) **AUDIT-P0-001 atomic profile+Global-MSA save: LIVE IN PROD SINCE MAY 26** — the migration was dashboard-applied and never logged; the client has preferred the RPC all along, the "three non-atomic updates" were the fallback path. Rollback-probed on prod: both tables mutate in one txn, pristine after abort · c) late-fee unit: fixed-unlogged (`lateFeeUnitLabel`) · d) shipped `916802b` · e) same-day trigger: fixed-unlogged (API says "today-or-future") · f) orphan invoices: zero · g) C2 drawer richness: real, parked → Track B design work · h) `profiles` table: **vestigial, ZERO consumers** (grep empty) — document now, drop-migration later · i) 🔵 eyebrows. The register was ~80% ghosts — problems past sessions fixed and never recorded.
+
+### Incidents & rules earned
+**AG commit-without-push**: reported `fa47505` as PUSHED while `origin/main` sat at `0e2ec6a`; ls-remote caught it in one minute; the founder ran his own git recovery in the terminal (status → pull --rebase → push) — first solo git op, April manual officially obsolete on that point. **NEW STANDING RULE: every AG reply must paste the output of `git ls-remote origin refs/heads/main` — the remote's own answer is the only accepted push proof.** Also: Supabase's function version counter shows an unrecorded v18 deploy in history (past partial attempt); sanctioned-deviation pattern continued healthy (`if (license)` wrapper better than spec; template-types type fields compiler-forced).
+
+### Open register
+P0-B Grok key (founder dashboard) · Vercel Preview flag (founder) · `PRELAUNCH_QA.md` commit prompt drafted, unfired · Track B: mock → founder screenshots (review popup from localhost; alehandro drilldown + side panel) → prompts · Track D after B · fallback-path retirement in `profiles.ts` after soak · `profiles` table drop migration · 🔵 eyebrows · child-doc remaining-amount context · walk whenever the founder has 90 minutes.
 
 ## CA money audit → Phase 2.1 status canon → Phase 2.2 atomic sync RPC (July 7, 2026 — session 2)
 
