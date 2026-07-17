@@ -39,7 +39,7 @@ export function DownloadDecisionModal(props: DownloadDecisionModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="download-decision-title"
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4"
       style={{ backgroundColor: 'rgba(33,28,22,0.55)' }}
       onClick={onCancel}
     >

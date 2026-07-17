@@ -2413,7 +2413,7 @@ return (
           animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
           className={cn(
-            "fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--color-paper)]/60",
+            "fixed inset-0 z-[120] flex items-center justify-center bg-[color:var(--color-paper)]/60",
           )}
         >
           <div className="flex flex-col items-center gap-6">
@@ -3241,7 +3241,7 @@ return (
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 10 }}

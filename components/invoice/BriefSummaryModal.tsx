@@ -591,7 +591,7 @@ export default function BriefSummaryModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center bg-[#16110c]/60 p-4"
+        className="fixed inset-0 z-[120] flex items-center justify-center bg-[#16110c]/60 p-4"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
