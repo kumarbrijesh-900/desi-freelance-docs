@@ -491,18 +491,21 @@ export default function BriefSummaryModal({
     ...confidentFields.map((f) => f.label),
     ...missingFlatLabels,
   ]);
+  const confidentLabels = new Set(confidentFields.map((f) => f.label));
   const reviewRequiredLabels = Array.from(allLabels).filter(
     (l) =>
       (isMandatoryField(l, localData) || lowConfLabels.has(l)) &&
-      !isDeliverableLabel(l),
+      !isDeliverableLabel(l) &&
+      (lowConfLabels.has(l) ||
+        !confidentLabels.has(l) ||
+        getExtractedValueForLabel(l, localData).trim().length === 0),
   );
 
-  const allReviewed = reviewRequiredLabels.every((label) => {
-    const val = getExtractedValueForLabel(label, localData);
+  const pendingReviewCount = reviewRequiredLabels.filter((label) => {
     const fieldType = getFieldType(label);
-    if (fieldType === "checkbox") return approvedFields.has(label);
-    return approvedFields.has(label) && val.trim().length > 0;
-  });
+    if (fieldType === "checkbox") return !approvedFields.has(label);
+    return getExtractedValueForLabel(label, localData).trim().length === 0;
+  }).length;
 
   const handleApproveField = (label: string, value: string) => {
     setLocalData((prev) => setFormDataValue(prev, label, value));
@@ -845,7 +848,7 @@ export default function BriefSummaryModal({
                 <div className="flex items-center gap-2 px-0.5">
                   <span className="h-2 w-2 rounded-full bg-ochre" />
                   <h3 className="text-[13px] font-semibold text-ink">
-                    Needs review
+                    Needs your input
                   </h3>
                   <div className="ml-auto flex items-center gap-2.5">
                     <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#e6dcc6]">
@@ -861,6 +864,9 @@ export default function BriefSummaryModal({
                     </span>
                   </div>
                 </div>
+                <p className="px-0.5 text-[12px] text-ink-3">
+                  Only what the brief left blank — nothing above is repeated here.
+                </p>
                 <div className="grid grid-cols-1 gap-2.5">
                   {reviewRequiredLabels.map((label) => (
                     <EditableRow
@@ -904,18 +910,19 @@ export default function BriefSummaryModal({
             >
               Parse again
             </button>
-            <button
-              onClick={() => onSubmit(localData, shouldSaveClient)}
-              disabled={!allReviewed}
-              className={cn(
-                "rounded-[12px] px-8 py-3 text-sm font-bold transition-all active:scale-[0.97]",
-                allReviewed
-                  ? "bg-acid text-acc-ink hover:bg-acid-2"
-                  : "cursor-not-allowed bg-[#ece3cf] text-ink-3",
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={() => onSubmit(localData, shouldSaveClient)}
+                className="rounded-[12px] bg-acid px-8 py-3 text-sm font-bold text-acc-ink transition-all hover:bg-acid-2 active:scale-[0.97]"
+              >
+                Apply to invoice
+              </button>
+              {pendingReviewCount > 0 && (
+                <p className="text-[11px] font-medium text-[color:var(--color-ochre-deep)]">
+                  {pendingReviewCount} left — you can finish them in the editor
+                </p>
               )}
-            >
-              Generate invoice
-            </button>
+            </div>
           </div>
         </motion.div>
       </motion.div>
