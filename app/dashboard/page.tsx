@@ -175,7 +175,10 @@ function DashboardContent() {
   };
 
   const handleMarkSettled = (state: DrilldownState | null) => {
-    if (!selectedProject || !state?.milestone) return;
+    if (!selectedProject || !state?.milestone) {
+      setActionMessage("Could not find an active milestone to settle.");
+      return;
+    }
     const masterInvoice = getMasterInvoice();
     if (!masterInvoice) {
       setActionMessage("Could not find the master invoice for this project.");
@@ -470,7 +473,15 @@ function DashboardContent() {
         const tdsAmount = Math.round((milestoneAmount * tdsPercent) / 100);
         const netReceived = settlementAmount - tdsAmount;
         const taxLabel = taxBreakdown ? taxBreakdown.label : "Tax";
-        const timingSource = currentMilestone?.trigger_date || masterInvoice?.due_date;
+        const settlementChildInvoice = selectedProject?.invoices.find(
+          inv =>
+            inv.parent_invoice_id === masterInvoice?.id &&
+            inv.milestone_index === settlementChoice.milestoneNumber,
+        ) ?? null;
+        const timingSource =
+          settlementChildInvoice?.due_date ||
+          currentMilestone?.due_date ||
+          masterInvoice?.due_date;
         const hasProjectAddendum = Boolean(selectedProject?.project.project_addendum_text || masterInvoice?.has_addendum);
         const contractTitle = hasProjectAddendum ? "Project addendum" : "Global agency terms";
         const contractCopy = hasProjectAddendum
@@ -493,7 +504,7 @@ function DashboardContent() {
 
         return (
           <div
-            className="fixed inset-0 z-50 bg-black/40"
+            className="fixed inset-0 z-[120] bg-black/40"
             onClick={() => setSettlementChoice(null)}
           >
             <aside
@@ -772,7 +783,7 @@ function DashboardContent() {
 
       {/* ── Project Closure Delight Modal ── */}
       {projectClosureData && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-[480px] border border-soft rounded-[16px] bg-white shadow-[var(--brutal-shadow-lg)] overflow-hidden">
             {/* Header Area */}
             <div className="relative overflow-hidden bg-acid px-8 py-10 text-center">
