@@ -12,11 +12,21 @@ import { AnimatePresence, motion } from "@/components/ui/motion-primitives";
 import type { InvoiceFormData, InvoiceStepperStep, InvoiceLineItem } from "@/types/invoice";
 import { cn } from "@/lib/ui-foundation";
 import type { BriefAutofillFieldSummary } from "@/lib/invoice-brief-intake";
+import type {
+  NormalizedBriefMilestone,
+  BriefParserProvider,
+} from "@/lib/brief-parser-gateway";
 import { INDIA_STATE_OPTIONS } from "@/lib/india-state-options";
 import {
   INTERNATIONAL_COUNTRY_OPTIONS,
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
+
+const PROVIDER_LABELS: Record<BriefParserProvider, string> = {
+  "gemini-flash": "Gemini Flash",
+  "groq-llama": "Groq Llama",
+  grok: "Grok",
+};
 
 interface BriefSummaryModalProps {
   isOpen: boolean;
@@ -26,6 +36,8 @@ interface BriefSummaryModalProps {
   missingFieldsGroups: { step: InvoiceStepperStep; fields: string[] }[];
   isNewClient: boolean;
   isLoggedIn: boolean;
+  parsedMilestones: NormalizedBriefMilestone[];
+  providerUsed: BriefParserProvider | null;
   onContinueManually: (data: InvoiceFormData) => void;
   onParseAgain: () => void;
   onSubmit: (data: InvoiceFormData, shouldSaveClient: boolean) => void;
@@ -450,6 +462,8 @@ export default function BriefSummaryModal({
   missingFieldsGroups,
   isNewClient,
   isLoggedIn,
+  parsedMilestones,
+  providerUsed,
   onContinueManually,
   onParseAgain,
   onSubmit,
@@ -613,7 +627,7 @@ export default function BriefSummaryModal({
                   Review the details
                 </h2>
                 <p className="mt-1 text-[13px] text-ink-2">
-                  Confirm what we pulled from your brief before generating.
+                  Confirm what we pulled from your brief before applying.
                 </p>
               </div>
             </div>
@@ -795,6 +809,59 @@ export default function BriefSummaryModal({
               </div>
             )}
 
+            {parsedMilestones.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 px-0.5">
+                  <span className="h-2 w-2 rounded-full bg-[color:var(--color-gold)]" />
+                  <h3 className="text-[13px] font-semibold text-ink">
+                    Payment schedule
+                  </h3>
+                  <span className="ml-auto text-[12px] tabular-nums text-ink-3">
+                    {parsedMilestones.length}{" "}
+                    {parsedMilestones.length === 1 ? "milestone" : "milestones"}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-[14px] border border-soft bg-paper">
+                  {parsedMilestones.map((m, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "flex items-center justify-between gap-3 px-4 py-2.5",
+                        i > 0 && "border-t border-[#e2d8c1]",
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <span className="block truncate text-[13px] font-semibold text-ink">
+                          {m.title?.trim() || `Milestone ${i + 1}`}
+                        </span>
+                        {(m.condition || m.date) && (
+                          <span className="mt-0.5 block truncate text-[12px] text-ink-3">
+                            {[m.condition, m.date].filter(Boolean).join(" · ")}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {m.percent != null && (
+                          <span className="rounded-full bg-[#efe6d1] px-2 py-0.5 text-[11px] font-bold tabular-nums text-ink-2">
+                            {m.percent}%
+                          </span>
+                        )}
+                        {m.amount != null && (
+                          <span className="text-[13px] font-semibold tabular-nums text-ink">
+                            {formatMoney(m.amount)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="px-0.5 text-[12px] text-ink-3">
+                  Shown for reference — milestones aren&apos;t applied to the
+                  invoice yet.
+                </p>
+              </div>
+            )}
+
             {confidentFields.length > 0 &&
               (() => {
                 const successFields = confidentFields.filter((f) => {
@@ -904,12 +971,19 @@ export default function BriefSummaryModal({
           </div>
 
           <div className="flex items-center justify-between gap-4 border-t border-[#e6dcc6] bg-[#f7f0df] px-6 py-4">
-            <button
-              onClick={onParseAgain}
-              className="rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-[#efe6d1] hover:text-ink"
-            >
-              Parse again
-            </button>
+            <div className="flex flex-col items-start gap-1">
+              <button
+                onClick={onParseAgain}
+                className="rounded-[10px] px-4 py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-[#efe6d1] hover:text-ink"
+              >
+                Parse again
+              </button>
+              {providerUsed && (
+                <p className="px-1 text-[11px] font-medium text-ink-3">
+                  Parsed by {PROVIDER_LABELS[providerUsed]}
+                </p>
+              )}
+            </div>
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={() => onSubmit(localData, shouldSaveClient)}

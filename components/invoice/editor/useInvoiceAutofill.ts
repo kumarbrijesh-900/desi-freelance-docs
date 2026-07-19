@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { InvoiceFormData } from "@/types/invoice";
 import type { BriefAutofillFieldSummary } from "@/lib/invoice-brief-intake";
+import type {
+  NormalizedBriefMilestone,
+  BriefParserProvider,
+} from "@/lib/brief-parser-gateway";
 
 export function useInvoiceAutofill() {
   const [briefSummaryData, setBriefSummaryData] = useState<{
@@ -8,6 +12,8 @@ export function useInvoiceAutofill() {
     lowConfidence: BriefAutofillFieldSummary[];
     confident: BriefAutofillFieldSummary[];
     isNewClient: boolean;
+    parsedMilestones: NormalizedBriefMilestone[];
+    providerUsed: BriefParserProvider | null;
   } | null>(null);
 
   const [postSubmitActionModal, setPostSubmitActionModal] = useState<{

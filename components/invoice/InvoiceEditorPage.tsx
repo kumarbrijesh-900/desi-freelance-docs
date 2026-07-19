@@ -1917,11 +1917,13 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       return false;
     }
 
+    const parsedHydration = hydrateInvoiceFormFromParsedExtraction({
+      currentFormData: formData,
+      parserResponse,
+    });
+
     const result = buildAutofillResultFromParser(
-      hydrateInvoiceFormFromParsedExtraction({
-        currentFormData: formData,
-        parserResponse,
-      }),
+      parsedHydration,
       [
         normalizedInput.text,
         normalizedInput.ocrText,
@@ -1966,6 +1968,8 @@ const handleBriefAutofill = async (input: BriefIntakeInput) => {
       lowConfidence: result.lowConfidenceFieldSummaries,
       confident: result.confidentFieldSummaries,
       isNewClient,
+      parsedMilestones: parsedHydration.parsedMilestones,
+      providerUsed: parserResponse.providerUsed,
     });
 
     return true;
@@ -3228,6 +3232,8 @@ return (
         confidentFields={briefSummaryData.confident}
         missingFieldsGroups={missingFieldGroups}
         isNewClient={briefSummaryData.isNewClient}
+        parsedMilestones={briefSummaryData.parsedMilestones}
+        providerUsed={briefSummaryData.providerUsed}
         isLoggedIn={!isGuestMode}
         onContinueManually={handleContinueManually}
         onParseAgain={handleParseAgain}
