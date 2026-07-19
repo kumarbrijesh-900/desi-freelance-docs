@@ -1279,9 +1279,23 @@ export function hydrateInvoiceFormFromParsedExtraction(params: {
   }
   }
 
+  const milestoneTotalBase =
+    normalizedExtraction.meta.totalAmount &&
+    normalizedExtraction.meta.totalAmount > 0
+      ? normalizedExtraction.meta.totalAmount
+      : normalizedExtraction.deliverables.reduce(
+          (sum, item) => sum + (item.quantity ?? 1) * (item.rate ?? 0),
+          0,
+        );
+  const parsedMilestones = (normalizedExtraction.milestones || []).map((m) =>
+    m.amount == null && typeof m.percent === "number" && milestoneTotalBase > 0
+      ? { ...m, amount: Math.round((milestoneTotalBase * m.percent) / 100) }
+      : m,
+  );
+
   return {
     nextFormData: mergeInvoiceFormData(nextFormData),
-    parsedMilestones: normalizedExtraction.milestones || [],
+    parsedMilestones,
     hydratedFields: ctx.hydratedFields,
     preservedFields: ctx.preservedFields,
     unresolvedFields: [...new Set(ctx.unresolvedFields)],

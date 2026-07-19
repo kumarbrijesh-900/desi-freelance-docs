@@ -114,6 +114,7 @@ Rules:
 - **Locations & Taxes**: If agency state and client state are identical, taxHints.treatment should strongly lean toward "CGST_SGST". If states differ but both are in India, use "IGST".
 - **Contradicting Locations**: If the text gives two mutually exclusive locations for the SAME entity (e.g., "Pune" and "Gurgaon" for the client), DO NOT guess or merge them. Leave both location fields completely blank and ask a 'clarificationQuestion' asking which is correct.
 - **Payment Terms & Structure**: Always capture any stated payment arrangement into payment.terms, preserving the wording. This includes net terms ("Net 15", "pay me in a couple weeks" -> "Net 15"/"14 Days") AND partial or milestone structures ("40% advance", "50% upfront rest on delivery", "milestone-based", "advance + balance"). Do not leave payment.terms empty when the brief states any such arrangement.
+- **UPI IDs are atomic**: A UPI/VPA handle (any name@provider pattern, e.g. "ruhnika@okhdfcbank", "priya@ybl") must be captured VERBATIM and WHOLE into payment.accountName. NEVER split it at "@", never move the suffix into bankName, and never infer a bank from the handle. Set payment.mode to "UPI" when a VPA is present, and leave bankName null unless a bank is explicitly named in the text.
 - If typed text, OCR, and voice contradict each other, mark ambiguity and ask concise clarification questions.
 - If a client is outside India, mark client.location as international.
 - Split multiple deliverables into separate line items.
