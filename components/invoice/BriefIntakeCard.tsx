@@ -17,6 +17,11 @@ import {
 } from "@/components/ui/motion-primitives";
 import { playInteractionCue } from "@/lib/interaction-feedback";
 import type { BriefIntakeInput } from "@/lib/invoice-brief-intake";
+
+const IMAGE_INTAKE_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_IMAGE_INTAKE === "true";
+const VOICE_INTAKE_ENABLED =
+  process.env.NEXT_PUBLIC_ENABLE_VOICE_INTAKE === "true";
 import {
   appSectionDescriptionClass,
   appSectionTitleClass,
@@ -196,11 +201,14 @@ export default function BriefIntakeCard({
         <div className="space-y-2">
           <div className="flex flex-col gap-2">
             <h2 id="brief-intake-heading" className={appSectionTitleClass}>
-              Screenshot, text, or audio brief
+              {IMAGE_INTAKE_ENABLED || VOICE_INTAKE_ENABLED
+                ? "Screenshot, text, or audio brief"
+                : "Paste your brief"}
             </h2>
             <p className={cn("max-w-2xl", appSectionDescriptionClass)}>
-              Paste a brief first, then add a screenshot only if it helps
-              autofill.
+              {IMAGE_INTAKE_ENABLED
+                ? "Paste a brief first, then add a screenshot only if it helps autofill."
+                : "Paste the client's message — Lance structures the invoice from it."}
             </p>
           </div>
 
@@ -244,6 +252,7 @@ export default function BriefIntakeCard({
 
                 <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-soft pt-3 mt-3">
                   <div className="flex flex-wrap items-center gap-2">
+                    {IMAGE_INTAKE_ENABLED && (
                     <label
                       className={cn(
                         getAppButtonClass({
@@ -266,17 +275,20 @@ export default function BriefIntakeCard({
                         className="hidden"
                       />
                     </label>
+                    )}
 
-                    <MotionButton
-                      type="button"
-                      className={getAppButtonClass({
-                        variant: "ghost",
-                        size: "sm",
-                      })}
-                    >
-                      <MicrophoneIcon className="h-4 w-4" />
-                      Voice
-                    </MotionButton>
+                    {VOICE_INTAKE_ENABLED && (
+                      <MotionButton
+                        type="button"
+                        className={getAppButtonClass({
+                          variant: "ghost",
+                          size: "sm",
+                        })}
+                      >
+                        <MicrophoneIcon className="h-4 w-4" />
+                        Voice
+                      </MotionButton>
+                    )}
 
                     {(isExtracting || lastExtractionState !== "idle") && (
                       <p className="ml-2 text-[11px] font-bold text-[#6E6E7A]">
