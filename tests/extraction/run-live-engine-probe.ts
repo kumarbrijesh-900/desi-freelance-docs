@@ -15,6 +15,7 @@ import {
 } from "@/lib/brief-parser-gateway";
 import { hydrateInvoiceFormFromParsedExtraction } from "@/lib/invoice-parsed-extraction-hydration";
 import { mergeInvoiceFormData } from "@/types/invoice";
+import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 
 function loadEnvLocal() {
   const p = join(process.cwd(), ".env.local");
@@ -40,6 +41,10 @@ const BRIEFS: Record<string, string> = {
   F1: "Export invoice RCS-EXP-014 from Ruhnika Creative Studio to Brightline Labs, Austin, United States. Landing site build USD 4,500 flat, plus revision support at USD 250 per hour. Export of services under LUT — zero-rated, no GST. Due 5 August 2026. Wire to ICICI Bank, SWIFT ICICINBBXXX.",
   F2: "Invoice for Nordvik Studio, based in Oslo. Motion graphics pack — total 2,800 for everything. They'll pay through Wise as usual. Keep it simple.",
   D4: "Invoice for Meridian Homes, Pune, Maharashtra. Full brand and website project, total ₹3,00,000. Billing split by milestones: 40% on kickoff, 40% on design delivery, and the last 20% on final handoff. Standard payment terms net 15 days.",
+  F3: "Invoice from Ruhnika Creative Studio to Hafenblick Media, Berlin, Germany. Monthly design retainer €2,000 for 3 months. Export of services under LUT, zero-rated. Payment by bank transfer, IBAN DE89370400440532013000. Due 10 August 2026.",
+  F4: "Bill Thornbury & Co, London, United Kingdom for UX consulting — 40 hours at £85 per hour. They pay by international wire. Due 1 August 2026.",
+  F5: "Invoice for Marhaba Retail, Dubai, UAE — brand campaign design, AED 12,000 total. First export client, not sure about the LUT paperwork yet.",
+  F6: "Client is Lumen Labs in Singapore but we bill them in rupees — ₹1,20,000 for the app redesign, they pay via SWIFT.",
 };
 
 type Hydration = ReturnType<typeof hydrateInvoiceFormFromParsedExtraction>;
@@ -105,6 +110,102 @@ const CHECKS: Record<string, Check[]> = {
         hy.parsedMilestones.map(m => m.amount).join(",") === "120000,120000,60000",
     },
   ],
+  F3: [
+    { name: "international", fn: f => f.client.clientLocation === "international" },
+    { name: "country Germany", fn: f => f.client.clientCountry === "Germany" },
+    { name: "currency EUR", fn: f => f.client.clientCurrency === "EUR" },
+    {
+      name: "IBAN captured verbatim (raw)",
+      fn: (_f, _hy, r) =>
+        r.normalizedExtraction.payment.ibanOrRouting === "DE89370400440532013000",
+    },
+    { name: "dueDate ISO", fn: f => f.meta.dueDate === "2026-08-10" },
+  ],
+  F4: [
+    { name: "international", fn: f => f.client.clientLocation === "international" },
+    { name: "currency GBP", fn: f => f.client.clientCurrency === "GBP" },
+    { name: "40 hours x 85", fn: f => f.lineItems[0]?.qty === 40 && f.lineItems[0]?.rate === 85 },
+    { name: "dueDate ISO", fn: f => f.meta.dueDate === "2026-08-01" },
+  ],
+  F5: [
+    { name: "international", fn: f => f.client.clientLocation === "international" },
+    { name: "currency AED", fn: f => f.client.clientCurrency === "AED" },
+    { name: "rate 12000", fn: f => f.lineItems[0]?.rate === 12000 },
+    {
+      name: "LUT status surfaced (missing or clarified)",
+      fn: (_f, _hy, r) =>
+        r.missingFields.includes("taxHints.lutStatus") ||
+        r.clarificationQuestions.some(q => /lut/i.test(q)),
+    },
+  ],
+  F6: [
+    { name: "international", fn: f => f.client.clientLocation === "international" },
+    { name: "explicit INR survives", fn: f => (f.client.clientCurrency as string) === "INR" },
+    {
+      name: "no false currency clarification",
+      fn: (_f, _hy, r) => !r.missingFields.includes("meta.currency"),
+    },
+  ],
+};
+
+const E2E_CHECKS: Record<string, Check[]> = {
+  D1: [
+    { name: "E2E subtotal 150000", fn: f => calculateInvoiceTotals(f).subtotal === 150000 },
+    {
+      name: "E2E intra-state CGST+SGST split",
+      fn: f => {
+        const t = calculateInvoiceTotals(f);
+        return t.cgst > 0 && t.sgst > 0 && t.cgst === t.sgst && t.igst === 0;
+      },
+    },
+    {
+      name: "E2E grandTotal = subtotal + tax",
+      fn: f => {
+        const t = calculateInvoiceTotals(f);
+        return t.grandTotal === t.subtotal + t.taxAmount;
+      },
+    },
+  ],
+  D2: [
+    { name: "E2E subtotal 240000", fn: f => calculateInvoiceTotals(f).subtotal === 240000 },
+    {
+      name: "E2E inter-state IGST only",
+      fn: f => {
+        const t = calculateInvoiceTotals(f);
+        return t.igst > 0 && t.cgst === 0 && t.sgst === 0;
+      },
+    },
+  ],
+  F1: [
+    {
+      name: "E2E export zero tax",
+      fn: f => {
+        const t = calculateInvoiceTotals(f);
+        return t.taxAmount === 0 && t.igst === 0 && t.cgst === 0;
+      },
+    },
+  ],
+  F2: [
+    { name: "E2E zero tax", fn: f => calculateInvoiceTotals(f).taxAmount === 0 },
+  ],
+  F3: [
+    { name: "E2E subtotal 6000", fn: f => calculateInvoiceTotals(f).subtotal === 6000 },
+    { name: "E2E zero tax", fn: f => calculateInvoiceTotals(f).taxAmount === 0 },
+  ],
+  F4: [
+    { name: "E2E subtotal 3400", fn: f => calculateInvoiceTotals(f).subtotal === 3400 },
+    { name: "E2E zero tax", fn: f => calculateInvoiceTotals(f).taxAmount === 0 },
+  ],
+  D4: [
+    { name: "E2E subtotal 300000", fn: f => calculateInvoiceTotals(f).subtotal === 300000 },
+    {
+      name: "E2E grandTotal consistency",
+      fn: f => {
+        const t = calculateInvoiceTotals(f);
+        return t.grandTotal === t.subtotal + t.taxAmount;
+      },
+    },
+  ],
 };
 
 async function main() {
@@ -143,7 +244,7 @@ async function main() {
 
     const results = [
       { name: "provider answered", pass: Boolean(resp.providerUsed) },
-      ...CHECKS[key].map(c => {
+      ...[...CHECKS[key], ...(E2E_CHECKS[key] ?? [])].map(c => {
         let pass = false;
         try {
           pass = c.fn(f, hy, resp);
