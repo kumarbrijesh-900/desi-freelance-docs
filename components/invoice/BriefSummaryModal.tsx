@@ -22,6 +22,22 @@ import {
   INTERNATIONAL_CURRENCY_OPTIONS,
 } from "@/lib/international-billing-options";
 
+const formatConfidentValue = (label: string, value: string) => {
+  const l = label.toLowerCase();
+  const v = value.trim();
+  if (l.includes("gst registration")) {
+    if (v === "true") return "Registered";
+    if (v === "false") return "Not registered";
+  }
+  if (l.includes("settlement")) {
+    if (v.toLowerCase() === "inr") return "Domestic (INR)";
+    if (v.toLowerCase() === "forex") return "International (forex)";
+  }
+  if (v === "true") return "Yes";
+  if (v === "false") return "No";
+  return value;
+};
+
 const PROVIDER_LABELS: Record<BriefParserProvider, string> = {
   "gemini-flash": "Gemini Flash",
   "groq-llama": "Groq Llama",
@@ -506,10 +522,18 @@ export default function BriefSummaryModal({
     ...missingFlatLabels,
   ]);
   const confidentLabels = new Set(confidentFields.map((f) => f.label));
+  const upiVpaPresent = /^[a-z0-9._-]+@[a-z][a-z0-9]{1,}$/i.test(
+    (localData.payment?.accountName ?? "").trim(),
+  );
+  const isBankRailLabel = (l: string) =>
+    ["bank name", "account number", "ifsc"].some((k) =>
+      l.toLowerCase().includes(k),
+    );
   const reviewRequiredLabels = Array.from(allLabels).filter(
     (l) =>
       (isMandatoryField(l, localData) || lowConfLabels.has(l)) &&
       !isDeliverableLabel(l) &&
+      !(upiVpaPresent && isBankRailLabel(l)) &&
       (lowConfLabels.has(l) ||
         !confidentLabels.has(l) ||
         getExtractedValueForLabel(l, localData).trim().length === 0),
@@ -884,7 +908,10 @@ export default function BriefSummaryModal({
                     </div>
                     <div className="overflow-hidden rounded-[14px] border border-soft bg-paper">
                       {successFields.map((f, i) => {
-                        const val = getExtractedValueForLabel(f.label, localData);
+                        const val = formatConfidentValue(
+                          f.label,
+                          getExtractedValueForLabel(f.label, localData),
+                        );
                         return (
                           <div
                             key={f.label}
@@ -922,12 +949,13 @@ export default function BriefSummaryModal({
                       <div
                         className="h-full rounded-full bg-acid transition-all duration-500"
                         style={{
-                          width: `${(approvedFields.size / (reviewRequiredLabels.length || 1)) * 100}%`,
+                          width: `${((reviewRequiredLabels.length - pendingReviewCount) / (reviewRequiredLabels.length || 1)) * 100}%`,
                         }}
                       />
                     </div>
                     <span className="text-[12px] font-semibold tabular-nums text-ink-2">
-                      {approvedFields.size}/{reviewRequiredLabels.length}
+                      {reviewRequiredLabels.length - pendingReviewCount}/
+                      {reviewRequiredLabels.length}
                     </span>
                   </div>
                 </div>
