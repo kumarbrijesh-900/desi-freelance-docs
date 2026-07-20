@@ -11,7 +11,7 @@
         "addressLine1": null,
         "addressLine2": null,
         "city": "Bhubaneswar",
-        "state": "Odisha",
+        "state": null,
         "pinCode": null,
         "country": "India"
       },
@@ -25,14 +25,14 @@
         "addressLine1": null,
         "addressLine2": null,
         "city": "Bhubaneswar",
-        "state": "Odisha",
+        "state": null,
         "pinCode": null,
         "postalCode": null
       },
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": "brand identity design",
+          "description": null,
           "quantity": 1,
           "rate": 90000,
           "unit": null,
@@ -40,23 +40,23 @@
         },
         {
           "type": "Social Media Content",
-          "description": "12 social media posts",
+          "description": null,
           "quantity": 12,
           "rate": 5000,
-          "unit": "post",
+          "unit": null,
           "sacCode": "998361"
         }
       ],
       "milestones": [
         {
-          "title": "Advance Payment",
+          "title": "Advance",
           "percent": 50,
           "amount": null,
-          "condition": "advance",
+          "condition": "on signing",
           "date": null
         },
         {
-          "title": "Balance Payment",
+          "title": "Balance",
           "percent": 50,
           "amount": null,
           "condition": "within 15 days",
@@ -85,7 +85,7 @@
         "treatment": "CGST_SGST",
         "rate": null,
         "domesticOrInternational": "domestic",
-        "placeOfSupply": "Odisha",
+        "placeOfSupply": "Bhubaneswar",
         "exportMentioned": false,
         "sezMentioned": false,
         "lutMentioned": false,
@@ -102,47 +102,39 @@
       "overall": "high",
       "fields": {
         "agency.businessName": "high",
-        "agency.gstRegistered": "high",
-        "agency.gstin": "high",
-        "agency.city": "high",
-        "agency.state": "high",
         "client.name": "high",
-        "client.location": "high",
-        "client.gstinOrTaxId": "high",
-        "client.city": "high",
-        "client.state": "high",
-        "deliverables": "high",
-        "payment.terms": "high",
+        "deliverables[0].type": "high",
+        "deliverables[1].type": "high",
         "payment.mode": "high",
-        "payment.accountName": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.placeOfSupply": "high"
+        "meta.currency": "high"
       }
     },
-    "missingFields": [],
+    "missingFields": [
+      "deliverables.0.description",
+      "deliverables.1.description"
+    ],
     "clarificationQuestions": [],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 24.582072552s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"24s\"\n      }\n    ]\n  }\n}\n",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:06:52.851Z"
+    "parsedAt": "2026-07-20T08:19:35.029Z"
   },
   "D2": {
     "normalizedExtraction": {
       "agency": {
         "businessName": "Ruhnika Creative Studio",
-        "gstRegistered": null,
-        "gstin": null,
+        "gstRegistered": true,
+        "gstin": "21AAPFR2345K1Z5",
         "pan": null,
         "lutEnabled": null,
         "lutNumber": null,
@@ -151,7 +143,7 @@
         "city": "Bhubaneswar",
         "state": "Odisha",
         "pinCode": null,
-        "country": null
+        "country": "India"
       },
       "client": {
         "name": "Kaveri Tech Labs",
@@ -159,7 +151,7 @@
         "location": "domestic",
         "gstinOrTaxId": null,
         "isSezUnit": null,
-        "country": null,
+        "country": "India",
         "addressLine1": null,
         "addressLine2": null,
         "city": "Bengaluru",
@@ -180,7 +172,7 @@
       "milestones": [],
       "payment": {
         "terms": "Net 15 days",
-        "mode": "bank transfer",
+        "mode": "Bank Transfer",
         "accountName": null,
         "bankName": "HDFC Bank",
         "bankAddress": null,
@@ -215,22 +207,32 @@
     "legacyExtraction": null,
     "confidence": {
       "overall": "high",
-      "fields": {}
+      "fields": {
+        "agency.businessName": "high",
+        "agency.gstin": "high",
+        "client.name": "high",
+        "deliverables[0].type": "high",
+        "payment.mode": "high",
+        "meta.invoiceDate": "high",
+        "meta.dueDate": "high"
+      }
     },
     "missingFields": [],
     "clarificationQuestions": [],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 20.01312816s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-2.5-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"20s\"\n      }\n    ]\n  }\n}\n",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:07:07.047Z"
+    "parsedAt": "2026-07-20T08:19:39.840Z"
   },
   "D3": {
     "normalizedExtraction": {
@@ -265,7 +267,7 @@
       "deliverables": [
         {
           "type": "Infographics & Presentation Design",
-          "description": "pitch deck redesign",
+          "description": "Pitch deck redesign",
           "quantity": null,
           "rate": null,
           "unit": null,
@@ -273,7 +275,7 @@
         },
         {
           "type": "Video Editing",
-          "description": "launch reel edit",
+          "description": "Launch reel edit",
           "quantity": null,
           "rate": null,
           "unit": null,
@@ -282,7 +284,7 @@
       ],
       "milestones": [],
       "payment": {
-        "terms": null,
+        "terms": "once it's sorted",
         "mode": null,
         "accountName": "Priya Mohanty",
         "bankName": null,
@@ -322,14 +324,9 @@
         "agency.businessName": "high",
         "client.name": "high",
         "deliverables": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].sacCode": "high",
-        "deliverables[1].description": "high",
-        "deliverables[1].sacCode": "high",
-        "payment.accountName": "medium",
-        "meta.totalAmount": "low",
-        "meta.currency": "low",
-        "taxHints.treatment": "low"
+        "payment.accountName": "high",
+        "payment.terms": "medium",
+        "meta.totalAmount": "low"
       }
     },
     "missingFields": [
@@ -337,12 +334,12 @@
       "deliverables.1.rate"
     ],
     "clarificationQuestions": [
+      "What is the full address and state of Ruhnika Designs?",
+      "What is the full address and state of LazyPanda?",
       "What are the rates for the pitch deck redesign and launch reel edit?",
       "What is the total amount for this invoice?",
       "What currency should be used for the invoice?",
-      "What is the full payment account information (e.g., UPI ID, bank name, account number, IFSC code) for Priya Mohanty?",
-      "What are the locations (city, state) for Ruhnika Designs and LazyPanda to determine tax treatment?",
-      "What is the invoice number, invoice date, and due date?",
+      "Is 'Priya Mohanty's account' a bank account or a UPI ID? Please provide the account number/UPI ID and bank name if applicable.",
       "What rate or total price should be used for the deliverables?"
     ],
     "providerUsed": "gemini-flash",
@@ -353,18 +350,16 @@
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "No specific payment terms (e.g., Net 30, advance) were mentioned.",
-      "Tax treatment cannot be determined without agency and client locations.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:07:21.267Z"
+    "parsedAt": "2026-07-20T08:19:43.798Z"
   },
   "F1": {
     "normalizedExtraction": {
       "agency": {
         "businessName": "Ruhnika Creative Studio",
-        "gstRegistered": true,
+        "gstRegistered": null,
         "gstin": null,
         "pan": null,
         "lutEnabled": true,
@@ -381,7 +376,7 @@
         "email": null,
         "location": "international",
         "gstinOrTaxId": null,
-        "isSezUnit": null,
+        "isSezUnit": false,
         "country": "United States",
         "addressLine1": null,
         "addressLine2": null,
@@ -393,15 +388,15 @@
       "deliverables": [
         {
           "type": "Other",
-          "description": "Landing site build",
+          "description": null,
           "quantity": 1,
           "rate": 4500,
-          "unit": "flat",
+          "unit": null,
           "sacCode": "998314"
         },
         {
           "type": "Other",
-          "description": "revision support",
+          "description": null,
           "quantity": null,
           "rate": 250,
           "unit": "hour",
@@ -411,7 +406,7 @@
       "milestones": [],
       "payment": {
         "terms": "Due 5 August 2026",
-        "mode": "Wire",
+        "mode": "Wire Transfer",
         "accountName": null,
         "bankName": "ICICI Bank",
         "bankAddress": null,
@@ -425,7 +420,7 @@
         "invoiceDate": null,
         "dueDate": "2026-08-05",
         "currency": "USD",
-        "totalAmount": 4500
+        "totalAmount": null
       },
       "taxHints": {
         "treatment": "ZERO_RATED",
@@ -433,7 +428,7 @@
         "domesticOrInternational": "international",
         "placeOfSupply": null,
         "exportMentioned": true,
-        "sezMentioned": null,
+        "sezMentioned": false,
         "lutMentioned": true,
         "ambiguity": null
       },
@@ -445,23 +440,44 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "high",
-      "fields": {}
+      "overall": "medium",
+      "fields": {
+        "agency.businessName": "high",
+        "client.name": "high",
+        "client.location": "high",
+        "deliverables[0].type": "high",
+        "deliverables[0].rate": "high",
+        "payment.terms": "high",
+        "meta.invoiceNumber": "high",
+        "meta.dueDate": "high",
+        "meta.currency": "high",
+        "taxHints.treatment": "high"
+      }
     },
-    "missingFields": [],
-    "clarificationQuestions": [],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "missingFields": [
+      "deliverables.0.description",
+      "deliverables.1.description"
+    ],
+    "clarificationQuestions": [
+      "What is the agency's address?",
+      "What is the client's email address?",
+      "What is the total amount for the invoice?"
+    ],
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "The total amount for the invoice is not explicitly stated and needs to be calculated based on the deliverables.",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 4.744523107s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"4s\"\n      }\n    ]\n  }\n}\n",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:07:34.678Z"
+    "parsedAt": "2026-07-20T08:19:55.096Z"
   },
   "F2": {
     "normalizedExtraction": {
@@ -499,14 +515,14 @@
           "description": "Motion graphics pack",
           "quantity": 1,
           "rate": 2800,
-          "unit": null,
+          "unit": "pack",
           "sacCode": "999612"
         }
       ],
       "milestones": [],
       "payment": {
-        "terms": null,
-        "mode": "Wise",
+        "terms": "Simple payment",
+        "mode": "International Transfer",
         "accountName": null,
         "bankName": null,
         "bankAddress": null,
@@ -523,14 +539,14 @@
         "totalAmount": 2800
       },
       "taxHints": {
-        "treatment": "ZERO_RATED",
+        "treatment": "IGST",
         "rate": null,
         "domesticOrInternational": "international",
         "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": null
+        "ambiguity": "Currency not specified"
       },
       "license": {
         "isIncluded": null,
@@ -540,48 +556,42 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "medium",
+      "overall": "low",
       "fields": {
-        "client.name": "high",
-        "client.location": "high",
-        "client.country": "high",
-        "client.city": "high",
-        "deliverables[0].type": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].quantity": "high",
-        "deliverables[0].sacCode": "high",
-        "payment.mode": "high",
-        "meta.totalAmount": "high",
-        "meta.currency": "low",
-        "taxHints.treatment": "high",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.exportMentioned": "high",
-        "taxHints.lutMentioned": "low"
+        "normalizedExtraction.client.name": "high",
+        "normalizedExtraction.client.location": "high",
+        "normalizedExtraction.deliverables[0].type": "high",
+        "normalizedExtraction.meta.totalAmount": "high"
       }
     },
     "missingFields": [
-      "meta.currency",
-      "taxHints.lutStatus"
+      "meta.currency"
     ],
     "clarificationQuestions": [
-      "What is the currency for the total amount of 2,800?",
-      "Does your agency have an LUT (Letter of Undertaking) on file for zero-rated exports?",
+      "What is the currency of the transaction?",
+      "Is the agency registered for GST?",
+      "Does the agency have an LUT for export?",
       "Which currency should the amounts be in (INR, USD, AED, ...)?",
-      "Do you have an LUT on file for zero-rated export, or should IGST apply?"
+      "Which brief detail should be treated as final where the sources conflict?"
     ],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama",
+      "grok"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "International transaction without specified currency",
+      "Export transaction without clear GST treatment or LUT status",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 27.19013ms.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"0s\"\n      }\n    ]\n  }\n}\n",
+      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:07:49.471Z"
+    "parsedAt": "2026-07-20T08:19:59.825Z"
   },
   "D4": {
     "normalizedExtraction": {
@@ -605,7 +615,7 @@
         "location": "domestic",
         "gstinOrTaxId": null,
         "isSezUnit": null,
-        "country": "India",
+        "country": null,
         "addressLine1": null,
         "addressLine2": null,
         "city": "Pune",
@@ -616,32 +626,40 @@
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": "Full brand and website project",
-          "quantity": 1,
-          "rate": 300000,
-          "unit": "project",
+          "description": "Full brand project",
+          "quantity": null,
+          "rate": null,
+          "unit": null,
           "sacCode": "998391"
+        },
+        {
+          "type": "Other",
+          "description": "website project",
+          "quantity": null,
+          "rate": null,
+          "unit": null,
+          "sacCode": "998314"
         }
       ],
       "milestones": [
         {
-          "title": "Kickoff",
+          "title": null,
           "percent": 40,
-          "amount": 120000,
+          "amount": null,
           "condition": "on kickoff",
           "date": null
         },
         {
-          "title": "Design Delivery",
+          "title": null,
           "percent": 40,
-          "amount": 120000,
+          "amount": null,
           "condition": "on design delivery",
           "date": null
         },
         {
-          "title": "Final Handoff",
+          "title": null,
           "percent": 20,
-          "amount": 60000,
+          "amount": null,
           "condition": "on final handoff",
           "date": null
         }
@@ -672,7 +690,7 @@
         "exportMentioned": false,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": "Agency location not mentioned, affecting tax treatment determination."
+        "ambiguity": null
       },
       "license": {
         "isIncluded": null,
@@ -684,36 +702,43 @@
     "confidence": {
       "overall": "medium",
       "fields": {
+        "client.name": "high",
+        "client.city": "high",
+        "client.state": "high",
+        "client.location": "high",
+        "deliverables": "high",
+        "meta.totalAmount": "high",
+        "meta.currency": "high",
+        "payment.terms": "high",
+        "milestones": "high",
+        "taxHints.domesticOrInternational": "high",
+        "taxHints.placeOfSupply": "high",
         "agency.businessName": "low",
         "agency.state": "low",
         "taxHints.treatment": "low"
       }
     },
-    "missingFields": [],
-    "clarificationQuestions": [
-      "What is the location of the agency?",
-      "Is the agency registered for GST?",
-      "What are the payment account details?",
-      "Which brief detail should be treated as final where the sources conflict?"
+    "missingFields": [
+      "deliverables.0.rate",
+      "deliverables.1.rate"
     ],
-    "providerUsed": "groq-llama",
-    "fallbackUsed": true,
+    "clarificationQuestions": [
+      "What is the name of your agency/business?",
+      "What is the state where your agency/business is located, to determine the correct GST treatment?",
+      "What rate or total price should be used for the deliverables?"
+    ],
+    "providerUsed": "gemini-flash",
+    "fallbackUsed": false,
     "fallbackPath": [
-      "gemini-flash",
-      "groq-llama",
-      "grok"
+      "gemini-flash"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "Replaced model SAC \"998314\" with canonical SAC \"998391\" for Branding & Identity.",
-      "Tax treatment cannot be determined without agency location.",
-      "GST registration status of the agency is unknown.",
-      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:08:01.476Z"
+    "parsedAt": "2026-07-20T08:20:04.196Z"
   },
   "F3": {
     "normalizedExtraction": {
@@ -729,14 +754,14 @@
         "city": null,
         "state": null,
         "pinCode": null,
-        "country": null
+        "country": "India"
       },
       "client": {
         "name": "Hafenblick Media",
         "email": null,
         "location": "international",
         "gstinOrTaxId": null,
-        "isSezUnit": null,
+        "isSezUnit": false,
         "country": "Germany",
         "addressLine1": null,
         "addressLine2": null,
@@ -748,17 +773,25 @@
       "deliverables": [
         {
           "type": "Other",
-          "description": "Monthly design retainer",
+          "description": "Monthly design services",
           "quantity": 3,
           "rate": 2000,
           "unit": "month",
-          "sacCode": "998391"
+          "sacCode": "998314"
         }
       ],
-      "milestones": [],
+      "milestones": [
+        {
+          "title": "Monthly Retainer",
+          "percent": null,
+          "amount": 2000,
+          "condition": "Monthly",
+          "date": null
+        }
+      ],
       "payment": {
-        "terms": null,
-        "mode": "bank transfer",
+        "terms": "Due 10 August 2026",
+        "mode": "Bank Transfer",
         "accountName": null,
         "bankName": null,
         "bankAddress": null,
@@ -776,7 +809,7 @@
       },
       "taxHints": {
         "treatment": "ZERO_RATED",
-        "rate": null,
+        "rate": 0,
         "domesticOrInternational": "international",
         "placeOfSupply": null,
         "exportMentioned": true,
@@ -792,23 +825,39 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "high",
-      "fields": {}
+      "overall": "medium",
+      "fields": {
+        "agency.businessName": "high",
+        "client.name": "high",
+        "client.location": "high",
+        "deliverables[0].type": "medium",
+        "payment.mode": "high",
+        "meta.currency": "high",
+        "taxHints.treatment": "medium"
+      }
     },
     "missingFields": [],
-    "clarificationQuestions": [],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "clarificationQuestions": [
+      "What is the agency's state in India?",
+      "What is the agency's GSTIN?",
+      "Is the client's email address available?"
+    ],
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "Assuming the agency is based in India due to the context, but this is not explicitly stated.",
+      "LUT number not provided, which might be necessary for zero-rated export under LUT.",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 40.122658353s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"40s\"\n      }\n    ]\n  }\n}\n",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:08:17.438Z"
+    "parsedAt": "2026-07-20T08:20:19.724Z"
   },
   "F4": {
     "normalizedExtraction": {
@@ -846,7 +895,7 @@
           "description": null,
           "quantity": 40,
           "rate": 85,
-          "unit": "hour",
+          "unit": "hours",
           "sacCode": "998314"
         }
       ],
@@ -870,14 +919,14 @@
         "totalAmount": 3400
       },
       "taxHints": {
-        "treatment": "IGST",
+        "treatment": "ZERO_RATED",
         "rate": null,
         "domesticOrInternational": "international",
         "placeOfSupply": null,
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": null
+        "ambiguity": "LUT status not mentioned"
       },
       "license": {
         "isIncluded": null,
@@ -889,43 +938,44 @@
     "confidence": {
       "overall": "medium",
       "fields": {
-        "normalizedExtraction.agency.businessName": "low",
-        "normalizedExtraction.client.email": "low",
-        "normalizedExtraction.meta.invoiceNumber": "low",
-        "normalizedExtraction.meta.invoiceDate": "low",
-        "normalizedExtraction.taxHints.rate": "low",
-        "normalizedExtraction.taxHints.placeOfSupply": "low"
+        "client.name": "high",
+        "client.location": "high",
+        "deliverables[0].type": "high",
+        "deliverables[0].quantity": "high",
+        "deliverables[0].rate": "high",
+        "payment.terms": "high",
+        "meta.dueDate": "high",
+        "meta.currency": "high",
+        "meta.totalAmount": "high"
       }
     },
     "missingFields": [
-      "deliverables.0.description"
+      "deliverables.0.description",
+      "taxHints.lutStatus"
     ],
     "clarificationQuestions": [
-      "Is the agency registered for GST?",
-      "What is the agency's GSTIN?",
-      "What is the client's email address?",
-      "What is the invoice number?",
-      "What is the invoice date?",
-      "What is the tax rate applicable for this service?",
-      "What is the place of supply for this service?",
-      "Is LUT (Letter of Undertaking) available for export?"
+      "Is LUT (Letter of Undertaking) available for this export?",
+      "Do you have an LUT on file for zero-rated export, or should IGST apply?",
+      "Which brief detail should be treated as final where the sources conflict?"
     ],
     "providerUsed": "groq-llama",
     "fallbackUsed": true,
     "fallbackPath": [
       "gemini-flash",
-      "groq-llama"
+      "groq-llama",
+      "grok"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "Total amount is calculated in GBP, but currency conversion might be required for Indian GST purposes.",
-      "LUT status is not mentioned, which might affect the tax treatment.",
-      "gemini-flash: Gemini returned 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+      "LUT status not mentioned, which may affect tax treatment",
+      "Currency is assumed to be GBP based on the client's location, but it's not explicitly stated",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 35.756232226s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"35s\"\n      }\n    ]\n  }\n}\n",
+      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:08:34.484Z"
+    "parsedAt": "2026-07-20T08:20:24.113Z"
   },
   "F5": {
     "normalizedExtraction": {
@@ -960,10 +1010,10 @@
       "deliverables": [
         {
           "type": "Branding & Identity",
-          "description": "brand campaign design",
+          "description": null,
           "quantity": 1,
           "rate": 12000,
-          "unit": "service",
+          "unit": null,
           "sacCode": "998391"
         }
       ],
@@ -994,7 +1044,7 @@
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": null
+        "ambiguity": "LUT paperwork status unclear"
       },
       "license": {
         "isIncluded": null,
@@ -1004,43 +1054,45 @@
     },
     "legacyExtraction": null,
     "confidence": {
-      "overall": "medium",
+      "overall": "low",
       "fields": {
-        "client.name": "high",
+        "agency.businessName": "low",
         "client.location": "high",
-        "client.country": "high",
-        "client.city": "high",
         "deliverables[0].type": "high",
-        "deliverables[0].description": "high",
-        "deliverables[0].rate": "high",
-        "deliverables[0].sacCode": "high",
-        "meta.currency": "high",
-        "meta.totalAmount": "high",
-        "taxHints.treatment": "medium",
-        "taxHints.domesticOrInternational": "high",
-        "taxHints.exportMentioned": "high",
-        "taxHints.lutMentioned": "low"
+        "taxHints.treatment": "low"
       }
     },
     "missingFields": [
+      "deliverables.0.description",
       "taxHints.lutStatus"
     ],
     "clarificationQuestions": [
-      "Is an LUT (Letter of Undertaking) on file for this export?",
-      "Do you have an LUT on file for zero-rated export, or should IGST apply?"
+      "What is the agency's location?",
+      "Is the agency registered for GST?",
+      "What are the payment terms for this invoice?",
+      "Is an LUT (Letter of Undertaking) on file for export purposes?",
+      "Do you have an LUT on file for zero-rated export, or should IGST apply?",
+      "Which brief detail should be treated as final where the sources conflict?"
     ],
-    "providerUsed": "gemini-flash",
-    "fallbackUsed": false,
+    "providerUsed": "groq-llama",
+    "fallbackUsed": true,
     "fallbackPath": [
-      "gemini-flash"
+      "gemini-flash",
+      "groq-llama",
+      "grok"
     ],
     "rawStored": false,
     "documentId": null,
     "warnings": [
+      "Replaced model SAC \"998314\" with canonical SAC \"998391\" for Branding & Identity.",
+      "International client, ensure compliance with export regulations",
+      "LUT status unclear, may affect tax treatment",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 31.278140045s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"31s\"\n      }\n    ]\n  }\n}\n",
+      "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:08:41.097Z"
+    "parsedAt": "2026-07-20T08:20:28.577Z"
   },
   "F6": {
     "normalizedExtraction": {
@@ -1109,7 +1161,7 @@
         "exportMentioned": true,
         "sezMentioned": false,
         "lutMentioned": false,
-        "ambiguity": "LUT status for ZERO_RATED treatment"
+        "ambiguity": "LUT status not mentioned for ZERO_RATED treatment"
       },
       "license": {
         "isIncluded": null,
@@ -1123,16 +1175,14 @@
       "fields": {
         "normalizedExtraction.client.name": "high",
         "normalizedExtraction.client.location": "high",
-        "normalizedExtraction.meta.currency": "high",
-        "normalizedExtraction.meta.totalAmount": "high"
+        "normalizedExtraction.meta.currency": "high"
       }
     },
     "missingFields": [
       "deliverables.0.description"
     ],
     "clarificationQuestions": [
-      "Is LUT (Letter of Undertaking) enabled for this export transaction?",
-      "What are the payment terms for this transaction?",
+      "Is LUT on file for this export transaction?",
       "Which brief detail should be treated as final where the sources conflict?"
     ],
     "providerUsed": "groq-llama",
@@ -1145,12 +1195,13 @@
     "rawStored": false,
     "documentId": null,
     "warnings": [
-      "LUT status is not mentioned, which may affect tax treatment",
-      "Payment terms are not specified, which may cause confusion",
+      "LUT status not mentioned, which could affect tax treatment",
+      "Currency discipline: INR assumed due to ₹ symbol, but confirmation recommended",
+      "gemini-flash: Gemini returned 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\\nPlease retry in 27.462177962s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-2.5-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"27s\"\n      }\n    ]\n  }\n}\n",
       "grok: GROK_API_KEY is not set.",
       "Parser result was not persisted because no authenticated user was available."
     ],
     "parserVersion": "parse-brief-v2",
-    "parsedAt": "2026-07-20T08:08:52.542Z"
+    "parsedAt": "2026-07-20T08:20:32.392Z"
   }
 }
